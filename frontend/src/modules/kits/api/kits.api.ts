@@ -2,32 +2,30 @@
  * Kits API Service
  *
  * Thin wrapper over `apiClient` for `/api/kits` endpoints.
- *
- * Maps to backend `backend/src/modules/kit/`:
- *   POST   /api/kits
- *   GET    /api/kits
- *   PUT    /api/kits/:id
- *   POST   /api/kits/:id/publish
- *   POST   /api/kits/:id/archive
- *   DELETE /api/kits/:id
  */
 
-import type { CreateKitInput, KitTemplate, UpdateKitInput } from "@cermont/shared-types";
-
+import type {
+	CreateKitInput,
+	KitCatalogOptions,
+	KitTemplate,
+	UpdateKitInput,
+} from "@cermont/shared-types";
 import { apiClient } from "@/lib/http/api-client";
 
 export interface KitListFilters {
 	status?: string;
-	category?: string;
-	serviceType?: string;
+	activityType?: string;
+	serviceCategory?: string;
+	riskLevel?: string;
 	search?: string;
+	tags?: string;
 	page?: number;
 	limit?: number;
 }
 
-export interface PageEnvelope<T> {
+export interface KitListEnvelope {
 	success: boolean;
-	data: T[];
+	data: KitTemplate[];
 	pagination: {
 		page: number;
 		limit: number;
@@ -36,30 +34,50 @@ export interface PageEnvelope<T> {
 	};
 }
 
-/**
- * POST /api/kits — create a new kit template
- */
+export interface KitDeleteResult {
+	success: boolean;
+	data: {
+		deleted: boolean;
+		message: string;
+	};
+}
+
+export interface KitApplyResult {
+	planningId: string;
+	kitId: string;
+	addedItems: number;
+	duplicatedItems: number;
+	missingCriticalItems: string[];
+	readinessScore: number;
+	readinessStatus: string;
+}
+
+// ─── CRUD ──────────────────────────────────────────────────────────────────
+
 export async function createKit(input: CreateKitInput): Promise<KitTemplate> {
 	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>("/kits", input);
 	return envelope.data;
 }
 
-/**
- * GET /api/kits — list kit templates with optional filters
- */
-export async function listKits(filters: KitListFilters = {}): Promise<PageEnvelope<KitTemplate>> {
+export async function listKits(filters: KitListFilters = {}): Promise<KitListEnvelope> {
 	const searchParams = new URLSearchParams();
 	if (filters.status) {
 		searchParams.set("status", filters.status);
 	}
-	if (filters.category) {
-		searchParams.set("category", filters.category);
+	if (filters.activityType) {
+		searchParams.set("activityType", filters.activityType);
 	}
-	if (filters.serviceType) {
-		searchParams.set("serviceType", filters.serviceType);
+	if (filters.serviceCategory) {
+		searchParams.set("serviceCategory", filters.serviceCategory);
+	}
+	if (filters.riskLevel) {
+		searchParams.set("riskLevel", filters.riskLevel);
 	}
 	if (filters.search) {
 		searchParams.set("search", filters.search);
+	}
+	if (filters.tags) {
+		searchParams.set("tags", filters.tags);
 	}
 	if (filters.page) {
 		searchParams.set("page", String(filters.page));
@@ -69,45 +87,138 @@ export async function listKits(filters: KitListFilters = {}): Promise<PageEnvelo
 	}
 
 	const qs = searchParams.toString();
-	return apiClient.get<PageEnvelope<KitTemplate>>(`/kits${qs ? `?${qs}` : ""}`);
+	return apiClient.get<KitListEnvelope>(`/kits${qs ? `?${qs}` : ""}`);
 }
 
-/**
- * PUT /api/kits/:id — update a kit template
- */
+export async function getKitById(id: string): Promise<KitTemplate> {
+	const envelope = await apiClient.get<{ success: true; data: KitTemplate }>(
+		`/kits/${encodeURIComponent(id)}`,
+	);
+	return envelope.data;
+}
+
 export async function updateKit(id: string, input: UpdateKitInput): Promise<KitTemplate> {
-	const envelope = await apiClient.put<{ success: true; data: KitTemplate }>(
+	const envelope = await apiClient.patch<{ success: true; data: KitTemplate }>(
 		`/kits/${encodeURIComponent(id)}`,
 		input,
 	);
 	return envelope.data;
 }
 
-/**
- * DELETE /api/kits/:id — delete a kit template (draft only)
- */
-export async function deleteKit(id: string): Promise<void> {
-	await apiClient.delete<{ success: true; data: null }>(`/kits/${encodeURIComponent(id)}`);
+// ─── Lifecycle ─────────────────────────────────────────────────────────────
+
+export async function deleteKit(id: string): Promise<KitDeleteResult> {
+	return apiClient.delete<KitDeleteResult>(`/kits/${encodeURIComponent(id)}`);
 }
 
-/**
- * POST /api/kits/:id/publish — publish a draft kit
- */
-export async function publishKit(id: string): Promise<KitTemplate> {
+export async function activateKit(id: string): Promise<KitTemplate> {
 	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>(
-		`/kits/${encodeURIComponent(id)}/publish`,
+		`/kits/${encodeURIComponent(id)}/activate`,
 		{},
 	);
 	return envelope.data;
 }
 
-/**
- * POST /api/kits/:id/archive — archive a published kit
- */
-export async function archiveKit(id: string): Promise<KitTemplate> {
+export async function archiveKit(id: string, reason: string): Promise<KitTemplate> {
 	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>(
 		`/kits/${encodeURIComponent(id)}/archive`,
+		{ reason },
+	);
+	return envelope.data;
+}
+
+export async function restoreKit(id: string): Promise<KitTemplate> {
+	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>(
+		`/kits/${encodeURIComponent(id)}/restore`,
 		{},
 	);
 	return envelope.data;
+}
+
+export async function duplicateKit(id: string, name?: string): Promise<KitTemplate> {
+	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>(
+		`/kits/${encodeURIComponent(id)}/duplicate`,
+		{ name },
+	);
+	return envelope.data;
+}
+
+// ─── Planning Integration ──────────────────────────────────────────────────
+
+export async function applyKitToPlanning(
+	kitId: string,
+	planningId: string,
+): Promise<KitApplyResult> {
+	const envelope = await apiClient.post<{ success: true; data: KitApplyResult }>(
+		`/kits/${encodeURIComponent(kitId)}/apply-to-planning/${encodeURIComponent(planningId)}`,
+		{ planningId },
+	);
+	return envelope.data;
+}
+
+// ─── Attachments ───────────────────────────────────────────────────────────
+
+export async function addKitAttachment(
+	kitId: string,
+	attachment: {
+		fileName: string;
+		originalName: string;
+		mimeType: string;
+		fileSize: number;
+		url: string;
+		purpose: string;
+	},
+): Promise<KitTemplate> {
+	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>(
+		`/kits/${encodeURIComponent(kitId)}/attachments`,
+		attachment,
+	);
+	return envelope.data;
+}
+
+export async function removeKitAttachment(
+	kitId: string,
+	attachmentId: string,
+): Promise<KitTemplate> {
+	const envelope = await apiClient.delete<{ success: true; data: KitTemplate }>(
+		`/kits/${encodeURIComponent(kitId)}/attachments/${encodeURIComponent(attachmentId)}`,
+	);
+	return envelope.data;
+}
+
+// ─── Catalog Options ───────────────────────────────────────────────────────
+
+export async function getKitCatalogOptions(): Promise<KitCatalogOptions> {
+	const envelope = await apiClient.get<{ success: true; data: KitCatalogOptions }>(
+		"/kits/catalog/options",
+	);
+	return envelope.data;
+}
+
+// ─── Attachments ───────────────────────────────────────────────────────────
+
+export interface KitAttachmentInput {
+	fileName: string;
+	originalName: string;
+	mimeType: string;
+	fileSize: number;
+	url: string;
+	purpose: string;
+}
+
+export async function addKitAttachmentApi(
+	kitId: string,
+	attachment: KitAttachmentInput,
+): Promise<KitTemplate> {
+	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>(
+		`/kits/${encodeURIComponent(kitId)}/attachments`,
+		attachment,
+	);
+	return envelope.data;
+}
+
+export async function removeKitAttachmentApi(kitId: string, attachmentId: string): Promise<void> {
+	await apiClient.delete(
+		`/kits/${encodeURIComponent(kitId)}/attachments/${encodeURIComponent(attachmentId)}`,
+	);
 }

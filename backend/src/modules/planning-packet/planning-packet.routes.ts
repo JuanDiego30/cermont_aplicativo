@@ -144,6 +144,18 @@ router.post(
 );
 
 /**
+ * GET /api/planning/suggest-kit
+ * Suggest a kit template based on activity type
+ * Roles: Todos (all authenticated users)
+ */
+router.get(
+	"/suggest-kit",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	PlanningPacketController.suggestKit,
+);
+
+/**
  * POST /api/planning-packets/:id/reference-documents
  * Add a reference document (ATS, AST, PTW, procedure, etc.)
  * Roles: GER, RES, SUP

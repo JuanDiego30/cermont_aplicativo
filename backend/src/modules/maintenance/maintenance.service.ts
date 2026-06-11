@@ -123,6 +123,7 @@ interface CreateDocumentInput {
 	activity_type?: ActivityType;
 	tools?: ToolMapEntry[];
 	equipment?: EquipmentMapEntry[];
+	imageUrls?: string[];
 }
 
 interface UpdateDocumentInput {
@@ -131,6 +132,7 @@ interface UpdateDocumentInput {
 	tools?: ToolMapEntry[];
 	equipment?: EquipmentMapEntry[];
 	is_active?: boolean;
+	imageUrls?: string[];
 }
 
 function normalizeActivityType(value?: string): StatusObject<ActivityType> {
@@ -182,6 +184,10 @@ function buildCreateDocument(data: CreateKitCommand, userId: string) {
 		createDoc.is_active = isActive;
 	}
 
+	if (Array.isArray(data.imageUrls)) {
+		createDoc.imageUrls = data.imageUrls.filter(Boolean);
+	}
+
 	return createDoc;
 }
 
@@ -215,6 +221,10 @@ function buildUpdateDocument(updates: UpdateKitCommand) {
 	const isActive = normalizeBoolean(updates.isActive ?? updates.is_active);
 	if (isActive !== undefined) {
 		updateDoc.is_active = isActive;
+	}
+
+	if (Array.isArray(updates.imageUrls)) {
+		updateDoc.imageUrls = updates.imageUrls.filter(Boolean);
 	}
 
 	return updateDoc;

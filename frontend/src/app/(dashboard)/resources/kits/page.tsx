@@ -1,17 +1,5 @@
 "use client";
 
-/**
- * Kits List Page — Kit template catalog view
- *
- * Features:
- *   - Filter by category
- *   - Search by name / description
- *   - Create kit dialog (KitForm)
- *   - Delete with confirmation
- *   - Publish / Archive actions
- *   - Loading / error / empty states
- */
-
 import { hasRole, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import { Archive, CheckCircle2, Loader2, Package2, Plus, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -19,35 +7,23 @@ import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/core/ui/Button";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { KIT_ACTIVITY_LABELS, KIT_STATUS_LABELS } from "@/modules/kits/constants";
 import {
+	useActivateKit,
 	useArchiveKit,
 	useDeleteKit,
 	useKitList,
-	usePublishKit,
 } from "@/modules/kits/hooks/useKits";
 import { KitForm } from "@/modules/kits/ui/KitForm";
-
-const CATEGORY_LABELS: Record<string, string> = {
-	electrico: "Eléctrico",
-	mecanico: "Mecánico",
-	civil: "Civil",
-	instrumentacion: "Instrumentación",
-	general: "General",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-	draft: "Borrador",
-	published: "Publicado",
-	archived: "Archivado",
-};
 
 const STATUS_STYLES: Record<string, string> = {
 	draft:
 		"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[color:var(--color-warning)]/15",
-	published:
+	active:
 		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[color:var(--color-success)]/15",
 	archived:
-		"bg-[var(--surface-secondary)] text-[var(--text-tertiary)] ring-[var(--border-default)]/30",
+		"bg-[var(--surface-secondary)] text-[var(--text-tertiary)] ring-[var(--border-medium)]/30",
+	voided: "bg-[var(--color-danger-bg)] text-[var(--color-danger)] ring-[var(--color-danger)]/15",
 };
 
 export default function KitsListPage() {
@@ -57,7 +33,7 @@ export default function KitsListPage() {
 	const canPublish = hasRole(role, MANAGEMENT_ROLES);
 
 	const [searchQuery, setSearchQuery] = useState("");
-	const [categoryFilter, setCategoryFilter] = useState<string>("");
+	const [activityFilter, setActivityFilter] = useState<string>("");
 	const [formOpen, setFormOpen] = useState(false);
 
 	const {
@@ -68,23 +44,22 @@ export default function KitsListPage() {
 		refetch,
 	} = useKitList({
 		search: searchQuery || undefined,
-		category: categoryFilter || undefined,
+		activityType: activityFilter || undefined,
 		limit: 100,
 	});
 
 	const deleteMutation = useDeleteKit();
-	const publishMutation = usePublishKit();
+	const activateMutation = useActivateKit();
 	const archiveMutation = useArchiveKit();
 
 	const kits = useMemo(() => paginated?.data ?? [], [paginated]);
 
-	// Stats
 	const stats = useMemo(() => {
 		const total = kits.length;
-		const published = kits.filter((k) => k.status === "published").length;
+		const activeKits = kits.filter((k) => k.status === "active").length;
 		const drafts = kits.filter((k) => k.status === "draft").length;
 		const archived = kits.filter((k) => k.status === "archived").length;
-		return { total, published, drafts, archived };
+		return { total, active: activeKits, drafts, archived };
 	}, [kits]);
 
 	const handleDelete = useCallback(
@@ -98,21 +73,25 @@ export default function KitsListPage() {
 		[deleteMutation],
 	);
 
-	const handlePublish = useCallback(
+	const handleActivate = useCallback(
 		async (id: string) => {
 			try {
-				await publishMutation.mutateAsync(id);
+				await activateMutation.mutateAsync(id);
 			} catch {
 				// handled by React Query
 			}
 		},
-		[publishMutation],
+		[activateMutation],
 	);
 
 	const handleArchive = useCallback(
 		async (id: string) => {
+			const reason = window.prompt("Motivo para archivar:");
+			if (!reason?.trim()) {
+				return;
+			}
 			try {
-				await archiveMutation.mutateAsync(id);
+				await archiveMutation.mutateAsync({ id, reason: reason.trim() });
 			} catch {
 				// handled by React Query
 			}
@@ -122,8 +101,7 @@ export default function KitsListPage() {
 
 	return (
 		<section className="space-y-6" aria-labelledby="kits-page-title">
-			{/* Header */}
-			<header className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
+			<header className="rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-card)]">
 				<div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 					<div className="space-y-2">
 						<p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
@@ -146,17 +124,16 @@ export default function KitsListPage() {
 				</div>
 			</header>
 
-			{/* Stats row */}
 			<section aria-label="Resumen" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
 				{[
 					{ label: "Total", value: stats.total, style: "" },
-					{ label: "Publicados", value: stats.published, style: "text-[var(--color-success)]" },
+					{ label: "Activos", value: stats.active, style: "text-[var(--color-success)]" },
 					{ label: "Borradores", value: stats.drafts, style: "text-[var(--color-warning)]" },
 					{ label: "Archivados", value: stats.archived, style: "text-[var(--text-tertiary)]" },
 				].map((stat) => (
 					<article
 						key={stat.label}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)]"
 					>
 						<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
 							{stat.label}
@@ -170,8 +147,7 @@ export default function KitsListPage() {
 				))}
 			</section>
 
-			{/* Search + filters */}
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)]">
 				<div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
 					<div className="relative w-full lg:max-w-md">
 						<label htmlFor="kit-search" className="sr-only">
@@ -183,32 +159,31 @@ export default function KitsListPage() {
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 							placeholder="Buscar por nombre…"
-							className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] py-2.5 pl-4 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20"
+							className="w-full rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-primary)] py-2.5 pl-4 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20"
 						/>
 					</div>
 
-					{/* Category filter */}
 					<div className="flex flex-wrap gap-2">
 						<button
 							type="button"
-							onClick={() => setCategoryFilter("")}
-							className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
-								!categoryFilter
-									? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
-									: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+							onClick={() => setActivityFilter("")}
+							className={`rounded-[var(--radius-full)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
+								!activityFilter
+									? "bg-[var(--color-brand)] text-white"
+									: "border border-[var(--border-medium)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 							}`}
 						>
 							Todos
 						</button>
-						{Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+						{Object.entries(KIT_ACTIVITY_LABELS).map(([value, label]) => (
 							<button
 								key={value}
 								type="button"
-								onClick={() => setCategoryFilter(value)}
-								className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
-									categoryFilter === value
-										? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
-										: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+								onClick={() => setActivityFilter(value)}
+								className={`rounded-[var(--radius-full)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
+									activityFilter === value
+										? "bg-[var(--color-brand)] text-white"
+										: "border border-[var(--border-medium)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 								}`}
 							>
 								{label}
@@ -218,14 +193,13 @@ export default function KitsListPage() {
 				</div>
 			</div>
 
-			{/* Kit list */}
 			<section aria-labelledby="kits-list-title" className="space-y-4">
 				<h2 id="kits-list-title" className="sr-only">
 					Listado de kits
 				</h2>
 
 				{isLoading ? (
-					<div className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
+					<div className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-medium)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
 						<Loader2 className="mr-2 size-6 animate-spin" aria-hidden="true" />
 						Cargando kits…
 					</div>
@@ -239,22 +213,22 @@ export default function KitsListPage() {
 						</Button>
 					</div>
 				) : kits.length === 0 ? (
-					<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
+					<div className="rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] shadow-[var(--shadow-card)]">
 						<EmptyState
-							title={searchQuery || categoryFilter ? "Sin resultados" : "No hay kits"}
+							title={searchQuery || activityFilter ? "Sin resultados" : "No hay kits"}
 							description={
-								searchQuery || categoryFilter
+								searchQuery || activityFilter
 									? "Prueba con otro filtro o cambia el término de búsqueda."
 									: "Crea tu primer kit para empezar a gestionar el catálogo."
 							}
 							icon="resources"
 							action={
-								searchQuery || categoryFilter
+								searchQuery || activityFilter
 									? {
 											label: "Limpiar filtros",
 											onClick: () => {
 												setSearchQuery("");
-												setCategoryFilter("");
+												setActivityFilter("");
 											},
 										}
 									: canManage
@@ -268,84 +242,93 @@ export default function KitsListPage() {
 					</div>
 				) : (
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-						{kits.map((kit) => (
-							<article
-								key={kit._id}
-								className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]"
-							>
-								<div className="flex items-start justify-between gap-3">
-									<div className="min-w-0 flex-1">
-										<div className="flex items-center gap-2">
-											<div className="rounded-lg bg-[var(--color-info-bg)] p-1.5">
-												<Package2 aria-hidden="true" className="size-4 text-[var(--color-info)]" />
+						{kits.map((kit) => {
+							const itemCount =
+								(kit.tools?.length ?? 0) +
+								(kit.electricalTools?.length ?? 0) +
+								(kit.constructionEquipment?.length ?? 0) +
+								(kit.materials?.length ?? 0) +
+								(kit.epp?.length ?? 0);
+							return (
+								<article
+									key={kit._id}
+									className="rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]"
+								>
+									<div className="flex items-start justify-between gap-3">
+										<div className="min-w-0 flex-1">
+											<div className="flex items-center gap-2">
+												<div className="rounded-[var(--radius-md)] bg-[var(--color-info-bg)] p-1.5">
+													<Package2
+														aria-hidden="true"
+														className="size-4 text-[var(--color-info)]"
+													/>
+												</div>
+												<h3 className="truncate text-base font-semibold text-[var(--text-primary)]">
+													{kit.name}
+												</h3>
 											</div>
-											<h3 className="truncate text-base font-semibold text-[var(--text-primary)]">
-												{kit.name}
-											</h3>
+											<p className="mt-2 text-xs text-[var(--text-secondary)]">
+												{KIT_ACTIVITY_LABELS[kit.activityType] ?? kit.activityType}
+											</p>
+											<p className="mt-1 text-xs text-[var(--text-tertiary)]">
+												{itemCount} ítem(s) · v{kit.version}
+											</p>
 										</div>
-										<p className="mt-2 text-xs text-[var(--text-secondary)]">
-											{CATEGORY_LABELS[kit.category] ?? kit.category}
-										</p>
-										<p className="mt-1 text-xs text-[var(--text-tertiary)]">
-											{kit.items?.length ?? 0} ítem(s) &middot; v{kit.version}
-										</p>
+										<span
+											className={`inline-flex shrink-0 rounded-[var(--radius-full)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ring-1 ring-inset ${STATUS_STYLES[kit.status] ?? ""}`}
+										>
+											{KIT_STATUS_LABELS[kit.status] ?? kit.status}
+										</span>
 									</div>
-									<span
-										className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ring-1 ring-inset ${STATUS_STYLES[kit.status] ?? ""}`}
-									>
-										{STATUS_LABELS[kit.status] ?? kit.status}
-									</span>
-								</div>
 
-								{kit.description && (
-									<p className="mt-3 line-clamp-2 text-sm text-[var(--text-secondary)]">
-										{kit.description}
-									</p>
-								)}
+									{kit.description && (
+										<p className="mt-3 line-clamp-2 text-sm text-[var(--text-secondary)]">
+											{kit.description}
+										</p>
+									)}
 
-								{/* Actions */}
-								<div className="mt-4 flex items-center gap-2">
-									{canPublish && kit.status === "draft" && (
-										<button
-											type="button"
-											onClick={() => handlePublish(kit._id)}
-											className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-success)] hover:text-[var(--color-success)]/80 transition-colors"
-											disabled={publishMutation.isPending}
-										>
-											<CheckCircle2 aria-hidden="true" className="size-3.5" />
-											Publicar
-										</button>
-									)}
-									{canPublish && kit.status === "published" && (
-										<button
-											type="button"
-											onClick={() => handleArchive(kit._id)}
-											className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
-											disabled={archiveMutation.isPending}
-										>
-											<Archive aria-hidden="true" className="size-3.5" />
-											Archivar
-										</button>
-									)}
-									{canManage && kit.status === "draft" && (
-										<button
-											type="button"
-											onClick={() => handleDelete(kit._id)}
-											className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-danger)] hover:text-[var(--color-danger)]/80 transition-colors"
-											disabled={deleteMutation.isPending}
-										>
-											<Trash2 aria-hidden="true" className="size-3.5" />
-											Eliminar
-										</button>
-									)}
-								</div>
-							</article>
-						))}
+									<div className="mt-4 flex items-center gap-2">
+										{canPublish && kit.status === "draft" && (
+											<button
+												type="button"
+												onClick={() => handleActivate(kit._id)}
+												className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-success)] hover:text-[var(--color-success)]/80 transition-colors"
+												disabled={activateMutation.isPending}
+											>
+												<CheckCircle2 aria-hidden="true" className="size-3.5" />
+												Activar
+											</button>
+										)}
+										{canPublish && kit.status === "active" && (
+											<button
+												type="button"
+												onClick={() => handleArchive(kit._id)}
+												className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+												disabled={archiveMutation.isPending}
+											>
+												<Archive aria-hidden="true" className="size-3.5" />
+												Archivar
+											</button>
+										)}
+										{canManage && kit.status === "draft" && (
+											<button
+												type="button"
+												onClick={() => handleDelete(kit._id)}
+												className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-danger)] hover:text-[var(--color-danger)]/80 transition-colors"
+												disabled={deleteMutation.isPending}
+											>
+												<Trash2 aria-hidden="true" className="size-3.5" />
+												Eliminar
+											</button>
+										)}
+									</div>
+								</article>
+							);
+						})}
 					</div>
 				)}
 			</section>
 
-			{/* Create dialog */}
 			<KitForm open={formOpen} onOpenChange={setFormOpen} onSuccess={() => refetch()} />
 		</section>
 	);

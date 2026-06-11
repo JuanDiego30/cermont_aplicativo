@@ -49,6 +49,7 @@ export interface IMaintenanceKit extends Document {
 	tools: ITool[];
 	equipment: IEquipment[];
 	is_active: boolean;
+	imageUrls: string[];
 	created_by: Types.ObjectId;
 	createdAt: Date;
 	updatedAt: Date;
@@ -108,6 +109,10 @@ const kitTipicoSchema = new Schema<IMaintenanceKit>(
 			type: Boolean,
 			default: true,
 			index: true,
+		},
+		imageUrls: {
+			type: [String],
+			default: [],
 		},
 		created_by: {
 			type: Schema.Types.ObjectId,

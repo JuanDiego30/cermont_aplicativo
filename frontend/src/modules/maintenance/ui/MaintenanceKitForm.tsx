@@ -7,11 +7,16 @@ import {
 	ToolSchema,
 } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { useCallback, useRef, useState } from "react";
+import { Controller, type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
-import { Checkbox, FormField, Select, TextField } from "@/core/ui/FormField";
+import { CustomizableSelect } from "@/core/ui/CustomizableSelect";
+import { Checkbox, FormField, TextField } from "@/core/ui/FormField";
+import { apiClient } from "@/lib/http/api-client";
 import {
 	DEFAULT_EQUIPMENT_ROW,
 	DEFAULT_MAINTENANCE_KIT_ACTIVITY,
@@ -67,7 +72,7 @@ interface MaintenanceKitFormProps {
 	initialKit?: MaintenanceKit;
 	submitLabel: string;
 	cancelHref: string;
-	onSubmit: (payload: MaintenanceKitMutationInput) => Promise<void>;
+	onSubmit: (payload: MaintenanceKitMutationInput, images?: Record<string, File>) => Promise<void>;
 	errorMessage?: string | null;
 }
 
@@ -98,6 +103,7 @@ function buildDefaultValues(initialKit?: MaintenanceKit): MaintenanceKitFormValu
 function normalizePayload(
 	values: MaintenanceKitFormValues,
 	mode: "create" | "edit",
+	imageUrls: string[] = [],
 ): MaintenanceKitMutationInput {
 	return {
 		name: values.name.trim(),
@@ -118,6 +124,7 @@ function normalizePayload(
 				? { customFields: parseCustomFieldsText(item.customFieldsText) }
 				: {}),
 		})),
+		imageUrls,
 		...(mode === "edit" ? { isActive: values.isActive ?? true } : {}),
 	};
 }
@@ -159,8 +166,49 @@ export function MaintenanceKitForm({
 		name: "equipment",
 	});
 
+	// ── Image upload state ───────────────────────────────────────────
+	const [imageUrls, setImageUrls] = useState<string[]>(initialKit?.imageUrls ?? []);
+	const [uploadingImages, setUploadingImages] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const handleImageUpload = useCallback(async (files: FileList | null) => {
+		if (!files?.length) {
+			return;
+		}
+		setUploadingImages(true);
+		try {
+			const newUrls: string[] = [];
+			for (const file of Array.from(files)) {
+				if (file.size > 5 * 1024 * 1024) {
+					toast.error(`"${file.name}" excede el límite de 5 MB`);
+					continue;
+				}
+				const formData = new FormData();
+				formData.append("file", file);
+				formData.append("category", "maintenance-kit-image");
+				formData.append("entityType", "maintenance-kit");
+				formData.append("entityId", "temp");
+				const result = await apiClient.post<{ id: string; url: string }>("/files/upload", formData);
+				newUrls.push(result.url);
+			}
+			if (newUrls.length > 0) {
+				setImageUrls((prev) => [...prev, ...newUrls]);
+				toast.success(`${newUrls.length} imagen(es) subida(s)`);
+			}
+		} catch {
+			toast.error("Error al subir imágenes");
+		} finally {
+			setUploadingImages(false);
+		}
+	}, []);
+
+	const removeImage = useCallback((index: number) => {
+		setImageUrls((prev) => prev.filter((_, i) => i !== index));
+	}, []);
+
+	// ── Submit handler ───────────────────────────────────────────────
 	const submitHandler: SubmitHandler<MaintenanceKitFormValues> = async (values) => {
-		await onSubmit(normalizePayload(values, mode));
+		await onSubmit(normalizePayload(values, mode, imageUrls));
 	};
 
 	return (
@@ -186,17 +234,23 @@ export function MaintenanceKitForm({
 				</FormField>
 
 				<FormField label="Tipo de actividad" required error={errors.activityType?.message}>
-					<Select
-						id="maintenance-kit-activity-type"
-						error={Boolean(errors.activityType)}
-						{...register("activityType")}
-					>
-						{MAINTENANCE_KIT_ACTIVITY_OPTIONS.map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</Select>
+					<Controller
+						name="activityType"
+						control={control}
+						render={({ field }) => (
+							<CustomizableSelect
+								options={MAINTENANCE_KIT_ACTIVITY_OPTIONS.map((o) => ({
+									value: o.value,
+									label: o.label,
+								}))}
+								value={field.value}
+								onChange={(val) => field.onChange(val)}
+								error={Boolean(errors.activityType)}
+								allowCustom={false}
+								placeholder="Seleccionar tipo de actividad…"
+							/>
+						)}
+					/>
 				</FormField>
 
 				{mode === "edit" ? (
@@ -398,6 +452,97 @@ export function MaintenanceKitForm({
 						);
 					})}
 				</div>
+			</section>
+
+			{/* ── Imágenes del kit ──────────────────────────────────────── */}
+			<section className="space-y-4 rounded-[28px] border border-zinc-200 bg-white/90 p-5 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/90">
+				<div className="flex flex-wrap items-center justify-between gap-3">
+					<div>
+						<h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
+							Imágenes del kit
+						</h2>
+						<p className="text-sm text-zinc-500 dark:text-zinc-400">
+							Sube hasta 5 imágenes de referencia para este kit.
+						</p>
+					</div>
+					<input
+						ref={fileInputRef}
+						type="file"
+						accept="image/jpeg,image/png,image/webp"
+						multiple
+						className="hidden"
+						onChange={(e) => {
+							handleImageUpload(e.target.files);
+							e.target.value = "";
+						}}
+					/>
+					<button
+						type="button"
+						onClick={() => fileInputRef.current?.click()}
+						disabled={uploadingImages || imageUrls.length >= 5}
+						className="inline-flex items-center gap-2 rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-blue-900 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:text-blue-100 dark:hover:border-blue-500/40 dark:hover:bg-blue-500/10 dark:hover:text-blue-300"
+					>
+						{uploadingImages ? (
+							<Loader2 className="size-4 animate-spin" />
+						) : (
+							<ImagePlus className="size-4" />
+						)}
+						{uploadingImages ? "Subiendo…" : "Agregar imágenes"}
+					</button>
+				</div>
+
+				{imageUrls.length === 0 ? (
+					<button
+						type="button"
+						className="flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-4 py-8 text-center transition-colors hover:border-blue-400 hover:bg-blue-50/30 dark:border-zinc-600 dark:bg-zinc-950/40 dark:hover:border-blue-500/40 dark:hover:bg-blue-500/5"
+						onClick={() => fileInputRef.current?.click()}
+						onDragOver={(e) => e.preventDefault()}
+						onDrop={(e) => {
+							e.preventDefault();
+							handleImageUpload(e.dataTransfer.files);
+						}}
+					>
+						<ImagePlus className="mx-auto mb-3 size-10 text-zinc-400 dark:text-zinc-500" />
+						<p className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+							Arrastra imágenes aquí o haz clic para seleccionar
+						</p>
+						<p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
+							JPEG, PNG, WebP · Máx. 5 MB por imagen
+						</p>
+					</button>
+				) : (
+					<div className="flex flex-wrap gap-3">
+						{imageUrls.map((url, index) => (
+							<div key={url} className="group relative size-20 shrink-0">
+								<Image
+									src={url}
+									alt={`Imagen ${index + 1}`}
+									fill
+									className="rounded-[var(--radius-md)] object-cover"
+									sizes="80px"
+								/>
+								<button
+									type="button"
+									onClick={() => removeImage(index)}
+									className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
+									aria-label={`Eliminar imagen ${index + 1}`}
+								>
+									<X className="size-3" />
+								</button>
+							</div>
+						))}
+						{imageUrls.length < 5 && (
+							<button
+								type="button"
+								onClick={() => fileInputRef.current?.click()}
+								disabled={uploadingImages}
+								className="flex size-20 items-center justify-center rounded-[var(--radius-md)] border-2 border-dashed border-zinc-300 text-zinc-400 transition-colors hover:border-blue-400 hover:text-blue-500 dark:border-zinc-600 dark:hover:border-blue-500/40"
+							>
+								<Plus className="size-6" />
+							</button>
+						)}
+					</div>
+				)}
 			</section>
 
 			<footer className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">

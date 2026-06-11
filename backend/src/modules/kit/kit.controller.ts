@@ -1,6 +1,8 @@
 import {
+	ApplyKitToPlanningSchema,
+	ArchiveKitSchema,
 	CreateKitSchema,
-	KitByServiceTypeParamsSchema,
+	DuplicateKitSchema,
 	KitIdParamsSchema,
 	KitListQuerySchema,
 	UpdateKitSchema,
@@ -12,15 +14,19 @@ import {
 	sendSuccess,
 } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
-import { listAllKits } from "../../config/kit-templates";
 import {
+	activateKit,
+	addKitAttachment,
+	applyKitToPlanning,
 	archiveKit,
 	createKit,
 	deleteKit,
+	duplicateKit,
 	getAllKits,
+	getCatalogOptions,
 	getKitById,
-	getKitsByServiceType,
-	publishKit,
+	removeKitAttachment,
+	restoreKit,
 	updateKit,
 } from "./kit.service";
 
@@ -36,14 +42,13 @@ export const getAll = async (req: Request, res: Response) => {
 	const result = await getAllKits(
 		{
 			status: query.status,
-			category: query.category,
-			serviceTypeIds: query.serviceType ? [query.serviceType] : undefined,
+			activityType: query.activityType,
+			serviceCategory: query.serviceCategory,
+			riskLevel: query.riskLevel,
 			search: query.search,
+			tags: query.tags,
 		},
-		{
-			page: query.page,
-			limit: query.limit,
-		},
+		{ page: query.page, limit: query.limit },
 	);
 
 	return sendPaginated(
@@ -69,34 +74,70 @@ export const update = async (req: Request, res: Response) => {
 	return sendSuccess(res, result);
 };
 
-export const publish = async (req: Request, res: Response) => {
+export const remove = async (req: Request, res: Response) => {
 	const { id } = KitIdParamsSchema.parse(req.params);
 	const user = requireUser(req);
-	const result = await publishKit(id, String(user._id));
+	const result = await deleteKit(id, String(user._id));
+	return sendSuccess(res, result);
+};
+
+export const activate = async (req: Request, res: Response) => {
+	const { id } = KitIdParamsSchema.parse(req.params);
+	const user = requireUser(req);
+	const result = await activateKit(id, String(user._id));
 	return sendSuccess(res, result);
 };
 
 export const archive = async (req: Request, res: Response) => {
 	const { id } = KitIdParamsSchema.parse(req.params);
+	const body = ArchiveKitSchema.parse(req.body);
 	const user = requireUser(req);
-	const result = await archiveKit(id, String(user._id));
+	const result = await archiveKit(id, String(user._id), body.reason);
 	return sendSuccess(res, result);
 };
 
-export const remove = async (req: Request, res: Response) => {
+export const restore = async (req: Request, res: Response) => {
 	const { id } = KitIdParamsSchema.parse(req.params);
 	const user = requireUser(req);
-	await deleteKit(id, String(user._id));
-	return sendSuccess(res, { message: "Kit deleted successfully" });
-};
-
-export const getByServiceType = async (req: Request, res: Response) => {
-	const { serviceTypeId } = KitByServiceTypeParamsSchema.parse(req.params);
-	const result = await getKitsByServiceType(serviceTypeId);
+	const result = await restoreKit(id, String(user._id));
 	return sendSuccess(res, result);
 };
 
-export const getTemplates = async (_req: Request, res: Response) => {
-	const templates = listAllKits();
-	return sendSuccess(res, templates);
+export const duplicate = async (req: Request, res: Response) => {
+	const { id } = KitIdParamsSchema.parse(req.params);
+	const body = DuplicateKitSchema.parse(req.body);
+	const user = requireUser(req);
+	const result = await duplicateKit(id, String(user._id), body.name);
+	return sendCreated(res, result);
+};
+
+export const applyToPlanning = async (req: Request, res: Response) => {
+	const { id } = KitIdParamsSchema.parse(req.params);
+	const body = ApplyKitToPlanningSchema.parse(req.body);
+	const user = requireUser(req);
+	const result = await applyKitToPlanning(id, body.planningId, String(user._id));
+	return sendSuccess(res, result);
+};
+
+export const catalogOptions = async (_req: Request, res: Response) => {
+	const options = getCatalogOptions();
+	return sendSuccess(res, options);
+};
+
+export const addAttachment = async (req: Request, res: Response) => {
+	const { id } = KitIdParamsSchema.parse(req.params);
+	const user = requireUser(req);
+	const result = await addKitAttachment(id, {
+		...req.body,
+		uploadedBy: String(user._id),
+	});
+	return sendCreated(res, result);
+};
+
+export const removeAttachment = async (req: Request, res: Response) => {
+	const id = req.params.id as string;
+	const attachmentId = req.params.attachmentId as string;
+	const user = requireUser(req);
+	const result = await removeKitAttachment(id, attachmentId, String(user._id));
+	return sendSuccess(res, result);
 };

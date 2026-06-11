@@ -190,6 +190,24 @@ export async function listReferenceDocuments(req: Request, res: Response) {
  * POST /api/planning-packets/:id/apply-kit
  * Roles: GER, RES, SUP
  */
+/**
+ * GET /api/planning/suggest-kit?activityType=electrico
+ * Suggest a maintenance kit based on activity type for quick planning
+ */
+export async function suggestKit(req: Request, res: Response) {
+	requireUser(req);
+	const activityType = String(req.query.activityType ?? "");
+	if (!activityType) {
+		return res.status(400).json({
+			success: false,
+			error: { code: "MISSING_ACTIVITY_TYPE", message: "activityType query parameter is required" },
+		});
+	}
+
+	const suggestion = await PlanningPacketService.suggestKitByActivity(activityType);
+	res.status(200).json({ success: true, data: suggestion });
+}
+
 export async function applyPlanningKit(req: Request, res: Response) {
 	const user = requireUser(req);
 	const userId = String(user._id);

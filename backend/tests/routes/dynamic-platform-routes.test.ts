@@ -24,11 +24,13 @@ describe("dynamic platform routes", () => {
 	it("exposes the planned kit endpoints", () => {
 		expectRoute(kitRoutes, "get", "/");
 		expectRoute(kitRoutes, "post", "/");
-		expectRoute(kitRoutes, "get", "/by-service-type/:serviceTypeId");
+		expectRoute(kitRoutes, "get", "/catalog/options");
 		expectRoute(kitRoutes, "get", "/:id");
-		expectRoute(kitRoutes, "put", "/:id");
-		expectRoute(kitRoutes, "post", "/:id/publish");
+		expectRoute(kitRoutes, "patch", "/:id");
+		expectRoute(kitRoutes, "post", "/:id/activate");
 		expectRoute(kitRoutes, "post", "/:id/archive");
+		expectRoute(kitRoutes, "post", "/:id/restore");
+		expectRoute(kitRoutes, "post", "/:id/duplicate");
 		expectRoute(kitRoutes, "delete", "/:id");
 	});
 
@@ -54,7 +56,7 @@ describe("dynamic platform routes", () => {
 	});
 
 	it("keeps specific routes ahead of param routes to avoid shadowing", () => {
-		expect(routeIndex(kitRoutes, "get", "/by-service-type/:serviceTypeId")).toBeLessThan(
+		expect(routeIndex(kitRoutes, "get", "/catalog/options")).toBeLessThan(
 			routeIndex(kitRoutes, "get", "/:id"),
 		);
 		expect(routeIndex(toolRoutes, "get", "/expired-certifications")).toBeLessThan(

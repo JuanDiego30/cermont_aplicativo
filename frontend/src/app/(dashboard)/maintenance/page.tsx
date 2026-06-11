@@ -1,127 +1,155 @@
 "use client";
 
 import { hasRole } from "@cermont/domain";
-import type { MaintenanceKit } from "@cermont/shared-types";
-import { useGSAP } from "@gsap/react";
+import type { KitTemplate } from "@cermont/shared-types";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import gsap from "gsap";
-import { ArrowRight, Loader2, Package2, PencilLine, Plus, Search, Trash2 } from "lucide-react";
+import {
+	Archive,
+	Copy,
+	FileText,
+	HardHat,
+	Loader2,
+	Package2,
+	Plus,
+	Search,
+	Wrench,
+} from "lucide-react";
 import Link from "next/link";
-import { useDeferredValue, useRef, useState } from "react";
+import { useDeferredValue, useState } from "react";
+import { toast } from "sonner";
 import { FormField, Select, TextField } from "@/core/ui/FormField";
-import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import {
-	formatMaintenanceKitActivityLabel,
-	MAINTENANCE_KIT_ACTIVITY_OPTIONS,
-	MAINTENANCE_KIT_CREATE_ROLES,
-	MAINTENANCE_KIT_DELETE_ROLES,
-	MAINTENANCE_KIT_EDIT_ROLES,
-	MAINTENANCE_KIT_VISIBILITY_OPTIONS,
-} from "@/modules/maintenance/constants";
-import { useDeleteMaintenanceKit, useMaintenanceKits } from "@/modules/maintenance/queries";
+	formatKitActivityLabel,
+	formatKitRiskLabel,
+	formatKitStatusLabel,
+	getKitItemCount,
+	KIT_ACTIVITY_OPTIONS,
+	KIT_CREATE_ROLES,
+	KIT_MANAGE_ROLES,
+	KIT_RISK_OPTIONS,
+	KIT_STATUS_OPTIONS,
+} from "@/modules/kits/constants";
+import {
+	useActivateKit,
+	useArchiveKit,
+	useDeleteKit,
+	useDuplicateKit,
+	useKitList,
+	useRestoreKit,
+} from "@/modules/kits/hooks/useKits";
 
-gsap.registerPlugin(useGSAP);
-
-const PAGE_SIZE = 100;
-
-const VISIBILITY_TO_BOOLEAN: Record<string, boolean | undefined> = {
-	all: undefined,
-	active: true,
-	inactive: false,
-};
-
-interface MaintenanceKitPermissions {
-	create: boolean;
-	edit: boolean;
-	delete: boolean;
-}
+const PAGE_SIZE = 20;
 
 export default function MaintenancePage() {
 	const { user: session } = useAuth();
 	const role = session?.role ?? "";
-	const canCreate = hasRole(role, MAINTENANCE_KIT_CREATE_ROLES);
-	const canEdit = hasRole(role, MAINTENANCE_KIT_EDIT_ROLES);
-	const canDelete = hasRole(role, MAINTENANCE_KIT_DELETE_ROLES);
+	const canCreate = hasRole(role, KIT_CREATE_ROLES);
+	const canManage = hasRole(role, KIT_MANAGE_ROLES);
 
 	const [search, setSearch] = useState("");
+	const [statusFilter, setStatusFilter] = useState<string>("all");
 	const [activityFilter, setActivityFilter] = useState<string>("all");
-	const [visibilityFilter, setVisibilityFilter] = useState<string>("all");
+	const [riskFilter, setRiskFilter] = useState<string>("all");
 	const [page, setPage] = useState(1);
 
-	const pageRef = useRef<HTMLDivElement>(null);
-
-	useGSAP(
-		() => {
-			if (prefersReducedMotion() || !pageRef.current) {
-				return;
-			}
-
-			const scope = pageRef.current;
-			const targets = scope.querySelectorAll("[data-maint-reveal]");
-
-			if (targets.length === 0) {
-				return;
-			}
-
-			gsap.from(targets, {
-				opacity: 0,
-				y: 20,
-				stagger: 0.1,
-				duration: 0.5,
-				ease: "power2.out",
-				clearProps: "all",
-			});
-		},
-		{ scope: pageRef, dependencies: [] },
-	);
-
 	const deferredSearch = useDeferredValue(search.trim());
-	const deleteMutation = useDeleteMaintenanceKit();
 
-	const maintenanceKitQuery = useMaintenanceKits({
+	const kitQuery = useKitList({
 		page,
 		limit: PAGE_SIZE,
 		search: deferredSearch || undefined,
+		status: statusFilter === "all" ? undefined : statusFilter,
 		activityType: activityFilter === "all" ? undefined : activityFilter,
-		isActive: VISIBILITY_TO_BOOLEAN[visibilityFilter],
+		riskLevel: riskFilter === "all" ? undefined : riskFilter,
 	});
 
-	const kitPage = maintenanceKitQuery.data;
-	const kits = kitPage?.items ?? [];
-	const totalKits = kitPage?.total ?? 0;
+	const deleteMutation = useDeleteKit();
+	const archiveMutation = useArchiveKit();
+	const restoreMutation = useRestoreKit();
+	const activateMutation = useActivateKit();
+	const duplicateMutation = useDuplicateKit();
 
 	const handleFilterReset = () => {
 		setSearch("");
+		setStatusFilter("all");
 		setActivityFilter("all");
-		setVisibilityFilter("all");
+		setRiskFilter("all");
 		setPage(1);
 	};
 
-	const handleDeleteKit = async (id: string, name: string) => {
-		const confirmed = window.confirm(`¿Deseas desactivar el kit "${name}"?`);
+	const handleDelete = async (id: string, name: string) => {
+		const confirmed = window.confirm(`¿Eliminar el kit "${name}"?`);
 		if (!confirmed) {
 			return;
 		}
-
-		await deleteMutation.mutateAsync(id);
+		try {
+			const result = await deleteMutation.mutateAsync(id);
+			const data = result.data;
+			if (data.deleted) {
+				toast.success("Kit eliminado correctamente.");
+			} else {
+				toast.info(data.message);
+			}
+		} catch {
+			toast.error("No se pudo eliminar el kit.");
+		}
 	};
 
-	const loading = maintenanceKitQuery.isLoading && !kitPage;
-	const error = maintenanceKitQuery.error;
-	const permissions: MaintenanceKitPermissions = {
-		create: canCreate,
-		edit: canEdit,
-		delete: canDelete,
+	const handleArchive = async (id: string, name: string) => {
+		const reason = window.prompt(`Motivo para archivar "${name}":`);
+		if (!reason?.trim()) {
+			return;
+		}
+		try {
+			await archiveMutation.mutateAsync({ id, reason: reason.trim() });
+			toast.success("Kit archivado correctamente.");
+		} catch {
+			toast.error("No se pudo archivar el kit.");
+		}
 	};
+
+	const handleRestore = async (id: string) => {
+		try {
+			await restoreMutation.mutateAsync(id);
+			toast.success("Kit restaurado correctamente.");
+		} catch {
+			toast.error("No se pudo restaurar el kit.");
+		}
+	};
+
+	const handleActivate = async (id: string) => {
+		try {
+			await activateMutation.mutateAsync(id);
+			toast.success("Kit activado correctamente.");
+		} catch {
+			toast.error("No se pudo activar el kit.");
+		}
+	};
+
+	const handleDuplicate = async (id: string) => {
+		try {
+			const kit = await duplicateMutation.mutateAsync(id);
+			toast.success(`Kit duplicado como "${kit.name}".`);
+		} catch {
+			toast.error("No se pudo duplicar el kit.");
+		}
+	};
+
+	const envelope = kitQuery.data;
+	const kits = envelope?.data ?? [];
+	const totalKits = envelope?.pagination?.total ?? 0;
+	const totalPages = envelope?.pagination?.totalPages ?? 1;
+	const loading = kitQuery.isLoading && !envelope;
+	const error = kitQuery.error;
 
 	if (loading) {
 		return (
 			<section className="flex h-64 items-center justify-center">
-				<div className="flex items-center gap-2 text-zinc-500">
+				<div className="flex items-center gap-2 text-[var(--text-secondary)]">
 					<Loader2 className="size-5 animate-spin" />
-					Cargando…
+					Cargando catálogo…
 				</div>
 			</section>
 		);
@@ -129,461 +157,349 @@ export default function MaintenancePage() {
 
 	if (error) {
 		return (
-			<section className="rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-700">
-				{(error as Error).message}
+			<section className="rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)] px-6 py-5 text-sm text-[var(--color-danger)]">
+				No se pudo cargar el catálogo: {(error as Error).message}
 			</section>
 		);
 	}
 
 	return (
-		<section ref={pageRef} className="space-y-6" aria-labelledby="maintenance-page-title">
-			<div
-				className="rounded-2xl border border-zinc-200 bg-gradient-to-br from-zinc-950 via-zinc-900 to-emerald-900 px-6 py-8 text-white"
-				data-dash="hero"
-			>
+		<section className="space-y-6" aria-labelledby="maintenance-page-title">
+			{/* Hero Header */}
+			<header className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-gradient-to-br from-[var(--color-cermont-blue-deep)] via-[var(--color-cermont-blue)] to-[var(--color-cermont-green-deep)] px-6 py-8 text-white">
 				<div className="flex flex-wrap items-start justify-between gap-6">
 					<div className="space-y-2">
-						<h1 id="maintenance-page-title" className="text-3xl font-semibold">
+						<h1 id="maintenance-page-title" className="text-3xl font-semibold tracking-tight">
 							Catálogo de Kits
 						</h1>
-						<p className="text-sm text-white/70">{totalKits} kits registrados</p>
+						<p className="text-sm text-white/80">{totalKits} kits registrados</p>
 					</div>
 					{canCreate ? (
 						<Link
 							href="/maintenance/new"
-							className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-400"
+							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-white px-5 py-3 text-sm font-semibold text-[var(--color-cermont-blue-deep)] transition hover:bg-white/90"
 						>
 							<Plus className="size-4" />
 							Nuevo Kit
 						</Link>
 					) : null}
 				</div>
-			</div>
+			</header>
 
-			<MaintenanceCatalogSection
-				activityFilter={activityFilter}
-				isDeleting={deleteMutation.isPending}
-				isFetching={maintenanceKitQuery.isFetching}
-				kitPage={kitPage}
-				kits={kits}
-				page={page}
-				permissions={permissions}
-				search={search}
-				visibilityFilter={visibilityFilter}
-				onActivityFilterChange={(value) => {
-					setActivityFilter(value);
-					setPage(1);
-				}}
-				onDelete={handleDeleteKit}
-				onPageChange={setPage}
-				onReset={handleFilterReset}
-				onSearchChange={(value) => {
-					setSearch(value);
-					setPage(1);
-				}}
-				onVisibilityFilterChange={(value) => {
-					setVisibilityFilter(value);
-					setPage(1);
-				}}
-			/>
-		</section>
-	);
-}
-
-function MaintenanceCatalogSection({
-	activityFilter,
-	isDeleting,
-	isFetching,
-	kitPage,
-	kits,
-	page,
-	permissions,
-	search,
-	visibilityFilter,
-	onActivityFilterChange,
-	onDelete,
-	onPageChange,
-	onReset,
-	onSearchChange,
-	onVisibilityFilterChange,
-}: {
-	activityFilter: string;
-	isDeleting: boolean;
-	isFetching: boolean;
-	kitPage?: { page: number; totalPages: number };
-	kits: MaintenanceKit[];
-	page: number;
-	permissions: MaintenanceKitPermissions;
-	search: string;
-	visibilityFilter: string;
-	onActivityFilterChange: (value: string) => void;
-	onDelete: (id: string, name: string) => void;
-	onPageChange: (updater: (current: number) => number) => void;
-	onReset: () => void;
-	onSearchChange: (value: string) => void;
-	onVisibilityFilterChange: (value: string) => void;
-}) {
-	return (
-		<section className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)] transition-shadow hover:shadow-[var(--shadow-2)]">
-			<MaintenanceCatalogHeader onReset={onReset} />
-			<MaintenanceCatalogFilters
-				activityFilter={activityFilter}
-				search={search}
-				visibilityFilter={visibilityFilter}
-				onActivityFilterChange={onActivityFilterChange}
-				onSearchChange={onSearchChange}
-				onVisibilityFilterChange={onVisibilityFilterChange}
-			/>
-			<MaintenanceCatalogBody
-				isDeleting={isDeleting}
-				isFetching={isFetching}
-				kits={kits}
-				onDelete={onDelete}
-				permissions={permissions}
-			/>
-			<MaintenancePagination kitPage={kitPage} page={page} onPageChange={onPageChange} />
-		</section>
-	);
-}
-
-function MaintenanceCatalogHeader({ onReset }: { onReset: () => void }) {
-	return (
-		<div className="flex flex-wrap items-center justify-between gap-4">
-			<div>
-				<h2 className="text-xl font-semibold text-[var(--text-primary)]">Catálogo de kits</h2>
-				<p className="mt-1 text-sm text-[var(--text-secondary)]">
-					Revisa, filtra y administra los kits típicos disponibles.
-				</p>
-			</div>
-
-			<button
-				type="button"
-				onClick={onReset}
-				className="inline-flex items-center gap-2 rounded-full border border-[var(--border-default)] px-4 py-2 text-sm font-semibold text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
-			>
-				Restablecer filtros
-			</button>
-		</div>
-	);
-}
-
-function MaintenanceCatalogFilters({
-	activityFilter,
-	search,
-	visibilityFilter,
-	onActivityFilterChange,
-	onSearchChange,
-	onVisibilityFilterChange,
-}: {
-	activityFilter: string;
-	search: string;
-	visibilityFilter: string;
-	onActivityFilterChange: (value: string) => void;
-	onSearchChange: (value: string) => void;
-	onVisibilityFilterChange: (value: string) => void;
-}) {
-	return (
-		<div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.7fr_0.7fr]">
-			<FormField label="Buscar" htmlFor="maintenance-kit-search">
-				<div className="relative">
-					<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-					<TextField
-						id="maintenance-kit-search"
-						value={search}
-						onChange={(event) => onSearchChange(event.target.value)}
-						placeholder="Buscar por nombre"
-						className="pl-9"
-					/>
-				</div>
-			</FormField>
-
-			<FormField label="Actividad" htmlFor="maintenance-kit-activity-filter">
-				<Select
-					id="maintenance-kit-activity-filter"
-					value={activityFilter}
-					onChange={(event) => onActivityFilterChange(event.target.value)}
-				>
-					<option value="all">Todas</option>
-					{MAINTENANCE_KIT_ACTIVITY_OPTIONS.map((option) => (
-						<option key={option.value} value={option.value}>
-							{option.label}
-						</option>
-					))}
-				</Select>
-			</FormField>
-
-			<FormField label="Estado" htmlFor="maintenance-kit-visibility-filter">
-				<Select
-					id="maintenance-kit-visibility-filter"
-					value={visibilityFilter}
-					onChange={(event) => onVisibilityFilterChange(event.target.value)}
-				>
-					{MAINTENANCE_KIT_VISIBILITY_OPTIONS.map((option) => (
-						<option key={option.value} value={option.value}>
-							{option.label}
-						</option>
-					))}
-				</Select>
-			</FormField>
-		</div>
-	);
-}
-
-function MaintenanceCatalogBody({
-	isDeleting,
-	isFetching,
-	kits,
-	onDelete,
-	permissions,
-}: {
-	isDeleting: boolean;
-	isFetching: boolean;
-	kits: MaintenanceKit[];
-	onDelete: (id: string, name: string) => void;
-	permissions: MaintenanceKitPermissions;
-}) {
-	return (
-		<div className="mt-6 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)]">
-			{isFetching && kits.length > 0 ? <MaintenanceFetchingNotice /> : null}
-			{kits.length === 0 ? (
-				<MaintenanceEmptyCatalog canCreate={permissions.create} />
-			) : (
-				<MaintenanceKitTable
-					isDeleting={isDeleting}
-					kits={kits}
-					onDelete={onDelete}
-					permissions={permissions}
-				/>
-			)}
-		</div>
-	);
-}
-
-function MaintenanceFetchingNotice() {
-	return (
-		<div className="flex items-center gap-2 border-b border-[var(--border-default)] bg-[var(--surface-secondary)] px-4 py-3 text-sm text-[var(--text-secondary)]">
-			<Loader2 className="size-4 animate-spin" />
-			Actualizando catálogo…
-		</div>
-	);
-}
-
-function MaintenanceEmptyCatalog({ canCreate }: { canCreate: boolean }) {
-	return (
-		<div className="flex min-h-[280px] flex-col items-center justify-center gap-4 px-6 py-10 text-center">
-			<div className="rounded-full bg-[var(--surface-secondary)] p-4 text-[var(--text-tertiary)]">
-				<Package2 className="size-6" />
-			</div>
-			<div className="max-w-md space-y-2">
-				<h3 className="text-lg font-semibold text-[var(--text-primary)]">
-					No hay kits en la vista actual
-				</h3>
-				<p className="text-sm text-[var(--text-secondary)]">
-					Prueba otro filtro o crea un nuevo kit para arrancar el catálogo.
-				</p>
-			</div>
-			{canCreate ? (
-				<Link
-					href="/maintenance/new"
-					className="inline-flex items-center gap-2 rounded-full bg-[var(--color-brand-blue)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-blue-hover)]"
-				>
-					<Plus className="size-4" />
-					Crear kit
-				</Link>
-			) : null}
-		</div>
-	);
-}
-
-function MaintenanceKitTable({
-	isDeleting,
-	kits,
-	onDelete,
-	permissions,
-}: {
-	isDeleting: boolean;
-	kits: MaintenanceKit[];
-	onDelete: (id: string, name: string) => void;
-	permissions: MaintenanceKitPermissions;
-}) {
-	return (
-		<div className="overflow-x-auto">
-			<table className="w-full min-w-[900px] text-sm">
-				<caption className="sr-only">
-					Listado de kits típicos con acceso al detalle, edición y desactivación.
-				</caption>
-				<MaintenanceKitTableHead />
-				<tbody className="divide-y divide-[var(--border-default)]">
-					{kits.map((kit) => (
-						<MaintenanceKitRow
-							key={kit._id}
-							isDeleting={isDeleting}
-							kit={kit}
-							onDelete={onDelete}
-							permissions={permissions}
-						/>
-					))}
-				</tbody>
-			</table>
-		</div>
-	);
-}
-
-function MaintenanceKitTableHead() {
-	return (
-		<thead className="bg-[var(--surface-secondary)] text-left text-xs uppercase tracking-wider text-[var(--text-tertiary)]">
-			<tr>
-				<th scope="col" className="px-4 py-3 font-semibold">
-					Kit
-				</th>
-				<th scope="col" className="px-4 py-3 font-semibold">
-					Actividad
-				</th>
-				<th scope="col" className="px-4 py-3 font-semibold">
-					Herramientas
-				</th>
-				<th scope="col" className="px-4 py-3 font-semibold">
-					Equipos
-				</th>
-				<th scope="col" className="px-4 py-3 font-semibold">
-					Estado
-				</th>
-				<th scope="col" className="px-4 py-3 font-semibold">
-					Actualizado
-				</th>
-				<th scope="col" className="px-4 py-3 font-semibold">
-					Acciones
-				</th>
-			</tr>
-		</thead>
-	);
-}
-
-function getKitSummary(toolCount: number, equipmentCount: number): string {
-	const toolLabel = toolCount === 1 ? "1 herramienta" : `${toolCount} herramientas`;
-	const equipmentLabel = equipmentCount === 1 ? "1 equipo" : `${equipmentCount} equipos`;
-	return `${toolLabel} · ${equipmentLabel}`;
-}
-
-function MaintenanceKitRow({
-	isDeleting,
-	kit,
-	onDelete,
-	permissions,
-}: {
-	isDeleting: boolean;
-	kit: MaintenanceKit;
-	onDelete: (id: string, name: string) => void;
-	permissions: MaintenanceKitPermissions;
-}) {
-	const updatedAt = kit.updatedAt
-		? format(new Date(kit.updatedAt), "dd MMM yyyy", { locale: es })
-		: ",";
-
-	return (
-		<tr className="transition-colors hover:bg-[var(--surface-secondary)]">
-			<td className="p-4">
-				<div className="space-y-1">
-					<p className="font-semibold text-[var(--text-primary)]">{kit.name}</p>
-					<p className="text-xs text-[var(--text-secondary)]">
-						{getKitSummary(kit.tools.length, kit.equipment.length)}
-					</p>
-				</div>
-			</td>
-			<td className="p-4 text-[var(--text-secondary)]">
-				{formatMaintenanceKitActivityLabel(kit.activityType)}
-			</td>
-			<td className="p-4 text-[var(--text-secondary)]">{kit.tools.length}</td>
-			<td className="p-4 text-[var(--text-secondary)]">{kit.equipment.length}</td>
-			<td className="p-4">
-				<span
-					className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-						kit.isActive
-							? "bg-[var(--color-success-bg)] text-[var(--color-success)]"
-							: "bg-[var(--surface-secondary)] text-[var(--text-secondary)]"
-					}`}
-				>
-					{kit.isActive ? "Activo" : "Inactivo"}
-				</span>
-			</td>
-			<td className="p-4 text-[var(--text-secondary)]">{updatedAt}</td>
-			<td className="p-4">
-				<div className="flex flex-wrap items-center gap-2">
-					<Link
-						href={`/maintenance/${kit._id}`}
-						className="inline-flex h-10 items-center gap-2 rounded-full border border-[var(--border-default)] px-3 text-xs font-semibold text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)]"
+			{/* Filters */}
+			<section className="rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-5">
+				<div className="flex flex-wrap items-center justify-between gap-4">
+					<h2 className="text-lg font-semibold text-[var(--text-primary)]">Filtros</h2>
+					<button
+						type="button"
+						onClick={handleFilterReset}
+						className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-medium)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
 					>
-						Ver
-						<ArrowRight className="size-3.5" />
-					</Link>
+						Restablecer
+					</button>
+				</div>
 
-					{permissions.edit ? (
-						<Link
-							href={`/maintenance/${kit._id}/edit`}
-							className="inline-flex h-10 items-center gap-2 rounded-full border border-[var(--border-default)] px-3 text-xs font-semibold text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)]"
+				<div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+					<FormField label="Buscar" htmlFor="kit-search">
+						<div className="relative">
+							<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-tertiary)]" />
+							<TextField
+								id="kit-search"
+								value={search}
+								onChange={(e) => {
+									setSearch(e.target.value);
+									setPage(1);
+								}}
+								placeholder="Buscar por nombre o código"
+								className="pl-9"
+							/>
+						</div>
+					</FormField>
+
+					<FormField label="Estado" htmlFor="kit-status">
+						<Select
+							id="kit-status"
+							value={statusFilter}
+							onChange={(e) => {
+								setStatusFilter(e.target.value);
+								setPage(1);
+							}}
 						>
-							<PencilLine className="size-3.5" />
-							Editar
+							<option value="all">Todos los estados</option>
+							{KIT_STATUS_OPTIONS.map((opt) => (
+								<option key={opt.value} value={opt.value}>
+									{opt.label}
+								</option>
+							))}
+						</Select>
+					</FormField>
+
+					<FormField label="Actividad" htmlFor="kit-activity">
+						<Select
+							id="kit-activity"
+							value={activityFilter}
+							onChange={(e) => {
+								setActivityFilter(e.target.value);
+								setPage(1);
+							}}
+						>
+							<option value="all">Todas</option>
+							{KIT_ACTIVITY_OPTIONS.map((opt) => (
+								<option key={opt.value} value={opt.value}>
+									{opt.label}
+								</option>
+							))}
+						</Select>
+					</FormField>
+
+					<FormField label="Riesgo" htmlFor="kit-risk">
+						<Select
+							id="kit-risk"
+							value={riskFilter}
+							onChange={(e) => {
+								setRiskFilter(e.target.value);
+								setPage(1);
+							}}
+						>
+							<option value="all">Todos</option>
+							{KIT_RISK_OPTIONS.map((opt) => (
+								<option key={opt.value} value={opt.value}>
+									{opt.label}
+								</option>
+							))}
+						</Select>
+					</FormField>
+				</div>
+			</section>
+
+			{/* Kit Grid / Empty */}
+			{kits.length === 0 ? (
+				<section className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-medium)] bg-[var(--surface-primary)] px-6 py-10 text-center">
+					<div className="rounded-[var(--radius-full)] bg-[var(--surface-secondary)] p-4 text-[var(--text-tertiary)]">
+						<Package2 className="size-8" />
+					</div>
+					<div className="max-w-md space-y-2">
+						<h3 className="text-lg font-semibold text-[var(--text-primary)]">
+							No hay kits en esta vista
+						</h3>
+						<p className="text-sm text-[var(--text-secondary)]">
+							Los kits reutilizables te permiten precargar herramientas, materiales, EPP y
+							documentos para una planeación más rápida y sin olvidos.
+						</p>
+					</div>
+					{canCreate ? (
+						<Link
+							href="/maintenance/new"
+							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-[var(--color-brand)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-hover)]"
+						>
+							<Plus className="size-4" />
+							Crear primer kit
 						</Link>
 					) : null}
+				</section>
+			) : (
+				<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+					{kits.map((kit) => (
+						<KitCard
+							key={kit._id}
+							kit={kit}
+							canManage={canManage}
+							onDelete={handleDelete}
+							onArchive={handleArchive}
+							onRestore={handleRestore}
+							onActivate={handleActivate}
+							onDuplicate={handleDuplicate}
+						/>
+					))}
+				</div>
+			)}
 
-					{permissions.delete && kit.isActive ? (
+			{/* Pagination */}
+			{totalPages > 1 ? (
+				<div className="flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-4 text-sm text-[var(--text-secondary)] sm:flex-row sm:items-center sm:justify-between">
+					<p>
+						Página {page} de {totalPages}
+					</p>
+					<div className="flex gap-2">
+						<button
+							type="button"
+							onClick={() => setPage((p) => Math.max(1, p - 1))}
+							disabled={page <= 1}
+							className="rounded-[var(--radius-full)] border border-[var(--border-medium)] px-4 py-2 font-medium text-[var(--text-primary)] transition hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							Anterior
+						</button>
+						<button
+							type="button"
+							onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+							disabled={page >= totalPages}
+							className="rounded-[var(--radius-full)] border border-[var(--border-medium)] px-4 py-2 font-medium text-[var(--text-primary)] transition hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							Siguiente
+						</button>
+					</div>
+				</div>
+			) : null}
+		</section>
+	);
+}
+
+// ─── Kit Card ──────────────────────────────────────────────────────────────
+
+interface KitCardProps {
+	kit: KitTemplate;
+	canManage: boolean;
+	onDelete: (id: string, name: string) => void;
+	onArchive: (id: string, name: string) => void;
+	onRestore: (id: string) => void;
+	onActivate: (id: string) => void;
+	onDuplicate: (id: string) => void;
+}
+
+function KitCard({
+	kit,
+	canManage,
+	onDelete,
+	onArchive,
+	onRestore,
+	onActivate,
+	onDuplicate,
+}: KitCardProps) {
+	const updatedAt = kit.updatedAt
+		? format(new Date(kit.updatedAt), "dd MMM yyyy", { locale: es })
+		: "";
+
+	const totalItems = getKitItemCount(kit);
+
+	const statusColorMap: Record<string, string> = {
+		draft: "bg-[var(--color-warning-bg)] text-[var(--color-warning)]",
+		active: "bg-[var(--color-success-bg)] text-[var(--color-success)]",
+		archived: "bg-[var(--surface-secondary)] text-[var(--text-tertiary)]",
+		voided: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
+	};
+
+	return (
+		<article className="group rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-card)] transition-all hover:shadow-[var(--shadow-2)] hover:border-[var(--color-brand)]/30">
+			<div className="flex items-start justify-between gap-4">
+				<div className="min-w-0 flex-1 space-y-1">
+					<div className="flex items-center gap-2">
+						<h3 className="truncate text-base font-semibold text-[var(--text-primary)]">
+							{kit.name}
+						</h3>
+						{kit.isDefault ? (
+							<span className="shrink-0 rounded-[var(--radius-full)] bg-[var(--color-cermont-blue-bg)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-brand)]">
+								Default
+							</span>
+						) : null}
+					</div>
+					<p className="text-xs text-[var(--text-secondary)]">
+						{formatKitActivityLabel(kit.activityType)}
+						{kit.riskLevel ? ` · ${formatKitRiskLabel(kit.riskLevel)}` : ""}
+						{kit.version ? ` · v${kit.version}` : ""}
+					</p>
+				</div>
+				<span
+					className={`shrink-0 rounded-[var(--radius-full)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+						statusColorMap[kit.status] ??
+						"bg-[var(--surface-secondary)] text-[var(--text-secondary)]"
+					}`}
+				>
+					{formatKitStatusLabel(kit.status)}
+				</span>
+			</div>
+
+			{kit.description ? (
+				<p className="mt-3 line-clamp-2 text-sm text-[var(--text-secondary)]">{kit.description}</p>
+			) : null}
+
+			{totalItems > 0 ? (
+				<div className="mt-4 flex flex-wrap gap-1.5">
+					{[
+						{ count: kit.tools?.length, icon: Wrench, label: "herramientas" },
+						{ count: kit.electricalTools?.length, icon: Wrench, label: "eléctricas" },
+						{ count: kit.epp?.length, icon: HardHat, label: "EPP" },
+						{ count: kit.materials?.length, icon: Package2, label: "mat." },
+						{ count: kit.attachments?.length, icon: FileText, label: "docs" },
+					]
+						.filter((c) => (c.count ?? 0) > 0)
+						.map((c) => {
+							const Icon = c.icon;
+							return (
+								<span
+									key={c.label}
+									className="inline-flex items-center gap-1 rounded-[var(--radius-full)] bg-[var(--surface-secondary)] px-2 py-1 text-[10px] font-medium text-[var(--text-tertiary)]"
+								>
+									<Icon className="size-3" />
+									{c.count} {c.label}
+								</span>
+							);
+						})}
+				</div>
+			) : null}
+
+			<div className="mt-4 flex items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-3 text-xs text-[var(--text-tertiary)]">
+				<span>
+					{kit.usageCount && kit.usageCount > 0
+						? `Usado ${kit.usageCount} vez${kit.usageCount !== 1 ? "es" : ""}`
+						: "Sin uso"}
+					{updatedAt ? ` · ${updatedAt}` : ""}
+				</span>
+				<div className="flex gap-1">
+					<Link
+						href={`/maintenance/${kit._id}`}
+						className="rounded-[var(--radius-full)] px-3 py-1.5 text-xs font-medium text-[var(--color-brand)] transition hover:bg-[var(--color-cermont-blue-bg)]"
+					>
+						Ver
+					</Link>
+					{canManage && kit.status === "draft" ? (
+						<button
+							type="button"
+							onClick={() => onActivate(kit._id)}
+							className="rounded-[var(--radius-full)] px-3 py-1.5 text-xs font-medium text-[var(--color-success)] transition hover:bg-[var(--color-success-bg)]"
+						>
+							Activar
+						</button>
+					) : null}
+					{canManage ? (
+						<button
+							type="button"
+							onClick={() => onDuplicate(kit._id)}
+							className="rounded-[var(--radius-full)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
+							title="Duplicar kit"
+						>
+							<Copy className="size-3.5" />
+						</button>
+					) : null}
+					{canManage && kit.status === "archived" ? (
+						<button
+							type="button"
+							onClick={() => onRestore(kit._id)}
+							className="rounded-[var(--radius-full)] px-3 py-1.5 text-xs font-medium text-[var(--color-warning)] transition hover:bg-[var(--color-warning-bg)]"
+						>
+							Restaurar
+						</button>
+					) : null}
+					{canManage && (kit.status === "active" || kit.status === "draft") ? (
+						<button
+							type="button"
+							onClick={() => onArchive(kit._id, kit.name)}
+							className="rounded-[var(--radius-full)] px-3 py-1.5 text-xs font-medium text-[var(--text-tertiary)] transition hover:bg-[var(--surface-secondary)]"
+							title="Archivar"
+						>
+							<Archive className="size-3.5" />
+						</button>
+					) : null}
+					{canManage && (kit.status === "draft" || kit.status === "active") ? (
 						<button
 							type="button"
 							onClick={() => onDelete(kit._id, kit.name)}
-							disabled={isDeleting}
-							className="inline-flex h-10 items-center gap-2 rounded-full border border-[var(--color-danger-bg)] px-3 text-xs font-semibold text-[var(--color-danger)] transition hover:bg-[var(--color-danger-bg)]/60 disabled:cursor-not-allowed disabled:opacity-60"
+							className="rounded-[var(--radius-full)] px-3 py-1.5 text-xs font-medium text-[var(--color-danger)] transition hover:bg-[var(--color-danger-bg)]"
 						>
-							{isDeleting ? (
-								<Loader2 className="size-3.5 animate-spin" />
-							) : (
-								<Trash2 className="size-3.5" />
-							)}
-							Desactivar
+							Eliminar
 						</button>
 					) : null}
 				</div>
-			</td>
-		</tr>
-	);
-}
-
-function MaintenancePagination({
-	kitPage,
-	page,
-	onPageChange,
-}: {
-	kitPage?: { page: number; totalPages: number };
-	page: number;
-	onPageChange: (updater: (current: number) => number) => void;
-}) {
-	if (!kitPage || kitPage.totalPages <= 1) {
-		return null;
-	}
-
-	return (
-		<div className="mt-5 flex flex-col gap-3 border-t border-zinc-200 pt-4 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
-			<p>
-				Página {kitPage.page} de {kitPage.totalPages}
-			</p>
-			<div className="flex gap-2">
-				<button
-					type="button"
-					onClick={() => onPageChange((current) => Math.max(1, current - 1))}
-					disabled={page <= 1}
-					className="rounded-full border border-zinc-200 px-4 py-2 font-medium text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
-				>
-					Anterior
-				</button>
-				<button
-					type="button"
-					onClick={() => onPageChange((current) => Math.min(kitPage.totalPages, current + 1))}
-					disabled={page >= kitPage.totalPages}
-					className="rounded-full border border-zinc-200 px-4 py-2 font-medium text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
-				>
-					Siguiente
-				</button>
 			</div>
-		</div>
+		</article>
 	);
 }

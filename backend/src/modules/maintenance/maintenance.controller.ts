@@ -32,6 +32,7 @@ interface MaintenanceKitRecord {
 		certificate_required?: boolean;
 	}>;
 	is_active: boolean;
+	imageUrls?: string[];
 	created_by: unknown;
 	createdAt: Date | string;
 	updatedAt: Date | string;
@@ -57,6 +58,7 @@ function serializeMaintenanceKit(kit: MaintenanceKitRecord): MaintenanceKitRespo
 			certificateRequired: Boolean(item.certificate_required),
 		})),
 		isActive: kit.is_active,
+		imageUrls: kit.imageUrls ?? [],
 		createdBy: String(kit.created_by),
 		createdAt: toIsoString(kit.createdAt) || new Date().toISOString(),
 		updatedAt: toIsoString(kit.updatedAt) || new Date().toISOString(),

@@ -12,6 +12,7 @@ import { AppError, ServiceUnavailableError } from "../../common/errors";
 import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { getKitTemplate, type KitTemplate } from "../../config/kit-templates";
 import { Kit } from "../../models/Kit";
+import { MaintenanceKit } from "../../models/MaintenanceKit";
 import { PlanningPacket } from "../../models/PlanningPacket";
 import { createAuditLog } from "../audit/audit.service";
 
@@ -148,6 +149,56 @@ function resolvePlanningReadinessStatus(packet: PlanningPacketReadinessView): Pl
 function normalizeNumber(value: unknown): number {
 	const parsed = Number(value);
 	return Number.isFinite(parsed) ? parsed : 0;
+}
+
+/**
+ * Suggest kit items by activity type
+ * Queries the MaintenanceKit collection for matching kits and returns tools/equipment
+ */
+export async function suggestKitByActivity(activityType: string): Promise<{
+	suggestion: {
+		tools: Array<{ name: string; quantity: number; specifications?: string }>;
+		equipment: Array<{ name: string; quantity: number; certificateRequired: boolean }>;
+		kitName: string;
+		kitId: string;
+	} | null;
+}> {
+	const kit = await MaintenanceKit.findOne({
+		activity_type: activityType as
+			| "electrico"
+			| "mecanico"
+			| "civil"
+			| "telecomunicaciones"
+			| "hse",
+		is_active: true,
+	})
+		.sort({ updatedAt: -1 })
+		.lean();
+
+	if (!kit) {
+		return { suggestion: null };
+	}
+
+	return {
+		suggestion: {
+			tools: (kit.tools || []).map(
+				(t: { name: string; quantity: number; specifications?: string }) => ({
+					name: t.name,
+					quantity: t.quantity,
+					specifications: t.specifications,
+				}),
+			),
+			equipment: (kit.equipment || []).map(
+				(e: { name: string; quantity: number; certificate_required?: boolean }) => ({
+					name: e.name,
+					quantity: e.quantity,
+					certificateRequired: Boolean(e.certificate_required),
+				}),
+			),
+			kitName: kit.name,
+			kitId: String(kit._id),
+		},
+	};
 }
 
 export async function listPlanningPackets(query: {

@@ -50,6 +50,7 @@ export const CreateMaintenanceKitSchema = z.object({
 	activityType: ActivityTypeEnum,
 	tools: z.array(ToolSchema).min(1, "At least one tool required"),
 	equipment: z.array(EquipmentSchema).default([]),
+	imageUrls: z.array(z.string()).optional().default([]),
 });
 
 export type CreateMaintenanceKit = z.infer<typeof CreateMaintenanceKitSchema>;
@@ -63,6 +64,7 @@ export const UpdateMaintenanceKitSchema = z.object({
 	tools: z.array(ToolSchema).optional(),
 	equipment: z.array(EquipmentSchema).optional(),
 	isActive: z.boolean().optional(),
+	imageUrls: z.array(z.string()).optional(),
 });
 
 export type UpdateMaintenanceKit = z.infer<typeof UpdateMaintenanceKitSchema>;
@@ -77,6 +79,7 @@ export const MaintenanceKitOutputDtoSchema = z.object({
 	tools: z.array(ToolSchema),
 	equipment: z.array(EquipmentSchema),
 	isActive: z.boolean(),
+	imageUrls: z.array(z.string()).default([]),
 	createdBy: z.string(),
 	createdAt: z.string().datetime(),
 	updatedAt: z.string().datetime(),

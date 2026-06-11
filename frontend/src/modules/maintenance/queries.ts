@@ -39,6 +39,7 @@ export interface MaintenanceKitListEnvelope {
 
 export type MaintenanceKitMutationInput = CreateMaintenanceKit & {
 	isActive?: boolean;
+	imageUrls?: string[];
 };
 
 const MAINTENANCE_KIT_KEYS = {

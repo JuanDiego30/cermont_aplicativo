@@ -1,88 +1,108 @@
 "use client";
 
-/**
- * KitForm — Create/Edit dialog for kit templates
- *
- * Renders a Radix UI Dialog with react-hook-form + zod validation
- * for the KitTemplate schema (name, description, category, status, items).
- *
- * @see CreateKitSchema in @cermont/shared-types
- */
-
-import {
-	type CreateKitInput,
-	CreateKitSchema,
-	type KitTemplate,
-	type UpdateKitInput,
-} from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Loader2, Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { useCallback } from "react";
-import { type Resolver, useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Button } from "@/core/ui/Button";
 import { FormField, Select, TextArea, TextField } from "@/core/ui/FormField";
-import { useCreateKit, useUpdateKit } from "../hooks/useKits";
+import { KIT_ACTIVITY_OPTIONS } from "@/modules/kits/constants";
+import { useCreateKit } from "../hooks/useKits";
 
 interface KitFormItem {
 	type: string;
 	name: string;
 	quantity: number;
 	unit: string;
-	required: boolean;
-	critical: boolean;
-	code?: string;
+	isCritical: boolean;
+	isOptional: boolean;
 	description?: string;
-	unitCost?: number;
 }
 
 interface KitFormValues {
 	name: string;
 	description?: string;
-	category: string;
-	status: string;
-	serviceTypeIds: string[];
-	items: KitFormItem[];
+	activityType: string;
+	tools: KitFormItem[];
+	materials: KitFormItem[];
+	epp: KitFormItem[];
 }
 
 interface KitFormProps {
-	kit?: KitTemplate | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess?: () => void;
 }
-
-const CATEGORY_OPTIONS = [
-	{ value: "electrico", label: "Eléctrico" },
-	{ value: "mecanico", label: "Mecánico" },
-	{ value: "civil", label: "Civil" },
-	{ value: "instrumentacion", label: "Instrumentación" },
-	{ value: "general", label: "General" },
-];
-
-const ITEM_TYPE_OPTIONS = [
-	{ value: "tool", label: "Herramienta" },
-	{ value: "equipment", label: "Equipo" },
-	{ value: "material", label: "Material" },
-	{ value: "ppe", label: "EPP / Seguridad" },
-	{ value: "document", label: "Documento" },
-	{ value: "form", label: "Formulario" },
-];
 
 const DEFAULT_ITEM: KitFormItem = {
 	type: "tool",
 	name: "",
 	quantity: 1,
 	unit: "unidad",
-	required: false,
-	critical: false,
+	isCritical: false,
+	isOptional: false,
 };
 
-const kitFormResolver = zodResolver(CreateKitSchema) as Resolver<KitFormValues>;
+const kitFormSchema = z.object({
+	name: z.string().min(1, "El nombre es requerido").max(200),
+	description: z.string().max(2000).optional(),
+	activityType: z.string().min(1, "La actividad es requerida"),
+	tools: z
+		.array(
+			z.object({
+				type: z.string(),
+				name: z.string().min(1, "El nombre es requerido"),
+				quantity: z.coerce.number().int().min(1),
+				unit: z.string().min(1),
+				isCritical: z.boolean().default(false),
+				isOptional: z.boolean().default(false),
+				description: z.string().optional(),
+			}),
+		)
+		.default([DEFAULT_ITEM]),
+	materials: z
+		.array(
+			z.object({
+				type: z.string(),
+				name: z.string().min(1),
+				quantity: z.coerce.number().int().min(1),
+				unit: z.string().min(1),
+				isCritical: z.boolean().default(false),
+				isOptional: z.boolean().default(false),
+				description: z.string().optional(),
+			}),
+		)
+		.default([]),
+	epp: z
+		.array(
+			z.object({
+				type: z.string(),
+				name: z.string().min(1),
+				quantity: z.coerce.number().int().min(1),
+				unit: z.string().min(1),
+				isCritical: z.boolean().default(false),
+				isOptional: z.boolean().default(false),
+				description: z.string().optional(),
+			}),
+		)
+		.default([]),
+});
 
-export function KitForm({ kit, open, onOpenChange, onSuccess }: KitFormProps) {
-	const isEdit = Boolean(kit);
+export function KitForm({ open, onOpenChange, onSuccess }: KitFormProps) {
+	const formInstance = useForm<KitFormValues>({
+		resolver: zodResolver(kitFormSchema) as never,
+		defaultValues: {
+			name: "",
+			description: "",
+			activityType: "electrico",
+			tools: [DEFAULT_ITEM],
+			materials: [],
+			epp: [],
+		},
+	});
 
 	const {
 		register,
@@ -90,101 +110,65 @@ export function KitForm({ kit, open, onOpenChange, onSuccess }: KitFormProps) {
 		reset,
 		control,
 		formState: { errors },
-	} = useForm<KitFormValues>({
-		resolver: kitFormResolver,
-		defaultValues: {
-			name: kit?.name ?? "",
-			description: kit?.description ?? "",
-			category: kit?.category ?? "general",
-			status: kit?.status ?? "draft",
-			serviceTypeIds: kit?.serviceTypeIds ?? [],
-			items: kit?.items?.length ? (kit.items as KitFormItem[]) : [DEFAULT_ITEM],
-		},
-	});
-
-	const { fields, append, remove } = useFieldArray<KitFormValues, "items">({
-		control,
-		name: "items",
-	});
+	} = formInstance;
+	const toolFields = useFieldArray({ control, name: "tools" as const });
+	const materialFields = useFieldArray({ control, name: "materials" as const });
+	const eppFields = useFieldArray({ control, name: "epp" as const });
 
 	const createMutation = useCreateKit();
-	const updateMutation = useUpdateKit();
 
-	// Reset form when the dialog opens or resource changes
 	const handleOpenChange = useCallback(
 		(nextOpen: boolean) => {
 			if (nextOpen) {
 				reset({
-					name: kit?.name ?? "",
-					description: kit?.description ?? "",
-					category: kit?.category ?? "general",
-					status: kit?.status ?? "draft",
-					serviceTypeIds: kit?.serviceTypeIds ?? [],
-					items: kit?.items?.length ? (kit.items as KitFormItem[]) : [DEFAULT_ITEM],
+					name: "",
+					description: "",
+					activityType: "electrico",
+					tools: [DEFAULT_ITEM],
+					materials: [],
+					epp: [],
 				});
 			}
 			onOpenChange(nextOpen);
 		},
-		[kit, reset, onOpenChange],
+		[reset, onOpenChange],
 	);
-
-	const getItemsError = (index: number, field: string) => {
-		const itemsErrors = errors.items;
-		if (!itemsErrors || !Array.isArray(itemsErrors)) {
-			return undefined;
-		}
-		const itemError = itemsErrors[index];
-		if (!itemError || typeof itemError !== "object") {
-			return undefined;
-		}
-		return (itemError as Record<string, { message?: string }>)[field]?.message;
-	};
-
-	const hasItemsError = (index: number, field: string) => {
-		return Boolean(getItemsError(index, field));
-	};
 
 	const onSubmit = useCallback(
 		async (raw: KitFormValues) => {
 			try {
-				if (isEdit && kit) {
-					await updateMutation.mutateAsync({ id: kit._id, input: raw as UpdateKitInput });
-				} else {
-					await createMutation.mutateAsync(raw as CreateKitInput);
-				}
+				await createMutation.mutateAsync(
+					raw as unknown as Parameters<typeof createMutation.mutateAsync>[0],
+				);
 				onSuccess?.();
 				onOpenChange(false);
 			} catch {
-				// Error handled by TanStack Query / toast notifications
+				// Error handled by TanStack Query
 			}
 		},
-		[isEdit, kit, updateMutation, createMutation, onSuccess, onOpenChange],
+		[createMutation, onSuccess, onOpenChange],
 	);
 
-	const isPending = createMutation.isPending || updateMutation.isPending;
-
+	const isPending = createMutation.isPending;
 	const titleId = "kit-form-title";
 
 	return (
 		<Dialog.Root open={open} onOpenChange={handleOpenChange}>
 			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
 				<Dialog.Content
 					className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 outline-none sm:items-center"
 					aria-labelledby={titleId}
 				>
-					<div className="w-full max-w-2xl rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-xl sm:p-8">
+					<div className="w-full max-w-2xl rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-6 shadow-xl sm:p-8">
 						<Dialog.Title id={titleId} className="text-lg font-semibold text-[var(--text-primary)]">
-							{isEdit ? "Editar kit" : "Nuevo kit"}
+							Nuevo kit
 						</Dialog.Title>
 						<Dialog.Description className="mt-1 text-sm text-[var(--text-secondary)]">
-							{isEdit
-								? "Actualiza los campos del kit. Los cambios se guardarán al confirmar."
-								: "Completa los campos para crear un nuevo kit típico."}
+							Completa los campos para crear un nuevo kit típico reutilizable.
 						</Dialog.Description>
 
 						<form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-6" noValidate>
-							{/* Basic info */}
 							<fieldset className="space-y-4">
 								<legend className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
 									Información básica
@@ -200,13 +184,13 @@ export function KitForm({ kit, open, onOpenChange, onSuccess }: KitFormProps) {
 									</FormField>
 
 									<FormField
-										name="category"
-										label="Categoría"
+										name="activityType"
+										label="Actividad"
 										required
-										error={errors.category?.message}
+										error={errors.activityType?.message}
 									>
-										<Select {...register("category")} error={Boolean(errors.category)}>
-											{CATEGORY_OPTIONS.map((opt) => (
+										<Select {...register("activityType")} error={Boolean(errors.activityType)}>
+											{KIT_ACTIVITY_OPTIONS.map((opt) => (
 												<option key={opt.value} value={opt.value}>
 													{opt.label}
 												</option>
@@ -229,100 +213,65 @@ export function KitForm({ kit, open, onOpenChange, onSuccess }: KitFormProps) {
 								</FormField>
 							</fieldset>
 
-							{/* Items */}
+							{/* Tools */}
 							<fieldset className="space-y-4">
 								<legend className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
-									<span>Ítems del kit</span>
+									<span>Herramientas</span>
 									<button
 										type="button"
-										onClick={() => append(DEFAULT_ITEM)}
-										className="flex items-center gap-1 text-[var(--color-cermont-blue)] hover:text-[var(--color-cermont-blue)]/80 transition-colors"
-										aria-label="Agregar ítem"
+										onClick={() => toolFields.append({ ...DEFAULT_ITEM, type: "tool" })}
+										className="flex items-center gap-1 text-[var(--color-brand)] hover:text-[var(--color-brand-hover)] transition-colors"
+										aria-label="Agregar herramienta"
 									>
 										<Plus aria-hidden="true" className="size-3.5" />
 										Agregar
 									</button>
 								</legend>
 
-								{fields.length === 0 ? (
+								{toolFields.fields.length === 0 ? (
 									<p className="text-sm text-[var(--text-tertiary)] italic">
-										No hay ítems. Agrega al menos un ítem al kit.
+										No hay herramientas. Agrega al menos una.
 									</p>
 								) : (
 									<ul className="space-y-3">
-										{fields.map((field, index) => (
+										{toolFields.fields.map((field, index) => (
 											<li
 												key={field.id}
-												className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-secondary)]/40 p-4"
+												className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)]/40 p-4"
 											>
 												<div className="flex items-start justify-between gap-2">
 													<div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-														<FormField
-															name={`items.${index}.type`}
-															label="Tipo"
-															required
-															error={getItemsError(index, "type")}
-														>
-															<Select
-																{...register(`items.${index}.type`)}
-																error={hasItemsError(index, "type")}
-															>
-																{ITEM_TYPE_OPTIONS.map((opt) => (
-																	<option key={opt.value} value={opt.value}>
-																		{opt.label}
-																	</option>
-																))}
-															</Select>
-														</FormField>
-
-														<FormField
-															name={`items.${index}.name`}
-															label="Nombre"
-															required
-															error={getItemsError(index, "name")}
-														>
+														<FormField name={`tools.${index}.name`} label="Nombre" required>
 															<TextField
-																{...register(`items.${index}.name`)}
+																{...register(`tools.${index}.name`)}
 																placeholder="Ej: Taladro"
-																error={hasItemsError(index, "name")}
 															/>
 														</FormField>
-
-														<FormField
-															name={`items.${index}.quantity`}
-															label="Cant."
-															required
-															error={getItemsError(index, "quantity")}
-														>
+														<FormField name={`tools.${index}.quantity`} label="Cant." required>
 															<TextField
 																type="number"
 																min={1}
-																{...register(`items.${index}.quantity`, {
-																	valueAsNumber: true,
-																})}
-																error={hasItemsError(index, "quantity")}
+																{...register(`tools.${index}.quantity`, { valueAsNumber: true })}
 															/>
 														</FormField>
-
-														<FormField
-															name={`items.${index}.unit`}
-															label="Unidad"
-															required
-															error={getItemsError(index, "unit")}
-														>
+														<FormField name={`tools.${index}.unit`} label="Unidad" required>
 															<TextField
-																{...register(`items.${index}.unit`)}
-																placeholder="Ej: unidad, metro, litro"
-																error={hasItemsError(index, "unit")}
+																{...register(`tools.${index}.unit`)}
+																placeholder="unidad, metro, litro"
+															/>
+														</FormField>
+														<FormField name={`tools.${index}.description`} label="Descripción">
+															<TextField
+																{...register(`tools.${index}.description`)}
+																placeholder="Opcional"
 															/>
 														</FormField>
 													</div>
-
 													<button
 														type="button"
-														onClick={() => remove(index)}
+														onClick={() => toolFields.remove(index)}
 														className="mt-1 shrink-0 text-[var(--text-tertiary)] hover:text-[var(--color-danger)] transition-colors"
-														aria-label={`Eliminar ítem ${index + 1}`}
+														aria-label={`Eliminar ${index + 1}`}
 													>
 														<Trash2 aria-hidden="true" className="size-4" />
 													</button>
@@ -333,24 +282,135 @@ export function KitForm({ kit, open, onOpenChange, onSuccess }: KitFormProps) {
 								)}
 							</fieldset>
 
-							{/* Actions */}
-							<div className="flex items-center justify-end gap-3 border-t border-[var(--border-default)] pt-5">
+							{/* Materials */}
+							<fieldset className="space-y-4">
+								<legend className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+									<span>Materiales (opcional)</span>
+									<button
+										type="button"
+										onClick={() => materialFields.append({ ...DEFAULT_ITEM, type: "material" })}
+										className="flex items-center gap-1 text-[var(--color-brand)] hover:text-[var(--color-brand-hover)] transition-colors"
+									>
+										<Plus aria-hidden="true" className="size-3.5" />
+										Agregar
+									</button>
+								</legend>
+
+								{materialFields.fields.length === 0 ? (
+									<p className="text-sm text-[var(--text-tertiary)] italic">
+										Sin materiales. Puedes dejarlo vacío.
+									</p>
+								) : (
+									<ul className="space-y-3">
+										{materialFields.fields.map((field, index) => (
+											<li
+												key={field.id}
+												className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)]/40 p-4"
+											>
+												<div className="flex items-start justify-between gap-2">
+													<div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
+														<FormField name={`materials.${index}.name`} label="Nombre" required>
+															<TextField
+																{...register(`materials.${index}.name`)}
+																placeholder="Ej: Cable THHN"
+															/>
+														</FormField>
+														<FormField name={`materials.${index}.quantity`} label="Cant." required>
+															<TextField
+																type="number"
+																min={1}
+																{...register(`materials.${index}.quantity`, {
+																	valueAsNumber: true,
+																})}
+															/>
+														</FormField>
+														<FormField name={`materials.${index}.unit`} label="Unidad" required>
+															<TextField
+																{...register(`materials.${index}.unit`)}
+																placeholder="metro, kg"
+															/>
+														</FormField>
+													</div>
+													<button
+														type="button"
+														onClick={() => materialFields.remove(index)}
+														className="mt-1 shrink-0 text-[var(--text-tertiary)] hover:text-[var(--color-danger)]"
+													>
+														<Trash2 className="size-4" />
+													</button>
+												</div>
+											</li>
+										))}
+									</ul>
+								)}
+							</fieldset>
+
+							{/* EPP */}
+							<fieldset className="space-y-4">
+								<legend className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+									<span>EPP (opcional)</span>
+									<button
+										type="button"
+										onClick={() => eppFields.append({ ...DEFAULT_ITEM, type: "epp" })}
+										className="flex items-center gap-1 text-[var(--color-brand)] hover:text-[var(--color-brand-hover)] transition-colors"
+									>
+										<Plus aria-hidden="true" className="size-3.5" />
+										Agregar
+									</button>
+								</legend>
+
+								{eppFields.fields.length === 0 ? (
+									<p className="text-sm text-[var(--text-tertiary)] italic">
+										Sin EPP. Puedes dejarlo vacío.
+									</p>
+								) : (
+									<ul className="space-y-3">
+										{eppFields.fields.map((field, index) => (
+											<li
+												key={field.id}
+												className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)]/40 p-4"
+											>
+												<div className="flex items-start justify-between gap-2">
+													<div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
+														<FormField name={`epp.${index}.name`} label="Nombre" required>
+															<TextField
+																{...register(`epp.${index}.name`)}
+																placeholder="Ej: Casco"
+															/>
+														</FormField>
+														<FormField name={`epp.${index}.quantity`} label="Cant." required>
+															<TextField
+																type="number"
+																min={1}
+																{...register(`epp.${index}.quantity`, { valueAsNumber: true })}
+															/>
+														</FormField>
+														<FormField name={`epp.${index}.unit`} label="Unidad" required>
+															<TextField {...register(`epp.${index}.unit`)} placeholder="unidad" />
+														</FormField>
+													</div>
+													<button
+														type="button"
+														onClick={() => eppFields.remove(index)}
+														className="mt-1 shrink-0 text-[var(--text-tertiary)] hover:text-[var(--color-danger)]"
+													>
+														<Trash2 className="size-4" />
+													</button>
+												</div>
+											</li>
+										))}
+									</ul>
+								)}
+							</fieldset>
+
+							<div className="flex items-center justify-end gap-3 border-t border-[var(--border-medium)] pt-5">
 								<Dialog.Close asChild>
 									<Button type="button" variant="outline" disabled={isPending}>
 										Cancelar
 									</Button>
 								</Dialog.Close>
 								<Button type="submit" variant="primary" disabled={isPending} loading={isPending}>
-									{isPending ? (
-										<>
-											<Loader2 className="size-4 animate-spin" aria-hidden="true" />
-											{isEdit ? "Guardando…" : "Creando…"}
-										</>
-									) : isEdit ? (
-										"Guardar cambios"
-									) : (
-										"Crear kit"
-									)}
+									{isPending ? "Creando…" : "Crear kit"}
 								</Button>
 							</div>
 						</form>
