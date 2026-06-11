@@ -37,6 +37,8 @@ export const APP_ROUTES = {
 	adminUsers: "/admin/users",
 	adminUsersNew: "/admin/users/new",
 	adminCustomFields: "/admin/custom-fields",
+	adminPersonnel: "/admin/personnel",
+	adminBackups: "/admin/backups",
 	settings: "/settings",
 	serviceCases: "/service-cases",
 	customers: "/customers",

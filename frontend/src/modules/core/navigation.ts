@@ -204,6 +204,16 @@ export const NAV_GROUPS = [
 				label: "Campos personalizados",
 				icon: ListChecks,
 			},
+			{
+				to: APP_ROUTES.adminPersonnel,
+				label: "Personal y certificaciones",
+				icon: HardHat,
+			},
+			{
+				to: APP_ROUTES.adminBackups,
+				label: "Respaldos",
+				icon: FileSpreadsheet,
+			},
 		],
 	},
 ] satisfies NavigationGroup[];

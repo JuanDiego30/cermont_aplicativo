@@ -14,6 +14,7 @@ import { shouldSkipAuthRateLimit, shouldSkipGlobalRateLimit } from "./common/sec
 import { createLogger } from "./common/utils/logger";
 import { getDatabaseHealth } from "./config/db";
 import { env } from "./config/env";
+import adminBackupRoutes from "./modules/admin-backup/admin-backup.routes";
 import aiRoutes from "./modules/ai/ai.routes";
 import analyticsRoutes from "./modules/analytics/analytics.routes";
 import metricsRoutes from "./modules/analytics/metrics.routes";
@@ -325,6 +326,7 @@ const API_MOUNTS: ApiMount[] = [
 	{ prefix: "/api/dashboard", router: dashboardRoutes },
 	{ prefix: "/api/metrics", router: metricsRoutes },
 	{ prefix: "/api/portal", router: portalRoutes },
+	{ prefix: "/api/admin/backups", router: adminBackupRoutes },
 ];
 
 for (const mount of API_MOUNTS) {
