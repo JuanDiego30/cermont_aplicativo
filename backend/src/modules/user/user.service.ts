@@ -11,7 +11,13 @@
  * Controllers call this service and handle HTTP responses.
  */
 
-import type { CreateUserInput, UpdateUserInput, UserRole } from "@cermont/shared-types";
+import type {
+	AddUserCertificationInput,
+	CreateUserInput,
+	UpdateUserInput,
+	UserCertification,
+	UserRole,
+} from "@cermont/shared-types";
 import { BadRequestError, ConflictError, NotFoundError } from "../../common/errors/AppError";
 import { USER_ROLES, User } from "../../models";
 import type { IUserDocument } from "../../models/User";
@@ -25,6 +31,8 @@ export interface UserContract {
 	isActive: boolean;
 	phone?: string;
 	avatarUrl?: string;
+	certifications: UserCertification[];
+	skills: string[];
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -53,6 +61,8 @@ function formatUserResponse(doc: IUserDocument): UserContract {
 		isActive: doc.isActive,
 		phone: doc.phone,
 		avatarUrl: doc.avatarUrl,
+		certifications: doc.certifications ?? [],
+		skills: doc.skills ?? [],
 		createdAt: doc.createdAt,
 		updatedAt: doc.updatedAt,
 	};
@@ -279,4 +289,111 @@ export async function deactivateUser(userId: string): Promise<UserContract> {
 export async function userExists(userId: string): Promise<boolean> {
 	const user = await User.findById(userId).lean();
 	return user?.isActive === true;
+}
+
+/**
+ * Add a personnel certification to a user
+ */
+export async function addUserCertification(
+	userId: string,
+	input: AddUserCertificationInput,
+): Promise<UserContract> {
+	const user = await User.findById(userId);
+	if (!user) {
+		throw new NotFoundError("User", userId);
+	}
+
+	const duplicate = user.certifications?.some(
+		(cert) =>
+			cert.name === input.name &&
+			cert.certificationNumber !== undefined &&
+			cert.certificationNumber === input.certificationNumber,
+	);
+	if (duplicate) {
+		throw new ConflictError("La certificación ya está registrada para este usuario");
+	}
+
+	user.certifications = [...(user.certifications ?? []), input];
+	await user.save();
+
+	createAuditLog({
+		action: "USER_CERTIFICATION_ADDED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		userEmail: user.email,
+		metadata: { certification: input.name },
+	});
+
+	return formatUserResponse(user);
+}
+
+/**
+ * Remove a personnel certification by name (and optional number)
+ */
+export async function removeUserCertification(
+	userId: string,
+	certificationName: string,
+): Promise<UserContract> {
+	const user = await User.findById(userId);
+	if (!user) {
+		throw new NotFoundError("User", userId);
+	}
+
+	const before = user.certifications?.length ?? 0;
+	user.certifications = (user.certifications ?? []).filter(
+		(cert) => cert.name !== certificationName,
+	);
+	if (user.certifications.length === before) {
+		throw new NotFoundError("Certification", certificationName);
+	}
+	await user.save();
+
+	return formatUserResponse(user);
+}
+
+/**
+ * Replace the skills list of a user (skills matrix)
+ */
+export async function updateUserSkills(userId: string, skills: string[]): Promise<UserContract> {
+	const user = await User.findById(userId);
+	if (!user) {
+		throw new NotFoundError("User", userId);
+	}
+
+	user.skills = skills;
+	await user.save();
+
+	return formatUserResponse(user);
+}
+
+/**
+ * Certifications expiring within the next N days (default 30), across all
+ * active users. ISO-8601 strings compare lexicographically.
+ */
+export async function getExpiringCertifications(daysAhead: number = 30) {
+	const now = new Date();
+	const limitDate = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+	const nowIso = now.toISOString();
+	const limitIso = limitDate.toISOString();
+
+	const users = await User.find({
+		isActive: true,
+		"certifications.expiresAt": { $lte: limitIso },
+	})
+		.select("-password")
+		.lean();
+
+	return users.flatMap((user) =>
+		(user.certifications ?? [])
+			.filter((cert) => Boolean(cert.expiresAt) && (cert.expiresAt as string) <= limitIso)
+			.map((cert) => ({
+				userId: user._id.toString(),
+				userName: user.name,
+				certification: cert.name,
+				certificationNumber: cert.certificationNumber,
+				expiresAt: cert.expiresAt,
+				expired: (cert.expiresAt as string) < nowIso,
+			})),
+	);
 }

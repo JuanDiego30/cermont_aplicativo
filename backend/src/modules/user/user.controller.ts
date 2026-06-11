@@ -15,9 +15,11 @@
  */
 
 import {
+	AddUserCertificationSchema,
 	CreateUserSchema,
 	ListUsersQuerySchema,
 	UpdateUserSchema,
+	UpdateUserSkillsSchema,
 	UserIdParamsSchema,
 	UserRoleParamsSchema,
 } from "@cermont/shared-types";
@@ -183,4 +185,57 @@ export async function getUsersByRole(req: Request, res: Response): Promise<void>
 		success: true,
 		data: users,
 	});
+}
+
+/**
+ * POST /api/users/:id/certifications
+ *
+ * Add a personnel certification (alturas, espacios confinados, eléctrico, ...)
+ */
+export async function addUserCertification(req: Request, res: Response): Promise<void> {
+	const { id } = UserIdParamsSchema.parse(req.params);
+	const input = AddUserCertificationSchema.parse(req.body);
+	const user = await UserService.addUserCertification(id, input);
+
+	res.status(201).json({ success: true, data: user });
+}
+
+/**
+ * DELETE /api/users/:id/certifications/:name
+ *
+ * Remove a personnel certification by name
+ */
+export async function removeUserCertification(req: Request, res: Response): Promise<void> {
+	const { id } = UserIdParamsSchema.parse(req.params);
+	const certificationName = decodeURIComponent(String(req.params.name ?? ""));
+	const user = await UserService.removeUserCertification(id, certificationName);
+
+	res.status(200).json({ success: true, data: user });
+}
+
+/**
+ * PUT /api/users/:id/skills
+ *
+ * Replace the skills list of a user (skills matrix)
+ */
+export async function updateUserSkills(req: Request, res: Response): Promise<void> {
+	const { id } = UserIdParamsSchema.parse(req.params);
+	const { skills } = UpdateUserSkillsSchema.parse(req.body);
+	const user = await UserService.updateUserSkills(id, skills);
+
+	res.status(200).json({ success: true, data: user });
+}
+
+/**
+ * GET /api/users/expiring-certifications?days=30
+ *
+ * Personnel certifications expiring within N days (default 30)
+ */
+export async function getExpiringCertifications(req: Request, res: Response): Promise<void> {
+	const days = Number.parseInt(String(req.query.days ?? "30"), 10);
+	const items = await UserService.getExpiringCertifications(
+		Number.isFinite(days) && days > 0 ? days : 30,
+	);
+
+	res.status(200).json({ success: true, data: items });
 }

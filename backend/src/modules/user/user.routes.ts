@@ -18,9 +18,11 @@
 
 import { MANAGEMENT_ROLES } from "@cermont/domain";
 import {
+	AddUserCertificationSchema,
 	CreateUserSchema,
 	ListUsersQuerySchema,
 	UpdateUserSchema,
+	UpdateUserSkillsSchema,
 	UserIdParamsSchema,
 	UserRoleParamsSchema,
 } from "@cermont/shared-types";
@@ -75,6 +77,18 @@ router.get(
 );
 
 /**
+ * GET /api/users/expiring-certifications
+ * Personnel certifications expiring within N days
+ * Roles: GER, RES (must come BEFORE /:id)
+ */
+router.get(
+	"/expiring-certifications",
+	authenticate,
+	authorize(...MANAGEMENT_ROLES),
+	UserController.getExpiringCertifications,
+);
+
+/**
  * GET /api/users/:id
  * Get user by ID
  * Roles: GER, RES
@@ -113,6 +127,46 @@ router.patch(
 	authorize("gerente"),
 	validateParams(UserIdParamsSchema),
 	UserController.deactivateUser,
+);
+
+/**
+ * POST /api/users/:id/certifications
+ * Add a personnel certification
+ * Roles: GER, RES
+ */
+router.post(
+	"/:id/certifications",
+	authenticate,
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(UserIdParamsSchema),
+	validateBody(AddUserCertificationSchema),
+	UserController.addUserCertification,
+);
+
+/**
+ * DELETE /api/users/:id/certifications/:name
+ * Remove a personnel certification by name
+ * Roles: GER, RES
+ */
+router.delete(
+	"/:id/certifications/:name",
+	authenticate,
+	authorize(...MANAGEMENT_ROLES),
+	UserController.removeUserCertification,
+);
+
+/**
+ * PUT /api/users/:id/skills
+ * Replace user skills (skills matrix)
+ * Roles: GER, RES
+ */
+router.put(
+	"/:id/skills",
+	authenticate,
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(UserIdParamsSchema),
+	validateBody(UpdateUserSkillsSchema),
+	UserController.updateUserSkills,
 );
 
 export default router;

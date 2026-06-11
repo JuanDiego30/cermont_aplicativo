@@ -91,6 +91,18 @@ export const UserSchema = z
 		isActive: z.boolean().default(true),
 		phone: z.string().max(20).optional(),
 		avatarUrl: z.string().url().optional(),
+		certifications: z
+			.array(
+				z.object({
+					name: z.string(),
+					issuedAt: z.string().datetime(),
+					expiresAt: z.string().datetime().optional(),
+					certificationNumber: z.string().optional(),
+					issuingBody: z.string().max(200).optional(),
+				}),
+			)
+			.default([]),
+		skills: z.array(z.string().min(1).max(100)).default([]),
 		createdAt: z.string().datetime(),
 		updatedAt: z.string().datetime(),
 	})
@@ -163,8 +175,25 @@ export const UserCertificationSchema = z.object({
 	issuedAt: z.string().datetime(),
 	expiresAt: z.string().datetime().optional(),
 	certificationNumber: z.string().optional(),
+	issuingBody: z.string().max(200).optional(),
 });
 export type UserCertification = z.infer<typeof UserCertificationSchema>;
+
+/**
+ * Add a certification to a user (personnel certification matrix)
+ */
+export const AddUserCertificationSchema = UserCertificationSchema.strict();
+export type AddUserCertificationInput = z.infer<typeof AddUserCertificationSchema>;
+
+/**
+ * Replace the skills list of a user (skills matrix)
+ */
+export const UpdateUserSkillsSchema = z
+	.object({
+		skills: z.array(z.string().min(1).max(100)).max(50),
+	})
+	.strict();
+export type UpdateUserSkillsInput = z.infer<typeof UpdateUserSkillsSchema>;
 
 /**
  * Navigation badges for sidebar indicators

@@ -56,6 +56,24 @@ const UserSchema = new Schema<IUserDocument, UserModel, IUserMethods>(
 		isActive: { type: Boolean, default: true, index: true },
 		phone: { type: String, maxlength: 20 },
 		avatarUrl: { type: String },
+		// Certificaciones de personal (alturas, espacios confinados, eléctrico, etc.)
+		// Las fechas se guardan como ISO strings para alinear con el contrato compartido.
+		certifications: {
+			type: [
+				new Schema(
+					{
+						name: { type: String, required: true },
+						issuedAt: { type: String, required: true },
+						expiresAt: { type: String },
+						certificationNumber: { type: String },
+						issuingBody: { type: String, maxlength: 200 },
+					},
+					{ _id: false },
+				),
+			],
+			default: [],
+		},
+		skills: { type: [String], default: [] },
 	},
 	{ timestamps: true, versionKey: false },
 );

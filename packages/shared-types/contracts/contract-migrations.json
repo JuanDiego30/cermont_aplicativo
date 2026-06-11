@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:0afbdf9828b916e458e05555b4978c366b43bd300322caa7246f9b6a9cd8392d",
+	"currentSnapshotHash": "sha256:f78c71ec86ca7d61cb6a9754cf42f128fc47a7481f55414a5e2e7e4afcf16c85",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -301,6 +301,13 @@
 			"type": "non-breaking",
 			"description": "Export AST (safety analysis) schemas from barrel with Update/ListQuery/Sign DTOs and FSM transition map for the digital AST module.",
 			"toHash": "sha256:0afbdf9828b916e458e05555b4978c366b43bd300322caa7246f9b6a9cd8392d"
+		},
+		{
+			"id": "043-user-certifications-skills",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Add certifications and skills to the User contract with Add/UpdateSkills DTOs for the personnel certification matrix.",
+			"toHash": "sha256:f78c71ec86ca7d61cb6a9754cf42f128fc47a7481f55414a5e2e7e4afcf16c85"
 		}
 	]
 }
