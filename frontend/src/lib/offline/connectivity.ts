@@ -7,7 +7,11 @@ export interface ConnectivityState {
 	isOnline: boolean;
 }
 
-const CONNECTIVITY_ENDPOINTS = ["/api/backend/health", "/serwist/sw.js"] as const;
+// /api/backend/health goes through the Next.js proxy which returns a graceful
+// 204+fallback header when the backend is unreachable (never ERR_CONNECTION_REFUSED).
+// /serwist/sw.js was removed as a probe endpoint because it's a PWA route handler
+// that may not be available in all deployment modes, causing spurious ERR_CONNECTION_REFUSED.
+const CONNECTIVITY_ENDPOINTS = ["/api/backend/health"] as const;
 const PING_TIMEOUT_MS = 5_000;
 const ONLINE_INTERVAL_MS = 30_000;
 const OFFLINE_BACKOFF_MS = [5_000, 10_000, 30_000, 60_000] as const;

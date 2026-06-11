@@ -44,17 +44,16 @@ export function NetworkStatusChip() {
 	}
 
 	return (
-		<div
-			role="status"
+		<output
 			aria-live="polite"
 			aria-label={`Estado de red: ${text || "En línea"}`}
 			className={cn(
-				"flex h-7 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold font-mono shadow-sm bg-background",
+				"inline-flex h-7 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold font-mono shadow-sm bg-background",
 				badgeColor,
 			)}
 		>
 			{icon}
 			{text && <span className="hidden sm:inline">{text}</span>}
-		</div>
+		</output>
 	);
 }
