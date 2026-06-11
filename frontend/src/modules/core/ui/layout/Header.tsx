@@ -92,9 +92,26 @@ export default function Header({
 			}
 		},
 		// Notifications are intentionally polled at a low frequency for operational alerts.
-		refetchInterval: 30_000,
+		// Stop polling on auth errors to avoid 401 storms through Serwist.
+		refetchInterval: (query) => {
+			if (query.state.error) {
+				return false; // stop polling on errors
+			}
+			return 30_000;
+		},
 		enabled: Boolean(user && accessToken),
-		retry: 1,
+		retry: (failureCount, error) => {
+			// Don't retry auth errors — they indicate expired sessions
+			if (
+				error &&
+				typeof error === "object" &&
+				"status" in error &&
+				(error as { status: number }).status === 401
+			) {
+				return false;
+			}
+			return failureCount < 1;
+		},
 		staleTime: 25_000,
 	});
 
