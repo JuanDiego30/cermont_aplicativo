@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:682cfea8e65e2c4a1a83523cf912f56a02321f5a44c0e03f4ff96a414cbb2938",
+	"currentSnapshotHash": "sha256:c56c139fb449b71e1244848af968b2053251ff8a76915ee2d7a9073788ab0210",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -287,6 +287,13 @@
 			"type": "non-breaking",
 			"description": "Add InvoiceApproval and ClientSignature schemas, enhance Notification schema with multi-channel, add FSM engine.",
 			"toHash": "sha256:682cfea8e65e2c4a1a83523cf912f56a02321f5a44c0e03f4ff96a414cbb2938"
+		},
+		{
+			"id": "041-client-crm-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Export Client schema from barrel and extend it with city, industry, contracts, Update/ListQuery DTOs for the CRM module.",
+			"toHash": "sha256:c56c139fb449b71e1244848af968b2053251ff8a76915ee2d7a9073788ab0210"
 		}
 	]
 }

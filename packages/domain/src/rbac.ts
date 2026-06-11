@@ -139,6 +139,10 @@ export const ROUTE_ACCESS_RULES = [
 		roles: ALL_AUTHENTICATED_ROLES,
 	},
 	{
+		prefix: "/customers",
+		roles: INTERNAL_ROLES,
+	},
+	{
 		prefix: "/settings",
 		roles: MANAGEMENT_ROLES,
 	},

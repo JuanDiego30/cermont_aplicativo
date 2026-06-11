@@ -54,6 +54,11 @@ export const NAV_GROUPS = [
 		label: "Comercial",
 		items: [
 			{
+				to: APP_ROUTES.customers,
+				label: "Clientes",
+				icon: Building2,
+			},
+			{
 				to: APP_ROUTES.workRequests,
 				label: "Solicitudes",
 				icon: FileText,
@@ -182,6 +187,11 @@ export const NAV_GROUPS = [
 				to: APP_ROUTES.adminUsers,
 				label: "Usuarios",
 				icon: Users,
+			},
+			{
+				to: APP_ROUTES.adminCustomFields,
+				label: "Campos personalizados",
+				icon: ListChecks,
 			},
 		],
 	},

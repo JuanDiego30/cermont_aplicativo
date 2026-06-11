@@ -8,6 +8,7 @@ export * from "./audit.schema";
 export * from "./auth.schema";
 export * from "./cermont-operational-step.schema";
 export * from "./checklist.schema";
+export * from "./client.schema";
 export * from "./client-signature.schema";
 export * from "./closureReport.schema";
 export * from "./common.schema";

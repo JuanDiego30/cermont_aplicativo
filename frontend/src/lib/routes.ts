@@ -36,8 +36,12 @@ export const APP_ROUTES = {
 	admin: "/admin",
 	adminUsers: "/admin/users",
 	adminUsersNew: "/admin/users/new",
+	adminCustomFields: "/admin/custom-fields",
 	settings: "/settings",
 	serviceCases: "/service-cases",
+	customers: "/customers",
+	customerNew: "/customers/new",
+	notifications: "/notifications",
 } as const;
 
 export type AppRouteKey = keyof typeof APP_ROUTES;
