@@ -1,12 +1,15 @@
 import path from "node:path";
-import { isProduction, validateEnv } from "@cermont/config";
+import { validateEnv } from "@cermont/config";
 import { withSerwist } from "@serwist/turbopack";
 import type { NextConfig } from "next";
 
 const monorepoRoot = path.resolve(__dirname, "..");
 const env = validateEnv();
 // Backend runs on port 4000 (see backend/package.json scripts)
-const defaultBackendUrl = isProduction() ? "http://backend:4000" : "http://localhost:4000";
+// BACKEND_URL es la única fuente de verdad. El fallback localhost:4000 funciona
+// para desarrollo local y npm run start. Docker Compose inyecta explícitamente
+// BACKEND_URL=http://backend:4000 en el contenedor frontend.
+const defaultBackendUrl = "http://localhost:4000";
 const backendUrl = (env.BACKEND_URL || defaultBackendUrl).replace(/\/+$/, "");
 const isWindowsBuild = process.platform === "win32";
 const localDevOrigins = ["127.0.0.1", "localhost", "192.168.56.1"] as const;
