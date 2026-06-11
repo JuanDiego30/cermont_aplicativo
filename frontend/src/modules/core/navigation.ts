@@ -16,6 +16,7 @@ import {
 	Package,
 	Receipt,
 	TrendingUp,
+	Truck,
 	Users,
 	Wallet,
 	Wrench,
@@ -172,6 +173,11 @@ export const NAV_GROUPS = [
 				to: APP_ROUTES.inventory,
 				label: "Inventario",
 				icon: Package,
+			},
+			{
+				to: APP_ROUTES.fleet,
+				label: "Vehículos",
+				icon: Truck,
 			},
 			{
 				to: APP_ROUTES.assets,

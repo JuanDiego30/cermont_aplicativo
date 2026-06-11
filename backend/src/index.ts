@@ -36,6 +36,7 @@ import evidenceCollectionRoutes from "./modules/evidence/evidence-collection.rou
 import executionSessionRoutes from "./modules/execution-session/execution-session.routes";
 import executionTechnicalReportRoutes from "./modules/execution-session/execution-technical-report.routes";
 import filesRoutes from "./modules/files/files.routes";
+import fleetRoutes from "./modules/fleet/fleet.routes";
 import formSubmissionRoutes from "./modules/form-submissions/form-submission.routes";
 import inspectionRoutes from "./modules/inspection/inspection.routes";
 import inventoryRoutes from "./modules/inventory/inventory.routes";
@@ -275,6 +276,7 @@ app.use("/api/evidence-collections", evidenceCollectionRoutes);
 app.use("/api/execution-sessions", executionSessionRoutes);
 app.use("/api/execution-sessions", executionTechnicalReportRoutes);
 app.use("/api/files", filesRoutes);
+app.use("/api/fleet", fleetRoutes);
 app.use("/api/form-submissions", formSubmissionRoutes);
 app.use("/api/checklists", checklistRoutes);
 app.use("/api/clients", clientRoutes);

@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:7095cbea0bee9881abbba596716c224a2a292cda38bb46887968ff286436aaa1",
+	"currentSnapshotHash": "sha256:4e16858e7a6ac119665a13663419bd0bf17f403e2284c0d5fdf171fd69f7f953",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -315,6 +315,13 @@
 			"type": "non-breaking",
 			"description": "Export inventory item and stock movement schemas with Create/Update/Movement/ListQuery DTOs for the inventory module.",
 			"toHash": "sha256:7095cbea0bee9881abbba596716c224a2a292cda38bb46887968ff286436aaa1"
+		},
+		{
+			"id": "045-fleet-vehicle-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Add Vehicle schema with Colombian document expiries (SOAT, tecnomecanica, poliza), Create/Update/ListQuery DTOs and document alert contract for the fleet module.",
+			"toHash": "sha256:4e16858e7a6ac119665a13663419bd0bf17f403e2284c0d5fdf171fd69f7f953"
 		}
 	]
 }

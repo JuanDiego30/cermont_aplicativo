@@ -24825,6 +24825,109 @@
       ],
       "type": "object"
     },
+    "CreateVehicleSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "brand": {
+          "maxLength": 60,
+          "minLength": 1,
+          "type": "string"
+        },
+        "capacity": {
+          "maxLength": 60,
+          "type": "string"
+        },
+        "driverId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "driverName": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "insuranceExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "kilometers": {
+          "default": 0,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lastMaintenanceAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "model": {
+          "maxLength": 60,
+          "minLength": 1,
+          "type": "string"
+        },
+        "nextMaintenanceKm": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "plate": {
+          "maxLength": 10,
+          "minLength": 5,
+          "pattern": "^[A-Z0-9-]+$",
+          "type": "string"
+        },
+        "soatExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "maintenance",
+            "out_of_service"
+          ],
+          "type": "string"
+        },
+        "technoMechanicalExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "camioneta",
+            "camion",
+            "moto",
+            "van",
+            "otro"
+          ],
+          "type": "string"
+        },
+        "year": {
+          "maximum": 2100,
+          "minimum": 1980,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "plate",
+        "brand",
+        "model",
+        "year",
+        "type",
+        "kilometers",
+        "status"
+      ],
+      "type": "object"
+    },
     "CreateWorkReportSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -50911,6 +51014,47 @@
             "administrativo",
             "pasante",
             "cliente"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "page",
+        "limit"
+      ],
+      "type": "object"
+    },
+    "ListVehiclesQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "default": 20,
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "type": "integer"
+        },
+        "page": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "maintenance",
+            "out_of_service"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "camioneta",
+            "camion",
+            "moto",
+            "van",
+            "otro"
           ],
           "type": "string"
         }
@@ -92109,6 +92253,100 @@
       ],
       "type": "object"
     },
+    "UpdateVehicleSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "brand": {
+          "maxLength": 60,
+          "minLength": 1,
+          "type": "string"
+        },
+        "capacity": {
+          "maxLength": 60,
+          "type": "string"
+        },
+        "driverId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "driverName": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "insuranceExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "kilometers": {
+          "default": 0,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lastMaintenanceAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "model": {
+          "maxLength": 60,
+          "minLength": 1,
+          "type": "string"
+        },
+        "nextMaintenanceKm": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "plate": {
+          "maxLength": 10,
+          "minLength": 5,
+          "pattern": "^[A-Z0-9-]+$",
+          "type": "string"
+        },
+        "soatExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "maintenance",
+            "out_of_service"
+          ],
+          "type": "string"
+        },
+        "technoMechanicalExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "camioneta",
+            "camion",
+            "moto",
+            "van",
+            "otro"
+          ],
+          "type": "string"
+        },
+        "year": {
+          "maximum": 2100,
+          "minimum": 1980,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
     "UpdateWorkReportSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -93228,6 +93466,194 @@
         "ruleType"
       ],
       "type": "object"
+    },
+    "VehicleDocumentAlertSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentType": {
+          "enum": [
+            "soat",
+            "tecnomecanica",
+            "poliza"
+          ],
+          "type": "string"
+        },
+        "expired": {
+          "type": "boolean"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "plate": {
+          "type": "string"
+        },
+        "vehicleId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vehicleId",
+        "plate",
+        "documentType",
+        "expiresAt",
+        "expired"
+      ],
+      "type": "object"
+    },
+    "VehicleIdParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "VehicleSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "brand": {
+          "maxLength": 60,
+          "minLength": 1,
+          "type": "string"
+        },
+        "capacity": {
+          "maxLength": 60,
+          "type": "string"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "driverId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "driverName": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "insuranceExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "kilometers": {
+          "default": 0,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lastMaintenanceAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "model": {
+          "maxLength": 60,
+          "minLength": 1,
+          "type": "string"
+        },
+        "nextMaintenanceKm": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "plate": {
+          "maxLength": 10,
+          "minLength": 5,
+          "pattern": "^[A-Z0-9-]+$",
+          "type": "string"
+        },
+        "soatExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "maintenance",
+            "out_of_service"
+          ],
+          "type": "string"
+        },
+        "technoMechanicalExpiry": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "camioneta",
+            "camion",
+            "moto",
+            "van",
+            "otro"
+          ],
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "year": {
+          "maximum": 2100,
+          "minimum": 1980,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "plate",
+        "brand",
+        "model",
+        "year",
+        "type",
+        "kilometers",
+        "status"
+      ],
+      "type": "object"
+    },
+    "VehicleStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "active",
+        "maintenance",
+        "out_of_service"
+      ],
+      "type": "string"
+    },
+    "VehicleTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "camioneta",
+        "camion",
+        "moto",
+        "van",
+        "otro"
+      ],
+      "type": "string"
     },
     "VerifyClientSignatureSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",

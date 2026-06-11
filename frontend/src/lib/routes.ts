@@ -43,6 +43,7 @@ export const APP_ROUTES = {
 	customerNew: "/customers/new",
 	notifications: "/notifications",
 	inventory: "/inventory",
+	fleet: "/fleet",
 } as const;
 
 export type AppRouteKey = keyof typeof APP_ROUTES;

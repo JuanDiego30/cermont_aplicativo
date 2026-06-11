@@ -147,6 +147,10 @@ export const ROUTE_ACCESS_RULES = [
 		roles: INTERNAL_ROLES,
 	},
 	{
+		prefix: "/fleet",
+		roles: INTERNAL_ROLES,
+	},
+	{
 		prefix: "/settings",
 		roles: MANAGEMENT_ROLES,
 	},
