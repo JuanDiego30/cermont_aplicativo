@@ -1,9 +1,43 @@
 import type { UserRole } from "@cermont/domain";
 import { Types } from "mongoose";
 import { createLogger } from "../../common/utils/logger";
-import { Notification, NotificationOutbox, ServiceCase, User } from "../../models";
+import {
+	Notification as NotificationModel,
+	NotificationOutbox,
+	ServiceCase,
+	User,
+} from "../../models";
+import { registerGateway } from "../../services/messaging";
+import { emailGateway } from "../../services/messaging/email.gateway";
+import { compileNotificationTemplate } from "../../services/messaging/notification-templates";
+import { smsGateway } from "../../services/messaging/sms.gateway";
 
-const log = createLogger("notification-outbox");
+const log = createLogger("notification-service");
+
+// Register messaging gateways on module load
+registerGateway(emailGateway);
+registerGateway(smsGateway);
+
+export type NotificationChannel = "in_app" | "email" | "sms";
+
+export interface NotificationOptions {
+	recipientUserId: string;
+	recipientRole?: UserRole;
+	recipientEmail?: string;
+	recipientPhone?: string;
+	type: string;
+	priority?: "low" | "medium" | "high" | "critical";
+	title: string;
+	body: string;
+	relatedEntity?: {
+		entityType: string;
+		entityId: string;
+	};
+	channels?: NotificationChannel[];
+	templateName?: string;
+	templateVariables?: Record<string, string>;
+	metadata?: Record<string, unknown>;
+}
 
 const RETRY_DELAYS_MS = [1 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000] as const;
 
@@ -43,7 +77,6 @@ export function getRolesToNotifyForStep(stepCode: string): UserRole[] {
 			return ["residente", "supervisor", "gerente"];
 		case "execution":
 			return ["supervisor", "tecnico", "operador"];
-		// CORREGIDO: Pasos 7-10 corregidos (evidences absorbido en ejecución paso 6).
 		case "technical_report":
 			return ["supervisor", "gerente"];
 		case "delivery_record":
@@ -66,6 +99,202 @@ export function getRolesToNotifyForStep(stepCode: string): UserRole[] {
 	}
 }
 
+// ─── Channel-specific sending logic ────────────────────────────────────────
+
+async function sendEmail(
+	title: string,
+	body: string,
+	recipient: { email?: string },
+): Promise<{ status: string; error?: string }> {
+	if (!recipient.email) {
+		return { status: "failed", error: "No email address" };
+	}
+	const { getGateway } = await import("../../services/messaging/index.js");
+	const gateway = getGateway("email");
+	if (!gateway) {
+		return { status: "failed", error: "Email gateway not available" };
+	}
+	const result = await gateway.send({ to: recipient.email as string, subject: title, body });
+	return { status: result.success ? "sent" : "failed", error: result.error };
+}
+
+async function sendSms(
+	body: string,
+	recipient: { phone?: string },
+): Promise<{ status: string; error?: string }> {
+	if (!recipient.phone) {
+		return { status: "failed", error: "No phone number" };
+	}
+	const { getGateway: getSmsGateway } = await import("../../services/messaging/index.js");
+	const gateway = getSmsGateway("sms");
+	if (!gateway) {
+		return { status: "failed", error: "SMS gateway not available" };
+	}
+	const smsBody = body.length > 160 ? `${body.substring(0, 157)}...` : body;
+	const result = await gateway.send({ to: recipient.phone as string, body: smsBody });
+	return { status: result.success ? "sent" : "failed", error: result.error };
+}
+
+async function sendViaChannel(
+	channel: NotificationChannel,
+	_notificationId: string,
+	title: string,
+	body: string,
+	recipient: { email?: string; phone?: string; userId: string; role?: string },
+): Promise<{ status: string; error?: string }> {
+	try {
+		if (channel === "in_app") {
+			return { status: "sent" };
+		}
+		if (channel === "email") {
+			return sendEmail(title, body, recipient);
+		}
+		if (channel === "sms") {
+			return sendSms(body, recipient);
+		}
+		return { status: "failed", error: `Unknown channel: ${channel}` };
+	} catch (err) {
+		log.error(`Channel ${channel} send failed`, { error: String(err) });
+		return { status: "failed", error: String(err) };
+	}
+}
+
+// ─── Create Notification (Multi-channel) ────────────────────────────────────
+
+export async function createNotification(options: NotificationOptions): Promise<void> {
+	const channels = options.channels ?? ["in_app"];
+	const notificationId = `not_${new Types.ObjectId().toString()}`;
+
+	// Create channel delivery tracking entries
+	const channelEntries = channels.map((channel) => ({
+		channel,
+		status: "pending" as const,
+		retryCount: 0,
+	}));
+
+	// Save notification to DB
+	await NotificationModel.create({
+		notificationId,
+		recipientUserId: new Types.ObjectId(options.recipientUserId),
+		recipientRole: options.recipientRole,
+		recipientEmail: options.recipientEmail,
+		recipientPhone: options.recipientPhone,
+		type: options.type,
+		priority: options.priority ?? "medium",
+		title: options.title,
+		body: options.body,
+		relatedEntity: options.relatedEntity
+			? {
+					entityType: options.relatedEntity.entityType,
+					entityId: new Types.ObjectId(options.relatedEntity.entityId),
+				}
+			: undefined,
+		channels: channelEntries,
+		templateName: options.templateName,
+		templateVariables: options.templateVariables ?? {},
+		isRead: false,
+		createdAt: new Date(),
+		metadata: options.metadata,
+	});
+
+	// Send through requested channels (async, non-blocking)
+	for (const channel of channels) {
+		if (channel === "in_app") {
+			// Already persisted — mark as sent
+			await NotificationModel.updateOne(
+				{ notificationId },
+				{ $set: { "channels.$[elem].status": "sent" } },
+				{ arrayFilters: [{ "elem.channel": "in_app" }] },
+			);
+			continue;
+		}
+
+		const result = await sendViaChannel(channel, notificationId, options.title, options.body, {
+			email: options.recipientEmail,
+			phone: options.recipientPhone,
+			userId: options.recipientUserId,
+		});
+
+		await NotificationModel.updateOne(
+			{ notificationId },
+			{
+				$set: {
+					"channels.$[elem].status": result.status,
+					"channels.$[elem].sentAt": new Date(),
+					...(result.error ? { "channels.$[elem].error": result.error } : {}),
+				},
+			},
+			{ arrayFilters: [{ "elem.channel": channel }] },
+		);
+	}
+}
+
+/**
+ * Creates notifications from a template with variables
+ */
+export async function createNotificationFromTemplate(
+	templateName: string,
+	variables: Record<string, string>,
+	recipientUserId: string,
+	recipientRole?: UserRole,
+	recipientEmail?: string,
+	recipientPhone?: string,
+	relatedEntity?: { entityType: string; entityId: string },
+	channels?: NotificationChannel[],
+): Promise<void> {
+	const compiled = compileNotificationTemplate(templateName, variables);
+	if (!compiled) {
+		log.warn(`Template not found: ${templateName}`);
+		return;
+	}
+
+	await createNotification({
+		recipientUserId,
+		recipientRole,
+		recipientEmail,
+		recipientPhone,
+		type: templateNameToNotificationType(templateName),
+		priority: getPriorityForTemplate(templateName),
+		title: compiled.title,
+		body: compiled.body,
+		relatedEntity,
+		channels: channels ?? ["in_app"],
+		templateName,
+		templateVariables: variables,
+		metadata: { template: templateName, variables },
+	});
+}
+
+function templateNameToNotificationType(templateName: string): string {
+	const map: Record<string, string> = {
+		work_assigned: "WORK_ORDER_ASSIGNED",
+		proposal_approved: "PROPOSAL_STATUS",
+		execution_started: "EXECUTION_STARTED",
+		ses_approved: "SES_STATUS",
+		invoice_sent: "INVOICE_STATUS",
+		payment_received: "PAYMENT_RECEIVED",
+		certification_expiring: "CERTIFICATION_EXPIRING",
+		maintenance_due: "MAINTENANCE_DUE",
+		payment_overdue: "PAYMENT_OVERDUE",
+		report_approved: "REPORT_APPROVED",
+	};
+	return map[templateName] ?? "STATE_TRANSITION";
+}
+
+function getPriorityForTemplate(templateName: string): "low" | "medium" | "high" | "critical" {
+	const highPriority = ["certification_expiring", "payment_overdue", "payment_received"];
+	const criticalPriority = ["certification_expiring"];
+	if (criticalPriority.includes(templateName)) {
+		return "critical";
+	}
+	if (highPriority.includes(templateName)) {
+		return "high";
+	}
+	return "medium";
+}
+
+// ─── State Transition Notification ──────────────────────────────────────────
+
 export async function notifyStateTransition(
 	serviceCaseId: string,
 	previousState: string,
@@ -80,43 +309,46 @@ export async function notifyStateTransition(
 	const rolesToNotify = getRolesToNotifyForStep(newState);
 	const users = await User.find({ role: { $in: rolesToNotify } }).lean();
 
-	const notificationsToCreate = users.map((user) => {
-		const notificationId = `not_${new Types.ObjectId().toString()}`;
-		return {
-			notificationId,
-			recipientUserId: user._id,
-			recipientRole: user.role,
-			type: "STATE_TRANSITION",
-			title: `Cambio de estado: ${serviceCase.code}`,
-			body: `El caso de servicio ha avanzado de ${previousState} a ${newState}.`,
-			relatedEntity: {
-				entityType: "ServiceCase",
-				entityId: serviceCase._id,
-			},
-			isRead: false,
-			createdAt: new Date(),
-			metadata: {
-				previousState,
-				newState,
-				triggeredByUserId,
-			},
-		};
-	});
+	const notificationsToCreate = users.map((user) => ({
+		notificationId: `not_${new Types.ObjectId().toString()}`,
+		recipientUserId: user._id,
+		recipientRole: user.role,
+		recipientEmail: user.email,
+		recipientPhone: user.phone,
+		type: "STATE_TRANSITION",
+		priority: "medium" as const,
+		title: `Cambio de estado: ${serviceCase.code}`,
+		body: `El caso de servicio ha avanzado de ${previousState} a ${newState}.`,
+		relatedEntity: {
+			entityType: "ServiceCase",
+			entityId: serviceCase._id,
+		},
+		channels: [{ channel: "in_app" as const, status: "pending" as const, retryCount: 0 }],
+		isRead: false,
+		createdAt: new Date(),
+		metadata: {
+			previousState,
+			newState,
+			triggeredByUserId,
+		},
+	}));
 
 	if (notificationsToCreate.length > 0) {
-		await Notification.insertMany(notificationsToCreate);
+		await NotificationModel.insertMany(notificationsToCreate);
 	}
 }
 
+// ─── Query ──────────────────────────────────────────────────────────────────
+
 export async function getNotificationsForUser(userId: string) {
-	const notifications = await Notification.find({
+	const notifications = await NotificationModel.find({
 		recipientUserId: new Types.ObjectId(userId),
 	})
 		.sort({ createdAt: -1 })
 		.limit(50)
 		.lean();
 
-	const unreadCount = await Notification.countDocuments({
+	const unreadCount = await NotificationModel.countDocuments({
 		recipientUserId: new Types.ObjectId(userId),
 		isRead: false,
 	});
@@ -127,24 +359,71 @@ export async function getNotificationsForUser(userId: string) {
 	};
 }
 
-export async function markAsRead(notificationId: string, userId: string) {
-	const updated = await Notification.findOneAndUpdate(
-		{
-			_id: new Types.ObjectId(notificationId),
-			recipientUserId: new Types.ObjectId(userId),
+export async function getNotificationsForUserPaginated(
+	userId: string,
+	query: { page?: number; limit?: number; type?: string; isRead?: boolean },
+) {
+	const filter: Record<string, unknown> = {
+		recipientUserId: new Types.ObjectId(userId),
+	};
+	if (query.type) {
+		filter.type = query.type;
+	}
+	if (query.isRead !== undefined) {
+		filter.isRead = query.isRead;
+	}
+
+	const page = query.page ?? 1;
+	const limit = Math.min(query.limit ?? 20, 100);
+	const skip = (page - 1) * limit;
+
+	const [notifications, total] = await Promise.all([
+		NotificationModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+		NotificationModel.countDocuments(filter),
+	]);
+
+	const unreadCount = await NotificationModel.countDocuments({
+		recipientUserId: new Types.ObjectId(userId),
+		isRead: false,
+	});
+
+	return {
+		notifications,
+		unreadCount,
+		pagination: {
+			page,
+			limit,
+			total,
+			totalPages: Math.ceil(total / limit),
 		},
+	};
+}
+
+export async function markAsRead(notificationId: string, userId: string) {
+	const id = notificationId.length === 24 ? new Types.ObjectId(notificationId) : notificationId;
+	const filter =
+		typeof id === "string"
+			? { notificationId: id, recipientUserId: new Types.ObjectId(userId) }
+			: { _id: id, recipientUserId: new Types.ObjectId(userId) };
+
+	const updated = await NotificationModel.findOneAndUpdate(
+		filter,
 		{
 			isRead: true,
 			readAt: new Date(),
+			$set: { "channels.$[elem].status": "read", "channels.$[elem].readAt": new Date() },
 		},
-		{ new: true },
+		{
+			arrayFilters: [{ "elem.channel": "in_app" }],
+			new: true,
+		},
 	).lean();
 
 	return updated;
 }
 
 export async function markAllAsRead(userId: string) {
-	const result = await Notification.updateMany(
+	const result = await NotificationModel.updateMany(
 		{
 			recipientUserId: new Types.ObjectId(userId),
 			isRead: false,
