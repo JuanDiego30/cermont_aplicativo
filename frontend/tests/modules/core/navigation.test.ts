@@ -21,6 +21,7 @@ describe("Cermont sequential navigation", () => {
 		expect(
 			NAV_GROUPS.find((group) => group.label === "Comercial")?.items.map((item) => item.to),
 		).toEqual([
+			APP_ROUTES.customers,
 			APP_ROUTES.workRequests,
 			APP_ROUTES.siteVisits,
 			APP_ROUTES.proposals,
