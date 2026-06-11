@@ -142,6 +142,10 @@ export const ROUTE_ACCESS_RULES = [
 		prefix: "/settings",
 		roles: MANAGEMENT_ROLES,
 	},
+	{
+		prefix: "/portal",
+		roles: ["cliente", ...ADMIN_ROLES],
+	},
 ] as const satisfies readonly {
 	prefix: string;
 	roles: readonly UserRole[];

@@ -64,6 +64,31 @@ export {
 	validateRequiredEvidence,
 	validateRequiredSignatures,
 } from "./execution";
+// ─── Kit Rules ──────────────────────────────────────────────────────────────
+export type {
+	ApplyKitDecision,
+	ArchiveKitDecision,
+	DeleteKitDecision,
+	KitChecklistRequirementDomainModel,
+	KitDocumentRequirementDomainModel,
+	KitDomainModel,
+	KitItemDomainModel,
+	KitReadinessRuleDomainModel,
+	KitRiskLevel,
+	KitStatus,
+	ReadinessResult,
+} from "./kit.rules";
+export {
+	calculateKitReadiness,
+	canActivateKit,
+	canApplyKitToPlanning,
+	canArchiveKit,
+	canDeleteKit,
+	canRestoreKit,
+	getAllKitItems,
+	getCriticalItemCount,
+	getMissingCriticalKitItems,
+} from "./kit.rules";
 export type {
 	OperationalStep,
 	OperationalStepKey,

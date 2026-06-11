@@ -15,6 +15,7 @@ import type { CreateUserInput, UpdateUserInput, UserRole } from "@cermont/shared
 import { BadRequestError, ConflictError, NotFoundError } from "../../common/errors/AppError";
 import { USER_ROLES, User } from "../../models";
 import type { IUserDocument } from "../../models/User";
+import { createAuditLog } from "../audit/audit.service";
 
 export interface UserContract {
 	_id: string;
@@ -89,6 +90,15 @@ export async function createUser(payload: CreateUserInput): Promise<UserContract
 	});
 
 	await user.save();
+
+	createAuditLog({
+		action: "USER_CREATED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		userEmail: user.email,
+		metadata: { role: user.role, name: user.name },
+	});
 
 	return formatUserResponse(user);
 }
@@ -250,6 +260,14 @@ export async function deactivateUser(userId: string): Promise<UserContract> {
 
 	user.isActive = false;
 	await user.save();
+
+	createAuditLog({
+		action: "USER_DEACTIVATED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		userEmail: user.email,
+	});
 
 	return formatUserResponse(user);
 }

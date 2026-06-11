@@ -21,6 +21,7 @@ import auditRoutes from "./modules/audit/audit.routes";
 import authRoutes from "./modules/auth/auth.routes";
 import checklistRoutes from "./modules/checklist/checklist.routes";
 import costRoutes from "./modules/cost/cost.routes";
+import customFieldRoutes from "./modules/custom-fields/custom-field.routes";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 import deliveryRecordRoutes from "./modules/delivery-record/delivery-record.routes";
 import deliveryRecordServiceEntrySheetRoutes from "./modules/delivery-record/delivery-record-service-entry-sheet.routes";
@@ -47,6 +48,7 @@ import orderClosureRoutes from "./modules/order/order-closure.routes";
 import orderExecutionSessionRoutes from "./modules/order/order-execution-session.routes";
 import paymentRoutes from "./modules/payment/payment.routes";
 import planningPacketRoutes from "./modules/planning-packet/planning-packet.routes";
+import portalRoutes from "./modules/portal/portal.routes";
 import proposalRoutes from "./modules/proposal/proposal.routes";
 import purchaseOrderRoutes from "./modules/purchase-order/purchase-order.routes";
 import reportRoutes from "./modules/report/report.routes";
@@ -272,6 +274,7 @@ app.use("/api/files", filesRoutes);
 app.use("/api/form-submissions", formSubmissionRoutes);
 app.use("/api/checklists", checklistRoutes);
 app.use("/api/costs", costRoutes);
+app.use("/api/custom-fields", customFieldRoutes);
 app.use("/api/kits", kitRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/documents", documentRoutes);
@@ -307,6 +310,7 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/service-cases", serviceCaseRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/metrics", metricsRoutes);
+app.use("/api/portal", portalRoutes);
 
 function getBackendVersion(): string {
 	try {

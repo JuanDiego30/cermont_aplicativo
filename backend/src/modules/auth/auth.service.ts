@@ -10,6 +10,7 @@ import {
 import { createLogger } from "../../common/utils/logger";
 import { env } from "../../config/env";
 import { TokenBlacklist, User } from "../../models";
+import { createAuditLog } from "../audit/audit.service";
 
 const log = createLogger("auth-service");
 
@@ -137,6 +138,15 @@ export async function login(email: string, password: string): Promise<LoginContr
 
 	const tokenPair = buildTokenPair(user._id.toString(), user.email, user.role);
 
+	createAuditLog({
+		action: "LOGIN_SUCCESS",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		userEmail: user.email,
+		metadata: { role: user.role },
+	});
+
 	return {
 		accessToken: tokenPair.accessToken,
 		refreshToken: tokenPair.refreshToken,
@@ -230,6 +240,18 @@ export async function logout(accessToken: string, refreshToken: string): Promise
 			blacklistToken(accessDecoded, ACCESS_EXPIRES_IN),
 			blacklistToken(refreshDecoded, REFRESH_EXPIRES_IN),
 		]);
+
+		// Extract userId from access token for audit
+		const decoded = jwt.decode(accessToken) as { sub?: string; _id?: string } | null;
+		if (decoded?.sub ?? decoded?._id) {
+			createAuditLog({
+				action: "LOGOUT",
+				entity: "User",
+				entityId: decoded.sub ?? decoded._id ?? "",
+				userId: decoded.sub ?? decoded._id ?? "",
+				metadata: { tokenExpiry: accessDecoded?.exp },
+			});
+		}
 	} catch (err) {
 		log.error("Failed to blacklist tokens on logout", { err: String(err) });
 	}
