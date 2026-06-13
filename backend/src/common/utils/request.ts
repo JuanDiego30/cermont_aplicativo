@@ -4,9 +4,11 @@ import { UnauthorizedError } from "../errors";
 
 export interface AuthClaims {
 	_id: string;
+	sub?: string;
 	email?: string;
 	role: UserRole;
 	jti?: string;
+	tokenVersion?: number;
 }
 
 export function getString(value?: string | string[] | number): string {

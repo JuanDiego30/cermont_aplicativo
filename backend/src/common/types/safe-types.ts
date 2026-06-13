@@ -9,10 +9,10 @@
 export type JsonPrimitive = string | number | boolean;
 
 export interface JsonObject {
-	[key: string]: JsonPrimitive | JsonObject | JsonPrimitive[] | JsonObject[];
+	[key: string]: JsonValue;
 }
 
-export type JsonValue = JsonPrimitive | JsonObject | JsonPrimitive[] | JsonObject[];
+export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 
 /**
  * Remove __v from Mongoose toJSON output without using weak tokens

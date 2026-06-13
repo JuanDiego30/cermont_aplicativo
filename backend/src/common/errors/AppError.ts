@@ -66,6 +66,26 @@ export class BadRequestError extends AppError {
 }
 
 /**
+ * 413 — Payload Too Large
+ * Uploaded payload exceeds the configured size limit
+ */
+export class PayloadTooLargeError extends AppError {
+	constructor(message: string = "Payload too large", code: string = "PAYLOAD_TOO_LARGE") {
+		super(message, 413, code);
+	}
+}
+
+/**
+ * 415 — Unsupported Media Type
+ * Declared content type or binary signature is not accepted
+ */
+export class UnsupportedMediaTypeError extends AppError {
+	constructor(message: string = "Unsupported media type", code: string = "UNSUPPORTED_MEDIA_TYPE") {
+		super(message, 415, code);
+	}
+}
+
+/**
  * 400 — Validation Error
  * Zod/Joi validation failed
  */
@@ -90,8 +110,8 @@ export class UnauthorizedError extends AppError {
  * Authenticated but insufficient permissions
  */
 export class ForbiddenError extends AppError {
-	constructor(message: string = "Forbidden") {
-		super(message, 403, ERROR_CODES.FORBIDDEN);
+	constructor(message: string = "Forbidden", code: string = ERROR_CODES.FORBIDDEN) {
+		super(message, 403, code);
 	}
 }
 

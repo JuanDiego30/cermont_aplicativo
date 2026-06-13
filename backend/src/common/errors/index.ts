@@ -14,10 +14,12 @@ export {
 	ConflictError,
 	ForbiddenError,
 	NotFoundError,
+	PayloadTooLargeError,
 	RateLimitError,
 	ServiceUnavailableError,
 	UnauthorizedError,
 	UnprocessableError,
+	UnsupportedMediaTypeError,
 	ValidationError,
 } from "./AppError";
 export type { ErrorCode } from "./error-codes";
