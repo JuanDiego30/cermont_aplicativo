@@ -26,6 +26,52 @@ declare global {
 	}
 }
 
+interface AccessTokenPayload {
+	sub?: string;
+	_id?: string;
+	role?: string;
+	jti?: string;
+	tokenVersion?: number;
+	tokenType?: "access" | "refresh";
+}
+
+function verifyAccessToken(token: string, jwtSecret: string): AccessTokenPayload {
+	try {
+		return jwt.verify(token, jwtSecret) as AccessTokenPayload;
+	} catch (error) {
+		if (error instanceof jwt.TokenExpiredError) {
+			throw new AppError("Access token expired", 401, "TOKEN_EXPIRED");
+		}
+		if (error instanceof jwt.JsonWebTokenError) {
+			throw new UnauthorizedError("Invalid access token");
+		}
+		throw new UnauthorizedError("Authentication failed");
+	}
+}
+
+function normalizeAccessClaims(verifiedPayload: AccessTokenPayload): AuthClaims {
+	const userId = verifiedPayload.sub ?? verifiedPayload._id;
+	if (!userId) {
+		throw new UnauthorizedError("Invalid access token: missing subject");
+	}
+
+	const normalizedRole = normalizeUserRole(verifiedPayload.role);
+	if (!normalizedRole) {
+		throw new UnauthorizedError("Invalid access token role");
+	}
+	if (verifiedPayload.tokenType && verifiedPayload.tokenType !== "access") {
+		throw new UnauthorizedError("Refresh tokens cannot access protected resources");
+	}
+
+	return {
+		_id: userId,
+		sub: verifiedPayload.sub,
+		role: normalizedRole,
+		jti: verifiedPayload.jti,
+		tokenVersion: verifiedPayload.tokenVersion ?? 0,
+	};
+}
+
 /**
  * Middleware: Authenticate (verify JWT + check blacklist)
  * Throws UnauthorizedError on failure — Express 5 propagates to error handler
@@ -45,45 +91,12 @@ export async function authenticate(
 
 	const token = authHeader.slice(7); // Remove "Bearer " prefix
 
-	let payload: AuthClaims;
-
 	const jwtSecret = env.JWT_SECRET;
 	if (!jwtSecret) {
 		throw new AppError("JWT_SECRET is not configured", 500, "CONFIG_ERROR");
 	}
 
-	try {
-		payload = jwt.verify(token, jwtSecret) as AuthClaims;
-	} catch (error) {
-		if (error instanceof jwt.TokenExpiredError) {
-			throw new AppError("Access token expired", 401, "TOKEN_EXPIRED");
-		}
-
-		if (error instanceof jwt.JsonWebTokenError) {
-			throw new UnauthorizedError("Invalid access token");
-		}
-
-		throw new UnauthorizedError("Authentication failed");
-	}
-
-	// SECURITY FIX: RT-004 - Handle 'sub' claim (JWT standard) instead of '_id'
-	// For backward compatibility, check both 'sub' and '_id'
-	const userId = (payload as unknown as { sub?: string }).sub || payload._id;
-	if (!userId) {
-		throw new UnauthorizedError("Invalid access token: missing subject");
-	}
-
-	const normalizedRole = normalizeUserRole(payload.role);
-	if (!normalizedRole) {
-		throw new UnauthorizedError("Invalid access token role");
-	}
-
-	// Update payload with normalized values and correct user ID
-	payload = {
-		...payload,
-		_id: userId, // Ensure _id is set from 'sub' claim
-		role: normalizedRole,
-	};
+	const payload = normalizeAccessClaims(verifyAccessToken(token, jwtSecret));
 
 	if (payload.jti) {
 		const blacklisted = await TokenBlacklist.findOne({ jti: payload.jti }).lean();
@@ -93,9 +106,14 @@ export async function authenticate(
 	}
 
 	// Use userId instead of payload._id for database lookup
-	const user = await User.findById(userId).select("isActive").lean<{ isActive: boolean }>();
+	const user = await User.findById(payload._id)
+		.select("isActive +tokenVersion")
+		.lean<{ isActive: boolean; tokenVersion: number }>();
 	if (!user?.isActive) {
 		throw new UnauthorizedError("Account has been deactivated");
+	}
+	if ((user.tokenVersion ?? 0) !== payload.tokenVersion) {
+		throw new UnauthorizedError("Session has been invalidated");
 	}
 
 	req.user = payload;

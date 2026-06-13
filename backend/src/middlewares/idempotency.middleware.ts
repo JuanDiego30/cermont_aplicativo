@@ -18,7 +18,11 @@
 
 import crypto from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
+import type { JsonValue } from "../common/types/safe-types";
+import { createLogger } from "../common/utils/logger";
 import { IdempotencyEntry } from "../models/IdempotencyEntry";
+
+const log = createLogger("idempotency");
 
 export interface IdempotencyOptions {
 	/** Time-to-live in milliseconds (default: 24 hours) */
@@ -57,18 +61,23 @@ function hashKey(key: string): string {
 /**
  * Intercepts res.json to capture the response body for caching.
  */
-function interceptJson(res: Response, maxBodyBytes: number): { body: () => string | null } {
-	const originalJson = res.json.bind(res);
-	let capturedBody: string | null = null;
+type CapturedResponse = { status: "empty" } | { status: "captured"; body: string };
 
-	res.json = function interceptedJson(body: unknown) {
+function interceptJson(res: Response, maxBodyBytes: number): { capture: () => CapturedResponse } {
+	const originalJson = res.json.bind(res);
+	let capturedResponse: CapturedResponse = { status: "empty" };
+
+	res.json = function interceptedJson(body: JsonValue) {
 		const raw = JSON.stringify(body);
-		capturedBody = raw.length > maxBodyBytes ? raw.slice(0, maxBodyBytes) : raw;
+		capturedResponse = {
+			status: "captured",
+			body: raw.length > maxBodyBytes ? raw.slice(0, maxBodyBytes) : raw,
+		};
 		return originalJson(body);
 	};
 
 	return {
-		body: () => capturedBody,
+		capture: () => capturedResponse,
 	};
 }
 
@@ -111,8 +120,8 @@ export function idempotency(options: IdempotencyOptions = {}) {
 			const interceptor = interceptJson(res, maxBodyBytes);
 
 			res.once("finish", () => {
-				const body = interceptor.body();
-				if (body !== null && CACHEABLE_STATUS_CODES.has(res.statusCode)) {
+				const capturedResponse = interceptor.capture();
+				if (capturedResponse.status === "captured" && CACHEABLE_STATUS_CODES.has(res.statusCode)) {
 					const userId =
 						(req.user as { _id?: { toString(): string } })?._id?.toString() ?? "anonymous";
 
@@ -122,20 +131,26 @@ export function idempotency(options: IdempotencyOptions = {}) {
 						path: req.path,
 						userId,
 						statusCode: res.statusCode,
-						responseBody: body,
+						responseBody: capturedResponse.body,
 						expiresAt: new Date(Date.now() + ttlMs),
-					}).catch((err: unknown) => {
-						console.error(
-							`[idempotency] cache write failed for key=${rawKey.slice(0, 8)}...:`,
-							String(err),
-						);
+					}).catch((error) => {
+						log.error("Idempotency cache write failed", {
+							error: error instanceof Error ? error : String(error),
+							keyHashPrefix: hashedKey.slice(0, 8),
+							method: req.method,
+							path: req.path,
+						});
 					});
 				}
 			});
 
 			next();
-		} catch {
-			// On idempotency error, fall through without caching
+		} catch (error) {
+			log.warn("Idempotency lookup failed; request will continue without cache", {
+				error: error instanceof Error ? error : String(error),
+				method: req.method,
+				path: req.path,
+			});
 			next();
 		}
 	};

@@ -21,7 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { NextFunction, Request, Response } from "express";
 import multer, { type FileFilterCallback } from "multer";
-import { BadRequestError } from "../common/errors";
+import { BadRequestError, PayloadTooLargeError, UnsupportedMediaTypeError } from "../common/errors";
 import { createLogger } from "../common/utils/logger";
 import { env } from "../config/env";
 
@@ -43,7 +43,7 @@ const ALLOWED_MIMES = [
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ] as const;
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 const OFFICE_ZIP_SIGNATURES = ["504b0304", "504b0506", "504b0708"];
 
 // Crear directorio de uploads si no existe
@@ -62,11 +62,7 @@ const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCall
 	// Check MIME type whitelist
 	if (!ALLOWED_MIMES.includes(file.mimetype as (typeof ALLOWED_MIMES)[number])) {
 		log.warn("Rejected file: invalid MIME", { mime: file.mimetype, name: file.originalname });
-		cb(
-			new BadRequestError(
-				`Invalid file type: ${file.mimetype}. Allowed: ${ALLOWED_MIMES.join(", ")}`,
-			),
-		);
+		cb(new UnsupportedMediaTypeError(`Invalid file type: ${file.mimetype}`));
 		return;
 	}
 
@@ -86,7 +82,7 @@ const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCall
 	];
 	if (!allowedExtensions.includes(ext)) {
 		log.warn("Rejected file: invalid extension", { ext, name: file.originalname });
-		cb(new BadRequestError(`Invalid file extension: ${ext}`));
+		cb(new UnsupportedMediaTypeError(`Invalid file extension: ${ext}`));
 		return;
 	}
 
@@ -96,6 +92,26 @@ const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCall
 export const upload = multer({
 	storage,
 	fileFilter,
+	limits: { fileSize: MAX_FILE_SIZE },
+});
+
+const EVIDENCE_MIMES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
+
+const evidenceFileFilter = (
+	_req: Request,
+	file: Express.Multer.File,
+	cb: FileFilterCallback,
+): void => {
+	if (!EVIDENCE_MIMES.includes(file.mimetype as (typeof EVIDENCE_MIMES)[number])) {
+		cb(new UnsupportedMediaTypeError("Only JPEG, PNG, WebP, and GIF evidence is accepted"));
+		return;
+	}
+	fileFilter(_req, file, cb);
+};
+
+export const evidenceUpload = multer({
+	storage,
+	fileFilter: evidenceFileFilter,
 	limits: { fileSize: MAX_FILE_SIZE },
 });
 
@@ -138,22 +154,44 @@ function hasExpectedSignature(buffer: Buffer, mimeType: string): boolean {
 	}
 }
 
+export function hasValidImageSignature(buffer: Buffer): boolean {
+	return EVIDENCE_MIMES.some((mimeType) => hasExpectedSignature(buffer, mimeType));
+}
+
 export function validateFileSignature(
 	fileBuffer: Buffer,
 	mimeType: string,
 	filename: string,
 ): void {
 	if (!ALLOWED_MIMES.includes(mimeType as (typeof ALLOWED_MIMES)[number])) {
-		throw new BadRequestError(`Invalid file type: ${mimeType}`);
+		throw new UnsupportedMediaTypeError(`Invalid file type: ${mimeType}`);
 	}
 	if (!hasExpectedSignature(fileBuffer, mimeType)) {
 		log.warn("Rejected file: magic bytes mismatch", { mimeType, filename });
-		throw new BadRequestError(
+		throw new UnsupportedMediaTypeError(
 			`File content does not match declared type: ${mimeType}`,
 			"FILE_SIGNATURE_MISMATCH",
 		);
 	}
 }
+
+export const validateUploadedFileHeaders = (
+	req: Request,
+	_res: Response,
+	next: NextFunction,
+): void => {
+	if (!req.file) {
+		next();
+		return;
+	}
+
+	try {
+		validateFileSignature(req.file.buffer, req.file.mimetype, req.file.originalname);
+		next();
+	} catch (error) {
+		next(error);
+	}
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SECURITY MIDDLEWARE: ClamAV Scan (Stubbed for now)
@@ -375,18 +413,18 @@ export const handleUploadError = (
 ): void => {
 	if (err instanceof multer.MulterError) {
 		if (err.code === "LIMIT_FILE_SIZE") {
-			res.status(400).json({ error: `File too large. Max size: ${MAX_FILE_SIZE / 1024 / 1024}MB` });
+			const error = new PayloadTooLargeError(
+				`File too large. Max size: ${MAX_FILE_SIZE / 1024 / 1024}MB`,
+				"FILE_TOO_LARGE",
+			);
+			res.status(error.statusCode).json(error.toJSON());
 			return;
 		}
 		if (err.code === "LIMIT_FILE_COUNT") {
-			res.status(400).json({ error: "Too many files" });
+			const error = new BadRequestError("Too many files", "FILE_COUNT_EXCEEDED");
+			res.status(error.statusCode).json(error.toJSON());
 			return;
 		}
-	}
-
-	if (err?.message?.includes("Invalid file")) {
-		res.status(400).json({ error: err.message });
-		return;
 	}
 
 	next(err);
