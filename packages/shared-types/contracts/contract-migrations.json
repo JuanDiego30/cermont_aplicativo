@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:4e16858e7a6ac119665a13663419bd0bf17f403e2284c0d5fdf171fd69f7f953",
+	"currentSnapshotHash": "sha256:d6ecf6c6ab88578db2f31a5cfbc85f97bbcc817cba4d99a09dde41d8b0447978",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -322,6 +322,34 @@
 			"type": "non-breaking",
 			"description": "Add Vehicle schema with Colombian document expiries (SOAT, tecnomecanica, poliza), Create/Update/ListQuery DTOs and document alert contract for the fleet module.",
 			"toHash": "sha256:4e16858e7a6ac119665a13663419bd0bf17f403e2284c0d5fdf171fd69f7f953"
+		},
+		{
+			"id": "046-operational-maturity-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Add analytics report, dispatch, SLA, system configuration, reminder, and DIAN contracts; extend invoices with explicit DIAN lifecycle fields.",
+			"toHash": "sha256:a45f2ccf4bb92c153dba07136f313066c346ddaa597980ebfb41d3e40b7acb12"
+		},
+		{
+			"id": "047-offline-conflict-recovery",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Persist structured conflict details on offline outbox items for DLQ inspection and explicit user-driven resolution.",
+			"toHash": "sha256:3c822385ce0b3c165939bd3255c8280f5f1eeeaf5917930de6019f2f9c7bd074"
+		},
+		{
+			"id": "048-forensic-audit-observability",
+			"date": "2026-06-12",
+			"type": "non-breaking",
+			"description": "Add typed audit response contracts, entity and request correlation filters, expanded audit actions, and shared workflow step-to-stage metadata.",
+			"toHash": "sha256:bd9c955e65b194c26cb819c901796f0ae87a4cdf0d9058bd0687fc585bff7553"
+		},
+		{
+			"id": "049-production-wave5-extended-contracts",
+			"date": "2026-06-13",
+			"type": "non-breaking",
+			"description": "Broaden audit entityId validation from MongoDB ObjectId to general entity identifier pattern; add DIAN, dispatch, SLA, and system-config schema contracts for production wave 5.",
+			"toHash": "sha256:d6ecf6c6ab88578db2f31a5cfbc85f97bbcc817cba4d99a09dde41d8b0447978"
 		}
 	]
 }

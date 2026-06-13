@@ -110,6 +110,7 @@ export const OfflineOutboxItemSchema = z
 		flowStep: z.number().int().min(1).max(14).optional(),
 		endpoint: z.string().min(1).optional(),
 		method: z.enum(["POST", "PATCH", "PUT", "DELETE"]).optional(),
+		conflict: OfflineConflictSchema.optional(),
 	})
 	.strip();
 export type OfflineOutboxItem = z.infer<typeof OfflineOutboxItemSchema>;

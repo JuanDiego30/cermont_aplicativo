@@ -37,6 +37,23 @@ const SERVICE_CASE_STAGE_VALUES = [
 export const ServiceCaseStageSchema = z.enum(SERVICE_CASE_STAGE_VALUES);
 export type ServiceCaseStage = z.infer<typeof ServiceCaseStageSchema>;
 
+export const CERMONT_STEP_STAGE_MAP: Record<CermontOperationalStepCode, ServiceCaseStage> = {
+	step_01_work_request: "intake",
+	step_02_site_visit: "assessment",
+	step_03_proposal: "proposal",
+	step_04_purchase_order: "authorization",
+	step_05_planning: "planning",
+	step_06_execution: "in_execution",
+	step_07_technical_report: "technical_closure",
+	step_08_delivery_record: "administrative_closure",
+	step_09_client_signature: "administrative_closure",
+	step_10_ses_submission: "ses_pending",
+	step_11_ses_approval: "billing_pending",
+	step_12_invoice_submission: "receivable_open",
+	step_13_invoice_approval: "receivable_open",
+	step_14_payment_closure: "paid",
+};
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Artifact reference — safe reference without importing full artifact schemas
 // (avoids circular imports in Phase 1)

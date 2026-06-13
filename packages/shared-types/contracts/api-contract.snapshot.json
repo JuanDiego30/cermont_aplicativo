@@ -84,6 +84,255 @@
             "id"
           ],
           "type": "object"
+        },
+        "response": {
+          "$defs": {
+            "__schema0": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "items": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "type": "array"
+                },
+                {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "additionalProperties": false,
+          "properties": {
+            "_id": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "action": {
+              "enum": [
+                "WORK_REQUEST_CREATED",
+                "WORK_REQUEST_VALIDATED",
+                "WORK_REQUEST_CANCELLED",
+                "SITE_VISIT_SCHEDULED",
+                "SITE_VISIT_COMPLETED",
+                "PROPOSAL_CREATED",
+                "PROPOSAL_APPROVED",
+                "PROPOSAL_REJECTED",
+                "PURCHASE_ORDER_RECEIVED",
+                "PURCHASE_ORDER_APPROVED",
+                "ORDER_CREATED",
+                "ORDER_UPDATED",
+                "ORDER_ASSIGNED",
+                "ORDER_DELETED",
+                "STATUS_CHANGED",
+                "ORDER_CLOSED",
+                "PLANNING_PACKET_CREATED",
+                "PLANNING_PACKET_UPDATED",
+                "PLANNING_PACKET_VALIDATED",
+                "PLANNING_PACKET_APPROVED",
+                "PLANNING_PACKET_REJECTED",
+                "PLANNING_PACKET_REOPENED",
+                "REFERENCE_DOCUMENT_ADDED",
+                "EXECUTION_STARTED",
+                "EXECUTION_PAUSED",
+                "EXECUTION_RESUMED",
+                "EXECUTION_COMPLETED",
+                "EXECUTION_CANCELLED",
+                "MATERIAL_USAGE_RECORDED",
+                "LABOR_ENTRY_RECORDED",
+                "INCIDENT_REPORTED",
+                "EVIDENCE_UPLOADED",
+                "EVIDENCE_DELETED",
+                "EVIDENCE_VERIFIED",
+                "EVIDENCE_COLLECTION_CREATED",
+                "EVIDENCE_COLLECTION_DELETED",
+                "EVIDENCE_ITEM_ADDED",
+                "EVIDENCE_ITEM_REMOVED",
+                "TECHNICAL_REPORT_CREATED",
+                "TECHNICAL_REPORT_APPROVED",
+                "DELIVERY_RECORD_CREATED",
+                "DELIVERY_RECORD_SIGNED",
+                "SES_CREATED",
+                "SES_SUBMITTED",
+                "SES_APPROVED",
+                "SES_REJECTED",
+                "INVOICE_ISSUED",
+                "INVOICE_SENT",
+                "INVOICE_APPROVED",
+                "INVOICE_REJECTED",
+                "INVOICE_SENT_TO_DIAN",
+                "PAYMENT_REGISTERED",
+                "PAYMENT_RECONCILED",
+                "SERVICE_CASE_CREATED",
+                "SERVICE_CASE_STEP_ADVANCED",
+                "SERVICE_CASE_CLOSED",
+                "SERVICE_CASE_ARCHIVED",
+                "STEP_PAYLOAD_SUBMITTED",
+                "STATE_TRANSITION",
+                "ARCHIVED",
+                "LOGIN_SUCCESS",
+                "LOGOUT",
+                "REFRESH_TOKEN_REUSE_DETECTED",
+                "USER_CREATED",
+                "USER_UPDATED",
+                "USER_DEACTIVATED",
+                "USER_ROLE_CHANGED",
+                "USER_CERTIFICATION_ADDED",
+                "USER_CERTIFICATION_REMOVED",
+                "USER_SKILLS_UPDATED",
+                "TEMPLATE_CREATED",
+                "TEMPLATE_UPDATED",
+                "TEMPLATE_CLASSIFIED",
+                "TEMPLATE_DELETED",
+                "VERSION_CREATED",
+                "VERSION_UPDATED",
+                "VERSION_PUBLISHED",
+                "VERSION_DEPRECATED",
+                "VERSION_CLONED",
+                "RESPONSE_CREATED",
+                "RESPONSE_UPDATED",
+                "RESPONSE_SUBMITTED",
+                "RESPONSE_VALIDATED",
+                "RESPONSE_REJECTED",
+                "RESPONSE_SYNCED",
+                "FILE_UPLOADED",
+                "FILE_SCANNED",
+                "FILE_ASSET_UPLOADED",
+                "FILE_ASSET_DELETED",
+                "DOCUMENT_ARCHIVED",
+                "DOCUMENT_DELETED",
+                "XLSX_IMPORT_STARTED",
+                "PDF_IMPORT_STARTED",
+                "ASSET_CREATED",
+                "CERTIFICATE_ADDED",
+                "MAINTENANCE_RESOLVED",
+                "TOOL_CREATED",
+                "TOOL_UPDATED",
+                "TOOL_DELETED",
+                "TOOL_CERTIFICATION_ADDED",
+                "TOOL_CERTIFICATION_REMOVED",
+                "TOOL_DOCUMENT_ADDED",
+                "TOOL_DOCUMENT_REMOVED",
+                "KIT_CREATED",
+                "KIT_UPDATED",
+                "KIT_ACTIVATED",
+                "KIT_ARCHIVED",
+                "KIT_RESTORED",
+                "KIT_DELETED",
+                "KIT_DUPLICATED",
+                "KIT_APPLIED_TO_PLANNING",
+                "TEMPLATE_DRAFT_CREATED",
+                "TEMPLATE_DRAFT_UPDATED",
+                "TEMPLATE_DRAFT_APPROVED",
+                "TEMPLATE_DRAFT_REJECTED",
+                "TEMPLATE_DRAFT_CONVERTED",
+                "TEMPLATE_DRAFT_DELETED",
+                "TEMPLATE_DRAFT_SUBMITTED_FOR_REVIEW",
+                "TEMPLATE_RESPONSE_CREATED",
+                "TEMPLATE_RESPONSE_UPDATED",
+                "TEMPLATE_RESPONSE_SUBMITTED",
+                "TEMPLATE_RESPONSE_VALIDATED",
+                "TEMPLATE_RESPONSE_REJECTED",
+                "TEMPLATE_RESPONSE_DELETED",
+                "SYSTEM_FEATURE_FLAG_UPDATED",
+                "SYSTEM_SETTINGS_UPDATED",
+                "DIAN_CONFIGURATION_UPDATED"
+              ],
+              "type": "string"
+            },
+            "changes": {
+              "additionalProperties": false,
+              "properties": {
+                "after": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "before": {
+                  "$ref": "#/$defs/__schema0"
+                }
+              },
+              "type": "object"
+            },
+            "createdAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "entityId": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "type": "string"
+            },
+            "entityType": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "errorMessage": {
+              "type": "string"
+            },
+            "ipAddress": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/$defs/__schema0"
+            },
+            "requestId": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "success",
+                "failure"
+              ],
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "userAgent": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "userEmail": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "userId": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_id",
+            "entityType",
+            "entityId",
+            "action",
+            "userId",
+            "userEmail",
+            "status",
+            "createdAt"
+          ],
+          "type": "object"
         }
       },
       "listAuditLogs": {
@@ -92,8 +341,151 @@
           "additionalProperties": false,
           "properties": {
             "action": {
+              "enum": [
+                "WORK_REQUEST_CREATED",
+                "WORK_REQUEST_VALIDATED",
+                "WORK_REQUEST_CANCELLED",
+                "SITE_VISIT_SCHEDULED",
+                "SITE_VISIT_COMPLETED",
+                "PROPOSAL_CREATED",
+                "PROPOSAL_APPROVED",
+                "PROPOSAL_REJECTED",
+                "PURCHASE_ORDER_RECEIVED",
+                "PURCHASE_ORDER_APPROVED",
+                "ORDER_CREATED",
+                "ORDER_UPDATED",
+                "ORDER_ASSIGNED",
+                "ORDER_DELETED",
+                "STATUS_CHANGED",
+                "ORDER_CLOSED",
+                "PLANNING_PACKET_CREATED",
+                "PLANNING_PACKET_UPDATED",
+                "PLANNING_PACKET_VALIDATED",
+                "PLANNING_PACKET_APPROVED",
+                "PLANNING_PACKET_REJECTED",
+                "PLANNING_PACKET_REOPENED",
+                "REFERENCE_DOCUMENT_ADDED",
+                "EXECUTION_STARTED",
+                "EXECUTION_PAUSED",
+                "EXECUTION_RESUMED",
+                "EXECUTION_COMPLETED",
+                "EXECUTION_CANCELLED",
+                "MATERIAL_USAGE_RECORDED",
+                "LABOR_ENTRY_RECORDED",
+                "INCIDENT_REPORTED",
+                "EVIDENCE_UPLOADED",
+                "EVIDENCE_DELETED",
+                "EVIDENCE_VERIFIED",
+                "EVIDENCE_COLLECTION_CREATED",
+                "EVIDENCE_COLLECTION_DELETED",
+                "EVIDENCE_ITEM_ADDED",
+                "EVIDENCE_ITEM_REMOVED",
+                "TECHNICAL_REPORT_CREATED",
+                "TECHNICAL_REPORT_APPROVED",
+                "DELIVERY_RECORD_CREATED",
+                "DELIVERY_RECORD_SIGNED",
+                "SES_CREATED",
+                "SES_SUBMITTED",
+                "SES_APPROVED",
+                "SES_REJECTED",
+                "INVOICE_ISSUED",
+                "INVOICE_SENT",
+                "INVOICE_APPROVED",
+                "INVOICE_REJECTED",
+                "INVOICE_SENT_TO_DIAN",
+                "PAYMENT_REGISTERED",
+                "PAYMENT_RECONCILED",
+                "SERVICE_CASE_CREATED",
+                "SERVICE_CASE_STEP_ADVANCED",
+                "SERVICE_CASE_CLOSED",
+                "SERVICE_CASE_ARCHIVED",
+                "STEP_PAYLOAD_SUBMITTED",
+                "STATE_TRANSITION",
+                "ARCHIVED",
+                "LOGIN_SUCCESS",
+                "LOGOUT",
+                "REFRESH_TOKEN_REUSE_DETECTED",
+                "USER_CREATED",
+                "USER_UPDATED",
+                "USER_DEACTIVATED",
+                "USER_ROLE_CHANGED",
+                "USER_CERTIFICATION_ADDED",
+                "USER_CERTIFICATION_REMOVED",
+                "USER_SKILLS_UPDATED",
+                "TEMPLATE_CREATED",
+                "TEMPLATE_UPDATED",
+                "TEMPLATE_CLASSIFIED",
+                "TEMPLATE_DELETED",
+                "VERSION_CREATED",
+                "VERSION_UPDATED",
+                "VERSION_PUBLISHED",
+                "VERSION_DEPRECATED",
+                "VERSION_CLONED",
+                "RESPONSE_CREATED",
+                "RESPONSE_UPDATED",
+                "RESPONSE_SUBMITTED",
+                "RESPONSE_VALIDATED",
+                "RESPONSE_REJECTED",
+                "RESPONSE_SYNCED",
+                "FILE_UPLOADED",
+                "FILE_SCANNED",
+                "FILE_ASSET_UPLOADED",
+                "FILE_ASSET_DELETED",
+                "DOCUMENT_ARCHIVED",
+                "DOCUMENT_DELETED",
+                "XLSX_IMPORT_STARTED",
+                "PDF_IMPORT_STARTED",
+                "ASSET_CREATED",
+                "CERTIFICATE_ADDED",
+                "MAINTENANCE_RESOLVED",
+                "TOOL_CREATED",
+                "TOOL_UPDATED",
+                "TOOL_DELETED",
+                "TOOL_CERTIFICATION_ADDED",
+                "TOOL_CERTIFICATION_REMOVED",
+                "TOOL_DOCUMENT_ADDED",
+                "TOOL_DOCUMENT_REMOVED",
+                "KIT_CREATED",
+                "KIT_UPDATED",
+                "KIT_ACTIVATED",
+                "KIT_ARCHIVED",
+                "KIT_RESTORED",
+                "KIT_DELETED",
+                "KIT_DUPLICATED",
+                "KIT_APPLIED_TO_PLANNING",
+                "TEMPLATE_DRAFT_CREATED",
+                "TEMPLATE_DRAFT_UPDATED",
+                "TEMPLATE_DRAFT_APPROVED",
+                "TEMPLATE_DRAFT_REJECTED",
+                "TEMPLATE_DRAFT_CONVERTED",
+                "TEMPLATE_DRAFT_DELETED",
+                "TEMPLATE_DRAFT_SUBMITTED_FOR_REVIEW",
+                "TEMPLATE_RESPONSE_CREATED",
+                "TEMPLATE_RESPONSE_UPDATED",
+                "TEMPLATE_RESPONSE_SUBMITTED",
+                "TEMPLATE_RESPONSE_VALIDATED",
+                "TEMPLATE_RESPONSE_REJECTED",
+                "TEMPLATE_RESPONSE_DELETED",
+                "SYSTEM_FEATURE_FLAG_UPDATED",
+                "SYSTEM_SETTINGS_UPDATED",
+                "DIAN_CONFIGURATION_UPDATED"
+              ],
+              "type": "string"
+            },
+            "entity": {
               "maxLength": 100,
               "minLength": 1,
+              "type": "string"
+            },
+            "entityId": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "type": "string"
+            },
+            "from": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
               "type": "string"
             },
             "limit": {
@@ -113,7 +505,22 @@
               "minimum": 1,
               "type": "integer"
             },
+            "requestId": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+              "type": "string"
+            },
+            "to": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+              "type": "string"
+            },
             "user_id": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "userId": {
               "pattern": "^[0-9a-fA-F]{24}$",
               "type": "string"
             }
@@ -123,6 +530,258 @@
             "limit"
           ],
           "type": "object"
+        },
+        "response": {
+          "$defs": {
+            "__schema0": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "items": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "type": "array"
+                },
+                {
+                  "additionalProperties": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "_id": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "action": {
+                "enum": [
+                  "WORK_REQUEST_CREATED",
+                  "WORK_REQUEST_VALIDATED",
+                  "WORK_REQUEST_CANCELLED",
+                  "SITE_VISIT_SCHEDULED",
+                  "SITE_VISIT_COMPLETED",
+                  "PROPOSAL_CREATED",
+                  "PROPOSAL_APPROVED",
+                  "PROPOSAL_REJECTED",
+                  "PURCHASE_ORDER_RECEIVED",
+                  "PURCHASE_ORDER_APPROVED",
+                  "ORDER_CREATED",
+                  "ORDER_UPDATED",
+                  "ORDER_ASSIGNED",
+                  "ORDER_DELETED",
+                  "STATUS_CHANGED",
+                  "ORDER_CLOSED",
+                  "PLANNING_PACKET_CREATED",
+                  "PLANNING_PACKET_UPDATED",
+                  "PLANNING_PACKET_VALIDATED",
+                  "PLANNING_PACKET_APPROVED",
+                  "PLANNING_PACKET_REJECTED",
+                  "PLANNING_PACKET_REOPENED",
+                  "REFERENCE_DOCUMENT_ADDED",
+                  "EXECUTION_STARTED",
+                  "EXECUTION_PAUSED",
+                  "EXECUTION_RESUMED",
+                  "EXECUTION_COMPLETED",
+                  "EXECUTION_CANCELLED",
+                  "MATERIAL_USAGE_RECORDED",
+                  "LABOR_ENTRY_RECORDED",
+                  "INCIDENT_REPORTED",
+                  "EVIDENCE_UPLOADED",
+                  "EVIDENCE_DELETED",
+                  "EVIDENCE_VERIFIED",
+                  "EVIDENCE_COLLECTION_CREATED",
+                  "EVIDENCE_COLLECTION_DELETED",
+                  "EVIDENCE_ITEM_ADDED",
+                  "EVIDENCE_ITEM_REMOVED",
+                  "TECHNICAL_REPORT_CREATED",
+                  "TECHNICAL_REPORT_APPROVED",
+                  "DELIVERY_RECORD_CREATED",
+                  "DELIVERY_RECORD_SIGNED",
+                  "SES_CREATED",
+                  "SES_SUBMITTED",
+                  "SES_APPROVED",
+                  "SES_REJECTED",
+                  "INVOICE_ISSUED",
+                  "INVOICE_SENT",
+                  "INVOICE_APPROVED",
+                  "INVOICE_REJECTED",
+                  "INVOICE_SENT_TO_DIAN",
+                  "PAYMENT_REGISTERED",
+                  "PAYMENT_RECONCILED",
+                  "SERVICE_CASE_CREATED",
+                  "SERVICE_CASE_STEP_ADVANCED",
+                  "SERVICE_CASE_CLOSED",
+                  "SERVICE_CASE_ARCHIVED",
+                  "STEP_PAYLOAD_SUBMITTED",
+                  "STATE_TRANSITION",
+                  "ARCHIVED",
+                  "LOGIN_SUCCESS",
+                  "LOGOUT",
+                  "REFRESH_TOKEN_REUSE_DETECTED",
+                  "USER_CREATED",
+                  "USER_UPDATED",
+                  "USER_DEACTIVATED",
+                  "USER_ROLE_CHANGED",
+                  "USER_CERTIFICATION_ADDED",
+                  "USER_CERTIFICATION_REMOVED",
+                  "USER_SKILLS_UPDATED",
+                  "TEMPLATE_CREATED",
+                  "TEMPLATE_UPDATED",
+                  "TEMPLATE_CLASSIFIED",
+                  "TEMPLATE_DELETED",
+                  "VERSION_CREATED",
+                  "VERSION_UPDATED",
+                  "VERSION_PUBLISHED",
+                  "VERSION_DEPRECATED",
+                  "VERSION_CLONED",
+                  "RESPONSE_CREATED",
+                  "RESPONSE_UPDATED",
+                  "RESPONSE_SUBMITTED",
+                  "RESPONSE_VALIDATED",
+                  "RESPONSE_REJECTED",
+                  "RESPONSE_SYNCED",
+                  "FILE_UPLOADED",
+                  "FILE_SCANNED",
+                  "FILE_ASSET_UPLOADED",
+                  "FILE_ASSET_DELETED",
+                  "DOCUMENT_ARCHIVED",
+                  "DOCUMENT_DELETED",
+                  "XLSX_IMPORT_STARTED",
+                  "PDF_IMPORT_STARTED",
+                  "ASSET_CREATED",
+                  "CERTIFICATE_ADDED",
+                  "MAINTENANCE_RESOLVED",
+                  "TOOL_CREATED",
+                  "TOOL_UPDATED",
+                  "TOOL_DELETED",
+                  "TOOL_CERTIFICATION_ADDED",
+                  "TOOL_CERTIFICATION_REMOVED",
+                  "TOOL_DOCUMENT_ADDED",
+                  "TOOL_DOCUMENT_REMOVED",
+                  "KIT_CREATED",
+                  "KIT_UPDATED",
+                  "KIT_ACTIVATED",
+                  "KIT_ARCHIVED",
+                  "KIT_RESTORED",
+                  "KIT_DELETED",
+                  "KIT_DUPLICATED",
+                  "KIT_APPLIED_TO_PLANNING",
+                  "TEMPLATE_DRAFT_CREATED",
+                  "TEMPLATE_DRAFT_UPDATED",
+                  "TEMPLATE_DRAFT_APPROVED",
+                  "TEMPLATE_DRAFT_REJECTED",
+                  "TEMPLATE_DRAFT_CONVERTED",
+                  "TEMPLATE_DRAFT_DELETED",
+                  "TEMPLATE_DRAFT_SUBMITTED_FOR_REVIEW",
+                  "TEMPLATE_RESPONSE_CREATED",
+                  "TEMPLATE_RESPONSE_UPDATED",
+                  "TEMPLATE_RESPONSE_SUBMITTED",
+                  "TEMPLATE_RESPONSE_VALIDATED",
+                  "TEMPLATE_RESPONSE_REJECTED",
+                  "TEMPLATE_RESPONSE_DELETED",
+                  "SYSTEM_FEATURE_FLAG_UPDATED",
+                  "SYSTEM_SETTINGS_UPDATED",
+                  "DIAN_CONFIGURATION_UPDATED"
+                ],
+                "type": "string"
+              },
+              "changes": {
+                "additionalProperties": false,
+                "properties": {
+                  "after": {
+                    "$ref": "#/$defs/__schema0"
+                  },
+                  "before": {
+                    "$ref": "#/$defs/__schema0"
+                  }
+                },
+                "type": "object"
+              },
+              "createdAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "entityId": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+                "type": "string"
+              },
+              "entityType": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "errorMessage": {
+                "type": "string"
+              },
+              "ipAddress": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "metadata": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "requestId": {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "success",
+                  "failure"
+                ],
+                "type": "string"
+              },
+              "updatedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "userAgent": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "userEmail": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "userId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "_id",
+              "entityType",
+              "entityId",
+              "action",
+              "userId",
+              "userEmail",
+              "status",
+              "createdAt"
+            ],
+            "type": "object"
+          },
+          "type": "array"
         }
       }
     },
@@ -4218,6 +4877,37 @@
                         "minimum": 0,
                         "type": "integer"
                       },
+                      "conflict": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "localState": {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "localVersion": {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "reason": {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "serverState": {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "serverVersion": {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "reason"
+                        ],
+                        "type": "object"
+                      },
                       "createdAt": {
                         "format": "date-time",
                         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
@@ -7603,6 +8293,24 @@
       ],
       "type": "object"
     },
+    "AnalyticsCsvExportSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "fileName": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileName",
+        "content"
+      ],
+      "type": "object"
+    },
     "AnalyticsPeriodSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -7613,6 +8321,138 @@
         "year"
       ],
       "type": "string"
+    },
+    "AnalyticsReportDomainSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "work-requests",
+        "orders",
+        "invoices",
+        "payments",
+        "ses"
+      ],
+      "type": "string"
+    },
+    "AnalyticsReportFilterSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "clientId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "dateFrom": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "dateTo": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "status": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "AnalyticsReportParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "domain": {
+          "enum": [
+            "work-requests",
+            "orders",
+            "invoices",
+            "payments",
+            "ses"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "domain"
+      ],
+      "type": "object"
+    },
+    "AnalyticsReportResultSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "headers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "rows": {
+          "items": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "propertyNames": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "total": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "headers",
+        "rows",
+        "total"
+      ],
+      "type": "object"
+    },
+    "AnalyticsReportRowSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "propertyNames": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "AnalyticsReportRowValueSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ]
     },
     "AnalyzePdfRequestSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -9343,6 +10183,137 @@
       ],
       "type": "object"
     },
+    "AssignTechniciansInputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "stops": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "maxLength": 300,
+                "minLength": 3,
+                "type": "string"
+              },
+              "coord": {
+                "additionalProperties": false,
+                "properties": {
+                  "lat": {
+                    "maximum": 90,
+                    "minimum": -90,
+                    "type": "number"
+                  },
+                  "lng": {
+                    "maximum": 180,
+                    "minimum": -180,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lng"
+                ],
+                "type": "object"
+              },
+              "estimatedDuration": {
+                "maximum": 1440,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "id": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              "priority": {
+                "enum": [
+                  "alta",
+                  "media",
+                  "baja"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "pickup",
+                  "delivery",
+                  "service",
+                  "visit"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "label",
+              "address",
+              "coord"
+            ],
+            "type": "object"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "type": "array"
+        },
+        "technicians": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              "name": {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              "startLocation": {
+                "additionalProperties": false,
+                "properties": {
+                  "lat": {
+                    "maximum": 90,
+                    "minimum": -90,
+                    "type": "number"
+                  },
+                  "lng": {
+                    "maximum": 180,
+                    "minimum": -180,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lng"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "startLocation"
+            ],
+            "type": "object"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "technicians",
+        "stops"
+      ],
+      "type": "object"
+    },
     "AssistantChatRequestSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -10412,6 +11383,42 @@
       ],
       "type": "object"
     },
+    "AuditEntityIdSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "type": "string"
+    },
+    "AuditJsonValueSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "items": {
+            "$ref": "#"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#"
+          },
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        }
+      ]
+    },
     "AuditLogIdSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -10426,13 +11433,405 @@
       ],
       "type": "object"
     },
+    "AuditLogRecordSchema": {
+      "$defs": {
+        "__schema0": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "type": "array"
+            },
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/__schema0"
+              },
+              "propertyNames": {
+                "type": "string"
+              },
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "WORK_REQUEST_CREATED",
+            "WORK_REQUEST_VALIDATED",
+            "WORK_REQUEST_CANCELLED",
+            "SITE_VISIT_SCHEDULED",
+            "SITE_VISIT_COMPLETED",
+            "PROPOSAL_CREATED",
+            "PROPOSAL_APPROVED",
+            "PROPOSAL_REJECTED",
+            "PURCHASE_ORDER_RECEIVED",
+            "PURCHASE_ORDER_APPROVED",
+            "ORDER_CREATED",
+            "ORDER_UPDATED",
+            "ORDER_ASSIGNED",
+            "ORDER_DELETED",
+            "STATUS_CHANGED",
+            "ORDER_CLOSED",
+            "PLANNING_PACKET_CREATED",
+            "PLANNING_PACKET_UPDATED",
+            "PLANNING_PACKET_VALIDATED",
+            "PLANNING_PACKET_APPROVED",
+            "PLANNING_PACKET_REJECTED",
+            "PLANNING_PACKET_REOPENED",
+            "REFERENCE_DOCUMENT_ADDED",
+            "EXECUTION_STARTED",
+            "EXECUTION_PAUSED",
+            "EXECUTION_RESUMED",
+            "EXECUTION_COMPLETED",
+            "EXECUTION_CANCELLED",
+            "MATERIAL_USAGE_RECORDED",
+            "LABOR_ENTRY_RECORDED",
+            "INCIDENT_REPORTED",
+            "EVIDENCE_UPLOADED",
+            "EVIDENCE_DELETED",
+            "EVIDENCE_VERIFIED",
+            "EVIDENCE_COLLECTION_CREATED",
+            "EVIDENCE_COLLECTION_DELETED",
+            "EVIDENCE_ITEM_ADDED",
+            "EVIDENCE_ITEM_REMOVED",
+            "TECHNICAL_REPORT_CREATED",
+            "TECHNICAL_REPORT_APPROVED",
+            "DELIVERY_RECORD_CREATED",
+            "DELIVERY_RECORD_SIGNED",
+            "SES_CREATED",
+            "SES_SUBMITTED",
+            "SES_APPROVED",
+            "SES_REJECTED",
+            "INVOICE_ISSUED",
+            "INVOICE_SENT",
+            "INVOICE_APPROVED",
+            "INVOICE_REJECTED",
+            "INVOICE_SENT_TO_DIAN",
+            "PAYMENT_REGISTERED",
+            "PAYMENT_RECONCILED",
+            "SERVICE_CASE_CREATED",
+            "SERVICE_CASE_STEP_ADVANCED",
+            "SERVICE_CASE_CLOSED",
+            "SERVICE_CASE_ARCHIVED",
+            "STEP_PAYLOAD_SUBMITTED",
+            "STATE_TRANSITION",
+            "ARCHIVED",
+            "LOGIN_SUCCESS",
+            "LOGOUT",
+            "REFRESH_TOKEN_REUSE_DETECTED",
+            "USER_CREATED",
+            "USER_UPDATED",
+            "USER_DEACTIVATED",
+            "USER_ROLE_CHANGED",
+            "USER_CERTIFICATION_ADDED",
+            "USER_CERTIFICATION_REMOVED",
+            "USER_SKILLS_UPDATED",
+            "TEMPLATE_CREATED",
+            "TEMPLATE_UPDATED",
+            "TEMPLATE_CLASSIFIED",
+            "TEMPLATE_DELETED",
+            "VERSION_CREATED",
+            "VERSION_UPDATED",
+            "VERSION_PUBLISHED",
+            "VERSION_DEPRECATED",
+            "VERSION_CLONED",
+            "RESPONSE_CREATED",
+            "RESPONSE_UPDATED",
+            "RESPONSE_SUBMITTED",
+            "RESPONSE_VALIDATED",
+            "RESPONSE_REJECTED",
+            "RESPONSE_SYNCED",
+            "FILE_UPLOADED",
+            "FILE_SCANNED",
+            "FILE_ASSET_UPLOADED",
+            "FILE_ASSET_DELETED",
+            "DOCUMENT_ARCHIVED",
+            "DOCUMENT_DELETED",
+            "XLSX_IMPORT_STARTED",
+            "PDF_IMPORT_STARTED",
+            "ASSET_CREATED",
+            "CERTIFICATE_ADDED",
+            "MAINTENANCE_RESOLVED",
+            "TOOL_CREATED",
+            "TOOL_UPDATED",
+            "TOOL_DELETED",
+            "TOOL_CERTIFICATION_ADDED",
+            "TOOL_CERTIFICATION_REMOVED",
+            "TOOL_DOCUMENT_ADDED",
+            "TOOL_DOCUMENT_REMOVED",
+            "KIT_CREATED",
+            "KIT_UPDATED",
+            "KIT_ACTIVATED",
+            "KIT_ARCHIVED",
+            "KIT_RESTORED",
+            "KIT_DELETED",
+            "KIT_DUPLICATED",
+            "KIT_APPLIED_TO_PLANNING",
+            "TEMPLATE_DRAFT_CREATED",
+            "TEMPLATE_DRAFT_UPDATED",
+            "TEMPLATE_DRAFT_APPROVED",
+            "TEMPLATE_DRAFT_REJECTED",
+            "TEMPLATE_DRAFT_CONVERTED",
+            "TEMPLATE_DRAFT_DELETED",
+            "TEMPLATE_DRAFT_SUBMITTED_FOR_REVIEW",
+            "TEMPLATE_RESPONSE_CREATED",
+            "TEMPLATE_RESPONSE_UPDATED",
+            "TEMPLATE_RESPONSE_SUBMITTED",
+            "TEMPLATE_RESPONSE_VALIDATED",
+            "TEMPLATE_RESPONSE_REJECTED",
+            "TEMPLATE_RESPONSE_DELETED",
+            "SYSTEM_FEATURE_FLAG_UPDATED",
+            "SYSTEM_SETTINGS_UPDATED",
+            "DIAN_CONFIGURATION_UPDATED"
+          ],
+          "type": "string"
+        },
+        "changes": {
+          "additionalProperties": false,
+          "properties": {
+            "after": {
+              "$ref": "#/$defs/__schema0"
+            },
+            "before": {
+              "$ref": "#/$defs/__schema0"
+            }
+          },
+          "type": "object"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "entityId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "type": "string"
+        },
+        "entityType": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "ipAddress": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/__schema0"
+        },
+        "requestId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "success",
+            "failure"
+          ],
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "userAgent": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "userEmail": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "userId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "_id",
+        "entityType",
+        "entityId",
+        "action",
+        "userId",
+        "userEmail",
+        "status",
+        "createdAt"
+      ],
+      "type": "object"
+    },
     "AuditLogsQuerySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
       "properties": {
         "action": {
+          "enum": [
+            "WORK_REQUEST_CREATED",
+            "WORK_REQUEST_VALIDATED",
+            "WORK_REQUEST_CANCELLED",
+            "SITE_VISIT_SCHEDULED",
+            "SITE_VISIT_COMPLETED",
+            "PROPOSAL_CREATED",
+            "PROPOSAL_APPROVED",
+            "PROPOSAL_REJECTED",
+            "PURCHASE_ORDER_RECEIVED",
+            "PURCHASE_ORDER_APPROVED",
+            "ORDER_CREATED",
+            "ORDER_UPDATED",
+            "ORDER_ASSIGNED",
+            "ORDER_DELETED",
+            "STATUS_CHANGED",
+            "ORDER_CLOSED",
+            "PLANNING_PACKET_CREATED",
+            "PLANNING_PACKET_UPDATED",
+            "PLANNING_PACKET_VALIDATED",
+            "PLANNING_PACKET_APPROVED",
+            "PLANNING_PACKET_REJECTED",
+            "PLANNING_PACKET_REOPENED",
+            "REFERENCE_DOCUMENT_ADDED",
+            "EXECUTION_STARTED",
+            "EXECUTION_PAUSED",
+            "EXECUTION_RESUMED",
+            "EXECUTION_COMPLETED",
+            "EXECUTION_CANCELLED",
+            "MATERIAL_USAGE_RECORDED",
+            "LABOR_ENTRY_RECORDED",
+            "INCIDENT_REPORTED",
+            "EVIDENCE_UPLOADED",
+            "EVIDENCE_DELETED",
+            "EVIDENCE_VERIFIED",
+            "EVIDENCE_COLLECTION_CREATED",
+            "EVIDENCE_COLLECTION_DELETED",
+            "EVIDENCE_ITEM_ADDED",
+            "EVIDENCE_ITEM_REMOVED",
+            "TECHNICAL_REPORT_CREATED",
+            "TECHNICAL_REPORT_APPROVED",
+            "DELIVERY_RECORD_CREATED",
+            "DELIVERY_RECORD_SIGNED",
+            "SES_CREATED",
+            "SES_SUBMITTED",
+            "SES_APPROVED",
+            "SES_REJECTED",
+            "INVOICE_ISSUED",
+            "INVOICE_SENT",
+            "INVOICE_APPROVED",
+            "INVOICE_REJECTED",
+            "INVOICE_SENT_TO_DIAN",
+            "PAYMENT_REGISTERED",
+            "PAYMENT_RECONCILED",
+            "SERVICE_CASE_CREATED",
+            "SERVICE_CASE_STEP_ADVANCED",
+            "SERVICE_CASE_CLOSED",
+            "SERVICE_CASE_ARCHIVED",
+            "STEP_PAYLOAD_SUBMITTED",
+            "STATE_TRANSITION",
+            "ARCHIVED",
+            "LOGIN_SUCCESS",
+            "LOGOUT",
+            "REFRESH_TOKEN_REUSE_DETECTED",
+            "USER_CREATED",
+            "USER_UPDATED",
+            "USER_DEACTIVATED",
+            "USER_ROLE_CHANGED",
+            "USER_CERTIFICATION_ADDED",
+            "USER_CERTIFICATION_REMOVED",
+            "USER_SKILLS_UPDATED",
+            "TEMPLATE_CREATED",
+            "TEMPLATE_UPDATED",
+            "TEMPLATE_CLASSIFIED",
+            "TEMPLATE_DELETED",
+            "VERSION_CREATED",
+            "VERSION_UPDATED",
+            "VERSION_PUBLISHED",
+            "VERSION_DEPRECATED",
+            "VERSION_CLONED",
+            "RESPONSE_CREATED",
+            "RESPONSE_UPDATED",
+            "RESPONSE_SUBMITTED",
+            "RESPONSE_VALIDATED",
+            "RESPONSE_REJECTED",
+            "RESPONSE_SYNCED",
+            "FILE_UPLOADED",
+            "FILE_SCANNED",
+            "FILE_ASSET_UPLOADED",
+            "FILE_ASSET_DELETED",
+            "DOCUMENT_ARCHIVED",
+            "DOCUMENT_DELETED",
+            "XLSX_IMPORT_STARTED",
+            "PDF_IMPORT_STARTED",
+            "ASSET_CREATED",
+            "CERTIFICATE_ADDED",
+            "MAINTENANCE_RESOLVED",
+            "TOOL_CREATED",
+            "TOOL_UPDATED",
+            "TOOL_DELETED",
+            "TOOL_CERTIFICATION_ADDED",
+            "TOOL_CERTIFICATION_REMOVED",
+            "TOOL_DOCUMENT_ADDED",
+            "TOOL_DOCUMENT_REMOVED",
+            "KIT_CREATED",
+            "KIT_UPDATED",
+            "KIT_ACTIVATED",
+            "KIT_ARCHIVED",
+            "KIT_RESTORED",
+            "KIT_DELETED",
+            "KIT_DUPLICATED",
+            "KIT_APPLIED_TO_PLANNING",
+            "TEMPLATE_DRAFT_CREATED",
+            "TEMPLATE_DRAFT_UPDATED",
+            "TEMPLATE_DRAFT_APPROVED",
+            "TEMPLATE_DRAFT_REJECTED",
+            "TEMPLATE_DRAFT_CONVERTED",
+            "TEMPLATE_DRAFT_DELETED",
+            "TEMPLATE_DRAFT_SUBMITTED_FOR_REVIEW",
+            "TEMPLATE_RESPONSE_CREATED",
+            "TEMPLATE_RESPONSE_UPDATED",
+            "TEMPLATE_RESPONSE_SUBMITTED",
+            "TEMPLATE_RESPONSE_VALIDATED",
+            "TEMPLATE_RESPONSE_REJECTED",
+            "TEMPLATE_RESPONSE_DELETED",
+            "SYSTEM_FEATURE_FLAG_UPDATED",
+            "SYSTEM_SETTINGS_UPDATED",
+            "DIAN_CONFIGURATION_UPDATED"
+          ],
+          "type": "string"
+        },
+        "entity": {
           "maxLength": 100,
           "minLength": 1,
+          "type": "string"
+        },
+        "entityId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "type": "string"
+        },
+        "from": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
           "type": "string"
         },
         "limit": {
@@ -10452,7 +11851,22 @@
           "minimum": 1,
           "type": "integer"
         },
+        "requestId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+          "type": "string"
+        },
+        "to": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
+          "type": "string"
+        },
         "user_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "userId": {
           "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         }
@@ -27650,6 +29064,569 @@
       ],
       "type": "object"
     },
+    "DianConfigurationInputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "environment": {
+          "enum": [
+            "test",
+            "production"
+          ],
+          "type": "string"
+        },
+        "isEnabled": {
+          "type": "boolean"
+        },
+        "resolutionDate": {},
+        "resolutionEndDate": {},
+        "resolutionFrom": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "resolutionNumber": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        "resolutionPrefix": {
+          "maxLength": 20,
+          "minLength": 1,
+          "type": "string"
+        },
+        "resolutionStartDate": {},
+        "resolutionTo": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "softwareId": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "softwarePin": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "technicalKey": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        },
+        "testSetId": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "testSetId",
+        "softwareId",
+        "softwarePin",
+        "technicalKey",
+        "resolutionNumber",
+        "resolutionDate",
+        "resolutionStartDate",
+        "resolutionEndDate",
+        "resolutionPrefix",
+        "resolutionFrom",
+        "resolutionTo",
+        "environment",
+        "isEnabled"
+      ],
+      "type": "object"
+    },
+    "DianConfigurationStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "const": "not_configured",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "missingFields": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "status": {
+              "const": "invalid_configuration",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "missingFields"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "configuration": {
+              "additionalProperties": false,
+              "properties": {
+                "credentialStatus": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "softwarePin": {
+                      "const": "configured",
+                      "type": "string"
+                    },
+                    "technicalKey": {
+                      "const": "configured",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "softwarePin",
+                    "technicalKey"
+                  ],
+                  "type": "object"
+                },
+                "environment": {
+                  "enum": [
+                    "test",
+                    "production"
+                  ],
+                  "type": "string"
+                },
+                "isEnabled": {
+                  "type": "boolean"
+                },
+                "lastInvoiceNumber": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "resolutionDate": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                  "type": "string"
+                },
+                "resolutionEndDate": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                  "type": "string"
+                },
+                "resolutionFrom": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "resolutionNumber": {
+                  "type": "string"
+                },
+                "resolutionPrefix": {
+                  "type": "string"
+                },
+                "resolutionStartDate": {
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                  "type": "string"
+                },
+                "resolutionTo": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "softwareId": {
+                  "type": "string"
+                },
+                "testSetId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "testSetId",
+                "softwareId",
+                "resolutionNumber",
+                "resolutionDate",
+                "resolutionStartDate",
+                "resolutionEndDate",
+                "resolutionPrefix",
+                "resolutionFrom",
+                "resolutionTo",
+                "environment",
+                "isEnabled",
+                "lastInvoiceNumber",
+                "credentialStatus"
+              ],
+              "type": "object"
+            },
+            "status": {
+              "const": "configured",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "configuration"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "DianEnvironmentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "test",
+        "production"
+      ],
+      "type": "string"
+    },
+    "DianInvoiceParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "invoiceId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "invoiceId"
+      ],
+      "type": "object"
+    },
+    "DianPublicConfigurationSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "credentialStatus": {
+          "additionalProperties": false,
+          "properties": {
+            "softwarePin": {
+              "const": "configured",
+              "type": "string"
+            },
+            "technicalKey": {
+              "const": "configured",
+              "type": "string"
+            }
+          },
+          "required": [
+            "softwarePin",
+            "technicalKey"
+          ],
+          "type": "object"
+        },
+        "environment": {
+          "enum": [
+            "test",
+            "production"
+          ],
+          "type": "string"
+        },
+        "isEnabled": {
+          "type": "boolean"
+        },
+        "lastInvoiceNumber": {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
+        "resolutionDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "resolutionEndDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "resolutionFrom": {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
+        "resolutionNumber": {
+          "type": "string"
+        },
+        "resolutionPrefix": {
+          "type": "string"
+        },
+        "resolutionStartDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "resolutionTo": {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
+        "softwareId": {
+          "type": "string"
+        },
+        "testSetId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "testSetId",
+        "softwareId",
+        "resolutionNumber",
+        "resolutionDate",
+        "resolutionStartDate",
+        "resolutionEndDate",
+        "resolutionPrefix",
+        "resolutionFrom",
+        "resolutionTo",
+        "environment",
+        "isEnabled",
+        "lastInvoiceNumber",
+        "credentialStatus"
+      ],
+      "type": "object"
+    },
+    "DianReportQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "from": {},
+        "to": {}
+      },
+      "type": "object"
+    },
+    "DispatchGeocodeQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "q": {
+          "maxLength": 300,
+          "minLength": 3,
+          "type": "string"
+        }
+      },
+      "required": [
+        "q"
+      ],
+      "type": "object"
+    },
+    "DispatchGeocodeResultSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "coordinate": {
+              "additionalProperties": false,
+              "properties": {
+                "lat": {
+                  "maximum": 90,
+                  "minimum": -90,
+                  "type": "number"
+                },
+                "lng": {
+                  "maximum": 180,
+                  "minimum": -180,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "lat",
+                "lng"
+              ],
+              "type": "object"
+            },
+            "status": {
+              "const": "found",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "coordinate"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "reason": {
+              "const": "ADDRESS_NOT_FOUND",
+              "type": "string"
+            },
+            "status": {
+              "const": "not_found",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "reason": {
+              "const": "GEOCODING_PROVIDER_UNAVAILABLE",
+              "type": "string"
+            },
+            "status": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "reason"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "DispatchPrioritySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "alta",
+        "media",
+        "baja"
+      ],
+      "type": "string"
+    },
+    "DispatchStopSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "maxLength": 300,
+          "minLength": 3,
+          "type": "string"
+        },
+        "coord": {
+          "additionalProperties": false,
+          "properties": {
+            "lat": {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            },
+            "lng": {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            }
+          },
+          "required": [
+            "lat",
+            "lng"
+          ],
+          "type": "object"
+        },
+        "estimatedDuration": {
+          "maximum": 1440,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 160,
+          "minLength": 1,
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "alta",
+            "media",
+            "baja"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "pickup",
+            "delivery",
+            "service",
+            "visit"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "address",
+        "coord"
+      ],
+      "type": "object"
+    },
+    "DispatchStopTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "pickup",
+        "delivery",
+        "service",
+        "visit"
+      ],
+      "type": "string"
+    },
+    "DispatchTechnicianSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "type": "string"
+        },
+        "startLocation": {
+          "additionalProperties": false,
+          "properties": {
+            "lat": {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            },
+            "lng": {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            }
+          },
+          "required": [
+            "lat",
+            "lng"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "startLocation"
+      ],
+      "type": "object"
+    },
     "DocumentAssociationSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -33639,6 +35616,21 @@
       },
       "required": [
         "limit"
+      ],
+      "type": "object"
+    },
+    "EscalateSlaTrackingSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "maxLength": 300,
+          "minLength": 5,
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason"
       ],
       "type": "object"
     },
@@ -43239,6 +45231,73 @@
       ],
       "type": "string"
     },
+    "FeatureFlagCategorySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "general",
+        "billing",
+        "field",
+        "notifications",
+        "security",
+        "experimental"
+      ],
+      "type": "string"
+    },
+    "FeatureFlagKeyParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "pattern": "^[a-z][a-z0-9_]{2,79}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "FeatureFlagSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "general",
+            "billing",
+            "field",
+            "notifications",
+            "security",
+            "experimental"
+          ],
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 300,
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "key": {
+          "pattern": "^[a-z][a-z0-9_]{2,79}$",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "description",
+        "enabled",
+        "category"
+      ],
+      "type": "object"
+    },
     "FieldOverrideSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -44115,6 +46174,27 @@
       "required": [
         "findings",
         "deviations"
+      ],
+      "type": "object"
+    },
+    "GeoCoordinateSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "lat": {
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "lng": {
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        }
+      },
+      "required": [
+        "lat",
+        "lng"
       ],
       "type": "object"
     },
@@ -45549,6 +47629,29 @@
           ],
           "type": "string"
         },
+        "dianDocumentHash": {
+          "maxLength": 128,
+          "type": "string"
+        },
+        "dianErrorCode": {
+          "maxLength": 100,
+          "type": "string"
+        },
+        "dianStatus": {
+          "default": "not_sent",
+          "enum": [
+            "not_sent",
+            "submitting",
+            "accepted",
+            "rejected",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "dianTrackId": {
+          "maxLength": 200,
+          "type": "string"
+        },
         "dueDate": {
           "format": "date-time",
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
@@ -45892,6 +47995,7 @@
         "attachments",
         "commandHistory",
         "createdBy",
+        "dianStatus",
         "tipoDocumento"
       ],
       "type": "object"
@@ -46098,6 +48202,29 @@
           ],
           "type": "string"
         },
+        "dianDocumentHash": {
+          "maxLength": 128,
+          "type": "string"
+        },
+        "dianErrorCode": {
+          "maxLength": 100,
+          "type": "string"
+        },
+        "dianStatus": {
+          "default": "not_sent",
+          "enum": [
+            "not_sent",
+            "submitting",
+            "accepted",
+            "rejected",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "dianTrackId": {
+          "maxLength": 200,
+          "type": "string"
+        },
         "dueDate": {
           "format": "date-time",
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
@@ -46441,6 +48568,7 @@
         "attachments",
         "commandHistory",
         "createdBy",
+        "dianStatus",
         "tipoDocumento"
       ],
       "type": "object"
@@ -50155,6 +52283,11 @@
           "maximum": 9007199254740991,
           "minimum": 0,
           "type": "integer"
+        },
+        "search": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
         },
         "status": {
           "enum": [
@@ -53972,6 +56105,37 @@
               "minimum": 0,
               "type": "integer"
             },
+            "conflict": {
+              "additionalProperties": false,
+              "properties": {
+                "localState": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "localVersion": {
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "reason": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "serverState": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "serverVersion": {
+                  "maximum": 9007199254740991,
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
             "createdAt": {
               "format": "date-time",
               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
@@ -55773,6 +57937,37 @@
           "minimum": 0,
           "type": "integer"
         },
+        "conflict": {
+          "additionalProperties": false,
+          "properties": {
+            "localState": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "localVersion": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "serverState": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "serverVersion": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "reason"
+          ],
+          "type": "object"
+        },
         "createdAt": {
           "format": "date-time",
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
@@ -55953,6 +58148,37 @@
           "maximum": 9007199254740991,
           "minimum": 0,
           "type": "integer"
+        },
+        "conflict": {
+          "additionalProperties": false,
+          "properties": {
+            "localState": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "localVersion": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "serverState": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "serverVersion": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "reason"
+          ],
+          "type": "object"
         },
         "createdAt": {
           "format": "date-time",
@@ -57040,6 +59266,83 @@
       ],
       "type": "object"
     },
+    "OperationalKpiResultSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "period": {
+          "additionalProperties": false,
+          "properties": {
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "from",
+            "to"
+          ],
+          "type": "object"
+        },
+        "steps": {
+          "additionalProperties": false,
+          "properties": {
+            "deliveries": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "evidences": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "executions": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "orders": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "proposals": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "serviceCases": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "workRequests": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "workRequests",
+            "serviceCases",
+            "proposals",
+            "orders",
+            "executions",
+            "evidences",
+            "deliveries"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "period",
+        "steps"
+      ],
+      "type": "object"
+    },
     "OperationalStepProgressItemSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -57119,6 +59422,192 @@
         "status",
         "blockerCount",
         "missingRequirementCount"
+      ],
+      "type": "object"
+    },
+    "OptimizedRouteSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "orderedIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "polyline": {
+          "type": "string"
+        },
+        "stops": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "maxLength": 300,
+                "minLength": 3,
+                "type": "string"
+              },
+              "coord": {
+                "additionalProperties": false,
+                "properties": {
+                  "lat": {
+                    "maximum": 90,
+                    "minimum": -90,
+                    "type": "number"
+                  },
+                  "lng": {
+                    "maximum": 180,
+                    "minimum": -180,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lng"
+                ],
+                "type": "object"
+              },
+              "estimatedDuration": {
+                "maximum": 1440,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "id": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              "priority": {
+                "enum": [
+                  "alta",
+                  "media",
+                  "baja"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "pickup",
+                  "delivery",
+                  "service",
+                  "visit"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "label",
+              "address",
+              "coord"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "totalDistanceKm": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalDurationMin": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "stops",
+        "totalDistanceKm",
+        "totalDurationMin",
+        "orderedIds"
+      ],
+      "type": "object"
+    },
+    "OptimizeRouteInputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "stops": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "maxLength": 300,
+                "minLength": 3,
+                "type": "string"
+              },
+              "coord": {
+                "additionalProperties": false,
+                "properties": {
+                  "lat": {
+                    "maximum": 90,
+                    "minimum": -90,
+                    "type": "number"
+                  },
+                  "lng": {
+                    "maximum": 180,
+                    "minimum": -180,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lng"
+                ],
+                "type": "object"
+              },
+              "estimatedDuration": {
+                "maximum": 1440,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "id": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              "priority": {
+                "enum": [
+                  "alta",
+                  "media",
+                  "baja"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "pickup",
+                  "delivery",
+                  "service",
+                  "visit"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "label",
+              "address",
+              "coord"
+            ],
+            "type": "object"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "stops"
       ],
       "type": "object"
     },
@@ -62325,6 +64814,112 @@
         "rejectionReason"
       ],
       "type": "object"
+    },
+    "ReminderRuleSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "channels": {
+          "items": {
+            "enum": [
+              "in_app",
+              "email",
+              "sms"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "recipientRoles": {
+          "items": {
+            "enum": [
+              "gerente",
+              "residente",
+              "hes",
+              "coord_administrativo",
+              "auxiliar_contable",
+              "supervisor",
+              "auxiliar_hes",
+              "supervisor_electricista",
+              "tecnico_electricista",
+              "operador",
+              "tecnico",
+              "oficial_construccion",
+              "administrativo",
+              "pasante",
+              "cliente"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "scheduleMode": {
+          "enum": [
+            "days_before",
+            "days_after",
+            "hours_before",
+            "inactivity_days"
+          ],
+          "type": "string"
+        },
+        "thresholds": {
+          "items": {
+            "maximum": 365,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "certification_expiring",
+            "maintenance_due",
+            "payment_overdue",
+            "sla_breach_warning",
+            "invoice_due",
+            "stale_case"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "enabled",
+        "scheduleMode",
+        "thresholds",
+        "channels",
+        "recipientRoles"
+      ],
+      "type": "object"
+    },
+    "ReminderScheduleModeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "days_before",
+        "days_after",
+        "hours_before",
+        "inactivity_days"
+      ],
+      "type": "string"
+    },
+    "ReminderTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "certification_expiring",
+        "maintenance_due",
+        "payment_overdue",
+        "sla_breach_warning",
+        "invoice_due",
+        "stale_case"
+      ],
+      "type": "string"
     },
     "ReopenPlanningPacketSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -71062,6 +73657,435 @@
       ],
       "type": "object"
     },
+    "SlaConfigSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "clientId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 300,
+          "type": "string"
+        },
+        "escalationHours": {
+          "maximum": 8760,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "penaltyRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "priority": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "resolutionHours": {
+          "maximum": 8760,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "responseHours": {
+          "maximum": 8760,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "serviceType": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "serviceType",
+        "priority",
+        "responseHours",
+        "resolutionHours",
+        "escalationHours",
+        "isActive"
+      ],
+      "type": "object"
+    },
+    "SlaDashboardSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "breaching": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "_id": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "assignedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "breachReason": {
+                "type": "string"
+              },
+              "currentStep": {
+                "type": "string"
+              },
+              "escalationDeadline": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "escalationLevel": {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "firstResponseAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "priority": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "critical"
+                ],
+                "type": "string"
+              },
+              "resolutionDeadline": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "resolvedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "responseDeadline": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "serviceCaseId": {
+                "anyOf": [
+                  {
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "_id": {
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "clientName": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "_id",
+                      "code",
+                      "clientName"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "serviceType": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "breached",
+                  "at_risk",
+                  "resolved",
+                  "escalated"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "_id",
+              "serviceCaseId",
+              "serviceType",
+              "priority",
+              "assignedAt",
+              "responseDeadline",
+              "escalationDeadline",
+              "resolutionDeadline",
+              "status",
+              "currentStep",
+              "escalationLevel"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "summary": {
+          "additionalProperties": false,
+          "properties": {
+            "active": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "atRisk": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "breached": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "complianceRate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "escalated": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "resolved": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "total": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "active",
+            "breached",
+            "atRisk",
+            "resolved",
+            "escalated",
+            "total",
+            "complianceRate"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "summary",
+        "breaching"
+      ],
+      "type": "object"
+    },
+    "SlaPrioritySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "type": "string"
+    },
+    "SlaServiceCaseSummarySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "clientName": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "_id",
+        "code",
+        "clientName"
+      ],
+      "type": "object"
+    },
+    "SlaStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "active",
+        "breached",
+        "at_risk",
+        "resolved",
+        "escalated"
+      ],
+      "type": "string"
+    },
+    "SlaTrackingIdParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "trackingId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trackingId"
+      ],
+      "type": "object"
+    },
+    "SlaTrackingQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "active",
+            "breached",
+            "at_risk",
+            "resolved",
+            "escalated"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "SlaTrackingSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "assignedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "breachReason": {
+          "type": "string"
+        },
+        "currentStep": {
+          "type": "string"
+        },
+        "escalationDeadline": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "escalationLevel": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "firstResponseAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "resolutionDeadline": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "resolvedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "responseDeadline": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "_id": {
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "clientName": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "code",
+                "clientName"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "serviceType": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "breached",
+            "at_risk",
+            "resolved",
+            "escalated"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "_id",
+        "serviceCaseId",
+        "serviceType",
+        "priority",
+        "assignedAt",
+        "responseDeadline",
+        "escalationDeadline",
+        "resolutionDeadline",
+        "status",
+        "currentStep",
+        "escalationLevel"
+      ],
+      "type": "object"
+    },
     "StartExecutionSessionCommandSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -72009,6 +75033,37 @@
                     "maximum": 9007199254740991,
                     "minimum": 0,
                     "type": "integer"
+                  },
+                  "conflict": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "localState": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "localVersion": {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "reason": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "serverState": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "serverVersion": {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "reason"
+                    ],
+                    "type": "object"
                   },
                   "createdAt": {
                     "format": "date-time",
@@ -74871,6 +77926,194 @@
       ],
       "type": "object"
     },
+    "SystemConfigSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "allowedFileTypes": {
+          "items": {
+            "pattern": "^[a-z0-9]+$",
+            "type": "string"
+          },
+          "maxItems": 30,
+          "minItems": 1,
+          "type": "array"
+        },
+        "defaultLanguage": {
+          "enum": [
+            "es"
+          ],
+          "type": "string"
+        },
+        "featureFlags": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "enum": [
+                  "general",
+                  "billing",
+                  "field",
+                  "notifications",
+                  "security",
+                  "experimental"
+                ],
+                "type": "string"
+              },
+              "description": {
+                "maxLength": 300,
+                "type": "string"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "key": {
+                "pattern": "^[a-z][a-z0-9_]{2,79}$",
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "key",
+              "label",
+              "description",
+              "enabled",
+              "category"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "maintenanceMessage": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "maintenanceMode": {
+          "type": "boolean"
+        },
+        "maxUploadSizeMb": {
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "reminderRules": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "channels": {
+                "items": {
+                  "enum": [
+                    "in_app",
+                    "email",
+                    "sms"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "recipientRoles": {
+                "items": {
+                  "enum": [
+                    "gerente",
+                    "residente",
+                    "hes",
+                    "coord_administrativo",
+                    "auxiliar_contable",
+                    "supervisor",
+                    "auxiliar_hes",
+                    "supervisor_electricista",
+                    "tecnico_electricista",
+                    "operador",
+                    "tecnico",
+                    "oficial_construccion",
+                    "administrativo",
+                    "pasante",
+                    "cliente"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "scheduleMode": {
+                "enum": [
+                  "days_before",
+                  "days_after",
+                  "hours_before",
+                  "inactivity_days"
+                ],
+                "type": "string"
+              },
+              "thresholds": {
+                "items": {
+                  "maximum": 365,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "maxItems": 12,
+                "minItems": 1,
+                "type": "array"
+              },
+              "type": {
+                "enum": [
+                  "certification_expiring",
+                  "maintenance_due",
+                  "payment_overdue",
+                  "sla_breach_warning",
+                  "invoice_due",
+                  "stale_case"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "enabled",
+              "scheduleMode",
+              "thresholds",
+              "channels",
+              "recipientRoles"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "reminderWorkerEnabled": {
+          "type": "boolean"
+        },
+        "reminderWorkerIntervalMinutes": {
+          "maximum": 1440,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sessionTimeoutMinutes": {
+          "maximum": 1440,
+          "minimum": 30,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "featureFlags",
+        "maintenanceMode",
+        "maintenanceMessage",
+        "maxUploadSizeMb",
+        "sessionTimeoutMinutes",
+        "defaultLanguage",
+        "allowedFileTypes",
+        "reminderWorkerEnabled",
+        "reminderWorkerIntervalMinutes",
+        "reminderRules"
+      ],
+      "type": "object"
+    },
     "TariffIdSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -76874,6 +80117,61 @@
         "cancelled"
       ],
       "type": "string"
+    },
+    "TechnicianAssignmentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "scheduledStops": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "startLocation": {
+          "additionalProperties": false,
+          "properties": {
+            "lat": {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            },
+            "lng": {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            }
+          },
+          "required": [
+            "lat",
+            "lng"
+          ],
+          "type": "object"
+        },
+        "technicianId": {
+          "type": "string"
+        },
+        "technicianName": {
+          "type": "string"
+        },
+        "totalDistanceKm": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalDurationMin": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "technicianId",
+        "technicianName",
+        "scheduledStops",
+        "totalDistanceKm",
+        "totalDurationMin",
+        "startLocation"
+      ],
+      "type": "object"
     },
     "TechnicianCheckInSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -84942,6 +88240,19 @@
       ],
       "type": "object"
     },
+    "ToggleFeatureFlagSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "type": "object"
+    },
     "ToolCertificationParamsSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -89933,6 +93244,213 @@
           "format": "date-time",
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UpdateSlaConfigsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "configs": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "clientId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "description": {
+                "maxLength": 300,
+                "type": "string"
+              },
+              "escalationHours": {
+                "maximum": 8760,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "isActive": {
+                "type": "boolean"
+              },
+              "penaltyRate": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              "priority": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "critical"
+                ],
+                "type": "string"
+              },
+              "resolutionHours": {
+                "maximum": 8760,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "responseHours": {
+                "maximum": 8760,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "serviceType": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "serviceType",
+              "priority",
+              "responseHours",
+              "resolutionHours",
+              "escalationHours",
+              "isActive"
+            ],
+            "type": "object"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "configs"
+      ],
+      "type": "object"
+    },
+    "UpdateSystemSettingsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "allowedFileTypes": {
+          "items": {
+            "pattern": "^[a-z0-9]+$",
+            "type": "string"
+          },
+          "maxItems": 30,
+          "minItems": 1,
+          "type": "array"
+        },
+        "defaultLanguage": {
+          "enum": [
+            "es"
+          ],
+          "type": "string"
+        },
+        "maintenanceMessage": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "maintenanceMode": {
+          "type": "boolean"
+        },
+        "maxUploadSizeMb": {
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "reminderRules": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "channels": {
+                "items": {
+                  "enum": [
+                    "in_app",
+                    "email",
+                    "sms"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "recipientRoles": {
+                "items": {
+                  "enum": [
+                    "gerente",
+                    "residente",
+                    "hes",
+                    "coord_administrativo",
+                    "auxiliar_contable",
+                    "supervisor",
+                    "auxiliar_hes",
+                    "supervisor_electricista",
+                    "tecnico_electricista",
+                    "operador",
+                    "tecnico",
+                    "oficial_construccion",
+                    "administrativo",
+                    "pasante",
+                    "cliente"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "scheduleMode": {
+                "enum": [
+                  "days_before",
+                  "days_after",
+                  "hours_before",
+                  "inactivity_days"
+                ],
+                "type": "string"
+              },
+              "thresholds": {
+                "items": {
+                  "maximum": 365,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "maxItems": 12,
+                "minItems": 1,
+                "type": "array"
+              },
+              "type": {
+                "enum": [
+                  "certification_expiring",
+                  "maintenance_due",
+                  "payment_overdue",
+                  "sla_breach_warning",
+                  "invoice_due",
+                  "stale_case"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "enabled",
+              "scheduleMode",
+              "thresholds",
+              "channels",
+              "recipientRoles"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "reminderWorkerEnabled": {
+          "type": "boolean"
+        },
+        "reminderWorkerIntervalMinutes": {
+          "maximum": 1440,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sessionTimeoutMinutes": {
+          "maximum": 1440,
+          "minimum": 30,
+          "type": "integer"
         }
       },
       "type": "object"

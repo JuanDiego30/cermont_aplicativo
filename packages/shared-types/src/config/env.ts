@@ -49,7 +49,7 @@ const optionalString = (schema: z.ZodString) =>
 const envSchema = z.object({
 	NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 	CI: z.coerce.boolean().default(false),
-	PORT: z.coerce.number().int().positive().default(5000),
+	PORT: z.coerce.number().int().positive().default(4000),
 	MONGODB_URI: optionalString(z.string().min(1, "MONGODB_URI is required")),
 	JWT_SECRET: optionalString(z.string().min(32, "JWT_SECRET must be at least 32 characters")),
 	JWT_EXPIRES_IN: z.string().default("15m"),
@@ -65,7 +65,9 @@ const envSchema = z.object({
 	BCRYPT_ROUNDS: z.coerce.number().int().min(4).max(15).default(12),
 	SENTRY_DSN: optionalString(z.string()),
 	REPORT_ARCHIVE_ENABLED: z.coerce.boolean().default(false),
-	SEED_DEFAULT_PASSWORD: optionalString(z.string().min(1)),
+	SEED_DEFAULT_PASSWORD: optionalString(
+		z.string().min(16, "SEED_DEFAULT_PASSWORD must be at least 16 characters"),
+	),
 	LOG_LEVEL: z.enum(["error", "warn", "info", "debug"]).default("info"),
 	UPLOAD_DIR: z.string().default("./uploads"),
 	MAX_FILE_SIZE: z.coerce
@@ -224,7 +226,7 @@ export function getEnvVar(key: string, fallback = ""): string {
  */
 export const env = Object.freeze({
 	NODE_ENV: (process.env.NODE_ENV ?? "development") as Env["NODE_ENV"],
-	PORT: Number(process.env.PORT ?? 5000),
+	PORT: Number(process.env.PORT ?? 4000),
 	MONGODB_URI: process.env.MONGODB_URI,
 	JWT_SECRET: process.env.JWT_SECRET,
 	JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? "15m",

@@ -50,6 +50,28 @@ describe("Offline sync contract", () => {
 		expect(parsed.status).toBe("pending_sync");
 	});
 
+	it("preserves conflict details for user-driven recovery", () => {
+		const parsed = OfflineOutboxItemSchema.parse({
+			...validOutboxItem,
+			status: "conflict",
+			conflict: {
+				reason: "El servidor tiene una version mas reciente.",
+				serverVersion: 4,
+				localVersion: 3,
+				serverState: "approved",
+				localState: "draft",
+			},
+		});
+
+		expect(parsed.conflict).toEqual({
+			reason: "El servidor tiene una version mas reciente.",
+			serverVersion: 4,
+			localVersion: 3,
+			serverState: "approved",
+			localState: "draft",
+		});
+	});
+
 	it("rejects unsupported flow steps", () => {
 		expect(() =>
 			OfflineOutboxItemSchema.parse({

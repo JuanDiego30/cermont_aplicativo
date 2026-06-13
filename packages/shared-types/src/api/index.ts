@@ -14,7 +14,11 @@
 // Auth API Contracts
 import { AssistantChatRequestSchema } from "../schemas/ai.schema";
 import { ErrorDashboardQuerySchema, NotificationIdSchema } from "../schemas/analytics.schema";
-import { AuditLogIdSchema, AuditLogsQuerySchema } from "../schemas/audit.schema";
+import {
+	AuditLogIdSchema,
+	AuditLogRecordSchema,
+	AuditLogsQuerySchema,
+} from "../schemas/audit.schema";
 import { LoginSchema } from "../schemas/auth.schema";
 import { CreateUserSchema } from "../schemas/user.schema";
 
@@ -36,9 +40,11 @@ export const analyticsAPI = {
 export const auditAPI = {
 	listAuditLogs: {
 		query: AuditLogsQuerySchema,
+		response: AuditLogRecordSchema.array(),
 	} as const,
 	getAuditLog: {
 		params: AuditLogIdSchema,
+		response: AuditLogRecordSchema,
 	} as const,
 } as const;
 

@@ -164,6 +164,12 @@ export const InvoiceSchema = z
 		retentionAmount: z.number().nonnegative().optional(),
 		cufe: z.string().max(200).optional(),
 		qrCode: z.string().url().max(500).optional(),
+		dianStatus: z
+			.enum(["not_sent", "submitting", "accepted", "rejected", "failed"])
+			.default("not_sent"),
+		dianTrackId: z.string().max(200).optional(),
+		dianDocumentHash: z.string().max(128).optional(),
+		dianErrorCode: z.string().max(100).optional(),
 		paymentMethod: InvoicePaymentMethodSchema.optional(),
 		numeroResolucion: z.string().optional(),
 		totalConIva: z.number().positive().optional(),
@@ -398,6 +404,10 @@ export interface InvoiceDocument<TID = string> extends MongooseDocument<TID> {
 	notes?: string;
 	createdBy: TID;
 	// Colombian electronic invoicing:
+	dianStatus: "not_sent" | "submitting" | "accepted" | "rejected" | "failed";
+	dianTrackId?: string;
+	dianDocumentHash?: string;
+	dianErrorCode?: string;
 	seller?: {
 		nit: string;
 		businessName: string;
