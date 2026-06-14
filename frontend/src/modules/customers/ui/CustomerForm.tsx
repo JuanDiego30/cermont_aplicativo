@@ -12,6 +12,22 @@ import type { z } from "zod";
 
 type CustomerFormInput = z.input<typeof CreateClientSchema>;
 
+const CUSTOMER_FORM_FIELDS: Array<{
+	name: keyof CustomerFormInput & string;
+	label: string;
+	placeholder?: string;
+	required?: boolean;
+}> = [
+	{ name: "name", label: "Razón social", placeholder: "SierraCol Energy", required: true },
+	{ name: "nit", label: "NIT", placeholder: "900123456-7", required: true },
+	{ name: "contactName", label: "Persona de contacto" },
+	{ name: "email", label: "Email" },
+	{ name: "phone", label: "Teléfono" },
+	{ name: "address", label: "Dirección" },
+	{ name: "city", label: "Ciudad" },
+	{ name: "industry", label: "Industria", placeholder: "Hidrocarburos" },
+];
+
 interface CustomerFormProps {
 	initial?: Client;
 	isSaving: boolean;
@@ -45,22 +61,6 @@ export function CustomerForm({ initial, isSaving, onSubmit, onCancel }: Customer
 	const inputClasses =
 		"w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
-	const fields: Array<{
-		name: keyof CustomerFormInput & string;
-		label: string;
-		placeholder?: string;
-		required?: boolean;
-	}> = [
-		{ name: "name", label: "Razón social", placeholder: "SierraCol Energy", required: true },
-		{ name: "nit", label: "NIT", placeholder: "900123456-7", required: true },
-		{ name: "contactName", label: "Persona de contacto" },
-		{ name: "email", label: "Email" },
-		{ name: "phone", label: "Teléfono" },
-		{ name: "address", label: "Dirección" },
-		{ name: "city", label: "Ciudad" },
-		{ name: "industry", label: "Industria", placeholder: "Hidrocarburos" },
-	];
-
 	return (
 		<form
 			onSubmit={handleSubmit(onSubmit)}
@@ -68,7 +68,7 @@ export function CustomerForm({ initial, isSaving, onSubmit, onCancel }: Customer
 			aria-label={initial ? "Editar cliente" : "Nuevo cliente"}
 		>
 			<div className="grid gap-4 sm:grid-cols-2">
-				{fields.map((field) => (
+				{CUSTOMER_FORM_FIELDS.map((field) => (
 					<div key={field.name} className="space-y-1">
 						<label
 							htmlFor={`${formId}-${field.name}`}

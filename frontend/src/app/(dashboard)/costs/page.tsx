@@ -250,7 +250,7 @@ export default function CostsPage() {
 				) : costQuery.isError ? (
 					<div className="p-6">
 						<EmptyState
-							icon="reports"
+							icon="costs"
 							title="No se pudieron cargar los costos"
 							description="Revisa la conexión con el backend e inténtalo de nuevo."
 						/>
@@ -258,7 +258,7 @@ export default function CostsPage() {
 				) : costItems.length === 0 ? (
 					<div className="p-6">
 						<EmptyState
-							icon="reports"
+							icon="costs"
 							title="Sin costos registrados"
 							description="Los costos aparecerán cuando una orden tenga mano de obra, materiales, equipos o impuestos asociados."
 						/>

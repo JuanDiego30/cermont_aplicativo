@@ -4,12 +4,7 @@
  * Thin wrapper over `apiClient` for `/api/kits` endpoints.
  */
 
-import type {
-	CreateKitInput,
-	KitCatalogOptions,
-	KitTemplate,
-	UpdateKitInput,
-} from "@cermont/shared-types";
+import type { CreateKitInput, KitTemplate } from "@cermont/shared-types";
 import { apiClient } from "@/lib/http/api-client";
 
 export interface KitListFilters {
@@ -97,14 +92,6 @@ export async function getKitById(id: string): Promise<KitTemplate> {
 	return envelope.data;
 }
 
-export async function updateKit(id: string, input: UpdateKitInput): Promise<KitTemplate> {
-	const envelope = await apiClient.patch<{ success: true; data: KitTemplate }>(
-		`/kits/${encodeURIComponent(id)}`,
-		input,
-	);
-	return envelope.data;
-}
-
 // ─── Lifecycle ─────────────────────────────────────────────────────────────
 
 export async function deleteKit(id: string): Promise<KitDeleteResult> {
@@ -141,84 +128,4 @@ export async function duplicateKit(id: string, name?: string): Promise<KitTempla
 		{ name },
 	);
 	return envelope.data;
-}
-
-// ─── Planning Integration ──────────────────────────────────────────────────
-
-export async function applyKitToPlanning(
-	kitId: string,
-	planningId: string,
-): Promise<KitApplyResult> {
-	const envelope = await apiClient.post<{ success: true; data: KitApplyResult }>(
-		`/kits/${encodeURIComponent(kitId)}/apply-to-planning/${encodeURIComponent(planningId)}`,
-		{ planningId },
-	);
-	return envelope.data;
-}
-
-// ─── Attachments ───────────────────────────────────────────────────────────
-
-export async function addKitAttachment(
-	kitId: string,
-	attachment: {
-		fileName: string;
-		originalName: string;
-		mimeType: string;
-		fileSize: number;
-		url: string;
-		purpose: string;
-	},
-): Promise<KitTemplate> {
-	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>(
-		`/kits/${encodeURIComponent(kitId)}/attachments`,
-		attachment,
-	);
-	return envelope.data;
-}
-
-export async function removeKitAttachment(
-	kitId: string,
-	attachmentId: string,
-): Promise<KitTemplate> {
-	const envelope = await apiClient.delete<{ success: true; data: KitTemplate }>(
-		`/kits/${encodeURIComponent(kitId)}/attachments/${encodeURIComponent(attachmentId)}`,
-	);
-	return envelope.data;
-}
-
-// ─── Catalog Options ───────────────────────────────────────────────────────
-
-export async function getKitCatalogOptions(): Promise<KitCatalogOptions> {
-	const envelope = await apiClient.get<{ success: true; data: KitCatalogOptions }>(
-		"/kits/catalog/options",
-	);
-	return envelope.data;
-}
-
-// ─── Attachments ───────────────────────────────────────────────────────────
-
-export interface KitAttachmentInput {
-	fileName: string;
-	originalName: string;
-	mimeType: string;
-	fileSize: number;
-	url: string;
-	purpose: string;
-}
-
-export async function addKitAttachmentApi(
-	kitId: string,
-	attachment: KitAttachmentInput,
-): Promise<KitTemplate> {
-	const envelope = await apiClient.post<{ success: true; data: KitTemplate }>(
-		`/kits/${encodeURIComponent(kitId)}/attachments`,
-		attachment,
-	);
-	return envelope.data;
-}
-
-export async function removeKitAttachmentApi(kitId: string, attachmentId: string): Promise<void> {
-	await apiClient.delete(
-		`/kits/${encodeURIComponent(kitId)}/attachments/${encodeURIComponent(attachmentId)}`,
-	);
 }

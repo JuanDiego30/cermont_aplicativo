@@ -2,11 +2,11 @@
 
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { FileText, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
-import { EmptyState } from "@/components/common/EmptyState";
+import { EmptyState } from "@/core/ui/EmptyState";
 import { normalizePagination } from "@/lib/pagination";
 import { cloneSearchParams, readSearchParam } from "@/lib/utils/search-params";
 import type { Proposal } from "@/modules/proposals/queries";
@@ -262,7 +262,7 @@ function ProposalListContent({
 	if (proposals.length === 0) {
 		return (
 			<EmptyState
-				icon={FileText}
+				icon="proposals"
 				title="No hay propuestas"
 				description="No se encontraron propuestas para los filtros seleccionados. Crea una nueva propuesta desde una solicitud de trabajo."
 				action={{

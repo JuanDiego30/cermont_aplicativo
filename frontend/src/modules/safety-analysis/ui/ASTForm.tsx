@@ -6,12 +6,29 @@
 
 import type { CreateAST } from "@cermont/shared-types";
 import { Plus, Trash2 } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useReducer } from "react";
 
 interface ASTStepDraft {
+	_key: string;
 	taskDescription: string;
 	hazards: string;
 	controls: string;
+}
+
+function splitList(value: string): string[] {
+	return value
+		.split(/[;,\n]/)
+		.map((item) => item.trim())
+		.filter((item) => item.length > 0);
+}
+
+function createStepDraft(): ASTStepDraft {
+	return {
+		_key: crypto.randomUUID(),
+		taskDescription: "",
+		hazards: "",
+		controls: "",
+	};
 }
 
 interface ASTFormProps {
@@ -21,39 +38,66 @@ interface ASTFormProps {
 	onCancel: () => void;
 }
 
+interface ASTFormState {
+	workDescription: string;
+	location: string;
+	crewLeader: string;
+	crewMembersText: string;
+	ppeText: string;
+	steps: ASTStepDraft[];
+	formError: string;
+}
+
+type ASTFormAction =
+	| { type: "SET_FIELD"; field: keyof Omit<ASTFormState, "steps" | "formError">; value: string }
+	| { type: "SET_STEPS"; updater: (prev: ASTStepDraft[]) => ASTStepDraft[] }
+	| { type: "SET_ERROR"; message: string };
+
+function astFormReducer(state: ASTFormState, action: ASTFormAction): ASTFormState {
+	switch (action.type) {
+		case "SET_FIELD":
+			return { ...state, [action.field]: action.value };
+		case "SET_STEPS":
+			return { ...state, steps: action.updater(state.steps) };
+		case "SET_ERROR":
+			return { ...state, formError: action.message };
+	}
+}
+
+const AST_INITIAL: ASTFormState = {
+	workDescription: "",
+	location: "",
+	crewLeader: "",
+	crewMembersText: "",
+	ppeText: "",
+	steps: [createStepDraft()],
+	formError: "",
+};
+
 export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps) {
 	const formId = useId();
-	const [workDescription, setWorkDescription] = useState("");
-	const [location, setLocation] = useState("");
-	const [crewLeader, setCrewLeader] = useState("");
-	const [crewMembersText, setCrewMembersText] = useState("");
-	const [ppeText, setPpeText] = useState("");
-	const [steps, setSteps] = useState<ASTStepDraft[]>([
-		{ taskDescription: "", hazards: "", controls: "" },
-	]);
-	const [formError, setFormError] = useState("");
+	const [form, dispatch] = useReducer(astFormReducer, AST_INITIAL);
+
+	const { workDescription, location, crewLeader, crewMembersText, ppeText, steps, formError } =
+		form;
 
 	const inputClasses =
 		"w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
-	function splitList(value: string): string[] {
-		return value
-			.split(/[;,\n]/)
-			.map((item) => item.trim())
-			.filter((item) => item.length > 0);
-	}
-
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		setFormError("");
+		dispatch({ type: "SET_ERROR", message: "" });
 
 		if (!workDescription.trim() || !location.trim() || !crewLeader.trim()) {
-			setFormError("Descripción del trabajo, lugar y líder de cuadrilla son obligatorios.");
+			dispatch({
+				type: "SET_ERROR",
+				message: "Descripción del trabajo, lugar y líder de cuadrilla son obligatorios.",
+			});
 			return;
 		}
 		const validSteps = steps.filter((step) => step.taskDescription.trim().length > 0);
 		if (validSteps.length === 0) {
-			setFormError("Agrega al menos un paso de la tarea.");
+			dispatch({ type: "SET_ERROR", message: "Agrega al menos un paso de la tarea." });
 			return;
 		}
 
@@ -74,6 +118,10 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 		});
 	}
 
+	function setField(field: keyof Omit<ASTFormState, "steps" | "formError">, value: string) {
+		dispatch({ type: "SET_FIELD", field, value } as ASTFormAction);
+	}
+
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -91,9 +139,10 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 					<input
 						id={`${formId}-work`}
 						value={workDescription}
-						onChange={(e) => setWorkDescription(e.target.value)}
+						onChange={(e) => setField("workDescription", e.target.value)}
 						placeholder="Mantenimiento preventivo CCTV torre 9"
 						className={inputClasses}
+						aria-label="Descripción del trabajo"
 						required
 					/>
 				</div>
@@ -107,9 +156,10 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 					<input
 						id={`${formId}-location`}
 						value={location}
-						onChange={(e) => setLocation(e.target.value)}
+						onChange={(e) => setField("location", e.target.value)}
 						placeholder="Caño Limón"
 						className={inputClasses}
+						aria-label="Lugar"
 						required
 					/>
 				</div>
@@ -123,8 +173,9 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 					<input
 						id={`${formId}-leader`}
 						value={crewLeader}
-						onChange={(e) => setCrewLeader(e.target.value)}
+						onChange={(e) => setField("crewLeader", e.target.value)}
 						className={inputClasses}
+						aria-label="Líder de cuadrilla"
 						required
 					/>
 				</div>
@@ -138,8 +189,9 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 					<input
 						id={`${formId}-crew`}
 						value={crewMembersText}
-						onChange={(e) => setCrewMembersText(e.target.value)}
+						onChange={(e) => setField("crewMembersText", e.target.value)}
 						className={inputClasses}
+						aria-label="Cuadrilla (separados por coma)"
 					/>
 				</div>
 				<div className="space-y-1">
@@ -152,9 +204,10 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 					<input
 						id={`${formId}-ppe`}
 						value={ppeText}
-						onChange={(e) => setPpeText(e.target.value)}
+						onChange={(e) => setField("ppeText", e.target.value)}
 						placeholder="Casco, arnés, guantes dieléctricos"
 						className={inputClasses}
+						aria-label="EPP requerido (separados por coma)"
 					/>
 				</div>
 			</div>
@@ -165,8 +218,7 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 				</legend>
 				{steps.map((step, index) => (
 					<div
-						// biome-ignore lint/suspicious/noArrayIndexKey: draft rows have no stable id until saved
-						key={index}
+						key={step._key}
 						className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border-default)] p-3"
 					>
 						<div className="flex items-center justify-between">
@@ -176,7 +228,12 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 							{steps.length > 1 && (
 								<button
 									type="button"
-									onClick={() => setSteps((prev) => prev.filter((_, i) => i !== index))}
+									onClick={() =>
+										dispatch({
+											type: "SET_STEPS",
+											updater: (prev) => prev.filter((_, i) => i !== index),
+										})
+									}
 									className="rounded-full p-1 text-[var(--text-tertiary)] hover:bg-[var(--color-danger-bg)] hover:text-[var(--color-danger)]"
 									aria-label={`Eliminar paso ${index + 1}`}
 								>
@@ -187,9 +244,13 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 						<input
 							value={step.taskDescription}
 							onChange={(e) =>
-								setSteps((prev) =>
-									prev.map((s, i) => (i === index ? { ...s, taskDescription: e.target.value } : s)),
-								)
+								dispatch({
+									type: "SET_STEPS",
+									updater: (prev) =>
+										prev.map((s, i) =>
+											i === index ? { ...s, taskDescription: e.target.value } : s,
+										),
+								})
 							}
 							placeholder="Descripción del paso"
 							aria-label={`Descripción del paso ${index + 1}`}
@@ -199,9 +260,11 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 							<input
 								value={step.hazards}
 								onChange={(e) =>
-									setSteps((prev) =>
-										prev.map((s, i) => (i === index ? { ...s, hazards: e.target.value } : s)),
-									)
+									dispatch({
+										type: "SET_STEPS",
+										updater: (prev) =>
+											prev.map((s, i) => (i === index ? { ...s, hazards: e.target.value } : s)),
+									})
 								}
 								placeholder="Peligros (separados por ;)"
 								aria-label={`Peligros del paso ${index + 1}`}
@@ -210,9 +273,11 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 							<input
 								value={step.controls}
 								onChange={(e) =>
-									setSteps((prev) =>
-										prev.map((s, i) => (i === index ? { ...s, controls: e.target.value } : s)),
-									)
+									dispatch({
+										type: "SET_STEPS",
+										updater: (prev) =>
+											prev.map((s, i) => (i === index ? { ...s, controls: e.target.value } : s)),
+									})
 								}
 								placeholder="Controles (separados por ;)"
 								aria-label={`Controles del paso ${index + 1}`}
@@ -224,7 +289,7 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 				<button
 					type="button"
 					onClick={() =>
-						setSteps((prev) => [...prev, { taskDescription: "", hazards: "", controls: "" }])
+						dispatch({ type: "SET_STEPS", updater: (prev) => [...prev, createStepDraft()] })
 					}
 					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>

@@ -12,6 +12,7 @@ import { apiClient } from "@/lib/http/api-client";
 import { useAuthStore } from "@/store/auth.store";
 import { useOfflineStore } from "@/store/offline.store";
 import { nowIso, type OfflineFileRecord, offlineDb } from "./offline-db";
+import { refreshOfflineOutboxCounts } from "./offline-recovery";
 import { QUEUE_CHANGED_EVENT } from "./sync-queue";
 
 const MAX_SYNC_ATTEMPTS = 5;
@@ -65,27 +66,7 @@ async function refreshVisualCounts(): Promise<void> {
 	if (!hasIndexedDbRuntime()) {
 		return;
 	}
-
-	try {
-		const [pendingCount, failedCount, conflictCount] = await Promise.all([
-			offlineDb.offlineOutbox.where("status").anyOf(["pending_sync", "syncing", "failed"]).count(),
-			offlineDb.offlineOutbox.where("status").equals("failed").count(),
-			offlineDb.offlineOutbox.where("status").equals("conflict").count(),
-		]);
-
-		useOfflineStore.getState().setSyncState({
-			pendingCount,
-			failedCount,
-			conflictCount,
-		});
-	} catch (error) {
-		// If IndexedDB schema is stale or stores are missing (race during upgrade),
-		// silently skip counts - the database will be ready on next access.
-		if (error instanceof Error && error.name === "NotFoundError") {
-			return;
-		}
-		throw error;
-	}
+	await refreshOfflineOutboxCounts();
 }
 
 function isReadyForRetry(item: OfflineOutboxItem, now: number): boolean {
@@ -152,8 +133,9 @@ async function applyItemResult(
 			serverId: result.serverId,
 			syncedAt: updatedAt,
 			updatedAt,
-			lastError: "",
+			lastError: void 0,
 			nextRetryAt: void 0,
+			conflict: void 0,
 		});
 		return;
 	}
@@ -165,6 +147,7 @@ async function applyItemResult(
 			updatedAt,
 			lastError: result.conflict?.reason ?? result.error ?? "Conflicto de sincronización.",
 			nextRetryAt: void 0,
+			conflict: result.conflict,
 		});
 		return;
 	}
@@ -176,6 +159,7 @@ async function applyItemResult(
 		updatedAt,
 		lastError: result.error ?? "El servidor rechazó el registro offline.",
 		nextRetryAt: attempts >= MAX_SYNC_ATTEMPTS ? void 0 : getNextRetryAt(attempts),
+		conflict: void 0,
 	});
 }
 

@@ -18,13 +18,3 @@ export async function captureClientSignature(
 	);
 	return envelope.data;
 }
-
-export async function listClientSignatures(
-	contextType: string,
-	contextId: string,
-): Promise<ClientSignature[]> {
-	const envelope = await apiClient.get<{ success: boolean; data: ClientSignature[] }>(
-		`/signatures?contextType=${contextType}&contextId=${contextId}`,
-	);
-	return envelope.data;
-}

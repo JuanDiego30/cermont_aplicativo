@@ -55,14 +55,7 @@ export default function CustomersPage() {
 				</Link>
 			</header>
 
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					setSubmittedSearch(search.trim());
-					setPage(1);
-				}}
-				className="flex gap-2"
-			>
+			<search className="flex gap-2">
 				<label htmlFor="customer-search" className="sr-only">
 					Buscar por nombre, NIT o contacto
 				</label>
@@ -70,17 +63,27 @@ export default function CustomersPage() {
 					id="customer-search"
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter") {
+							setSubmittedSearch(search.trim());
+							setPage(1);
+						}
+					}}
 					placeholder="Buscar por nombre, NIT o contacto..."
 					className="w-full max-w-md rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
 				/>
 				<button
-					type="submit"
+					type="button"
+					onClick={() => {
+						setSubmittedSearch(search.trim());
+						setPage(1);
+					}}
 					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					<Search className="size-4" aria-hidden="true" />
 					Buscar
 				</button>
-			</form>
+			</search>
 
 			{isLoading && (
 				<div className="space-y-2">

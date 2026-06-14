@@ -28,6 +28,7 @@ function DeliveryRecordsPageContent() {
 			eyebrow="Dashboard / Actas"
 			title="Actas de entrega"
 			description="Cierre operativo posterior al informe técnico aprobado, con firma del cliente y soporte documental."
+			emptyIcon="delivery-records"
 			emptyTitle={workOrderId ? "No delivery records for this order" : "Sin actas de entrega"}
 			emptyDescription={
 				workOrderId

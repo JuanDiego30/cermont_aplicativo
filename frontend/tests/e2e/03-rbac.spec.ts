@@ -1,13 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { E2E_TECHNICIAN, loginAsUser } from "./auth-credentials";
 
 test.describe("03 — RBAC Visual", () => {
-	test("pasante no ve botón de aprobación", async ({ page }) => {
-		// Login como pasante (Rol restrictivo)
-		await page.goto("/login");
-		await page.fill('input[name="email"]', "pasante@cermont.com.co");
-		await page.fill('input[name="password"]', "Admin123*");
-		await page.click('button[type="submit"]');
-		await expect(page).toHaveURL(/.*dashboard/);
+	test("técnico no ve botón de aprobación", async ({ page }) => {
+		await loginAsUser(page, E2E_TECHNICIAN);
 
 		// Navegar a una propuesta
 		await page.goto("/proposals");
@@ -32,11 +28,7 @@ test.describe("03 — RBAC Visual", () => {
 	});
 
 	test("tecnico no accede a administración de usuarios", async ({ page }) => {
-		// Login como tecnico
-		await page.goto("/login");
-		await page.fill('input[name="email"]', "tecnico@cermont.com.co");
-		await page.fill('input[name="password"]', "Admin123*");
-		await page.click('button[type="submit"]');
+		await loginAsUser(page, E2E_TECHNICIAN);
 
 		// Intentar ir directo a la ruta de admin
 		await page.goto("/admin/users");

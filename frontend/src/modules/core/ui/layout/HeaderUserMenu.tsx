@@ -4,6 +4,7 @@ import { ROLE_LABELS, type UserRole } from "@cermont/domain";
 import { ChevronDown, LogOut, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 
@@ -36,6 +37,15 @@ export function HeaderUserMenu({
 	const onCloseRef = useRef(onCloseDropdown);
 	onCloseRef.current = onCloseDropdown;
 	const { logout } = useAuth();
+	const router = useRouter();
+
+	async function handleLogout() {
+		try {
+			await logout();
+		} finally {
+			router.replace("/login");
+		}
+	}
 
 	useEffect(() => {
 		if (!dropdownOpen || dropdownRef.current === null) {
@@ -134,7 +144,7 @@ export function HeaderUserMenu({
 						<li className="mt-1 border-t border-[var(--border-default)] pt-1">
 							<button
 								type="button"
-								onClick={() => logout()}
+								onClick={() => void handleLogout()}
 								className="flex w-full items-center gap-3.5 rounded-lg px-4 py-3 text-sm font-medium text-[var(--color-danger)] transition-colors hover:bg-[var(--color-danger-bg)]/60"
 							>
 								<LogOut className="size-5" aria-hidden="true" />

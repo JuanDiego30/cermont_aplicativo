@@ -51,6 +51,7 @@ interface KPICardProps {
 	icon: ComponentType<{ className?: string }>;
 	description?: string;
 	trend?: { value: number; isPositive: boolean };
+	sparkline?: number[];
 	color?: ColorVariant;
 	format?: "number" | "currency";
 	className?: string;
@@ -72,6 +73,7 @@ export function KPICard({
 	icon: Icon,
 	description,
 	trend,
+	sparkline,
 	color = "blue",
 	format = "number",
 	className,
@@ -193,7 +195,36 @@ export function KPICard({
 				{description && (
 					<p className="mt-2 text-xs font-medium text-(--text-tertiary) truncate">{description}</p>
 				)}
+				{sparkline && sparkline.length > 1 ? (
+					<KpiSparkline values={sparkline} label={`Tendencia de ${title}`} />
+				) : null}
 			</div>
 		</article>
+	);
+}
+
+function KpiSparkline({ values, label }: { values: number[]; label: string }) {
+	const maximum = Math.max(...values, 1);
+	const divisor = Math.max(values.length - 1, 1);
+	const points = values
+		.map((value, index) => `${(index / divisor) * 100},${30 - (value / maximum) * 26}`)
+		.join(" ");
+
+	return (
+		<svg
+			viewBox="0 0 100 32"
+			role="img"
+			aria-label={label}
+			className="mt-4 h-8 w-full text-[var(--color-brand-blue)]"
+			preserveAspectRatio="none"
+		>
+			<polyline
+				points={points}
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="2"
+				vectorEffect="non-scaling-stroke"
+			/>
+		</svg>
 	);
 }

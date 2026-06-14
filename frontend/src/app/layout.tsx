@@ -82,7 +82,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
 	return (
 		<html lang="es" suppressHydrationWarning data-scroll-behavior="smooth">
-			<body className="min-h-screen overflow-x-hidden bg-[var(--surface-page)] text-[var(--foreground)] antialiased selection:bg-[var(--color-brand-blue)]/15 selection:text-[var(--foreground)]">
+			<body className="overflow-x-hidden bg-[var(--surface-page)] text-[var(--foreground)] antialiased selection:bg-[var(--color-brand-blue)]/15 selection:text-[var(--foreground)]">
 				<AppSerwistProvider>
 					<Providers>
 						<main>{children}</main>

@@ -1,6 +1,7 @@
 import {
 	ADMIN_ROLES,
 	ALL_AUTHENTICATED_ROLES,
+	AUDIT_ACCESS_ROLES,
 	canAccessPath,
 	getAllowedRolesForPath,
 	hasRole,
@@ -17,6 +18,10 @@ describe("RBAC - Role Constants", () => {
 		expect(ADMIN_ROLES).toContain("administrativo");
 		expect(ADMIN_ROLES).toContain("coord_administrativo");
 		expect(ADMIN_ROLES.length).toBe(3);
+	});
+
+	it("uses the same administrative scope for forensic audit access", () => {
+		expect(AUDIT_ACCESS_ROLES).toEqual(ADMIN_ROLES);
 	});
 
 	it("ALL_AUTHENTICATED_ROLES contains all roles", () => {
@@ -98,6 +103,12 @@ describe("RBAC - canAccessPath Function", () => {
 	it("all authenticated roles can access /profile", () => {
 		ALL_AUTHENTICATED_ROLES.forEach((role: string) => {
 			expect(canAccessPath("/profile", role)).toBe(true);
+		});
+	});
+
+	it("all authenticated roles can access offline recovery", () => {
+		ALL_AUTHENTICATED_ROLES.forEach((role: string) => {
+			expect(canAccessPath("/offline-sync", role)).toBe(true);
 		});
 	});
 

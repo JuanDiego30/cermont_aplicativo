@@ -224,7 +224,7 @@ test.describe("3. UI Login & Module Navigation", () => {
 		test(`3b. Módulo "${mod.name}" (${mod.path}) carga sin errores`, async ({ page }) => {
 			test.skip(!fs.existsSync(AUTH_STATE_PATH), "Saltado: no hay sesión autenticada");
 
-			await page.goto(mod.path, { waitUntil: "networkidle" });
+			await page.goto(mod.path, { waitUntil: "domcontentloaded" });
 
 			// Verificar HTTP status
 			const response = await page.goto(mod.path);

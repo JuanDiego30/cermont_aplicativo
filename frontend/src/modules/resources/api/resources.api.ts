@@ -13,7 +13,7 @@
  *   DELETE /api/resources/:id/images
  */
 
-import type { CreateResource, FileAssetRef, Resource, UpdateResource } from "@cermont/shared-types";
+import type { CreateResource, Resource, UpdateResource } from "@cermont/shared-types";
 
 import { apiClient } from "@/lib/http/api-client";
 
@@ -101,26 +101,4 @@ export async function updateResource(id: string, input: UpdateResource): Promise
  */
 export async function deleteResource(id: string): Promise<void> {
 	await apiClient.delete<{ success: true; data: null }>(`/resources/${encodeURIComponent(id)}`);
-}
-
-/**
- * POST /api/resources/:id/images — attach an image ref to a resource
- */
-export async function attachResourceImage(id: string, image: FileAssetRef): Promise<Resource> {
-	const envelope = await apiClient.post<{ success: true; data: Resource }>(
-		`/resources/${encodeURIComponent(id)}/images`,
-		{ image },
-	);
-	return envelope.data;
-}
-
-/**
- * DELETE /api/resources/:id/images — detach an image ref from a resource by id
- */
-export async function detachResourceImage(id: string, imageId: string): Promise<Resource> {
-	const envelope = await apiClient.delete<{ success: true; data: Resource }>(
-		`/resources/${encodeURIComponent(id)}/images`,
-		{ body: JSON.stringify({ imageId }) } as RequestInit,
-	);
-	return envelope.data;
 }

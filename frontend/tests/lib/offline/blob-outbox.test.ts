@@ -33,6 +33,7 @@ const {
 	markBlobInFlight,
 	markBlobUploaded,
 	removeBlobUpload,
+	retryBlobUpload,
 } = await import("@/lib/offline/blob-outbox");
 
 function makeFile(name = "evidence.jpg", type = "image/jpeg"): File {
@@ -222,6 +223,18 @@ describe("blob-outbox", () => {
 			expect(second[0].status).toBe("dead_letter");
 			expect(second[0].retryCount).toBe(2);
 			expect(second[0].lastError).toBe("fail 2");
+		});
+
+		it("returns a dead-letter upload to the pending queue", async () => {
+			const id = await enqueueFixture();
+			await markBlobFailed(id, "permanent failure", 1);
+
+			await retryBlobUpload(id);
+
+			const retried = (await getAllBlobUploads())[0];
+			expect(retried.status).toBe("pending");
+			expect(retried.retryCount).toBe(0);
+			expect(retried.lastError).toBeUndefined();
 		});
 	});
 

@@ -1,59 +1,15 @@
 import { CERMONT_OPERATIONAL_STEPS } from "@cermont/shared-types";
 import { expect, type Page, test } from "@playwright/test";
+import { E2E_ADMIN, loginAsUser } from "./auth-credentials";
+
+test.use({ serviceWorkers: "block" });
 
 const USER_ID = "665000000000000000000001";
 const CASE_ID = "665000000000000000000101";
 const ORDER_ID = "665000000000000000000201";
 const NOW = "2026-05-27T04:00:00.000Z";
-const ROLE_MANAGER = `${"ge"}${"rente"}`;
+const ROLE_MANAGER = E2E_ADMIN.role;
 const ROLE_RESIDENT = `${"resi"}${"dente"}`;
-
-function base64UrlJson(payload: Record<string, string>): string {
-	return Buffer.from(JSON.stringify(payload)).toString("base64url");
-}
-
-function buildSessionToken(): string {
-	return [
-		base64UrlJson({ alg: "none", typ: "JWT" }),
-		base64UrlJson({ sub: USER_ID, role: ROLE_MANAGER }),
-		"signature",
-	].join(".");
-}
-
-async function installAuthenticatedSession(page: Page): Promise<void> {
-	await page.context().addCookies([
-		{
-			name: "refreshToken",
-			value: buildSessionToken(),
-			url: "http://localhost:3000",
-			httpOnly: true,
-			sameSite: "Lax",
-		},
-		{
-			name: "userRole",
-			value: ROLE_MANAGER,
-			url: "http://localhost:3000",
-			sameSite: "Lax",
-		},
-	]);
-	await page.addInitScript((role) => {
-		window.localStorage.setItem(
-			"cermont-auth",
-			JSON.stringify({
-				state: {
-					user: {
-						id: "665000000000000000000001",
-						name: "Cermont QA",
-						email: "qa@cermont.test",
-						role,
-					},
-					isAuthenticated: true,
-				},
-				version: 0,
-			}),
-		);
-	}, ROLE_MANAGER);
-}
 
 function buildBlocker() {
 	return {
@@ -329,11 +285,7 @@ async function installApiMocks(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-	page.on("console", (msg) => console.log(`[BROWSER CONSOLE] ${msg.type()}: ${msg.text()}`));
-	page.on("pageerror", (err) => console.log(`[BROWSER ERROR] ${err.message}`));
-	page.on("request", (req) => console.log(`[NETWORK REQUEST] ${req.method()} ${req.url()}`));
-	page.on("response", (res) => console.log(`[NETWORK RESPONSE] ${res.status()} ${res.url()}`));
-	await installAuthenticatedSession(page);
+	await loginAsUser(page, E2E_ADMIN);
 });
 
 test("keeps proposals URL stable and avoids invalid order limits", async ({ page }) => {
@@ -383,7 +335,7 @@ test("keeps custom form options usable and dark inputs legible", async ({ page }
 
 	await page.goto("/work-requests/new");
 	await expect(page.getByRole("heading", { name: "Nueva solicitud de trabajo" })).toBeVisible();
-	await page.waitForLoadState("networkidle");
+	await page.waitForLoadState("domcontentloaded");
 
 	// Wait for React hydration to settle and bind event listeners
 	await page.waitForTimeout(2000);

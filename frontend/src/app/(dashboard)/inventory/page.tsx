@@ -6,7 +6,7 @@
 
 import type { InventoryItem } from "@cermont/shared-types";
 import { AlertTriangle, ArrowDownUp, Package, Plus } from "lucide-react";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { Skeleton } from "@/core/ui/Skeleton";
 import {
 	useCreateInventoryItem,
@@ -35,12 +35,56 @@ const MOVEMENT_TYPES = [
 const inputClasses =
 	"rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
+interface InventoryViewState {
+	category: string;
+	movementItem: InventoryItem | "";
+	onlyLowStock: boolean;
+	page: number;
+	showNewForm: boolean;
+}
+
+type InventoryViewAction =
+	| { type: "CLOSE_MOVEMENT" }
+	| { type: "CLOSE_NEW_FORM" }
+	| { type: "OPEN_MOVEMENT"; item: InventoryItem }
+	| { type: "SET_CATEGORY"; category: string }
+	| { type: "SET_LOW_STOCK"; checked: boolean }
+	| { type: "SET_PAGE"; page: number }
+	| { type: "TOGGLE_NEW_FORM" };
+
+const INITIAL_VIEW_STATE: InventoryViewState = {
+	category: "",
+	movementItem: "",
+	onlyLowStock: false,
+	page: 1,
+	showNewForm: false,
+};
+
+function inventoryViewReducer(
+	state: InventoryViewState,
+	action: InventoryViewAction,
+): InventoryViewState {
+	switch (action.type) {
+		case "CLOSE_MOVEMENT":
+			return { ...state, movementItem: "" };
+		case "CLOSE_NEW_FORM":
+			return { ...state, showNewForm: false };
+		case "OPEN_MOVEMENT":
+			return { ...state, movementItem: action.item };
+		case "SET_CATEGORY":
+			return { ...state, category: action.category, page: 1 };
+		case "SET_LOW_STOCK":
+			return { ...state, onlyLowStock: action.checked, page: 1 };
+		case "SET_PAGE":
+			return { ...state, page: action.page };
+		case "TOGGLE_NEW_FORM":
+			return { ...state, showNewForm: !state.showNewForm };
+	}
+}
+
 export default function InventoryPage() {
-	const [page, setPage] = useState(1);
-	const [category, setCategory] = useState("");
-	const [onlyLowStock, setOnlyLowStock] = useState(false);
-	const [showNewForm, setShowNewForm] = useState(false);
-	const [movementItem, setMovementItem] = useState<InventoryItem | "">("");
+	const [view, dispatchView] = useReducer(inventoryViewReducer, INITIAL_VIEW_STATE);
+	const { category, movementItem, onlyLowStock, page, showNewForm } = view;
 
 	const { data, isLoading, error, refetch } = useInventoryItems({
 		page,
@@ -65,7 +109,7 @@ export default function InventoryPage() {
 				</div>
 				<button
 					type="button"
-					onClick={() => setShowNewForm((v) => !v)}
+					onClick={() => dispatchView({ type: "TOGGLE_NEW_FORM" })}
 					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
 				>
 					<Plus className="size-4" aria-hidden="true" />
@@ -78,10 +122,7 @@ export default function InventoryPage() {
 					<button
 						type="button"
 						key={cat.value}
-						onClick={() => {
-							setCategory(cat.value);
-							setPage(1);
-						}}
+						onClick={() => dispatchView({ type: "SET_CATEGORY", category: cat.value })}
 						className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
 							category === cat.value
 								? "bg-[var(--color-brand-blue)] text-white"
@@ -95,19 +136,21 @@ export default function InventoryPage() {
 					<input
 						type="checkbox"
 						checked={onlyLowStock}
-						onChange={(e) => {
-							setOnlyLowStock(e.target.checked);
-							setPage(1);
-						}}
+						onChange={(e) => dispatchView({ type: "SET_LOW_STOCK", checked: e.target.checked })}
 						className="size-4 rounded border-[var(--border-default)]"
 					/>
 					Solo stock bajo
 				</label>
 			</div>
 
-			{showNewForm && <NewItemForm onClose={() => setShowNewForm(false)} />}
+			{showNewForm && <NewItemForm onClose={() => dispatchView({ type: "CLOSE_NEW_FORM" })} />}
 
-			{movementItem && <MovementForm item={movementItem} onClose={() => setMovementItem("")} />}
+			{movementItem && (
+				<MovementForm
+					item={movementItem}
+					onClose={() => dispatchView({ type: "CLOSE_MOVEMENT" })}
+				/>
+			)}
 
 			{isLoading && (
 				<div className="space-y-2">
@@ -175,7 +218,7 @@ export default function InventoryPage() {
 								</div>
 								<button
 									type="button"
-									onClick={() => setMovementItem(item)}
+									onClick={() => dispatchView({ type: "OPEN_MOVEMENT", item })}
 									className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 								>
 									<ArrowDownUp className="size-3.5" aria-hidden="true" />
@@ -192,7 +235,7 @@ export default function InventoryPage() {
 					<button
 						type="button"
 						disabled={page <= 1}
-						onClick={() => setPage((p) => Math.max(1, p - 1))}
+						onClick={() => dispatchView({ type: "SET_PAGE", page: Math.max(1, page - 1) })}
 						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Anterior
@@ -203,7 +246,7 @@ export default function InventoryPage() {
 					<button
 						type="button"
 						disabled={page >= pagination.totalPages}
-						onClick={() => setPage((p) => p + 1)}
+						onClick={() => dispatchView({ type: "SET_PAGE", page: page + 1 })}
 						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Siguiente
@@ -214,51 +257,95 @@ export default function InventoryPage() {
 	);
 }
 
+interface NewItemState {
+	name: string;
+	itemCategory: string;
+	unit: string;
+	minStock: number;
+	initialStock: number;
+	location: string;
+	formError: string;
+}
+
+type NewItemAction =
+	| { type: "SET_FIELD"; field: keyof Omit<NewItemState, "formError">; value: string | number }
+	| { type: "SET_ERROR"; message: string };
+
+function newItemReducer(state: NewItemState, action: NewItemAction): NewItemState {
+	switch (action.type) {
+		case "SET_FIELD":
+			return { ...state, [action.field]: action.value };
+		case "SET_ERROR":
+			return { ...state, formError: action.message };
+	}
+}
+
+const INITIAL_NEW_ITEM: NewItemState = {
+	name: "",
+	itemCategory: "material",
+	unit: "unidad",
+	minStock: 0,
+	initialStock: 0,
+	location: "",
+	formError: "",
+};
+
 function NewItemForm({ onClose }: { onClose: () => void }) {
 	const createMutation = useCreateInventoryItem();
-	const [name, setName] = useState("");
-	const [itemCategory, setItemCategory] = useState("material");
-	const [unit, setUnit] = useState("unidad");
-	const [minStock, setMinStock] = useState(0);
-	const [initialStock, setInitialStock] = useState(0);
-	const [location, setLocation] = useState("");
-	const [formError, setFormError] = useState("");
+	const [form, dispatch] = useReducer(newItemReducer, INITIAL_NEW_ITEM);
+
+	function setField(field: keyof Omit<NewItemState, "formError">, value: string | number) {
+		dispatch({ type: "SET_FIELD", field, value } as NewItemAction);
+	}
+
+	async function handleCreateItem() {
+		dispatch({ type: "SET_ERROR", message: "" });
+		if (!form.name.trim()) {
+			dispatch({ type: "SET_ERROR", message: "El nombre es obligatorio." });
+			return;
+		}
+		try {
+			await createMutation.mutateAsync({
+				name: form.name.trim(),
+				category: form.itemCategory as "herramienta",
+				unit: form.unit,
+				minStock: form.minStock,
+				initialStock: form.initialStock,
+				...(form.location.trim() ? { location: form.location.trim() } : {}),
+			});
+			onClose();
+		} catch (error) {
+			dispatch({
+				type: "SET_ERROR",
+				message: error instanceof Error ? error.message : "No se pudo crear el item.",
+			});
+		}
+	}
 
 	return (
 		<form
-			className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-3"
-			onSubmit={async (e) => {
-				e.preventDefault();
-				setFormError("");
-				if (!name.trim()) {
-					setFormError("El nombre es obligatorio.");
-					return;
-				}
-				try {
-					await createMutation.mutateAsync({
-						name: name.trim(),
-						category: itemCategory as "herramienta",
-						unit,
-						minStock,
-						initialStock,
-						...(location.trim() ? { location: location.trim() } : {}),
-					});
-					onClose();
-				} catch (error) {
-					setFormError(error instanceof Error ? error.message : "No se pudo crear el item.");
-				}
-			}}
 			aria-label="Nuevo item de inventario"
+			className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-3"
+			action="#"
+			onSubmit={() => {
+				void handleCreateItem();
+			}}
 		>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Nombre
-				<input value={name} onChange={(e) => setName(e.target.value)} className={inputClasses} />
+				<input
+					name="name"
+					value={form.name}
+					onChange={(e) => setField("name", e.target.value)}
+					className={inputClasses}
+				/>
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Categoría
 				<select
-					value={itemCategory}
-					onChange={(e) => setItemCategory(e.target.value)}
+					name="itemCategory"
+					value={form.itemCategory}
+					onChange={(e) => setField("itemCategory", e.target.value)}
 					className={inputClasses}
 				>
 					{CATEGORIES.filter((c) => c.value).map((cat) => (
@@ -270,42 +357,50 @@ function NewItemForm({ onClose }: { onClose: () => void }) {
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Unidad
-				<input value={unit} onChange={(e) => setUnit(e.target.value)} className={inputClasses} />
+				<input
+					name="unit"
+					value={form.unit}
+					onChange={(e) => setField("unit", e.target.value)}
+					className={inputClasses}
+				/>
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Stock mínimo
 				<input
+					name="minStock"
 					type="number"
 					inputMode="numeric"
 					min={0}
-					value={minStock}
-					onChange={(e) => setMinStock(Math.max(0, Number(e.target.value)))}
+					value={form.minStock}
+					onChange={(e) => setField("minStock", Math.max(0, Number(e.target.value)))}
 					className={inputClasses}
 				/>
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Stock inicial
 				<input
+					name="initialStock"
 					type="number"
 					inputMode="numeric"
 					min={0}
-					value={initialStock}
-					onChange={(e) => setInitialStock(Math.max(0, Number(e.target.value)))}
+					value={form.initialStock}
+					onChange={(e) => setField("initialStock", Math.max(0, Number(e.target.value)))}
 					className={inputClasses}
 				/>
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Ubicación
 				<input
-					value={location}
-					onChange={(e) => setLocation(e.target.value)}
+					name="location"
+					value={form.location}
+					onChange={(e) => setField("location", e.target.value)}
 					placeholder="Bodega principal"
 					className={inputClasses}
 				/>
 			</label>
-			{formError && (
+			{form.formError && (
 				<p className="text-sm text-[var(--color-danger)] sm:col-span-2 lg:col-span-3" role="alert">
-					{formError}
+					{form.formError}
 				</p>
 			)}
 			<div className="flex justify-end gap-2 sm:col-span-2 lg:col-span-3">
@@ -327,7 +422,6 @@ function NewItemForm({ onClose }: { onClose: () => void }) {
 		</form>
 	);
 }
-
 function MovementForm({ item, onClose }: { item: InventoryItem; onClose: () => void }) {
 	const movementMutation = useRegisterStockMovement();
 	const [type, setType] = useState("salida");
@@ -335,36 +429,43 @@ function MovementForm({ item, onClose }: { item: InventoryItem; onClose: () => v
 	const [reason, setReason] = useState("");
 	const [formError, setFormError] = useState("");
 
+	async function handleMovement() {
+		setFormError("");
+		try {
+			await movementMutation.mutateAsync({
+				itemId: item._id ?? "",
+				input: {
+					type: type as "salida",
+					quantity,
+					...(reason.trim() ? { reason: reason.trim() } : {}),
+				},
+			});
+			onClose();
+		} catch (error) {
+			setFormError(error instanceof Error ? error.message : "No se pudo registrar el movimiento.");
+		}
+	}
+
 	return (
 		<form
-			className="flex flex-wrap items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--color-info-bg)] bg-[var(--color-info-bg)]/30 p-4"
-			onSubmit={async (e) => {
-				e.preventDefault();
-				setFormError("");
-				try {
-					await movementMutation.mutateAsync({
-						itemId: item._id ?? "",
-						input: {
-							type: type as "salida",
-							quantity,
-							...(reason.trim() ? { reason: reason.trim() } : {}),
-						},
-					});
-					onClose();
-				} catch (error) {
-					setFormError(
-						error instanceof Error ? error.message : "No se pudo registrar el movimiento.",
-					);
-				}
-			}}
 			aria-label={`Movimiento de stock para ${item.name}`}
+			className="flex flex-wrap items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--color-info-bg)] bg-[var(--color-info-bg)]/30 p-4"
+			action="#"
+			onSubmit={() => {
+				void handleMovement();
+			}}
 		>
 			<p className="w-full text-sm font-medium text-[var(--text-primary)]">
 				Movimiento — {item.name} ({item.currentStock} {item.unit})
 			</p>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Tipo
-				<select value={type} onChange={(e) => setType(e.target.value)} className={inputClasses}>
+				<select
+					name="type"
+					value={type}
+					onChange={(e) => setType(e.target.value)}
+					className={inputClasses}
+				>
 					{MOVEMENT_TYPES.map((mt) => (
 						<option key={mt.value} value={mt.value}>
 							{mt.label}
@@ -375,6 +476,7 @@ function MovementForm({ item, onClose }: { item: InventoryItem; onClose: () => v
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Cantidad
 				<input
+					name="quantity"
 					type="number"
 					inputMode="numeric"
 					min={1}
@@ -386,6 +488,7 @@ function MovementForm({ item, onClose }: { item: InventoryItem; onClose: () => v
 			<label className="flex min-w-48 flex-1 flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Motivo
 				<input
+					name="reason"
 					value={reason}
 					onChange={(e) => setReason(e.target.value)}
 					placeholder="Orden OT-2026-0012"

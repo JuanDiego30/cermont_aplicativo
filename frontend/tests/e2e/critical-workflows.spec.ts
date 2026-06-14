@@ -1,28 +1,13 @@
 import { expect, test } from "@playwright/test";
-import { E2E_LOGIN_EMAIL, getE2ECredentials, hasE2ECredentials } from "./auth-credentials";
+import { E2E_ADMIN, E2E_LOGIN_EMAIL, loginAsUser } from "./auth-credentials";
 
 // Base URL from environment or default to localhost
 const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:3000";
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
 
 test.describe("Authentication Flow", () => {
 	test("should login successfully", async ({ page }) => {
-		test.skip(
-			!hasE2ECredentials(),
-			"Authenticated E2E flows require SEED_DEFAULT_PASSWORD, PLAYWRIGHT_E2E_PASSWORD, or PLAYWRIGHT_TEST_PASSWORD",
-		);
-
-		const { email, password } = getE2ECredentials();
-
-		await page.goto(`${BASE_URL}/login`);
-
-		await page.getByLabel("Correo electrónico").first().fill(email);
-		await page.getByLabel("Contraseña").first().fill(password);
-		await page
-			.getByRole("button", { name: /iniciar sesión/i })
-			.first()
-			.click();
-
-		await page.waitForURL(`${BASE_URL}/dashboard`, { timeout: 15000 });
+		await loginAsUser(page, E2E_ADMIN);
 		await expect(page).toHaveURL(/\/dashboard$/);
 		await expect(page.getByRole("heading", { name: /panel de control/i })).toBeVisible();
 	});
@@ -39,7 +24,9 @@ test.describe("Authentication Flow", () => {
 			.first()
 			.click();
 
-		await expect(page.getByRole("alert")).toContainText(/invalid email or password/i);
+		await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)')).toContainText(
+			/credenciales inválidas|invalid (email or )?password|invalid credentials/i,
+		);
 		await expect(page).toHaveURL(/\/login$/);
 	});
 });
@@ -51,12 +38,12 @@ test.describe("Health & Performance", () => {
 		expect(response.status()).toBe(200);
 
 		const data = await response.json();
-		expect(data).toHaveProperty("status");
+		expect(data).toHaveProperty("ok", true);
 	});
 
 	test("should have metrics endpoint available", async ({ page }) => {
 		// /api/metrics requires Bearer token — verify endpoint exists
-		const response = await page.request.get(`${BASE_URL}/api/metrics`);
+		const response = await page.request.get(`${BACKEND_URL}/api/metrics`);
 
 		expect(response.status()).not.toBe(404);
 		expect(response.status()).not.toBe(500);
@@ -65,21 +52,7 @@ test.describe("Health & Performance", () => {
 	});
 
 	test("should load dashboard quickly", async ({ page }) => {
-		test.skip(
-			!hasE2ECredentials(),
-			"Authenticated E2E flows require SEED_DEFAULT_PASSWORD, PLAYWRIGHT_E2E_PASSWORD, or PLAYWRIGHT_TEST_PASSWORD",
-		);
-
-		const { email, password } = getE2ECredentials();
-
-		await page.goto(`${BASE_URL}/login`);
-		await page.getByLabel("Correo electrónico").first().fill(email);
-		await page.getByLabel("Contraseña").first().fill(password);
-		await page
-			.getByRole("button", { name: /iniciar sesión/i })
-			.first()
-			.click();
-		await page.waitForURL(`${BASE_URL}/dashboard`, { timeout: 15000 });
+		await loginAsUser(page, E2E_ADMIN);
 
 		const startTime = Date.now();
 		await page.goto(`${BASE_URL}/dashboard`, {
@@ -89,6 +62,8 @@ test.describe("Health & Performance", () => {
 
 		const loadTime = Date.now() - startTime;
 		expect(loadTime).toBeLessThan(5000);
-		await expect(page.getByRole("heading", { name: /panel de control/i })).toBeVisible();
+		await expect(
+			page.locator("#main-content").getByRole("heading", { name: /panel de control/i }),
+		).toBeVisible();
 	});
 });

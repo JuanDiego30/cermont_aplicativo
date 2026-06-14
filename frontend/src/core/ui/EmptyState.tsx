@@ -1,62 +1,96 @@
-import {
-	BarChart3,
-	Briefcase,
-	ClipboardList,
-	FileText,
-	PackageOpen,
-	Search,
-	Wrench,
-} from "lucide-react";
-import type { ComponentType } from "react";
+import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
+import type { ComponentType, ReactNode } from "react";
+import { MOTION } from "@/components/motion/motion-classes";
+import { cn } from "@/lib/utils";
 import { Button } from "./Button";
+import { EmptyStateIllustration, type EmptyStateKind } from "./EmptyStateIllustration";
 
-interface EmptyStateProps {
-	title: string;
-	description?: string;
-	icon?:
-		| "orders"
-		| "maintenance"
-		| "resources"
-		| "documents"
-		| "proposals"
-		| "reports"
-		| "search"
-		| "generic"
-		| ComponentType<{ className?: string }>;
-	action?: {
-		label: string;
-		onClick: () => void;
-	};
+interface EmptyStateActionBase {
+	label: string;
+	icon?: LucideIcon;
+	variant?: "primary" | "secondary";
 }
 
-const ICON_MAP = {
-	orders: ClipboardList,
-	maintenance: Wrench,
-	resources: Briefcase,
-	documents: FileText,
-	proposals: FileText,
-	reports: BarChart3,
-	search: Search,
-	generic: PackageOpen,
-};
+export type EmptyStateAction =
+	| (EmptyStateActionBase & { onClick: () => void; href?: never })
+	| (EmptyStateActionBase & { href: string; onClick?: never });
 
-export function EmptyState({ title, description, icon = "generic", action }: EmptyStateProps) {
-	const Icon = typeof icon === "string" ? ICON_MAP[icon] : icon;
+export interface EmptyStateProps {
+	title: string;
+	description?: string;
+	icon?: EmptyStateKind | ComponentType<{ className?: string }>;
+	action?: EmptyStateAction;
+	secondaryAction?: EmptyStateAction;
+	children?: ReactNode;
+	className?: string;
+	"aria-label"?: string;
+}
+
+export function EmptyState({
+	title,
+	description,
+	icon = "generic",
+	action,
+	secondaryAction,
+	children,
+	className,
+	"aria-label": ariaLabel = "Sin resultados",
+}: EmptyStateProps) {
+	const illustrationKind = typeof icon === "string" ? icon : "generic";
+	const CustomIcon = typeof icon === "string" ? undefined : icon;
 
 	return (
-		<div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-6 py-12 text-center shadow-card">
-			<div className="flex size-16 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--surface-secondary)] text-[var(--text-tertiary)]">
-				<Icon className="size-8" aria-hidden="true" />
-			</div>
-			<h3 className="mt-4 text-base font-semibold text-[var(--text-primary)]">{title}</h3>
+		<section
+			aria-label={ariaLabel}
+			className={cn(
+				`${MOTION.revealUp} motion-panel flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-6 py-12 text-center shadow-card`,
+				className,
+			)}
+		>
+			<EmptyStateIllustration kind={illustrationKind} customIcon={CustomIcon} />
+			<h3 className="mt-3 text-lg font-semibold text-[var(--text-primary)] [text-wrap:balance]">
+				{title}
+			</h3>
 			{description && (
-				<p className="mt-1.5 max-w-xs text-sm text-[var(--text-secondary)]">{description}</p>
+				<p className="mt-2 max-w-sm text-sm leading-6 text-[var(--text-secondary)]">
+					{description}
+				</p>
 			)}
-			{action && (
-				<Button type="button" onClick={action.onClick} className="mt-5">
+			{action || secondaryAction || children ? (
+				<div className="mt-6 flex flex-col items-center gap-3 sm:flex-row">
+					{action ? <EmptyStateButton action={action} /> : null}
+					{secondaryAction ? <EmptyStateButton action={secondaryAction} /> : null}
+					{children}
+				</div>
+			) : null}
+		</section>
+	);
+}
+
+function EmptyStateButton({ action }: { action: EmptyStateAction }) {
+	const ActionIcon = action.icon;
+
+	if (action.href) {
+		return (
+			<Button asChild variant={action.variant === "secondary" ? "secondary" : "primary"}>
+				<Link href={action.href} className="min-h-11">
+					{ActionIcon ? <ActionIcon aria-hidden="true" /> : null}
 					{action.label}
-				</Button>
-			)}
-		</div>
+				</Link>
+			</Button>
+		);
+	}
+
+	return (
+		<Button
+			type="button"
+			variant={action.variant === "secondary" ? "secondary" : "primary"}
+			onClick={action.onClick}
+			className="min-h-11"
+		>
+			{ActionIcon ? <ActionIcon aria-hidden="true" /> : null}
+			{action.label}
+		</Button>
 	);
 }

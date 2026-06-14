@@ -26,6 +26,7 @@ import { LazyOrdersByStatusChart } from "@/lib/utils/lazy-orders-by-status-chart
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { useDashboardSummary } from "@/modules/dashboard/hooks/useDashboardSummary";
+import { ActivityTimeline } from "@/modules/dashboard/ui/ActivityTimeline";
 import { ChartCard } from "@/modules/dashboard/ui/ChartCard";
 import { DashboardFilters } from "@/modules/dashboard/ui/DashboardFilters";
 import { KPICard } from "@/modules/dashboard/ui/KPICard";
@@ -361,7 +362,7 @@ export default function DashboardPage() {
 				userName={userName}
 			/>
 
-			<StepTimeline />
+			<StepTimeline stepDistribution={serviceCaseSummary?.stepDistribution ?? []} />
 
 			<ServiceCaseDashboardPanel
 				activeOrders={activeOrders}
@@ -380,7 +381,11 @@ export default function DashboardPage() {
 			{/* KPI cards , Figma style */}
 			<section data-dash="kpis" aria-label="Indicadores clave de rendimiento">
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-					<DashboardKpiGrid activeKitCount={activeKitCount} kpis={resolvedKpis} />
+					<DashboardKpiGrid
+						activeKitCount={activeKitCount}
+						kpis={resolvedKpis}
+						monthlyTrend={monthlyTrendData.map((item) => item.creadas)}
+					/>
 				</div>
 			</section>
 
@@ -391,24 +396,14 @@ export default function DashboardPage() {
 				className="grid gap-4 xl:grid-cols-3"
 			>
 				<div className="xl:col-span-2">
-					<ChartCard title="Tendencia Mensual" subtitle="Órdenes creadas vs completadas">
-						<LazyMonthlyTrendChart data={monthlyTrendData} />
-					</ChartCard>
+					<LazyMonthlyTrendChart data={monthlyTrendData} />
 				</div>
-				<div>
-					<ChartCard title="Órdenes por Estado" subtitle="Distribución actual">
-						<LazyOrdersByStatusChart data={ordersByStatus} />
-					</ChartCard>
-				</div>
+				<LazyOrdersByStatusChart data={ordersByStatus} />
 			</section>
 
-			{/* Bottom row: Recent orders + Maintenance kits */}
-			<div className="grid gap-4 xl:grid-cols-2">
-				<section
-					data-dash="panel"
-					aria-labelledby="recent-orders-title"
-					className="col-span-12 xl:col-span-1"
-				>
+			{/* Bottom row: Recent orders + activity + maintenance kits */}
+			<div className="grid gap-4 xl:grid-cols-3">
+				<section data-dash="panel" aria-labelledby="recent-orders-title" className="xl:col-span-1">
 					<div className="flex items-center justify-between px-2 py-4">
 						<h3
 							id="recent-orders-title"
@@ -429,11 +424,9 @@ export default function DashboardPage() {
 					</div>
 				</section>
 
-				<section
-					data-dash="panel"
-					aria-labelledby="kits-title"
-					className="col-span-12 xl:col-span-1"
-				>
+				<ActivityTimeline items={dashboardSummary?.recentActivity?.items ?? []} />
+
+				<section data-dash="panel" aria-labelledby="kits-title" className="xl:col-span-1">
 					<ChartCard title="Kits Típicos Recientes">
 						<UpcomingMaintenanceList kits={kitPreview} />
 					</ChartCard>
@@ -538,9 +531,11 @@ function DashboardWelcomeMetric({ label, value }: { label: string; value: number
 function DashboardKpiGrid({
 	activeKitCount,
 	kpis,
+	monthlyTrend,
 }: {
 	activeKitCount: number;
 	kpis: DashboardKpiSnapshot;
+	monthlyTrend: number[];
 }) {
 	return (
 		<>
@@ -548,7 +543,7 @@ function DashboardKpiGrid({
 				title="Órdenes Activas"
 				value={kpis.overview.active_orders ?? 0}
 				icon={ClipboardList}
-				trend={{ value: 12, isPositive: true }}
+				sparkline={monthlyTrend}
 				description={`${kpis.overview.total_orders ?? 0} órdenes en total`}
 				color="blue"
 			/>
@@ -556,7 +551,6 @@ function DashboardKpiGrid({
 				title="Mantenimientos Abiertos"
 				value={kpis.overview.maintenance_open_count ?? activeKitCount}
 				icon={Wrench}
-				trend={{ value: 4, isPositive: false }}
 				description="Mantenimientos preventivos/correctivos"
 				color="amber"
 			/>
@@ -564,7 +558,6 @@ function DashboardKpiGrid({
 				title="Recursos en Uso"
 				value={kpis.overview.resource_in_use_count ?? 0}
 				icon={Package2}
-				trend={{ value: 8, isPositive: true }}
 				description="Recursos asignados a órdenes"
 				color="indigo"
 			/>
@@ -573,7 +566,6 @@ function DashboardKpiGrid({
 				value={kpis.financial.total_budget_approved ?? 0}
 				format="currency"
 				icon={DollarSign}
-				trend={{ value: 5, isPositive: true }}
 				description="Presupuesto aprobado"
 				color="green"
 			/>

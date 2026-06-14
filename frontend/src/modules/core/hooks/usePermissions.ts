@@ -4,11 +4,13 @@ import {
 	ADMIN_ROLES,
 	APPROVER_ROLES,
 	ASSET_MANAGEMENT_ROLES,
+	AUDIT_ACCESS_ROLES,
 	BILLING_ACCESS_ROLES,
 	DASHBOARD_ACCESS_ROLES,
 	EVIDENCE_ACCESS_ROLES,
 	FIELD_EXECUTION_ACCESS_ROLES,
 	FINANCE_ACCESS_ROLES,
+	getRoleName,
 	hasRole,
 	INTERNAL_ROLES,
 	MAINTENANCE_MANAGEMENT_ROLES,
@@ -71,7 +73,7 @@ const ACTION_ROLE_MAP: Record<PermissionAction, readonly UserRole[]> = {
 	close_case: MANAGEMENT_ROLES,
 	archive_case: ["gerente"],
 	manage_users: ADMIN_ROLES,
-	view_audit: [...MANAGEMENT_ROLES, ...ADMIN_ROLES],
+	view_audit: AUDIT_ACCESS_ROLES,
 	manage_assets: ASSET_MANAGEMENT_ROLES,
 	manage_maintenance: MAINTENANCE_MANAGEMENT_ROLES,
 	create_proposal: [...RESOURCE_ROLES, "administrativo"],
@@ -155,42 +157,7 @@ export function usePermissions({ userRole }: UsePermissionsOptions = {}): UsePer
 		return "cliente";
 	}, [userRole, auth.user?.role]);
 
-	const roleLabel = useMemo(() => {
-		switch (resolvedRole) {
-			case "gerente":
-				return "Gerente";
-			case "residente":
-				return "Ing. Residente";
-			case "hes":
-				return "Coordinador HES";
-			case "coord_administrativo":
-				return "Coordinador Administrativo";
-			case "auxiliar_contable":
-				return "Auxiliar Contable";
-			case "supervisor":
-				return "Supervisor";
-			case "auxiliar_hes":
-				return "Auxiliar HES";
-			case "supervisor_electricista":
-				return "Supervisor Electricista";
-			case "tecnico_electricista":
-				return "Técnico Electricista";
-			case "operador":
-				return "Operador";
-			case "tecnico":
-				return "Técnico";
-			case "oficial_construccion":
-				return "Oficial de Construcción";
-			case "administrativo":
-				return "Administrativo";
-			case "pasante":
-				return "Pasante";
-			case "cliente":
-				return "Cliente";
-			default:
-				return resolvedRole;
-		}
-	}, [resolvedRole]);
+	const roleLabel = useMemo(() => getRoleName(resolvedRole), [resolvedRole]);
 
 	const canPerformAction = useMemo(
 		() =>
@@ -231,29 +198,11 @@ export function usePermissions({ userRole }: UsePermissionsOptions = {}): UsePer
 
 	const isReadOnly = useMemo(() => resolvedRole === "pasante", [resolvedRole]);
 
-	// New convenience helpers
-	const canApprove = useMemo(
-		() => APPROVER_ROLES.includes(resolvedRole as "gerente" | "supervisor"),
-		[resolvedRole],
-	);
-	const isAdmin = useMemo(
-		() =>
-			ADMIN_ROLES.includes(resolvedRole as "gerente" | "coord_administrativo" | "administrativo"),
-		[resolvedRole],
-	);
+	// Convenience helpers — use hasRole for normalization-aware comparison
+	const canApprove = useMemo(() => hasRole(resolvedRole, APPROVER_ROLES), [resolvedRole]);
+	const isAdmin = useMemo(() => hasRole(resolvedRole, ADMIN_ROLES), [resolvedRole]);
 	const isField = useMemo(
-		() =>
-			FIELD_EXECUTION_ACCESS_ROLES.includes(
-				resolvedRole as
-					| "gerente"
-					| "residente"
-					| "supervisor"
-					| "supervisor_electricista"
-					| "tecnico_electricista"
-					| "operador"
-					| "tecnico"
-					| "oficial_construccion",
-			),
+		() => hasRole(resolvedRole, FIELD_EXECUTION_ACCESS_ROLES),
 		[resolvedRole],
 	);
 	const hasRoleLevel = useMemo(

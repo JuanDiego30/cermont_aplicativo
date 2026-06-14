@@ -104,17 +104,14 @@ export function useAuthActions() {
 
 	const logoutMutation = useMutation({
 		networkMode: "always",
+		onMutate: async () => {
+			await queryClient.cancelQueries();
+		},
 		mutationFn: async () => {
 			await apiClient.post("/auth/logout");
 		},
-		onSuccess: () => {
+		onSettled: () => {
 			clearAuth();
-			void queryClient.invalidateQueries();
-			queryClient.clear();
-		},
-		onError: () => {
-			clearAuth();
-			void queryClient.invalidateQueries();
 			queryClient.clear();
 		},
 	});

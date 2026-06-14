@@ -29,7 +29,7 @@ export function EvidenceSubmitBar({
 				type="button"
 				disabled={!canSubmit}
 				onClick={onSubmit}
-				className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+				className="flex items-center justify-center gap-2 rounded-lg bg-[var(--color-brand)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-hover)] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
 			>
 				{isSubmitting || isPending ? (
 					<Loader2 className="size-4 animate-spin" aria-hidden="true" />

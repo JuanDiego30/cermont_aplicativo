@@ -16,7 +16,7 @@ import {
 	updateCustomFieldDefinition,
 } from "./api/custom-fields-api";
 
-export const CUSTOM_FIELD_KEYS = {
+const CUSTOM_FIELD_KEYS = {
 	all: ["custom-fields"] as const,
 	list: (entityType: string, includeInactive: boolean) =>
 		[...CUSTOM_FIELD_KEYS.all, "list", entityType, includeInactive] as const,

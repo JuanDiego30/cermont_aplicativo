@@ -20,7 +20,7 @@ test.describe("Authentication Flow", () => {
 
 	test("shows error on invalid credentials", async ({ page }) => {
 		await page.goto("/login");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		// Fill form using accessible locators
 		await page.getByLabel("Correo electrónico").first().fill(E2E_LOGIN_EMAIL);

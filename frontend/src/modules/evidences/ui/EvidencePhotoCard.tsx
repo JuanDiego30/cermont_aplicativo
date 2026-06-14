@@ -64,7 +64,7 @@ export function EvidencePhotoCard({
 						className={`w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-1 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500 ${
 							photo.error
 								? "border-red-400 focus:border-red-500 focus:ring-red-500 dark:border-red-500 dark:focus:border-red-400 dark:focus:ring-red-400"
-								: "border-zinc-300 focus:border-blue-500 focus:ring-blue-500 dark:border-zinc-600 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+								: "border-zinc-300 focus:border-[var(--color-brand)] focus:ring-[var(--color-brand)] dark:border-zinc-600 dark:focus:border-[var(--color-cermont-blue-light)] dark:focus:ring-[var(--color-cermont-blue-light)]"
 						}`}
 					/>
 					{photo.error && (
@@ -86,7 +86,7 @@ export function EvidencePhotoCard({
 						id={`photo-type-${photo.id}`}
 						value={photo.type}
 						onChange={(e) => onUpdateType(photo.id, e.target.value as EvidenceType)}
-						className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+						className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)] dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:focus:border-[var(--color-cermont-blue-light)] dark:focus:ring-[var(--color-cermont-blue-light)]"
 					>
 						{EVIDENCE_TYPES.map((t) => (
 							<option key={t.value} value={t.value}>

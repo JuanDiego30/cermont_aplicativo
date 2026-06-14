@@ -50,6 +50,36 @@ function useExpiringCertifications() {
 	});
 }
 
+function handleAddCert(
+	userId: string,
+	draft: { name: string; expiresAt: string },
+	mutation: {
+		mutate: (vars: {
+			userId: string;
+			cert: { name: string; issuedAt: string; expiresAt?: string };
+		}) => void;
+	},
+	setCertDrafts: React.Dispatch<
+		React.SetStateAction<Record<string, { name: string; expiresAt: string }>>
+	>,
+) {
+	if (!draft.name.trim()) {
+		return;
+	}
+	mutation.mutate({
+		userId,
+		cert: {
+			name: draft.name.trim(),
+			issuedAt: new Date().toISOString(),
+			...(draft.expiresAt ? { expiresAt: new Date(draft.expiresAt).toISOString() } : {}),
+		},
+	});
+	setCertDrafts((prev) => ({
+		...prev,
+		[userId]: { name: "", expiresAt: "" },
+	}));
+}
+
 export default function AdminPersonnelPage() {
 	const queryClient = useQueryClient();
 	const { data: users, isLoading, error, refetch } = usePersonnel();
@@ -189,29 +219,8 @@ export default function AdminPersonnelPage() {
 										</div>
 									</div>
 
-									<form
-										className="flex shrink-0 flex-wrap items-end gap-2"
-										onSubmit={(e) => {
-											e.preventDefault();
-											if (!draft.name.trim()) {
-												return;
-											}
-											addCertMutation.mutate({
-												userId: user._id,
-												cert: {
-													name: draft.name.trim(),
-													issuedAt: new Date().toISOString(),
-													...(draft.expiresAt
-														? { expiresAt: new Date(draft.expiresAt).toISOString() }
-														: {}),
-												},
-											});
-											setCertDrafts((prev) => ({
-												...prev,
-												[user._id]: { name: "", expiresAt: "" },
-											}));
-										}}
-									>
+									<fieldset className="flex shrink-0 flex-wrap items-end gap-2 border-0 p-0">
+										<legend className="sr-only">Agregar certificación</legend>
 										<label className="flex flex-col gap-1 text-[10px] font-medium text-[var(--text-tertiary)]">
 											Certificación
 											<input
@@ -241,14 +250,15 @@ export default function AdminPersonnelPage() {
 											/>
 										</label>
 										<button
-											type="submit"
+											type="button"
 											disabled={addCertMutation.isPending}
+											onClick={() => handleAddCert(user._id, draft, addCertMutation, setCertDrafts)}
 											className="flex items-center gap-1 rounded-[var(--radius-md)] bg-[var(--color-brand-blue)] px-2.5 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
 										>
 											<Plus className="size-3.5" aria-hidden="true" />
 											Agregar
 										</button>
-									</form>
+									</fieldset>
 								</div>
 							</li>
 						);

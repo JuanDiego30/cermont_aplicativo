@@ -82,7 +82,7 @@ export function OrderPlanningTab({ orderId }: OrderPlanningTabProps) {
 					<p className="text-xs text-zinc-500 dark:text-zinc-400">Origen</p>
 					<Link
 						href={`/proposals/${order.proposalId}`}
-						className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+						className="text-sm font-medium text-[var(--color-brand-blue-light)] hover:underline dark:text-[var(--color-cermont-blue-light)]"
 					>
 						Ver propuesta vinculada
 					</Link>

@@ -69,6 +69,13 @@ const RISH_OPTIONS = [
 	{ value: "critical", label: "Crítico" },
 ];
 
+const KIT_WIZARD_SECTIONS = [
+	{ id: "general", label: "Información General" },
+	{ id: "tools", label: "Herramientas" },
+	{ id: "materials", label: "Materiales" },
+	{ id: "epp", label: "EPP y Seguridad" },
+];
+
 export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWizardFormProps) {
 	const [activeSection, setActiveSection] = useState<string>("general");
 
@@ -100,13 +107,6 @@ export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWi
 		await onSubmit(values as unknown as Record<string, unknown>);
 	};
 
-	const sections = [
-		{ id: "general", label: "Información General" },
-		{ id: "tools", label: "Herramientas" },
-		{ id: "materials", label: "Materiales" },
-		{ id: "epp", label: "EPP y Seguridad" },
-	];
-
 	return (
 		<form onSubmit={handleSubmit(submitHandler)} noValidate className="space-y-8">
 			{/* Section tabs */}
@@ -114,7 +114,7 @@ export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWi
 				className="flex flex-wrap gap-2 border-b border-[var(--border-subtle)] pb-4"
 				aria-label="Secciones del formulario"
 			>
-				{sections.map((s) => (
+				{KIT_WIZARD_SECTIONS.map((s) => (
 					<button
 						key={s.id}
 						type="button"

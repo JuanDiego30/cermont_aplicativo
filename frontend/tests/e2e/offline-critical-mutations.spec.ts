@@ -1,11 +1,16 @@
 import { expect, type Page, test } from "@playwright/test";
+import { E2E_TEST_USERS } from "./auth-credentials";
 
 const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL ?? "http://localhost:3000";
 
 async function loginAsAdmin(page: Page): Promise<void> {
 	await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
-	await page.getByLabel("Correo electrónico").first().fill("gerencia@cermont.con");
-	await page.getByLabel("Contraseña").first().fill("Cermont2026!");
+	await page.waitForFunction(() => {
+		const form = document.querySelector("[data-login-form] form");
+		return form ? Object.keys(form).some((key) => key.startsWith("__reactProps$")) : false;
+	});
+	await page.getByLabel("Correo electrónico").first().fill(E2E_TEST_USERS.admin.email);
+	await page.getByLabel("Contraseña").first().fill(E2E_TEST_USERS.admin.password);
 	await page
 		.getByRole("button", { name: /iniciar sesión/i })
 		.first()
@@ -162,6 +167,77 @@ test.describe
 			const filesCount = await checkStoreRecordCount(page, "offlineFiles");
 			expect(typeof filesCount).toBe("number");
 			expect(filesCount).toBeGreaterThanOrEqual(0);
+		});
+
+		test("conflicted mutations can be resolved from the recovery center", async ({ page }) => {
+			await loginAsAdmin(page);
+			await page.evaluate(
+				() =>
+					new Promise<void>((resolve, reject) => {
+						const request = indexedDB.open("CermontOfflineDB");
+						request.onerror = () => reject(request.error);
+						request.onsuccess = () => {
+							const database = request.result;
+							const transaction = database.transaction("offlineOutbox", "readwrite");
+							transaction.objectStore("offlineOutbox").put({
+								localId: "e2e-conflict-recovery",
+								entityType: "work_order",
+								operation: "update",
+								payload: { status: "in_progress" },
+								status: "conflict",
+								attempts: 2,
+								lastError: "El servidor cambio primero.",
+								createdAt: "2026-06-11T10:00:00.000Z",
+								updatedAt: "2026-06-11T11:00:00.000Z",
+								idempotencyKey: "550e8400-e29b-41d4-a716-446655440099",
+								schemaVersion: "offline.v1",
+								userId: "e2e-user",
+								conflict: {
+									reason: "El servidor cambio primero.",
+									serverVersion: 2,
+									localVersion: 1,
+									serverState: "approved",
+									localState: "draft",
+								},
+							});
+							transaction.onerror = () => reject(transaction.error);
+							transaction.oncomplete = () => {
+								database.close();
+								resolve();
+							};
+						};
+					}),
+			);
+
+			await page.goto(`${BASE_URL}/offline-sync`, { waitUntil: "domcontentloaded" });
+			await expect(
+				page.getByRole("heading", { name: "Recuperación de sincronización" }),
+			).toBeVisible();
+			await expect(page.getByText("e2e-conflict-recovery")).toBeVisible();
+
+			await page.getByRole("button", { name: "Usar versión del servidor" }).click();
+
+			await expect(page.getByText("e2e-conflict-recovery")).toBeHidden();
+			const storedStatus = await page.evaluate(
+				() =>
+					new Promise<string>((resolve, reject) => {
+						const request = indexedDB.open("CermontOfflineDB");
+						request.onerror = () => reject(request.error);
+						request.onsuccess = () => {
+							const database = request.result;
+							const transaction = database.transaction("offlineOutbox", "readonly");
+							const getRequest = transaction
+								.objectStore("offlineOutbox")
+								.get("e2e-conflict-recovery");
+							getRequest.onerror = () => reject(getRequest.error);
+							getRequest.onsuccess = () => {
+								database.close();
+								resolve(String(getRequest.result?.status));
+							};
+						};
+					}),
+			);
+			expect(storedStatus).toBe("discarded");
 		});
 
 		// ── Escenario 5 — Reconexión ─────────────────────────────────

@@ -102,10 +102,10 @@ export function OrderAdministrativeWorkflowLane({
 	);
 
 	const isLoadingAdministrativeFlow =
-		technicalReportQuery.isLoading &&
-		deliveryRecordQuery.isLoading &&
-		serviceEntrySheetQuery.isLoading &&
-		invoiceQuery.isLoading &&
+		technicalReportQuery.isLoading ||
+		deliveryRecordQuery.isLoading ||
+		serviceEntrySheetQuery.isLoading ||
+		invoiceQuery.isLoading ||
 		paymentQuery.isLoading;
 
 	const canCreateDeliveryFromOrder =
@@ -475,7 +475,7 @@ function AdministrativeWorkflowCard({
 		<article className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
 			<div className="flex items-start justify-between gap-3">
 				<div className="flex items-start gap-3">
-					<div className="rounded-md bg-blue-50 p-2 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300">
+					<div className="rounded-md bg-[var(--color-cermont-blue-bg)]/50 p-2 text-[var(--color-brand-blue-light)] dark:bg-[var(--color-cermont-blue)]/20 dark:text-[var(--color-cermont-blue-light)]">
 						<Icon className="size-4" aria-hidden="true" />
 					</div>
 					<div>
@@ -518,7 +518,7 @@ function WorkflowLink({ href, label }: { href: string; label: string }) {
 	return (
 		<Link
 			href={href}
-			className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+			className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-brand)] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-hover)] dark:bg-[var(--color-cermont-blue)] dark:hover:bg-[var(--color-brand-hover)]"
 		>
 			{label}
 			<ArrowRight className="size-4" aria-hidden="true" />
@@ -542,7 +542,7 @@ function WorkflowButton({
 			type="button"
 			onClick={onClick}
 			disabled={pending}
-			className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-500 dark:hover:bg-blue-600"
+			className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-brand)] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-hover)] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[var(--color-cermont-blue)] dark:hover:bg-[var(--color-brand-hover)]"
 		>
 			<Icon className={`size-4 ${pending ? "animate-spin" : ""}`} aria-hidden="true" />
 			{label}

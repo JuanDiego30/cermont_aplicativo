@@ -43,7 +43,7 @@ test.describe("File Upload Module", () => {
 	test("FileAttachmentsSection renders on a delivery-record detail page", async ({ page }) => {
 		// Navigate to the delivery-records list first, then click the first row.
 		await page.goto("/delivery-records");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		// Click the first link in the table that points to a detail page.
 		const firstDetailLink = page.locator('a[href*="/delivery-records/"]').first();
@@ -51,7 +51,7 @@ test.describe("File Upload Module", () => {
 		test.skip(linkCount === 0, "No delivery records available to test against");
 
 		await firstDetailLink.click();
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		// The section must be present and accessible.
 		const section = page.locator('section[aria-labelledby="file-attachments-title"]');
@@ -61,11 +61,11 @@ test.describe("File Upload Module", () => {
 
 	test("FileUploadField is keyboard accessible with proper aria-label", async ({ page }) => {
 		await page.goto("/delivery-records");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 		const firstDetailLink = page.locator('a[href*="/delivery-records/"]').first();
 		test.skip((await firstDetailLink.count()) === 0, "No delivery records to test");
 		await firstDetailLink.click();
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		const fileInput = page.locator('input[type="file"]').first();
 		await expect(fileInput).toBeAttached();
@@ -77,11 +77,11 @@ test.describe("File Upload Module", () => {
 
 	test("Uploading an unsupported MIME type shows a validation error", async ({ page }) => {
 		await page.goto("/delivery-records");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 		const firstDetailLink = page.locator('a[href*="/delivery-records/"]').first();
 		test.skip((await firstDetailLink.count()) === 0, "No delivery records to test");
 		await firstDetailLink.click();
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		// Build a fake text/plain file (not in the allowed MIME list).
 		const buffer = Buffer.from("not an image", "utf-8");
@@ -122,11 +122,11 @@ test.describe("File Upload Module", () => {
 		});
 
 		await page.goto("/delivery-records");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 		const firstDetailLink = page.locator('a[href*="/delivery-records/"]').first();
 		test.skip((await firstDetailLink.count()) === 0, "No delivery records to test");
 		await firstDetailLink.click();
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		// Build a tiny valid JPEG (the magic bytes 0xFFD8FF are enough for the
 		// browser to identify it as image/jpeg — the backend magic-bytes
@@ -185,17 +185,16 @@ test.describe("Blob Outbox (Offline-First File Upload)", () => {
 			await route.abort("failed");
 		});
 
-		// Start the page in offline mode.
-		await page.context().setOffline(true);
-
 		await page.goto("/delivery-records");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 		const firstDetailLink = page.locator('a[href*="/delivery-records/"]').first();
 		test.skip((await firstDetailLink.count()) === 0, "No delivery records to test");
 		await firstDetailLink.click();
 		await page.waitForLoadState("domcontentloaded");
 
 		const fileInput = page.locator('input[type="file"]').first();
+		await expect(fileInput).toBeAttached();
+		await page.context().setOffline(true);
 		const jpegBuffer = Buffer.from([
 			0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00,
 			0x01, 0x00, 0x01, 0x00, 0x00, 0xff, 0xd9,
@@ -277,7 +276,7 @@ test.describe("Blob Outbox (Offline-First File Upload)", () => {
 		});
 
 		await page.goto("/delivery-records");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 		const firstDetailLink = page.locator('a[href*="/delivery-records/"]').first();
 		test.skip((await firstDetailLink.count()) === 0, "No delivery records to test");
 		await firstDetailLink.click();

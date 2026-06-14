@@ -28,6 +28,7 @@ function BillingInvoicesPageContent() {
 			eyebrow="Dashboard / Cierre administrativo / Facturas"
 			title="Facturas"
 			description="Seguimiento de facturación emitida, aceptación del cliente, vencimiento y saldo pendiente."
+			emptyIcon="invoices"
 			emptyTitle={workOrderId ? "No invoices for this order" : "Sin facturas registradas"}
 			emptyDescription={
 				workOrderId

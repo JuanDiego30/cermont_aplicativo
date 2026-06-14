@@ -1,11 +1,10 @@
-import { INTERNAL_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import { MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import type { KitActivityType, KitRiskLevel, KitStatus, KitTemplate } from "@cermont/shared-types";
 
 // ─── RBAC ──────────────────────────────────────────────────────────────────
 
 export const KIT_CREATE_ROLES = MAINTENANCE_MANAGEMENT_ROLES;
 export const KIT_MANAGE_ROLES = MANAGEMENT_ROLES;
-export const KIT_VIEW_ROLES = INTERNAL_ROLES;
 
 // ─── Activity Options ──────────────────────────────────────────────────────
 
@@ -72,19 +71,6 @@ export const KIT_RISK_LABELS: Record<KitRiskLevel, string> = {
 export function formatKitRiskLabel(risk: KitRiskLevel | string): string {
 	return KIT_RISK_LABELS[risk as KitRiskLevel] ?? risk;
 }
-
-// ─── Item Categories ───────────────────────────────────────────────────────
-
-export const KIT_ITEM_CATEGORY_OPTIONS = [
-	{ value: "tool", label: "Herramientas" },
-	{ value: "electrical_tool", label: "Herramientas Eléctricas" },
-	{ value: "construction_equipment", label: "Equipos de Construcción" },
-	{ value: "height_safety", label: "Kit de Alturas" },
-	{ value: "material", label: "Materiales" },
-	{ value: "epp", label: "EPP" },
-	{ value: "instrument", label: "Instrumentos" },
-	{ value: "vehicle", label: "Vehículos" },
-];
 
 // ─── Count Helpers ─────────────────────────────────────────────────────────
 

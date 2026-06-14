@@ -31,11 +31,25 @@ describe("Cermont sequential navigation", () => {
 			NAV_GROUPS.find((group) => group.label === "Operación de campo")?.items.map(
 				(item) => item.to,
 			),
-		).toEqual([APP_ROUTES.orders, APP_ROUTES.planning, APP_ROUTES.execution, APP_ROUTES.evidences]);
+		).toEqual([
+			APP_ROUTES.orders,
+			APP_ROUTES.planning,
+			APP_ROUTES.execution,
+			APP_ROUTES.evidences,
+			APP_ROUTES.dispatch,
+			APP_ROUTES.sla,
+		]);
 	});
 
 	it("exposes purchase orders as step 4 for internal roles", () => {
 		expect(canAccessPath(APP_ROUTES.purchaseOrders, INTERNAL_ROLES[0])).toBe(true);
 		expect(canAccessPath(APP_ROUTES.purchaseOrders, "cliente")).toBe(false);
+	});
+
+	it("exposes the audit viewer only in the administration group", () => {
+		const administration = NAV_GROUPS.find((group) => group.label === "Administración");
+		expect(administration?.items.map((item) => item.to)).toContain(APP_ROUTES.adminAudit);
+		expect(canAccessPath(APP_ROUTES.adminAudit, "gerente")).toBe(true);
+		expect(canAccessPath(APP_ROUTES.adminAudit, "tecnico")).toBe(false);
 	});
 });

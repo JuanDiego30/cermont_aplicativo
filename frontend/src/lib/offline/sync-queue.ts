@@ -102,6 +102,9 @@ function toQueueEntry(item: OfflineOutboxItem): SyncQueueEntry | false {
 	if (!isDirectQueueItem(item) || !item.endpoint || !item.method) {
 		return false;
 	}
+	if (item.status === "synced" || item.status === "discarded" || item.status === "draft") {
+		return false;
+	}
 
 	const payload = { ...item.payload };
 	const dedupeValue = payload[DEDUPE_PAYLOAD_KEY];
@@ -167,7 +170,10 @@ async function writePersistentEntries(entries: SyncQueueEntry[]): Promise<void> 
 			const existingItems = await offlineDb.offlineOutbox.toArray();
 			const existingById = new Map(existingItems.map((item) => [item.localId, item]));
 			const directQueueIds = existingItems
-				.filter((item) => isDirectQueueItem(item))
+				.filter(
+					(item) =>
+						isDirectQueueItem(item) && item.status !== "discarded" && item.status !== "synced",
+				)
 				.map((item) => item.localId);
 			const nextItems = entries.map((entry) => toOutboxItem(entry, existingById));
 

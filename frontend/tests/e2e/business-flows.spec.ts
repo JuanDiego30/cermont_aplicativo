@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { getE2ECredentials, hasE2ECredentials } from "./auth-credentials";
+import { E2E_ADMIN, loginAsUser } from "./auth-credentials";
 
 // Base URL from environment or default to localhost
 const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:3000";
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
 
 /**
  * ISSUE-T03 FIX: Reinforce E2E with real business flows
@@ -10,29 +11,14 @@ const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:3000"
  */
 
 test.describe("Costs Module", () => {
+	test.beforeEach(async ({ page }) => {
+		await loginAsUser(page, E2E_ADMIN);
+	});
+
 	test("should navigate to costs page", async ({ page }) => {
-		test.skip(
-			!hasE2ECredentials(),
-			"Authenticated E2E flows require SEED_DEFAULT_PASSWORD, PLAYWRIGHT_E2E_PASSWORD, or PLAYWRIGHT_TEST_PASSWORD",
-		);
-
-		const { email, password } = getE2ECredentials();
-
-		await page.goto(`${BASE_URL}/login`);
-		await page.getByLabel("Correo electrónico").first().fill(email);
-		await page.getByLabel("Contraseña").first().fill(password);
-		await page
-			.getByRole("button", { name: /iniciar sesión/i })
-			.first()
-			.click();
-		await page.waitForURL(`${BASE_URL}/dashboard`, { timeout: 15000 });
-		await expect(page.getByRole("heading", { name: /panel de control/i })).toBeVisible();
-
-		// Navigate to costs
 		await page.goto(`${BASE_URL}/costs`);
 
-		// Page should load with the costs title
-		await expect(page.getByRole("heading", { name: /costos reales vs estimado/i })).toBeVisible({
+		await expect(page.getByRole("heading", { name: /motor de costos/i })).toBeVisible({
 			timeout: 10000,
 		});
 	});
@@ -40,15 +26,19 @@ test.describe("Costs Module", () => {
 	test("should display costs summary cards", async ({ page }) => {
 		await page.goto(`${BASE_URL}/costs`);
 
-		// Check for summary card elements
-		await expect(page.getByText(/total presupuestado/i)).toBeVisible({ timeout: 10000 });
-		await expect(page.getByText(/total real ejecutado/i)).toBeVisible();
-		await expect(page.getByText(/varianza promedio/i)).toBeVisible();
-		await expect(page.getByText(/proyectos/i)).toBeVisible();
+		const costEngine = page.getByRole("region", { name: /motor de costos/i });
+		await expect(costEngine.getByText("Estimado", { exact: true })).toBeVisible();
+		await expect(costEngine.getByText("Real", { exact: true })).toBeVisible();
+		await expect(costEngine.getByText("Impuestos", { exact: true })).toBeVisible();
+		await expect(costEngine.getByText("Variación", { exact: true })).toBeVisible();
 	});
 });
 
 test.describe("Reports Module", () => {
+	test.beforeEach(async ({ page }) => {
+		await loginAsUser(page, E2E_ADMIN);
+	});
+
 	test("should navigate to reports page", async ({ page }) => {
 		await page.goto(`${BASE_URL}/reports`);
 
@@ -58,47 +48,58 @@ test.describe("Reports Module", () => {
 });
 
 test.describe("Orders Module", () => {
+	test.beforeEach(async ({ page }) => {
+		await loginAsUser(page, E2E_ADMIN);
+	});
+
 	test("should display orders table", async ({ page }) => {
 		await page.goto(`${BASE_URL}/orders`);
 
-		// Orders table should be visible
-		await expect(page.getByRole("table").or(page.getByText(/orden/i))).toBeVisible({
-			timeout: 10000,
-		});
-	});
-
-	test("should navigate to new order page", async ({ page }) => {
-		await page.goto(`${BASE_URL}/orders/new`);
-
-		// Form should be visible
-		await expect(page.getByRole("heading", { name: /nueva orden/i })).toBeVisible({
-			timeout: 10000,
-		});
-		await expect(page.getByLabel(/tipo de orden/i)).toBeVisible();
-		await expect(page.getByLabel(/prioridad/i)).toBeVisible();
-		await expect(page.getByLabel(/descripción/i)).toBeVisible();
-	});
-
-	test("should validate new order form fields", async ({ page }) => {
-		await page.goto(`${BASE_URL}/orders/new`);
-
-		// Try to submit empty form
-		await page.getByRole("button", { name: /crear orden/i }).click();
-
-		// Should show validation errors
 		await expect(
-			page.getByText(/mínimo 10 caracteres/i).or(page.getByText(/requerido/i)),
-		).toBeVisible({ timeout: 5000 });
+			page.getByRole("heading", { name: "Órdenes de Trabajo", exact: true }).last(),
+		).toBeVisible({
+			timeout: 10000,
+		});
+		await expect(
+			page.getByRole("table").or(page.getByRole("region", { name: /sin resultados/i })),
+		).toBeVisible();
+	});
+
+	test("should gate direct order creation behind a service case", async ({ page }) => {
+		await page.goto(`${BASE_URL}/orders/new`);
+
+		await expect(page.getByRole("heading", { name: /nueva orden de trabajo/i })).toBeVisible({
+			timeout: 10000,
+		});
+		await expect(
+			page.getByRole("heading", { name: /primero cree o seleccione un caso de servicio/i }),
+		).toBeVisible();
+		await expect(page.getByRole("link", { name: /abrir cockpit/i })).toHaveAttribute(
+			"href",
+			"/service-cases",
+		);
+	});
+
+	test("should offer the work-request entry point for a new operation", async ({ page }) => {
+		await page.goto(`${BASE_URL}/orders/new`);
+
+		await expect(page.getByRole("link", { name: /nueva solicitud/i })).toHaveAttribute(
+			"href",
+			"/work-requests/new",
+		);
 	});
 });
 
 test.describe("Dashboard Module", () => {
+	test.beforeEach(async ({ page }) => {
+		await loginAsUser(page, E2E_ADMIN);
+	});
+
 	test("should load dashboard with KPIs", async ({ page }) => {
 		await page.goto(`${BASE_URL}/dashboard`);
 
-		// Dashboard should load
 		await expect(
-			page.getByRole("heading", { name: /dashboard/i }).or(page.getByText(/panel/i)),
+			page.locator("#main-content").getByRole("heading", { name: /panel de control/i }),
 		).toBeVisible({ timeout: 10000 });
 	});
 });
@@ -132,6 +133,7 @@ test.describe("PWA Features", () => {
 	});
 
 	test("should register service worker", async ({ page }) => {
+		await loginAsUser(page, E2E_ADMIN);
 		await page.goto(`${BASE_URL}/dashboard`);
 
 		// Wait for SW registration
@@ -165,6 +167,7 @@ test.describe("PWA Features", () => {
 
 test.describe("Offline Sync", () => {
 	test("should handle offline mode gracefully", async ({ page }) => {
+		await loginAsUser(page, E2E_ADMIN);
 		await page.goto(`${BASE_URL}/dashboard`);
 
 		// Simulate offline mode
@@ -203,19 +206,19 @@ test.describe("RBAC - Role-Based Access Control", () => {
 
 test.describe("API Endpoints", () => {
 	test("should return 401 for protected endpoints without auth", async ({ page }) => {
-		const response = await page.request.get(`${BASE_URL}/api/orders`);
+		const response = await page.request.get(`${BACKEND_URL}/api/orders`);
 
 		expect([401, 403]).toContain(response.status());
 	});
 
 	test("should return 401 for costs API without auth", async ({ page }) => {
-		const response = await page.request.get(`${BASE_URL}/api/costs`);
+		const response = await page.request.get(`${BACKEND_URL}/api/costs`);
 
 		expect([401, 403]).toContain(response.status());
 	});
 
 	test("should return 401 for reports API without auth", async ({ page }) => {
-		const response = await page.request.get(`${BASE_URL}/api/reports`);
+		const response = await page.request.get(`${BACKEND_URL}/api/reports`);
 
 		expect([401, 403]).toContain(response.status());
 	});

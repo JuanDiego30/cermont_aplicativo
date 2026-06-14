@@ -199,9 +199,14 @@ async function waitForRefresh(): Promise<string> {
 
 async function refreshAccessToken(): Promise<string> {
 	const { clearAuth, setAccessToken } = useAuthStore.getState();
-	const response = await fetch(`${API_ROOT}/auth/refresh`, {
+	// CRITICAL: Use the dedicated /api/auth/refresh route handler (not the generic
+	// /api/backend/* proxy) so the refresh request benefits from:
+	//   - Retry logic for transient backend failures (restart / nodemon)
+	//   - Explicit no-cache / no-store headers so the SW never intercepts it
+	//   - Proper Set-Cookie forwarding (rotated refreshToken cookie)
+	const response = await fetch("/api/auth/refresh", {
 		method: "POST",
-		headers: { "Content-Type": "application/json" },
+		headers: { "Content-Type": "application/json", "X-Skip-SW": "1" },
 		cache: "no-store",
 		credentials: "include",
 	});
@@ -225,17 +230,47 @@ async function refreshAccessToken(): Promise<string> {
 	return accessToken;
 }
 
+// Auth endpoints that have a DEDICATED Next.js Route Handler under
+// frontend/src/app/api/auth/<name>/route.ts. ONLY these may be routed to
+// /api/auth/* — any other /auth/* path (e.g. /auth/me, /auth/logout) has no
+// dedicated handler and would 404; those must go through the generic proxy.
+const DEDICATED_AUTH_ROUTES = new Set([
+	"/auth/login",
+	"/auth/refresh",
+	"/auth/forgot-password",
+	"/auth/register-client",
+]);
+
+// Credential endpoints where a 401 means "bad credentials / dead session",
+// NOT "expired access token" — triggering a token refresh on these would
+// mask the real error (e.g. wrong password on login).
+const CREDENTIAL_AUTH_ROUTES = new Set([
+	"/auth/login",
+	"/auth/refresh",
+	"/auth/logout",
+	"/auth/forgot-password",
+	"/auth/reset-password",
+	"/auth/register-client",
+]);
+
 function createRequestContext(path: string, options: RequestInit): RequestContext {
 	const method = (options.method ?? "GET").toUpperCase();
 	const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+	const isAuthRequest = CREDENTIAL_AUTH_ROUTES.has(normalizedPath);
 	return {
 		canRetry: DEFAULT_RETRY_METHODS.has(method),
 		method,
 		normalizedPath,
 		requestId: generateRequestId(),
-		requestUrl: `${API_ROOT}${normalizedPath}`,
+		// Dedicated handlers (retry logic, no-store headers, Set-Cookie
+		// forwarding) exist only for the routes in DEDICATED_AUTH_ROUTES.
+		// Everything else — including /auth/me — uses the generic proxy,
+		// which also has retry logic for backend restarts.
+		requestUrl: DEDICATED_AUTH_ROUTES.has(normalizedPath)
+			? `/api${normalizedPath}`
+			: `${API_ROOT}${normalizedPath}`,
 		startedAt: Date.now(),
-		isAuthRequest: normalizedPath.startsWith("/auth/"),
+		isAuthRequest,
 	};
 }
 
@@ -252,7 +287,7 @@ function createRequestInit(
 			...buildAuthHeaders(),
 			...(authorization ? { Authorization: authorization } : {}),
 			"X-Request-Id": requestId,
-			...(isAuthRequest ? { "X-Skip-SW": "1" } : {}),
+			...(isAuthRequest ? { "X-Skip-SW": "1", "Cache-Control": "no-cache, no-store" } : {}),
 		},
 		cache: "no-store",
 		credentials: "include",
@@ -342,20 +377,26 @@ async function handleResponse<T>(
 	const code = getErrorCode(body);
 
 	if (response.status === 401) {
-		// Trigger refresh on any 401 when the user is authenticated.
-		// The backend returns "UNAUTHORIZED" for missing/invalid tokens and
-		// "TOKEN_EXPIRED" for expired tokens. Both cases require a refresh
-		// via the httpOnly refresh-token cookie. Without this, the first
-		// request after a page reload (when the in-memory access token is
-		// gone but isAuthenticated is still true from the persist layer)
-		// would 401-storm the backend because 401 is not in the retry set
-		// but TanStack Query would still retry the query.
-		if (
-			code === "TOKEN_EXPIRED" ||
-			useAuthStore.getState().isAuthenticated ||
-			isUserAuthenticatedInStorage()
-		) {
-			return retryAfterTokenRefresh<T>(context, options);
+		// CRITICAL: Never trigger token refresh on auth endpoints themselves.
+		// A 401 from /auth/login means wrong credentials, not an expired token.
+		// Triggering refresh here would corrupt the error with a stale-token
+		// failure and confuse the user with an unhelpful error message.
+		if (!context.isAuthRequest) {
+			// Trigger refresh on any 401 when the user is authenticated.
+			// The backend returns "UNAUTHORIZED" for missing/invalid tokens and
+			// "TOKEN_EXPIRED" for expired tokens. Both cases require a refresh
+			// via the httpOnly refresh-token cookie. Without this, the first
+			// request after a page reload (when the in-memory access token is
+			// gone but isAuthenticated is still true from the persist layer)
+			// would 401-storm the backend because 401 is not in the retry set
+			// but TanStack Query would still retry the query.
+			if (
+				code === "TOKEN_EXPIRED" ||
+				useAuthStore.getState().isAuthenticated ||
+				isUserAuthenticatedInStorage()
+			) {
+				return retryAfterTokenRefresh<T>(context, options);
+			}
 		}
 	}
 

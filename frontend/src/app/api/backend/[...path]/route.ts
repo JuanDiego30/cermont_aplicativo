@@ -1,5 +1,6 @@
 import { env } from "@cermont/config";
 import { type NextRequest, NextResponse } from "next/server";
+import { clearFileAccessTokenCookie, isSecureRequest } from "@/lib/auth/file-access-cookie";
 import { createLogger } from "@/lib/monitoring/logger";
 
 const logger = createLogger("API:backend-proxy");
@@ -112,30 +113,66 @@ function buildConnectivityFallbackResponse(): NextResponse {
 	});
 }
 
+const PROXY_MAX_RETRIES = 2;
+const PROXY_RETRY_DELAY_MS = 1000;
+
+async function fetchBackend(
+	backendUrl: string,
+	method: ProxyMethod,
+	headers: Headers,
+	body: ArrayBuffer | undefined,
+	attempt = 1,
+): Promise<Response> {
+	try {
+		const response = await fetch(backendUrl, {
+			method,
+			headers,
+			body,
+			cache: "no-store",
+			redirect: "manual",
+			signal: AbortSignal.timeout(20_000),
+		});
+		// Retry transient server errors (5xx) but not client errors (4xx).
+		if (response.status >= 500 && attempt < PROXY_MAX_RETRIES) {
+			await new Promise((r) => setTimeout(r, PROXY_RETRY_DELAY_MS * attempt));
+			return fetchBackend(backendUrl, method, headers, body, attempt + 1);
+		}
+		return response;
+	} catch (error) {
+		// Network errors (connection refused, timeout) mean the backend is
+		// still starting up after a code change / nodemon restart.
+		if (attempt < PROXY_MAX_RETRIES) {
+			await new Promise((r) => setTimeout(r, PROXY_RETRY_DELAY_MS * attempt));
+			return fetchBackend(backendUrl, method, headers, body, attempt + 1);
+		}
+		throw error;
+	}
+}
+
 async function forwardBackendRequest(
 	request: NextRequest,
 	context: RouteContext,
 	method: ProxyMethod,
 ): Promise<NextResponse> {
 	const backendUrl = await resolveBackendUrl(request, context);
-	const response = await fetch(backendUrl, {
-		method,
-		headers: buildRequestHeaders(request),
-		body: await readForwardBody(request, method),
-		cache: "no-store",
-		redirect: "manual",
-	});
+	const headers = buildRequestHeaders(request);
+	const body = await readForwardBody(request, method);
+	const response = await fetchBackend(backendUrl, method, headers, body);
 
 	if (isBackendHealthProbe(request, method) && !response.ok) {
 		return buildConnectivityFallbackResponse();
 	}
 
 	const responseBody = method === "HEAD" ? null : await response.arrayBuffer();
-	return new NextResponse(responseBody, {
+	const nextResponse = new NextResponse(responseBody, {
 		status: response.status,
 		statusText: response.statusText,
 		headers: buildResponseHeaders(response),
 	});
+	if (method === "POST" && request.nextUrl.pathname === "/api/backend/auth/logout") {
+		clearFileAccessTokenCookie(nextResponse, isSecureRequest(request));
+	}
+	return nextResponse;
 }
 
 async function handleProxyRequest(

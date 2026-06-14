@@ -69,7 +69,7 @@ export default function PortalOrdersPage() {
 											order.status === "completed" || order.status === "closed"
 												? "bg-green-100 text-green-800"
 												: order.status === "in_progress" || order.status === "assigned"
-													? "bg-blue-100 text-blue-800"
+													? "bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand-blue)]"
 													: "bg-gray-100 text-gray-600"
 										}`}
 									>

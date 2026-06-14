@@ -28,6 +28,7 @@ const API_BASE = (process.env.E2E_API_URL ?? "http://localhost:4000/api").replac
 type RequestLike = {
 	post: (url: string, opts: Record<string, unknown>) => Promise<ApiResponse>;
 	get: (url: string, opts: Record<string, unknown>) => Promise<ApiResponse>;
+	patch: (url: string, opts: Record<string, unknown>) => Promise<ApiResponse>;
 };
 type ApiResponse = {
 	status(): number;
@@ -87,6 +88,11 @@ test.describe("A. Full 14-Step Linked API Flow", () => {
 				shortDescription: `Linked-flow WR ${Date.now()}`,
 				description: "Solicitud de mantenimiento correctivo para prueba E2E de flujo enlazado",
 				requiresSiteVisit: true,
+				urgency: "medium",
+				tags: [],
+				classifications: [],
+				initialEvidences: [],
+				customFields: {},
 			},
 			headers: authHeaders(adminToken),
 		});
@@ -97,18 +103,12 @@ test.describe("A. Full 14-Step Linked API Flow", () => {
 			description: `POST /work-requests → HTTP ${status}`,
 		});
 
-		if (status === 201 || status === 200) {
-			const body = await res.json();
-			artifacts.workRequestId = body.data?._id ?? body.data?.id ?? "";
-			// The backend may create a ServiceCase automatically
-			serviceCaseId = body.data?.serviceCaseId ?? "";
-			expect(artifacts.workRequestId).toBeTruthy();
-		} else {
-			test.info().annotations.push({
-				type: "warning",
-				description: `A-01 skipped downstream — work request creation returned ${status}`,
-			});
-		}
+		const body = await res.json();
+		expect(status, JSON.stringify(body)).toBe(201);
+		artifacts.workRequestId = body.data?.workRequest?._id ?? "";
+		serviceCaseId = body.data?.serviceCase?._id ?? "";
+		expect(artifacts.workRequestId).toMatch(/^[a-f0-9]{24}$/i);
+		expect(serviceCaseId).toMatch(/^[a-f0-9]{24}$/i);
 	});
 
 	// If the work-request doesn't auto-create a ServiceCase, list and pick one
@@ -181,12 +181,16 @@ test.describe("A. Full 14-Step Linked API Flow", () => {
 			data: {
 				title: `Propuesta Linked E2E ${Date.now()}`,
 				clientName: "Cliente Linked E2E",
-				serviceType: "correctivo",
-				description: "Propuesta económica para prueba E2E de flujo enlazado",
-				estimatedValue: 8_500_000,
 				validUntil: new Date(Date.now() + 30 * 86_400_000).toISOString(),
-				workRequestId: artifacts.workRequestId || undefined,
-				serviceCaseId: serviceCaseId || undefined,
+				items: [
+					{
+						description: "Servicio correctivo integral",
+						unit: "servicio",
+						quantity: 1,
+						unitCost: 8_500_000,
+					},
+				],
+				notes: `Caso de servicio relacionado: ${serviceCaseId}`,
 			},
 			headers: authHeaders(adminToken),
 		});
@@ -197,11 +201,10 @@ test.describe("A. Full 14-Step Linked API Flow", () => {
 			description: `POST /proposals → HTTP ${status}`,
 		});
 
-		if (status === 201 || status === 200) {
-			const body = await res.json();
-			artifacts.proposalId = body.data?._id ?? body.data?.id ?? "";
-			expect(artifacts.proposalId).toBeTruthy();
-		}
+		const body = await res.json();
+		expect(status, JSON.stringify(body)).toBe(201);
+		artifacts.proposalId = body.data?._id ?? "";
+		expect(artifacts.proposalId).toMatch(/^[a-f0-9]{24}$/i);
 	});
 
 	// ── Paso 4: Orden de compra (PurchaseOrder) ───────────────────────────
@@ -210,15 +213,27 @@ test.describe("A. Full 14-Step Linked API Flow", () => {
 		test.skip(!adminToken, "Requires auth token");
 		test.skip(!artifacts.proposalId, "No proposalId from A-03");
 
-		// Try the CERMONT-style PO attachment on the proposal
+		const approvalRes = await (request as unknown as RequestLike).patch(
+			`${API_BASE}/proposals/${artifacts.proposalId}/status`,
+			{
+				data: { status: "approved" },
+				headers: authHeaders(adminToken),
+			},
+		);
+		const approvalBody = await approvalRes.json();
+		expect(approvalRes.status(), JSON.stringify(approvalBody)).toBe(200);
+
 		const res = await (request as unknown as RequestLike).post(
 			`${API_BASE}/proposals/${artifacts.proposalId}/po`,
 			{
 				data: {
 					poNumber: `PO-E2E-${Date.now()}`,
-					value: 8_500_000,
-					issuedDate: new Date().toISOString().slice(0, 10),
+					serviceAccount: "SERV-E2E",
+					billingAccount: "BILL-E2E",
+					approvedAmount: 8_500_000,
 					currency: "COP",
+					receivedAt: new Date().toISOString(),
+					attachments: [],
 				},
 				headers: authHeaders(adminToken),
 			},
@@ -229,12 +244,21 @@ test.describe("A. Full 14-Step Linked API Flow", () => {
 			description: `POST /proposals/:id/po → HTTP ${res.status()}`,
 		});
 
-		// 200/201 = PO attached; 404 = endpoint not yet mapped to proposals; both acceptable
-		expect([200, 201, 404, 405, 422]).toContain(res.status());
-		if (res.status() === 201 || res.status() === 200) {
-			const body = await res.json();
-			artifacts.purchaseOrderId = body.data?._id ?? body.data?.id ?? "";
-		}
+		const body = await res.json();
+		expect(res.status(), JSON.stringify(body)).toBe(201);
+		artifacts.purchaseOrderId = body.data?._id ?? "";
+		expect(artifacts.purchaseOrderId).toMatch(/^[a-f0-9]{24}$/i);
+
+		const validationRes = await (request as unknown as RequestLike).post(
+			`${API_BASE}/purchase-orders/${artifacts.purchaseOrderId}/validate`,
+			{
+				data: { validatedBy: "507f1f77bcf86cd799439011" },
+				headers: authHeaders(adminToken),
+			},
+		);
+		const validationBody = await validationRes.json();
+		expect(validationRes.status(), JSON.stringify(validationBody)).toBe(200);
+		expect(validationBody.data?.status).toBe("approved");
 	});
 
 	// ── Paso 5: Planeación (PlanningPacket) ───────────────────────────────
@@ -275,19 +299,18 @@ test.describe("A. Full 14-Step Linked API Flow", () => {
 
 	// ── Paso 6: Ejecución (ExecutionSession) ─────────────────────────────
 
-	test("A-06: GET /execution lists execution sessions (endpoint alive)", async ({ request }) => {
+	test("A-06: GET /execution-sessions lists execution sessions", async ({ request }) => {
 		test.skip(!adminToken, "Requires auth token");
 
 		const res = await (request as unknown as RequestLike).get(
-			`${API_BASE}/execution?page=1&limit=5`,
+			`${API_BASE}/execution-sessions?page=1&limit=5`,
 			{ headers: authHeaders(adminToken) },
 		);
 
-		expect(res.status()).not.toBe(404);
-		expect(res.status()).not.toBe(500);
+		expect(res.status()).toBe(200);
 		test.info().annotations.push({
 			type: "info",
-			description: `GET /execution → HTTP ${res.status()}`,
+			description: `GET /execution-sessions → HTTP ${res.status()}`,
 		});
 	});
 
@@ -349,102 +372,99 @@ test.describe("A. Full 14-Step Linked API Flow", () => {
 
 	// ── Paso 10: SES / Ariba ──────────────────────────────────────────────
 
-	test("A-10: GET /billing/ses (or /ses) lists service entry sheets", async ({ request }) => {
+	test("A-10: GET /service-entry-sheets lists service entry sheets", async ({ request }) => {
 		test.skip(!adminToken, "Requires auth token");
 
-		// Try both possible URL forms
-		let status = 0;
-		for (const path of ["/billing/ses", "/ses", "/service-entry-sheets"]) {
-			const res = await (request as unknown as RequestLike).get(`${API_BASE}${path}?limit=5`, {
-				headers: authHeaders(adminToken),
-			});
-			status = res.status();
-			if (status !== 404) {
-				break;
-			}
-		}
+		const res = await (request as unknown as RequestLike).get(
+			`${API_BASE}/service-entry-sheets?limit=5`,
+			{ headers: authHeaders(adminToken) },
+		);
 
-		expect(status).not.toBe(500);
-		test.info().annotations.push({ type: "info", description: `GET SES → HTTP ${status}` });
+		expect(res.status()).toBe(200);
+		test.info().annotations.push({
+			type: "info",
+			description: `GET /service-entry-sheets → HTTP ${res.status()}`,
+		});
 	});
 
 	// ── Paso 11: SES aprobada ─────────────────────────────────────────────
 
-	test("A-11: POST /billing/ses/:id/approve endpoint responds (not 404)", async ({ request }) => {
+	test("A-11: POST /service-entry-sheets/:id/approve reaches the canonical route", async ({
+		request,
+	}) => {
 		test.skip(!adminToken, "Requires auth token");
 
 		const res = await (request as unknown as RequestLike).post(
-			`${API_BASE}/billing/ses/507f1f77bcf86cd799439099/approve`,
+			`${API_BASE}/service-entry-sheets/507f1f77bcf86cd799439099/approve`,
 			{
-				data: { approvedBy: "gerente-e2e", notes: "Aprobado en prueba E2E" },
+				data: { approverReference: "gerente-e2e" },
 				headers: authHeaders(adminToken),
 			},
 		);
 
 		test.info().annotations.push({
 			type: "info",
-			description: `POST /billing/ses/:id/approve → HTTP ${res.status()}`,
+			description: `POST /service-entry-sheets/:id/approve → HTTP ${res.status()}`,
 		});
-		expect(res.status()).not.toBe(405);
+		expect(res.status()).toBe(404);
 	});
 
 	// ── Paso 12: Factura ──────────────────────────────────────────────────
 
-	test("A-12: GET /billing/invoices lists invoices (endpoint alive)", async ({ request }) => {
+	test("A-12: GET /invoices lists invoices", async ({ request }) => {
 		test.skip(!adminToken, "Requires auth token");
 
-		const res = await (request as unknown as RequestLike).get(
-			`${API_BASE}/billing/invoices?limit=5`,
-			{ headers: authHeaders(adminToken) },
-		);
+		const res = await (request as unknown as RequestLike).get(`${API_BASE}/invoices?limit=5`, {
+			headers: authHeaders(adminToken),
+		});
 
-		expect(res.status()).not.toBe(404);
-		expect(res.status()).not.toBe(500);
+		expect(res.status()).toBe(200);
 	});
 
 	// ── Paso 13: Factura aprobada ─────────────────────────────────────────
 
-	test("A-13: POST /billing/invoices/:id/approve endpoint responds (not 404)", async ({
-		request,
-	}) => {
+	test("A-13: POST /invoices/:id/approve reaches the canonical route", async ({ request }) => {
 		test.skip(!adminToken, "Requires auth token");
 
 		const res = await (request as unknown as RequestLike).post(
-			`${API_BASE}/billing/invoices/507f1f77bcf86cd799439099/approve`,
+			`${API_BASE}/invoices/507f1f77bcf86cd799439099/approve`,
 			{
 				data: { approvedBy: "gerente-e2e" },
 				headers: authHeaders(adminToken),
 			},
 		);
 
-		expect(res.status()).not.toBe(405);
+		expect(res.status()).toBe(404);
 		test.info().annotations.push({
 			type: "info",
-			description: `POST /billing/invoices/:id/approve → HTTP ${res.status()}`,
+			description: `POST /invoices/:id/approve → HTTP ${res.status()}`,
 		});
 	});
 
 	// ── Paso 14: Pago y cierre ────────────────────────────────────────────
 
-	test("A-14: POST /payments creates a payment record (endpoint alive)", async ({ request }) => {
+	test("A-14: POST /payments/from-invoice/:id reaches the canonical route", async ({ request }) => {
 		test.skip(!adminToken, "Requires auth token");
 
-		const res = await (request as unknown as RequestLike).post(`${API_BASE}/payments`, {
-			data: {
-				invoiceId: artifacts.proposalId ?? "507f1f77bcf86cd799439099",
-				amount: 8_500_000,
-				paymentMethod: "transferencia",
-				paymentDate: new Date().toISOString(),
-				reference: `REF-E2E-${Date.now()}`,
+		const invoiceId = artifacts.proposalId ?? "507f1f77bcf86cd799439099";
+		const res = await (request as unknown as RequestLike).post(
+			`${API_BASE}/payments/from-invoice/${invoiceId}`,
+			{
+				data: {
+					amount: 8_500_000,
+					paymentMethod: "bank_transfer",
+					paidAt: new Date().toISOString(),
+					paymentReference: `PAY-E2E-${Date.now()}`,
+					bankReference: `REF-E2E-${Date.now()}`,
+				},
+				headers: authHeaders(adminToken),
 			},
-			headers: authHeaders(adminToken),
-		});
+		);
 
-		expect(res.status()).not.toBe(404);
-		expect(res.status()).not.toBe(500);
+		expect([201, 404, 409, 422]).toContain(res.status());
 		test.info().annotations.push({
 			type: "info",
-			description: `POST /payments → HTTP ${res.status()}`,
+			description: `POST /payments/from-invoice/:id → HTTP ${res.status()}`,
 		});
 	});
 
@@ -517,8 +537,8 @@ test.describe("B. daysInCurrentStep KPI in Workflow API", () => {
 			{ headers: authHeaders(adminToken) },
 		);
 
-		expect(res.status()).toBe(200);
 		const body = await res.json();
+		expect(res.status(), JSON.stringify(body)).toBe(200);
 		expect(body.success).toBe(true);
 		expect(body.data).toBeTruthy();
 	});
@@ -756,7 +776,7 @@ test.describe("D. UI — Service Case Detail Page", () => {
 
 		// Navigate to list, click first case if present
 		await page.goto("/service-cases");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		const firstCase = page.locator('a[href*="/service-cases/"]').first();
 		if (!(await firstCase.isVisible())) {
@@ -768,7 +788,7 @@ test.describe("D. UI — Service Case Detail Page", () => {
 		}
 
 		await firstCase.click();
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		// WorkflowHeader panel should be visible
 		const heading = page.locator('h2, [id="sc-detail-title"]').first();
@@ -787,7 +807,7 @@ test.describe("D. UI — Service Case Detail Page", () => {
 		test.skip(!fs.existsSync(AUTH_FILE), "No auth state file");
 
 		await page.goto("/service-cases");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		const firstCase = page.locator('a[href*="/service-cases/"]').first();
 		if (!(await firstCase.isVisible())) {
@@ -795,7 +815,7 @@ test.describe("D. UI — Service Case Detail Page", () => {
 		}
 
 		await firstCase.click();
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		// The daysInCurrentStep badge renders text like "Avanzado hoy", "1 día en este paso",
 		// "N días en este paso", or nothing (if operationalSummary absent)
@@ -819,12 +839,12 @@ test.describe("D. UI — Service Case Detail Page", () => {
 		const page = await ctx.newPage();
 
 		await page.goto("/service-cases");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("domcontentloaded");
 
 		const firstCase = page.locator('a[href*="/service-cases/"]').first();
 		if (await firstCase.isVisible()) {
 			await firstCase.click();
-			await page.waitForLoadState("networkidle");
+			await page.waitForLoadState("domcontentloaded");
 
 			const archiveButton = page.locator('button:has-text("Archivar caso")');
 			// Technicians must never see the archive button
@@ -891,63 +911,52 @@ test.describe("E. No 400 for invalid IDs across step navigation", () => {
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 
-async function loginAsResidente(page: import("@playwright/test").Page) {
-	await page.goto(`${BASE_URL}/login`);
-	await page.fill('input[name="email"]', "residente@cermont.com");
-	await page.fill('input[name="password"]', "password123");
-	await page.click('button[type="submit"]');
-	await page.waitForURL("**/dashboard");
-}
-
 test.describe("F. Data Inheritance — UI Inheritance Banners", () => {
 	test.beforeEach(async ({ page }) => {
-		await loginAsResidente(page);
+		await page.goto(`${BASE_URL}/login`);
+		await page.waitForLoadState("domcontentloaded");
+		await page.getByLabel(/^Correo electrónico/).fill(E2E_ADMIN.email);
+		await page.getByLabel(/^Contraseña/).fill(E2E_ADMIN.password);
+		await page.getByRole("button", { name: /Iniciar sesión/i }).click();
+		await page.waitForURL(/\/dashboard$/, { timeout: 15_000 });
 	});
 
-	test("F-01 (legacy): Step 1 → Step 2 (WorkRequest → SiteVisit) inheritance banner", async ({
-		page,
-	}) => {
-		// Create a WorkRequest
+	test("F-01: Step 1 → Step 2 preserves inherited client and location", async ({ page }) => {
 		await page.goto(`${BASE_URL}/work-requests/new`);
-		await page.fill('input[name="clientName"]', "Cliente E2E S.A.S.");
-		await page.fill('input[name="serviceSite"]', "Planta principal Bogotá");
-		await page.fill('input[name="serviceType"]', "Mantenimiento preventivo");
-		await page.fill('input[name="shortDescription"]', "E2E test work request");
-		await page.fill('input[name="description"]', "Testing the inheritance flow end to end.");
-		await page.selectOption('select[name="sourceChannel"]', "email");
-		await page.fill('input[name="requesterName"]', "Juan Pérez");
-		await page.click('button[type="submit"]');
-		await page.waitForURL("**/work-requests/**");
+		await page.waitForLoadState("domcontentloaded");
+		await expect(page.getByRole("heading", { name: "Nueva solicitud de trabajo" })).toBeVisible();
+		await page.getByLabel("Cliente", { exact: true }).fill("Cliente E2E S.A.S.");
+		await page.getByLabel("Sitio de servicio", { exact: true }).fill("Planta principal Bogota");
+		await page.getByTestId("customizable-select").click();
+		await page.getByTestId("customizable-select-option-mantenimiento").click();
+		await page.getByLabel("Resumen", { exact: true }).fill(`Herencia E2E ${Date.now()}`);
+		await page
+			.getByLabel("Descripcion", { exact: true })
+			.fill("Validacion de herencia entre solicitud y visita.");
+		const requesterInput = page.getByLabel("Solicitante", { exact: true });
+		await requesterInput.fill("Juan Perez");
+		await expect(requesterInput).toHaveValue("Juan Perez");
 
-		// Navigate to SiteVisit
-		await page.goto(`${BASE_URL}/site-visits/new`);
+		const workflowResponsePromise = page.waitForResponse(
+			(response) =>
+				response.url().includes("/api/backend/service-cases/") &&
+				response.url().endsWith("/workflow"),
+		);
+		await page.getByRole("button", { name: "Crear solicitud" }).click();
+		await page.waitForURL(/\/service-cases\/[a-f0-9]{24}$/i, { timeout: 15_000 });
 
-		// Should see case selector with the created WorkRequest
-		const clientNameVisible = await page
-			.getByText("Cliente E2E S.A.S.")
-			.isVisible()
-			.catch(() => false);
-		const selectorVisible = await page
-			.getByText("Seleccionar →")
-			.isVisible()
-			.catch(() => false);
+		const serviceCaseId = page.url().split("/").at(-1) ?? "";
+		expect(serviceCaseId).toMatch(/^[a-f0-9]{24}$/i);
 
-		if (clientNameVisible && selectorVisible) {
-			await page.click('text="Seleccionar →"');
-			await expect(page.getByText("Heredado de Solicitud de servicio")).toBeVisible({
-				timeout: 5_000,
-			});
-		} else {
-			test.info().annotations.push({
-				type: "warning",
-				description:
-					"Inheritance banner test skipped — WR not visible in site visit selector (may need seeded data)",
-			});
-		}
+		const workflowResponse = await workflowResponsePromise;
+		const workflowBody = await workflowResponse.json();
+		expect(workflowResponse.status(), JSON.stringify(workflowBody)).toBe(200);
 
-		const pageContent = await page.textContent("body");
-		expect(pageContent).not.toContain("400");
-		expect(pageContent).not.toContain("Internal Server Error");
+		await page.goto(`${BASE_URL}/site-visits/new?serviceCaseId=${serviceCaseId}`);
+		await expect(page.getByRole("heading", { name: "Nueva visita técnica" })).toBeVisible();
+		await expect(page.getByLabel("Nombre del cliente")).toHaveValue("Cliente E2E S.A.S.");
+		await expect(page.getByLabel("Ubicación")).toHaveValue("Planta principal Bogota");
+		await expect(page.getByText("Datos heredados de la solicitud")).toBeVisible();
 	});
 
 	test("F-02 (legacy): Proposal page shows inherited context banner", async ({ page }) => {

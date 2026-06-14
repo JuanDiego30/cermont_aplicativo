@@ -1,9 +1,10 @@
 "use client";
 
 import { AlertTriangle, Loader2, Wifi, WifiOff } from "lucide-react";
+import Link from "next/link";
 import { useSyncStatus } from "@/lib/offline/use-sync-status";
+import { APP_ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-import { useOfflineStore } from "@/store/offline.store";
 
 // ─── NetworkStatusChip ──────────────────────────────────────────────
 // Pure status indicator — no click interaction, no popover, no dialog.
@@ -13,11 +14,12 @@ import { useOfflineStore } from "@/store/offline.store";
 // to keep header layout stable.
 
 export function NetworkStatusChip() {
-	const { isOnline, pendingCount, isSyncing, lastSyncError } = useSyncStatus();
-	const deadLetterCount = useOfflineStore((state) => state.failedCount);
+	const { isOnline, pendingCount, failedCount, conflictCount, isSyncing, lastSyncError } =
+		useSyncStatus();
+	const alertCount = failedCount + conflictCount;
 
 	// Idle-online: render nothing visible (zero visual footprint)
-	if (isOnline && pendingCount === 0 && deadLetterCount === 0 && !isSyncing && !lastSyncError) {
+	if (isOnline && pendingCount === 0 && alertCount === 0 && !isSyncing && !lastSyncError) {
 		return null;
 	}
 
@@ -25,9 +27,9 @@ export function NetworkStatusChip() {
 	let text = "";
 	let badgeColor = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
 
-	if (deadLetterCount > 0) {
+	if (alertCount > 0) {
 		icon = <AlertTriangle className="size-4 animate-pulse" />;
-		text = `${deadLetterCount} alerta${deadLetterCount > 1 ? "s" : ""}`;
+		text = `${alertCount} alerta${alertCount > 1 ? "s" : ""}`;
 		badgeColor = "bg-rose-500/10 text-rose-500 border-rose-500/20";
 	} else if (isSyncing) {
 		icon = <Loader2 className="size-4 animate-spin" />;
@@ -44,16 +46,18 @@ export function NetworkStatusChip() {
 	}
 
 	return (
-		<output
+		<Link
+			href={APP_ROUTES.offlineSync}
 			aria-live="polite"
 			aria-label={`Estado de red: ${text || "En línea"}`}
 			className={cn(
 				"inline-flex h-7 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold font-mono shadow-sm bg-background",
+				"transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)]",
 				badgeColor,
 			)}
 		>
 			{icon}
 			{text && <span className="hidden sm:inline">{text}</span>}
-		</output>
+		</Link>
 	);
 }

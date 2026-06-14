@@ -105,13 +105,13 @@ function ExecutionStatusSection({
 				className={cn(
 					"flex items-center gap-3 rounded-lg px-4 py-3",
 					isInProgress
-						? "border border-blue-200 bg-blue-50 dark:border-blue-900/30 dark:bg-blue-900/10"
+						? "border border-[var(--color-cermont-blue-bg)] bg-[var(--color-cermont-blue-bg)]/50 dark:border-[var(--color-cermont-blue)]/30 dark:bg-[var(--color-cermont-blue)]/10"
 						: "border border-green-200 bg-green-50 dark:border-green-900/30 dark:bg-green-900/10",
 				)}
 			>
 				{isInProgress ? (
 					<PlayCircle
-						className="size-5 shrink-0 text-blue-600 dark:text-blue-400"
+						className="size-5 shrink-0 text-[var(--color-brand-blue-light)] dark:text-[var(--color-cermont-blue-light)]"
 						aria-hidden="true"
 					/>
 				) : (
@@ -124,7 +124,7 @@ function ExecutionStatusSection({
 					className={cn(
 						"text-sm font-medium",
 						isInProgress
-							? "text-blue-900 dark:text-blue-300"
+							? "text-[var(--color-brand-blue-deep)] dark:text-[var(--color-cermont-blue-light)]"
 							: "text-green-900 dark:text-green-300",
 					)}
 				>

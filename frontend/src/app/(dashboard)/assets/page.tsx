@@ -5,19 +5,26 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { apiClient } from "@/lib/http/api-client";
+import { buildAssetRoute } from "@/lib/routes";
 
 type AssetItem = {
 	_id: string;
+	code: string;
 	name: string;
 	type: string;
-	location: string;
 	status: string;
-	serialNumber: string;
+	serialNumber?: string;
 };
 
 type AssetListContract = {
 	success: boolean;
-	data: { items: AssetItem[] };
+	data: AssetItem[];
+	pagination: {
+		page: number;
+		limit: number;
+		total: number;
+		totalPages: number;
+	};
 };
 
 function AssetList() {
@@ -25,7 +32,7 @@ function AssetList() {
 		queryKey: ["assets"],
 		queryFn: async () => {
 			const json = await apiClient.get<AssetListContract>("/assets");
-			return json.data?.items ?? [];
+			return json.data;
 		},
 	});
 
@@ -40,7 +47,7 @@ function AssetList() {
 	if (error) {
 		return (
 			<EmptyState
-				icon="maintenance"
+				icon="assets"
 				title="Error al cargar activos"
 				description="No se pudieron cargar los activos."
 			/>
@@ -49,7 +56,7 @@ function AssetList() {
 	if (!data || data.length === 0) {
 		return (
 			<EmptyState
-				icon="maintenance"
+				icon="assets"
 				title="Sin activos registrados"
 				description="No hay activos registrados en el sistema."
 			/>
@@ -61,7 +68,7 @@ function AssetList() {
 			{data.map((item: AssetItem) => (
 				<Link
 					key={item._id}
-					href={`/assets/${item._id}`}
+					href={buildAssetRoute(item._id)}
 					className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-card)] p-5 transition hover:shadow-[var(--shadow-2)]"
 				>
 					<div className="flex items-center justify-between">
@@ -73,7 +80,9 @@ function AssetList() {
 						</span>
 					</div>
 					<p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{item.name}</p>
-					<p className="mt-1 text-xs text-[var(--text-tertiary)]">{item.location}</p>
+					<p className="mt-1 text-xs text-[var(--text-tertiary)]">
+						{item.serialNumber ? `Serie: ${item.serialNumber}` : `Codigo: ${item.code}`}
+					</p>
 				</Link>
 			))}
 		</div>

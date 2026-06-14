@@ -28,6 +28,7 @@ function BillingSESPageContent() {
 			eyebrow="Dashboard / Cierre administrativo / SES"
 			title="SES / Ariba"
 			description="Controla Service Entry Sheets, referencias Ariba, aprobación y soportes antes de facturar."
+			emptyIcon="ses"
 			emptyTitle={workOrderId ? "No SES for this order" : "Sin SES registradas"}
 			emptyDescription={
 				workOrderId

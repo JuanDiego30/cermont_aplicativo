@@ -12,6 +12,22 @@
 
 import { env, isProduction } from "@cermont/config";
 import { type NextRequest, NextResponse } from "next/server";
+import {
+	clearFileAccessTokenCookie,
+	isSecureRequest,
+	setFileAccessTokenCookie,
+} from "@/lib/auth/file-access-cookie";
+
+interface LoginResponseBody {
+	success?: boolean;
+	data?: {
+		accessToken?: string;
+	};
+	error?: {
+		code?: string;
+		message?: string;
+	};
+}
 
 /**
  * POST /api/auth/login
@@ -31,6 +47,48 @@ import { type NextRequest, NextResponse } from "next/server";
  *   }
  * }
  */
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1000;
+
+async function callBackendLogin(
+	backendUrl: string,
+	email: string,
+	password: string,
+	attempt = 1,
+): Promise<Response> {
+	try {
+		const response = await fetch(`${backendUrl}/api/auth/login`, {
+			method: "POST",
+			cache: "no-store",
+			signal: AbortSignal.timeout(15000),
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ email, password }),
+			credentials: "include",
+		});
+
+		// Retry on 5xx (server errors) or connection errors that indicate transient state
+		if (!response.ok && response.status >= 500 && attempt < MAX_RETRIES) {
+			await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * attempt));
+			return callBackendLogin(backendUrl, email, password, attempt + 1);
+		}
+
+		return response;
+	} catch (error) {
+		// CRITICAL: Network errors (connection refused, DNS failure, timeout) throw
+		// BEFORE we get an HTTP response. The previous code only retried on HTTP 5xx,
+		// but connection errors during nodemon restart never reached the retry block.
+		// This was the primary cause of 401 after code changes: backend restarting →
+		// fetch throws → no retry → error response to client → SW cached the error.
+		if (attempt < MAX_RETRIES) {
+			await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * attempt));
+			return callBackendLogin(backendUrl, email, password, attempt + 1);
+		}
+		throw error;
+	}
+}
+
 export async function POST(request: NextRequest) {
 	try {
 		// Parse request body from client
@@ -49,25 +107,19 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Call backend login endpoint
-		// Backend runs on port 4000 (see apps/backend/package.json scripts)
+		// Call backend login endpoint with automatic retry for transient failures.
+		// After code changes, the backend might be restarting (nodemon), so
+		// we retry up to MAX_RETRIES times with exponential backoff.
 		const backendUrl =
 			env.BACKEND_URL?.trim() || (isProduction() ? "http://backend:4000" : "http://localhost:4000");
-		const response = await fetch(`${backendUrl}/api/auth/login`, {
-			method: "POST",
-			cache: "no-store",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ email, password }),
-			credentials: "include", // Include cookies from backend
-		});
+		const response = await callBackendLogin(backendUrl, email, password);
 
-		const data = await response.json();
+		const data = (await response.json()) as LoginResponseBody;
 
 		// If backend login failed, forward the error
 		if (!response.ok) {
 			const errorResponse = NextResponse.json(data, { status: response.status });
+			clearFileAccessTokenCookie(errorResponse, isSecureRequest(request));
 			// CRITICAL: Never cache auth error responses either
 			errorResponse.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
 			errorResponse.headers.set("Pragma", "no-cache");
@@ -98,11 +150,12 @@ export async function POST(request: NextRequest) {
 		for (const cookie of setCookieHeaders) {
 			successResponse.headers.append("Set-Cookie", cookie);
 		}
+		setFileAccessTokenCookie(successResponse, data.data?.accessToken, isSecureRequest(request));
 
 		return successResponse;
 	} catch (error) {
 		console.error("Login handler error:", error);
-		return NextResponse.json(
+		const errorResponse = NextResponse.json(
 			{
 				success: false,
 				error: {
@@ -112,5 +165,7 @@ export async function POST(request: NextRequest) {
 			},
 			{ status: 500 },
 		);
+		clearFileAccessTokenCookie(errorResponse, isSecureRequest(request));
+		return errorResponse;
 	}
 }

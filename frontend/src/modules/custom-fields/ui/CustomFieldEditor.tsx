@@ -6,7 +6,7 @@
  */
 
 import type { CreateCustomFieldDefinitionDto, CustomFieldDefinition } from "@cermont/shared-types";
-import { useId, useState } from "react";
+import { useId, useReducer } from "react";
 
 const DATA_TYPE_LABELS: Record<string, string> = {
 	text: "Texto",
@@ -15,6 +15,52 @@ const DATA_TYPE_LABELS: Record<string, string> = {
 	select: "Lista de opciones",
 	date: "Fecha",
 };
+
+interface CustomFieldFormState {
+	name: string;
+	label: string;
+	description: string;
+	dataType: CreateCustomFieldDefinitionDto["dataType"];
+	optionsText: string;
+	required: boolean;
+	order: number;
+	isActive: boolean;
+	formError: string;
+}
+
+type CustomFieldFormAction =
+	| {
+			type: "SET";
+			field: keyof Omit<CustomFieldFormState, "formError">;
+			value: string | number | boolean;
+	  }
+	| { type: "SET_ERROR"; message: string };
+
+function customFieldReducer(
+	state: CustomFieldFormState,
+	action: CustomFieldFormAction,
+): CustomFieldFormState {
+	switch (action.type) {
+		case "SET":
+			return { ...state, [action.field]: action.value };
+		case "SET_ERROR":
+			return { ...state, formError: action.message };
+	}
+}
+
+function createCustomFieldInitialState(initial?: CustomFieldDefinition): CustomFieldFormState {
+	return {
+		name: initial?.name ?? "",
+		label: initial?.label ?? "",
+		description: initial?.description ?? "",
+		dataType: initial?.dataType ?? "text",
+		optionsText: (initial?.options ?? []).join("\n"),
+		required: initial?.validation?.required ?? false,
+		order: initial?.order ?? 0,
+		isActive: initial?.isActive ?? true,
+		formError: "",
+	};
+}
 
 interface CustomFieldEditorProps {
 	entityType: CreateCustomFieldDefinitionDto["entityType"];
@@ -32,31 +78,27 @@ export function CustomFieldEditor({
 	onCancel,
 }: CustomFieldEditorProps) {
 	const formId = useId();
-	const [name, setName] = useState(initial?.name ?? "");
-	const [label, setLabel] = useState(initial?.label ?? "");
-	const [description, setDescription] = useState(initial?.description ?? "");
-	const [dataType, setDataType] = useState<CreateCustomFieldDefinitionDto["dataType"]>(
-		initial?.dataType ?? "text",
-	);
-	const [optionsText, setOptionsText] = useState((initial?.options ?? []).join("\n"));
-	const [required, setRequired] = useState(initial?.validation?.required ?? false);
-	const [order, setOrder] = useState(initial?.order ?? 0);
-	const [isActive, setIsActive] = useState(initial?.isActive ?? true);
-	const [formError, setFormError] = useState("");
+	const [form, dispatch] = useReducer(customFieldReducer, initial, createCustomFieldInitialState);
+
+	const { name, label, description, dataType, optionsText, required, order, isActive, formError } =
+		form;
 
 	const inputClasses =
 		"w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		setFormError("");
+		dispatch({ type: "SET_ERROR", message: "" });
 
 		if (!/^[a-zA-Z0-9_]{2,50}$/.test(name)) {
-			setFormError("El nombre interno debe tener 2-50 caracteres: letras, números o guion bajo.");
+			dispatch({
+				type: "SET_ERROR",
+				message: "El nombre interno debe tener 2-50 caracteres: letras, números o guion bajo.",
+			});
 			return;
 		}
 		if (label.trim().length < 2) {
-			setFormError("La etiqueta debe tener al menos 2 caracteres.");
+			dispatch({ type: "SET_ERROR", message: "La etiqueta debe tener al menos 2 caracteres." });
 			return;
 		}
 		const options = optionsText
@@ -64,7 +106,10 @@ export function CustomFieldEditor({
 			.map((opt) => opt.trim())
 			.filter((opt) => opt.length > 0);
 		if (dataType === "select" && options.length === 0) {
-			setFormError("Una lista de opciones requiere al menos una opción.");
+			dispatch({
+				type: "SET_ERROR",
+				message: "Una lista de opciones requiere al menos una opción.",
+			});
 			return;
 		}
 
@@ -98,10 +143,11 @@ export function CustomFieldEditor({
 					<input
 						id={`${formId}-name`}
 						value={name}
-						onChange={(e) => setName(e.target.value)}
+						onChange={(e) => dispatch({ type: "SET", field: "name", value: e.target.value })}
 						placeholder="numero_contrato"
 						disabled={Boolean(initial)}
 						className={`${inputClasses} disabled:opacity-60`}
+						aria-label="Nombre interno"
 						required
 					/>
 				</div>
@@ -115,9 +161,10 @@ export function CustomFieldEditor({
 					<input
 						id={`${formId}-label`}
 						value={label}
-						onChange={(e) => setLabel(e.target.value)}
+						onChange={(e) => dispatch({ type: "SET", field: "label", value: e.target.value })}
 						placeholder="Número de contrato"
 						className={inputClasses}
+						aria-label="Etiqueta visible"
 						required
 					/>
 				</div>
@@ -133,8 +180,9 @@ export function CustomFieldEditor({
 				<input
 					id={`${formId}-description`}
 					value={description}
-					onChange={(e) => setDescription(e.target.value)}
+					onChange={(e) => dispatch({ type: "SET", field: "description", value: e.target.value })}
 					className={inputClasses}
+					aria-label="Descripción (opcional)"
 				/>
 			</div>
 
@@ -150,7 +198,11 @@ export function CustomFieldEditor({
 						id={`${formId}-dataType`}
 						value={dataType}
 						onChange={(e) =>
-							setDataType(e.target.value as CreateCustomFieldDefinitionDto["dataType"])
+							dispatch({
+								type: "SET",
+								field: "dataType",
+								value: e.target.value as CreateCustomFieldDefinitionDto["dataType"],
+							})
 						}
 						className={inputClasses}
 					>
@@ -173,8 +225,11 @@ export function CustomFieldEditor({
 						type="number"
 						inputMode="numeric"
 						value={order}
-						onChange={(e) => setOrder(Number(e.target.value))}
+						onChange={(e) =>
+							dispatch({ type: "SET", field: "order", value: Number(e.target.value) })
+						}
 						className={inputClasses}
+						aria-label="Orden"
 					/>
 				</div>
 				<fieldset className="space-y-2 pt-6">
@@ -182,7 +237,9 @@ export function CustomFieldEditor({
 						<input
 							type="checkbox"
 							checked={required}
-							onChange={(e) => setRequired(e.target.checked)}
+							onChange={(e) =>
+								dispatch({ type: "SET", field: "required", value: e.target.checked })
+							}
 							className="size-4 rounded border-[var(--border-default)]"
 						/>
 						Obligatorio
@@ -191,7 +248,9 @@ export function CustomFieldEditor({
 						<input
 							type="checkbox"
 							checked={isActive}
-							onChange={(e) => setIsActive(e.target.checked)}
+							onChange={(e) =>
+								dispatch({ type: "SET", field: "isActive", value: e.target.checked })
+							}
 							className="size-4 rounded border-[var(--border-default)]"
 						/>
 						Activo
@@ -210,9 +269,10 @@ export function CustomFieldEditor({
 					<textarea
 						id={`${formId}-options`}
 						value={optionsText}
-						onChange={(e) => setOptionsText(e.target.value)}
+						onChange={(e) => dispatch({ type: "SET", field: "optionsText", value: e.target.value })}
 						rows={4}
 						className={inputClasses}
+						aria-label="Opciones (una por línea)"
 					/>
 				</div>
 			)}

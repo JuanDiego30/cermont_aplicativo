@@ -1,10 +1,5 @@
-import type {
-	ActivityType,
-	ApiEnvelope,
-	CreateMaintenanceKit,
-	MaintenanceKit,
-} from "@cermont/shared-types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { ActivityType, CreateMaintenanceKit, MaintenanceKit } from "@cermont/shared-types";
+import { useQuery } from "@tanstack/react-query";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { apiClient } from "@/lib/http/api-client";
 
@@ -107,87 +102,5 @@ export function useMaintenanceKits(filters?: MaintenanceKitListFilters) {
 			};
 		},
 		staleTime: STALE_TIMES.LIST,
-	});
-}
-
-export function useMaintenanceKit(id: string) {
-	return useQuery({
-		queryKey: MAINTENANCE_KIT_KEYS.detail(id),
-		queryFn: async () => {
-			const body = await apiClient.get<ApiEnvelope<MaintenanceKit>>(`/maintenance/kits/${id}`);
-			if (!body?.success) {
-				throw new Error("Error al cargar el kit");
-			}
-			return body.data;
-		},
-		enabled: !!id,
-		staleTime: STALE_TIMES.DETAIL,
-	});
-}
-
-export function useCreateMaintenanceKit() {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationKey: ["maintenance", "kit", "create"],
-		networkMode: "offlineFirst",
-		retry: 0,
-		mutationFn: async (data: MaintenanceKitMutationInput) => {
-			const body = await apiClient.post<ApiEnvelope<MaintenanceKit>>("/maintenance/kits", data);
-			if (!body?.success) {
-				throw new Error("Error al crear el kit");
-			}
-			return body.data;
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: MAINTENANCE_KIT_KEYS.all });
-		},
-	});
-}
-
-export function useUpdateMaintenanceKit(id: string) {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationKey: ["maintenance", "kit", "update"],
-		networkMode: "offlineFirst",
-		retry: 0,
-		mutationFn: async (data: MaintenanceKitMutationInput) => {
-			const body = await apiClient.patch<ApiEnvelope<MaintenanceKit>>(
-				`/maintenance/kits/${id}`,
-				data,
-			);
-			if (!body?.success) {
-				throw new Error("Error al actualizar el kit");
-			}
-			return body.data;
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: MAINTENANCE_KIT_KEYS.detail(id) });
-			queryClient.invalidateQueries({ queryKey: MAINTENANCE_KIT_KEYS.all });
-		},
-	});
-}
-
-export function useDeleteMaintenanceKit() {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationKey: ["maintenance", "kit", "delete"],
-		networkMode: "offlineFirst",
-		retry: 0,
-		mutationFn: async (id: string) => {
-			const body = await apiClient.delete<ApiEnvelope<{ message: string }>>(
-				`/maintenance/kits/${id}`,
-			);
-			if (!body?.success) {
-				throw new Error("Error al desactivar el kit");
-			}
-			return body.data;
-		},
-		onSuccess: (_data, id) => {
-			queryClient.invalidateQueries({ queryKey: MAINTENANCE_KIT_KEYS.detail(id) });
-			queryClient.invalidateQueries({ queryKey: MAINTENANCE_KIT_KEYS.all });
-		},
 	});
 }

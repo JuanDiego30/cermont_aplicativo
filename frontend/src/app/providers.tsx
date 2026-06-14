@@ -18,6 +18,7 @@ import { SyncManagerProvider } from "@/lib/offline/SyncManagerProvider";
 import { dexieQueryPersister } from "@/lib/pwa/query-persist";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { AuthInitializer } from "@/modules/auth/components/AuthInitializer";
+import { useReadyAuthenticatedSession } from "@/modules/auth/hooks/useReadyAuthenticatedSession";
 import { useAuthStore } from "@/store/auth.store";
 import { useOfflineStore } from "@/store/offline.store";
 
@@ -89,7 +90,7 @@ function ConnectivityBootstrap({ queryClient }: { queryClient: QueryClient }) {
 function OfflineDbInitializer() {
 	const pathname = usePathname();
 	const isPublicRoute = isPublicAuthPath(pathname);
-	const isAuthenticated = hasReadyAuthenticatedSession();
+	const isAuthenticated = useReadyAuthenticatedSession();
 
 	// Only initialize on protected routes with authenticated session
 	useEffect(() => {
@@ -113,7 +114,7 @@ function OfflineDbInitializer() {
 function OfflineSyncBootstrap({ queryClient }: { queryClient: QueryClient }) {
 	const pathname = usePathname();
 	const isPublicRoute = isPublicAuthPath(pathname);
-	const isAuthenticated = hasReadyAuthenticatedSession();
+	const isAuthenticated = useReadyAuthenticatedSession();
 
 	// Only initialize offline sync on protected routes with authenticated session
 	if (isPublicRoute || !isAuthenticated) {

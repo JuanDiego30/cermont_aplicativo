@@ -47,7 +47,7 @@ export function EvidenceGpsCapture({ gpsCapture, onCapture }: EvidenceGpsCapture
 					<button
 						type="button"
 						onClick={onCapture}
-						className="whitespace-nowrap text-[11px] font-bold text-blue-600 hover:underline dark:text-blue-400"
+						className="whitespace-nowrap text-[11px] font-bold text-[var(--color-brand-blue-light)] hover:underline dark:text-[var(--color-cermont-blue-light)]"
 					>
 						{gpsCapture.state === "success" ? "Actualizar GPS" : "Capturar GPS"}
 					</button>

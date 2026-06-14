@@ -54,6 +54,8 @@ const APP_NAVIGATION_ROUTES = [
 	APP_ROUTES.resources,
 	APP_ROUTES.templates,
 	APP_ROUTES.profile,
+	APP_ROUTES.offlineSync,
+	APP_ROUTES.adminAudit,
 ] as const;
 
 const cacheableWithoutCookies = {
@@ -258,16 +260,24 @@ const serwist = new Serwist({
 	},
 });
 
-// Register Serwist event handlers FIRST — at the top level of the module,
-// synchronously. This ensures esbuild compilation (via @serwist/turbopack/worker)
-// keeps all self.addEventListener() calls in the initial synchronous sweep of
-// the worker script, satisfying the service worker spec requirement that event
-// handlers MUST be added during initial evaluation.
-serwist.addEventListeners();
+// ═══════════════════════════════════════════════════════════════════════════
+// ALL event handlers MUST be registered during the INITIAL synchronous
+// evaluation of the worker script (Service Worker spec §3.1).
+// ═══════════════════════════════════════════════════════════════════════════
+// 1st → Custom CLEAR_CACHE handler (registered before Serwist so esbuild
+//       can see it during compilation, preventing "jamToggleDumpStore" error)
+// 2nd → Serwist handlers via addEventListeners()
+//
+// The redundant custom fetch handler (stopImmediatePropagation for auth)
+// has been REMOVED. runtimeCaching already handles auth bypass:
+//   skipSwHeaderBypass → X-Skip-SW:1 → NetworkOnly
+//   authApiNoCache     → /api/auth/*  → NetworkOnly
+//   authRoutesNoCache  → /login, etc  → NetworkOnly
+//
+// The redundant handler added CLIENT-SIDE complexity and risk of stopping
+// the WRONG event cycle. Auth bypass is now PURELY server-side (SW rules).
 
-// Custom CLEAR_CACHE message handler — registered after Serwist so both
-// handlers coexist. Serwist's internal message handler processes its own
-// DevTools/inspection messages; we only react to { type: "CLEAR_CACHE" }.
+// ── Step 1: Custom CLEAR_CACHE handler ──────────────────────────────────
 self.addEventListener("message", (event: ExtendableMessageEvent) => {
 	if (event.data?.type !== "CLEAR_CACHE") {
 		return;
@@ -291,20 +301,7 @@ self.addEventListener("message", (event: ExtendableMessageEvent) => {
 	);
 });
 
-// CRITICAL: Intercept and stop propagation of auth and skip-SW requests.
-// This prevents Serwist from hijacking them and ensures the browser handles them natively.
-// Registered after Serwist's own fetch handler — Serwist's runtimeCaching already
-// uses NetworkOnly for these paths (authApiNoCache, skipSwHeaderBypass), so
-// stopImmediatePropagation is an extra safety measure.
-self.addEventListener("fetch", (event: FetchEvent) => {
-	const url = new URL(event.request.url);
-	if (
-		event.request.headers.get("X-Skip-SW") === "1" ||
-		url.pathname.startsWith("/api/auth") ||
-		url.pathname.startsWith("/api/backend/auth")
-	) {
-		event.stopImmediatePropagation();
-	}
-});
+// ── Step 2: Serwist event handlers ──────────────────────────────────────
+serwist.addEventListeners();
 
 export { serwist };

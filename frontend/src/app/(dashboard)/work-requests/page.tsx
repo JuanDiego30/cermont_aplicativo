@@ -27,7 +27,7 @@ function WorkRequestList() {
 	if (error || !data) {
 		return (
 			<EmptyState
-				icon="documents"
+				icon="work-requests"
 				title="Error al cargar solicitudes"
 				description="No se pudieron cargar las solicitudes de trabajo. Intenta de nuevo más tarde."
 			/>
@@ -37,7 +37,7 @@ function WorkRequestList() {
 	if (items.length === 0) {
 		return (
 			<EmptyState
-				icon="documents"
+				icon="work-requests"
 				title={isOfflineEmpty ? "Sin solicitudes guardadas localmente" : "No hay solicitudes"}
 				description={
 					isOfflineEmpty

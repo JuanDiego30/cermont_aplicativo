@@ -156,4 +156,15 @@ describe("sync-queue", () => {
 		expect(entries).toHaveLength(1);
 		expect(entries[0].status).toBe("dead_letter");
 	});
+
+	it("does not revive discarded direct-queue items", async () => {
+		await enqueue(baseEntry);
+		const discarded = memoryStore.get(baseEntry.id);
+		if (!discarded) {
+			throw new Error("Expected fixture to be persisted");
+		}
+		memoryStore.set(baseEntry.id, { ...discarded, status: "discarded" });
+
+		expect(await getAll()).toEqual([]);
+	});
 });

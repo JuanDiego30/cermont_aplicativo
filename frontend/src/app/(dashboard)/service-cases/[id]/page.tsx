@@ -137,7 +137,7 @@ function ServiceCaseDetailInner() {
 															<span className="font-semibold">{blocker.ownerRole || "N/A"}</span>
 														</p>
 														{blocker.recommendedAction && (
-															<p className="mt-0.5 text-[10px] font-bold text-[var(--color-brand)] dark:text-blue-400">
+															<p className="mt-0.5 text-[10px] font-bold text-[var(--color-brand)] dark:text-[var(--color-cermont-blue-light)]">
 																Acción sugerida: {blocker.recommendedAction}
 															</p>
 														)}

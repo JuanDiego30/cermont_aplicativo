@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { E2E_ADMIN } from "./auth-credentials";
 
 const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL ?? "http://localhost:3000";
 
@@ -67,7 +68,7 @@ test.describe
 			context,
 			page,
 		}) => {
-			await page.goto(`${BASE_URL}/login`, { waitUntil: "networkidle" });
+			await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
 			await waitForActiveServiceWorker(page);
 
 			await context.setOffline(true);
@@ -82,7 +83,7 @@ test.describe
 			context,
 			page,
 		}) => {
-			await page.goto(`${BASE_URL}/login`, { waitUntil: "networkidle" });
+			await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
 			await waitForActiveServiceWorker(page);
 
 			await context.setOffline(true);
@@ -97,8 +98,8 @@ test.describe
 		test("shows and clears the offline banner when connectivity changes", async ({ page }) => {
 			// Banner is auth-gated, so login and navigate to a protected route
 			await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
-			await page.getByLabel("Correo electrónico").first().fill("gerencia@cermont.co");
-			await page.getByLabel("Contraseña").first().fill("Cermont2026!");
+			await page.getByLabel("Correo electrónico").first().fill(E2E_ADMIN.email);
+			await page.getByLabel("Contraseña").first().fill(E2E_ADMIN.password);
 			await page
 				.getByRole("button", { name: /iniciar sesión/i })
 				.first()
@@ -129,17 +130,16 @@ test.describe
 			// it bypasses the short-circuit and calls checkRealConnectivity, which
 			// fails because the routes are aborted → setConnectivity(false).
 			await page.evaluate(() => window.dispatchEvent(new Event("offline")));
-			await expect(
-				page.getByText(/los cambios se sincronizar[aá]n autom[aá]ticamente/i).first(),
-			).toBeVisible({ timeout: 15_000 });
+			const offlineBanner = page.getByTestId("offline-banner");
+			await expect(offlineBanner).toBeVisible({ timeout: 15_000 });
+			await expect(offlineBanner).toHaveAttribute("title", "Sin conexión");
+			await expect(offlineBanner).toContainText("Offline");
 
 			// Step 3: Restore connectivity by un-routing the health endpoints and
 			// dispatching a synthetic online event to trigger a bounded check.
 			await page.unroute("**/api/backend/health");
 			await page.unroute("**/serwist/sw.js");
 			await page.evaluate(() => window.dispatchEvent(new Event("online")));
-			await expect(
-				page.getByText(/los cambios se sincronizar[aá]n autom[aá]ticamente/i).first(),
-			).toBeHidden({ timeout: 20_000 });
+			await expect(offlineBanner).toBeHidden({ timeout: 20_000 });
 		});
 	});

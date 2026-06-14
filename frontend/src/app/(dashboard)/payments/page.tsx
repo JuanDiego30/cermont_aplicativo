@@ -28,6 +28,7 @@ function PaymentsPageContent() {
 			eyebrow="Dashboard / Pagos"
 			title="Pagos"
 			description="Conciliación administrativa de recaudo contra facturas, SES y órdenes de trabajo."
+			emptyIcon="payments"
 			emptyTitle={workOrderId ? "No payments for this order" : "Sin pagos registrados"}
 			emptyDescription={
 				workOrderId

@@ -13,6 +13,8 @@ import {
 	WifiOff,
 } from "lucide-react";
 import Link from "next/link";
+import { EmptyState } from "@/core/ui/EmptyState";
+import type { EmptyStateKind } from "@/core/ui/EmptyStateIllustration";
 import { useConnectivity } from "@/lib/offline/connectivity";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
 import type { WorkflowList } from "../queries";
@@ -49,6 +51,7 @@ type RecordsPageProps<T> = {
 	description: string;
 	emptyTitle: string;
 	emptyDescription: string;
+	emptyIcon: EmptyStateKind;
 	query: QueryState<T>;
 	rows: (items: T[]) => RecordRow[];
 	primaryLinks: Array<{ href: string; label: string }>;
@@ -203,47 +206,34 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 	);
 }
 
-function EmptyState({ title, description }: { title: string; description: string }) {
+function WorkflowEmptyActions() {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] p-6">
-			<div className="flex items-start gap-4">
-				<div className="flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-brand-blue-bg)] text-[var(--color-brand)]">
-					<UploadCloud className="size-5" aria-hidden="true" />
-				</div>
-				<div>
-					<h2 className="text-base font-semibold text-[var(--text-primary)]">{title}</h2>
-					<p className="mt-1.5 max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-						{description}
-					</p>
-					<div className="mt-4 flex flex-wrap gap-2">
-						<ContextualDocumentUploadModal
-							defaultPurpose="support_document"
-							title="Adjuntar soporte documental"
-							description="Selecciona caso, orden y paso para cargar soportes administrativos u operativos sin salir del flujo."
-						>
-							<button
-								type="button"
-								className="rounded-[var(--radius-md)] bg-[var(--color-brand)] px-3 py-2 text-sm font-medium text-white"
-							>
-								Subir PDF, Excel o Word
-							</button>
-						</ContextualDocumentUploadModal>
-						<ContextualDocumentUploadModal
-							defaultPurpose="closing_evidence"
-							title="Adjuntar fotos o evidencia visual"
-							description="Carga fotos y soportes visuales vinculándolos al paso de cierre correspondiente."
-						>
-							<button
-								type="button"
-								className="rounded-[var(--radius-md)] border border-[var(--border-default)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
-							>
-								Subir fotos
-							</button>
-						</ContextualDocumentUploadModal>
-					</div>
-				</div>
-			</div>
-		</div>
+		<>
+			<ContextualDocumentUploadModal
+				defaultPurpose="support_document"
+				title="Adjuntar soporte documental"
+				description="Selecciona caso, orden y paso para cargar soportes administrativos u operativos sin salir del flujo."
+			>
+				<button
+					type="button"
+					className="min-h-11 rounded-full bg-[var(--color-brand)] px-5 py-2 text-sm font-medium text-white"
+				>
+					Subir PDF, Excel o Word
+				</button>
+			</ContextualDocumentUploadModal>
+			<ContextualDocumentUploadModal
+				defaultPurpose="closing_evidence"
+				title="Adjuntar fotos o evidencia visual"
+				description="Carga fotos y soportes visuales vinculándolos al paso de cierre correspondiente."
+			>
+				<button
+					type="button"
+					className="min-h-11 rounded-full border border-[var(--border-default)] px-5 py-2 text-sm font-medium text-[var(--text-primary)]"
+				>
+					Subir fotos
+				</button>
+			</ContextualDocumentUploadModal>
+		</>
 	);
 }
 
@@ -350,6 +340,7 @@ export function WorkflowRecordsPage<T>({
 	description,
 	emptyTitle,
 	emptyDescription,
+	emptyIcon,
 	query,
 	rows,
 	primaryLinks,
@@ -371,7 +362,9 @@ export function WorkflowRecordsPage<T>({
 			{query.isLoading ? <LoadingState /> : null}
 			{query.isError ? <ErrorState onRetry={query.refetch} /> : null}
 			{!query.isLoading && !query.isError && normalizedRows.length === 0 ? (
-				<EmptyState title={emptyTitle} description={emptyDescription} />
+				<EmptyState icon={emptyIcon} title={emptyTitle} description={emptyDescription}>
+					<WorkflowEmptyActions />
+				</EmptyState>
 			) : null}
 			{normalizedRows.length > 0 ? (
 				<>

@@ -25,7 +25,7 @@ test("login exitoso y redirect al dashboard", async ({ page }) => {
 
 test("login inválido muestra mensaje de error", async ({ page }) => {
 	await page.goto("/login");
-	await page.waitForLoadState("networkidle");
+	await page.waitForLoadState("domcontentloaded");
 
 	await page.getByLabel("Correo electrónico").first().fill(E2E_LOGIN_EMAIL);
 	await page.getByLabel("Contraseña").first().fill("wrong-password");

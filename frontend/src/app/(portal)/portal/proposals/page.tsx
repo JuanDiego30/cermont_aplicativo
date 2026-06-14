@@ -70,7 +70,7 @@ export default function PortalProposalsPage() {
 													? "bg-red-100 text-red-800"
 													: p.status === "draft"
 														? "bg-gray-100 text-gray-600"
-														: "bg-blue-100 text-blue-800"
+														: "bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand-blue)]"
 										}`}
 									>
 										{p.status}

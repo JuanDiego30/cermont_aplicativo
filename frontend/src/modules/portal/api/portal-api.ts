@@ -47,7 +47,7 @@ export interface PortalProposalSummary {
 	createdAt: string;
 }
 
-export const portalKeys = {
+const portalKeys = {
 	dashboard: ["portal", "dashboard"] as const,
 	orders: ["portal", "orders"] as const,
 	orderDetail: (id: string) => ["portal", "orders", id] as const,

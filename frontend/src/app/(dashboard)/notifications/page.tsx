@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Check, Filter } from "lucide-react";
+import { Check, Filter } from "lucide-react";
 import { useCallback, useState } from "react";
+import { EmptyState } from "@/core/ui/EmptyState";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
 import { formatDateTime } from "@/lib/utils/format-date";
@@ -160,12 +161,15 @@ export default function NotificationsPage() {
 
 			{/* Empty State */}
 			{notifications.length === 0 && (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-16 text-center">
-					<Bell className="mx-auto mb-3 size-10 text-[var(--text-tertiary)]" aria-hidden="true" />
-					<p className="text-[var(--text-secondary)]">
-						{typeFilter ? "No hay notificaciones de este tipo." : "No tienes notificaciones."}
-					</p>
-				</div>
+				<EmptyState
+					icon="notifications"
+					title={typeFilter ? "Sin resultados para este filtro" : "No tienes notificaciones"}
+					description={
+						typeFilter
+							? "Cambia el tipo de notificación para consultar otros eventos."
+							: "Las alertas, aprobaciones y recordatorios aparecerán aquí."
+					}
+				/>
 			)}
 
 			{/* Notifications List */}

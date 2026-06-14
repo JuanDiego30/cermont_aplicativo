@@ -1,15 +1,9 @@
 "use client";
 
-import {
-	AlertTriangle,
-	ArrowRight,
-	CheckCircle2,
-	Clock,
-	Loader2,
-	RefreshCw,
-	XCircle,
-} from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, Clock, RefreshCw, XCircle } from "lucide-react";
 import Link from "next/link";
+import { EmptyState } from "@/core/ui/EmptyState";
+import { Skeleton } from "@/core/ui/Skeleton";
 import { usePurchaseOrdersList } from "@/modules/purchase-orders/queries";
 
 function statusTone(status: string): string {
@@ -64,9 +58,12 @@ export default function PurchaseOrdersPage() {
 			</header>
 
 			{isLoading ? (
-				<output className="flex items-center justify-center py-16" aria-live="polite">
-					<Loader2 className="size-7 animate-spin text-brand" aria-hidden="true" />
+				<output
+					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4"
+					aria-live="polite"
+				>
 					<span className="sr-only">Cargando órdenes de compra</span>
+					<Skeleton variant="table-row" rows={4} />
 				</output>
 			) : null}
 
@@ -98,20 +95,12 @@ export default function PurchaseOrdersPage() {
 			) : null}
 
 			{!isLoading && !isError && items.length === 0 ? (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] p-6">
-					<h2 className="text-base font-semibold text-[var(--text-primary)]">
-						Sin órdenes de compra
-					</h2>
-					<p className="mt-1 text-sm text-[var(--text-secondary)]">
-						Registra la PO aprobada por el cliente para habilitar planeación y ejecución.
-					</p>
-					<Link
-						href="/purchase-orders/new"
-						className="mt-4 inline-flex rounded-[var(--radius-md)] bg-[var(--color-brand)] px-3 py-2 text-sm font-medium text-white"
-					>
-						Crear PO
-					</Link>
-				</div>
+				<EmptyState
+					icon="purchase-orders"
+					title="Sin órdenes de compra"
+					description="Registra la PO aprobada por el cliente para habilitar planeación y ejecución."
+					action={{ label: "Crear PO", href: "/purchase-orders/new" }}
+				/>
 			) : null}
 
 			{items.length > 0 ? (

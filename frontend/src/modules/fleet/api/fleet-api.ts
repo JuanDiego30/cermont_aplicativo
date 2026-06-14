@@ -4,12 +4,7 @@
  * Thin wrapper over `apiClient` for `/api/fleet` endpoints.
  */
 
-import type {
-	CreateVehicleInput,
-	UpdateVehicleInput,
-	Vehicle,
-	VehicleDocumentAlert,
-} from "@cermont/shared-types";
+import type { CreateVehicleInput, Vehicle, VehicleDocumentAlert } from "@cermont/shared-types";
 import { apiClient } from "@/lib/http/api-client";
 
 export interface FleetListFilters {
@@ -45,11 +40,6 @@ export async function listVehicles(filters: FleetListFilters = {}): Promise<Flee
 
 export async function createVehicle(input: CreateVehicleInput): Promise<Vehicle> {
 	const envelope = await apiClient.post<{ success: true; data: Vehicle }>("/fleet", input);
-	return envelope.data;
-}
-
-export async function updateVehicle(id: string, input: UpdateVehicleInput): Promise<Vehicle> {
-	const envelope = await apiClient.patch<{ success: true; data: Vehicle }>(`/fleet/${id}`, input);
 	return envelope.data;
 }
 

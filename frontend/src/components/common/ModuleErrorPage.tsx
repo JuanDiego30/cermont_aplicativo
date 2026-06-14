@@ -67,7 +67,7 @@ export function ModuleErrorPage({ error, reset, moduleName, homeHref }: ModuleEr
 				<button
 					type="button"
 					onClick={reset}
-					className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+					className="rounded-lg bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)]"
 				>
 					Reintentar
 				</button>

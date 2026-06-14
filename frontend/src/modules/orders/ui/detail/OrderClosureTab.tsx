@@ -260,22 +260,26 @@ function ClosureActionPanel({
 	onClick: () => void;
 }) {
 	return (
-		<div className="flex flex-col gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-900/10 sm:flex-row sm:items-center sm:justify-between">
+		<div className="flex flex-col gap-3 rounded-lg border border-[var(--color-cermont-blue-bg)] bg-[var(--color-cermont-blue-bg)]/50 p-4 dark:border-[var(--color-cermont-blue)]/30 dark:bg-[var(--color-cermont-blue)]/10 sm:flex-row sm:items-center sm:justify-between">
 			<div className="flex items-start gap-3">
 				<FileCheck
-					className="mt-0.5 size-5 shrink-0 text-blue-600 dark:text-blue-400"
+					className="mt-0.5 size-5 shrink-0 text-[var(--color-brand-blue-light)] dark:text-[var(--color-cermont-blue-light)]"
 					aria-hidden="true"
 				/>
 				<div>
-					<p className="text-sm font-medium text-blue-900 dark:text-blue-300">{title}</p>
-					<p className="mt-1 text-xs text-blue-700 dark:text-blue-400">{description}</p>
+					<p className="text-sm font-medium text-[var(--color-brand-blue-deep)] dark:text-[var(--color-cermont-blue-light)]">
+						{title}
+					</p>
+					<p className="mt-1 text-xs text-[var(--color-brand-blue-light)] dark:text-[var(--color-cermont-blue-light)]">
+						{description}
+					</p>
 				</div>
 			</div>
 			<button
 				type="button"
 				onClick={onClick}
 				disabled={disabled}
-				className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+				className="inline-flex items-center justify-center rounded-lg bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-hover)] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[var(--color-cermont-blue)] dark:hover:bg-[var(--color-brand-hover)]"
 			>
 				{buttonLabel}
 			</button>
@@ -463,16 +467,16 @@ function ClosureStatusIndicator({
 
 	if (canClose) {
 		return (
-			<div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900/30 dark:bg-blue-900/10">
+			<div className="flex items-center gap-3 rounded-lg border border-[var(--color-cermont-blue-bg)] bg-[var(--color-cermont-blue-bg)]/50 px-4 py-3 dark:border-[var(--color-cermont-blue)]/30 dark:bg-[var(--color-cermont-blue)]/10">
 				<FileCheck
-					className="size-5 shrink-0 text-blue-600 dark:text-blue-400"
+					className="size-5 shrink-0 text-[var(--color-brand-blue-light)] dark:text-[var(--color-cermont-blue-light)]"
 					aria-hidden="true"
 				/>
 				<div>
-					<p className="text-sm font-semibold text-blue-900 dark:text-blue-300">
+					<p className="text-sm font-semibold text-[var(--color-brand-blue-deep)] dark:text-[var(--color-cermont-blue-light)]">
 						Completada, pendiente de cierre
 					</p>
-					<p className="text-xs text-blue-700 dark:text-blue-400">
+					<p className="text-xs text-[var(--color-brand-blue-light)] dark:text-[var(--color-cermont-blue-light)]">
 						La orden está completada pero aún no ha sido cerrada administrativamente.
 					</p>
 				</div>

@@ -4,7 +4,7 @@
  * Thin wrapper over `apiClient` for `/api/asts` endpoints.
  */
 
-import type { AST, ASTStatus, CreateAST, SignAST, UpdateAST } from "@cermont/shared-types";
+import type { AST, ASTStatus, CreateAST, SignAST } from "@cermont/shared-types";
 import { apiClient } from "@/lib/http/api-client";
 
 export interface ASTListEnvelope {
@@ -25,18 +25,8 @@ export async function listASTs(orderId?: string, status?: string): Promise<ASTLi
 	return apiClient.get<ASTListEnvelope>(`/asts${query ? `?${query}` : ""}`);
 }
 
-export async function getAST(id: string): Promise<AST> {
-	const envelope = await apiClient.get<{ success: true; data: AST }>(`/asts/${id}`);
-	return envelope.data;
-}
-
 export async function createAST(input: CreateAST): Promise<AST> {
 	const envelope = await apiClient.post<{ success: true; data: AST }>("/asts", input);
-	return envelope.data;
-}
-
-export async function updateAST(id: string, input: UpdateAST): Promise<AST> {
-	const envelope = await apiClient.patch<{ success: true; data: AST }>(`/asts/${id}`, input);
 	return envelope.data;
 }
 

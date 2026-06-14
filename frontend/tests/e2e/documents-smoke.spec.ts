@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { E2E_TEST_USERS } from "./auth-credentials";
+import { E2E_ADMIN, loginAsUser } from "./auth-credentials";
 
 /**
  * Documents Page Smoke Tests
@@ -9,14 +9,7 @@ import { E2E_TEST_USERS } from "./auth-credentials";
 
 test.describe("Documents Page Smoke", () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto("/login");
-		await page.getByLabel("Correo electrónico").first().fill(E2E_TEST_USERS.admin.email);
-		await page.getByLabel("Contraseña").first().fill(E2E_TEST_USERS.admin.password);
-		await page
-			.getByRole("button", { name: /iniciar sesión/i })
-			.first()
-			.click();
-		await page.waitForURL(/dashboard/, { timeout: 15000 });
+		await loginAsUser(page, E2E_ADMIN);
 	});
 
 	test("page loads without console errors", async ({ page }) => {
@@ -29,14 +22,14 @@ test.describe("Documents Page Smoke", () => {
 		});
 
 		await page.goto("/documents");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		expect(logs.filter((l) => !l.includes("favicon"))).toEqual([]);
 	});
 
 	test("shows document page header", async ({ page }) => {
 		await page.goto("/documents");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		await expect(page.getByText("Gestión de documentos")).toBeVisible();
 		await expect(page.getByText("Dashboard / Documentos")).toBeVisible();
@@ -44,7 +37,7 @@ test.describe("Documents Page Smoke", () => {
 
 	test("filters are visible and accessible", async ({ page }) => {
 		await page.goto("/documents");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		// Search input
 		const searchInput = page.getByPlaceholder(/Buscar por/i);
@@ -70,24 +63,27 @@ test.describe("Documents Page Smoke", () => {
 
 	test("document uploader tabs are visible", async ({ page }) => {
 		await page.goto("/documents");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		await expect(page.getByText("Subir nuevo documento")).toBeVisible();
 		await expect(page.getByText("Seleccionar existente")).toBeVisible();
 	});
 
-	test("sync status indicator is present in header", async ({ page }) => {
+	test("sync status indicator appears when the connection is offline", async ({ page }) => {
 		await page.goto("/documents");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
-		// NetworkStatusChip is in the header with aria-label containing network status
+		await expect(page.getByLabel(/Estado de red/i)).toHaveCount(0);
+		await page.context().setOffline(true);
 		const networkChip = page.getByLabel(/Estado de red/i);
 		await expect(networkChip).toBeVisible();
+		await expect(networkChip).toHaveAccessibleName(/sin conexión/i);
+		await page.context().setOffline(false);
 	});
 
 	test("no invasive sync modal covers page content", async ({ page }) => {
 		await page.goto("/documents");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		// The "Sin cambios pendientes" text should NOT be visible as a modal/banner
 		// The main content should be unobstructed
@@ -97,33 +93,31 @@ test.describe("Documents Page Smoke", () => {
 
 	test("dark mode renders correctly", async ({ page }) => {
 		await page.goto("/documents");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
-		// Apply dark mode class
 		await page.evaluate(() => {
-			document.documentElement.classList.add("dark");
+			window.localStorage.setItem("cermont-theme", "dark");
 		});
+		await page.reload();
 
-		// Verify content is still visible
 		await expect(page.getByText("Gestión de documentos")).toBeVisible();
 		const main = page.locator("main").first();
 		await expect(main).toBeVisible();
+		await expect(page.getByRole("button", { name: /cambiar tema\. actual: dark/i })).toBeVisible();
 
-		// Verify dark mode is applied
 		const hasDark = await page.evaluate(() => {
 			return document.documentElement.classList.contains("dark");
 		});
 		expect(hasDark).toBe(true);
 
-		// Remove dark mode
 		await page.evaluate(() => {
-			document.documentElement.classList.remove("dark");
+			window.localStorage.removeItem("cermont-theme");
 		});
 	});
 
 	test("light mode renders correctly", async ({ page }) => {
 		await page.goto("/documents");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		// Ensure light mode
 		await page.evaluate(() => {

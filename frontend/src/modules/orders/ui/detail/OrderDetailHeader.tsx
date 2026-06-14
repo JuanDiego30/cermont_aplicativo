@@ -2,8 +2,10 @@
 
 import { ArrowLeft, Calendar, Clock, MapPin, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { QRCodeButton } from "@/components/common/QRCodeButton";
 import { PriorityBadge } from "@/core/ui/PriorityBadge";
 import { StatusBadge } from "@/core/ui/StatusBadge";
+import { buildOrderRoute } from "@/lib/routes";
 import { useOrder } from "@/modules/orders/queries";
 
 interface OrderDetailHeaderProps {
@@ -20,17 +22,17 @@ const TYPE_LABELS: Record<string, string> = {
 
 function formatDate(dateStr: string | undefined): string {
 	if (!dateStr) {
-		return ",";
+		return "—";
 	}
-	try {
-		return new Date(dateStr).toLocaleDateString("es-CO", {
-			day: "2-digit",
-			month: "long",
-			year: "numeric",
-		});
-	} catch {
-		return ",";
+	const date = new Date(dateStr);
+	if (Number.isNaN(date.getTime())) {
+		return "—";
 	}
+	return date.toLocaleDateString("es-CO", {
+		day: "2-digit",
+		month: "long",
+		year: "numeric",
+	});
 }
 
 export function OrderDetailHeader({ orderId }: OrderDetailHeaderProps) {
@@ -70,11 +72,14 @@ export function OrderDetailHeader({ orderId }: OrderDetailHeaderProps) {
 					<ArrowLeft className="size-4" aria-hidden="true" />
 					<span className="hidden sm:inline">Volver</span>
 				</button>
-				<span className="font-mono text-sm font-semibold text-blue-600 dark:text-blue-400">
+				<span className="font-mono text-sm font-semibold text-[var(--color-brand-blue-light)] dark:text-[var(--color-cermont-blue-light)]">
 					{order.code}
 				</span>
 				<StatusBadge status={order.status} />
 				<PriorityBadge priority={order.priority} />
+				<div className="ml-auto">
+					<QRCodeButton data={buildOrderRoute(orderId)} label={`Orden: ${order.code}`} />
+				</div>
 			</div>
 
 			{/* Title */}

@@ -2,6 +2,7 @@
 
 import { Download, Smartphone, Wifi, X } from "lucide-react";
 import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useHydrated } from "@/core/hooks/useHydrated";
 
 interface BeforeInstallPromptEvent extends Event {
 	prompt: () => Promise<void>;
@@ -50,6 +51,7 @@ function pwaPromptReducer(state: PwaPromptState, action: PwaPromptAction): PwaPr
 }
 
 export function PwaInstallPrompt() {
+	const isHydrated = useHydrated();
 	const [state, dispatch] = useReducer(pwaPromptReducer, {
 		deferredPrompt: null,
 		isDismissed: getInitialDismissedState(),
@@ -95,12 +97,12 @@ export function PwaInstallPrompt() {
 	}, []);
 
 	const shouldRender = useMemo(() => {
-		if (isStandaloneRef.current || isDismissed) {
+		if (!isHydrated || isStandaloneRef.current || isDismissed) {
 			return false;
 		}
 
 		return Boolean(deferredPrompt) || isIosSafari;
-	}, [deferredPrompt, isDismissed, isIosSafari]);
+	}, [deferredPrompt, isDismissed, isHydrated, isIosSafari]);
 
 	const dismiss = () => {
 		if (typeof window !== "undefined") {

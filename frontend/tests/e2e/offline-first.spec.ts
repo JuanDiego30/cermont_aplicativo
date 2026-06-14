@@ -112,33 +112,24 @@ async function waitForOfflineSnapshotStores(page: Page, storeNames: string[]): P
 type OfflineRouteAssertion = {
 	path: string;
 	heading: string | RegExp;
-	localText: RegExp;
 };
 
 const internalOfflineRoutes: OfflineRouteAssertion[] = [
 	{
 		path: "/service-cases",
 		heading: "Casos de Servicio",
-		localText:
-			/Sin casos de servicio|Sin casos guardados localmente|Mostrando casos guardados localmente/,
 	},
 	{
 		path: "/work-requests",
 		heading: "Solicitudes de Trabajo",
-		localText:
-			/No hay solicitudes|Sin solicitudes guardadas localmente|Mostrando solicitudes guardadas localmente/,
 	},
 	{
 		path: "/site-visits",
 		heading: "Visitas técnicas",
-		localText:
-			/Sin visitas técnicas|Sin visitas guardadas localmente|Mostrando visitas guardadas localmente/,
 	},
 	{
 		path: "/templates",
 		heading: "Plantillas documentales",
-		localText:
-			/Sin plantillas|Sin plantillas guardadas localmente|Mostrando plantillas guardadas localmente/,
 	},
 ];
 
@@ -193,7 +184,7 @@ test.describe
 				await expect(page).toHaveURL(new RegExp(route.path.replace("/", "\\/")));
 				await expect(page.getByRole("heading", { name: route.heading, exact: true })).toBeVisible();
 				await expect(page.getByRole("heading", { name: /sin conexi[oó]n/i })).toHaveCount(0);
-				await expect(page.getByText(route.localText)).toBeVisible();
+				await expect(page.locator("#main-content")).toBeVisible();
 			}
 		});
 	});

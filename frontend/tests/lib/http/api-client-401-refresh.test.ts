@@ -83,9 +83,10 @@ describe("apiClient 401 → refresh behaviour", () => {
 		expect(result).toEqual({ success: true, data: [{ id: "1" }] });
 		expect(fetchMock).toHaveBeenCalledTimes(3);
 
-		// Verify the refresh call went to /auth/refresh
+		// Refresh uses the dedicated Next.js handler so rotated cookies and
+		// no-store semantics are preserved.
 		const refreshCall = fetchMock.mock.calls[1];
-		expect(refreshCall[0]).toBe("/api/backend/auth/refresh");
+		expect(refreshCall[0]).toBe("/api/auth/refresh");
 		expect(refreshCall[1].method).toBe("POST");
 
 		// Verify the retry used the new token

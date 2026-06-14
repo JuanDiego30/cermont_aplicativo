@@ -25,6 +25,11 @@ FROM dependencies AS builder
 
 WORKDIR /app
 
+ARG NEXT_PUBLIC_API_URL=http://localhost/api
+ARG NEXT_PUBLIC_APP_URL=http://localhost
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+    NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+
 # Copiar código fuente de packages
 COPY packages/config ./packages/config
 COPY packages/domain ./packages/domain

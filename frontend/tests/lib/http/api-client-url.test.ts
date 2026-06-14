@@ -8,9 +8,9 @@
  * proxy and causes login to fail with 401).
  *
  * The correct contract is:
- *   - apiClient adds `API_ROOT` automatically.
- *   - Modules call RELATIVE paths: `/auth/login`, `/users`, etc.
- *   - The final URL is `${API_ROOT}${path}` = `/api/backend/auth/login`.
+ *   - Modules call relative paths: `/auth/login`, `/users`, etc.
+ *   - Dedicated auth handlers use `/api/auth/*`.
+ *   - Other requests use the generic `/api/backend/*` proxy.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -58,23 +58,21 @@ describe("apiClient URL construction", () => {
 	});
 
 	describe("apiClient.request URL", () => {
-		it("calls fetch with a single /api/backend prefix for login", async () => {
+		it("routes login through its dedicated no-store handler", async () => {
 			await apiClient.post("/auth/login", { email: "a@b.c", password: "x" });
 
 			expect(globalThis.fetch).toHaveBeenCalledTimes(1);
 			const calledUrl = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock
 				.calls[0][0] as string;
-			expect(calledUrl).toBe("/api/backend/auth/login");
-			expect(calledUrl).not.toContain("/api/backend/api/backend");
+			expect(calledUrl).toBe("/api/auth/login");
 		});
 
-		it("calls fetch with a single /api/backend prefix for refresh", async () => {
+		it("routes refresh through its dedicated cookie-forwarding handler", async () => {
 			await apiClient.post("/auth/refresh");
 
 			const calledUrl = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock
 				.calls[0][0] as string;
-			expect(calledUrl).toBe("/api/backend/auth/refresh");
-			expect(calledUrl).not.toContain("/api/backend/api/backend");
+			expect(calledUrl).toBe("/api/auth/refresh");
 		});
 
 		it("calls fetch with a single /api/backend prefix for logout", async () => {

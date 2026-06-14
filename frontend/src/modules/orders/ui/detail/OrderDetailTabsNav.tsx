@@ -75,16 +75,16 @@ function OrderDetailTabsNavInner({ orderId: _orderId }: OrderDetailTabsNavProps)
 							className={cn(
 								"group inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-all",
 								"text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
-								"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
-								"data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm",
+								"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1",
+								"data-[state=active]:bg-[var(--color-cermont-blue-bg)]/50 data-[state=active]:text-[var(--color-brand-blue-light)] data-[state=active]:shadow-sm",
 								"dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100",
-								"dark:data-[state=active]:bg-blue-950/50 dark:data-[state=active]:text-blue-400",
+								"dark:data-[state=active]:bg-[var(--color-cermont-blue-deep)]/50 dark:data-[state=active]:text-[var(--color-cermont-blue-light)]",
 							)}
 							role="tab"
 							aria-selected={activeTab === value}
 						>
 							<Icon
-								className="size-4 shrink-0 transition-colors group-data-[state=active]:text-blue-600 dark:group-data-[state=active]:text-blue-400"
+								className="size-4 shrink-0 transition-colors group-data-[state=active]:text-[var(--color-brand-blue-light)] dark:group-data-[state=active]:text-[var(--color-cermont-blue-light)]"
 								aria-hidden="true"
 							/>
 							<span className="hidden sm:inline">{label}</span>

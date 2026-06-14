@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import type {
 	ActivityType,
 	Document as CermontDocument,
@@ -16,11 +14,10 @@ import type {
 	WorkReport,
 } from "@cermont/shared-types";
 import { type APIRequestContext, request } from "@playwright/test";
+import { E2E_ADMIN } from "../auth-credentials";
 
-// Backend runs on port 4000 (see apps/backend/package.json scripts)
+// Backend runs on port 4000 (see backend/package.json scripts).
 const API_BASE_URL = `${(process.env.E2E_API_BASE_URL ?? "http://localhost:4000/api").replace(/\/$/, "")}/`;
-const AUTH_DIR = path.join(process.cwd(), "tests/e2e/fixtures/.auth");
-const SEED_FILE = path.join(AUTH_DIR, "seed-data.json");
 const E2E_COST_SUPPORT_PDF = Buffer.from(
 	"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n",
 	"utf8",
@@ -107,7 +104,21 @@ export interface E2EApiClient {
 
 export async function createE2EApiClient(): Promise<E2EApiClient> {
 	const requestContext = await request.newContext({ baseURL: API_BASE_URL });
-	const authHeaders = loadAdminHeaders();
+	const loginResponse = await requestContext.post("auth/login", {
+		data: {
+			email: E2E_ADMIN.email,
+			password: E2E_ADMIN.password,
+		},
+	});
+	const loginBody = await readBody<{ accessToken: string }>(loginResponse);
+	const accessToken = loginBody.data?.accessToken;
+
+	if (!loginResponse.ok() || loginBody.success === false || !accessToken) {
+		await requestContext.dispose();
+		throw new Error(getErrorMessage(loginBody, "Failed to authenticate the E2E API client"));
+	}
+
+	const authHeaders = { Authorization: `Bearer ${accessToken}` };
 
 	async function send<T>(
 		method: "get" | "post" | "patch" | "delete" | "put",
@@ -131,22 +142,6 @@ export async function createE2EApiClient(): Promise<E2EApiClient> {
 		}
 
 		return body.data;
-	}
-
-	function loadAdminHeaders(): Record<string, string> {
-		if (!fs.existsSync(SEED_FILE)) {
-			throw new Error(`Missing E2E seed file at ${SEED_FILE}`);
-		}
-
-		const content = fs.readFileSync(SEED_FILE, "utf8");
-		const seed = JSON.parse(content) as { admin?: { accessToken?: string } };
-		const accessToken = seed.admin?.accessToken;
-
-		if (!accessToken) {
-			throw new Error("Missing seeded admin access token");
-		}
-
-		return { Authorization: `Bearer ${accessToken}` };
 	}
 
 	async function createCostSupportDocument(orderId: string): Promise<string> {

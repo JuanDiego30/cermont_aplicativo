@@ -4,94 +4,68 @@
  * ResourceImageEditor — Image gallery management for a single resource
  *
  * Renders existing images as a grid with delete capability, and a file
- * upload zone to attach new images. Uses the Resource module's own
- * attach/detach mutations (images live as FileAssetRef[] on the resource).
+ * upload zone to attach new images. Files are persisted through the canonical
+ * files service and linked to the resource by the backend.
  *
- * @see useAttachResourceImage, useDetachResourceImage
+ * @see useUploadResourceImage, useDeleteResourceImage
  */
 
-import type { FileAssetRef } from "@cermont/shared-types";
+import type { FileAssetRef, ResourceType } from "@cermont/shared-types";
 import { Loader2, Trash2, Upload } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 
 import { ImagePreview } from "@/modules/files/ui/ImagePreview";
-import { useAttachResourceImage, useDetachResourceImage } from "../hooks/useResources";
+import { useDeleteResourceImage, useUploadResourceImage } from "../hooks/useResources";
 
 interface ResourceImageEditorProps {
 	resourceId: string;
+	resourceType: ResourceType;
 	images: FileAssetRef[];
 }
 
-export function ResourceImageEditor({ resourceId, images }: ResourceImageEditorProps) {
+export function ResourceImageEditor({
+	resourceId,
+	resourceType,
+	images,
+}: ResourceImageEditorProps) {
 	const [previewFile, setPreviewFile] = useState<FileAssetRef | null>(null);
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const attachMutation = useAttachResourceImage();
-	const detachMutation = useDetachResourceImage();
+	const uploadMutation = useUploadResourceImage();
+	const deleteMutation = useDeleteResourceImage();
 
 	const handleFileSelect = useCallback(
-		async (e: React.ChangeEvent<HTMLInputElement>) => {
+		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const file = e.target.files?.[0];
 			if (!file) {
 				return;
 			}
 
-			// Build a temporary FileAssetRef from the selected File
-			// The parent API expects a FileAssetRef. In a real flow,
-			// we would first upload the file via the files API, then
-			// attach the resulting FileAssetRef.
-			//
-			// For now, we create a minimal FileAssetRef and let the
-			// backend's attachImage service handle the file upload
-			// via multipart. If the endpoint expects multipart, this
-			// would need FormData. The current endpoint accepts
-			// a FileAssetRef JSON body.
-			//
-			// NOTE: Production flow should upload file first, then
-			// attach the resulting FileAssetRef. This requires a
-			// two-step flow or a dedicated multipart endpoint.
-			// Temporary ref — in production, upload file via files API first, then
-			// call attachResourceImage with the returned FileAssetRef.
-			const tempRef = {
-				id: crypto.randomUUID(),
-				originalName: file.name,
-				storedName: file.name,
-				mimeType: file.type,
-				sizeBytes: file.size,
-				url: URL.createObjectURL(file),
-				storageKey: "",
-				uploadedBy: "current",
-				uploadedAt: new Date().toISOString(),
-				entityType: "tool" as const,
-				entityId: resourceId,
-				category: "tool_image" as const,
-			};
-
-			try {
-				await attachMutation.mutateAsync({ id: resourceId, image: tempRef });
-			} catch {
-				// Error handled by TanStack Query
-			}
-
-			// Reset input so the same file can be re-selected
-			if (fileInputRef.current) {
-				fileInputRef.current.value = "";
-			}
+			uploadMutation.reset();
+			deleteMutation.reset();
+			uploadMutation.mutate(
+				{ resourceId, resourceType, file },
+				{
+					onSettled: () => {
+						if (fileInputRef.current) {
+							fileInputRef.current.value = "";
+						}
+					},
+				},
+			);
 		},
-		[resourceId, attachMutation],
+		[deleteMutation, resourceId, resourceType, uploadMutation],
 	);
 
 	const handleDetach = useCallback(
-		async (imageId: string) => {
-			try {
-				await detachMutation.mutateAsync({ id: resourceId, imageId });
-			} catch {
-				// Error handled by TanStack Query
-			}
+		(file: FileAssetRef) => {
+			uploadMutation.reset();
+			deleteMutation.reset();
+			deleteMutation.mutate({ resourceId, file });
 		},
-		[resourceId, detachMutation],
+		[deleteMutation, resourceId, uploadMutation],
 	);
 
 	const handlePreview = useCallback((file: FileAssetRef) => {
@@ -99,7 +73,10 @@ export function ResourceImageEditor({ resourceId, images }: ResourceImageEditorP
 		setPreviewOpen(true);
 	}, []);
 
-	const isPending = attachMutation.isPending || detachMutation.isPending;
+	const isPending = uploadMutation.isPending || deleteMutation.isPending;
+	const operationError = uploadMutation.error ?? deleteMutation.error;
+	const errorMessage =
+		operationError instanceof Error ? operationError.message : "No se pudo procesar la imagen.";
 
 	return (
 		<section
@@ -131,6 +108,11 @@ export function ResourceImageEditor({ resourceId, images }: ResourceImageEditorP
 					onChange={handleFileSelect}
 					disabled={isPending}
 				/>
+				{operationError ? (
+					<p className="mt-2 text-sm text-[var(--color-danger)]" role="alert">
+						{errorMessage}
+					</p>
+				) : null}
 			</div>
 
 			{/* Image grid */}
@@ -164,12 +146,12 @@ export function ResourceImageEditor({ resourceId, images }: ResourceImageEditorP
 							{/* Delete overlay */}
 							<button
 								type="button"
-								onClick={() => handleDetach(file.id)}
+								onClick={() => handleDetach(file)}
 								className="absolute right-1.5 top-1.5 flex size-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
 								aria-label={`Eliminar imagen: ${file.originalName}`}
-								disabled={detachMutation.isPending}
+								disabled={deleteMutation.isPending}
 							>
-								{detachMutation.isPending ? (
+								{deleteMutation.isPending ? (
 									<Loader2 className="size-3.5 animate-spin" />
 								) : (
 									<Trash2 className="size-3.5" aria-hidden="true" />

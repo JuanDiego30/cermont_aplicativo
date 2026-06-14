@@ -68,7 +68,7 @@ function getBannerState(props: SyncBannerProps): {
 			icon: <RefreshCw className="size-4 shrink-0 animate-spin" aria-hidden="true" />,
 			message: "Sincronizando cambios pendientes…",
 			className:
-				"bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
+				"bg-[var(--color-cermont-blue-bg)]/50 text-[var(--color-brand-blue)] border-[var(--color-cermont-blue-bg)] dark:bg-[var(--color-cermont-blue)]/20 dark:text-[var(--color-cermont-blue-light)] dark:border-[var(--color-cermont-blue)]",
 		};
 	}
 
@@ -79,7 +79,7 @@ function getBannerState(props: SyncBannerProps): {
 			icon: <Wifi className="size-4 shrink-0" aria-hidden="true" />,
 			message: `${pendingCount} ${pendingCount === 1 ? "cambio pendiente" : "cambios pendientes"} de sincronizar`,
 			className:
-				"bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
+				"bg-[var(--color-cermont-blue-bg)]/50 text-[var(--color-brand-blue)] border-[var(--color-cermont-blue-bg)] dark:bg-[var(--color-cermont-blue)]/20 dark:text-[var(--color-cermont-blue-light)] dark:border-[var(--color-cermont-blue)]",
 		};
 	}
 

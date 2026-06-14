@@ -1,217 +1,245 @@
 "use client";
 
+import type { CermontOperationalStepCode } from "@cermont/shared-types";
 import { ArrowRight, Circle } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+type StepCategory = "comercial" | "operativo" | "cierre" | "financiero";
+
 interface StepItem {
 	step: number;
+	code: CermontOperationalStepCode;
 	label: string;
 	description: string;
-	category: "comercial" | "operativo" | "cierre" | "financiero";
-	activeCount: number;
+	category: StepCategory;
 }
 
 const STEPS: StepItem[] = [
 	{
 		step: 1,
+		code: "step_01_work_request",
 		label: "Solicitud de Trabajo",
-		description: "Work Request formal del clien" + "te.",
+		description: "Solicitud formal del cliente.",
 		category: "comercial",
-		activeCount: 3,
 	},
 	{
 		step: 2,
-		label: "Visita Téc" + "nica",
+		code: "step_02_site_visit",
+		label: "Visita Técnica",
 		description: "Mediciones y registro fotográfico en sitio.",
 		category: "operativo",
-		activeCount: 1,
 	},
 	{
 		step: 3,
-		label: "Propu" + "esta Económica",
-		description: "Análisis de cos" + "tos y oferta comercial.",
+		code: "step_03_proposal",
+		label: "Propuesta Económica",
+		description: "Análisis de costos y oferta comercial.",
 		category: "comercial",
-		activeCount: 2,
 	},
 	{
 		step: 4,
+		code: "step_04_purchase_order",
 		label: "Aprobación PO",
-		description: "Or" + "den de compra aprobada por el clien" + "te.",
+		description: "Orden de compra aprobada por el cliente.",
 		category: "comercial",
-		activeCount: 4,
 	},
 	{
 		step: 5,
+		code: "step_05_planning",
 		label: "Planeación",
 		description: "Asignación de personal, herramientas y kits.",
 		category: "operativo",
-		activeCount: 2,
 	},
 	{
 		step: 6,
-		label: "Ejecu" + "ción de Campo",
-		description: "Permisos, AST, checklists y eviden" + "cias fotográficas.",
+		code: "step_06_execution",
+		label: "Ejecución de Campo",
+		description: "Permisos, AST, checklists y evidencias fotográficas.",
 		category: "operativo",
-		activeCount: 5,
 	},
 	{
 		step: 7,
-		label: "Informe Téc" + "nico",
-		description: "Documentación de ejecu" + "ción y recursos usados.",
+		code: "step_07_technical_report",
+		label: "Informe Técnico",
+		description: "Documentación de ejecución y recursos usados.",
 		category: "operativo",
-		activeCount: 1,
 	},
 	{
 		step: 8,
+		code: "step_08_delivery_record",
 		label: "Acta de Entrega",
-		description: "Generación de delivery records y firmas.",
+		description: "Generación del acta y sus soportes.",
 		category: "cierre",
-		activeCount: 2,
 	},
 	{
 		step: 9,
-		label: "Acta Firmada",
-		description: "Aceptación formal de entrega por el clien" + "te.",
+		code: "step_09_client_signature",
+		label: "Firma del Cliente",
+		description: "Aceptación formal de la entrega por el cliente.",
 		category: "cierre",
-		activeCount: 1,
 	},
 	{
 		step: 10,
-		label: "SES Ariba",
-		description: "Registro de Service Entry Sheet en SAP.",
+		code: "step_10_ses_submission",
+		label: "SES / Ariba",
+		description: "Registro y envío de la hoja de entrada de servicio.",
 		category: "cierre",
-		activeCount: 3,
 	},
 	{
 		step: 11,
-		label: "SES Aprobada",
-		description: "Vali" + "dación por interventoría y aprobadores.",
+		code: "step_11_ses_approval",
+		label: "Aprobación SES",
+		description: "Validación por interventoría y aprobadores.",
 		category: "cierre",
-		activeCount: 2,
 	},
 	{
 		step: 12,
+		code: "step_12_invoice_submission",
 		label: "Facturación",
 		description: "Emisión de factura electrónica con soportes.",
 		category: "financiero",
-		activeCount: 1,
 	},
 	{
 		step: 13,
+		code: "step_13_invoice_approval",
 		label: "Aprobación Factura",
-		description: "Revisión fiscal y contable del clien" + "te.",
+		description: "Revisión fiscal y contable del cliente.",
 		category: "financiero",
-		activeCount: 2,
 	},
 	{
 		step: 14,
+		code: "step_14_payment_closure",
 		label: "Pago y Cierre",
 		description: "Recibo de fondos y cierre del ciclo.",
 		category: "financiero",
-		activeCount: 0,
 	},
 ];
 
-const CATEGORY_COLORS = {
-	comercial: "border-sky-500/30 text-sky-600 bg-sky-500/5",
-	operativo: "border-emerald-500/30 text-emerald-600 bg-emerald-500/5",
-	cierre: "border-amber-500/30 text-amber-600 bg-amber-500/5",
-	financiero: "border-indigo-500/30 text-indigo-600 bg-indigo-500/5",
+const CATEGORY_COLORS: Record<StepCategory, string> = {
+	comercial:
+		"border-[var(--color-cermont-blue)]/30 text-[var(--color-cermont-blue)] bg-[var(--color-cermont-blue-bg)]",
+	operativo:
+		"border-[var(--color-cermont-green)]/30 text-[var(--color-cermont-green-deep)] bg-[var(--color-cermont-green-bg)]",
+	cierre:
+		"border-[var(--color-warning)]/30 text-[var(--color-warning)] bg-[var(--color-warning-bg)]",
+	financiero: "border-[var(--color-info)]/30 text-[var(--color-info)] bg-[var(--color-info-bg)]",
 };
 
-export function StepTimeline() {
-	const [selectedCategory, setSelectedCategory] = useState<string>("");
+interface StepTimelineProps {
+	stepDistribution?: Array<{ stepCode: string; count: number }>;
+}
 
-	const filteredSteps = selectedCategory
-		? STEPS.filter((s) => s.category === selectedCategory)
-		: STEPS;
+export function StepTimeline({ stepDistribution = [] }: StepTimelineProps) {
+	const [selectedCategory, setSelectedCategory] = useState<StepCategory | "all">("all");
+	const countByStep = new Map(stepDistribution.map((item) => [item.stepCode, item.count]));
+	const filteredSteps =
+		selectedCategory === "all" ? STEPS : STEPS.filter((step) => step.category === selectedCategory);
 
 	return (
-		<div className="rounded-[1.5rem] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-sm">
-			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[var(--border-default)] pb-4 mb-6">
+		<section className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:p-6">
+			<div className="mb-6 flex flex-col gap-4 border-b border-[var(--border-default)] pb-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h3 className="text-lg font-bold text-[var(--text-primary)]">
+					<h3 className="text-lg font-semibold text-[var(--text-primary)]">
 						Flujo Operativo de 14 Pasos
 					</h3>
-					<p className="text-xs text-[var(--text-secondary)] mt-0.5">
-						Ciclo de vida completo desde la solicitud hasta el pago y cierre definitivo.
+					<p className="mt-1 text-sm text-[var(--text-secondary)]">
+						Casos activos según el paso real del flujo.
 					</p>
 				</div>
-				<div className="flex flex-wrap gap-1.5">
-					<button
-						type="button"
-						onClick={() => setSelectedCategory("")}
-						className={cn(
-							"px-3 py-1 rounded-full text-xs font-semibold transition-all border",
-							!selectedCategory
-								? "bg-[var(--color-brand)] text-white border-[var(--color-brand)]"
-								: "bg-[var(--surface-secondary)] text-[var(--text-secondary)] border-[var(--border-default)] hover:bg-[var(--surface-primary)]",
-						)}
-					>
-						Todos
-					</button>
-					{(["comercial", "operativo", "cierre", "financiero"] as const).map((cat) => (
-						<button
-							key={cat}
-							type="button"
-							onClick={() => setSelectedCategory(cat)}
+				<fieldset className="flex flex-wrap gap-2">
+					<legend className="sr-only">Filtrar pasos por categoría</legend>
+					<CategoryButton
+						active={selectedCategory === "all"}
+						label="Todos"
+						onClick={() => setSelectedCategory("all")}
+					/>
+					{(["comercial", "operativo", "cierre", "financiero"] as const).map((category) => (
+						<CategoryButton
+							key={category}
+							active={selectedCategory === category}
+							label={category}
+							onClick={() => setSelectedCategory(category)}
+						/>
+					))}
+				</fieldset>
+			</div>
+
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7">
+				{filteredSteps.map((item) => {
+					const activeCount = countByStep.get(item.code) ?? 0;
+
+					return (
+						<article
+							key={item.code}
 							className={cn(
-								"px-3 py-1 rounded-full text-xs font-semibold transition-all border capitalize",
-								selectedCategory === cat
-									? "bg-[var(--color-brand)] text-white border-[var(--color-brand)]"
-									: "bg-[var(--surface-secondary)] text-[var(--text-secondary)] border-[var(--border-default)] hover:bg-[var(--surface-primary)]",
+								"flex min-h-44 flex-col justify-between rounded-2xl border p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md",
+								CATEGORY_COLORS[item.category],
+								activeCount > 0 ? "ring-1 ring-[var(--color-brand)]/20" : "",
 							)}
 						>
-							{cat}
-						</button>
-					))}
-				</div>
-			</div>
-
-			{/* Horizontal / Grid scrolling timeline */}
-			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 xl:grid-cols-7 overflow-x-auto pb-2 pr-1">
-				{filteredSteps.map((item) => (
-					<div
-						key={item.step}
-						className={cn(
-							"flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-1 hover:shadow-md",
-							CATEGORY_COLORS[item.category],
-							item.activeCount > 0 ? "ring-1 ring-[var(--color-brand)]/20" : "",
-						)}
-					>
-						<div>
-							<div className="flex items-center justify-between">
-								<span className="text-xs font-bold font-mono">
-									Paso {String(item.step).padStart(2, "0")}
-								</span>
-								{item.activeCount > 0 ? (
-									<span className="inline-flex size-5 items-center justify-center rounded-full bg-[var(--color-brand)] text-[10px] font-bold text-white font-mono animate-pulse">
-										{item.activeCount}
+							<div>
+								<div className="flex items-center justify-between">
+									<span className="font-mono text-xs font-bold">
+										Paso {String(item.step).padStart(2, "0")}
 									</span>
-								) : (
-									<Circle className="size-3.5 opacity-40" />
-								)}
+									{activeCount > 0 ? (
+										<span className="inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[var(--color-brand)] px-1 font-mono text-[10px] font-bold text-white">
+											<span aria-hidden="true">{activeCount}</span>
+											<span className="sr-only">
+												{activeCount} casos activos en {item.label}
+											</span>
+										</span>
+									) : (
+										<Circle className="size-3.5 opacity-40" aria-hidden="true" />
+									)}
+								</div>
+								<h4 className="mt-3 text-xs font-bold leading-tight text-[var(--text-primary)]">
+									{item.label}
+								</h4>
+								<p className="mt-1 text-[11px] leading-normal text-[var(--text-secondary)]">
+									{item.description}
+								</p>
 							</div>
-							<h4 className="text-xs font-bold text-[var(--text-primary)] leading-tight mt-2.5">
-								{item.label}
-							</h4>
-							<p className="text-[10px] text-[var(--text-secondary)] leading-normal mt-1">
-								{item.description}
-							</p>
-						</div>
 
-						<div className="mt-4 flex items-center justify-between text-[9px] font-semibold uppercase tracking-wider opacity-85">
-							<span className="font-mono">{item.category}</span>
-							{item.activeCount > 0 && (
-								<span className="flex items-center gap-0.5 text-[var(--color-brand)] font-bold">
-									Activo <ArrowRight className="size-2.5" />
-								</span>
-							)}
-						</div>
-					</div>
-				))}
+							<div className="mt-4 flex items-center justify-between font-mono text-[9px] font-semibold uppercase tracking-wider opacity-85">
+								<span>{item.category}</span>
+								{activeCount > 0 ? (
+									<span className="flex items-center gap-0.5 font-bold text-[var(--color-brand)]">
+										Activo <ArrowRight className="size-2.5" aria-hidden="true" />
+									</span>
+								) : null}
+							</div>
+						</article>
+					);
+				})}
 			</div>
-		</div>
+		</section>
+	);
+}
+
+function CategoryButton({
+	active,
+	label,
+	onClick,
+}: {
+	active: boolean;
+	label: string;
+	onClick: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			aria-pressed={active}
+			className={cn(
+				"min-h-11 rounded-full border px-4 py-2 text-xs font-semibold capitalize transition-colors",
+				active
+					? "border-[var(--color-brand)] bg-[var(--color-brand)] text-white"
+					: "border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)] hover:bg-[var(--surface-primary)]",
+			)}
+		>
+			{label}
+		</button>
 	);
 }

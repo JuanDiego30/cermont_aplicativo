@@ -162,7 +162,11 @@ export default function ResourceDetailPage() {
 			</div>
 
 			{/* Image gallery */}
-			<ResourceImageEditor resourceId={resource._id} images={resource.images ?? []} />
+			<ResourceImageEditor
+				resourceId={resource._id}
+				resourceType={resource.type}
+				images={resource.images ?? []}
+			/>
 
 			{/* Certifications */}
 			{resource.certifications && resource.certifications.length > 0 ? (

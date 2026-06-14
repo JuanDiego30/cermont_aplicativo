@@ -98,7 +98,7 @@ export function OrderDetailsTab({ orderId }: OrderDetailsTabProps) {
 				<dl className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
 					<div>
 						<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Código</dt>
-						<dd className="mt-1 font-mono text-sm font-semibold text-blue-600 dark:text-blue-400">
+						<dd className="mt-1 font-mono text-sm font-semibold text-[var(--color-brand-blue-light)] dark:text-[var(--color-cermont-blue-light)]">
 							{order.code}
 						</dd>
 					</div>

@@ -106,35 +106,6 @@ export function useReopenPlanning(id: string) {
 	});
 }
 
-/**
- * Suggest a maintenance kit based on activity type
- * GET /api/planning/suggest-kit?activityType=:type
- */
-export function useSuggestKit(activityType?: string) {
-	return useQuery({
-		queryKey: [...PLANNING_KEYS.all, "suggest-kit", activityType],
-		queryFn: async () => {
-			if (!activityType) {
-				return { suggestion: null };
-			}
-			const res = await apiClient.get<{
-				success: boolean;
-				data: {
-					suggestion: {
-						tools: Array<{ name: string; quantity: number; specifications?: string }>;
-						equipment: Array<{ name: string; quantity: number; certificateRequired: boolean }>;
-						kitName: string;
-						kitId: string;
-					} | null;
-				};
-			}>(`/planning/suggest-kit?activityType=${encodeURIComponent(activityType)}`);
-			return res?.data ?? { suggestion: null };
-		},
-		enabled: !!activityType,
-		staleTime: STALE_TIMES.DETAIL,
-	});
-}
-
 export function useValidatePlanningReadiness(id: string) {
 	const qc = useQueryClient();
 	return useMutation({

@@ -30,6 +30,7 @@ const ROUTE_TITLES: Record<string, string> = {
 	"/costs": "Costos",
 	"/reports": "Reportes",
 	"/admin": "Administración",
+	"/admin/audit": "Registro de Auditoría",
 	"/profile": "Mi Perfil",
 };
 

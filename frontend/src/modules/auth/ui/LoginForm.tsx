@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { useHydrated } from "@/core/hooks/useHydrated";
 import { Button } from "@/core/ui/Button";
 import { FormField, TextField } from "@/core/ui/FormField";
 import { Logo } from "@/core/ui/Logo";
@@ -16,6 +17,7 @@ import { useAuthActions } from "@/modules/auth/hooks/useAuth";
 type LoginFormInput = z.input<typeof LoginSchema>;
 
 export function LoginForm() {
+	const isHydrated = useHydrated();
 	const [showPassword, setShowPassword] = useState(false);
 	const [loginError, setLoginError] = useState<string | null>(null);
 	const { login } = useAuthActions();
@@ -73,10 +75,12 @@ export function LoginForm() {
 			)}
 
 			<form
+				method="post"
 				onSubmit={handleSubmit(onSubmit)}
 				noValidate
 				onChange={() => loginError && setLoginError(null)}
 				className="flex flex-col gap-6"
+				data-hydrated={isHydrated}
 			>
 				<FormField
 					label="Correo electrónico"
@@ -91,7 +95,7 @@ export function LoginForm() {
 						placeholder="correo@empresa.com"
 						leftIcon={<Mail className="size-4" />}
 						error={!!errors.email}
-						disabled={isSubmitting}
+						disabled={!isHydrated || isSubmitting}
 						{...register("email")}
 					/>
 				</FormField>
@@ -105,11 +109,12 @@ export function LoginForm() {
 							placeholder="••••••••"
 							leftIcon={<Lock className="size-4" />}
 							error={!!errors.password}
-							disabled={isSubmitting}
+							disabled={!isHydrated || isSubmitting}
 							{...register("password")}
 						/>
 						<button
 							type="button"
+							disabled={!isHydrated || isSubmitting}
 							onClick={() => setShowPassword(!showPassword)}
 							className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
 							aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
@@ -129,7 +134,7 @@ export function LoginForm() {
 
 				<Button
 					type="submit"
-					disabled={isSubmitting}
+					disabled={!isHydrated || isSubmitting}
 					loading={isSubmitting}
 					variant="primary"
 					size="lg"

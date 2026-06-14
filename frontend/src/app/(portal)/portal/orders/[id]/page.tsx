@@ -45,7 +45,7 @@ export default function PortalOrderDetailPage() {
 					className={`inline-block rounded-full px-3 py-1 text-xs font-medium capitalize ${
 						order.status === "completed" || order.status === "closed"
 							? "bg-green-100 text-green-800"
-							: "bg-blue-100 text-blue-800"
+							: "bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand-blue)]"
 					}`}
 				>
 					{order.status.replace(/_/g, " ")}

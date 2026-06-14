@@ -248,6 +248,20 @@ export async function markBlobFailed(
 	return target;
 }
 
+export async function retryBlobUpload(id: string): Promise<void> {
+	const entries = await readAllEntries();
+	const target = entries.find((entry) => entry.id === id);
+	if (target?.status !== "dead_letter") {
+		return;
+	}
+
+	target.status = "pending";
+	target.retryCount = 0;
+	target.lastError = undefined;
+	await writeEntry(target);
+	emitChanged();
+}
+
 /**
  * Remove an entry from the outbox (user-initiated cancel/delete).
  */

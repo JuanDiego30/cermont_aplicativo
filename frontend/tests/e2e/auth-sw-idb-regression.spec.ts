@@ -1,8 +1,9 @@
 import { expect, type Page, test } from "@playwright/test";
+import { E2E_ADMIN } from "./auth-credentials";
 
 const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL ?? "http://localhost:3000";
-const LOGIN_EMAIL = "gerencia@cermont.con";
-const LOGIN_PASSWORD = "Cermont2026!";
+const LOGIN_EMAIL = E2E_ADMIN.email;
+const LOGIN_PASSWORD = E2E_ADMIN.password;
 const OFFLINE_DB_NAME = "CermontOfflineDB";
 const LEGACY_QUEUE_DB_NAME = "CermontSyncQueueDB";
 const EXPECTED_OFFLINE_STORES = [
@@ -29,7 +30,9 @@ async function login(page: Page): Promise<void> {
 		.first()
 		.click();
 	await page.waitForURL(/dashboard/, { timeout: 20_000 });
-	await expect(page.getByRole("heading", { name: "Panel de Control", exact: true })).toBeVisible();
+	await expect(
+		page.locator("#main-content").getByRole("heading", { name: "Panel de Control", exact: true }),
+	).toBeVisible();
 }
 
 async function waitForServiceWorker(page: Page): Promise<string> {
@@ -118,7 +121,7 @@ test.describe("Auth, Service Worker and IndexedDB regression", () => {
 		const page = await context.newPage();
 		const loginStatuses: number[] = [];
 		page.on("response", (response) => {
-			if (response.url().includes("/api/backend/auth/login")) {
+			if (new URL(response.url()).pathname === "/api/auth/login") {
 				loginStatuses.push(response.status());
 			}
 		});
@@ -140,8 +143,8 @@ test.describe("Auth, Service Worker and IndexedDB regression", () => {
 
 		await page.getByLabel("Correo electrónico").first().fill(LOGIN_EMAIL);
 		await page.getByLabel("Contraseña").first().fill(LOGIN_PASSWORD);
-		const responsePromise = page.waitForResponse((response) =>
-			response.url().includes("/api/backend/auth/login"),
+		const responsePromise = page.waitForResponse(
+			(response) => new URL(response.url()).pathname === "/api/auth/login",
 		);
 		await page
 			.getByRole("button", { name: /iniciar sesión/i })
@@ -161,7 +164,8 @@ test.describe("Auth, Service Worker and IndexedDB regression", () => {
 			for (const cacheName of await caches.keys()) {
 				const cache = await caches.open(cacheName);
 				for (const request of await cache.keys()) {
-					if (new URL(request.url).pathname.startsWith("/api/backend/auth/")) {
+					const pathname = new URL(request.url).pathname;
+					if (pathname.startsWith("/api/auth/") || pathname.startsWith("/api/backend/auth/")) {
 						urls.push(request.url);
 					}
 				}
@@ -297,12 +301,9 @@ test.describe("Auth, Service Worker and IndexedDB regression", () => {
 		await login(page);
 		const queueId = "offline-reconnect-notifications";
 		await context.setOffline(true);
-		await expect(
-			page.getByText(
-				"Sin conexión a internet. Los cambios se sincronizarán automáticamente cuando recuperes conexión.",
-				{ exact: true },
-			),
-		).toBeVisible({ timeout: 15_000 });
+		await expect(page.getByTestId("offline-banner")).toHaveAttribute("title", "Sin conexión", {
+			timeout: 15_000,
+		});
 		await page.evaluate(
 			({ databaseName, localId }) =>
 				new Promise<void>((resolve, reject) => {

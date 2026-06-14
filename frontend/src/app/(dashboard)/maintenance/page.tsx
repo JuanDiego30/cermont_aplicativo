@@ -16,8 +16,9 @@ import {
 	Wrench,
 } from "lucide-react";
 import Link from "next/link";
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useReducer } from "react";
 import { toast } from "sonner";
+import { EmptyState } from "@/core/ui/EmptyState";
 import { FormField, Select, TextField } from "@/core/ui/FormField";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import {
@@ -42,17 +43,56 @@ import {
 
 const PAGE_SIZE = 20;
 
+const STATUS_COLOR_MAP: Record<string, string> = {
+	draft: "bg-[var(--color-warning-bg)] text-[var(--color-warning)]",
+	active: "bg-[var(--color-success-bg)] text-[var(--color-success)]",
+	archived: "bg-[var(--surface-secondary)] text-[var(--text-tertiary)]",
+	voided: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
+};
+
+interface KitFilterState {
+	search: string;
+	statusFilter: string;
+	activityFilter: string;
+	riskFilter: string;
+	page: number;
+}
+
+type KitFilterAction =
+	| { type: "SET_SEARCH"; value: string }
+	| { type: "SET_FILTER"; field: "statusFilter" | "activityFilter" | "riskFilter"; value: string }
+	| { type: "SET_PAGE"; value: number }
+	| { type: "RESET" };
+
+function kitFilterReducer(state: KitFilterState, action: KitFilterAction): KitFilterState {
+	switch (action.type) {
+		case "SET_SEARCH":
+			return { ...state, search: action.value };
+		case "SET_FILTER":
+			return { ...state, [action.field]: action.value, page: 1 };
+		case "SET_PAGE":
+			return { ...state, page: action.value };
+		case "RESET":
+			return { search: "", statusFilter: "all", activityFilter: "all", riskFilter: "all", page: 1 };
+	}
+}
+
+const INITIAL_KIT_FILTER: KitFilterState = {
+	search: "",
+	statusFilter: "all",
+	activityFilter: "all",
+	riskFilter: "all",
+	page: 1,
+};
+
 export default function MaintenancePage() {
 	const { user: session } = useAuth();
 	const role = session?.role ?? "";
 	const canCreate = hasRole(role, KIT_CREATE_ROLES);
 	const canManage = hasRole(role, KIT_MANAGE_ROLES);
 
-	const [search, setSearch] = useState("");
-	const [statusFilter, setStatusFilter] = useState<string>("all");
-	const [activityFilter, setActivityFilter] = useState<string>("all");
-	const [riskFilter, setRiskFilter] = useState<string>("all");
-	const [page, setPage] = useState(1);
+	const [filters, dispatch] = useReducer(kitFilterReducer, INITIAL_KIT_FILTER);
+	const { search, statusFilter, activityFilter, riskFilter, page } = filters;
 
 	const deferredSearch = useDeferredValue(search.trim());
 
@@ -72,11 +112,7 @@ export default function MaintenancePage() {
 	const duplicateMutation = useDuplicateKit();
 
 	const handleFilterReset = () => {
-		setSearch("");
-		setStatusFilter("all");
-		setActivityFilter("all");
-		setRiskFilter("all");
-		setPage(1);
+		dispatch({ type: "RESET" });
 	};
 
 	const handleDelete = async (id: string, name: string) => {
@@ -207,8 +243,8 @@ export default function MaintenancePage() {
 								id="kit-search"
 								value={search}
 								onChange={(e) => {
-									setSearch(e.target.value);
-									setPage(1);
+									dispatch({ type: "SET_SEARCH", value: e.target.value });
+									dispatch({ type: "SET_PAGE", value: 1 });
 								}}
 								placeholder="Buscar por nombre o código"
 								className="pl-9"
@@ -221,8 +257,8 @@ export default function MaintenancePage() {
 							id="kit-status"
 							value={statusFilter}
 							onChange={(e) => {
-								setStatusFilter(e.target.value);
-								setPage(1);
+								dispatch({ type: "SET_FILTER", field: "statusFilter", value: e.target.value });
+								dispatch({ type: "SET_PAGE", value: 1 });
 							}}
 						>
 							<option value="all">Todos los estados</option>
@@ -239,8 +275,8 @@ export default function MaintenancePage() {
 							id="kit-activity"
 							value={activityFilter}
 							onChange={(e) => {
-								setActivityFilter(e.target.value);
-								setPage(1);
+								dispatch({ type: "SET_FILTER", field: "activityFilter", value: e.target.value });
+								dispatch({ type: "SET_PAGE", value: 1 });
 							}}
 						>
 							<option value="all">Todas</option>
@@ -257,8 +293,8 @@ export default function MaintenancePage() {
 							id="kit-risk"
 							value={riskFilter}
 							onChange={(e) => {
-								setRiskFilter(e.target.value);
-								setPage(1);
+								dispatch({ type: "SET_FILTER", field: "riskFilter", value: e.target.value });
+								dispatch({ type: "SET_PAGE", value: 1 });
 							}}
 						>
 							<option value="all">Todos</option>
@@ -274,29 +310,16 @@ export default function MaintenancePage() {
 
 			{/* Kit Grid / Empty */}
 			{kits.length === 0 ? (
-				<section className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-medium)] bg-[var(--surface-primary)] px-6 py-10 text-center">
-					<div className="rounded-[var(--radius-full)] bg-[var(--surface-secondary)] p-4 text-[var(--text-tertiary)]">
-						<Package2 className="size-8" />
-					</div>
-					<div className="max-w-md space-y-2">
-						<h3 className="text-lg font-semibold text-[var(--text-primary)]">
-							No hay kits en esta vista
-						</h3>
-						<p className="text-sm text-[var(--text-secondary)]">
-							Los kits reutilizables te permiten precargar herramientas, materiales, EPP y
-							documentos para una planeación más rápida y sin olvidos.
-						</p>
-					</div>
-					{canCreate ? (
-						<Link
-							href="/maintenance/new"
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-[var(--color-brand)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-hover)]"
-						>
-							<Plus className="size-4" />
-							Crear primer kit
-						</Link>
-					) : null}
-				</section>
+				<EmptyState
+					icon="maintenance"
+					title="No hay kits en esta vista"
+					description="Los kits reutilizables permiten precargar herramientas, materiales, EPP y documentos para una planeación más rápida y sin olvidos."
+					action={
+						canCreate
+							? { label: "Crear primer kit", href: "/maintenance/new", icon: Plus }
+							: undefined
+					}
+				/>
 			) : (
 				<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 					{kits.map((kit) => (
@@ -323,7 +346,7 @@ export default function MaintenancePage() {
 					<div className="flex gap-2">
 						<button
 							type="button"
-							onClick={() => setPage((p) => Math.max(1, p - 1))}
+							onClick={() => dispatch({ type: "SET_PAGE", value: Math.max(1, page - 1) })}
 							disabled={page <= 1}
 							className="rounded-[var(--radius-full)] border border-[var(--border-medium)] px-4 py-2 font-medium text-[var(--text-primary)] transition hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50"
 						>
@@ -331,7 +354,7 @@ export default function MaintenancePage() {
 						</button>
 						<button
 							type="button"
-							onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+							onClick={() => dispatch({ type: "SET_PAGE", value: Math.min(totalPages, page + 1) })}
 							disabled={page >= totalPages}
 							className="rounded-[var(--radius-full)] border border-[var(--border-medium)] px-4 py-2 font-medium text-[var(--text-primary)] transition hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50"
 						>
@@ -371,13 +394,6 @@ function KitCard({
 
 	const totalItems = getKitItemCount(kit);
 
-	const statusColorMap: Record<string, string> = {
-		draft: "bg-[var(--color-warning-bg)] text-[var(--color-warning)]",
-		active: "bg-[var(--color-success-bg)] text-[var(--color-success)]",
-		archived: "bg-[var(--surface-secondary)] text-[var(--text-tertiary)]",
-		voided: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
-	};
-
 	return (
 		<article className="group rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-card)] transition-all hover:shadow-[var(--shadow-2)] hover:border-[var(--color-brand)]/30">
 			<div className="flex items-start justify-between gap-4">
@@ -400,7 +416,7 @@ function KitCard({
 				</div>
 				<span
 					className={`shrink-0 rounded-[var(--radius-full)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${
-						statusColorMap[kit.status] ??
+						STATUS_COLOR_MAP[kit.status] ??
 						"bg-[var(--surface-secondary)] text-[var(--text-secondary)]"
 					}`}
 				>

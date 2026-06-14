@@ -1,6 +1,7 @@
 "use client";
 
 import { Calendar, ClipboardList, DollarSign, FileText } from "lucide-react";
+import Link from "next/link";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { isOfflineLikeError } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
@@ -110,12 +111,12 @@ export default function PortalDashboardPage() {
 						</table>
 						{orders.length > 5 && (
 							<div className="border-t border-[var(--border-default)] px-4 py-2 text-right">
-								<a
+								<Link
 									href="/portal/orders"
 									className="text-xs font-medium text-[var(--color-brand-blue)] hover:underline"
 								>
 									Ver todas
-								</a>
+								</Link>
 							</div>
 						)}
 					</div>
@@ -136,6 +137,13 @@ export default function PortalDashboardPage() {
 	);
 }
 
+const PORTAL_COLOR_MAP: Record<string, string> = {
+	blue: "text-[var(--color-brand-blue)] bg-[var(--color-info-bg)]",
+	amber: "text-[var(--color-warning)] bg-[var(--color-warning-bg)]",
+	red: "text-[var(--color-danger)] bg-[var(--color-danger-bg)]",
+	green: "text-[var(--color-success)] bg-[var(--color-success-bg)]",
+};
+
 function PortalKpiCard({
 	icon: Icon,
 	label,
@@ -147,16 +155,10 @@ function PortalKpiCard({
 	value: number;
 	color: string;
 }) {
-	const colorMap: Record<string, string> = {
-		blue: "text-[var(--color-brand-blue)] bg-[var(--color-info-bg)]",
-		amber: "text-[var(--color-warning)] bg-[var(--color-warning-bg)]",
-		red: "text-[var(--color-danger)] bg-[var(--color-danger-bg)]",
-		green: "text-[var(--color-success)] bg-[var(--color-success-bg)]",
-	};
 	return (
 		<div className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 			<div
-				className={`flex size-10 items-center justify-center rounded-[var(--radius-lg)] ${colorMap[color] ?? colorMap.blue}`}
+				className={`flex size-10 items-center justify-center rounded-[var(--radius-lg)] ${PORTAL_COLOR_MAP[color] ?? PORTAL_COLOR_MAP.blue}`}
 			>
 				<Icon className="size-5" aria-hidden="true" />
 			</div>
@@ -168,18 +170,19 @@ function PortalKpiCard({
 	);
 }
 
+const STATUS_BADGE_COLORS: Record<string, string> = {
+	in_progress: "bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand-blue)]",
+	completed: "bg-green-100 text-green-800",
+	closed: "bg-gray-100 text-gray-800",
+	pending: "bg-yellow-100 text-yellow-800",
+	approved: "bg-green-100 text-green-800",
+	rejected: "bg-red-100 text-red-800",
+};
+
 function StatusBadge({ status }: { status: string }) {
-	const colors: Record<string, string> = {
-		in_progress: "bg-blue-100 text-blue-800",
-		completed: "bg-green-100 text-green-800",
-		closed: "bg-gray-100 text-gray-800",
-		pending: "bg-yellow-100 text-yellow-800",
-		approved: "bg-green-100 text-green-800",
-		rejected: "bg-red-100 text-red-800",
-	};
 	return (
 		<span
-			className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${colors[status] ?? "bg-gray-100 text-gray-600"}`}
+			className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_BADGE_COLORS[status] ?? "bg-gray-100 text-gray-600"}`}
 		>
 			{status.replace(/_/g, " ")}
 		</span>

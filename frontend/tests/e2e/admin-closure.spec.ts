@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { E2E_TEST_USERS } from "./auth-credentials";
+import { E2E_ADMIN, loginAsUser } from "./auth-credentials";
 
 /**
  * Admin Closure E2E Test
@@ -14,20 +14,13 @@ import { E2E_TEST_USERS } from "./auth-credentials";
 
 test.describe("Administrative Closure Flow", () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto("/login");
-		await page.getByLabel("Correo electrónico").first().fill(E2E_TEST_USERS.admin.email);
-		await page.getByLabel("Contraseña").first().fill(E2E_TEST_USERS.admin.password);
-		await page
-			.getByRole("button", { name: /iniciar sesión/i })
-			.first()
-			.click();
-		await page.waitForURL(/dashboard/, { timeout: 15000 });
+		await loginAsUser(page, E2E_ADMIN);
 	});
 
 	test("SES requires signed delivery record", async ({ request }) => {
 		// This test validates that SES cannot be created without a signed delivery record
 		const response = await request.get(
-			`${process.env.BACKEND_URL ?? "http://localhost:4000"}/api/ses`,
+			`${process.env.BACKEND_URL ?? "http://localhost:4000"}/api/service-entry-sheets`,
 		);
 		expect(response.status()).not.toBe(404);
 	});
@@ -48,7 +41,7 @@ test.describe("Administrative Closure Flow", () => {
 
 	test("admin can access billing dashboard", async ({ page }) => {
 		await page.goto("/billing");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		const main = page.locator("main").first();
 		await expect(main).toBeVisible();
@@ -56,7 +49,7 @@ test.describe("Administrative Closure Flow", () => {
 
 	test("admin can view SES list", async ({ page }) => {
 		await page.goto("/billing/ses");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		const main = page.locator("main").first();
 		await expect(main).toBeVisible();
@@ -64,7 +57,7 @@ test.describe("Administrative Closure Flow", () => {
 
 	test("admin can view invoices list", async ({ page }) => {
 		await page.goto("/billing/invoices");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		const main = page.locator("main").first();
 		await expect(main).toBeVisible();
@@ -72,7 +65,7 @@ test.describe("Administrative Closure Flow", () => {
 
 	test("admin can view payments list", async ({ page }) => {
 		await page.goto("/payments");
-		await page.waitForLoadState("networkidle", { timeout: 10000 });
+		await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
 		const main = page.locator("main").first();
 		await expect(main).toBeVisible();

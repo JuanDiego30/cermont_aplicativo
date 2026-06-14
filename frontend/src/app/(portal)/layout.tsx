@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export default function PortalLayout({ children }: { children: ReactNode }) {
@@ -12,24 +13,26 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
 						<span className="text-sm font-semibold text-[var(--text-primary)]">Portal Cliente</span>
 					</div>
 					<div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
-						<a
+						<Link
 							href="/portal"
 							className="font-medium text-[var(--color-brand-blue)] hover:underline"
 						>
 							Inicio
-						</a>
-						<a href="/portal/orders" className="hover:text-[var(--text-primary)]">
+						</Link>
+						<Link href="/portal/orders" className="hover:text-[var(--text-primary)]">
 							Órdenes
-						</a>
-						<a href="/portal/invoices" className="hover:text-[var(--text-primary)]">
+						</Link>
+						<Link href="/portal/invoices" className="hover:text-[var(--text-primary)]">
 							Facturas
-						</a>
-						<a href="/portal/proposals" className="hover:text-[var(--text-primary)]">
+						</Link>
+						<Link href="/portal/proposals" className="hover:text-[var(--text-primary)]">
 							Propuestas
-						</a>
-						<a href="/logout" className="ml-4 text-[var(--color-danger)] hover:underline">
-							Salir
-						</a>
+						</Link>
+						<form action="/api/auth/logout" method="POST" className="ml-4">
+							<button type="submit" className="text-[var(--color-danger)] hover:underline">
+								Salir
+							</button>
+						</form>
 					</div>
 				</div>
 			</header>

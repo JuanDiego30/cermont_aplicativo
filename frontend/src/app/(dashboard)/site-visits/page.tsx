@@ -7,10 +7,10 @@ import {
 	MapPin,
 	RefreshCw,
 	Search,
-	UploadCloud,
 	WifiOff,
 } from "lucide-react";
 import Link from "next/link";
+import { EmptyState } from "@/core/ui/EmptyState";
 import { useConnectivity } from "@/lib/offline/connectivity";
 import { APP_ROUTES } from "@/lib/routes";
 import { useSiteVisitsList } from "@/modules/site-visits/queries";
@@ -142,29 +142,16 @@ export default function SiteVisitsPage() {
 			) : null}
 
 			{!isLoading && !isError && items.length === 0 ? (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] p-6">
-					<div className="flex items-start gap-4">
-						<div className="flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-brand-blue-bg)] text-[var(--color-brand)]">
-							<UploadCloud className="size-5" aria-hidden="true" />
-						</div>
-						<div>
-							<h2 className="text-base font-semibold text-[var(--text-primary)]">
-								{isOfflineEmpty ? "Sin visitas guardadas localmente" : "Sin visitas técnicas"}
-							</h2>
-							<p className="mt-1.5 max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-								{isOfflineEmpty
-									? "Este dispositivo todavía no tiene visitas sincronizadas para trabajar sin conexión."
-									: "Crea una visita técnica desde una solicitud de trabajo para registrar mediciones, hallazgos y fotos en campo."}
-							</p>
-							<Link
-								href={APP_ROUTES.siteVisitNew}
-								className="mt-4 inline-flex rounded-[var(--radius-md)] bg-[var(--color-brand)] px-3 py-2 text-sm font-medium text-white"
-							>
-								Crear visita
-							</Link>
-						</div>
-					</div>
-				</div>
+				<EmptyState
+					icon="site-visits"
+					title={isOfflineEmpty ? "Sin visitas guardadas localmente" : "Sin visitas técnicas"}
+					description={
+						isOfflineEmpty
+							? "Este dispositivo todavía no tiene visitas sincronizadas para trabajar sin conexión."
+							: "Crea una visita técnica desde una solicitud de trabajo para registrar mediciones, hallazgos y fotos en campo."
+					}
+					action={{ label: "Crear visita", href: APP_ROUTES.siteVisitNew }}
+				/>
 			) : null}
 
 			{items.length > 0 ? (

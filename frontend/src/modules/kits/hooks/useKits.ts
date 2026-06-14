@@ -2,7 +2,7 @@
  * TanStack Query hooks for the Kits module.
  */
 
-import type { CreateKitInput, UpdateKitInput } from "@cermont/shared-types";
+import type { CreateKitInput } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -15,7 +15,6 @@ import {
 	type KitListFilters,
 	listKits,
 	restoreKit,
-	updateKit as updateKitApi,
 } from "../api/kits.api";
 import { kitKeys } from "../model/queryKeys";
 
@@ -45,17 +44,6 @@ export function useCreateKit() {
 	return useMutation({
 		mutationFn: (input: CreateKitInput) => createKitApi(input),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: kitKeys.lists() });
-		},
-	});
-}
-
-export function useUpdateKit() {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({ id, input }: { id: string; input: UpdateKitInput }) => updateKitApi(id, input),
-		onSuccess: (_data, variables) => {
-			queryClient.invalidateQueries({ queryKey: kitKeys.detail(variables.id) });
 			queryClient.invalidateQueries({ queryKey: kitKeys.lists() });
 		},
 	});

@@ -440,12 +440,10 @@ export function useSyncManager(): SyncManagerState {
 	useEffect(() => {
 		useOfflineStore.getState().setSyncState({
 			isSyncing: status === "syncing",
-			pendingCount,
-			failedCount: deadLetterCount,
 			syncError: status === "error" ? "Hay cambios offline que requieren revisión." : "",
 			lastSyncAt: status === "idle" && pendingCount === 0 ? new Date().toISOString() : void 0,
 		});
-	}, [status, pendingCount, deadLetterCount]);
+	}, [status, pendingCount]);
 
 	return {
 		status,

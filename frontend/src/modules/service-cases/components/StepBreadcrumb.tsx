@@ -21,14 +21,14 @@ export function StepBreadcrumb() {
 	const currentStep = workflow.steps?.find((s) => s.code === workflow.currentStepCode);
 
 	return (
-		<div className="rounded-lg border border-blue-200 bg-blue-50 p-4 mb-6">
+		<div className="rounded-lg border border-[var(--color-cermont-blue-bg)] bg-[var(--color-cermont-blue-bg)]/50 p-4 mb-6">
 			<div className="flex items-center justify-between mb-2">
-				<span className="text-sm font-semibold text-blue-900">
+				<span className="text-sm font-semibold text-[var(--color-brand-blue-deep)]">
 					{workflow.code} &mdash; {workflow.clientName}
 				</span>
 				<Link
 					href={`/service-cases/${serviceCaseId}`}
-					className="text-xs text-blue-600 hover:underline"
+					className="text-xs text-[var(--color-brand-blue-light)] hover:underline"
 				>
 					Ver flujo completo &rarr;
 				</Link>
@@ -36,7 +36,7 @@ export function StepBreadcrumb() {
 
 			{/* Paso actual */}
 			{currentStep && (
-				<div className="text-xs text-blue-700 mb-2">
+				<div className="text-xs text-[var(--color-brand-blue-light)] mb-2">
 					Paso actual: <strong>{currentStep.label}</strong>
 					{currentStep.stepNumber && <span className="ml-1">({currentStep.stepNumber}/14)</span>}
 				</div>
@@ -64,7 +64,7 @@ export function StepBreadcrumb() {
 											: isBlocked
 												? "bg-red-400 text-white"
 												: isActive
-													? "bg-blue-600 text-white"
+													? "bg-[var(--color-brand)] text-white"
 													: "bg-gray-200 text-gray-500"
 									}`}
 								>

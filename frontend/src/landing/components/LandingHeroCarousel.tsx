@@ -75,6 +75,8 @@ export function LandingHeroCarousel() {
 					alt={slide.alt}
 					fill
 					priority={index === 0}
+					loading={index === 0 ? "eager" : "lazy"}
+					fetchPriority={index === 0 ? "high" : "auto"}
 					sizes="(max-width: 1024px) 100vw, 42vw"
 					className={`object-cover transition-opacity duration-700 ${
 						index === currentSlide ? "opacity-100" : "opacity-0"
@@ -91,10 +93,15 @@ export function LandingHeroCarousel() {
 								type="button"
 								aria-label={`Mostrar imagen ${index + 1}`}
 								onClick={() => goToSlide(index)}
-								className={`h-1.5 rounded-full transition-all ${
-									index === currentSlide ? "w-8 bg-white" : "w-3 bg-white/45"
-								}`}
-							/>
+								className="flex min-h-11 min-w-11 items-center justify-center rounded-full"
+							>
+								<span
+									className={`h-1.5 rounded-full transition-all ${
+										index === currentSlide ? "w-8 bg-white" : "w-3 bg-white/45"
+									}`}
+									aria-hidden="true"
+								/>
+							</button>
 						))}
 					</div>
 					<div className="flex gap-2">
@@ -102,7 +109,7 @@ export function LandingHeroCarousel() {
 							type="button"
 							aria-label="Imagen anterior"
 							onClick={goToPrevious}
-							className="flex size-9 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white"
+							className="flex size-11 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white"
 						>
 							<ChevronLeft className="size-4" aria-hidden="true" />
 						</button>
@@ -110,7 +117,7 @@ export function LandingHeroCarousel() {
 							type="button"
 							aria-label="Imagen siguiente"
 							onClick={goToNext}
-							className="flex size-9 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white"
+							className="flex size-11 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white"
 						>
 							<ChevronRight className="size-4" aria-hidden="true" />
 						</button>

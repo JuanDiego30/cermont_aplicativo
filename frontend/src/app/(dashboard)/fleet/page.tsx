@@ -5,7 +5,7 @@
  */
 
 import { CalendarClock, Plus, Truck } from "lucide-react";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { Skeleton } from "@/core/ui/Skeleton";
 import {
 	useCreateVehicle,
@@ -191,67 +191,112 @@ export default function FleetPage() {
 	);
 }
 
+interface VehicleFormState {
+	plate: string;
+	brand: string;
+	model: string;
+	year: number;
+	vehicleType: string;
+	kilometers: number;
+	soatExpiry: string;
+	technoExpiry: string;
+	formError: string;
+}
+
+type VehicleFormAction =
+	| { type: "SET_FIELD"; field: keyof Omit<VehicleFormState, "formError">; value: string | number }
+	| { type: "SET_ERROR"; message: string }
+	| { type: "RESET" };
+
+function vehicleReducer(state: VehicleFormState, action: VehicleFormAction): VehicleFormState {
+	switch (action.type) {
+		case "SET_FIELD":
+			return { ...state, [action.field]: action.value };
+		case "SET_ERROR":
+			return { ...state, formError: action.message };
+		case "RESET":
+			return createInitialVehicleState();
+	}
+}
+
+function createInitialVehicleState(): VehicleFormState {
+	return {
+		plate: "",
+		brand: "",
+		model: "",
+		year: new Date().getFullYear(),
+		vehicleType: "camioneta",
+		kilometers: 0,
+		soatExpiry: "",
+		technoExpiry: "",
+		formError: "",
+	};
+}
+
 function NewVehicleForm({ onClose }: { onClose: () => void }) {
 	const createMutation = useCreateVehicle();
-	const [plate, setPlate] = useState("");
-	const [brand, setBrand] = useState("");
-	const [model, setModel] = useState("");
-	const [year, setYear] = useState(new Date().getFullYear());
-	const [vehicleType, setVehicleType] = useState("camioneta");
-	const [kilometers, setKilometers] = useState(0);
-	const [soatExpiry, setSoatExpiry] = useState("");
-	const [technoExpiry, setTechnoExpiry] = useState("");
-	const [formError, setFormError] = useState("");
+	const [form, dispatch] = useReducer(vehicleReducer, undefined, createInitialVehicleState);
+
+	function setField(field: keyof Omit<VehicleFormState, "formError">, value: string | number) {
+		dispatch({ type: "SET_FIELD", field, value } as VehicleFormAction);
+	}
+
+	async function handleSubmit() {
+		dispatch({ type: "SET_ERROR", message: "" });
+		if (!form.plate.trim() || !form.brand.trim() || !form.model.trim()) {
+			dispatch({ type: "SET_ERROR", message: "Placa, marca y modelo son obligatorios." });
+			return;
+		}
+		try {
+			await createMutation.mutateAsync({
+				plate: form.plate.trim().toUpperCase(),
+				brand: form.brand.trim(),
+				model: form.model.trim(),
+				year: form.year,
+				type: form.vehicleType as "camioneta",
+				kilometers: form.kilometers,
+				status: "active",
+				...(form.soatExpiry ? { soatExpiry: new Date(form.soatExpiry).toISOString() } : {}),
+				...(form.technoExpiry
+					? { technoMechanicalExpiry: new Date(form.technoExpiry).toISOString() }
+					: {}),
+			});
+			onClose();
+		} catch (error) {
+			dispatch({
+				type: "SET_ERROR",
+				message: error instanceof Error ? error.message : "No se pudo registrar el vehículo.",
+			});
+		}
+	}
 
 	return (
-		<form
-			className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-4"
-			onSubmit={async (e) => {
-				e.preventDefault();
-				setFormError("");
-				if (!plate.trim() || !brand.trim() || !model.trim()) {
-					setFormError("Placa, marca y modelo son obligatorios.");
-					return;
-				}
-				try {
-					await createMutation.mutateAsync({
-						plate: plate.trim().toUpperCase(),
-						brand: brand.trim(),
-						model: model.trim(),
-						year,
-						type: vehicleType as "camioneta",
-						kilometers,
-						status: "active",
-						...(soatExpiry ? { soatExpiry: new Date(soatExpiry).toISOString() } : {}),
-						...(technoExpiry
-							? { technoMechanicalExpiry: new Date(technoExpiry).toISOString() }
-							: {}),
-					});
-					onClose();
-				} catch (error) {
-					setFormError(
-						error instanceof Error ? error.message : "No se pudo registrar el vehículo.",
-					);
-				}
-			}}
-			aria-label="Nuevo vehículo"
-		>
+		<fieldset className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-4 border-0 p-0">
+			<legend className="sr-only">Nuevo vehículo</legend>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Placa
 				<input
-					value={plate}
-					onChange={(e) => setPlate(e.target.value)}
+					value={form.plate}
+					onChange={(e) => setField("plate", e.target.value)}
 					placeholder="ABC-123"
 					className={inputClasses}
 				/>
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Marca
-				<input value={brand} onChange={(e) => setBrand(e.target.value)} className={inputClasses} />
+				<input
+					value={form.brand}
+					onChange={(e) => setField("brand", e.target.value)}
+					className={inputClasses}
+				/>
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Modelo
-				<input value={model} onChange={(e) => setModel(e.target.value)} className={inputClasses} />
+				<input
+					value={form.model}
+					onChange={(e) => setField("model", e.target.value)}
+					className={inputClasses}
+				/>
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Año
@@ -260,16 +305,16 @@ function NewVehicleForm({ onClose }: { onClose: () => void }) {
 					inputMode="numeric"
 					min={1980}
 					max={2100}
-					value={year}
-					onChange={(e) => setYear(Number(e.target.value))}
+					value={form.year}
+					onChange={(e) => setField("year", Number(e.target.value))}
 					className={inputClasses}
 				/>
 			</label>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Tipo
 				<select
-					value={vehicleType}
-					onChange={(e) => setVehicleType(e.target.value)}
+					value={form.vehicleType}
+					onChange={(e) => setField("vehicleType", e.target.value)}
 					className={inputClasses}
 				>
 					{VEHICLE_TYPES.map((vt) => (
@@ -285,8 +330,8 @@ function NewVehicleForm({ onClose }: { onClose: () => void }) {
 					type="number"
 					inputMode="numeric"
 					min={0}
-					value={kilometers}
-					onChange={(e) => setKilometers(Math.max(0, Number(e.target.value)))}
+					value={form.kilometers}
+					onChange={(e) => setField("kilometers", Math.max(0, Number(e.target.value)))}
 					className={inputClasses}
 				/>
 			</label>
@@ -294,8 +339,8 @@ function NewVehicleForm({ onClose }: { onClose: () => void }) {
 				Vence SOAT
 				<input
 					type="date"
-					value={soatExpiry}
-					onChange={(e) => setSoatExpiry(e.target.value)}
+					value={form.soatExpiry}
+					onChange={(e) => setField("soatExpiry", e.target.value)}
 					className={inputClasses}
 				/>
 			</label>
@@ -303,14 +348,14 @@ function NewVehicleForm({ onClose }: { onClose: () => void }) {
 				Vence tecnomecánica
 				<input
 					type="date"
-					value={technoExpiry}
-					onChange={(e) => setTechnoExpiry(e.target.value)}
+					value={form.technoExpiry}
+					onChange={(e) => setField("technoExpiry", e.target.value)}
 					className={inputClasses}
 				/>
 			</label>
-			{formError && (
+			{form.formError && (
 				<p className="text-sm text-[var(--color-danger)] sm:col-span-2 lg:col-span-4" role="alert">
-					{formError}
+					{form.formError}
 				</p>
 			)}
 			<div className="flex justify-end gap-2 sm:col-span-2 lg:col-span-4">
@@ -322,13 +367,14 @@ function NewVehicleForm({ onClose }: { onClose: () => void }) {
 					Cancelar
 				</button>
 				<button
-					type="submit"
+					type="button"
 					disabled={createMutation.isPending}
+					onClick={handleSubmit}
 					className="rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
 				>
 					{createMutation.isPending ? "Guardando..." : "Registrar vehículo"}
 				</button>
 			</div>
-		</form>
+		</fieldset>
 	);
 }

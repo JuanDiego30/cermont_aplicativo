@@ -209,7 +209,7 @@ function ServiceCasesList() {
 	if (error) {
 		return (
 			<EmptyState
-				icon="documents"
+				icon="service-cases"
 				title="Error al cargar casos"
 				description="No se pudo construir el cockpit de casos de servicio."
 			/>
@@ -219,7 +219,7 @@ function ServiceCasesList() {
 	if (!data || data.items.length === 0) {
 		return (
 			<EmptyState
-				icon="documents"
+				icon="service-cases"
 				title={isOfflineEmpty ? "Sin casos guardados localmente" : "Sin casos de servicio"}
 				description={
 					isOfflineEmpty

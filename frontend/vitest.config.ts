@@ -22,10 +22,10 @@ export default defineConfig({
 			include: ["lib/**", "app/api/**"],
 			exclude: ["**/*.patch"],
 			thresholds: {
-				lines: 40,
-				branches: 30,
-				functions: 35,
-				statements: 40,
+				lines: 60,
+				branches: 50,
+				functions: 60,
+				statements: 60,
 			},
 		},
 		server: {

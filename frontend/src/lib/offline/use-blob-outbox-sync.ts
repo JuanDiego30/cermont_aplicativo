@@ -12,12 +12,13 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BLOB_OUTBOX_CHANGED_EVENT, getPendingBlobCount } from "./blob-outbox";
+import { BLOB_OUTBOX_CHANGED_EVENT, getAllBlobUploads } from "./blob-outbox";
 import { drainBlobOutbox } from "./blob-outbox-processor";
 import { useConnectivity } from "./connectivity";
 
 export interface BlobOutboxSyncState {
 	pendingCount: number;
+	deadLetterCount: number;
 	isDraining: boolean;
 	drainNow: () => Promise<void>;
 }
@@ -27,6 +28,7 @@ export function useBlobOutboxSync(): BlobOutboxSyncState {
 	// sync-queue:trigger which this hook listens to below.
 	useConnectivity();
 	const [pendingCount, setPendingCount] = useState(0);
+	const [deadLetterCount, setDeadLetterCount] = useState(0);
 	const [isDraining, setIsDraining] = useState(false);
 	const isDrainingRef = useRef(false);
 	const drainBlobOutboxRef = useRef<
@@ -34,8 +36,11 @@ export function useBlobOutboxSync(): BlobOutboxSyncState {
 	>(async () => ({ succeeded: 0, failed: 0, skipped: 0 }));
 
 	const refresh = useCallback(async () => {
-		const count = await getPendingBlobCount();
-		setPendingCount(count);
+		const entries = await getAllBlobUploads();
+		setPendingCount(
+			entries.filter((entry) => entry.status === "pending" || entry.status === "in_flight").length,
+		);
+		setDeadLetterCount(entries.filter((entry) => entry.status === "dead_letter").length);
 	}, []);
 
 	const drainNow = useCallback(async () => {
@@ -81,5 +86,5 @@ export function useBlobOutboxSync(): BlobOutboxSyncState {
 		return () => window.removeEventListener("sync-queue:trigger", handle);
 	}, [drainNow]);
 
-	return { pendingCount, isDraining, drainNow };
+	return { pendingCount, deadLetterCount, isDraining, drainNow };
 }
