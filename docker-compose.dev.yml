@@ -1,5 +1,3 @@
-version: '3.9'
-
 # ============================================================================
 # Docker Compose para DESARROLLO
 # Instalación: docker compose -f docker-compose.dev.yml up
@@ -12,7 +10,7 @@ services:
   # MongoDB - Base de datos (desarrollo local)
   # ============================================================================
   mongodb:
-    image: mongo:7.0-alpine
+    image: mongo:7.0
     container_name: cermont-mongodb-dev
     restart: unless-stopped
     environment:

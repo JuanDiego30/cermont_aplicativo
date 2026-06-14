@@ -95,7 +95,7 @@ WORKDIR /app
 
 # Healthcheck basado en endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD curl -f http://localhost:4000/api/health || exit 1
+    CMD curl -f http://localhost:4000/api/health/ready || exit 1
 
 # Usar dumb-init para manejo correcto de señales
 ENTRYPOINT ["dumb-init", "--"]

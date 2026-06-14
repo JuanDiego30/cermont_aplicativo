@@ -47,7 +47,7 @@ import {
 	type UserRole,
 } from "./roles";
 
-const COMMON_AUTHENTICATED_PATHS = new Set(["/profile"]);
+const COMMON_AUTHENTICATED_PATHS = new Set(["/profile", "/offline-sync"]);
 
 export const ROUTE_ACCESS_RULES = [
 	{
@@ -85,6 +85,14 @@ export const ROUTE_ACCESS_RULES = [
 	{
 		prefix: "/execution",
 		roles: FIELD_EXECUTION_ACCESS_ROLES,
+	},
+	{
+		prefix: "/dispatch",
+		roles: PLANNING_ACCESS_ROLES,
+	},
+	{
+		prefix: "/sla",
+		roles: INTERNAL_ROLES,
 	},
 	{
 		prefix: "/evidences",

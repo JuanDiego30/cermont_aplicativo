@@ -7,8 +7,8 @@ const BASE_URL = process.env.BASE_URL ?? "http://localhost";
 
 const CHECKS = [
 	{
-		path: "/api/health",
-		label: "Backend health",
+		path: "/api/health/ready",
+		label: "Backend readiness",
 		validate: async (resp) => {
 			const text = await resp.text();
 			return (

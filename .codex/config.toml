@@ -76,6 +76,17 @@ args = [
 ]
 command = "cmd"
 
+[mcp_servers.express-mcp]
+command = "npx"
+args = [
+    "-y",
+    "tsx",
+    "backend/src/mcp/server.ts",
+]
+
+[mcp_servers.express-mcp.env]
+NODE_ENV = "development"
+
 [shell_environment_policy]
 inherit = "core"
 

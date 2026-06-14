@@ -21,7 +21,6 @@ const FORBIDDEN_DIRS = [
 	".tmp.drivedownload", // Google Drive sync
 	".tmp.driveupload", // Google Drive sync
 	".tmp.drive", // Google Drive sync pattern
-	".sisyphus", // Unknown tool artifact
 ];
 
 // Files that should NEVER exist at root

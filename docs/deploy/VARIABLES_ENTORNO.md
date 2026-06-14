@@ -1,90 +1,88 @@
-# Variables de Entorno — CERMONT S.A.S.
+# Variables de Entorno
 
-> Referencia completa de variables para el despliegue Docker.
-> Ver `.env.example` para una copia lista para usar.
+**Estado:** CANONICO
+**Actualizado:** 2026-06-13
 
----
+Usar `.env.docker.example` como plantilla para Docker Compose. El archivo
+`.env` real debe tener permisos restringidos y nunca debe versionarse.
 
-## Variables requeridas
+## Requeridas por Compose
 
-Las siguientes variables deben definirse en `.env` antes de `docker compose up`.
+| Variable | Regla |
+|---|---|
+| `MONGO_ROOT_USER` | Usuario interno, sin valor publico predeterminado |
+| `MONGO_ROOT_PASSWORD` | Secreto aleatorio de al menos 16 caracteres |
+| `JWT_SECRET` | Secreto aleatorio de al menos 32 caracteres |
+| `REFRESH_TOKEN_SECRET` | Secreto diferente de `JWT_SECRET`, minimo 32 caracteres |
+| `FRONTEND_URL` | Origen HTTPS exacto permitido por CORS |
 
-| Variable | Descripcion | Ejemplo (demo) |
-|----------|-------------|----------------|
-| `MONGO_ROOT_USER` | Usuario administrador de MongoDB | `cermont_admin` |
-| `MONGO_ROOT_PASSWORD` | Contrasena administrador MongoDB (min. 16 chars) | `change_me_strong_password` |
-| `JWT_SECRET` | Secreto para firmar tokens JWT (min. 32 chars) | `openssl rand -hex 32` |
-| `REFRESH_TOKEN_SECRET` | Secreto para refresh tokens — diferente de JWT_SECRET | `openssl rand -hex 32` |
+Compose falla durante `docker compose config` si falta uno de estos valores.
 
----
+## Build del frontend
 
-## Variables opcionales
+| Variable | Uso |
+|---|---|
+| `NEXT_PUBLIC_APP_URL` | URL publica para metadata y sitemap |
+| `NEXT_PUBLIC_API_URL` | URL publica documentada del API |
+| `NEXT_PUBLIC_APP_NAME` | Nombre visible del aplicativo |
 
-Estas variables tienen valores por defecto definidos en `docker-compose.yml`.
+Next.js incorpora `NEXT_PUBLIC_*` durante el build. Cambiar estos valores exige
+reconstruir la imagen frontend.
 
-| Variable | Default | Descripcion |
-|----------|---------|-------------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost/api` | URL del API desde el navegador. En VPS: `http://<IP>/api` |
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | URL publica de la aplicacion |
-| `FRONTEND_URL` | `http://localhost:3000` | URL del frontend para CORS del backend |
-| `SEED_ON_START` | `true` | Si true, siembra usuarios demo en BD vacia al arrancar |
-| `SEED_DEFAULT_PASSWORD` | `Cermont2026!` | Contrasena para los usuarios demo |
-| `LOG_LEVEL` | `info` | Nivel de logging (`debug`, `info`, `warn`, `error`) |
-| `NGINX_PORT` | `0.0.0.0:80` | Puerto publico de nginx. Windows local: `8081` |
-| `MAX_FILE_SIZE` | `52428800` | Tamano maximo de archivos en bytes (50 MB) |
+Las solicitudes de negocio del navegador usan el proxy relativo
+`/api/backend/*`; `BACKEND_URL=http://backend:4000` se inyecta internamente y
+no se expone al cliente.
 
----
+## Runtime
 
-## Generacion de secretos seguros
+| Variable | Default | Uso |
+|---|---|---|
+| `NODE_ENV` | `production` en contenedores | Modo de ejecucion |
+| `PORT` | `4000` backend, `3000` frontend | Puertos internos |
+| `JWT_EXPIRES_IN` | `15m` | Vida del access token |
+| `REFRESH_TOKEN_EXPIRES_IN` | `7d` | Vida del refresh token |
+| `BCRYPT_ROUNDS` | `12` | Costo de hash |
+| `LOG_LEVEL` | `info` | Nivel de logs |
+| `UPLOAD_DIR` | `/app/uploads` | Volumen persistente |
+| `MAX_FILE_SIZE` | `52428800` | Limite de carga en bytes |
+| `CLAMAV_ENABLED` | `false` | Escaneo antimalware |
+| `NGINX_PORT` | `0.0.0.0:80` | Binding del nginx del stack |
 
-```bash
-# JWT_SECRET (minimo 32 caracteres)
-openssl rand -hex 32
-
-# REFRESH_TOKEN_SECRET (diferente al anterior)
-openssl rand -hex 32
-
-# MONGO_ROOT_PASSWORD
-openssl rand -hex 16
-```
-
----
-
-## Conexion MongoDB
-
-La URI de conexion se construye automaticamente en `docker-compose.yml`:
-
-```
-mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/cermont?authSource=admin
-```
-
-No definir `MONGODB_URI` manualmente en `.env` — el docker-compose la ensambla desde las variables individuales.
-
----
-
-## Configuracion para VPS (produccion)
+En produccion con TLS en el host, usar:
 
 ```env
-# .env en produccion
-MONGO_ROOT_USER=cermont_prod
-MONGO_ROOT_PASSWORD=<password-generada-con-openssl>
-
-JWT_SECRET=<secreto-generado-con-openssl-min-64-chars>
-REFRESH_TOKEN_SECRET=<secreto-diferente-generado-con-openssl>
-
-# IP o dominio del servidor
-NEXT_PUBLIC_API_URL=http://203.0.113.10/api
-NEXT_PUBLIC_APP_URL=http://203.0.113.10
-
-# Desactivar seed en produccion (ya hay usuarios reales)
-SEED_ON_START=false
+NGINX_PORT=127.0.0.1:8081
 ```
 
----
+## Seed
 
-## Notas de seguridad
+`SEED_DEFAULT_PASSWORD` no forma parte del runtime normal. Solo se inyecta al
+ejecutar manualmente el seed sobre una base vacia:
 
-- Nunca commitear el archivo `.env` (ya esta en `.gitignore`)
-- El archivo `.env.example` contiene solo valores demo — no son secretos reales
-- Para entornos multi-servidor, usar un gestor de secretos (HashiCorp Vault, AWS SSM)
-- Rotar `JWT_SECRET` invalida todas las sesiones activas (usuarios deben re-autenticarse)
+```bash
+docker compose exec -e SEED_DEFAULT_PASSWORD backend \
+  node backend/dist/scripts/seed.js
+```
+
+La variable debe tener al menos 16 caracteres. No existe seed automatico ni
+contraseña predeterminada.
+
+## Generacion
+
+```bash
+openssl rand -hex 32
+openssl rand -hex 64
+```
+
+No reutilizar secretos entre ambientes. Rotar `JWT_SECRET` y
+`REFRESH_TOKEN_SECRET` invalida sesiones activas.
+
+## Validacion
+
+```bash
+docker compose config --quiet
+docker compose --env-file .env.docker.example config --quiet
+```
+
+La segunda orden valida la estructura con valores de ejemplo; no convierte esos
+valores en credenciales aptas para produccion.

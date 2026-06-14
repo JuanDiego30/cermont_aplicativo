@@ -3,7 +3,7 @@
  *
  * Validates that environment configurations don't mix local and Docker settings.
  * - .env.example (local dev) must NOT contain http://backend:4000
- * - .env.docker.example CAN contain http://backend:4000
+ * - .env.docker.example documents required operator-provided values
  * - Source code must not force http://backend:4000 based on NODE_ENV alone
  * - docker-compose.yml must explicitly inject BACKEND_URL=http://backend:4000
  */
@@ -43,11 +43,18 @@ checkFile(
 	"Must NOT reference 'http://backend:4000' (Docker hostname). This file documents local development.",
 );
 
-// 2. .env.docker.example SHOULD contain http://backend:4000 (it's for Docker)
+// 2. .env.docker.example must document required production values without seed defaults
 checkFile(
 	".env.docker.example",
-	(content) => content.includes("http://backend:4000") || content.includes("mongodb://"),
-	"Should reference Docker-internal hostnames (backend:4000, mongodb).",
+	(content) =>
+		[
+			"MONGO_ROOT_USER=",
+			"MONGO_ROOT_PASSWORD=",
+			"JWT_SECRET=",
+			"REFRESH_TOKEN_SECRET=",
+			"FRONTEND_URL=",
+		].every((key) => content.includes(key)) && !content.includes("SEED_ON_START"),
+	"Must document required values and must not enable automatic seed.",
 );
 
 // 3. next.config.ts must use BACKEND_URL as SSOT, not NODE_ENV-based fallback

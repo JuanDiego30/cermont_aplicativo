@@ -1,5 +1,5 @@
 #!/bin/sh
 # Windows: MSYS2 fork() fails (STATUS_DLL_INIT_FAILED).
-# exec node directly with full Windows path (translated to MSYS2 path).
-# exec replaces sh with node via CreateProcess — no fork needed.
-exec "/c/Program Files/nodejs/node.exe" "./node_modules/lint-staged/bin/lint-staged.js"
+# Run the repository quality gates through one Node process so the hook works
+# consistently in Windows MSYS2 and Unix shells.
+exec node "./tooling/git/pre-commit.mjs"

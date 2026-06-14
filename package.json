@@ -39,7 +39,6 @@
 		"quality:env": "tsx tooling/quality/check-env-config.ts",
 		"quality:strict": "npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size && npm run quality:env",
 		"format:check": "turbo run format:check",
-		"format.check": "turbo run format:check",
 		"verify:shared-types": "npm run typecheck -w @cermont/shared-types && npm run lint -w @cermont/shared-types && npm run test -w @cermont/shared-types && npm run build -w @cermont/shared-types",
 		"verify:domain": "npm run typecheck -w @cermont/domain && npm run lint -w @cermont/domain && npm run build -w @cermont/domain",
 		"verify:config": "npm run typecheck -w @cermont/config && npm run lint -w @cermont/config && npm run build -w @cermont/config",

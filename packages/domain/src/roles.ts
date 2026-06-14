@@ -62,6 +62,9 @@ export const ADMIN_ROLES = [
 	"coord_administrativo",
 ] as const satisfies readonly UserRole[];
 
+/** Roles allowed to inspect forensic audit records. */
+export const AUDIT_ACCESS_ROLES = ADMIN_ROLES;
+
 /**
  * Resource management roles (orders, costs, proposals)
  * These roles can create, update, and manage work orders and resources

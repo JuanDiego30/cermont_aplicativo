@@ -101,7 +101,7 @@ pm2 show cermont-frontend
 ecosystem.config.cjs
 ├── cermont-backend
 │   ├── script: dist/server.js
-│   ├── port: 5000
+│   ├── port: 4000
 │   ├── instances: 1 (fork)
 │   ├── logs: ./logs/backend-{error,out}.log
 │   └── max_memory_restart: 512M
