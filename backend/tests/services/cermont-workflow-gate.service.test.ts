@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
 	serviceEntrySheetFindOne: vi.fn(),
 	invoiceFindOne: vi.fn(),
 	paymentFindOne: vi.fn(),
+	createAuditLog: vi.fn(),
 }));
 
 vi.mock("../../src/models/Document", () => ({
@@ -53,8 +54,8 @@ vi.mock("../../src/models/Payment", () => ({
 	Payment: { findOne: mocks.paymentFindOne },
 }));
 
-vi.mock("../../src/services/audit.service", () => ({
-	createAuditLog: vi.fn(),
+vi.mock("../../src/modules/audit/audit.service", () => ({
+	createAuditLog: mocks.createAuditLog,
 }));
 
 const workflowGateService = await import("../../src/services/cermont-workflow-gate.service");

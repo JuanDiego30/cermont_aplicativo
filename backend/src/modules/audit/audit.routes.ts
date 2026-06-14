@@ -5,7 +5,7 @@
  * by middleware/services, NOT via external API to prevent log injection.
  */
 
-import { MANAGEMENT_ROLES } from "@cermont/domain";
+import { AUDIT_ACCESS_ROLES } from "@cermont/domain";
 import { AuditLogIdSchema, AuditLogsQuerySchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -19,12 +19,17 @@ const router = Router();
 router.use(authenticate);
 
 // GET /api/audit - Get audit logs (with optional filters)
-router.get("/", authorize(...MANAGEMENT_ROLES), validateQuery(AuditLogsQuerySchema), getAuditLogs);
+router.get(
+	"/",
+	authorize(...AUDIT_ACCESS_ROLES),
+	validateQuery(AuditLogsQuerySchema),
+	getAuditLogs,
+);
 
 // GET /api/audit/:id - Get single audit log
 router.get(
 	"/:id",
-	authorize(...MANAGEMENT_ROLES),
+	authorize(...AUDIT_ACCESS_ROLES),
 	validateParams(AuditLogIdSchema),
 	getAuditLogById,
 );

@@ -1,5 +1,7 @@
+import crypto from "node:crypto";
 import type { ChangePasswordInput } from "@cermont/shared-types";
-import jwt from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+import { Types } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 import {
 	AppError,
@@ -9,24 +11,30 @@ import {
 } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
 import { env } from "../../config/env";
-import { TokenBlacklist, User } from "../../models";
+import { RefreshToken, TokenBlacklist, User } from "../../models";
 import { createAuditLog } from "../audit/audit.service";
 
 const log = createLogger("auth-service");
 
-// ─── Constantes ──────────────────────────────────────────────────────────────
-
 const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL = "7d";
-const ACCESS_EXPIRES_IN = 900; // 15 min en segundos
-const REFRESH_EXPIRES_IN = 7 * 24 * 3600; // 7 días en segundos
-
-// ─── Tipos ───────────────────────────────────────────────────────────────────
+const ACCESS_EXPIRES_IN = 15 * 60;
+const REFRESH_EXPIRES_IN = 7 * 24 * 60 * 60;
+const REFRESH_TOKEN_RETENTION_SECONDS = 7 * 24 * 60 * 60;
+const REFRESH_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 export interface TokenPair {
 	accessToken: string;
 	refreshToken: string;
 	expiresIn: number;
+}
+
+interface PersistableTokenPair extends TokenPair {
+	accessJti: string;
+	refreshJti: string;
+	familyId: string;
+	tokenVersion: number;
+	refreshExpiresAt: Date;
 }
 
 export interface LoginContract {
@@ -43,23 +51,39 @@ export interface LoginContract {
 
 export interface RefreshContract {
 	accessToken: string;
+	refreshToken: string;
 }
 
-// SECURITY FIX: RT-004 - Use JWT standard 'sub' claim instead of custom '_id' and 'email'
-interface JwtClaims {
-	sub?: string; // JWT standard - user identifier
-	_id?: string; // Backward compatibility
-	email?: string; // Deprecated - email removed from token
-	role: string;
-	jti: string;
-}
-
-interface DecodedToken {
+interface JwtClaims extends JwtPayload {
+	sub?: string;
+	_id?: string;
+	role?: string;
 	jti?: string;
-	exp?: number;
+	tokenVersion?: number;
+	familyId?: string;
+	tokenType?: "access" | "refresh";
 }
 
-// ─── Helpers internos ─────────────────────────────────────────────────────────
+interface DecodedToken extends JwtPayload {
+	sub?: string;
+	_id?: string;
+	jti?: string;
+}
+
+interface RefreshSessionRecord {
+	jti: string;
+	userId: Types.ObjectId;
+	familyId: string;
+	tokenHash: string;
+	tokenVersion: number;
+	expiresAt: Date;
+	status: {
+		state: "active" | "rotated" | "revoked" | "compromised";
+		changedAt: Date;
+		reason: "none" | "rotation" | "logout" | "password_change" | "reuse_detected" | "expired";
+		replacedByJti: string;
+	};
+}
 
 function getJwtSecret(): string {
 	if (!env.JWT_SECRET) {
@@ -75,30 +99,80 @@ function getRefreshTokenSecret(): string {
 	return env.REFRESH_TOKEN_SECRET;
 }
 
-function signAccessToken(payload: Record<string, unknown>): string {
+function signAccessToken(payload: JwtClaims): string {
 	return jwt.sign(payload, getJwtSecret(), { expiresIn: ACCESS_TOKEN_TTL });
 }
 
-function signRefreshToken(payload: Record<string, unknown>): string {
+function signRefreshToken(payload: JwtClaims): string {
 	return jwt.sign(payload, getRefreshTokenSecret(), { expiresIn: REFRESH_TOKEN_TTL });
 }
 
-function buildTokenPair(userId: string, _email: string, role: string): TokenPair {
-	const jti = uuidv4();
-	// SECURITY FIX: RT-004 - Remove email from JWT payload
-	// Email is sensitive PII and should not be exposed in tokens
-	// Use 'sub' (subject) claim for user identifier per JWT spec
-	const base = { sub: userId, role, jti };
+function buildTokenPair(
+	userId: string,
+	role: string,
+	tokenVersion: number,
+	familyId: string = uuidv4(),
+): PersistableTokenPair {
+	const accessJti = uuidv4();
+	const refreshJti = uuidv4();
+	const common = { sub: userId, role, tokenVersion };
+
 	return {
-		accessToken: signAccessToken(base),
-		refreshToken: signRefreshToken(base),
+		accessToken: signAccessToken({
+			...common,
+			jti: accessJti,
+			tokenType: "access",
+		}),
+		refreshToken: signRefreshToken({
+			...common,
+			jti: refreshJti,
+			familyId,
+			tokenType: "refresh",
+		}),
 		expiresIn: ACCESS_EXPIRES_IN,
+		accessJti,
+		refreshJti,
+		familyId,
+		tokenVersion,
+		refreshExpiresAt: new Date(Date.now() + REFRESH_EXPIRES_IN * 1000),
 	};
 }
 
+function hashRefreshToken(token: string): string {
+	return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+function tokenHashesMatch(rawToken: string, expectedHash: string): boolean {
+	const actual = Buffer.from(hashRefreshToken(rawToken), "hex");
+	const expected = Buffer.from(expectedHash, "hex");
+	return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+}
+
+function buildRefreshDeleteAt(expiresAt: Date): Date {
+	return new Date(expiresAt.getTime() + REFRESH_TOKEN_RETENTION_SECONDS * 1000);
+}
+
+async function persistRefreshToken(pair: PersistableTokenPair, userId: string): Promise<void> {
+	await RefreshToken.create({
+		jti: pair.refreshJti,
+		userId: new Types.ObjectId(userId),
+		familyId: pair.familyId,
+		tokenHash: hashRefreshToken(pair.refreshToken),
+		tokenVersion: pair.tokenVersion,
+		expiresAt: pair.refreshExpiresAt,
+		deleteAt: buildRefreshDeleteAt(pair.refreshExpiresAt),
+		status: {
+			state: "active",
+			changedAt: new Date(),
+			reason: "none",
+			replacedByJti: "",
+		},
+	});
+}
+
 function expiresAtFromPayload(decoded: DecodedToken, fallbackSeconds: number): Date {
-	const ts = decoded.exp ?? Math.floor(Date.now() / 1000) + fallbackSeconds;
-	return new Date(ts * 1000);
+	const timestamp = decoded.exp ?? Math.floor(Date.now() / 1000) + fallbackSeconds;
+	return new Date(timestamp * 1000);
 }
 
 async function blacklistToken(
@@ -108,21 +182,71 @@ async function blacklistToken(
 	if (!decoded?.jti) {
 		return;
 	}
-	await TokenBlacklist.create({
-		jti: decoded.jti,
-		expiresAt: expiresAtFromPayload(decoded, fallbackSeconds),
-		reason: "logout",
+
+	await TokenBlacklist.updateOne(
+		{ jti: decoded.jti },
+		{
+			$setOnInsert: {
+				jti: decoded.jti,
+				expiresAt: expiresAtFromPayload(decoded, fallbackSeconds),
+				reason: "logout",
+			},
+		},
+		{ upsert: true },
+	);
+}
+
+async function revokeRefreshFamily(
+	userId: Types.ObjectId,
+	familyId: string,
+	reason: "password_change" | "reuse_detected",
+): Promise<void> {
+	await RefreshToken.updateMany(
+		{ userId, familyId, "status.state": "active" },
+		{
+			$set: {
+				status: {
+					state: reason === "reuse_detected" ? "compromised" : "revoked",
+					changedAt: new Date(),
+					reason,
+					replacedByJti: "",
+				},
+			},
+		},
+	);
+}
+
+async function handleRefreshTokenReuse(session: RefreshSessionRecord): Promise<void> {
+	await Promise.all([
+		revokeRefreshFamily(session.userId, session.familyId, "reuse_detected"),
+		User.updateOne({ _id: session.userId }, { $inc: { tokenVersion: 1 } }),
+	]);
+
+	await createAuditLog({
+		action: "REFRESH_TOKEN_REUSE_DETECTED",
+		entity: "User",
+		entityId: session.userId.toString(),
+		userId: session.userId.toString(),
+		metadata: { familyId: session.familyId, jti: session.jti },
 	});
 }
 
-// ─── API pública ─────────────────────────────────────────────────────────────
+function parseRefreshToken(refreshToken: string): JwtClaims {
+	try {
+		return jwt.verify(refreshToken, getRefreshTokenSecret()) as JwtClaims;
+	} catch (error) {
+		if (error instanceof jwt.TokenExpiredError) {
+			throw new UnauthorizedError("Refresh token expired");
+		}
+		if (error instanceof jwt.JsonWebTokenError) {
+			throw new UnauthorizedError("Invalid refresh token");
+		}
+		throw new UnauthorizedError("Token refresh failed");
+	}
+}
 
-/**
- * Autentica un usuario con email + contraseña.
- * @throws UnauthorizedError si el usuario no existe, la cuenta está inactiva o la contraseña es incorrecta
- */
 export async function login(email: string, password: string): Promise<LoginContract> {
-	const user = await User.findOne({ email }).select("+password");
+	const user = await User.findOne({ email }).select("+password +tokenVersion");
 
 	if (!user) {
 		throw new UnauthorizedError("Invalid email or password");
@@ -136,9 +260,11 @@ export async function login(email: string, password: string): Promise<LoginContr
 		throw new UnauthorizedError("Invalid email or password");
 	}
 
-	const tokenPair = buildTokenPair(user._id.toString(), user.email, user.role);
+	const tokenVersion = user.tokenVersion ?? 0;
+	const tokenPair = buildTokenPair(user._id.toString(), user.role, tokenVersion);
+	await persistRefreshToken(tokenPair, user._id.toString());
 
-	createAuditLog({
+	await createAuditLog({
 		action: "LOGIN_SUCCESS",
 		entity: "User",
 		entityId: user._id.toString(),
@@ -160,14 +286,8 @@ export async function login(email: string, password: string): Promise<LoginContr
 	};
 }
 
-/**
- * Cambia la contraseña del usuario autenticado.
- * @throws NotFoundError si el usuario no existe
- * @throws UnauthorizedError si la cuenta está desactivada o la contraseña actual es incorrecta
- * @throws BadRequestError si la nueva contraseña es igual a la actual
- */
 export async function changePassword(userId: string, payload: ChangePasswordInput): Promise<void> {
-	const user = await User.findById(userId).select("+password");
+	const user = await User.findById(userId).select("+password +tokenVersion");
 
 	if (!user) {
 		throw new NotFoundError("User", userId);
@@ -180,32 +300,40 @@ export async function changePassword(userId: string, payload: ChangePasswordInpu
 	if (!valid) {
 		throw new UnauthorizedError("Current password is incorrect");
 	}
-
 	if (payload.currentPassword === payload.newPassword) {
 		throw new BadRequestError("New password must be different from current password");
 	}
 
 	user.password = payload.newPassword;
+	user.tokenVersion = (user.tokenVersion ?? 0) + 1;
 	await user.save();
+	await RefreshToken.updateMany(
+		{ userId: user._id, "status.state": "active" },
+		{
+			$set: {
+				status: {
+					state: "revoked",
+					changedAt: new Date(),
+					reason: "password_change",
+					replacedByJti: "",
+				},
+			},
+		},
+	);
 }
 
-/**
- * Renueva el access token a partir de un refresh token válido.
- * @throws UnauthorizedError si el token es inválido, expirado o fue revocado
- */
 export async function refreshAccessToken(refreshToken: string): Promise<RefreshContract> {
-	let payload: JwtClaims;
-
-	try {
-		payload = jwt.verify(refreshToken, getRefreshTokenSecret()) as JwtClaims;
-	} catch (err) {
-		if (err instanceof jwt.TokenExpiredError) {
-			throw new UnauthorizedError("Refresh token expired");
-		}
-		if (err instanceof jwt.JsonWebTokenError) {
-			throw new UnauthorizedError("Invalid refresh token");
-		}
-		throw new UnauthorizedError("Token refresh failed");
+	const payload = parseRefreshToken(refreshToken);
+	// Tokens issued before the auth-service refactor lack tokenType / familyId /
+	// tokenVersion. Treat them as session-expired so the client shows a clean
+	// "please re-login" message rather than a generic auth error.
+	const isMissingNewClaims =
+		payload.tokenType !== "refresh" ||
+		!payload.jti ||
+		!payload.familyId ||
+		typeof payload.tokenVersion !== "number";
+	if (isMissingNewClaims) {
+		throw new AppError("Session expired — please log in again", 401, "SESSION_EXPIRED");
 	}
 
 	const blacklisted = await TokenBlacklist.findOne({ jti: payload.jti }).lean();
@@ -213,24 +341,100 @@ export async function refreshAccessToken(refreshToken: string): Promise<RefreshC
 		throw new UnauthorizedError("Refresh token has been revoked");
 	}
 
-	const userId = payload.sub ?? payload._id;
-	if (!userId) {
-		throw new UnauthorizedError("Invalid refresh token payload");
+	const session = await RefreshToken.findOne({ jti: payload.jti })
+		.select("+tokenHash")
+		.lean<RefreshSessionRecord>()
+		.exec();
+	if (!session || !tokenHashesMatch(refreshToken, session.tokenHash)) {
+		throw new UnauthorizedError("Refresh token session not found");
 	}
 
-	const user = await User.findById(userId).lean();
+	if (session.status.state !== "active") {
+		await handleRefreshTokenReuse(session);
+		throw new UnauthorizedError("Refresh token reuse detected");
+	}
+
+	const now = new Date();
+	if (session.expiresAt.getTime() <= now.getTime()) {
+		await RefreshToken.updateOne(
+			{ jti: session.jti, "status.state": "active" },
+			{
+				$set: {
+					status: {
+						state: "revoked",
+						changedAt: now,
+						reason: "expired",
+						replacedByJti: "",
+					},
+				},
+			},
+		);
+		throw new UnauthorizedError("Refresh token expired");
+	}
+
+	const userId = payload.sub ?? payload._id;
+	if (!userId || session.userId.toString() !== userId || session.familyId !== payload.familyId) {
+		await handleRefreshTokenReuse(session);
+		throw new UnauthorizedError("Refresh token ownership mismatch");
+	}
+
+	const user = await User.findById(userId)
+		.select("email role isActive +tokenVersion")
+		.lean<{
+			_id: Types.ObjectId;
+			email: string;
+			role: string;
+			isActive: boolean;
+			tokenVersion: number;
+		}>()
+		.exec();
 	if (!user?.isActive) {
 		throw new UnauthorizedError("User not found or deactivated");
 	}
 
-	const { accessToken } = buildTokenPair(user._id.toString(), user.email, user.role);
-	return { accessToken };
+	const userTokenVersion = user.tokenVersion ?? 0;
+	if (payload.tokenVersion !== userTokenVersion || session.tokenVersion !== userTokenVersion) {
+		throw new UnauthorizedError("Refresh token version is no longer valid");
+	}
+
+	const nextPair = buildTokenPair(
+		user._id.toString(),
+		user.role,
+		userTokenVersion,
+		session.familyId,
+	);
+	const rotated = await RefreshToken.findOneAndUpdate(
+		{
+			jti: session.jti,
+			tokenHash: session.tokenHash,
+			"status.state": "active",
+			expiresAt: { $gt: now },
+		},
+		{
+			$set: {
+				status: {
+					state: "rotated",
+					changedAt: now,
+					reason: "rotation",
+					replacedByJti: nextPair.refreshJti,
+				},
+			},
+		},
+		{ new: true },
+	).exec();
+
+	if (!rotated) {
+		await handleRefreshTokenReuse(session);
+		throw new UnauthorizedError("Refresh token reuse detected");
+	}
+
+	await persistRefreshToken(nextPair, user._id.toString());
+	return {
+		accessToken: nextPair.accessToken,
+		refreshToken: nextPair.refreshToken,
+	};
 }
 
-/**
- * Revoca ambos tokens añadiéndolos a la blacklist.
- * Los errores se loggean sin propagarse (logout siempre procede).
- */
 export async function logout(accessToken: string, refreshToken: string): Promise<void> {
 	try {
 		const accessDecoded = jwt.decode(accessToken) as DecodedToken | null;
@@ -239,59 +443,83 @@ export async function logout(accessToken: string, refreshToken: string): Promise
 		await Promise.all([
 			blacklistToken(accessDecoded, ACCESS_EXPIRES_IN),
 			blacklistToken(refreshDecoded, REFRESH_EXPIRES_IN),
+			refreshDecoded?.jti
+				? RefreshToken.updateOne(
+						{ jti: refreshDecoded.jti, "status.state": "active" },
+						{
+							$set: {
+								status: {
+									state: "revoked",
+									changedAt: new Date(),
+									reason: "logout",
+									replacedByJti: "",
+								},
+							},
+						},
+					)
+				: Promise.resolve(),
 		]);
 
-		// Extract userId from access token for audit
-		const decoded = jwt.decode(accessToken) as { sub?: string; _id?: string } | null;
-		if (decoded?.sub ?? decoded?._id) {
-			createAuditLog({
+		const userId = accessDecoded?.sub ?? accessDecoded?._id;
+		if (userId) {
+			await createAuditLog({
 				action: "LOGOUT",
 				entity: "User",
-				entityId: decoded.sub ?? decoded._id ?? "",
-				userId: decoded.sub ?? decoded._id ?? "",
-				metadata: { tokenExpiry: accessDecoded?.exp },
+				entityId: userId,
+				userId,
+				metadata: {
+					...(typeof accessDecoded?.exp === "number"
+						? { tokenExpiry: accessDecoded.exp }
+						: { tokenExpiryStatus: "not_available" }),
+				},
 			});
 		}
-	} catch (err) {
-		log.error("Failed to blacklist tokens on logout", { err: String(err) });
+	} catch (error) {
+		log.error("Failed to revoke tokens on logout", { reason: String(error) });
 	}
 }
 
-/** Devuelve el Max-Age en segundos para la cookie del refresh token */
 export function getRefreshTokenMaxAge(): number {
 	return REFRESH_EXPIRES_IN;
 }
 
-/** Genera un par de tokens (usado en tests y flujos externos) */
 export async function generateTokenPair(
 	userId: string,
 	_email: string,
 	role: string,
 ): Promise<TokenPair> {
-	return buildTokenPair(userId, _email, role);
+	const pair = buildTokenPair(userId, role, 0);
+	return {
+		accessToken: pair.accessToken,
+		refreshToken: pair.refreshToken,
+		expiresIn: pair.expiresIn,
+	};
 }
 
-// ─── Password Reset ───────────────────────────────────────────────────────────
+export async function cleanupExpiredRefreshTokens(now: Date = new Date()): Promise<number> {
+	const cutoff = new Date(now.getTime() - REFRESH_TOKEN_RETENTION_SECONDS * 1000);
+	const result = await RefreshToken.deleteMany({ expiresAt: { $lte: cutoff } });
+	return result.deletedCount;
+}
 
-/**
- * Genera un token de reset de contraseña.
- * En producción, guardaría el token hasheado en la base de datos y enviaría email.
- * Para desarrollo: devolver el token directamente.
- */
+export function startRefreshTokenCleanupWorker(): () => void {
+	const runCleanup = (): void => {
+		void cleanupExpiredRefreshTokens().catch((error) => {
+			log.error("Refresh token cleanup failed", { reason: String(error) });
+		});
+	};
+
+	runCleanup();
+	const timer = setInterval(runCleanup, REFRESH_CLEANUP_INTERVAL_MS);
+	timer.unref();
+	return () => clearInterval(timer);
+}
+
 export function generateResetToken(_email: string): string {
-	// En producción: buscar usuario y generar token
-	// Por ahora, devolver string vacío para indicar que necesita implementación
 	return "";
 }
 
-/**
- * Restablece la contraseña usando el token de reset.
- * @throws BadRequestError si el token es inválido o expirado
- * @throws NotFoundError si el usuario no existe
- */
 export async function resetPassword(_token: string, _newPassword: string): Promise<void> {
-	// En producción: buscar usuario por token hasheado y verificar expiración
-	// Por ahora, devolver error para indicar que necesita implementación
 	throw new BadRequestError(
 		"Password reset requires database token validation. Implement user.resetPasswordToken field.",
 	);

@@ -21,11 +21,13 @@ const NIL = Object.getPrototypeOf(Object.prototype);
 
 const mocks = vi.hoisted(() => ({
 	serviceCaseFindById: vi.fn(),
+	workRequestFindById: vi.fn(),
 	calculateStepBlockers: vi.fn(),
 }));
 
 vi.mock("../../src/models", () => ({
 	ServiceCase: { findById: mocks.serviceCaseFindById },
+	WorkRequest: { findById: mocks.workRequestFindById },
 }));
 
 vi.mock("../../src/services/cermont-workflow-gate.service", () => ({
@@ -33,7 +35,9 @@ vi.mock("../../src/services/cermont-workflow-gate.service", () => ({
 }));
 
 // Base service case with all artifacts pre-populated for testing deep steps
-function buildBaseServiceCase(overrides: Record<string, string | number | boolean | object | Date | undefined> = {}) {
+function buildBaseServiceCase(
+	overrides: Record<string, string | number | boolean | object | Date | undefined> = {},
+) {
 	return {
 		_id: new Types.ObjectId(CASE_ID),
 		clientId: new Types.ObjectId("507f1f77bcf86cd799439099"),
@@ -68,6 +72,9 @@ describe("buildServiceCaseStepContext", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mocks.calculateStepBlockers.mockResolvedValue([]);
+		mocks.workRequestFindById.mockReturnValue({
+			lean: () => Promise.resolve(undefined),
+		});
 	});
 
 	it("throws NotFoundError when service case does not exist", async () => {
@@ -75,9 +82,9 @@ describe("buildServiceCaseStepContext", () => {
 			lean: () => Promise.resolve(NIL),
 		});
 
-		await expect(
-			buildServiceCaseStepContext(CASE_ID, "step_01_work_request"),
-		).rejects.toThrow(/not found/i);
+		await expect(buildServiceCaseStepContext(CASE_ID, "step_01_work_request")).rejects.toThrow(
+			/not found/i,
+		);
 	});
 
 	it("returns valid ServiceCaseStepContext for step_01 (no inherited fields expected)", async () => {
@@ -126,6 +133,47 @@ describe("buildServiceCaseStepContext", () => {
 		expect(location).toBeDefined();
 		expect(location?.value).toBe("Bloque 25, Arauca");
 		expect(location?.sourceStepLabel).toBe("Solicitud de servicio");
+	});
+
+	it("hydrates canonical site data from the linked work request", async () => {
+		const serviceCase = buildBaseServiceCase({
+			location: undefined,
+			siteName: undefined,
+			contactName: undefined,
+			contactPhone: undefined,
+			contactEmail: undefined,
+			workTypeName: undefined,
+			priority: undefined,
+			requestedDate: undefined,
+			generalScope: undefined,
+		});
+		mocks.serviceCaseFindById.mockReturnValue({
+			lean: () => Promise.resolve(serviceCase),
+		});
+		mocks.workRequestFindById.mockReturnValue({
+			lean: () =>
+				Promise.resolve({
+					clientName: "SierraCol Energy",
+					requesterName: "Juan Prueba",
+					requesterPhone: "+57 300 000 0001",
+					requesterEmail: "jprueba@sierracol.com",
+					serviceSite: "Planta principal Bogotá",
+					serviceType: "Mantenimiento CCTV",
+					urgency: "high",
+					requestedDate: new Date("2026-05-01T08:00:00.000Z"),
+					description: "Mantenimiento preventivo sistema CCTV",
+				}),
+		});
+
+		const ctx = await buildServiceCaseStepContext(CASE_ID, "step_02_site_visit");
+
+		expect(ctx.canonical.location).toBe("Planta principal Bogotá");
+		expect(ctx.canonical.siteName).toBe("Planta principal Bogotá");
+		expect(ctx.canonical.contactName).toBe("Juan Prueba");
+		expect(ctx.canonical.workTypeName).toBe("Mantenimiento CCTV");
+		expect(ctx.inheritedFields.find((field) => field.key === "location")?.value).toBe(
+			"Planta principal Bogotá",
+		);
 	});
 
 	it("returns proposalId inherited for step_04 (purchase order)", async () => {

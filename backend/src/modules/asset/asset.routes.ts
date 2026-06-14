@@ -8,7 +8,7 @@
  * - Order: authenticate → authorize → validate → controller
  */
 
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { ASSET_MANAGEMENT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
 import {
 	AssetIdSchema,
 	CreateAssetSchema,
@@ -57,7 +57,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...ASSET_MANAGEMENT_ROLES),
 	validateBody(CreateAssetSchema),
 	AssetController.createAsset,
 );
@@ -70,7 +70,7 @@ router.post(
 router.patch(
 	"/:id",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...ASSET_MANAGEMENT_ROLES),
 	validateParams(AssetIdSchema),
 	validateBody(UpdateAssetSchema),
 	AssetController.updateAsset,
@@ -84,7 +84,7 @@ router.patch(
 router.patch(
 	"/:id/status",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...ASSET_MANAGEMENT_ROLES),
 	validateParams(AssetIdSchema),
 	validateBody(UpdateAssetSchema.pick({ status: true })),
 	AssetController.updateAssetStatus,

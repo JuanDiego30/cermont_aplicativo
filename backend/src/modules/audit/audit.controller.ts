@@ -12,20 +12,34 @@
 import { AuditLogsQuerySchema } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { sendPaginated, sendSuccess } from "../../common/interceptors/response.interceptor";
-import { getString } from "../../common/utils/request";
 import { findById, findLogs } from "./audit.service";
 
 export const getAuditLogs = async (req: Request, res: Response) => {
 	// Use validated query data from middleware (validateQuery(AuditLogsQuerySchema))
-	const { user_id, model_name, action, page, limit } = AuditLogsQuerySchema.parse(req.query);
-	const userId = getString(user_id ?? "");
-	const modelName = getString(model_name ?? "");
-	const auditAction = getString(action ?? "");
+	const {
+		userId,
+		user_id,
+		entity,
+		model_name,
+		entityId,
+		action,
+		requestId,
+		from,
+		to,
+		page,
+		limit,
+	} = AuditLogsQuerySchema.parse(req.query);
 
 	const filters = {
-		user_id: userId,
-		model_name: modelName,
-		action: auditAction,
+		...(userId ? { userId } : {}),
+		...(user_id ? { user_id } : {}),
+		...(entity ? { entity } : {}),
+		...(model_name ? { model_name } : {}),
+		...(entityId ? { entityId } : {}),
+		...(action ? { action } : {}),
+		...(requestId ? { requestId } : {}),
+		...(from ? { from } : {}),
+		...(to ? { to } : {}),
 	};
 
 	const result = await findLogs(filters, page, limit);

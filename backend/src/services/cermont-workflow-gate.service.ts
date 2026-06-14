@@ -1,12 +1,13 @@
 import {
 	CERMONT_OPERATIONAL_STEPS,
+	CERMONT_STEP_STAGE_MAP,
 	type CermontOperationalStepCode,
 	type DomainBlocker,
 	mapLegacyServiceCaseStageToStep,
-	type ServiceCaseStage,
 } from "@cermont/shared-types";
 import { Types } from "mongoose";
 import { BadRequestError, NotFoundError } from "../common/errors/AppError";
+import { createLogger } from "../common/utils/logger";
 import { DeliveryRecord } from "../models/DeliveryRecord";
 import { Document } from "../models/Document";
 import { Evidence } from "../models/Evidence";
@@ -19,30 +20,18 @@ import { ServiceEntrySheet } from "../models/ServiceEntrySheet";
 import { User } from "../models/User";
 import { createAuditLog } from "../modules/audit/audit.service";
 import { enqueueNotification } from "../modules/notifications/notification.service";
+import { buildStepAdvanceAuditInput } from "./workflow-audit.service";
 
-const STEP_TO_STAGE_MAP: Record<CermontOperationalStepCode, ServiceCaseStage> = {
-	step_01_work_request: "intake",
-	step_02_site_visit: "assessment",
-	step_03_proposal: "proposal",
-	step_04_purchase_order: "authorization",
-	step_05_planning: "planning",
-	step_06_execution: "in_execution",
-	step_07_technical_report: "technical_closure",
-	step_08_delivery_record: "administrative_closure",
-	step_09_client_signature: "administrative_closure",
-	step_10_ses_submission: "ses_pending",
-	step_11_ses_approval: "billing_pending",
-	step_12_invoice_submission: "receivable_open",
-	step_13_invoice_approval: "receivable_open",
-	step_14_payment_closure: "paid",
-};
+const log = createLogger("cermont-workflow-gate");
 
 type BlockerResolverContext = {
 	orderId: Types.ObjectId | string;
 	serviceCase: ServiceCaseDocument;
 };
 
-type BlockerResolver = (context: BlockerResolverContext) => Promise<DomainBlocker[]>;
+type BlockerResolver = (
+	context: BlockerResolverContext,
+) => DomainBlocker[] | Promise<DomainBlocker[]>;
 
 function resolveCurrentStepCode(serviceCase: ServiceCaseDocument): CermontOperationalStepCode {
 	return serviceCase.currentStepCode
@@ -204,9 +193,7 @@ async function resolveSiteVisitBlockers({
 	return blockers;
 }
 
-async function resolveProposalBlockers({
-	serviceCase,
-}: BlockerResolverContext): Promise<DomainBlocker[]> {
+function resolveProposalBlockers({ serviceCase }: BlockerResolverContext): DomainBlocker[] {
 	const p = serviceCase.artifacts.proposal;
 	if (p?.id && p.status === "approved") {
 		return [];
@@ -228,9 +215,7 @@ async function resolveProposalBlockers({
 	];
 }
 
-async function resolvePurchaseOrderBlockers({
-	serviceCase,
-}: BlockerResolverContext): Promise<DomainBlocker[]> {
+function resolvePurchaseOrderBlockers({ serviceCase }: BlockerResolverContext): DomainBlocker[] {
 	const po = serviceCase.artifacts.purchaseOrder;
 	if (po?.id && po.status === "approved") {
 		return [];
@@ -1010,8 +995,9 @@ export async function advanceServiceCaseStep(
 	}
 
 	const nextStep = CERMONT_OPERATIONAL_STEPS[currentIndex + 1];
-	const nextStage = STEP_TO_STAGE_MAP[nextStep.code];
+	const nextStage = CERMONT_STEP_STAGE_MAP[nextStep.code];
 	const previousStepCode = currentStepCode;
+	const previousStage = serviceCase.currentStage;
 
 	serviceCase.currentStepCode = nextStep.code;
 	serviceCase.currentStage = nextStage;
@@ -1034,21 +1020,26 @@ export async function advanceServiceCaseStep(
 
 	await serviceCase.save();
 
-	await createAuditLog({
-		userId,
-		entity: "ServiceCase",
-		entityId: serviceCase._id.toString(),
-		action: "SERVICE_CASE_STEP_ADVANCED",
-		after: {
+	await createAuditLog(
+		buildStepAdvanceAuditInput({
+			userId,
+			serviceCaseId: serviceCase._id.toString(),
 			previousStepCode,
-			newStepCode: nextStep.code,
-			newStage: nextStage,
-		},
-	});
+			previousStage,
+			nextStepCode: nextStep.code,
+			nextStage,
+			command,
+		}),
+	);
 
 	// Enqueue notification via outbox — decouples delivery from the request path
 	enqueueNotification(serviceCaseId, previousStepCode, nextStep.code, userId).catch((err) => {
-		console.error("[WorkflowGate] enqueueNotification failed:", err);
+		log.error("Failed to enqueue workflow notification", {
+			error: err instanceof Error ? err : String(err),
+			serviceCaseId,
+			previousStepCode,
+			nextStepCode: nextStep.code,
+		});
 	});
 
 	return serviceCase;

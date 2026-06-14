@@ -242,7 +242,7 @@ export async function createPlanningPacket(data: CreatePlanningPacketInput, user
 		createdBy: userId,
 	});
 
-	createAuditLog({
+	await createAuditLog({
 		userId,
 		entity: "PlanningPacket",
 		entityId: planningPacket._id.toString(),
@@ -355,7 +355,7 @@ export async function updatePlanningPacket(
 		.populate("approvedBy", "name email")
 		.populate("createdBy", "name email");
 
-	createAuditLog({
+	await createAuditLog({
 		userId,
 		entity: "PlanningPacket",
 		entityId: id,
@@ -408,7 +408,7 @@ export async function validatePlanningReadiness(id: string, userId: string, user
 		.populate("approvedBy", "name email")
 		.populate("createdBy", "name email");
 
-	createAuditLog({
+	await createAuditLog({
 		userId,
 		entity: "PlanningPacket",
 		entityId: id,
@@ -529,7 +529,7 @@ export async function approvePlanningPacket(
 		.populate("approvedBy", "name email")
 		.populate("createdBy", "name email");
 
-	createAuditLog({
+	await createAuditLog({
 		userId,
 		entity: "PlanningPacket",
 		entityId: id,
@@ -537,8 +537,8 @@ export async function approvePlanningPacket(
 		after: {
 			status: "approved",
 			approvedBy: userId,
-			notes: data.notes,
-			costBaselineSnapshot: updatedPlanningPacket?.toObject().costBaselineSnapshot,
+			...(data.notes ? { notes: data.notes } : { notesStatus: "not_provided" }),
+			costBaseline,
 		},
 	});
 
@@ -592,13 +592,16 @@ export async function reopenPlanningPacket(
 		.populate("approvedBy", "name email")
 		.populate("createdBy", "name email");
 
-	createAuditLog({
+	await createAuditLog({
 		userId,
 		entity: "PlanningPacket",
 		entityId: id,
 		action: "PLANNING_PACKET_REOPENED",
 		before: { status: planningPacket.status },
-		after: { status: "draft", reason: data.reason },
+		after: {
+			status: "draft",
+			...(data.reason ? { reason: data.reason } : { reasonStatus: "not_provided" }),
+		},
 	});
 
 	return updatedPacket;
@@ -628,7 +631,7 @@ export async function addReferenceDocument(
 
 	await packet.save();
 
-	createAuditLog({
+	await createAuditLog({
 		userId,
 		entity: "PlanningPacket",
 		entityId: id,

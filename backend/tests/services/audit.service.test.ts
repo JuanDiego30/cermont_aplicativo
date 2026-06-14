@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { runWithRequestContext } from "../../src/common/observability/request-context";
 import { AuditLog, User } from "../../src/models";
 import { createAuditLog, findLogs } from "../../src/modules/audit/audit.service";
 
@@ -27,7 +28,7 @@ describe("audit.service", () => {
 		vi.mocked(User.findById).mockReturnValue(userQuery as never);
 		vi.mocked(AuditLog.create).mockResolvedValue({} as never);
 
-		createAuditLog({
+		await createAuditLog({
 			action: "ORDER_CREATED",
 			entity: "Order",
 			entityId: "507f1f77bcf86cd799439011",
@@ -38,8 +39,6 @@ describe("audit.service", () => {
 			ipAddress: "127.0.0.1",
 			userAgent: "playwright",
 		});
-
-		await vi.waitFor(() => expect(AuditLog.create).toHaveBeenCalled());
 
 		expect(User.findById).toHaveBeenCalledWith("507f1f77bcf86cd799439099");
 		expect(userQuery.select).toHaveBeenCalledWith("email");
@@ -61,7 +60,26 @@ describe("audit.service", () => {
 		);
 	});
 
-	it("maps model_name filters to entityType queries", async () => {
+	it("persists UUID entity identifiers used by file assets", async () => {
+		vi.mocked(AuditLog.create).mockResolvedValue({} as never);
+
+		await createAuditLog({
+			action: "FILE_UPLOADED",
+			entity: "FileAsset",
+			entityId: "7a817c37-5206-4fd1-a2ee-f1e642330af6",
+			userId: "507f1f77bcf86cd799439099",
+			userEmail: "auditor@example.com",
+		});
+
+		expect(AuditLog.create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				entityType: "FileAsset",
+				entityId: "7a817c37-5206-4fd1-a2ee-f1e642330af6",
+			}),
+		);
+	});
+
+	it("maps canonical and legacy filters to indexed forensic queries", async () => {
 		const findChain = {
 			skip: vi.fn().mockReturnThis(),
 			limit: vi.fn().mockReturnThis(),
@@ -75,8 +93,11 @@ describe("audit.service", () => {
 		const result = await findLogs(
 			{
 				user_id: "507f1f77bcf86cd799439099",
-				model_name: "Order",
+				entity: "Order",
+				entityId: "507f1f77bcf86cd799439011",
 				action: "ORDER_CREATED",
+				from: "2026-06-01T00:00:00.000Z",
+				to: "2026-06-11T23:59:59.999Z",
 			},
 			2,
 			25,
@@ -85,12 +106,22 @@ describe("audit.service", () => {
 		expect(AuditLog.countDocuments).toHaveBeenCalledWith({
 			userId: "507f1f77bcf86cd799439099",
 			entityType: "Order",
+			entityId: "507f1f77bcf86cd799439011",
 			action: "ORDER_CREATED",
+			createdAt: {
+				$gte: new Date("2026-06-01T00:00:00.000Z"),
+				$lte: new Date("2026-06-11T23:59:59.999Z"),
+			},
 		});
 		expect(AuditLog.find).toHaveBeenCalledWith({
 			userId: "507f1f77bcf86cd799439099",
 			entityType: "Order",
+			entityId: "507f1f77bcf86cd799439011",
 			action: "ORDER_CREATED",
+			createdAt: {
+				$gte: new Date("2026-06-01T00:00:00.000Z"),
+				$lte: new Date("2026-06-11T23:59:59.999Z"),
+			},
 		});
 		expect(findChain.skip).toHaveBeenCalledWith(25);
 		expect(findChain.limit).toHaveBeenCalledWith(25);
@@ -121,7 +152,7 @@ describe("audit.service", () => {
 			createdAt: new Date("2026-06-10T00:00:00Z"),
 		} as never);
 
-		createAuditLog({
+		await createAuditLog({
 			action: "PAYMENT_REGISTERED",
 			entity: "Payment",
 			entityId: "507f1f77bcf86cd799439099",
@@ -129,8 +160,6 @@ describe("audit.service", () => {
 			before: { status: "invoice_approved" },
 			after: { status: "paid" },
 		});
-
-		await vi.waitFor(() => expect(AuditLog.create).toHaveBeenCalled());
 
 		const createdArg = vi.mocked(AuditLog.create).mock.calls[0][0] as Record<string, unknown>;
 		expect(createdArg.action).toBe("PAYMENT_REGISTERED");
@@ -146,5 +175,74 @@ describe("audit.service", () => {
 			...rest
 		} = await import("../../src/modules/audit/audit.service");
 		expect(Object.keys(rest)).toHaveLength(0);
+	});
+
+	it("redacts sensitive keys before persistence", async () => {
+		vi.mocked(AuditLog.create).mockResolvedValue({} as never);
+
+		await createAuditLog({
+			action: "LOGIN_SUCCESS",
+			entity: "User",
+			entityId: "507f1f77bcf86cd799439011",
+			userId: "507f1f77bcf86cd799439011",
+			userEmail: "admin@cermont.com",
+			metadata: {
+				password: "never-persist-this",
+				authorization: "Bearer secret",
+				role: "administrador",
+			},
+		});
+
+		expect(AuditLog.create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				metadata: {
+					password: "[REDACTED]",
+					authorization: "[REDACTED]",
+					role: "administrador",
+				},
+			}),
+		);
+	});
+
+	it("returns a settled promise even when audit persistence fails", async () => {
+		vi.mocked(AuditLog.create).mockRejectedValue(new Error("audit database unavailable"));
+
+		await expect(
+			createAuditLog({
+				action: "ORDER_CREATED",
+				entity: "Order",
+				entityId: "507f1f77bcf86cd799439011",
+				userId: "507f1f77bcf86cd799439099",
+				userEmail: "admin@cermont.com",
+			}),
+		).resolves.toBeUndefined();
+	});
+
+	it("links audit records to the active HTTP request context", async () => {
+		vi.mocked(AuditLog.create).mockResolvedValue({} as never);
+
+		await runWithRequestContext(
+			{
+				requestId: "trace-456",
+				ipAddress: "10.0.0.10",
+				userAgent: "Playwright",
+			},
+			() =>
+				createAuditLog({
+					action: "ORDER_CREATED",
+					entity: "Order",
+					entityId: "507f1f77bcf86cd799439011",
+					userId: "507f1f77bcf86cd799439099",
+					userEmail: "admin@cermont.com",
+				}),
+		);
+
+		expect(AuditLog.create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				requestId: "trace-456",
+				ipAddress: "10.0.0.10",
+				userAgent: "Playwright",
+			}),
+		);
 	});
 });

@@ -1,97 +1,158 @@
-/**
- * OWASP Security Tests - IDOR (Insecure Direct Object Reference)
- *
- * Tests verify users cannot access/modify other users' resources.
- * Based on OWASP WSTG-04-06: Testing for IDOR
- * Based on OWASP API Security Top 10: #1 Broken Object Level Authorization
- */
+import { Types } from "mongoose";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ForbiddenError } from "../../src/common/errors/AppError";
+import { Order, User } from "../../src/models";
+import * as OrderService from "../../src/modules/order/order-crud.service";
+import * as PortalService from "../../src/modules/portal/portal.service";
 
-import { describe, expect, test } from "vitest";
-import * as DocumentService from "../../src/modules/documents/document.service";
-// Import service modules that handle resource access
-import * as ServiceCaseService from "../../src/modules/service-cases/service-case.service";
+vi.mock("../../src/models", () => ({
+	User: {
+		findById: vi.fn(),
+	},
+	Order: {
+		findById: vi.fn(),
+	},
+	Proposal: {
+		find: vi.fn(),
+	},
+	Invoice: {
+		find: vi.fn(),
+	},
+	TechnicalReport: {
+		find: vi.fn(),
+	},
+	DeliveryRecord: {
+		find: vi.fn(),
+	},
+}));
 
-describe("IDOR Security Tests", () => {
-	describe("Order IDOR - User cannot access another user's order (BOLA Prevention)", () => {
-		test("should return 403 when tecnico tries to access order owned by another user", async () => {
-			// This test verifies the contract - service throws on unauthorized access
-			// Actual implementation uses getOrderByIdWithAuth in order-crud.service.ts
-			const adminRoles = ["gerente", "residente", "administrativo"] as const;
-			const tecnicoRole = "tecnico";
-			const canAccessAnyOrder = adminRoles.includes(tecnicoRole);
-			expect(canAccessAnyOrder).toBe(false);
-		});
+function mockLean<T>(value: T) {
+	return { lean: vi.fn().mockResolvedValue(value) };
+}
 
-		test("should allow gerente to access any order (admin role override)", async () => {
-			const adminRoles = ["gerente", "residente", "administrativo"] as const;
-			const gerenteRole = "gerente";
-			const canAccessAnyOrder = adminRoles.includes(gerenteRole);
-			expect(canAccessAnyOrder).toBe(true);
+describe("BOLA and tenant isolation", () => {
+	const clientA = new Types.ObjectId("507f1f77bcf86cd799439011");
+	const clientB = new Types.ObjectId("507f1f77bcf86cd799439012");
+	const orderId = new Types.ObjectId("507f1f77bcf86cd799439099");
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it("blocks a client from reading another client's portal order", async () => {
+		vi.mocked(User.findById).mockReturnValue(
+			mockLean({
+				_id: clientB,
+				name: "Client B",
+				email: "client-b@cermont.com",
+			}),
+		);
+		vi.mocked(Order.findById).mockReturnValue(
+			mockLean({
+				_id: orderId,
+				code: "OT-000001-2026",
+				status: "assigned",
+				createdBy: clientA,
+				clientId: clientA,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
+
+		await expect(
+			PortalService.getClientOrderDetail(orderId.toString(), clientB.toString()),
+		).rejects.toMatchObject({
+			statusCode: 403,
+			code: "TENANT_ACCESS_DENIED",
 		});
 	});
 
-	describe("ServiceCase IDOR - User cannot access another user's service case", () => {
-		test("should return undefined for non-existent service case", async () => {
-			// Service returns undefined for non-existent cases
-			expect(ServiceCaseService.getServiceCaseById).toBeDefined();
-		});
+	it("allows a client to read its own portal order", async () => {
+		vi.mocked(User.findById).mockReturnValue(
+			mockLean({
+				_id: clientA,
+				name: "Client A",
+				email: "client-a@cermont.com",
+			}),
+		);
+		vi.mocked(Order.findById).mockReturnValue(
+			mockLean({
+				_id: orderId,
+				code: "OT-000001-2026",
+				status: "assigned",
+				type: "maintenance",
+				description: "Authorized order",
+				location: "Site A",
+				createdBy: clientA,
+				clientId: clientA,
+				createdAt: new Date("2026-06-11T10:00:00.000Z"),
+				updatedAt: new Date("2026-06-11T11:00:00.000Z"),
+			}),
+		);
 
-		test("should prevent unauthorized service case closure", async () => {
-			expect(ServiceCaseService.closeServiceCase).toBeDefined();
-		});
+		const emptyQuery = {
+			sort: vi.fn().mockReturnValue({
+				lean: vi.fn().mockResolvedValue([]),
+			}),
+		};
+		const models = await import("../../src/models");
+		vi.mocked(models.Proposal.find).mockReturnValue(emptyQuery);
+		vi.mocked(models.Invoice.find).mockReturnValue(emptyQuery);
+		vi.mocked(models.TechnicalReport.find).mockReturnValue(emptyQuery);
+		vi.mocked(models.DeliveryRecord.find).mockReturnValue(emptyQuery);
+
+		const result = await PortalService.getClientOrderDetail(orderId.toString(), clientA.toString());
+
+		expect(result._id).toBe(orderId.toString());
+		expect(result.code).toBe("OT-000001-2026");
 	});
 
-	describe("Document IDOR - User cannot access other client's documents", () => {
-		test("should return 404 when document not found for archiving", async () => {
-			expect(DocumentService.archiveDocument).toBeDefined();
-		});
+	it("blocks a technician from reading an unrelated work order", async () => {
+		vi.mocked(Order.findById).mockReturnValue(
+			mockLean({
+				_id: orderId,
+				code: "OT-000001-2026",
+				status: "assigned",
+				createdBy: clientA,
+				assignedTo: clientA,
+			}),
+		);
 
-		test("should prevent deletion of critical documents - archives instead", async () => {
-			// When work order is active, documents should be archived not deleted
-			// deleteDocument checks CRITICAL_DOCUMENT_STEPS and returns archived status
-			expect(DocumentService.deleteDocument).toBeDefined();
-		});
+		await expect(
+			OrderService.getOrderByIdWithAuth(orderId.toString(), {
+				_id: clientB.toString(),
+				role: "tecnico",
+			}),
+		).rejects.toBeInstanceOf(ForbiddenError);
 	});
 
-	describe("RBAC Authorization Tests", () => {
-		test("tecnico should not be able to approve invoices (role check)", async () => {
-			const tecnicoRole = "tecnico";
-			const adminRoles = ["gerente", "residente", "administrativo"] as const;
+	it("allows the assigned technician to read the work order", async () => {
+		vi.mocked(Order.findById).mockReturnValue(
+			mockLean({
+				_id: orderId,
+				code: "OT-000001-2026",
+				type: "maintenance",
+				status: "assigned",
+				priority: "medium",
+				description: "Assigned work",
+				assetId: "asset-1",
+				assetName: "Asset",
+				location: "Site",
+				materials: [],
+				createdBy: clientA,
+				assignedTo: clientB,
+				invoiceReady: false,
+				reportGenerated: false,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
 
-			const canApproveInvoice = adminRoles.includes(tecnicoRole);
-			expect(canApproveInvoice).toBe(false);
-		});
-
-		test("cliente should not access admin routes", async () => {
-			const clienteRole = "cliente";
-			const adminRoles = ["gerente", "residente", "administrativo"] as const;
-
-			const isAdmin = adminRoles.includes(clienteRole);
-			expect(isAdmin).toBe(false);
-		});
-
-		test("tecnico cannot list all users (permission denied)", async () => {
-			const tecnicoRole = "tecnico";
-			const adminRoles = ["gerente", "residente", "administrativo"] as const;
-
-			const canListUsers = adminRoles.includes(tecnicoRole);
-			expect(canListUsers).toBe(false);
-		});
-
-		test("operador role should have limited access scope", async () => {
-			const operadorRole = "operador";
-			const adminRoles = ["gerente", "residente", "administrativo"] as const;
-
-			const isAdmin = adminRoles.includes(operadorRole);
-			expect(isAdmin).toBe(false);
-		});
-
-		test("HES role should not access financial documents", async () => {
-			const hesRole = "HES";
-			const adminRoles = ["gerente", "residente", "administrativo"] as const;
-
-			const isAdmin = adminRoles.includes(hesRole);
-			expect(isAdmin).toBe(false);
-		});
+		await expect(
+			OrderService.getOrderByIdWithAuth(orderId.toString(), {
+				_id: clientB.toString(),
+				role: "tecnico",
+			}),
+		).resolves.toMatchObject({ _id: orderId.toString() });
 	});
 });

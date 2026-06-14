@@ -143,14 +143,11 @@ export async function generateOrderCode(): Promise<string> {
 export type { AuditLogInput } from "../../modules/audit/audit.service";
 
 /**
- * Create audit log entry (non-blocking)
+ * Create an audit log entry and allow callers to await durability.
  *
  * Wrapper that re-exports createAuditLog for order service usage.
- * Audit logging is fire-and-forget and should never block main operations.
- *
  * @param data - Audit log data
  */
-export function logAudit(data: AuditLogInput): void {
-	// Fire-and-forget: audit logs should not block main operation
-	createAuditLog(data);
+export function logAudit(data: AuditLogInput): Promise<void> {
+	return createAuditLog(data);
 }

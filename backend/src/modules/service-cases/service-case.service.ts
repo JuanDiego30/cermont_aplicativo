@@ -18,6 +18,7 @@ import {
 } from "@cermont/domain";
 import {
 	CERMONT_OPERATIONAL_STEPS,
+	CERMONT_STEP_STAGE_MAP,
 	type ClosureWorkflowSummary,
 	type CostTraceabilitySummary,
 	type LinkedDocumentSummary,
@@ -44,10 +45,12 @@ import {
 import { Document } from "../../models/Document";
 import { Evidence } from "../../models/Evidence";
 import { ServiceCase, type ServiceCaseDocument } from "../../models/ServiceCase";
+import { assertServiceCaseStageMutable } from "../../services/case-closure-lock.service";
 import { calculateStepBlockers } from "../../services/cermont-workflow-gate.service";
 import { createAuditLog } from "../audit/audit.service";
 import { getOrderSummary } from "../cost/cost.service";
 import { enqueueNotification } from "../notifications/notification.service";
+import { SLAService } from "../sla/sla.service";
 
 const log = createLogger("service-case-service");
 
@@ -860,8 +863,10 @@ async function buildDefaultCostTraceability(
 	const paidValue = Number(financialSummary?.paidAmount ?? 0);
 	const pendingValue = Math.max(invoiceValue - paidValue, 0);
 
-	const estimated = await resolveEstimatedCosts(orderId, fallbackProposalAmount);
-	const actual = await resolveActualCosts(orderId, financialSummary);
+	const [estimated, actual] = await Promise.all([
+		resolveEstimatedCosts(orderId, fallbackProposalAmount),
+		resolveActualCosts(orderId, financialSummary),
+	]);
 
 	const estimatedMargin = estimated.proposalTotal - actual.actualTotalCost;
 	const actualMargin = paidValue - actual.actualTotalCost;
@@ -1084,10 +1089,11 @@ export async function buildServiceCaseWorkflowView(
 		serviceCase.currentStepCode ?? mapLegacyServiceCaseStageToStep(serviceCase.currentStage);
 
 	try {
-		const [documents, evidences, order] = await Promise.all([
+		const [documents, evidences, order, costs] = await Promise.all([
 			listWorkflowDocuments(orderId, serviceCase._id),
 			listWorkflowEvidences(orderId),
 			orderId ? Order.findById(orderId).lean().exec() : Promise.resolve(void 0),
+			buildDefaultCostTraceability(serviceCase.financialSummary, orderId),
 		]);
 
 		const updatedAtString = serviceCase.updatedAt;
@@ -1120,7 +1126,7 @@ export async function buildServiceCaseWorkflowView(
 			},
 			documents,
 			evidences,
-			costs: await buildDefaultCostTraceability(serviceCase.financialSummary, orderId),
+			costs,
 			closure: buildWorkflowClosure(serviceCase),
 			generatedAt: new Date().toISOString(),
 		};
@@ -1211,8 +1217,7 @@ export async function archiveServiceCase(id: string, userId: string) {
 		throw new NotFoundError("Service case not found after update");
 	}
 
-	// Audit: fire-and-forget, never blocks the response
-	createAuditLog({
+	await createAuditLog({
 		userId,
 		entity: "ServiceCase",
 		entityId: id,
@@ -1419,23 +1424,6 @@ const DOMAIN_STATE_TO_DB_STEP: Record<string, string> = {
 	closed: "step_14_payment_closure",
 };
 
-const STEP_TO_STAGE_MAP: Record<string, string> = {
-	step_01_work_request: "intake",
-	step_02_site_visit: "assessment",
-	step_03_proposal: "proposal",
-	step_04_purchase_order: "authorization",
-	step_05_planning: "planning",
-	step_06_execution: "in_execution",
-	step_07_technical_report: "technical_closure",
-	step_08_delivery_record: "administrative_closure",
-	step_09_client_signature: "administrative_closure",
-	step_10_ses_submission: "ses_pending",
-	step_11_ses_approval: "billing_pending",
-	step_12_invoice_submission: "receivable_open",
-	step_13_invoice_approval: "receivable_open",
-	step_14_payment_closure: "paid",
-};
-
 function dbStepToDomainState(dbStep: string): ServiceCaseState {
 	return (DB_STEP_TO_DOMAIN_STATE[dbStep] ?? "pending") as ServiceCaseState;
 }
@@ -1490,6 +1478,7 @@ export async function advanceServiceCaseState(
 	if (!serviceCase) {
 		throw new NotFoundError("ServiceCase", caseId);
 	}
+	assertServiceCaseStageMutable(serviceCase.currentStage);
 
 	const currentStepCode = serviceCase.currentStepCode || "step_01_work_request";
 	const currentState = dbStepToDomainState(currentStepCode);
@@ -1554,7 +1543,7 @@ export async function advanceServiceCaseState(
 
 	const newDomainState = transitionResult.state;
 	const newStepCode = domainStateToDbStep(newDomainState);
-	const newStage = (STEP_TO_STAGE_MAP[newStepCode] ??
+	const newStage = (CERMONT_STEP_STAGE_MAP[newStepCode as keyof typeof CERMONT_STEP_STAGE_MAP] ??
 		"intake") as ServiceCaseDocument["currentStage"];
 
 	// 5. Update serviceCase document
@@ -1575,6 +1564,7 @@ export async function advanceServiceCaseState(
 	});
 
 	await serviceCase.save();
+	await SLAService.recordWorkflowProgress(serviceCase._id.toString(), newStepCode, newStage);
 
 	// Calculate and save new blockers for the new step
 	const newBlockers = await calculateStepBlockers(serviceCase._id.toString());
@@ -1582,23 +1572,28 @@ export async function advanceServiceCaseState(
 		blockers: newBlockers.map((blocker) => ({ ...blocker })),
 	});
 
-	// 6. Log Audit
-	createAuditLog({
-		userId,
-		entity: "ServiceCase",
-		entityId: serviceCase._id.toString(),
-		action: "STATE_TRANSITION",
-		before: currentStepCode,
-		after: newStepCode,
-		metadata: {
-			previousState: currentState,
-			newState: newDomainState,
-			stage: newStage,
-		},
-	});
-
-	// 7. Enqueue notification via outbox — resilient, non-blocking delivery
-	await enqueueNotification(serviceCase._id.toString(), currentState, newDomainState, userId);
+	// 6 & 7. Log audit and enqueue notification in parallel — both are independent of each other
+	await Promise.all([
+		createAuditLog({
+			userId,
+			entity: "ServiceCase",
+			entityId: serviceCase._id.toString(),
+			action: "STATE_TRANSITION",
+			before: {
+				stepCode: currentStepCode,
+				state: currentState,
+			},
+			after: {
+				stepCode: newStepCode,
+				state: newDomainState,
+				stage: newStage,
+			},
+			metadata: {
+				transitionEngine: "service-case-state-machine",
+			},
+		}),
+		enqueueNotification(serviceCase._id.toString(), currentState, newDomainState, userId),
+	]);
 
 	const updatedCase = await ServiceCase.findById(caseId);
 	if (!updatedCase) {

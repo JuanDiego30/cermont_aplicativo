@@ -327,7 +327,20 @@ export async function updateTemplateResponse(
 		entity: "TemplateResponse",
 		entityId: response._id.toString(),
 		action: "TEMPLATE_RESPONSE_UPDATED",
-		after: { status: response.status, progress: response.progress },
+		after: {
+			status: response.status,
+			...(response.progress
+				? {
+						progress: {
+							totalFields: response.progress.totalFields,
+							completedFields: response.progress.completedFields,
+							requiredFields: response.progress.requiredFields,
+							requiredCompleted: response.progress.requiredCompleted,
+							percentage: response.progress.percentage,
+						},
+					}
+				: { progressStatus: "not_calculated" }),
+		},
 	});
 
 	return response;

@@ -9,6 +9,7 @@
 import type { CanonicalCaseData } from "@cermont/shared-types";
 import {
 	CERMONT_OPERATIONAL_STEPS,
+	CERMONT_STEP_STAGE_MAP,
 	type CermontOperationalStepCode,
 	type FieldOverride,
 	type ServiceCaseStepContext,
@@ -18,8 +19,10 @@ import { NotFoundError } from "../common/errors/AppError";
 import { createLogger } from "../common/utils/logger";
 import { ServiceCase } from "../models";
 import { createAuditLog } from "../modules/audit/audit.service";
+import { assertServiceCaseStageMutable } from "./case-closure-lock.service";
 import { calculateStepBlockers } from "./cermont-workflow-gate.service";
 import { buildServiceCaseStepContext } from "./service-case-step-context.service";
+import { buildStepSubmissionAuditInput } from "./workflow-audit.service";
 
 const log = createLogger("submit-step-payload");
 
@@ -170,6 +173,7 @@ export async function submitStepPayload(
 	if (!serviceCase) {
 		throw new NotFoundError("ServiceCase", serviceCaseId);
 	}
+	assertServiceCaseStageMutable(serviceCase.currentStage);
 
 	// 2. Load current context
 	const context = await buildServiceCaseStepContext(serviceCaseId, stepCode);
@@ -214,7 +218,7 @@ export async function submitStepPayload(
 	// 7. Update ServiceCase artifacts
 	const stepDef = CERMONT_OPERATIONAL_STEPS.find((s) => s.code === stepCode);
 	const artifactKey = stepDef?.entityType ?? "unrecognized";
-	const stage = stepCodeToStage(stepCode);
+	const stage = CERMONT_STEP_STAGE_MAP[stepCode];
 	await updateServiceCaseArtifact(
 		serviceCaseId,
 		artifactKey,
@@ -244,15 +248,17 @@ export async function submitStepPayload(
 	}
 
 	// 9. Audit log
-	await createAuditLog({
-		userId,
-		entity: "ServiceCase",
-		entityId: serviceCaseId,
-		action: "STEP_PAYLOAD_SUBMITTED",
-		before: `step:${stepCode}`,
-		after: `step:${stepCode}:completed`,
-		metadata: {} as Record<string, string | number | boolean>,
-	});
+	await createAuditLog(
+		buildStepSubmissionAuditInput({
+			userId,
+			serviceCaseId,
+			stepCode,
+			entityId: entityId.toString(),
+			entityCode,
+			artifactKey,
+			overrideCount: overridesWithReason.length,
+		}),
+	);
 
 	// 10. Recalculate blockers
 	await calculateStepBlockers(serviceCaseId);
@@ -261,27 +267,4 @@ export async function submitStepPayload(
 	const updatedContext = await buildServiceCaseStepContext(serviceCaseId, stepCode);
 
 	return { success: true, context: updatedContext };
-}
-
-/**
- * Maps step codes to ServiceCase stages.
- */
-function stepCodeToStage(stepCode: CermontOperationalStepCode): string {
-	const map: Record<string, string> = {
-		step_01_work_request: "intake",
-		step_02_site_visit: "assessment",
-		step_03_proposal: "proposal",
-		step_04_purchase_order: "authorization",
-		step_05_planning: "planning",
-		step_06_execution: "in_execution",
-		step_07_technical_report: "technical_closure",
-		step_08_delivery_record: "administrative_closure",
-		step_09_client_signature: "administrative_closure",
-		step_10_ses_submission: "ses_pending",
-		step_11_ses_approval: "billing_pending",
-		step_12_invoice_submission: "receivable_open",
-		step_13_invoice_approval: "receivable_open",
-		step_14_payment_closure: "paid",
-	};
-	return map[stepCode] ?? "intake";
 }

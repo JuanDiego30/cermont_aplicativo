@@ -14,6 +14,7 @@ export interface INotificationChannelDelivery {
 
 export interface INotification extends Document {
 	notificationId: string;
+	dedupeKey?: string;
 	recipientUserId: Types.ObjectId;
 	recipientRole?: string;
 	recipientEmail?: string;
@@ -59,6 +60,7 @@ const ChannelDeliverySchema = new Schema<INotificationChannelDelivery>(
 const NotificationSchema = new Schema<INotification>(
 	{
 		notificationId: { type: String, required: true, unique: true, index: true },
+		dedupeKey: { type: String, maxlength: 500 },
 		recipientUserId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
 		recipientRole: { type: String },
 		recipientEmail: { type: String },
@@ -112,6 +114,10 @@ const NotificationSchema = new Schema<INotification>(
 NotificationSchema.index({ recipientUserId: 1, isRead: 1, createdAt: -1 });
 NotificationSchema.index({ type: 1, createdAt: -1 });
 NotificationSchema.index({ "channels.channel": 1, "channels.status": 1 });
+NotificationSchema.index(
+	{ dedupeKey: 1 },
+	{ unique: true, partialFilterExpression: { dedupeKey: { $type: "string" } } },
+);
 
 NotificationSchema.set("toJSON", {
 	transform: (_doc, ret) => {

@@ -94,6 +94,25 @@ Días vencida: ${v.overdueDays || "0"}</p>`,
 		smsBody: `VENCIDA: Factura ${v.invoiceCode || ""} por $${v.amount || "0"} venceció el ${v.dueDate || ""}`,
 	}),
 
+	sla_breach_warning: (v) => ({
+		title: `SLA próximo a incumplirse: ${v.caseCode || ""}`,
+		body: `El caso ${v.caseCode || ""} (${v.serviceType || ""}) tiene un SLA próximo a vencer. Quedan ${v.remainingHours || "0"} horas para responder.`,
+		emailSubject: `Alerta SLA — ${v.caseCode || ""}`,
+	}),
+
+	invoice_due_reminder: (v) => ({
+		title: `Factura por vencer: ${v.invoiceNumber || ""}`,
+		body: `La factura ${v.invoiceNumber || ""} por $${v.amount || "0"} vence el ${v.dueDate || ""}.`,
+		emailSubject: `Factura próxima a vencer — ${v.invoiceNumber || ""}`,
+		smsBody: `Factura ${v.invoiceNumber || ""} vence el ${v.dueDate || ""}.`,
+	}),
+
+	stale_case_alert: (v) => ({
+		title: `Caso inactivo: ${v.caseCode || ""}`,
+		body: `El caso ${v.caseCode || ""} lleva ${v.daysInactive || "0"} días sin avance en el paso ${v.currentStep || ""}.`,
+		emailSubject: `Caso sin actividad — ${v.caseCode || ""}`,
+	}),
+
 	report_approved: (v) => ({
 		title: `Informe aprobado: ${v.reportCode || ""}`,
 		body: `El informe técnico ${v.reportCode || ""} para la orden ${v.orderCode || ""} ha sido aprobado.`,

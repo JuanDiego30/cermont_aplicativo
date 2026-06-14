@@ -25,6 +25,7 @@ import { Counter, Proposal } from "../../models";
 import * as OrderService from "../../modules/order/order.service";
 
 type ProposalOrderInput = Parameters<typeof OrderService.createOrder>[0];
+type ProposalItemInput = CreateProposalInput["items"][number];
 
 const log = createLogger("proposal-service");
 
@@ -67,19 +68,40 @@ async function generateProposalCode(): Promise<string> {
 	return `PROP-${year}-${String(sequence).padStart(4, "0")}`;
 }
 
+function roundMoney(value: number): number {
+	return Math.round(value * 100) / 100;
+}
+
+export function calculateProposalTotals(
+	inputItems: ProposalItemInput[],
+	taxRate: number = 0.19,
+): {
+	items: Array<ProposalItemInput & { total: number }>;
+	subtotal: number;
+	taxRate: number;
+	total: number;
+} {
+	const items = inputItems.map((item) => ({
+		...item,
+		total: roundMoney(item.quantity * item.unitCost),
+	}));
+	const subtotal = roundMoney(items.reduce((sum, item) => sum + item.total, 0));
+	const tax = roundMoney(subtotal * taxRate);
+
+	return {
+		items,
+		subtotal,
+		taxRate,
+		total: roundMoney(subtotal + tax),
+	};
+}
+
 /**
  * Create a new proposal
  * Flow: clientName + items -> Proposal (draft)
  */
 export async function createProposal(data: CreateProposalInput, userId: string) {
-	const items = data.items.map((item) => ({
-		...item,
-		total: item.quantity * item.unitCost,
-	}));
-	const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-	const taxRate = 0.19;
-	const tax = subtotal * taxRate;
-	const total = subtotal + tax;
+	const { items, subtotal, taxRate, total } = calculateProposalTotals(data.items);
 	const code = await generateProposalCode();
 	const clientEmail = data.clientEmail?.trim().toLowerCase() || undefined;
 
@@ -201,6 +223,10 @@ export async function updateProposalStatus(
 
 	proposal.status = status;
 	if (status === "approved") {
+		const recalculated = calculateProposalTotals(proposal.items, proposal.taxRate);
+		proposal.items = recalculated.items;
+		proposal.subtotal = recalculated.subtotal;
+		proposal.total = recalculated.total;
 		proposal.approvedBy = userId as unknown as mongoose.Types.ObjectId;
 		proposal.approvedAt = new Date();
 	} else {
@@ -262,6 +288,11 @@ export async function convertProposalToOrder(
 			"PROPOSAL_NOT_APPROVED",
 		);
 	}
+
+	const recalculated = calculateProposalTotals(proposal.items, proposal.taxRate);
+	proposal.items = recalculated.items;
+	proposal.subtotal = recalculated.subtotal;
+	proposal.total = recalculated.total;
 
 	// Convert proposal items to order materials
 	const materials = proposal.items.map((item) => ({

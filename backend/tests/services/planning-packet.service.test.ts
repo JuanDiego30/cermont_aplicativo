@@ -57,6 +57,7 @@ const mocks = vi.hoisted(() => ({
 	planningPacketFindById: vi.fn(),
 	planningPacketFindByIdAndUpdate: vi.fn(),
 	kitFindById: vi.fn(),
+	createAuditLog: vi.fn(),
 }));
 
 vi.mock("../../src/models/PlanningPacket", () => ({
@@ -70,6 +71,10 @@ vi.mock("../../src/models/Kit", () => ({
 	Kit: {
 		findById: mocks.kitFindById,
 	},
+}));
+
+vi.mock("../../src/modules/audit/audit.service", () => ({
+	createAuditLog: mocks.createAuditLog,
 }));
 
 import * as PlanningPacketService from "../../src/modules/planning-packet/planning-packet.service";
@@ -178,6 +183,12 @@ describe("PlanningPacketService", () => {
 				expect.objectContaining({ new: true, runValidators: true }),
 			);
 			expect(result.status).toBe("incomplete");
+			expect(mocks.createAuditLog).toHaveBeenCalledWith(
+				expect.objectContaining({
+					action: "PLANNING_PACKET_VALIDATED",
+					after: { status: "incomplete" },
+				}),
+			);
 		});
 
 		it("marks the packet as ready when the Cermont planning format is complete", async () => {
@@ -197,6 +208,12 @@ describe("PlanningPacketService", () => {
 				expect.objectContaining({ new: true, runValidators: true }),
 			);
 			expect(result.status).toBe("ready");
+			expect(mocks.createAuditLog).toHaveBeenCalledWith(
+				expect.objectContaining({
+					action: "PLANNING_PACKET_VALIDATED",
+					after: { status: "ready" },
+				}),
+			);
 		});
 
 		it("does not mark the packet as ready when a blocker is unresolved", async () => {
@@ -247,6 +264,15 @@ describe("PlanningPacketService", () => {
 				expect.objectContaining({ new: true, runValidators: true }),
 			);
 			expect(result.status).toBe("approved");
+			expect(mocks.createAuditLog).toHaveBeenCalledWith(
+				expect.objectContaining({
+					action: "PLANNING_PACKET_APPROVED",
+					after: expect.objectContaining({
+						status: "approved",
+						approvedBy: USER_ID,
+					}),
+				}),
+			);
 		});
 	});
 

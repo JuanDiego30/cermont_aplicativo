@@ -6,6 +6,9 @@ import {
 describe("global rate-limit scope", () => {
 	it.each([
 		"/api/health",
+		"/api/health/live",
+		"/api/health/ready",
+		"/health/live",
 		"/api/auth/login",
 		"/api/auth/refresh",
 		"/api/auth/me",

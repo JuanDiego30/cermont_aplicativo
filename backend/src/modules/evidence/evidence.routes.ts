@@ -11,41 +11,18 @@ import {
 	PaginationQuerySchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import multer from "multer";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import { uploadLimiter } from "../../middlewares/rate-limiter";
+import {
+	evidenceUpload,
+	handleUploadError,
+	validateUploadedFileHeaders,
+} from "../../middlewares/uploadMiddleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 import * as EvidenceController from "./evidence.controller";
 
 const router = Router();
-
-// DOC-04 §9: Only allow image MIME types for evidence uploads
-const ALLOWED_MIME_TYPES = new Set([
-	"image/jpeg",
-	"image/png",
-	"image/webp",
-	"image/heic",
-	"image/heif",
-	"image/bmp",
-	"image/gif",
-]);
-
-const upload = multer({
-	storage: multer.memoryStorage(),
-	limits: { fileSize: 10 * 1024 * 1024 },
-	fileFilter: (_req, file, cb) => {
-		if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
-			cb(null, true);
-		} else {
-			cb(
-				new Error(
-					`File type "${file.mimetype}" is not allowed. Only images are accepted.`,
-				) as unknown as null,
-				false,
-			);
-		}
-	},
-});
 
 // GET /api/evidences/stats — evidence statistics for dashboard
 // Roles: Todos (all authenticated users)
@@ -78,7 +55,10 @@ router.post(
 	"/",
 	authenticate,
 	authorize("operador", "tecnico", "supervisor"),
-	upload.single("file"),
+	uploadLimiter,
+	evidenceUpload.single("file"),
+	handleUploadError,
+	validateUploadedFileHeaders,
 	validateBody(CreateEvidenceSchema),
 	EvidenceController.uploadEvidence,
 );

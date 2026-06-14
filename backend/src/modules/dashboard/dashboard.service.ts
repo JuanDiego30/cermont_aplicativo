@@ -14,12 +14,12 @@ import { Asset } from "../../models/Asset";
 import { Cost } from "../../models/Cost";
 import { DeliveryRecord } from "../../models/DeliveryRecord";
 import { Document } from "../../models/Document";
-import { Evidence } from "../../models/Evidence";
 import { Invoice } from "../../models/Invoice";
 import { MaintenanceKit } from "../../models/MaintenanceKit";
 import { Order } from "../../models/Order";
 import { Payment } from "../../models/Payment";
 import { Proposal } from "../../models/Proposal";
+import { ServiceCase } from "../../models/ServiceCase";
 import { ServiceEntrySheet } from "../../models/ServiceEntrySheet";
 import { WorkRequest } from "../../models/WorkRequest";
 
@@ -29,14 +29,23 @@ const log = createLogger("dashboard-service");
 
 const PIPELINE_STAGES = [
 	{ stage: "intake", label: "Solicitudes", order: 1 },
-	{ stage: "proposal", label: "Propuestas", order: 2 },
-	{ stage: "planning", label: "Planeación", order: 3 },
-	{ stage: "in_execution", label: "Ejecución", order: 4 },
-	{ stage: "technical_closure", label: "Cierre Técnico", order: 5 },
-	{ stage: "administrative_closure", label: "Cierre Admin", order: 6 },
-	{ stage: "billing", label: "Facturación", order: 7 },
-	{ stage: "paid", label: "Pagado", order: 8 },
+	{ stage: "assessment", label: "Visita técnica", order: 2 },
+	{ stage: "proposal", label: "Propuestas", order: 3 },
+	{ stage: "authorization", label: "Autorización / PO", order: 4 },
+	{ stage: "planning", label: "Planeación", order: 5 },
+	{ stage: "ready_to_execute", label: "Listo para ejecutar", order: 6 },
+	{ stage: "in_execution", label: "Ejecución", order: 7 },
+	{ stage: "technical_closure", label: "Cierre técnico", order: 8 },
+	{ stage: "administrative_closure", label: "Cierre administrativo", order: 9 },
+	{ stage: "ses_pending", label: "SES pendiente", order: 10 },
+	{ stage: "billing_pending", label: "Facturación pendiente", order: 11 },
+	{ stage: "receivable_open", label: "Cartera abierta", order: 12 },
+	{ stage: "paid", label: "Pagado", order: 13 },
+	{ stage: "archived", label: "Archivado", order: 14 },
+	{ stage: "cancelled", label: "Cancelado", order: 15 },
 ];
+
+const TERMINAL_PIPELINE_STAGES = new Set(["paid", "archived", "cancelled"]);
 
 export async function getDashboardSummary(): Promise<DashboardSummary> {
 	const now = new Date().toISOString();
@@ -51,7 +60,6 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 	let assetMaintenance: DashboardSummary["assetMaintenance"];
 	let offlineSync: DashboardSummary["offlineSync"];
 	let recentActivity: DashboardSummary["recentActivity"];
-	let _charts: Record<string, unknown>;
 	let orderStatuses: DashboardSummary["charts"]["ordersByStatus"];
 	let monthlyOrders: DashboardSummary["charts"]["ordersByMonth"];
 	let costByCategory: DashboardSummary["charts"]["costByCategory"];
@@ -68,7 +76,6 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 			assetMaintenance,
 			offlineSync,
 			recentActivity,
-			_charts,
 			orderStatuses,
 			monthlyOrders,
 			costByCategory,
@@ -83,7 +90,6 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 			buildAssetMaintenance(),
 			buildOfflineSync(),
 			buildRecentActivity(),
-			buildCharts(),
 			getOrdersByStatus(),
 			getMonthlyOrders(),
 			getCostByCategory(),
@@ -123,58 +129,32 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 // ── Pipeline ────────────────────────────────────────────────────────
 
 async function buildPipeline() {
-	const [_orderCounts, proposalCounts, wrCounts, closedCounts, submittedWRs] = await Promise.all([
-		Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
-		Proposal.countDocuments(),
-		WorkRequest.countDocuments(),
-		Order.countDocuments({ status: { $in: ["closed", "completed"] } }),
-		WorkRequest.countDocuments({ status: { $in: ["submitted", "qualified"] } }),
+	const stageCounts = await ServiceCase.aggregate<{ _id: string; count: number }>([
+		{ $group: { _id: "$currentStage", count: { $sum: 1 } } },
 	]);
+	return buildPipelineSummary(stageCounts);
+}
 
-	const totalOrders = await Order.countDocuments();
-	const activeOrders = totalOrders - closedCounts;
+export function buildPipelineSummary(
+	stageCounts: Array<{ _id: string; count: number }>,
+): DashboardSummary["operationalPipeline"] {
+	const countByStage = new Map(stageCounts.map((entry) => [entry._id, entry.count]));
+	const totalCases = stageCounts.reduce((total, entry) => total + entry.count, 0);
+	const totalClosed = (countByStage.get("paid") ?? 0) + (countByStage.get("archived") ?? 0);
+	const totalActive = stageCounts.reduce(
+		(total, entry) => (TERMINAL_PIPELINE_STAGES.has(entry._id) ? total : total + entry.count),
+		0,
+	);
 
 	return {
 		stages: PIPELINE_STAGES.map((stage) => ({
 			...stage,
-			count: estimateStageCount(stage.stage, {
-				orders: totalOrders,
-				active: activeOrders,
-				closed: closedCounts,
-				proposals: proposalCounts,
-				workRequests: wrCounts,
-				submittedWRs,
-			}),
+			count: countByStage.get(stage.stage) ?? 0,
 		})),
-		totalActive: activeOrders,
-		totalClosed: closedCounts,
-		completionRate: totalOrders > 0 ? Math.round((closedCounts / totalOrders) * 100) : 0,
+		totalActive,
+		totalClosed,
+		completionRate: totalCases > 0 ? Math.round((totalClosed / totalCases) * 100) : 0,
 	};
-}
-
-function estimateStageCount(
-	stage: string,
-	counts: {
-		orders: number;
-		active: number;
-		closed: number;
-		proposals: number;
-		workRequests: number;
-		submittedWRs: number;
-	},
-): number {
-	const estimates: Record<string, () => number> = {
-		intake: () => counts.submittedWRs,
-		proposal: () => counts.proposals,
-		planning: () => Math.round(counts.active * 0.3),
-		in_execution: () => Math.round(counts.active * 0.35),
-		technical_closure: () => Math.round(counts.active * 0.2),
-		administrative_closure: () => Math.round(counts.active * 0.15),
-		billing: () => Math.round(counts.closed * 0.6),
-		paid: () => Math.round(counts.closed * 0.4),
-	};
-
-	return (estimates[stage] ?? (() => 0))();
 }
 
 // ── Blockers ─────────────────────────────────────────────────────────
@@ -423,10 +403,6 @@ async function buildRecentActivity() {
 
 // ── Charts ────────────────────────────────────────────────────────────
 
-async function buildCharts() {
-	return {}; // Populated by sub-aggregations below
-}
-
 async function getOrdersByStatus() {
 	const data = await Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]);
 
@@ -457,11 +433,21 @@ async function getMonthlyOrders() {
 }
 
 async function getCostByCategory() {
-	const data = await Evidence.aggregate([{ $group: { _id: "$category", count: { $sum: 1 } } }]);
+	const data = await Cost.aggregate<{ _id: string; total: number }>([
+		{ $match: { status: "active" } },
+		{ $group: { _id: "$category", total: { $sum: "$actualAmount" } } },
+		{ $sort: { total: -1 } },
+	]);
 
+	return mapCostCategoryRows(data);
+}
+
+export function mapCostCategoryRows(
+	data: Array<{ _id: string; total: number }>,
+): DashboardSummary["charts"]["costByCategory"] {
 	return data.map((entry) => ({
-		label: entry._id ?? "Sin categoría",
-		value: entry.count,
+		label: entry._id || "Sin categoría",
+		value: entry.total,
 	}));
 }
 

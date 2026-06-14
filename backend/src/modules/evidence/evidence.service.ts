@@ -12,6 +12,9 @@
  * - Support for V2 schema with variants and enhanced metadata
  */
 
+import { ADMIN_PLUS_RESIDENTE, type UserRole } from "@cermont/domain";
+// Import V2 types from shared-types
+import type { EvidenceCategory, EvidencePhase } from "@cermont/shared-types";
 import { Types } from "mongoose";
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
@@ -19,42 +22,21 @@ import {
 	BadRequestError,
 	NotFoundError,
 	ServiceUnavailableError,
+	UnsupportedMediaTypeError,
 } from "../../common/errors/AppError";
 import { saveFile } from "../../common/storage/local-storage";
 import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
-import { scanWithClamAV } from "../../middlewares/uploadMiddleware";
-import { Evidence, Order } from "../../models";
+import {
+	hasValidImageSignature,
+	MAX_FILE_SIZE,
+	scanWithClamAV,
+} from "../../middlewares/uploadMiddleware";
+import { Evidence, Order, ServiceCase } from "../../models";
 import type { IEvidenceDocument } from "../../models/Evidence";
 import { createAuditLog } from "../../modules/audit/audit.service";
+import { assertServiceCaseStageMutable } from "../../services/case-closure-lock.service";
+import { assertEvidenceReferencesBelongToCase } from "../../services/evidence-reference-integrity.service";
 import { getOrderByIdWithAuth } from "../order/order-crud.service";
-
-/**
- * Validate image magic bytes (PNG, JPEG, WebP, GIF)
- */
-function hasValidImageMagicBytes(buffer: Buffer): boolean {
-	if (buffer.length < 8) {
-		return false;
-	}
-	// PNG: 89 50 4E 47
-	if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
-		return true;
-	}
-	// JPEG: FF D8 FF
-	if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
-		return true;
-	}
-	// WebP/GIF: RIFF (52 49 46 46) or GIF8 (47 49 46 38)
-	if (
-		(buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46) ||
-		(buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38)
-	) {
-		return true;
-	}
-	return false;
-}
-
-// Import V2 types from shared-types
-import type { EvidenceCategory, EvidencePhase } from "@cermont/shared-types";
 
 export interface EvidenceSnapshot {
 	_id: string;
@@ -83,6 +65,54 @@ export interface EvidenceSnapshot {
 
 interface EvidenceCreationOptions {
 	idempotencyKey?: string;
+	actor?: EvidenceActor;
+}
+
+interface EvidenceActor {
+	_id: string;
+	role: UserRole;
+}
+
+function hasGlobalEvidenceAccess(role: UserRole): boolean {
+	return ADMIN_PLUS_RESIDENTE.some((allowedRole) => allowedRole === role);
+}
+
+async function getAccessibleOrderIds(actor: EvidenceActor): Promise<Types.ObjectId[]> {
+	if (hasGlobalEvidenceAccess(actor.role)) {
+		return [];
+	}
+
+	const orders = await Order.find({
+		$or: [{ createdBy: actor._id }, { assignedTo: actor._id }, { supervisedBy: actor._id }],
+	})
+		.select("_id")
+		.lean<Array<{ _id: Types.ObjectId }>>();
+
+	return orders.map((order) => order._id);
+}
+
+async function buildEvidenceVisibilityFilter(
+	actor: EvidenceActor,
+): Promise<Record<string, unknown>> {
+	if (hasGlobalEvidenceAccess(actor.role)) {
+		return {};
+	}
+
+	const orderIds = await getAccessibleOrderIds(actor);
+	return {
+		$or: [{ orderId: { $in: orderIds } }, { workOrderId: { $in: orderIds } }],
+	};
+}
+
+async function assertEvidenceOrderAccess(
+	evidence: IEvidenceDocument,
+	actor: EvidenceActor,
+): Promise<void> {
+	const orderId = evidence.workOrderId?.toString() || evidence.orderId?.toString() || "";
+	if (!orderId) {
+		throw new NotFoundError("Order", "linked evidence order");
+	}
+	await getOrderByIdWithAuth(orderId, actor);
 }
 
 /**
@@ -158,9 +188,8 @@ async function processImageFile(
 	_userId: string,
 ): Promise<{ filename: string; url: string; sizeBytes: number }> {
 	// Generate unique filename
-	const timestamp = Date.now();
 	const unique = uuidv4();
-	const filename = `${timestamp}-${unique}.webp`;
+	const filename = `${unique}.webp`;
 
 	// Compress and convert to WebP using sharp
 	const compressedBuffer = await sharp(buffer).webp({ quality: 80 }).toBuffer();
@@ -178,14 +207,17 @@ async function processImageFile(
 /**
  * Get evidence statistics for dashboard
  */
-export async function getEvidenceStats(_actor: { _id: string; role: string }): Promise<{
+export async function getEvidenceStats(actor: EvidenceActor): Promise<{
 	total: number;
 	pending: number;
 	verified: number;
 }> {
+	const visibilityFilter = await buildEvidenceVisibilityFilter(actor);
 	const [total, verified] = await Promise.all([
-		Evidence.countDocuments({}),
-		Evidence.countDocuments({ verifiedAt: { $ne: null } }),
+		Evidence.countDocuments(visibilityFilter),
+		Evidence.countDocuments({
+			$and: [visibilityFilter, { verifiedAt: { $exists: true } }],
+		}),
 	]);
 
 	return {
@@ -220,17 +252,21 @@ export async function createEvidence(
 ): Promise<EvidenceSnapshot> {
 	const idempotencyKey = normalizeIdempotencyKey(options?.idempotencyKey);
 
+	const order = options?.actor
+		? await getOrderByIdWithAuth(orderId, options.actor)
+		: await Order.findById(orderId).lean();
+	if (!order) {
+		throw new NotFoundError("Order", orderId);
+	}
+
 	if (idempotencyKey) {
-		const existingEvidence = await Evidence.findOne({ idempotencyKey }).lean();
+		const existingEvidence = await Evidence.findOne({
+			idempotencyKey,
+			uploadedBy: userId,
+		}).lean();
 		if (existingEvidence) {
 			return formatEvidenceResponse(existingEvidence);
 		}
-	}
-
-	// Validate order exists
-	const order = await Order.findById(orderId).lean();
-	if (!order) {
-		throw new NotFoundError("Order", orderId);
 	}
 
 	// Validate order state — reject uploads if cancelled/closed
@@ -240,8 +276,8 @@ export async function createEvidence(
 		);
 	}
 
-	if (!hasValidImageMagicBytes(fileBuffer)) {
-		throw new BadRequestError("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
+	if (!hasValidImageSignature(fileBuffer)) {
+		throw new UnsupportedMediaTypeError("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
 	}
 
 	const isSafe = await scanWithClamAV(fileBuffer, `evidence-${orderId}-${type}`);
@@ -271,8 +307,7 @@ export async function createEvidence(
 
 	await evidence.save();
 
-	// Async audit log
-	createAuditLog({
+	await createAuditLog({
 		action: "EVIDENCE_UPLOADED",
 		entity: "Evidence",
 		entityId: evidence._id.toString(),
@@ -341,19 +376,29 @@ export async function createEvidenceV2(
 	}
 
 	// Validate service case exists
-	const { ServiceCase } = await import("../../models/index.js");
 	const serviceCase = await ServiceCase.findById(payload.serviceCaseId).lean();
 	if (!serviceCase) {
 		throw new NotFoundError("ServiceCase", payload.serviceCaseId);
 	}
+	assertServiceCaseStageMutable(serviceCase.currentStage);
+	assertEvidenceReferencesBelongToCase(
+		{
+			workOrderId: payload.workOrderId,
+			executionSessionId: payload.executionSessionId,
+		},
+		{
+			workOrderId: serviceCase.artifacts?.workOrder?.id?.toString(),
+			executionSessionId: serviceCase.artifacts?.executionSession?.id?.toString(),
+		},
+	);
 
 	// Validate image
-	if (!hasValidImageMagicBytes(fileBuffer)) {
-		throw new BadRequestError("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
+	if (!hasValidImageSignature(fileBuffer)) {
+		throw new UnsupportedMediaTypeError("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
 	}
 
-	if (fileBuffer.length > 10 * 1024 * 1024) {
-		throw new BadRequestError("File exceeds 10MB limit");
+	if (fileBuffer.length > MAX_FILE_SIZE) {
+		throw new BadRequestError("File exceeds 20MB limit", "FILE_TOO_LARGE");
 	}
 
 	const isSafe = await scanWithClamAV(
@@ -365,11 +410,10 @@ export async function createEvidenceV2(
 	}
 
 	// Process image - generate variants
-	const timestamp = Date.now();
 	const unique = uuidv4();
-	const originalFilename = `${timestamp}-${unique}.webp`;
-	const webFilename = `${timestamp}-${unique}-web.webp`;
-	const thumbnailFilename = `${timestamp}-${unique}-thumb.webp`;
+	const originalFilename = `${unique}.webp`;
+	const webFilename = `${unique}-web.webp`;
+	const thumbnailFilename = `${unique}-thumb.webp`;
 
 	const originalBuffer = await sharp(fileBuffer).webp({ quality: 90 }).toBuffer();
 	const webBuffer = await sharp(fileBuffer).webp({ quality: 80 }).toBuffer();
@@ -389,7 +433,7 @@ export async function createEvidenceV2(
 
 	// Create V2 evidence record
 	const evidence = new Evidence({
-		code: `EVID-${timestamp}`,
+		code: `EVID-${Date.now()}`,
 		phase: payload.phase,
 		category: payload.category,
 		serviceCaseId: payload.serviceCaseId,
@@ -434,8 +478,7 @@ export async function createEvidenceV2(
 	// Populate user reference
 	await evidence.populate("uploadedBy", "name email");
 
-	// Async audit log
-	createAuditLog({
+	await createAuditLog({
 		action: "EVIDENCE_UPLOADED",
 		entity: "Evidence",
 		entityId: evidence._id.toString(),
@@ -521,7 +564,7 @@ export async function listEvidences(
 		orderId?: string;
 		status?: string;
 	},
-	_actor: { _id: string; role: string },
+	actor: EvidenceActor,
 ): Promise<{
 	data: EvidenceSnapshot[];
 	total: number;
@@ -529,13 +572,29 @@ export async function listEvidences(
 	limit: number;
 	pages: number;
 }> {
-	const filter: Record<string, unknown> = {};
+	const conditions: Record<string, unknown>[] = [];
 	if (query.orderId) {
-		filter.$or = [{ orderId: query.orderId }, { workOrderId: query.orderId }];
+		await getOrderByIdWithAuth(query.orderId, actor);
+		conditions.push({
+			$or: [{ orderId: query.orderId }, { workOrderId: query.orderId }],
+		});
+	} else {
+		conditions.push(await buildEvidenceVisibilityFilter(actor));
 	}
 	if (query.status) {
-		filter.verifiedAt = query.status === "verified" ? { $ne: null } : null;
+		conditions.push(
+			query.status === "verified"
+				? { verifiedAt: { $exists: true } }
+				: { verifiedAt: { $exists: false } },
+		);
 	}
+	const effectiveConditions = conditions.filter((condition) => Object.keys(condition).length > 0);
+	const filter =
+		effectiveConditions.length === 0
+			? {}
+			: effectiveConditions.length === 1
+				? effectiveConditions[0]
+				: { $and: effectiveConditions };
 
 	const skip = (query.page - 1) * query.limit;
 	const [total, docs] = await Promise.all([
@@ -613,19 +672,25 @@ export async function getEvidenceById(
 export async function deleteEvidence(
 	evidenceId: string,
 	userId: string,
+	actor?: EvidenceActor,
 ): Promise<EvidenceSnapshot> {
 	const evidence = await Evidence.findById(evidenceId);
 
 	if (!evidence) {
 		throw new NotFoundError("Evidence", evidenceId);
 	}
+	if (actor) {
+		await assertEvidenceOrderAccess(evidence, actor);
+	}
 
 	// Soft delete: just mark deletedAt flag to preserve audit trail
 	evidence.deletedAt = new Date();
+	evidence.lifecycleStatus = "deleted";
+	evidence.deletedBy = new Types.ObjectId(userId);
+	evidence.deleteReason = "Deleted by authorized user";
 	await evidence.save();
 
-	// Async audit log
-	createAuditLog({
+	await createAuditLog({
 		action: "EVIDENCE_DELETED",
 		entity: "Evidence",
 		entityId: evidence._id.toString(),
@@ -669,6 +734,7 @@ export async function verifyEvidence(
 	evidenceId: string,
 	userId: string,
 	userRole: string,
+	actor?: EvidenceActor,
 ): Promise<EvidenceSnapshot> {
 	// RBAC: Only gerente, residente, supervisor can verify
 	if (!["gerente", "residente", "supervisor"].includes(userRole)) {
@@ -680,13 +746,15 @@ export async function verifyEvidence(
 	if (!evidence) {
 		throw new NotFoundError("Evidence", evidenceId);
 	}
+	if (actor) {
+		await assertEvidenceOrderAccess(evidence, actor);
+	}
 
 	evidence.verifiedAt = new Date();
 	evidence.verifiedBy = new Types.ObjectId(userId);
 	await evidence.save();
 
-	// Async audit log
-	createAuditLog({
+	await createAuditLog({
 		action: "EVIDENCE_VERIFIED",
 		entity: "Evidence",
 		entityId: evidence._id.toString(),

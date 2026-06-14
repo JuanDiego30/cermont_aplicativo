@@ -140,14 +140,14 @@ export async function updateOrderStatus(
 	await order.save();
 
 	// Create Audit Log
-	logAudit({
+	await logAudit({
 		action: "STATUS_CHANGED",
 		entity: "Order",
 		entityId: order._id.toString(),
 		userId: actorId,
 		before: { status: oldStatus },
 		after: { status: newStatus, invoiceReady: order.invoiceReady },
-		metadata: { observations },
+		metadata: observations ? { observations } : { observationsStatus: "not_provided" },
 	});
 
 	return formatOrderResponse(order);
@@ -198,7 +198,7 @@ export async function assignOrder(orderId: string, userId: string): Promise<Orde
 	await order.save();
 
 	// Create Audit Log for assignment
-	logAudit({
+	await logAudit({
 		action: "ORDER_ASSIGNED",
 		entity: "Order",
 		entityId: order._id.toString(),
@@ -232,7 +232,7 @@ export async function deleteOrder(orderId: string): Promise<OrderSnapshot> {
 	await order.save();
 
 	// Create Audit Log for deletion
-	logAudit({
+	await logAudit({
 		action: "ORDER_DELETED",
 		entity: "Order",
 		entityId: order._id.toString(),

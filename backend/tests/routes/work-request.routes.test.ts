@@ -63,7 +63,11 @@ describe("WorkRequest API Endpoints", () => {
 				.spyOn(WorkRequestService, "createWorkRequest")
 				.mockResolvedValue(mockResult);
 
-			const result = await WorkRequestService.createWorkRequest(mockInput, "user123");
+			const result = await WorkRequestService.createWorkRequest(
+				mockInput,
+				"507f1f77bcf86cd799439011",
+				"gerente",
+			);
 
 			expect(result.workRequest.code).toBe("WR-2024-0001");
 			expect(result.serviceCase.currentStage).toBe("intake");

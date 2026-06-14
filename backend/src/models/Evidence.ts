@@ -1,5 +1,5 @@
 import { type Document, model, Schema, Types } from "mongoose";
-
+import { softDeletePlugin } from "./plugins/soft-delete";
 import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -92,7 +92,10 @@ export interface IEvidenceDocument extends Document {
 	// Verification
 	verifiedAt?: Date;
 	verifiedBy?: Types.ObjectId;
-	deletedAt?: Date | "not_applicable";
+	lifecycleStatus: "active" | "archived" | "deleted";
+	deletedAt?: Date;
+	deletedBy?: Types.ObjectId;
+	deleteReason?: string;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -200,6 +203,7 @@ EvidenceSchema.index({ syncStatus: 1 });
 // Query optimization
 EvidenceSchema.index({ uploadedBy: 1, createdAt: -1 });
 EvidenceSchema.index({ capturedAt: 1 });
+EvidenceSchema.plugin(softDeletePlugin);
 
 // toJSON: limpiar __v de respuestas
 EvidenceSchema.set("toJSON", {

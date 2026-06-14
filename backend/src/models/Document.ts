@@ -1,4 +1,5 @@
 import { type Document as MongooseDocument, model, Schema, type Types } from "mongoose";
+import { softDeletePlugin } from "./plugins/soft-delete";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Document Model — Per DOC-09 §7 (Diccionario de Datos)
@@ -222,6 +223,7 @@ const documentSchema = new Schema<IDocument>(
 documentSchema.index({ order_id: 1, signed: 1 });
 documentSchema.index({ "associations.orderId": 1, "associations.serviceCaseId": 1 });
 documentSchema.index({ lifecycleStatus: 1, retentionUntil: 1 });
+documentSchema.plugin(softDeletePlugin);
 
 const DocumentModel = model<IDocument>("Document", documentSchema);
 

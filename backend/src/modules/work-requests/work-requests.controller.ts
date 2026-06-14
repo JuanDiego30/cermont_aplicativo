@@ -20,7 +20,7 @@ export async function createWorkRequest(req: Request, res: Response) {
 	const userId = user._id.toString();
 	const data = CreateWorkRequestSchema.parse(req.body);
 
-	const result = await WorkRequestService.createWorkRequest(data, userId);
+	const result = await WorkRequestService.createWorkRequest(data, userId, user.role);
 
 	res.status(201).json({ success: true, data: result });
 }

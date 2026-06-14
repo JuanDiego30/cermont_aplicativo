@@ -11,6 +11,7 @@
 
 import type { DomainBlocker } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
+import { tenantIsolationPlugin } from "./plugins/tenant-isolation";
 
 const SERVICE_CASE_STAGES = [
 	"intake",
@@ -131,6 +132,7 @@ serviceCaseSchema.index({ code: 1 }, { unique: true });
 serviceCaseSchema.index({ clientId: 1, currentStage: 1 });
 serviceCaseSchema.index({ currentStage: 1, updatedAt: -1 });
 serviceCaseSchema.index({ currentStepCode: 1 });
+serviceCaseSchema.plugin(tenantIsolationPlugin);
 
 export type ServiceCaseDocument = Document & {
 	_id: Types.ObjectId;

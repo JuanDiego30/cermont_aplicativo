@@ -29,12 +29,21 @@ export async function createAsset(data: CreateAssetInput, userId: string) {
  * @returns Paginated list of assets
  */
 export async function getAssets(query: ListAssetsQuery) {
-	const { page = 0, limit = 20, status, type, assignedToId } = query;
+	const { page = 0, limit = 20, search, status, type, assignedToId } = query;
 
 	// Build filter based on RBAC
 	const filter: Record<string, unknown> = {};
 
 	// Apply query filters
+	if (search) {
+		const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+		const searchPattern = new RegExp(escapedSearch, "i");
+		filter.$or = [
+			{ code: searchPattern },
+			{ name: searchPattern },
+			{ serialNumber: searchPattern },
+		];
+	}
 	if (status) {
 		filter.status = status;
 	}

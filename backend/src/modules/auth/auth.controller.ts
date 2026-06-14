@@ -133,8 +133,29 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 		throw new UnauthorizedError("Refresh token not found in cookies");
 	}
 
-	// Service throws if token invalid/expired
-	const { accessToken } = await AuthService.refreshAccessToken(refreshToken);
+	// CRITICAL: clear stale cookies before throwing so the browser does not
+	// loop on an invalid refreshToken indefinitely.  This covers three cases:
+	//   1. Token was issued before the auth-service refactor (missing claims)
+	//   2. Token was revoked (logout, password change, reuse detection)
+	//   3. Token has expired
+	// The try/catch is intentional — Express 5 auto-propagates unhandled async
+	// rejections, but we need to clear the cookies BEFORE rethrowing so the
+	// browser discards the stale cookie even when the error response is sent.
+	let accessToken: string;
+	let rotatedRefreshToken: string;
+	try {
+		({ accessToken, refreshToken: rotatedRefreshToken } =
+			await AuthService.refreshAccessToken(refreshToken));
+	} catch (error) {
+		res.clearCookie("refreshToken", getRefreshTokenCookieOptions(req));
+		res.clearCookie("userRole", getReadableRoleCookieOptions(req));
+		throw error;
+	}
+
+	res.cookie("refreshToken", rotatedRefreshToken, {
+		...getRefreshTokenCookieOptions(req),
+		maxAge: getRefreshTokenMaxAge() * 1000,
+	});
 
 	res.status(200).json({
 		success: true,

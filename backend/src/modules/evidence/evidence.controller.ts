@@ -122,6 +122,7 @@ export async function uploadEvidence(req: Request, res: Response): Promise<void>
 		},
 		{
 			idempotencyKey: req.get("Idempotency-Key") ?? undefined,
+			actor: user,
 		},
 	);
 
@@ -135,7 +136,7 @@ export async function deleteEvidence(req: Request, res: Response): Promise<void>
 	const { id } = EvidenceIdSchema.parse(req.params);
 	const user = requireUser(req);
 
-	const evidence = await EvidenceService.deleteEvidence(id, user._id);
+	const evidence = await EvidenceService.deleteEvidence(id, user._id, user);
 
 	res.status(200).json({
 		success: true,
@@ -147,7 +148,7 @@ export async function verifyEvidence(req: Request, res: Response): Promise<void>
 	const { id } = EvidenceIdSchema.parse(req.params);
 	const user = requireUser(req);
 
-	const evidence = await EvidenceService.verifyEvidence(id, user._id, user.role);
+	const evidence = await EvidenceService.verifyEvidence(id, user._id, user.role, user);
 
 	res.status(200).json({
 		success: true,

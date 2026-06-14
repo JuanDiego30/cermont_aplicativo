@@ -9,7 +9,8 @@ import {
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
-import { processUploadedFile, upload } from "../../middlewares/uploadMiddleware";
+import { uploadLimiter } from "../../middlewares/rate-limiter";
+import { handleUploadError, processUploadedFile, upload } from "../../middlewares/uploadMiddleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 import {
 	archiveDocument,
@@ -30,7 +31,9 @@ router.use(authenticate);
 router.post(
 	"/",
 	authorize("gerente", "residente", "administrativo", "supervisor"),
+	uploadLimiter,
 	upload.single("file"),
+	handleUploadError,
 	validateBody(UploadDocumentSchema),
 	processUploadedFile,
 	uploadDocument,
@@ -40,7 +43,9 @@ router.post(
 router.post(
 	"/upload",
 	authorize("gerente", "residente", "administrativo", "supervisor"),
+	uploadLimiter,
 	upload.single("file"),
+	handleUploadError,
 	validateBody(UploadDocumentSchema),
 	processUploadedFile,
 	uploadDocument,
@@ -50,7 +55,9 @@ router.post(
 router.post(
 	"/upload-contextual",
 	authorize("gerente", "residente", "administrativo", "supervisor"),
+	uploadLimiter,
 	upload.single("file"),
+	handleUploadError,
 	validateBody(UploadDocumentSchema),
 	processUploadedFile,
 	uploadDocument,

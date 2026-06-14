@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppError, ForbiddenError } from "../../src/common/errors/AppError";
 import {
+	calculateProposalTotals,
 	convertProposalToOrder,
 	createProposal,
 	findAllProposals,
@@ -89,6 +90,23 @@ describe("ProposalService", () => {
 	});
 
 	describe("create()", () => {
+		it("calculates line totals and summary values on the server", () => {
+			expect(
+				calculateProposalTotals([
+					{ description: "A", unit: "und", quantity: 2, unitCost: 10_000 },
+					{ description: "B", unit: "und", quantity: 3, unitCost: 5_000 },
+				]),
+			).toEqual({
+				items: [
+					{ description: "A", unit: "und", quantity: 2, unitCost: 10_000, total: 20_000 },
+					{ description: "B", unit: "und", quantity: 3, unitCost: 5_000, total: 15_000 },
+				],
+				subtotal: 35_000,
+				taxRate: 0.19,
+				total: 41_650,
+			});
+		});
+
 		it("crea una propuesta con totales y código secuencial", async () => {
 			counterMock.inc.mockResolvedValue(7);
 			proposalModelMock.mockImplementation(function (this: unknown, data: Record<string, unknown>) {
@@ -211,6 +229,38 @@ describe("ProposalService", () => {
 	});
 
 	describe("updateStatus()", () => {
+		it("recalculates stale totals before approval", async () => {
+			const proposal = buildProposalDoc({
+				status: "draft",
+				items: [
+					{
+						description: "Filtro",
+						unit: "und",
+						quantity: 2,
+						unitCost: 15_000,
+						total: 1,
+					},
+				],
+				subtotal: 1,
+				total: 1,
+			});
+			proposalModelMock.findById.mockResolvedValue(proposal);
+
+			await updateProposalStatus("proposal-id", "approved", "approver-id");
+
+			expect(proposal.items).toEqual([
+				{
+					description: "Filtro",
+					unit: "und",
+					quantity: 2,
+					unitCost: 15_000,
+					total: 30_000,
+				},
+			]);
+			expect(proposal.subtotal).toBe(30_000);
+			expect(proposal.total).toBe(35_700);
+		});
+
 		it("aprueba una propuesta y asigna aprobado por", async () => {
 			const proposal = buildProposalDoc({
 				status: "draft",

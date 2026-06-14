@@ -297,6 +297,24 @@ export async function getTemplateDraftById(
 	return draft ?? undefined;
 }
 
+function buildDraftAuditSnapshot(draft: ITemplateDraftDocument) {
+	return {
+		name: draft.name,
+		status: draft.status,
+		serviceTypes: [...draft.serviceTypes],
+		targetStages: [...draft.targetStages],
+		...(draft.targetStepCode
+			? { targetStepCode: draft.targetStepCode }
+			: { targetStepStatus: "not_assigned" }),
+		sectionCount: draft.sections.length,
+		fieldCount: draft.sections.reduce((total, section) => total + section.fields.length, 0),
+		tableCount:
+			draft.tables.length +
+			draft.sections.reduce((total, section) => total + section.tables.length, 0),
+		ruleCount: draft.rules.length,
+	};
+}
+
 /**
  * Create a new template draft manually or from ingestion
  */
@@ -318,7 +336,7 @@ export async function createTemplateDraft(
 		entity: "TemplateDraft",
 		entityId: draft._id.toString(),
 		action: "TEMPLATE_DRAFT_CREATED",
-		after: draft.toObject(),
+		after: buildDraftAuditSnapshot(draft),
 	});
 
 	return draft;
@@ -344,7 +362,7 @@ export async function updateTemplateDraft(
 		);
 	}
 
-	const before = draft.toObject();
+	const before = buildDraftAuditSnapshot(draft);
 	Object.assign(draft, {
 		...dto,
 		sections: normalizeDraftSections(dto.sections),
@@ -357,7 +375,7 @@ export async function updateTemplateDraft(
 		entityId: draft._id.toString(),
 		action: "TEMPLATE_DRAFT_UPDATED",
 		before,
-		after: draft.toObject(),
+		after: buildDraftAuditSnapshot(draft),
 	});
 
 	return draft;

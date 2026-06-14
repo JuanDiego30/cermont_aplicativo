@@ -47,6 +47,7 @@ function createRedisConnection(): ConnectionOptions | null {
 			},
 		};
 	} catch {
+		log.warn("Redis not available — queue notifications will use MongoDB fallback");
 		return null;
 	}
 }
@@ -83,6 +84,7 @@ async function getQueue(): Promise<Queue | null> {
 		});
 		return notificationQueue;
 	} catch {
+		log.warn("Failed to create BullMQ queue — falling back to MongoDB");
 		connection = null;
 		return null;
 	}

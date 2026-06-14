@@ -10,7 +10,7 @@
  * State transitions are in order-state.service.ts
  */
 
-import { ADMIN_ROLES } from "@cermont/domain";
+import { ADMIN_PLUS_RESIDENTE } from "@cermont/domain";
 import { ForbiddenError, NotFoundError } from "../../common/errors/AppError";
 import type { MaterialItem } from "../../config/kit-templates";
 import { getDefaultKitForOrderType } from "../../config/kit-templates";
@@ -81,7 +81,7 @@ export async function createOrder(
 	await order.save();
 
 	// Create Audit Log for order creation
-	logAudit({
+	await logAudit({
 		action: "ORDER_CREATED",
 		entity: "Order",
 		entityId: order._id.toString(),
@@ -91,7 +91,9 @@ export async function createOrder(
 			type: order.type,
 			priority: order.priority,
 			status: order.status,
-			proposalId: payload.proposalId,
+			...(payload.proposalId
+				? { proposalId: payload.proposalId }
+				: { proposalLinkStatus: "not_linked" }),
 		},
 	});
 
@@ -202,11 +204,14 @@ export async function getOrderByIdWithAuth(
 	}
 
 	// Check if user has access to this order
-	const isAdmin = ADMIN_ROLES.includes(requestingUser.role as (typeof ADMIN_ROLES)[number]);
+	const isAdmin = ADMIN_PLUS_RESIDENTE.includes(
+		requestingUser.role as (typeof ADMIN_PLUS_RESIDENTE)[number],
+	);
 	const isOwner = order.createdBy?.toString() === requestingUser._id;
 	const isAssigned = order.assignedTo?.toString() === requestingUser._id;
+	const isSupervisor = order.supervisedBy?.toString() === requestingUser._id;
 
-	if (!isAdmin && !isOwner && !isAssigned) {
+	if (!isAdmin && !isOwner && !isAssigned && !isSupervisor) {
 		throw new ForbiddenError("You do not have access to this order");
 	}
 
@@ -263,7 +268,9 @@ export async function updateOrder(
 
 	// If user context provided, check ownership (for PUT /api/orders/:id)
 	if (requestingUser) {
-		const isAdmin = ADMIN_ROLES.includes(requestingUser.role as (typeof ADMIN_ROLES)[number]);
+		const isAdmin = ADMIN_PLUS_RESIDENTE.includes(
+			requestingUser.role as (typeof ADMIN_PLUS_RESIDENTE)[number],
+		);
 		const isOwner = order.createdBy?.toString() === requestingUser._id;
 
 		if (!isAdmin && !isOwner) {

@@ -18,6 +18,7 @@ export type Role = UserRole;
 // Single Source of Truth: Inherit pure business data from UserDto
 export type UserDocumentFields = Omit<UserDto, "_id" | "createdAt" | "updatedAt"> & {
 	password: string; // Not in UserDto (backend only)
+	tokenVersion: number;
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -47,6 +48,7 @@ const UserSchema = new Schema<IUserDocument, UserModel, IUserMethods>(
 		},
 		// SEGURIDAD: select:false — password nunca se incluye en queries por defecto
 		password: { type: String, required: true, select: false },
+		tokenVersion: { type: Number, default: 0, min: 0, select: false },
 		role: {
 			type: String,
 			enum: Array.from(USER_ROLES),

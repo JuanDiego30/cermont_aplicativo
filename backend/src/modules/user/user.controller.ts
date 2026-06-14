@@ -24,6 +24,7 @@ import {
 	UserRoleParamsSchema,
 } from "@cermont/shared-types";
 import type { Request, Response } from "express";
+import { requireUser } from "../../common/utils/request";
 import * as UserService from "./user.service";
 
 /**
@@ -83,7 +84,8 @@ export async function listUsers(req: Request, res: Response): Promise<void> {
  *   { success: false, error: { code: "CONFLICT", message: "User already exists" } }
  */
 export async function createUser(req: Request, res: Response): Promise<void> {
-	const user = await UserService.createUser(CreateUserSchema.parse(req.body));
+	const actor = requireUser(req);
+	const user = await UserService.createUser(CreateUserSchema.parse(req.body), actor._id);
 
 	res.status(201).json({
 		success: true,
@@ -131,7 +133,8 @@ export async function getUser(req: Request, res: Response): Promise<void> {
  */
 export async function updateUser(req: Request, res: Response): Promise<void> {
 	const { id } = UserIdParamsSchema.parse(req.params);
-	const user = await UserService.updateUser(id, UpdateUserSchema.parse(req.body));
+	const actor = requireUser(req);
+	const user = await UserService.updateUser(id, UpdateUserSchema.parse(req.body), actor._id);
 
 	res.status(200).json({
 		success: true,
@@ -154,7 +157,8 @@ export async function updateUser(req: Request, res: Response): Promise<void> {
  */
 export async function deactivateUser(req: Request, res: Response): Promise<void> {
 	const { id } = UserIdParamsSchema.parse(req.params);
-	const user = await UserService.deactivateUser(id);
+	const actor = requireUser(req);
+	const user = await UserService.deactivateUser(id, actor._id);
 
 	res.status(200).json({
 		success: true,
@@ -195,7 +199,8 @@ export async function getUsersByRole(req: Request, res: Response): Promise<void>
 export async function addUserCertification(req: Request, res: Response): Promise<void> {
 	const { id } = UserIdParamsSchema.parse(req.params);
 	const input = AddUserCertificationSchema.parse(req.body);
-	const user = await UserService.addUserCertification(id, input);
+	const actor = requireUser(req);
+	const user = await UserService.addUserCertification(id, input, actor._id);
 
 	res.status(201).json({ success: true, data: user });
 }
@@ -208,7 +213,8 @@ export async function addUserCertification(req: Request, res: Response): Promise
 export async function removeUserCertification(req: Request, res: Response): Promise<void> {
 	const { id } = UserIdParamsSchema.parse(req.params);
 	const certificationName = decodeURIComponent(String(req.params.name ?? ""));
-	const user = await UserService.removeUserCertification(id, certificationName);
+	const actor = requireUser(req);
+	const user = await UserService.removeUserCertification(id, certificationName, actor._id);
 
 	res.status(200).json({ success: true, data: user });
 }
@@ -221,7 +227,8 @@ export async function removeUserCertification(req: Request, res: Response): Prom
 export async function updateUserSkills(req: Request, res: Response): Promise<void> {
 	const { id } = UserIdParamsSchema.parse(req.params);
 	const { skills } = UpdateUserSkillsSchema.parse(req.body);
-	const user = await UserService.updateUserSkills(id, skills);
+	const actor = requireUser(req);
+	const user = await UserService.updateUserSkills(id, skills, actor._id);
 
 	res.status(200).json({ success: true, data: user });
 }

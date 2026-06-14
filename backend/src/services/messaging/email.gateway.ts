@@ -40,7 +40,6 @@ async function sendProductionEmail(payload: MessagePayload): Promise<MessageResu
 			sendMail: (opts: Record<string, unknown>) => Promise<{ messageId: string }>;
 		};
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const nodemailer = require("nodemailer");
 			createTransport = nodemailer.createTransport.bind(nodemailer);
 		} catch {

@@ -60,6 +60,8 @@ function inv(status: string, withoutSesLink = false) {
 		serviceEntrySheetId: withoutSesLink ? undefined : new Types.ObjectId(SES_ID),
 		workOrderId: new Types.ObjectId(ORDER_ID),
 		clientId: new Types.ObjectId(CLIENT_ID),
+		amount: 1_500_000,
+		taxAmount: 0,
 		totalAmount: 1_500_000,
 		currency: "COP",
 		status,
@@ -96,6 +98,7 @@ function ses(status: string) {
 		clientId: new Types.ObjectId(CLIENT_ID),
 		clientName: "Test Client",
 		amount: 1_500_000,
+		taxAmount: 285_000,
 		totalAmount: 1_785_000,
 		currency: "COP",
 		serviceLines: [],
@@ -380,6 +383,11 @@ describe("GATE 6 — Invoice approval actor", () => {
 	it("persists approvedBy when approving invoice", async () => {
 		const invoice = inv("submitted");
 		m.invFindById.mockResolvedValue(invoice);
+		m.sesFindById.mockResolvedValue({
+			...ses("approved"),
+			taxAmount: 0,
+			totalAmount: 1_500_000,
+		});
 
 		await svc.approveInvoice(INVOICE_ID, actor);
 

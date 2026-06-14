@@ -61,6 +61,7 @@ export { Order } from "./Order";
 export { Payment, type PaymentDocument } from "./Payment";
 export { PlanningPacket } from "./PlanningPacket";
 export { Proposal } from "./Proposal";
+export { RefreshToken, type RefreshTokenDocument } from "./RefreshToken";
 export { Report } from "./Report";
 export { Resource } from "./Resource";
 export { ServiceCase } from "./ServiceCase";

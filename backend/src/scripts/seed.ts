@@ -7,7 +7,7 @@
  * - Índice unique en email
  *
  * Uso:
- *   npm run seed          (desde apps/backend, con tsx)
+ *   npm run seed          (desde backend, con tsx)
  *   npm run seed:prod     (con node + dist compilado)
  *   npm run db:seed       (desde la raíz del monorepo)
  *
@@ -25,14 +25,16 @@ import { User } from "../models/User";
 // ─── Config ────────────────────────────────────────────────────────────────────
 
 const env = validateEnv();
-const MONGODB_URI = env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/cermont";
 
-const DEFAULT_PASSWORD = env.SEED_DEFAULT_PASSWORD || "Cermont2026!";
-if (!env.SEED_DEFAULT_PASSWORD) {
-	console.warn(
-		"⚠️  SEED_DEFAULT_PASSWORD environment variable not set. Falling back to 'Cermont2026!'",
-	);
+if (!env.MONGODB_URI) {
+	throw new Error("MONGODB_URI is required to run the seed script");
 }
+if (!env.SEED_DEFAULT_PASSWORD) {
+	throw new Error("SEED_DEFAULT_PASSWORD is required to run the seed script");
+}
+
+const MONGODB_URI = env.MONGODB_URI;
+const DEFAULT_PASSWORD = env.SEED_DEFAULT_PASSWORD;
 
 // ─── Seed data ─────────────────────────────────────────────────────────────────
 
@@ -43,9 +45,6 @@ interface SeedUser {
 	role: UserRole;
 	isActive: boolean;
 	phone: string;
-	/** If set, this password is used directly instead of DEFAULT_PASSWORD.
-	 *  Only for documented dev-seed exceptions where a fixed password is required. */
-	passwordOverride?: string;
 }
 
 const SEED_USERS: SeedUser[] = [
@@ -56,7 +55,6 @@ const SEED_USERS: SeedUser[] = [
 		role: "gerente",
 		isActive: true,
 		phone: "+57 300 000 0000",
-		passwordOverride: "Cermont2026!",
 	},
 	{
 		name: "Gerente Principal",
@@ -141,11 +139,7 @@ async function seed(): Promise<void> {
 		// Crear usuarios — el hook pre('save') hashea la contraseña automáticamente
 		const created: string[] = [];
 		for (const userData of SEED_USERS) {
-			const { passwordOverride, ...safeData } = userData;
-			const user = new User({
-				...safeData,
-				password: passwordOverride ?? userData.password,
-			});
+			const user = new User(userData);
 			await user.save();
 			created.push(user.email);
 		}

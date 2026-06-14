@@ -13,8 +13,8 @@
 import { describe, expect, it } from "vitest";
 import {
 	getDefaultKitForOrderType,
-	getKitTemplate,
 	getKitsByType,
+	getKitTemplate,
 	KIT_REGISTRY,
 	listAllKits,
 } from "../../../src/config/kit-templates";
@@ -62,31 +62,47 @@ describe("KIT CCTV — kit-cctv-001", () => {
 
 	it("includes cámara-related item", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasCamara = names.some((n) => n.includes("cámara") || n.includes("camara") || n.includes("soporte") || n.includes("lente"));
+		const hasCamara = names.some(
+			(n) =>
+				n.includes("cámara") ||
+				n.includes("camara") ||
+				n.includes("soporte") ||
+				n.includes("lente"),
+		);
 		expect(hasCamara).toBe(true);
 	});
 
 	it("includes radioenlace / UTP / POE item", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasRf = names.some((n) => n.includes("antena") || n.includes("utp") || n.includes("poe") || n.includes("radioenlace"));
+		const hasRf = names.some(
+			(n) =>
+				n.includes("antena") || n.includes("utp") || n.includes("poe") || n.includes("radioenlace"),
+		);
 		expect(hasRf).toBe(true);
 	});
 
 	it("includes EPP (arnés o guantes)", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasEpp = names.some((n) => n.includes("arnés") || n.includes("arnes") || n.includes("guante") || n.includes("casco"));
+		const hasEpp = names.some(
+			(n) =>
+				n.includes("arnés") || n.includes("arnes") || n.includes("guante") || n.includes("casco"),
+		);
 		expect(hasEpp).toBe(true);
 	});
 
 	it("includes maintenance format", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasFormat = names.some((n) => n.includes("formato") || n.includes("f-mt") || n.includes("permiso"));
+		const hasFormat = names.some(
+			(n) => n.includes("formato") || n.includes("f-mt") || n.includes("permiso"),
+		);
 		expect(hasFormat).toBe(true);
 	});
 
 	it("includes grounding system item (puesta a tierra)", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasGround = names.some((n) => n.includes("tierra") || n.includes("cobre") || n.includes("cuña"));
+		const hasGround = names.some(
+			(n) => n.includes("tierra") || n.includes("cobre") || n.includes("cuña"),
+		);
 		expect(hasGround).toBe(true);
 	});
 });
@@ -100,13 +116,17 @@ describe("KIT Líneas de Vida — kit-lifeline-001", () => {
 
 	it("includes upper anchor plate (placa anclaje superior)", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasPlaca = names.some((n) => n.includes("placa anclaje superior") || n.includes("placa de anclaje"));
+		const hasPlaca = names.some(
+			(n) => n.includes("placa anclaje superior") || n.includes("placa de anclaje"),
+		);
 		expect(hasPlaca).toBe(true);
 	});
 
 	it("includes stainless steel cable (cable acero inoxidable)", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasCable = names.some((n) => n.includes("cable") && (n.includes("inox") || n.includes("acero")));
+		const hasCable = names.some(
+			(n) => n.includes("cable") && (n.includes("inox") || n.includes("acero")),
+		);
 		expect(hasCable).toBe(true);
 	});
 
@@ -124,19 +144,26 @@ describe("KIT Líneas de Vida — kit-lifeline-001", () => {
 
 	it("includes inspection format", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasFormat = names.some((n) => n.includes("formato") || n.includes("f-in") || n.includes("ast"));
+		const hasFormat = names.some(
+			(n) => n.includes("formato") || n.includes("f-in") || n.includes("ast"),
+		);
 		expect(hasFormat).toBe(true);
 	});
 
 	it("includes lower anchor plate (placa anclaje inferior)", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasInferior = names.some((n) => n.includes("inferior") || n.includes("placa anclaje inferior"));
+		const hasInferior = names.some(
+			(n) => n.includes("inferior") || n.includes("placa anclaje inferior"),
+		);
 		expect(hasInferior).toBe(true);
 	});
 
 	it("includes identification plate (placa identificación)", () => {
 		const names = kit?.materials.map((m) => m.name.toLowerCase()) ?? [];
-		const hasId = names.some((n) => n.includes("identificación") || n.includes("identificacion") || n.includes("trazabilidad"));
+		const hasId = names.some(
+			(n) =>
+				n.includes("identificación") || n.includes("identificacion") || n.includes("trazabilidad"),
+		);
 		expect(hasId).toBe(true);
 	});
 });

@@ -6,6 +6,7 @@ import {
 	OrderTypeSchema,
 } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
+import { tenantIsolationPlugin } from "./plugins/tenant-isolation";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Order Model — Per DOC-09 §7 (Diccionario de Datos)
@@ -56,6 +57,7 @@ export type OrderDocumentFields = Omit<
 	assignedToName?: string;
 	supervisedBy?: Types.ObjectId;
 	proposalId?: Types.ObjectId;
+	clientId?: Types.ObjectId;
 	createdBy: Types.ObjectId;
 	createdAt: Date;
 	updatedAt: Date;
@@ -114,6 +116,7 @@ const OrderSchema = new Schema<IOrderDocument>(
 		reportGenerated: { type: Boolean, default: false },
 
 		proposalId: { type: Types.ObjectId, ref: "Proposal" },
+		clientId: { type: Types.ObjectId, ref: "User", index: true },
 		createdBy: { type: Types.ObjectId, ref: "User", required: true },
 
 		// Custom fields for "other" values and extensions
@@ -136,6 +139,8 @@ OrderSchema.index({ status: 1, assignedTo: 1 });
 OrderSchema.index({ createdAt: -1 });
 // Historial de un activo
 OrderSchema.index({ assetId: 1, status: 1 });
+OrderSchema.index({ clientId: 1, status: 1 });
+OrderSchema.plugin(tenantIsolationPlugin);
 
 // toJSON: limpiar __v de respuestas
 OrderSchema.set("toJSON", {

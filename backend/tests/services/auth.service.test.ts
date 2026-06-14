@@ -1,345 +1,376 @@
-/**
- * AuthService Unit Tests
- *
- * Tests for authentication business logic:
- * - Token generation and validation
- * - User login with password hashing
- * - Token refresh mechanism
- * - Token revocation (logout)
- * - Error handling
- *
- * NOTE: AuthService exports functions, NOT a class
- */
-
+import crypto from "node:crypto";
 import jwt, { type JwtPayload } from "jsonwebtoken";
+import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UnauthorizedError } from "../../src/common/errors/AppError";
-import { TokenBlacklist, User } from "../../src/models";
+import { RefreshToken, TokenBlacklist, User } from "../../src/models";
 import * as authService from "../../src/modules/auth/auth.service";
 
-// Mock dependencies BEFORE importing AuthService
 vi.mock("jsonwebtoken");
 vi.mock("uuid", () => ({
-	v4: vi.fn().mockReturnValue("test-uuid-1234"),
+	v4: vi
+		.fn()
+		.mockReturnValueOnce("family-id")
+		.mockReturnValueOnce("access-jti")
+		.mockReturnValueOnce("refresh-jti")
+		.mockReturnValue("next-jti"),
 }));
 vi.mock("../../src/models", () => ({
 	User: {
 		findOne: vi.fn(),
 		findById: vi.fn(),
+		updateOne: vi.fn(),
 	},
 	TokenBlacklist: {
 		findOne: vi.fn(),
-		create: vi.fn(),
+		updateOne: vi.fn(),
 	},
+	RefreshToken: {
+		create: vi.fn(),
+		findOne: vi.fn(),
+		findOneAndUpdate: vi.fn(),
+		updateMany: vi.fn(),
+		updateOne: vi.fn(),
+		deleteMany: vi.fn(),
+	},
+}));
+vi.mock("../../src/modules/audit/audit.service", () => ({
+	createAuditLog: vi.fn(),
 }));
 vi.mock("../../src/common/utils/logger", () => ({
 	createLogger: vi.fn().mockReturnValue({
 		info: vi.fn(),
+		warn: vi.fn(),
 		error: vi.fn(),
 	}),
 }));
 
-/** Helper: mock a Mongoose findOne chain ending with .select() */
+function hashToken(token: string): string {
+	return crypto.createHash("sha256").update(token).digest("hex");
+}
+
 function mockFindOneSelect<T>(value: T) {
 	return { select: vi.fn().mockResolvedValue(value) };
 }
 
-/** Helper: mock a Mongoose findById chain ending with .lean() */
-function mockFindByIdLean<T>(value: T) {
-	return { lean: vi.fn().mockResolvedValue(value) };
-}
-
-/** Helper: mock a TokenBlacklist.findOne chain ending with .lean() */
 function mockFindOneLean<T>(value: T) {
 	return { lean: vi.fn().mockResolvedValue(value) };
 }
 
-describe("AuthService", () => {
+function mockRefreshSessionQuery<T>(value: T) {
+	return {
+		select: vi.fn().mockReturnValue({
+			lean: vi.fn().mockReturnValue({
+				exec: vi.fn().mockResolvedValue(value),
+			}),
+		}),
+	};
+}
+
+function mockUserRefreshQuery<T>(value: T) {
+	return {
+		select: vi.fn().mockReturnValue({
+			lean: vi.fn().mockReturnValue({
+				exec: vi.fn().mockResolvedValue(value),
+			}),
+		}),
+	};
+}
+
+function mockExec<T>(value: T) {
+	return { exec: vi.fn().mockResolvedValue(value) };
+}
+
+describe("AuthService refresh token rotation", () => {
 	const mockUserId = "507f1f77bcf86cd799439011";
+	const userObjectId = new Types.ObjectId(mockUserId);
 	const mockEmail = "test@cermont.com";
 	const mockName = "Test User";
 	const mockPassword = "SecurePass123!";
 	const mockRole = "gerente";
-	const _mockJwtSecret = "test-secret";
-	const _mockRefreshSecret = "test-refresh-secret";
+	const currentRefreshToken = "current-refresh-token";
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		// Use values from setup.ts which are already loaded
-		// mockJwtSecret and mockRefreshSecret come from process.env set by vitest setup
+		vi.mocked(jwt.sign)
+			.mockReturnValueOnce("new-access-token")
+			.mockReturnValueOnce("new-refresh-token");
+		vi.mocked(TokenBlacklist.findOne).mockReturnValue(mockFindOneLean(false));
+		vi.mocked(TokenBlacklist.updateOne).mockResolvedValue({
+			acknowledged: true,
+			matchedCount: 1,
+			modifiedCount: 1,
+			upsertedCount: 0,
+			upsertedId: null,
+		});
+		vi.mocked(RefreshToken.create).mockResolvedValue(
+			{} as Awaited<ReturnType<typeof RefreshToken.create>>,
+		);
+		vi.mocked(RefreshToken.updateMany).mockResolvedValue({
+			acknowledged: true,
+			matchedCount: 1,
+			modifiedCount: 1,
+			upsertedCount: 0,
+			upsertedId: null,
+		});
+		vi.mocked(RefreshToken.updateOne).mockResolvedValue({
+			acknowledged: true,
+			matchedCount: 1,
+			modifiedCount: 1,
+			upsertedCount: 0,
+			upsertedId: null,
+		});
+		vi.mocked(User.updateOne).mockResolvedValue({
+			acknowledged: true,
+			matchedCount: 1,
+			modifiedCount: 1,
+			upsertedCount: 0,
+			upsertedId: null,
+		});
 	});
 
-	describe("login", () => {
-		it("should login with valid credentials", async () => {
-			const mockUser = {
-				_id: mockUserId,
-				name: mockName,
-				email: mockEmail,
-				role: mockRole,
-				isActive: true,
-				comparePassword: vi.fn().mockResolvedValue(true),
-				select: vi.fn().mockReturnThis(),
-			};
+	it("persists a hashed refresh session on successful login", async () => {
+		const mockUser = {
+			_id: userObjectId,
+			name: mockName,
+			email: mockEmail,
+			role: mockRole,
+			isActive: true,
+			tokenVersion: 0,
+			comparePassword: vi.fn().mockResolvedValue(true),
+		};
+		vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(mockUser));
 
-			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(mockUser));
+		const result = await authService.login(mockEmail, mockPassword);
 
-			const mockAccessToken = "mock-access-token";
-			vi.mocked(jwt.sign).mockReturnValue(mockAccessToken);
+		expect(result.accessToken).toBe("new-access-token");
+		expect(result.refreshToken).toBe("new-refresh-token");
+		expect(RefreshToken.create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				userId: userObjectId,
+				tokenHash: hashToken("new-refresh-token"),
+				tokenVersion: 0,
+				status: expect.objectContaining({ state: "active" }),
+			}),
+		);
+		expect(mockUser.comparePassword).toHaveBeenCalledWith(mockPassword);
+	});
 
-			const result = await authService.login(mockEmail, mockPassword);
+	it("rejects invalid credentials without creating a refresh session", async () => {
+		vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(false));
 
-			expect(User.findOne).toHaveBeenCalledWith({ email: mockEmail });
-			// Verify select was called (returned chain object)
-			expect(vi.mocked(User.findOne).mock.results[0].value.select).toBeDefined();
-			expect(mockUser.comparePassword).toHaveBeenCalledWith(mockPassword);
-			expect(result).toEqual({
-				accessToken: mockAccessToken,
-				refreshToken: mockAccessToken,
-				user: {
-					_id: mockUserId,
-					name: mockName,
-					email: mockEmail,
-					role: mockRole,
-					isActive: true,
+		await expect(authService.login(mockEmail, mockPassword)).rejects.toThrow(UnauthorizedError);
+		expect(RefreshToken.create).not.toHaveBeenCalled();
+	});
+
+	it("rotates the refresh token atomically and persists the replacement", async () => {
+		const payload = {
+			sub: mockUserId,
+			role: mockRole,
+			jti: "old-refresh-jti",
+			familyId: "family-1",
+			tokenVersion: 2,
+			tokenType: "refresh",
+		} satisfies JwtPayload;
+		const session = {
+			jti: "old-refresh-jti",
+			userId: userObjectId,
+			familyId: "family-1",
+			tokenHash: hashToken(currentRefreshToken),
+			tokenVersion: 2,
+			expiresAt: new Date(Date.now() + 60_000),
+			status: {
+				state: "active",
+				changedAt: new Date(),
+				reason: "none",
+				replacedByJti: "",
+			},
+		} as const;
+		const user = {
+			_id: userObjectId,
+			email: mockEmail,
+			role: mockRole,
+			isActive: true,
+			tokenVersion: 2,
+		};
+
+		vi.mocked(jwt.verify).mockReturnValue(payload);
+		vi.mocked(RefreshToken.findOne).mockReturnValue(mockRefreshSessionQuery(session));
+		vi.mocked(User.findById).mockReturnValue(mockUserRefreshQuery(user));
+		vi.mocked(RefreshToken.findOneAndUpdate).mockReturnValue(mockExec({ rotated: true }));
+
+		const result = await authService.refreshAccessToken(currentRefreshToken);
+
+		expect(result).toEqual({
+			accessToken: "new-access-token",
+			refreshToken: "new-refresh-token",
+		});
+		expect(RefreshToken.findOneAndUpdate).toHaveBeenCalledWith(
+			expect.objectContaining({
+				jti: "old-refresh-jti",
+				"status.state": "active",
+			}),
+			expect.objectContaining({
+				$set: {
+					status: expect.objectContaining({
+						state: "rotated",
+						reason: "rotation",
+					}),
 				},
-			});
-		});
-
-		it("should throw error for user not found", async () => {
-			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(null));
-
-			await expect(authService.login(mockEmail, mockPassword)).rejects.toThrow(UnauthorizedError);
-		});
-
-		it("should throw error for invalid password", async () => {
-			const mockUser = {
-				_id: mockUserId,
-				email: mockEmail,
-				isActive: true,
-				comparePassword: vi.fn().mockResolvedValue(false),
-				select: vi.fn().mockReturnThis(),
-			};
-
-			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(mockUser));
-
-			await expect(authService.login(mockEmail, "wrong-password")).rejects.toThrow(
-				UnauthorizedError,
-			);
-		});
-
-		it("should throw error if user is inactive", async () => {
-			const mockUser = {
-				_id: mockUserId,
-				email: mockEmail,
-				isActive: false,
-				select: vi.fn().mockReturnThis(),
-			};
-
-			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(mockUser));
-
-			await expect(authService.login(mockEmail, mockPassword)).rejects.toThrow(UnauthorizedError);
-		});
+			}),
+			{ new: true },
+		);
+		expect(RefreshToken.create).toHaveBeenCalledTimes(1);
 	});
 
-	describe("refreshAccessToken", () => {
-		it("should refresh access token with valid refresh token", async () => {
-			const mockRefreshToken = "valid-refresh-token";
-			const mockPayload = {
+	it("detects reuse of a rotated token and invalidates the whole family", async () => {
+		const payload = {
+			sub: mockUserId,
+			role: mockRole,
+			jti: "reused-jti",
+			familyId: "family-1",
+			tokenVersion: 2,
+			tokenType: "refresh",
+		} satisfies JwtPayload;
+		const session = {
+			jti: "reused-jti",
+			userId: userObjectId,
+			familyId: "family-1",
+			tokenHash: hashToken(currentRefreshToken),
+			tokenVersion: 2,
+			expiresAt: new Date(Date.now() + 60_000),
+			status: {
+				state: "rotated",
+				changedAt: new Date(),
+				reason: "rotation",
+				replacedByJti: "replacement-jti",
+			},
+		} as const;
+
+		vi.mocked(jwt.verify).mockReturnValue(payload);
+		vi.mocked(RefreshToken.findOne).mockReturnValue(mockRefreshSessionQuery(session));
+
+		await expect(authService.refreshAccessToken(currentRefreshToken)).rejects.toThrow(
+			/refresh token reuse/i,
+		);
+		expect(RefreshToken.updateMany).toHaveBeenCalledWith(
+			expect.objectContaining({ familyId: "family-1" }),
+			expect.objectContaining({
+				$set: {
+					status: expect.objectContaining({
+						state: "compromised",
+						reason: "reuse_detected",
+					}),
+				},
+			}),
+		);
+		expect(User.updateOne).toHaveBeenCalledWith(
+			{ _id: userObjectId },
+			{ $inc: { tokenVersion: 1 } },
+		);
+	});
+
+	it("rejects a refresh token whose version no longer matches the user", async () => {
+		const payload = {
+			sub: mockUserId,
+			role: mockRole,
+			jti: "old-version-jti",
+			familyId: "family-1",
+			tokenVersion: 1,
+			tokenType: "refresh",
+		} satisfies JwtPayload;
+		const session = {
+			jti: "old-version-jti",
+			userId: userObjectId,
+			familyId: "family-1",
+			tokenHash: hashToken(currentRefreshToken),
+			tokenVersion: 1,
+			expiresAt: new Date(Date.now() + 60_000),
+			status: {
+				state: "active",
+				changedAt: new Date(),
+				reason: "none",
+				replacedByJti: "",
+			},
+		} as const;
+
+		vi.mocked(jwt.verify).mockReturnValue(payload);
+		vi.mocked(RefreshToken.findOne).mockReturnValue(mockRefreshSessionQuery(session));
+		vi.mocked(User.findById).mockReturnValue(
+			mockUserRefreshQuery({
+				_id: userObjectId,
+				email: mockEmail,
+				role: mockRole,
+				isActive: true,
+				tokenVersion: 2,
+			}),
+		);
+
+		await expect(authService.refreshAccessToken(currentRefreshToken)).rejects.toThrow(
+			/token version/i,
+		);
+		expect(RefreshToken.findOneAndUpdate).not.toHaveBeenCalled();
+	});
+
+	it("revokes access and refresh identifiers on logout", async () => {
+		vi.mocked(jwt.decode)
+			.mockReturnValueOnce({
 				sub: mockUserId,
-				email: mockEmail,
-				role: mockRole,
-				jti: "test-jti",
-			};
-
-			vi.mocked(jwt.verify).mockReturnValue(mockPayload as JwtPayload);
-			vi.mocked(TokenBlacklist.findOne).mockReturnValue(mockFindOneLean(null));
-
-			const mockUser = {
-				_id: mockUserId,
-				email: mockEmail,
-				role: mockRole,
-				isActive: true,
-				toString: vi.fn().mockReturnValue(mockUserId),
-			};
-
-			vi.mocked(User.findById).mockReturnValue(mockFindByIdLean(mockUser));
-
-			const mockAccessToken = "new-access-token";
-			vi.mocked(jwt.sign).mockReturnValue(mockAccessToken);
-
-			const result = await authService.refreshAccessToken(mockRefreshToken);
-
-			// Verify token was verified (secret value comes from env)
-			expect(jwt.verify).toHaveBeenCalledWith(mockRefreshToken, expect.any(String));
-			expect(TokenBlacklist.findOne).toHaveBeenCalledWith({ jti: mockPayload.jti });
-			expect(User.findById).toHaveBeenCalledWith(mockUserId);
-			expect(result).toEqual({
-				accessToken: mockAccessToken,
-			});
-		});
-
-		it("should refresh access token with legacy _id claim", async () => {
-			const mockRefreshToken = "legacy-refresh-token";
-			const mockPayload = {
-				_id: mockUserId,
-				email: mockEmail,
-				role: mockRole,
-				jti: "legacy-jti",
-			};
-
-			vi.mocked(jwt.verify).mockReturnValue(mockPayload as JwtPayload);
-			vi.mocked(TokenBlacklist.findOne).mockReturnValue(mockFindOneLean(null));
-
-			const mockUser = {
-				_id: mockUserId,
-				email: mockEmail,
-				role: mockRole,
-				isActive: true,
-				toString: vi.fn().mockReturnValue(mockUserId),
-			};
-
-			vi.mocked(User.findById).mockReturnValue(mockFindByIdLean(mockUser));
-			vi.mocked(jwt.sign).mockReturnValue("new-access-token");
-
-			const result = await authService.refreshAccessToken(mockRefreshToken);
-
-			expect(User.findById).toHaveBeenCalledWith(mockUserId);
-			expect(result).toEqual({ accessToken: "new-access-token" });
-		});
-
-		it("should throw error if refresh token is blacklisted", async () => {
-			const mockRefreshToken = "blacklisted-token";
-			const mockPayload = {
-				_id: mockUserId,
-				email: mockEmail,
-				role: mockRole,
-				jti: "blacklisted-jti",
-			};
-
-			vi.mocked(jwt.verify).mockReturnValue(mockPayload as JwtPayload);
-			vi.mocked(TokenBlacklist.findOne).mockReturnValue(
-				mockFindOneLean({ _id: "blacklist-entry" }),
-			);
-
-			await expect(authService.refreshAccessToken(mockRefreshToken)).rejects.toThrow(
-				UnauthorizedError,
-			);
-		});
-
-		it("should throw error if user not found during refresh", async () => {
-			const mockRefreshToken = "valid-refresh-token";
-			const mockPayload = {
-				_id: mockUserId,
-				email: mockEmail,
-				role: mockRole,
-				jti: "test-jti",
-			};
-
-			vi.mocked(jwt.verify).mockReturnValue(mockPayload as JwtPayload);
-			vi.mocked(TokenBlacklist.findOne).mockReturnValue(mockFindOneLean(null));
-			vi.mocked(User.findById).mockReturnValue(mockFindByIdLean(null));
-
-			await expect(authService.refreshAccessToken(mockRefreshToken)).rejects.toThrow(
-				UnauthorizedError,
-			);
-		});
-
-		it("should throw error if refresh token is expired", async () => {
-			const mockRefreshToken = "expired-token";
-
-			vi.mocked(jwt.verify).mockImplementation(() => {
-				throw new jwt.TokenExpiredError("Token expired", new Date());
-			});
-
-			await expect(authService.refreshAccessToken(mockRefreshToken)).rejects.toThrow(
-				UnauthorizedError,
-			);
-		});
-
-		it("should throw error if refresh token is invalid", async () => {
-			const mockRefreshToken = "invalid-token";
-
-			vi.mocked(jwt.verify).mockImplementation(() => {
-				throw new jwt.JsonWebTokenError("Invalid token");
-			});
-
-			await expect(authService.refreshAccessToken(mockRefreshToken)).rejects.toThrow(
-				UnauthorizedError,
-			);
-		});
-	});
-
-	describe("logout", () => {
-		it("should blacklist both tokens on logout", async () => {
-			const mockAccessToken = "access-token";
-			const mockRefreshToken = "refresh-token";
-
-			const mockAccessPayload = {
 				jti: "access-jti",
 				exp: Math.floor(Date.now() / 1000) + 900,
-			};
-
-			const mockRefreshPayload = {
+			})
+			.mockReturnValueOnce({
+				sub: mockUserId,
 				jti: "refresh-jti",
-				exp: Math.floor(Date.now() / 1000) + 604800,
-			};
-
-			vi.mocked(jwt.decode)
-				.mockReturnValueOnce(mockAccessPayload as JwtPayload)
-				.mockReturnValueOnce(mockRefreshPayload as JwtPayload);
-
-			const mockBlacklistEntry = { _id: "mock-entry" };
-			vi.mocked(TokenBlacklist.create).mockResolvedValue(
-				mockBlacklistEntry as unknown as Awaited<ReturnType<typeof TokenBlacklist.create>>,
-			);
-
-			await authService.logout(mockAccessToken, mockRefreshToken);
-
-			expect(jwt.decode).toHaveBeenCalledWith(mockAccessToken);
-			expect(jwt.decode).toHaveBeenCalledWith(mockRefreshToken);
-			expect(TokenBlacklist.create).toHaveBeenCalledTimes(2);
-		});
-
-		it("should handle missing jti in token gracefully", async () => {
-			const mockAccessToken = "access-token";
-			const mockRefreshToken = "refresh-token";
-
-			vi.mocked(jwt.decode).mockReturnValue(null);
-
-			// Should not throw
-			await expect(authService.logout(mockAccessToken, mockRefreshToken)).resolves.toBeUndefined();
-
-			expect(TokenBlacklist.create).not.toHaveBeenCalled();
-		});
-	});
-
-	describe("getRefreshTokenMaxAge", () => {
-		it("should return 7 days in seconds", () => {
-			const maxAge = authService.getRefreshTokenMaxAge();
-
-			expect(maxAge).toBe(7 * 24 * 60 * 60); // 604800 seconds
-		});
-	});
-
-	describe("generateTokenPair", () => {
-		it("should generate both access and refresh tokens", async () => {
-			const mockAccessToken = "mock-access-token";
-			const mockRefreshToken = "mock-refresh-token";
-
-			vi.mocked(jwt.sign)
-				.mockReturnValueOnce(mockAccessToken)
-				.mockReturnValueOnce(mockRefreshToken);
-
-			const result = await authService.generateTokenPair(mockUserId, mockEmail, mockRole);
-
-			expect(result).toEqual({
-				accessToken: mockAccessToken,
-				refreshToken: mockRefreshToken,
-				expiresIn: 900,
+				exp: Math.floor(Date.now() / 1000) + 604_800,
 			});
 
-			// Should have called jwt.sign twice (access + refresh)
-			expect(jwt.sign).toHaveBeenCalledTimes(2);
+		await authService.logout("access-token", "refresh-token");
+
+		expect(TokenBlacklist.updateOne).toHaveBeenCalledTimes(2);
+		expect(RefreshToken.updateOne).toHaveBeenCalledWith(
+			{ jti: "refresh-jti", "status.state": "active" },
+			expect.objectContaining({
+				$set: {
+					status: expect.objectContaining({ state: "revoked", reason: "logout" }),
+				},
+			}),
+		);
+	});
+
+	it("removes refresh sessions retained more than seven days after expiration", async () => {
+		vi.mocked(RefreshToken.deleteMany).mockResolvedValue({
+			acknowledged: true,
+			deletedCount: 3,
 		});
+		const now = new Date("2026-06-11T12:00:00.000Z");
+
+		const deleted = await authService.cleanupExpiredRefreshTokens(now);
+
+		expect(deleted).toBe(3);
+		expect(RefreshToken.deleteMany).toHaveBeenCalledWith({
+			expiresAt: { $lte: new Date("2026-06-04T12:00:00.000Z") },
+		});
+	});
+
+	it("keeps access tokens at fifteen minutes and refresh cookies at seven days", async () => {
+		vi.mocked(jwt.sign).mockReturnValueOnce("access-token").mockReturnValueOnce("refresh-token");
+
+		const pair = await authService.generateTokenPair(mockUserId, mockEmail, mockRole);
+
+		expect(pair.expiresIn).toBe(15 * 60);
+		expect(authService.getRefreshTokenMaxAge()).toBe(7 * 24 * 60 * 60);
+		expect(jwt.sign).toHaveBeenNthCalledWith(
+			1,
+			expect.objectContaining({ tokenType: "access" }),
+			expect.any(String),
+			{ expiresIn: "15m" },
+		);
+		expect(jwt.sign).toHaveBeenNthCalledWith(
+			2,
+			expect.objectContaining({ tokenType: "refresh" }),
+			expect.any(String),
+			{ expiresIn: "7d" },
+		);
 	});
 });

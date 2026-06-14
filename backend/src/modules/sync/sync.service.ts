@@ -32,7 +32,12 @@ import {
 	type SyncResult,
 	UpdateCostSchema,
 } from "@cermont/shared-types";
-import { AppError } from "../../common/errors/AppError";
+import {
+	AppError,
+	PayloadTooLargeError,
+	UnsupportedMediaTypeError,
+} from "../../common/errors/AppError";
+import { hasValidImageSignature, MAX_FILE_SIZE } from "../../middlewares/uploadMiddleware";
 import {
 	Cost,
 	DeliveryRecord,
@@ -162,7 +167,7 @@ function toSyncItemResult(op: OfflineOperation, error?: unknown): OfflineSyncIte
  */
 export async function processSyncBatch(
 	operations: OfflineOperation[],
-	actorRole: string,
+	actorRole: UserRole,
 	actorId: string,
 	batchId = buildBatchId(),
 ): Promise<SyncResult> {
@@ -188,7 +193,7 @@ export async function processSyncBatch(
 
 async function applyOperation(
 	op: OfflineOperation,
-	actorRole: string,
+	actorRole: UserRole,
 	actorId: string,
 ): Promise<void> {
 	const normalized = normalizeOperation(op);
@@ -715,31 +720,6 @@ async function applyChecklistOperation(
 	}
 }
 
-/**
- * Validate image magic bytes (PNG, JPEG, WebP, GIF)
- */
-function hasValidImageMagicBytes(buffer: Buffer): boolean {
-	if (buffer.length < 8) {
-		return false;
-	}
-	// PNG: 89 50 4E 47
-	if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
-		return true;
-	}
-	// JPEG: FF D8 FF
-	if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
-		return true;
-	}
-	// WebP/GIF: RIFF (52 49 46 46) or GIF8 (47 49 46 38)
-	if (
-		(buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46) ||
-		(buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38)
-	) {
-		return true;
-	}
-	return false;
-}
-
 async function applyEvidenceOperation(
 	op: NormalizedOfflineOperation,
 	actorRole: string,
@@ -761,16 +741,18 @@ async function applyEvidenceOperation(
 
 			const buffer = Buffer.from(payload.temporaryUrl, "base64");
 
-			if (!hasValidImageMagicBytes(buffer)) {
-				throw new AppError(
+			if (!hasValidImageSignature(buffer)) {
+				throw new UnsupportedMediaTypeError(
 					"Invalid file type. Must be PNG, JPEG, WebP, or GIF",
-					400,
-					"INVALID_FILE_TYPE",
+					"FILE_SIGNATURE_MISMATCH",
 				);
 			}
 
-			if (buffer.length > 10 * 1024 * 1024) {
-				throw new AppError("File exceeds 10MB limit", 400, "FILE_TOO_LARGE");
+			if (buffer.length > MAX_FILE_SIZE) {
+				throw new PayloadTooLargeError(
+					`File exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit`,
+					"FILE_TOO_LARGE",
+				);
 			}
 
 			const capturedAtDate = payload.capturedAt ? new Date(payload.capturedAt) : new Date();
@@ -812,22 +794,22 @@ async function applyEvidenceOperation(
  */
 async function applyWorkRequestOperation(
 	op: NormalizedOfflineOperation & { payload: OfflineWorkRequestPayload },
-	_actorRole: string,
+	actorRole: UserRole,
 	actorId: string,
 ): Promise<void> {
 	const payload = op.payload;
 
 	switch (op.action) {
 		case "create": {
-			await WorkRequestSvc.createWorkRequest(payload, actorId);
+			await WorkRequestSvc.createWorkRequest(payload, actorId, actorRole);
 			break;
 		}
 		case "update": {
-			await WorkRequestSvc.updateWorkRequest(op.id, payload, actorId, _actorRole);
+			await WorkRequestSvc.updateWorkRequest(op.id, payload, actorId, actorRole);
 			break;
 		}
 		case "delete": {
-			await WorkRequestSvc.deleteWorkRequest(op.id, actorId, _actorRole);
+			await WorkRequestSvc.deleteWorkRequest(op.id, actorId, actorRole);
 			break;
 		}
 		default:

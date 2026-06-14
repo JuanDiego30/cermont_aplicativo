@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
 	documentFindById: vi.fn(),
-	documentFindByIdAndDelete: vi.fn(),
 	createAuditLog: vi.fn(),
 	unlink: vi.fn(),
 }));
@@ -18,7 +17,6 @@ vi.mock("node:fs/promises", () => ({
 vi.mock("../../src/models/Document", () => ({
 	Document: {
 		findById: mocks.documentFindById,
-		findByIdAndDelete: mocks.documentFindByIdAndDelete,
 		find: vi.fn().mockReturnValue({
 			sort: vi.fn().mockReturnThis(),
 			lean: vi.fn().mockResolvedValue([]),
@@ -63,6 +61,9 @@ function buildDocumentDoc() {
 		archivedBy: undefined as Types.ObjectId | undefined,
 		archiveReason: undefined as string | undefined,
 		retentionUntil: undefined as Date | undefined,
+		deletedAt: undefined as Date | undefined,
+		deletedBy: undefined as Types.ObjectId | undefined,
+		deleteReason: undefined as string | undefined,
 		associations: [] as Array<{
 			orderId?: Types.ObjectId;
 			serviceCaseId?: Types.ObjectId;
@@ -228,7 +229,6 @@ describe("DocumentService", () => {
 		expect(document.archiveReason).toBe("requested by manager");
 		expect(document.retentionUntil).toBeInstanceOf(Date);
 		expect(document.save).toHaveBeenCalledTimes(1);
-		expect(mocks.documentFindByIdAndDelete).not.toHaveBeenCalled();
 		expect(mocks.createAuditLog).toHaveBeenCalledWith(
 			expect.objectContaining({
 				action: "DOCUMENT_ARCHIVED",
@@ -239,23 +239,29 @@ describe("DocumentService", () => {
 		);
 	});
 
-	it("physically deletes non-critical documents and logs the action", async () => {
+	it("soft deletes non-critical documents and preserves the physical file", async () => {
 		const document = buildDocumentDoc();
 		mocks.documentFindById.mockResolvedValue(document);
-		mocks.unlink.mockResolvedValue();
 
 		const result = await deleteDocument(DOCUMENT_ID, USER_ID, "cleanup");
 
 		expect(result).toEqual({ status: "deleted", documentId: DOCUMENT_ID });
-		expect(mocks.unlink).toHaveBeenCalledWith(document.file_url);
-		expect(mocks.documentFindByIdAndDelete).toHaveBeenCalledWith(DOCUMENT_ID);
+		expect(document.lifecycleStatus).toBe("deleted");
+		expect(document.deletedAt).toBeInstanceOf(Date);
+		expect(document.deletedBy?.toString()).toBe(USER_ID);
+		expect(document.deleteReason).toBe("cleanup");
+		expect(document.save).toHaveBeenCalledTimes(1);
+		expect(mocks.unlink).not.toHaveBeenCalled();
 		expect(mocks.createAuditLog).toHaveBeenCalledWith(
 			expect.objectContaining({
 				action: "DOCUMENT_DELETED",
 				entity: "Document",
 				entityId: DOCUMENT_ID,
 				userId: USER_ID,
-				metadata: { reason: "cleanup" },
+				metadata: expect.objectContaining({
+					reason: "cleanup",
+					physicalFilePreserved: true,
+				}),
 			}),
 		);
 	});

@@ -15,7 +15,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppError } from "../../src/common/errors/AppError";
 import * as ChecklistSvc from "../../src/modules/checklist/checklist.service";
+import * as EvidenceSvc from "../../src/modules/evidence/evidence.service";
 import * as OrderSvc from "../../src/modules/order/order.service";
+import * as OrderCRUD from "../../src/modules/order/order-crud.service";
 import { type OfflineOperation, processSyncBatch } from "../../src/modules/sync/sync.service";
 
 // Mock dependent services
@@ -29,8 +31,12 @@ vi.mock("../../src/modules/checklist/checklist.service", () => ({
 	updateChecklistItem: vi.fn(),
 }));
 
-vi.mock("../../src/services/evidence.service", () => ({
-	createEvidence: vi.fn(),
+vi.mock("../../src/modules/evidence/evidence.service", () => ({
+	createEvidenceV2: vi.fn(),
+}));
+
+vi.mock("../../src/modules/order/order-crud.service", () => ({
+	getOrderByIdWithAuth: vi.fn(),
 }));
 
 vi.mock("../../src/common/utils/logger", () => ({
@@ -337,6 +343,67 @@ describe("SyncService", () => {
 
 			expect(result.failed).toBe(1);
 			expect(result.errors[0].error).toContain("not supported");
+		});
+
+		it("rejects RIFF payloads that are not valid WebP images", async () => {
+			vi.mocked(OrderCRUD.getOrderByIdWithAuth).mockResolvedValue({} as never);
+			const invalidRiff = Buffer.from("RIFF0000NOT_WEBP", "ascii").toString("base64");
+			const operations: OfflineOperation[] = [
+				{
+					id: "offline-evidence-invalid-riff",
+					type: "evidence",
+					action: "create",
+					payload: {
+						serviceCaseId: "507f1f77bcf86cd799439012",
+						phase: "during",
+						category: "progress",
+						mimeType: "image/webp",
+						temporaryUrl: invalidRiff,
+						uploadedBy: mockActorId,
+						capturedAt: "2026-06-11T12:00:00.000Z",
+						offlineCapturedAt: "2026-06-11T12:00:00.000Z",
+						clientMutationId: "550e8400-e29b-41d4-a716-446655440000",
+					},
+					timestamp: "2026-06-11T12:00:00.000Z",
+				},
+			];
+
+			const result = await processSyncBatch(operations, mockActorRole, mockActorId);
+
+			expect(result.failed).toBe(1);
+			expect(result.results[0].status).toBe("failed");
+			expect(EvidenceSvc.createEvidenceV2).not.toHaveBeenCalled();
+		});
+
+		it("uses the canonical 20 MB evidence limit for offline sync", async () => {
+			vi.mocked(OrderCRUD.getOrderByIdWithAuth).mockResolvedValue({} as never);
+			const oversizedPng = Buffer.alloc(20 * 1024 * 1024 + 1);
+			oversizedPng.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+			const operations: OfflineOperation[] = [
+				{
+					id: "offline-evidence-too-large",
+					type: "evidence",
+					action: "create",
+					payload: {
+						serviceCaseId: "507f1f77bcf86cd799439012",
+						phase: "during",
+						category: "progress",
+						mimeType: "image/png",
+						temporaryUrl: oversizedPng.toString("base64"),
+						uploadedBy: mockActorId,
+						capturedAt: "2026-06-11T12:00:00.000Z",
+						offlineCapturedAt: "2026-06-11T12:00:00.000Z",
+						clientMutationId: "550e8400-e29b-41d4-a716-446655440001",
+					},
+					timestamp: "2026-06-11T12:00:00.000Z",
+				},
+			];
+
+			const result = await processSyncBatch(operations, mockActorRole, mockActorId);
+
+			expect(result.failed).toBe(1);
+			expect(result.errors[0].error).toContain("20MB");
+			expect(EvidenceSvc.createEvidenceV2).not.toHaveBeenCalled();
 		});
 	});
 });

@@ -476,7 +476,10 @@ export async function archiveKit(
 		entity: "Kit",
 		entityId: kit._id.toString(),
 		action: "KIT_ARCHIVED",
-		after: { name: kit.name, reason },
+		after: {
+			name: kit.name,
+			...(reason ? { reason } : { reasonStatus: "not_required" }),
+		},
 	});
 
 	return kit;

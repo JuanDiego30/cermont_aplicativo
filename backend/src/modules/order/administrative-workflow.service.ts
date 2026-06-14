@@ -50,6 +50,7 @@ import {
 	TechnicalReport,
 	type TechnicalReportDocument,
 } from "../../models";
+import { assertInvoiceMatchesServiceEntrySheet } from "../../services/invoice-integrity.service";
 
 type ListEnvelope<T> = {
 	data: T[];
@@ -130,6 +131,38 @@ function commandEntry(clientMutationId: string | undefined, command: string) {
 	return clientMutationId ? [{ clientMutationId, command, recordedAt: new Date() }] : [];
 }
 
+function validateInvoiceAgainstSes(invoice: InvoiceDocument, ses: ServiceEntrySheetDocument): void {
+	assertInvoiceMatchesServiceEntrySheet(
+		{
+			serviceEntrySheetId: invoice.serviceEntrySheetId?.toString() ?? "",
+			workOrderId: invoice.workOrderId.toString(),
+			currency: invoice.currency,
+			amount: invoice.amount,
+			taxAmount: invoice.taxAmount,
+			totalAmount: invoice.totalAmount,
+			invoiceLines: invoice.invoiceLines,
+		},
+		{
+			id: ses._id.toString(),
+			status: ses.status,
+			workOrderId: ses.workOrderId?.toString() ?? "",
+			currency: ses.currency,
+			amount: ses.amount,
+			taxAmount: ses.taxAmount,
+			totalAmount: ses.totalAmount,
+			serviceLines: ses.serviceLines,
+		},
+	);
+}
+
+async function assertPersistedInvoiceMatchesSes(invoice: InvoiceDocument): Promise<void> {
+	if (!invoice.serviceEntrySheetId) {
+		throw new UnprocessableError("Invoice must reference an approved SES", "INVOICE_SES_MISMATCH");
+	}
+	const ses = await requireServiceEntrySheet(invoice.serviceEntrySheetId.toString());
+	validateInvoiceAgainstSes(invoice, ses);
+}
+
 async function updateServiceCaseArtifact(
 	serviceCaseId: Types.ObjectId | undefined,
 	artifactKey: ArtifactKey,
@@ -156,46 +189,15 @@ async function updateServiceCaseArtifact(
 	await ServiceCase.findByIdAndUpdate(serviceCaseId, { $set: set });
 }
 
-function technicalReportArtifact(doc: TechnicalReportDocument): ArtifactProjection {
+function toArtifactProjection(doc: {
+	_id: Types.ObjectId;
+	code: string;
+	status: string;
+	updatedAt: Date;
+}): ArtifactProjection {
 	return {
 		id: doc._id.toString(),
 		code: doc.code,
-		status: doc.status,
-		updatedAt: doc.updatedAt.toISOString(),
-	};
-}
-
-function deliveryRecordArtifact(doc: DeliveryRecordDocument): ArtifactProjection {
-	return {
-		id: doc._id.toString(),
-		code: doc.code,
-		status: doc.status,
-		updatedAt: doc.updatedAt.toISOString(),
-	};
-}
-
-function sesArtifact(doc: ServiceEntrySheetDocument): ArtifactProjection {
-	return {
-		id: doc._id.toString(),
-		code: doc.code,
-		status: doc.status,
-		updatedAt: doc.updatedAt.toISOString(),
-	};
-}
-
-function invoiceArtifact(doc: InvoiceDocument): ArtifactProjection {
-	return {
-		id: doc._id.toString(),
-		code: doc.code,
-		status: doc.status,
-		updatedAt: doc.updatedAt.toISOString(),
-	};
-}
-
-function paymentArtifact(doc: PaymentDocument): ArtifactProjection {
-	return {
-		id: doc._id.toString(),
-		code: doc.paymentReference,
 		status: doc.status,
 		updatedAt: doc.updatedAt.toISOString(),
 	};
@@ -371,6 +373,10 @@ function formatInvoice(doc: InvoiceDocument): InvoiceResponse {
 		retentionAmount: doc.retentionAmount,
 		cufe: doc.cufe,
 		qrCode: doc.qrCode,
+		dianStatus: doc.dianStatus,
+		dianTrackId: doc.dianTrackId,
+		dianDocumentHash: doc.dianDocumentHash,
+		dianErrorCode: doc.dianErrorCode,
 		paymentMethod: doc.paymentMethod as InvoiceResponse["paymentMethod"],
 		numeroResolucion: doc.numeroResolucion,
 		totalConIva: doc.totalConIva,
@@ -597,7 +603,7 @@ export async function createTechnicalReportFromExecutionSession(
 	await updateServiceCaseArtifact(
 		session.serviceCaseId,
 		"technicalReport",
-		technicalReportArtifact(report),
+		toArtifactProjection(report),
 		"technical_closure",
 		[
 			{
@@ -633,7 +639,7 @@ export async function generateTechnicalReport(
 	await updateServiceCaseArtifact(
 		report.serviceCaseId,
 		"technicalReport",
-		technicalReportArtifact(report),
+		toArtifactProjection(report),
 		"technical_closure",
 		[
 			{
@@ -695,7 +701,7 @@ export async function approveTechnicalReport(
 	await updateServiceCaseArtifact(
 		report.serviceCaseId,
 		"technicalReport",
-		technicalReportArtifact(report),
+		toArtifactProjection(report),
 		"technical_closure",
 		[
 			{
@@ -845,7 +851,7 @@ export async function createDeliveryRecordFromTechnicalReport(
 	await updateServiceCaseArtifact(
 		record.serviceCaseId,
 		"deliveryRecord",
-		deliveryRecordArtifact(record),
+		toArtifactProjection(record),
 		"administrative_closure",
 		[
 			{
@@ -894,7 +900,7 @@ export async function signDeliveryRecord(
 	await updateServiceCaseArtifact(
 		record.serviceCaseId,
 		"deliveryRecord",
-		deliveryRecordArtifact(record),
+		toArtifactProjection(record),
 		"ses_pending",
 		[
 			{
@@ -1033,7 +1039,7 @@ export async function createServiceEntrySheetFromDeliveryRecord(
 	await updateServiceCaseArtifact(
 		ses.serviceCaseId,
 		"serviceEntrySheet",
-		sesArtifact(ses),
+		toArtifactProjection(ses),
 		"ses_pending",
 		[
 			{
@@ -1077,7 +1083,7 @@ export async function approveServiceEntrySheet(
 	await updateServiceCaseArtifact(
 		ses.serviceCaseId,
 		"serviceEntrySheet",
-		sesArtifact(ses),
+		toArtifactProjection(ses),
 		"billing_pending",
 		[
 			{
@@ -1195,11 +1201,12 @@ export async function createInvoiceFromServiceEntrySheet(
 		commandHistory: commandEntry(input.clientMutationId, "create_invoice"),
 		createdBy: parseObjectId(actor._id, "userId"),
 	});
+	validateInvoiceAgainstSes(invoice, ses);
 	await invoice.save();
 	await updateServiceCaseArtifact(
 		invoice.serviceCaseId,
 		"invoice",
-		invoiceArtifact(invoice),
+		toArtifactProjection(invoice),
 		"receivable_open",
 		[
 			{
@@ -1221,6 +1228,7 @@ export async function createInvoiceFromServiceEntrySheet(
 
 export async function submitInvoice(id: string, actor: WorkflowActor): Promise<InvoiceResponse> {
 	const invoice = await requireInvoice(id);
+	await assertPersistedInvoiceMatchesSes(invoice);
 	invoice.status = "submitted";
 	invoice.submittedAt = new Date();
 	invoice.submittedBy = parseObjectId(actor._id, "userId");
@@ -1230,6 +1238,7 @@ export async function submitInvoice(id: string, actor: WorkflowActor): Promise<I
 
 export async function approveInvoice(id: string, actor: WorkflowActor): Promise<InvoiceResponse> {
 	const invoice = await requireInvoice(id);
+	await assertPersistedInvoiceMatchesSes(invoice);
 	invoice.status = "approved";
 	invoice.approvedAt = new Date();
 	invoice.approvedBy = parseObjectId(actor._id, "userId");
@@ -1357,7 +1366,7 @@ export async function registerPaymentForInvoice(
 	await updateServiceCaseArtifact(
 		payment.serviceCaseId,
 		"payment",
-		paymentArtifact(payment),
+		toArtifactProjection({ ...payment, code: payment.paymentReference }),
 		"receivable_open",
 		[
 			{
@@ -1392,7 +1401,7 @@ export async function reconcilePayment(
 	await updateServiceCaseArtifact(
 		payment.serviceCaseId,
 		"payment",
-		paymentArtifact(payment),
+		toArtifactProjection({ ...payment, code: payment.paymentReference }),
 		"paid",
 		[],
 		{

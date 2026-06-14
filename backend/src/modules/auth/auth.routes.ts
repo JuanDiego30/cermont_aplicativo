@@ -20,31 +20,14 @@ import {
 	ResetPasswordSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import rateLimit from "express-rate-limit";
 import { authenticate } from "../../middlewares/auth.middleware";
+import { authLimiter, refreshLimiter } from "../../middlewares/rate-limiter";
 import { validateBody } from "../../middlewares/validate";
 import * as AuthController from "./auth.controller";
 
 const router = Router();
 
-/**
- * Rate limiter para endpoints de autenticación.
- * Previene ataques de fuerza bruta en login/refresh.
- * 10 intentos máximo por ventana de 15 minutos.
- */
-const authLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutos
-	max: 10, // máximo 10 intentos
-	standardHeaders: true,
-	legacyHeaders: false,
-	message: {
-		success: false,
-		error: {
-			code: "RATE_LIMIT_EXCEEDED",
-			message: "Demasiados intentos. Espera 15 minutos.",
-		},
-	},
-});
+router.use(authLimiter);
 
 /**
  * POST /api/auth/login
@@ -52,7 +35,7 @@ const authLimiter = rateLimit({
  * Body validated against LoginSchema (Zod)
  * Rate limited: 10 intentos / 15 min
  */
-router.post("/login", authLimiter, validateBody(LoginSchema), AuthController.login);
+router.post("/login", validateBody(LoginSchema), AuthController.login);
 
 /**
  * POST /api/auth/refresh
@@ -60,7 +43,7 @@ router.post("/login", authLimiter, validateBody(LoginSchema), AuthController.log
  * No body validation needed
  * Rate limited: 10 intentos / 15 min
  */
-router.post("/refresh", authLimiter, AuthController.refresh);
+router.post("/refresh", refreshLimiter, AuthController.refresh);
 
 /**
  * POST /api/auth/logout
@@ -92,22 +75,12 @@ router.patch(
  * Public endpoint — requests password reset
  * Returns success even if email doesn't exist (security)
  */
-router.post(
-	"/forgot-password",
-	authLimiter,
-	validateBody(ForgotPasswordSchema),
-	AuthController.forgotPassword,
-);
+router.post("/forgot-password", validateBody(ForgotPasswordSchema), AuthController.forgotPassword);
 
 /**
  * POST /api/auth/reset-password
  * Public endpoint — resets password using token
  */
-router.post(
-	"/reset-password",
-	authLimiter,
-	validateBody(ResetPasswordSchema),
-	AuthController.resetPassword,
-);
+router.post("/reset-password", validateBody(ResetPasswordSchema), AuthController.resetPassword);
 
 export default router;

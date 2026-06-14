@@ -10,7 +10,7 @@
  */
 
 import { Types } from "mongoose";
-import { NotFoundError } from "../../common/errors/AppError";
+import { ForbiddenError, NotFoundError } from "../../common/errors/AppError";
 import { DeliveryRecord, Invoice, Order, Proposal, TechnicalReport, User } from "../../models";
 
 interface PortalClient {
@@ -117,6 +117,11 @@ export async function getClientOrderDetail(
 	const order = await Order.findById(orderObjectId).lean();
 	if (!order) {
 		throw new NotFoundError("Order", orderId);
+	}
+	const ownsOrder =
+		order.createdBy?.toString() === clientUserId || order.clientId?.toString() === clientUserId;
+	if (!ownsOrder) {
+		throw new ForbiddenError("You do not have access to this order", "TENANT_ACCESS_DENIED");
 	}
 
 	const [proposals, invoices, technicalReports, deliveryRecords] = await Promise.all([

@@ -10,6 +10,7 @@ import { createLogger } from "../../common/utils/logger";
 import type { AuthClaims } from "../../common/utils/request";
 import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Counter, ServiceCase, WorkRequest } from "../../models";
+import { SLAService } from "../sla/sla.service";
 
 const _log = createLogger("work-requests-service");
 
@@ -49,7 +50,11 @@ interface WorkRequestQueryFilter {
  * @param userId - ID of the user creating the request
  * @returns Created work request
  */
-export async function createWorkRequest(data: CreateWorkRequestInput, userId: string) {
+export async function createWorkRequest(
+	data: CreateWorkRequestInput,
+	userId: string,
+	userRole: AuthClaims["role"],
+) {
 	const now = new Date();
 	const sequence = await Counter.inc(`WR-${now.getFullYear()}`);
 	const workRequest = await WorkRequest.create({
@@ -91,11 +96,18 @@ export async function createWorkRequest(data: CreateWorkRequestInput, userId: st
 				stage: "intake",
 				command: "work_request_created",
 				actorId: new Types.ObjectId(userId),
-				actorRole: "requester",
+				actorRole: userRole,
 				occurredAt: now,
 				notes: `Solicitud ${workRequest.code} registrada`,
 			},
 		],
+	});
+	await SLAService.createTrackingForServiceCase({
+		serviceCaseId: serviceCase._id.toString(),
+		...(data.clientId ? { clientId: data.clientId } : {}),
+		serviceType: data.serviceType,
+		priority: data.urgency,
+		assignedAt: now,
 	});
 
 	return { workRequest, serviceCase };

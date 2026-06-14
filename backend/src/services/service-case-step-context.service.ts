@@ -17,7 +17,7 @@ import {
 	type StepRequiredField,
 } from "@cermont/shared-types";
 import { NotFoundError } from "../common/errors/AppError";
-import { ServiceCase } from "../models";
+import { ServiceCase, WorkRequest } from "../models";
 import { calculateStepBlockers } from "./cermont-workflow-gate.service";
 
 const NIL = Object.getPrototypeOf(Object.prototype);
@@ -90,9 +90,55 @@ type ServiceCaseLeanObj = {
 	createdAt?: Date;
 };
 
+type WorkRequestLeanObj = {
+	clientId?: { toString(): string };
+	clientName?: string;
+	requesterName?: string;
+	requesterPhone?: string;
+	requesterEmail?: string;
+	serviceSite?: string;
+	serviceType?: string;
+	urgency?: string;
+	requestedDate?: Date;
+	description?: string;
+	shortDescription?: string;
+};
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Resolvers
 // ──────────────────────────────────────────────────────────────────────────────
+
+async function hydrateCanonicalWorkRequestData(
+	serviceCase: ServiceCaseLeanObj,
+): Promise<ServiceCaseLeanObj> {
+	const workRequestId = serviceCase.artifacts?.workRequest?.id;
+	if (!workRequestId) {
+		return serviceCase;
+	}
+
+	const workRequest = (await WorkRequest.findById(workRequestId).lean()) as
+		| WorkRequestLeanObj
+		| undefined;
+	if (!workRequest) {
+		return serviceCase;
+	}
+
+	return {
+		...serviceCase,
+		clientId: serviceCase.clientId ?? workRequest.clientId,
+		clientName: serviceCase.clientName ?? workRequest.clientName,
+		contactName: serviceCase.contactName ?? workRequest.requesterName,
+		contactPhone: serviceCase.contactPhone ?? workRequest.requesterPhone,
+		contactEmail: serviceCase.contactEmail ?? workRequest.requesterEmail,
+		siteName: serviceCase.siteName ?? workRequest.serviceSite,
+		location: serviceCase.location ?? workRequest.serviceSite,
+		workTypeName: serviceCase.workTypeName ?? workRequest.serviceType,
+		priority: serviceCase.priority ?? workRequest.urgency,
+		requestedDate: serviceCase.requestedDate ?? workRequest.requestedDate,
+		generalScope:
+			serviceCase.generalScope ?? workRequest.description ?? workRequest.shortDescription,
+	};
+}
 
 function resolveCanonicalCaseData(
 	serviceCase: ServiceCaseLeanObj,
@@ -1147,7 +1193,7 @@ export async function buildServiceCaseStepContext(
 		throw new NotFoundError("ServiceCase", serviceCaseId);
 	}
 
-	const caseObj = rawCase as ServiceCaseLeanObj;
+	const caseObj = await hydrateCanonicalWorkRequestData(rawCase as ServiceCaseLeanObj);
 
 	// Resolve blockers using the existing gate service
 	const blockers = await calculateStepBlockers(serviceCaseId);

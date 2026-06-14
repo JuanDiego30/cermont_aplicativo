@@ -128,6 +128,10 @@ export interface InvoiceDocument extends Document {
 	retentionAmount?: number;
 	cufe?: string;
 	qrCode?: string;
+	dianStatus: "not_sent" | "submitting" | "accepted" | "rejected" | "failed";
+	dianTrackId?: string;
+	dianDocumentHash?: string;
+	dianErrorCode?: string;
 	paymentMethod?: string;
 	numeroResolucion?: string;
 	totalConIva?: number;
@@ -207,6 +211,15 @@ const invoiceSchema = new Schema<InvoiceDocument>(
 		retentionAmount: { type: Number },
 		cufe: { type: String },
 		qrCode: { type: String },
+		dianStatus: {
+			type: String,
+			enum: ["not_sent", "submitting", "accepted", "rejected", "failed"],
+			default: "not_sent",
+			index: true,
+		},
+		dianTrackId: { type: String, maxlength: 200 },
+		dianDocumentHash: { type: String, maxlength: 128 },
+		dianErrorCode: { type: String, maxlength: 100 },
 		paymentMethod: { type: String },
 		numeroResolucion: { type: String },
 		totalConIva: { type: Number },

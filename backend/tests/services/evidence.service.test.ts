@@ -30,9 +30,13 @@ vi.mock("../../src/common/storage/local-storage", () => ({
 	saveFile: vi.fn(),
 }));
 
-vi.mock("../../src/middlewares/uploadMiddleware", () => ({
-	scanWithClamAV: vi.fn(),
-}));
+vi.mock("../../src/middlewares/uploadMiddleware", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("../../src/middlewares/uploadMiddleware")>();
+	return {
+		...actual,
+		scanWithClamAV: vi.fn(),
+	};
+});
 
 vi.mock("../../src/modules/audit/audit.service", () => ({
 	createAuditLog: vi.fn(),
@@ -76,7 +80,7 @@ describe("EvidenceService", () => {
 			orderId,
 			type: "before",
 			url: "https://cdn.example.com/evidence.webp",
-			filename: "1700000000000-abcd-efgh-ijkl.webp",
+			filename: "abcd-efgh-ijkl.webp",
 			mimeType: "image/webp",
 			sizeBytes: compressedBuffer.length,
 			description: "Initial description",
@@ -120,12 +124,12 @@ describe("EvidenceService", () => {
 			expect(sharp).toHaveBeenCalledWith(fileBuffer);
 			expect(sharpChain.webp).toHaveBeenCalledWith({ quality: 80 });
 			expect(sharpChain.toBuffer).toHaveBeenCalled();
-			expect(saveFile).toHaveBeenCalledWith("1700000000000-abcd-efgh-ijkl.webp", compressedBuffer);
+			expect(saveFile).toHaveBeenCalledWith("abcd-efgh-ijkl.webp", compressedBuffer);
 			expect(Evidence).toHaveBeenCalledWith(
 				expect.objectContaining({
 					orderId,
 					type: "before",
-					filename: "1700000000000-abcd-efgh-ijkl.webp",
+					filename: "abcd-efgh-ijkl.webp",
 					url: "https://cdn.example.com/evidence.webp",
 					mimeType: "image/webp",
 					sizeBytes: compressedBuffer.length,
@@ -154,7 +158,7 @@ describe("EvidenceService", () => {
 					orderId,
 					type: "before",
 					url: "https://cdn.example.com/evidence.webp",
-					filename: "1700000000000-abcd-efgh-ijkl.webp",
+					filename: "abcd-efgh-ijkl.webp",
 					mimeType: "image/webp",
 					sizeBytes: compressedBuffer.length,
 					uploadedBy: userId,
@@ -247,7 +251,7 @@ describe("EvidenceService", () => {
 			);
 
 			expect(result._id).toBe("evidence-id-1");
-			expect(Order.findById).not.toHaveBeenCalled();
+			expect(Order.findById).toHaveBeenCalledWith(orderId);
 			expect(scanWithClamAV).not.toHaveBeenCalled();
 			expect(saveFile).not.toHaveBeenCalled();
 			expect(Evidence).not.toHaveBeenCalled();
@@ -435,7 +439,7 @@ describe("EvidenceService", () => {
 					userId,
 					metadata: expect.objectContaining({
 						orderId,
-						filename: "1700000000000-abcd-efgh-ijkl.webp",
+						filename: "abcd-efgh-ijkl.webp",
 					}),
 				}),
 			);
@@ -475,7 +479,7 @@ describe("EvidenceService", () => {
 					userId: verifierId,
 					metadata: expect.objectContaining({
 						orderId,
-						filename: "1700000000000-abcd-efgh-ijkl.webp",
+						filename: "abcd-efgh-ijkl.webp",
 					}),
 				}),
 			);

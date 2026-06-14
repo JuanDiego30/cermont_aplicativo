@@ -406,7 +406,7 @@ async function archiveDocumentRecord(
 	document.retentionUntil = retentionUntil;
 	await document.save();
 
-	createAuditLog({
+	await createAuditLog({
 		action: "DOCUMENT_ARCHIVED",
 		entity: "Document",
 		entityId: document._id.toString(),
@@ -461,26 +461,24 @@ export async function deleteDocument(
 		};
 	}
 
-	if (document.file_url) {
-		try {
-			await fs.unlink(document.file_url);
-		} catch (err) {
-			log.warn("Failed to delete physical file", {
-				fileUrl: document.file_url,
-				error: (err as Error).message,
-			});
-		}
-	}
-
-	await Document.findByIdAndDelete(id);
-	createAuditLog({
+	document.lifecycleStatus = "deleted";
+	document.deletedAt = new Date();
+	document.deletedBy = parseObjectId(userId);
+	document.deleteReason = reason;
+	await document.save();
+	await createAuditLog({
 		action: "DOCUMENT_DELETED",
 		entity: "Document",
 		entityId: id,
 		userId,
-		metadata: { reason },
+		before: { lifecycleStatus: "active" },
+		after: {
+			lifecycleStatus: "deleted",
+			deletedAt: document.deletedAt.toISOString(),
+		},
+		metadata: { reason, physicalFilePreserved: true },
 	});
-	log.info("Document deleted", { documentId: id });
+	log.info("Document soft deleted", { documentId: id });
 
 	return { status: "deleted", documentId: id };
 }

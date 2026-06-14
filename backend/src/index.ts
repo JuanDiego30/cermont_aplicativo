@@ -5,19 +5,19 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import mongoSanitize from "express-mongo-sanitize";
-import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import { type ApiMount, buildDocsHtml, buildOpenApiDocument } from "./common/docs/api-docs";
-import { errorHandler } from "./common/errors";
+import { errorHandler, ForbiddenError } from "./common/errors";
 import { requestId } from "./common/middlewares/request-id.middleware";
-import { shouldSkipAuthRateLimit, shouldSkipGlobalRateLimit } from "./common/security/rate-limit";
 import { createLogger } from "./common/utils/logger";
 import { getDatabaseHealth } from "./config/db";
 import { env } from "./config/env";
+import { generalLimiter } from "./middlewares/rate-limiter";
 import adminBackupRoutes from "./modules/admin-backup/admin-backup.routes";
 import aiRoutes from "./modules/ai/ai.routes";
 import analyticsRoutes from "./modules/analytics/analytics.routes";
 import metricsRoutes from "./modules/analytics/metrics.routes";
+import analyticsReportRoutes from "./modules/analytics-report/analytics-report.routes";
 import assetRoutes from "./modules/asset/asset.routes";
 import auditRoutes from "./modules/audit/audit.routes";
 import authRoutes from "./modules/auth/auth.routes";
@@ -29,6 +29,8 @@ import customFieldRoutes from "./modules/custom-fields/custom-field.routes";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 import deliveryRecordRoutes from "./modules/delivery-record/delivery-record.routes";
 import deliveryRecordServiceEntrySheetRoutes from "./modules/delivery-record/delivery-record-service-entry-sheet.routes";
+import dianRoutes from "./modules/dian/dian.routes";
+import dispatchRoutes from "./modules/dispatch/dispatch.routes";
 import documentRoutes from "./modules/documents/document.routes";
 import documentImportRoutes from "./modules/documents/document-import.routes";
 import documentIngestionRoutes from "./modules/documents/document-ingestion.routes";
@@ -64,7 +66,9 @@ import serviceCaseRoutes from "./modules/service-cases/service-case.routes";
 import serviceEntrySheetRoutes from "./modules/service-entry-sheet/service-entry-sheet.routes";
 import serviceEntrySheetInvoiceRoutes from "./modules/service-entry-sheet/service-entry-sheet-invoice.routes";
 import siteVisitRoutes from "./modules/site-visit/site-visit.routes";
+import slaRoutes from "./modules/sla/sla.routes";
 import syncRoutes from "./modules/sync/sync.routes";
+import systemConfigRoutes from "./modules/system-config/system-config.routes";
 import technicalReportRoutes from "./modules/technical-report/technical-report.routes";
 import templateDraftRoutes from "./modules/template-draft/template-draft.routes";
 import templateResponseRoutes from "./modules/template-response/template-response.routes";
@@ -112,7 +116,7 @@ app.use((req, res, next) => {
 // If Helmet runs first, OPTIONS preflights can be blocked before CORS responds.
 const allowedOrigins = Array.from(
 	new Set(
-		[env.FRONTEND_URL, ...localFrontendOrigins].filter((origin): origin is string =>
+		[env.FRONTEND_URL, ...(isDev ? localFrontendOrigins : [])].filter((origin): origin is string =>
 			Boolean(origin),
 		),
 	),
@@ -150,12 +154,12 @@ app.use(
 	cors({
 		origin: (origin, callback) => {
 			// Allow requests without an origin header (Postman, curl, server-side)
-			if (!origin || allowedOrigins.includes(origin) || isDockerNetworkOrigin(origin)) {
+			if (!origin || allowedOrigins.includes(origin) || (isDev && isDockerNetworkOrigin(origin))) {
 				callback(null, true);
 				return;
 			}
 			log.warn(`CORS blocked for origin: ${origin}`);
-			callback(new Error("Not allowed by CORS"));
+			callback(new ForbiddenError("Origin not allowed by CORS"));
 		},
 		credentials: true,
 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -167,28 +171,27 @@ app.use(
 );
 
 // Security headers — Helmet after CORS.
-// In development, disable CSP and cross-origin policies that block hot reload.
 app.use(
 	helmet({
-		contentSecurityPolicy: isDev
-			? false
-			: {
-					directives: {
-						defaultSrc: ["'self'"],
-						scriptSrc: ["'self'"],
-						styleSrc: ["'self'", "'unsafe-inline'"],
-						imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
-						connectSrc: ["'self'", ...allowedOrigins],
-						fontSrc: ["'self'"],
-						objectSrc: ["'none'"],
-						mediaSrc: ["'self'"],
-						frameSrc: ["'none'"],
-						upgradeInsecureRequests: [],
-					},
-				},
+		contentSecurityPolicy: {
+			directives: {
+				defaultSrc: ["'self'"],
+				scriptSrc: ["'self'", "'unsafe-inline'"],
+				styleSrc: ["'self'", "'unsafe-inline'"],
+				imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
+				connectSrc: ["'self'", ...allowedOrigins],
+				fontSrc: ["'self'"],
+				objectSrc: ["'none'"],
+				mediaSrc: ["'self'"],
+				frameSrc: ["'none'"],
+				upgradeInsecureRequests: isDev ? null : [],
+			},
+		},
 		crossOriginEmbedderPolicy: !isDev,
 		crossOriginResourcePolicy: isDev ? false : { policy: "cross-origin" },
 		crossOriginOpenerPolicy: !isDev,
+		frameguard: { action: "deny" },
+		referrerPolicy: { policy: "no-referrer" },
 		hsts: isDev
 			? false
 			: {
@@ -199,43 +202,8 @@ app.use(
 	}),
 );
 
-// Rate limiting — 100 req/min globally; auth endpoints are stricter
-// SECURITY FIX: RT-002 - Prevent IP spoofing in rate limiter
-const globalLimiter = rateLimit({
-	windowMs: 60 * 1000,
-	max: 100,
-	standardHeaders: true,
-	legacyHeaders: false,
-	message: { error: "Too many requests. Please try again later." },
-	keyGenerator: (req) => getClientIp(req),
-	skip: shouldSkipGlobalRateLimit,
-});
-
-const authLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 min
-	max: 20,
-	standardHeaders: true,
-	legacyHeaders: false,
-	message: { error: "Too many login attempts. Please try again in 15 minutes." },
-	keyGenerator: (req) => getClientIp(req),
-	skip: shouldSkipAuthRateLimit,
-});
-
-function getClientIp(req: express.Request): string {
-	const forwarded = req.headers["x-forwarded-for"];
-	if (forwarded && typeof forwarded === "string") {
-		const ips = forwarded.split(",").map((ip) => ip.trim());
-		const firstIp = ips[0];
-		if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(firstIp)) {
-			return firstIp;
-		}
-	}
-
-	return req.ip || req.socket.remoteAddress || "unknown";
-}
-
 if (!isTest) {
-	app.use(globalLimiter);
+	app.use(generalLimiter);
 }
 app.use(cookieParser());
 app.use(express.json({ limit: "10kb" }));
@@ -263,11 +231,7 @@ if (!isDev) {
 }
 
 // Routes — registry compartido entre los mounts y /api/docs (SSOT)
-if (isTest) {
-	app.use("/api/auth", authRoutes);
-} else {
-	app.use("/api/auth", authLimiter, authRoutes);
-}
+app.use("/api/auth", authRoutes);
 
 const API_MOUNTS: ApiMount[] = [
 	{ prefix: "/api/auth", router: authRoutes },
@@ -326,6 +290,11 @@ const API_MOUNTS: ApiMount[] = [
 	{ prefix: "/api/dashboard", router: dashboardRoutes },
 	{ prefix: "/api/metrics", router: metricsRoutes },
 	{ prefix: "/api/portal", router: portalRoutes },
+	{ prefix: "/api/dian", router: dianRoutes },
+	{ prefix: "/api/analytics", router: analyticsReportRoutes },
+	{ prefix: "/api/sla", router: slaRoutes },
+	{ prefix: "/api/dispatch", router: dispatchRoutes },
+	{ prefix: "/api/system-config", router: systemConfigRoutes },
 	{ prefix: "/api/admin/backups", router: adminBackupRoutes },
 ];
 
@@ -358,13 +327,14 @@ function getBackendVersion(): string {
 const backendVersion = getBackendVersion();
 const memoryUsageToMb = (value: number): string => `${(value / 1024 / 1024).toFixed(1)}MB`;
 
-function buildHealthPayload() {
+function buildReadinessPayload() {
 	const database = getDatabaseHealth();
 	const memory = process.memoryUsage();
 	const healthy = database.readyState === 1;
 
 	return {
 		status: healthy ? "ok" : "degraded",
+		check: "readiness",
 		db: database.state,
 		readyState: database.readyState,
 		uptime: Number(process.uptime().toFixed(1)),
@@ -378,29 +348,76 @@ function buildHealthPayload() {
 	} as const;
 }
 
-// Health check
+function buildLivenessPayload() {
+	return {
+		status: "ok",
+		check: "liveness",
+		uptime: Number(process.uptime().toFixed(1)),
+		version: backendVersion,
+		timestamp: new Date().toISOString(),
+	} as const;
+}
+
+function readinessStatus(payload: ReturnType<typeof buildReadinessPayload>): 200 | 503 {
+	return payload.status === "ok" ? 200 : 503;
+}
+
+// Compatibility readiness check
 app.get("/api/health", (_req, res) => {
-	const payload = buildHealthPayload();
-	res.status(payload.status === "ok" ? 200 : 503).json(payload);
+	const payload = buildReadinessPayload();
+	res.status(readinessStatus(payload)).json(payload);
 });
 
-// HEAD support for connectivity ping used by the frontend's `useConnectivity`
-// hook (issues a HEAD request with no-store cache to detect real reachability
-// behind captive portals or WiFi-without-WAN).
 app.head("/api/health", (_req, res) => {
-	const payload = buildHealthPayload();
-	res.status(payload.status === "ok" ? 200 : 503).end();
+	const payload = buildReadinessPayload();
+	res.status(readinessStatus(payload)).end();
+});
+
+app.get("/api/health/live", (_req, res) => {
+	res.status(200).json(buildLivenessPayload());
+});
+
+app.head("/api/health/live", (_req, res) => {
+	res.status(200).end();
+});
+
+app.get("/api/health/ready", (_req, res) => {
+	const payload = buildReadinessPayload();
+	res.status(readinessStatus(payload)).json(payload);
+});
+
+app.head("/api/health/ready", (_req, res) => {
+	const payload = buildReadinessPayload();
+	res.status(readinessStatus(payload)).end();
 });
 
 // Alias without prefix for Docker healthcheck compatibility (DOC-08)
 app.get("/health", (_req, res) => {
-	const payload = buildHealthPayload();
-	res.status(payload.status === "ok" ? 200 : 503).json(payload);
+	const payload = buildReadinessPayload();
+	res.status(readinessStatus(payload)).json(payload);
 });
 
 app.head("/health", (_req, res) => {
-	const payload = buildHealthPayload();
-	res.status(payload.status === "ok" ? 200 : 503).end();
+	const payload = buildReadinessPayload();
+	res.status(readinessStatus(payload)).end();
+});
+
+app.get("/health/live", (_req, res) => {
+	res.status(200).json(buildLivenessPayload());
+});
+
+app.head("/health/live", (_req, res) => {
+	res.status(200).end();
+});
+
+app.get("/health/ready", (_req, res) => {
+	const payload = buildReadinessPayload();
+	res.status(readinessStatus(payload)).json(payload);
+});
+
+app.head("/health/ready", (_req, res) => {
+	const payload = buildReadinessPayload();
+	res.status(readinessStatus(payload)).end();
 });
 
 // Global error handler — MUST be registered LAST

@@ -1,5 +1,5 @@
 import type { UserRole } from "@cermont/domain";
-import { Types } from "mongoose";
+import { mongo, Types } from "mongoose";
 import { createLogger } from "../../common/utils/logger";
 import {
 	Notification as NotificationModel,
@@ -22,6 +22,7 @@ export type NotificationChannel = "in_app" | "email" | "sms";
 
 export interface NotificationOptions {
 	recipientUserId: string;
+	dedupeKey?: string;
 	recipientRole?: UserRole;
 	recipientEmail?: string;
 	recipientPhone?: string;
@@ -173,29 +174,37 @@ export async function createNotification(options: NotificationOptions): Promise<
 	}));
 
 	// Save notification to DB
-	await NotificationModel.create({
-		notificationId,
-		recipientUserId: new Types.ObjectId(options.recipientUserId),
-		recipientRole: options.recipientRole,
-		recipientEmail: options.recipientEmail,
-		recipientPhone: options.recipientPhone,
-		type: options.type,
-		priority: options.priority ?? "medium",
-		title: options.title,
-		body: options.body,
-		relatedEntity: options.relatedEntity
-			? {
-					entityType: options.relatedEntity.entityType,
-					entityId: new Types.ObjectId(options.relatedEntity.entityId),
-				}
-			: undefined,
-		channels: channelEntries,
-		templateName: options.templateName,
-		templateVariables: options.templateVariables ?? {},
-		isRead: false,
-		createdAt: new Date(),
-		metadata: options.metadata,
-	});
+	try {
+		await NotificationModel.create({
+			notificationId,
+			dedupeKey: options.dedupeKey,
+			recipientUserId: new Types.ObjectId(options.recipientUserId),
+			recipientRole: options.recipientRole,
+			recipientEmail: options.recipientEmail,
+			recipientPhone: options.recipientPhone,
+			type: options.type,
+			priority: options.priority ?? "medium",
+			title: options.title,
+			body: options.body,
+			relatedEntity: options.relatedEntity
+				? {
+						entityType: options.relatedEntity.entityType,
+						entityId: new Types.ObjectId(options.relatedEntity.entityId),
+					}
+				: undefined,
+			channels: channelEntries,
+			templateName: options.templateName,
+			templateVariables: options.templateVariables ?? {},
+			isRead: false,
+			createdAt: new Date(),
+			metadata: options.metadata,
+		});
+	} catch (error) {
+		if (error instanceof mongo.MongoServerError && error.code === 11000 && options.dedupeKey) {
+			return;
+		}
+		throw error;
+	}
 
 	// Send through requested channels (async, non-blocking)
 	for (const channel of channels) {
@@ -241,6 +250,7 @@ export async function createNotificationFromTemplate(
 	recipientPhone?: string,
 	relatedEntity?: { entityType: string; entityId: string },
 	channels?: NotificationChannel[],
+	dedupeKey?: string,
 ): Promise<void> {
 	const compiled = compileNotificationTemplate(templateName, variables);
 	if (!compiled) {
@@ -250,6 +260,7 @@ export async function createNotificationFromTemplate(
 
 	await createNotification({
 		recipientUserId,
+		dedupeKey,
 		recipientRole,
 		recipientEmail,
 		recipientPhone,
@@ -276,13 +287,22 @@ function templateNameToNotificationType(templateName: string): string {
 		certification_expiring: "CERTIFICATION_EXPIRING",
 		maintenance_due: "MAINTENANCE_DUE",
 		payment_overdue: "PAYMENT_OVERDUE",
+		sla_breach_warning: "DEADLINE_WARNING",
+		invoice_due_reminder: "INVOICE_STATUS",
+		stale_case_alert: "SYSTEM_ALERT",
 		report_approved: "REPORT_APPROVED",
 	};
 	return map[templateName] ?? "STATE_TRANSITION";
 }
 
 function getPriorityForTemplate(templateName: string): "low" | "medium" | "high" | "critical" {
-	const highPriority = ["certification_expiring", "payment_overdue", "payment_received"];
+	const highPriority = [
+		"certification_expiring",
+		"payment_overdue",
+		"payment_received",
+		"sla_breach_warning",
+		"stale_case_alert",
+	];
 	const criticalPriority = ["certification_expiring"];
 	if (criticalPriority.includes(templateName)) {
 		return "critical";

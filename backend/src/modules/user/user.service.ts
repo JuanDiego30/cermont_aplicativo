@@ -78,7 +78,10 @@ function formatUserResponse(doc: IUserDocument): UserContract {
  *
  * Password hashing is automatic via User model's pre('save') hook.
  */
-export async function createUser(payload: CreateUserInput): Promise<UserContract> {
+export async function createUser(
+	payload: CreateUserInput,
+	actorId: string = "",
+): Promise<UserContract> {
 	// Validate role per ISSUE-032
 	validateRole(payload.role);
 
@@ -101,13 +104,12 @@ export async function createUser(payload: CreateUserInput): Promise<UserContract
 
 	await user.save();
 
-	createAuditLog({
+	await createAuditLog({
 		action: "USER_CREATED",
 		entity: "User",
 		entityId: user._id.toString(),
-		userId: user._id.toString(),
-		userEmail: user.email,
-		metadata: { role: user.role, name: user.name },
+		userId: actorId || user._id.toString(),
+		after: { role: user.role, name: user.name, isActive: user.isActive },
 	});
 
 	return formatUserResponse(user);
@@ -207,12 +209,23 @@ export async function getUsersByRole(
  * @throws ConflictError if email already taken by another user
  * @throws BadRequestError if role is invalid
  */
-export async function updateUser(userId: string, payload: UpdateUserInput): Promise<UserContract> {
+export async function updateUser(
+	userId: string,
+	payload: UpdateUserInput,
+	actorId: string = "",
+): Promise<UserContract> {
 	const user = await User.findById(userId);
 
 	if (!user) {
 		throw new NotFoundError("User", userId);
 	}
+
+	const before = {
+		name: user.name,
+		email: user.email,
+		role: user.role,
+		isActive: user.isActive,
+	};
 
 	// If email is being changed, check uniqueness
 	if (payload.email && payload.email !== user.email) {
@@ -248,6 +261,20 @@ export async function updateUser(userId: string, payload: UpdateUserInput): Prom
 
 	await user.save();
 
+	await createAuditLog({
+		action: payload.role && payload.role !== before.role ? "USER_ROLE_CHANGED" : "USER_UPDATED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: actorId || user._id.toString(),
+		before,
+		after: {
+			name: user.name,
+			email: user.email,
+			role: user.role,
+			isActive: user.isActive,
+		},
+	});
+
 	return formatUserResponse(user);
 }
 
@@ -261,7 +288,7 @@ export async function updateUser(userId: string, payload: UpdateUserInput): Prom
  * @returns UserContract
  * @throws NotFoundError if user doesn't exist
  */
-export async function deactivateUser(userId: string): Promise<UserContract> {
+export async function deactivateUser(userId: string, actorId: string = ""): Promise<UserContract> {
 	const user = await User.findById(userId);
 
 	if (!user) {
@@ -271,12 +298,13 @@ export async function deactivateUser(userId: string): Promise<UserContract> {
 	user.isActive = false;
 	await user.save();
 
-	createAuditLog({
+	await createAuditLog({
 		action: "USER_DEACTIVATED",
 		entity: "User",
 		entityId: user._id.toString(),
-		userId: user._id.toString(),
-		userEmail: user.email,
+		userId: actorId || user._id.toString(),
+		before: { isActive: true },
+		after: { isActive: false },
 	});
 
 	return formatUserResponse(user);
@@ -297,6 +325,7 @@ export async function userExists(userId: string): Promise<boolean> {
 export async function addUserCertification(
 	userId: string,
 	input: AddUserCertificationInput,
+	actorId: string = "",
 ): Promise<UserContract> {
 	const user = await User.findById(userId);
 	if (!user) {
@@ -316,12 +345,11 @@ export async function addUserCertification(
 	user.certifications = [...(user.certifications ?? []), input];
 	await user.save();
 
-	createAuditLog({
+	await createAuditLog({
 		action: "USER_CERTIFICATION_ADDED",
 		entity: "User",
 		entityId: user._id.toString(),
-		userId: user._id.toString(),
-		userEmail: user.email,
+		userId: actorId || user._id.toString(),
 		metadata: { certification: input.name },
 	});
 
@@ -334,6 +362,7 @@ export async function addUserCertification(
 export async function removeUserCertification(
 	userId: string,
 	certificationName: string,
+	actorId: string = "",
 ): Promise<UserContract> {
 	const user = await User.findById(userId);
 	if (!user) {
@@ -349,20 +378,42 @@ export async function removeUserCertification(
 	}
 	await user.save();
 
+	await createAuditLog({
+		action: "USER_CERTIFICATION_REMOVED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: actorId || user._id.toString(),
+		metadata: { certification: certificationName },
+	});
+
 	return formatUserResponse(user);
 }
 
 /**
  * Replace the skills list of a user (skills matrix)
  */
-export async function updateUserSkills(userId: string, skills: string[]): Promise<UserContract> {
+export async function updateUserSkills(
+	userId: string,
+	skills: string[],
+	actorId: string = "",
+): Promise<UserContract> {
 	const user = await User.findById(userId);
 	if (!user) {
 		throw new NotFoundError("User", userId);
 	}
 
+	const previousSkills = [...(user.skills ?? [])];
 	user.skills = skills;
 	await user.save();
+
+	await createAuditLog({
+		action: "USER_SKILLS_UPDATED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: actorId || user._id.toString(),
+		before: { skills: previousSkills },
+		after: { skills: [...skills] },
+	});
 
 	return formatUserResponse(user);
 }
