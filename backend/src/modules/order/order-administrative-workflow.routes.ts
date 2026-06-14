@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
 import { ObjectIdSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { z } from "zod";
@@ -14,7 +14,7 @@ router.use(authenticate);
 
 router.post(
 	"/:id/advance-step",
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(OrderIdParamsSchema),
 	WorkflowController.advanceServiceCaseByOrder,
 );

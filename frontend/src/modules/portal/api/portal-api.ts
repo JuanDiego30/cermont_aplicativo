@@ -58,7 +58,7 @@ const portalKeys = {
 export function usePortalDashboard(): UseQueryResult<PortalDashboard> {
 	return useQuery({
 		queryKey: portalKeys.dashboard,
-		queryFn: () => apiClient.get<PortalDashboard>("/api/portal/dashboard"),
+		queryFn: () => apiClient.get<PortalDashboard>("/portal/dashboard"),
 		refetchInterval: 60_000,
 	});
 }
@@ -66,7 +66,7 @@ export function usePortalDashboard(): UseQueryResult<PortalDashboard> {
 export function usePortalOrders(): UseQueryResult<PortalOrderSummary[]> {
 	return useQuery({
 		queryKey: portalKeys.orders,
-		queryFn: () => apiClient.get<PortalOrderSummary[]>("/api/portal/orders"),
+		queryFn: () => apiClient.get<PortalOrderSummary[]>("/portal/orders"),
 		refetchInterval: 60_000,
 	});
 }
@@ -77,7 +77,7 @@ export function usePortalOrderDetail(
 ): UseQueryResult<PortalOrderDetail> {
 	return useQuery({
 		queryKey: portalKeys.orderDetail(id),
-		queryFn: () => apiClient.get<PortalOrderDetail>(`/api/portal/orders/${id}`),
+		queryFn: () => apiClient.get<PortalOrderDetail>(`/portal/orders/${id}`),
 		enabled: Boolean(id),
 		...options,
 	});
@@ -86,7 +86,7 @@ export function usePortalOrderDetail(
 export function usePortalInvoices(): UseQueryResult<PortalInvoiceSummary[]> {
 	return useQuery({
 		queryKey: portalKeys.invoices,
-		queryFn: () => apiClient.get<PortalInvoiceSummary[]>("/api/portal/invoices"),
+		queryFn: () => apiClient.get<PortalInvoiceSummary[]>("/portal/invoices"),
 		refetchInterval: 60_000,
 	});
 }
@@ -94,7 +94,7 @@ export function usePortalInvoices(): UseQueryResult<PortalInvoiceSummary[]> {
 export function usePortalProposals(): UseQueryResult<PortalProposalSummary[]> {
 	return useQuery({
 		queryKey: portalKeys.proposals,
-		queryFn: () => apiClient.get<PortalProposalSummary[]>("/api/portal/proposals"),
+		queryFn: () => apiClient.get<PortalProposalSummary[]>("/portal/proposals"),
 		refetchInterval: 60_000,
 	});
 }

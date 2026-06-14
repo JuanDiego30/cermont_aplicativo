@@ -51,7 +51,7 @@ const SEED_USERS: SeedUser[] = [
 	{
 		name: "Gerencia General",
 		email: "gerencia@cermont.co",
-		password: "",
+		password: DEFAULT_PASSWORD,
 		role: "gerente",
 		isActive: true,
 		phone: "+57 300 000 0000",

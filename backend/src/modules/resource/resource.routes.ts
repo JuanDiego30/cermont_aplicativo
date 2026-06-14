@@ -1,4 +1,9 @@
-import { INTERNAL_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import {
+	INTERNAL_ROLES,
+	MAINTENANCE_MANAGEMENT_ROLES,
+	MANAGEMENT_ROLES,
+	SUPERVISORY_ROLES,
+} from "@cermont/domain";
 import {
 	AttachResourceImageSchema,
 	CreateMaintenanceKitSchema,
@@ -63,7 +68,7 @@ router.delete("/kits/:id", authorize("gerente"), validateParams(ResourceIdSchema
 // Create resource - gerente, residente, supervisor
 router.post(
 	"/",
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateBody(CreateResourceSchema),
 	createResource,
 );
@@ -82,7 +87,7 @@ router.get("/:id", authorize(...INTERNAL_ROLES), validateParams(ResourceIdSchema
 // Update resource - gerente, residente, supervisor
 router.patch(
 	"/:id",
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(ResourceIdSchema),
 	validateBody(UpdateResourceSchema),
 	updateResource,
@@ -91,7 +96,7 @@ router.patch(
 // Update resource status - gerente, residente, supervisor
 router.patch(
 	"/:id/status",
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(ResourceIdSchema),
 	validateBody(UpdateResourceStatusSchema),
 	updateResourceStatus,
@@ -101,24 +106,20 @@ router.patch(
 router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteResource);
 
 // ─── Resource/Tool Document Attachments ────────────────────────────
-router.post(
-	"/:resourceId/documents",
-	authorize("gerente", "residente", "supervisor"),
-	attachDocumentToTool,
-);
+router.post("/:resourceId/documents", authorize(...SUPERVISORY_ROLES), attachDocumentToTool);
 
 router.get("/:resourceId/documents", listToolDocuments);
 
 router.delete(
 	"/:resourceId/documents/:documentId",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	detachDocumentFromTool,
 );
 
 // ─── Image Gallery Endpoints ───────────────────────────────────────
 router.post(
 	"/:id/images",
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(ResourceIdSchema),
 	validateBody(AttachResourceImageSchema),
 	attachImage,
@@ -126,7 +127,7 @@ router.post(
 
 router.delete(
 	"/:id/images",
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(ResourceIdSchema),
 	validateBody(DetachResourceImageSchema),
 	detachImage,

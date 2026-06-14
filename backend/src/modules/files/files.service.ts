@@ -334,7 +334,6 @@ export async function createFileAssetFromUpload(
 		tags: input.tags,
 		offlineLocalId: input.offlineLocalId,
 		syncStatus: "synced",
-		deletedAt: null,
 	});
 
 	// Append a denormalized ref to the parent document

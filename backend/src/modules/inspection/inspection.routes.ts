@@ -1,3 +1,4 @@
+import { REPORTING_ACCESS_ROLES } from "@cermont/domain";
 import {
 	CreateInspectionSchema,
 	InspectionIdSchema,
@@ -21,7 +22,7 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get("/", authorize("gerente", "residente", "supervisor", "hes"), getAllInspections);
+router.get("/", authorize(...REPORTING_ACCESS_ROLES), getAllInspections);
 router.get(
 	"/order/:order_id",
 	authorize("gerente", "residente", "supervisor", "tecnico", "operador", "hes"),
@@ -30,7 +31,7 @@ router.get(
 );
 router.get(
 	"/:id",
-	authorize("gerente", "residente", "supervisor", "hes"),
+	authorize(...REPORTING_ACCESS_ROLES),
 	validateParams(InspectionIdSchema),
 	getInspectionById,
 );
@@ -42,7 +43,7 @@ router.post(
 );
 router.patch(
 	"/:id/status",
-	authorize("gerente", "residente", "supervisor", "hes"),
+	authorize(...REPORTING_ACCESS_ROLES),
 	validateParams(InspectionIdSchema),
 	validateBody(UpdateInspectionStatusSchema),
 	updateInspectionStatus,

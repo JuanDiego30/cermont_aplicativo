@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES } from "@cermont/domain";
 import { CreateOrderServiceEntrySheetSchema, ObjectIdSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { z } from "zod";
@@ -21,7 +21,7 @@ router.get(
 
 router.post(
 	"/:id/service-entry-sheet",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(CreateOrderServiceEntrySheetSchema),
 	WorkflowController.createServiceEntrySheetFromDeliveryRecord,

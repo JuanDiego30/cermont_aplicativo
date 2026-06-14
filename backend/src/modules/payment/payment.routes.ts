@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	InvoiceIdParamsSchema,
 	ListPaymentsQuerySchema,
@@ -26,7 +26,7 @@ router.get(
 
 router.post(
 	"/from-invoice/:id",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(InvoiceIdParamsSchema),
 	validateBody(RegisterInvoicePaymentSchema),
 	WorkflowController.registerPaymentForInvoice,
@@ -41,7 +41,7 @@ router.get(
 
 router.post(
 	"/:id/reconcile",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(PaymentIdParamsSchema),
 	validateBody(ReconcilePaymentSchema),
 	WorkflowController.reconcilePayment,
@@ -49,7 +49,7 @@ router.post(
 
 router.post(
 	"/:id/reject",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(PaymentIdParamsSchema),
 	validateBody(RejectPaymentRecordSchema),
 	WorkflowController.rejectPayment,

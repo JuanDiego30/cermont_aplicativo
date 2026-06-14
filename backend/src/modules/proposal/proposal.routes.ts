@@ -1,4 +1,4 @@
-import { ALL_AUTHENTICATED_ROLES } from "@cermont/domain";
+import { ALL_AUTHENTICATED_ROLES, FIELD_MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	ApproveProposalSchema,
 	ConvertProposalToOrderSchema,
@@ -36,7 +36,7 @@ router.use(authenticate);
 // Create proposal
 router.post(
 	"/",
-	authorize("gerente", "residente", "hes"),
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateBody(CreateProposalSchema),
 	createProposal,
 );
@@ -66,7 +66,7 @@ router.get(
 
 router.post(
 	"/:id/po",
-	authorize("gerente", "residente", "hes"),
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateParams(ProposalIdSchema),
 	validateBody(RegisterPurchaseOrderSchema.omit({ proposalId: true })),
 	registerForProposal,
@@ -83,7 +83,7 @@ router.get(
 // Update proposal status
 router.patch(
 	"/:id/status",
-	authorize("gerente", "residente", "hes"),
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateParams(ProposalIdSchema),
 	validateBody(UpdateProposalStatusSchema),
 	updateProposalStatus,
@@ -108,7 +108,7 @@ router.patch("/:id/reject", authorize("cliente"), validateParams(ProposalIdSchem
  */
 router.post(
 	"/:id/convert",
-	authorize("gerente", "residente", "hes"),
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateParams(ProposalIdSchema),
 	validateBody(ConvertProposalToOrderSchema),
 	convertProposalToOrder,

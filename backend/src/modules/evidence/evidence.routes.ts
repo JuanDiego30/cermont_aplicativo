@@ -3,7 +3,7 @@
  * DOC-10 §5: Evidencias
  */
 
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
 import {
 	CreateEvidenceSchema,
 	EvidenceIdSchema,
@@ -77,7 +77,7 @@ router.get(
 router.delete(
 	"/:id",
 	authenticate,
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(EvidenceIdSchema),
 	EvidenceController.deleteEvidence,
 );
@@ -87,7 +87,7 @@ router.delete(
 router.post(
 	"/:id/verify",
 	authenticate,
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(EvidenceIdSchema),
 	EvidenceController.verifyEvidence,
 );

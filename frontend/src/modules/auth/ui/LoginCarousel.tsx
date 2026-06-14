@@ -88,9 +88,9 @@ export function LoginCarousel() {
 				<Image
 					key={slide.id}
 					src={slide.image}
-					alt={slide.title}
+					alt=""
 					fill
-					priority={index === 0}
+					loading="lazy"
 					sizes="(max-width: 768px) 100vw, 50vw"
 					className={`object-cover transition-[opacity,transform] duration-[var(--duration-slow)] ease-[var(--ease-standard)] ${
 						index === currentSlide ? "opacity-55" : "opacity-0"

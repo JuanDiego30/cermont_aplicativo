@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Plus, Trash2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useCallback } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,6 +10,7 @@ import { z } from "zod";
 import { Button } from "@/core/ui/Button";
 import { FormField, Select, TextArea, TextField } from "@/core/ui/FormField";
 import { KIT_ACTIVITY_OPTIONS } from "@/modules/kits/constants";
+import { KitItemSection } from "@/modules/kits/ui/KitItemSection";
 import { useCreateKit } from "../hooks/useKits";
 
 interface KitFormItem {
@@ -217,190 +218,58 @@ export function KitForm({ open, onOpenChange, onSuccess }: KitFormProps) {
 							<fieldset className="space-y-4">
 								<legend className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
 									<span>Herramientas</span>
-									<button
-										type="button"
-										onClick={() => toolFields.append({ ...DEFAULT_ITEM, type: "tool" })}
-										className="flex items-center gap-1 text-[var(--color-brand)] hover:text-[var(--color-brand-hover)] transition-colors"
-										aria-label="Agregar herramienta"
-									>
-										<Plus aria-hidden="true" className="size-3.5" />
-										Agregar
-									</button>
 								</legend>
-
-								{toolFields.fields.length === 0 ? (
-									<p className="text-sm text-[var(--text-tertiary)] italic">
-										No hay herramientas. Agrega al menos una.
-									</p>
-								) : (
-									<ul className="space-y-3">
-										{toolFields.fields.map((field, index) => (
-											<li
-												key={field.id}
-												className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)]/40 p-4"
-											>
-												<div className="flex items-start justify-between gap-2">
-													<div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-														<FormField name={`tools.${index}.name`} label="Nombre" required>
-															<TextField
-																{...register(`tools.${index}.name`)}
-																placeholder="Ej: Taladro"
-															/>
-														</FormField>
-														<FormField name={`tools.${index}.quantity`} label="Cant." required>
-															<TextField
-																type="number"
-																min={1}
-																{...register(`tools.${index}.quantity`, { valueAsNumber: true })}
-															/>
-														</FormField>
-														<FormField name={`tools.${index}.unit`} label="Unidad" required>
-															<TextField
-																{...register(`tools.${index}.unit`)}
-																placeholder="unidad, metro, litro"
-															/>
-														</FormField>
-														<FormField name={`tools.${index}.description`} label="Descripción">
-															<TextField
-																{...register(`tools.${index}.description`)}
-																placeholder="Opcional"
-															/>
-														</FormField>
-													</div>
-													<button
-														type="button"
-														onClick={() => toolFields.remove(index)}
-														className="mt-1 shrink-0 text-[var(--text-tertiary)] hover:text-[var(--color-danger)] transition-colors"
-														aria-label={`Eliminar ${index + 1}`}
-													>
-														<Trash2 aria-hidden="true" className="size-4" />
-													</button>
-												</div>
-											</li>
-										))}
-									</ul>
-								)}
+								<KitItemSection
+									name="tools"
+									label=""
+									description=""
+									emptyMessage="No hay herramientas. Agrega al menos una."
+									addButtonLabel="Agregar"
+									fields={toolFields.fields}
+									register={register}
+									errors={errors}
+									onAppend={() => toolFields.append({ ...DEFAULT_ITEM, type: "tool" })}
+									onRemove={(i) => toolFields.remove(i)}
+									showDescription
+								/>
 							</fieldset>
 
 							{/* Materials */}
 							<fieldset className="space-y-4">
 								<legend className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
 									<span>Materiales (opcional)</span>
-									<button
-										type="button"
-										onClick={() => materialFields.append({ ...DEFAULT_ITEM, type: "material" })}
-										className="flex items-center gap-1 text-[var(--color-brand)] hover:text-[var(--color-brand-hover)] transition-colors"
-									>
-										<Plus aria-hidden="true" className="size-3.5" />
-										Agregar
-									</button>
 								</legend>
-
-								{materialFields.fields.length === 0 ? (
-									<p className="text-sm text-[var(--text-tertiary)] italic">
-										Sin materiales. Puedes dejarlo vacío.
-									</p>
-								) : (
-									<ul className="space-y-3">
-										{materialFields.fields.map((field, index) => (
-											<li
-												key={field.id}
-												className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)]/40 p-4"
-											>
-												<div className="flex items-start justify-between gap-2">
-													<div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
-														<FormField name={`materials.${index}.name`} label="Nombre" required>
-															<TextField
-																{...register(`materials.${index}.name`)}
-																placeholder="Ej: Cable THHN"
-															/>
-														</FormField>
-														<FormField name={`materials.${index}.quantity`} label="Cant." required>
-															<TextField
-																type="number"
-																min={1}
-																{...register(`materials.${index}.quantity`, {
-																	valueAsNumber: true,
-																})}
-															/>
-														</FormField>
-														<FormField name={`materials.${index}.unit`} label="Unidad" required>
-															<TextField
-																{...register(`materials.${index}.unit`)}
-																placeholder="metro, kg"
-															/>
-														</FormField>
-													</div>
-													<button
-														type="button"
-														onClick={() => materialFields.remove(index)}
-														className="mt-1 shrink-0 text-[var(--text-tertiary)] hover:text-[var(--color-danger)]"
-													>
-														<Trash2 className="size-4" />
-													</button>
-												</div>
-											</li>
-										))}
-									</ul>
-								)}
+								<KitItemSection
+									name="materials"
+									label=""
+									description=""
+									emptyMessage="Sin materiales. Puedes dejarlo vacío."
+									addButtonLabel="Agregar"
+									fields={materialFields.fields}
+									register={register}
+									errors={errors}
+									onAppend={() => materialFields.append({ ...DEFAULT_ITEM, type: "material" })}
+									onRemove={(i) => materialFields.remove(i)}
+								/>
 							</fieldset>
 
 							{/* EPP */}
 							<fieldset className="space-y-4">
 								<legend className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
 									<span>EPP (opcional)</span>
-									<button
-										type="button"
-										onClick={() => eppFields.append({ ...DEFAULT_ITEM, type: "epp" })}
-										className="flex items-center gap-1 text-[var(--color-brand)] hover:text-[var(--color-brand-hover)] transition-colors"
-									>
-										<Plus aria-hidden="true" className="size-3.5" />
-										Agregar
-									</button>
 								</legend>
-
-								{eppFields.fields.length === 0 ? (
-									<p className="text-sm text-[var(--text-tertiary)] italic">
-										Sin EPP. Puedes dejarlo vacío.
-									</p>
-								) : (
-									<ul className="space-y-3">
-										{eppFields.fields.map((field, index) => (
-											<li
-												key={field.id}
-												className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)]/40 p-4"
-											>
-												<div className="flex items-start justify-between gap-2">
-													<div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
-														<FormField name={`epp.${index}.name`} label="Nombre" required>
-															<TextField
-																{...register(`epp.${index}.name`)}
-																placeholder="Ej: Casco"
-															/>
-														</FormField>
-														<FormField name={`epp.${index}.quantity`} label="Cant." required>
-															<TextField
-																type="number"
-																min={1}
-																{...register(`epp.${index}.quantity`, { valueAsNumber: true })}
-															/>
-														</FormField>
-														<FormField name={`epp.${index}.unit`} label="Unidad" required>
-															<TextField {...register(`epp.${index}.unit`)} placeholder="unidad" />
-														</FormField>
-													</div>
-													<button
-														type="button"
-														onClick={() => eppFields.remove(index)}
-														className="mt-1 shrink-0 text-[var(--text-tertiary)] hover:text-[var(--color-danger)]"
-													>
-														<Trash2 className="size-4" />
-													</button>
-												</div>
-											</li>
-										))}
-									</ul>
-								)}
+								<KitItemSection
+									name="epp"
+									label=""
+									description=""
+									emptyMessage="Sin EPP. Puedes dejarlo vacío."
+									addButtonLabel="Agregar"
+									fields={eppFields.fields}
+									register={register}
+									errors={errors}
+									onAppend={() => eppFields.append({ ...DEFAULT_ITEM, type: "epp" })}
+									onRemove={(i) => eppFields.remove(i)}
+								/>
 							</fieldset>
 
 							<div className="flex items-center justify-end gap-3 border-t border-[var(--border-medium)] pt-5">

@@ -49,7 +49,7 @@ export interface IFileAssetDocument extends Document {
 	tags?: string[];
 	offlineLocalId?: string;
 	syncStatus: (typeof FILE_ASSET_SYNC_STATUSES)[number];
-	deletedAt: Date | null;
+	deletedAt?: Date;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -96,7 +96,7 @@ const FileAssetSchema = new Schema<IFileAssetDocument>(
 			default: "synced",
 			index: true,
 		},
-		deletedAt: { type: Date, default: null, index: true },
+		deletedAt: { type: Date, index: true },
 	},
 	{ timestamps: true, versionKey: false },
 );

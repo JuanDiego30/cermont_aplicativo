@@ -1,5 +1,5 @@
 import { env } from "@cermont/config";
-import { APPROVER_ROLES, INTERNAL_ROLES } from "@cermont/domain";
+import { APPROVER_ROLES, INTERNAL_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
 import {
 	CreateWorkReportSchema,
 	ListReportsQuerySchema,
@@ -42,14 +42,14 @@ router.get(
 
 router.post(
 	"/",
-	authorize("gerente", "residente", "hes", "supervisor"),
+	authorize(...REPORTING_ACCESS_ROLES),
 	validateBody(CreateWorkReportSchema),
 	ReportController.createReport,
 );
 
 router.patch(
 	"/:id",
-	authorize("gerente", "residente", "hes", "supervisor"),
+	authorize(...REPORTING_ACCESS_ROLES),
 	validateParams(ReportIdSchema),
 	validateBody(UpdateWorkReportSchema),
 	ReportController.updateReport,
@@ -98,7 +98,7 @@ router.get(
 /** @deprecated Use POST /api/reports/:id/close. Retirement date: 2026-09-30. */
 router.patch(
 	"/:id/status",
-	authorize("gerente", "residente", "hes", "supervisor"),
+	authorize(...REPORTING_ACCESS_ROLES),
 	validateParams(ReportIdSchema),
 	validateBody(UpdateWorkReportSchema),
 	ReportController.updateReportStatus,

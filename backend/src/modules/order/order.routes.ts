@@ -11,7 +11,7 @@
  * The service layer enforces finer domain rules.
  */
 
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { FIELD_MANAGEMENT_ROLES, INTERNAL_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
 import {
 	AssignOrderSchema,
 	CreateOrderSchema,
@@ -66,7 +66,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize("gerente", "residente", "hes"),
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateBody(CreateOrderSchema),
 	OrderController.createOrder,
 );
@@ -100,7 +100,7 @@ router.get(
 router.put(
 	"/:id",
 	authenticate,
-	authorize("gerente", "residente", "hes", "supervisor"),
+	authorize(...REPORTING_ACCESS_ROLES),
 	validateParams(OrderIdSchema),
 	validateBody(UpdateOrderSchema),
 	OrderController.updateOrder,
@@ -144,7 +144,7 @@ router.patch(
 router.patch(
 	"/:id/assign",
 	authenticate,
-	authorize("gerente", "residente", "hes"),
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateParams(OrderIdSchema),
 	validateBody(AssignOrderSchema),
 	OrderController.assignOrder,
@@ -173,7 +173,7 @@ router.delete(
 router.get(
 	"/:id/report",
 	authenticate,
-	authorize("gerente", "residente", "hes", "administrativo"),
+	authorize(...FIELD_MANAGEMENT_ROLES, "administrativo"),
 	validateParams(OrderIdSchema),
 	OrderController.getOrderReport,
 );

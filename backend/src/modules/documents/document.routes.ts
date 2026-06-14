@@ -1,4 +1,4 @@
-import { MANAGEMENT_ROLES } from "@cermont/domain";
+import { DOCUMENT_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	ArchiveDocumentSchema,
 	AssociateDocumentSchema,
@@ -30,7 +30,7 @@ router.use(authenticate);
 // POST /api/documents - Upload document (canonical route)
 router.post(
 	"/",
-	authorize("gerente", "residente", "administrativo", "supervisor"),
+	authorize(...DOCUMENT_MANAGEMENT_ROLES),
 	uploadLimiter,
 	upload.single("file"),
 	handleUploadError,
@@ -42,7 +42,7 @@ router.post(
 // POST /api/documents/upload - Backward-compatible alias
 router.post(
 	"/upload",
-	authorize("gerente", "residente", "administrativo", "supervisor"),
+	authorize(...DOCUMENT_MANAGEMENT_ROLES),
 	uploadLimiter,
 	upload.single("file"),
 	handleUploadError,
@@ -54,7 +54,7 @@ router.post(
 // POST /api/documents/upload-contextual — Explicit contextual upload alias
 router.post(
 	"/upload-contextual",
-	authorize("gerente", "residente", "administrativo", "supervisor"),
+	authorize(...DOCUMENT_MANAGEMENT_ROLES),
 	uploadLimiter,
 	upload.single("file"),
 	handleUploadError,
@@ -66,7 +66,7 @@ router.post(
 // GET /api/documents - Get all documents
 router.get(
 	"/",
-	authorize("gerente", "residente", "administrativo", "supervisor"),
+	authorize(...DOCUMENT_MANAGEMENT_ROLES),
 	validateQuery(DocumentListQuerySchema),
 	getAllDocuments,
 );
@@ -74,7 +74,7 @@ router.get(
 // POST /api/documents/:id/associate - Reuse an existing document in a workflow context
 router.post(
 	"/:id/associate",
-	authorize("gerente", "residente", "administrativo", "supervisor"),
+	authorize(...DOCUMENT_MANAGEMENT_ROLES),
 	validateParams(DocumentIdSchema),
 	validateBody(AssociateDocumentSchema),
 	associateDocument,
@@ -83,7 +83,7 @@ router.post(
 // GET /api/documents/:id/associations - Trace where a document has been reused
 router.get(
 	"/:id/associations",
-	authorize("gerente", "residente", "administrativo", "supervisor"),
+	authorize(...DOCUMENT_MANAGEMENT_ROLES),
 	validateParams(DocumentIdSchema),
 	getDocumentAssociations,
 );

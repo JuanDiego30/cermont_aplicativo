@@ -76,7 +76,7 @@ router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), de
 // ─── Kit Document Attachments ─────────────────────────────────────
 // POST /api/maintenance/kits/:kitId/documents — Attach document to kit
 // No body validation needed — multipart form data handled by multer middleware
-router.post("/kits/:kitId/documents", authorize("gerente", "residente"), attachDocumentToKit);
+router.post("/kits/:kitId/documents", authorize(...MANAGEMENT_ROLES), attachDocumentToKit);
 
 // GET /api/maintenance/kits/:kitId/documents — List kit documents
 router.get("/kits/:kitId/documents", authorize(...INTERNAL_ROLES), listKitDocuments);
@@ -84,7 +84,7 @@ router.get("/kits/:kitId/documents", authorize(...INTERNAL_ROLES), listKitDocume
 // DELETE /api/maintenance/kits/:kitId/documents/:documentId — Detach document
 router.delete(
 	"/kits/:kitId/documents/:documentId",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	detachDocumentFromKit,
 );
 

@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, MANAGEMENT_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
 import { ListServiceCasesQuerySchema, ServiceCaseIdParamsSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -67,7 +67,7 @@ router.get(
 // POST /api/service-cases/:id/step/advance — Advance operational step
 router.post(
 	"/:id/step/advance",
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(ServiceCaseIdParamsSchema),
 	advanceServiceCase,
 );
@@ -96,7 +96,7 @@ router.get(
 router.post(
 	"/:id/close",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(ServiceCaseIdParamsSchema),
 	closeServiceCase,
 );

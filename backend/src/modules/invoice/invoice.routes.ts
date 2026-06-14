@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	CreateOrderInvoiceSchema,
 	InvoiceIdParamsSchema,
@@ -25,7 +25,7 @@ router.get(
 
 router.post(
 	"/from-service-entry-sheet/:id",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(CreateOrderInvoiceSchema),
 	WorkflowController.createInvoiceFromServiceEntrySheet,
@@ -40,21 +40,21 @@ router.get(
 
 router.post(
 	"/:id/submit",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(InvoiceIdParamsSchema),
 	WorkflowController.submitInvoice,
 );
 
 router.post(
 	"/:id/approve",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(InvoiceIdParamsSchema),
 	WorkflowController.approveInvoice,
 );
 
 router.post(
 	"/:id/reject",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(InvoiceIdParamsSchema),
 	validateBody(RejectServiceEntrySheetSchema),
 	WorkflowController.rejectInvoice,
@@ -62,7 +62,7 @@ router.post(
 
 router.post(
 	"/:id/cancel",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(InvoiceIdParamsSchema),
 	WorkflowController.cancelInvoice,
 );

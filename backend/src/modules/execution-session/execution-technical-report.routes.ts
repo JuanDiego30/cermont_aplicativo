@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, TECHNICAL_EXECUTION_ROLES } from "@cermont/domain";
 import { CreateTechnicalReportSchema, ExecutionSessionIdParamsSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -19,7 +19,7 @@ router.get(
 
 router.post(
 	"/:id/technical-report",
-	authorize("gerente", "residente", "supervisor", "tecnico"),
+	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(ExecutionSessionIdParamsSchema),
 	validateBody(CreateTechnicalReportSchema),
 	WorkflowController.createTechnicalReportFromExecutionSession,

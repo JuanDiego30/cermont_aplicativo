@@ -1,3 +1,4 @@
+import { SUPERVISORY_ROLES } from "@cermont/domain";
 import { AssistantChatRequestSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -27,7 +28,7 @@ router.get("/status", authenticate, (_req, res) => {
 router.post(
 	"/chat",
 	authenticate,
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateBody(AssistantChatRequestSchema),
 	chatHandler,
 );

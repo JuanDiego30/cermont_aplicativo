@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	ListPurchaseOrdersQuerySchema,
 	PurchaseOrderIdParamsSchema,
@@ -32,14 +32,14 @@ router.get(
 
 router.post(
 	"/",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateBody(RegisterPurchaseOrderSchema),
 	POController.register,
 );
 
 router.post(
 	"/:id/validate",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(PurchaseOrderIdParamsSchema),
 	validateBody(ValidatePurchaseOrderSchema),
 	POController.validate,
@@ -47,7 +47,7 @@ router.post(
 
 router.post(
 	"/:id/reject",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(PurchaseOrderIdParamsSchema),
 	validateBody(RejectPurchaseOrderSchema),
 	POController.reject,

@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	CreateDeliveryRecordV2Schema,
 	DeliveryRecordIdParamsSchema,
@@ -27,7 +27,7 @@ router.get(
 
 router.post(
 	"/from-technical-report/:id",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(CreateDeliveryRecordV2Schema),
 	WorkflowController.createDeliveryRecordFromTechnicalReport,
@@ -42,7 +42,7 @@ router.get(
 
 router.post(
 	"/:id/send",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(SendDeliveryRecordSchema),
 	WorkflowController.sendDeliveryRecord,
@@ -66,14 +66,14 @@ router.post(
 
 router.post(
 	"/:id/cancel",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(DeliveryRecordIdParamsSchema),
 	WorkflowController.cancelDeliveryRecord,
 );
 
 router.post(
 	"/:id/archive",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(DeliveryRecordIdParamsSchema),
 	WorkflowController.cancelDeliveryRecord,
 );

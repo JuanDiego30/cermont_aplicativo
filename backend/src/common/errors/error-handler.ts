@@ -24,9 +24,18 @@ function handleDatabaseError(
 	requestId: string,
 ): void {
 	const isDbConflict = dbError.code === 11000;
-	const statusCode = isDbConflict ? 409 : 400;
-	const errorCode = isDbConflict ? ERROR_CODES.CONFLICT : ERROR_CODES.VALIDATION_FAILED;
-	const message = isDbConflict ? "Resource already exists" : "Database validation failed";
+	const isDbNotFound = dbError.name === "DocumentNotFoundError";
+	const statusCode = isDbConflict ? 409 : isDbNotFound ? 404 : 400;
+	const errorCode = isDbConflict
+		? ERROR_CODES.CONFLICT
+		: isDbNotFound
+			? ERROR_CODES.NOT_FOUND
+			: ERROR_CODES.VALIDATION_FAILED;
+	const message = isDbConflict
+		? "Resource already exists"
+		: isDbNotFound
+			? "Resource not found"
+			: "Database validation failed";
 
 	log.warn("DatabaseError", {
 		path: req.path,
@@ -103,7 +112,8 @@ export function errorHandler(
 	const dbError = err as MongoError;
 	const isDbConflict = dbError.code === 11000;
 	const isDbValidation = dbError.name === "ValidationError" || dbError.name === "CastError";
-	if (isDbValidation || isDbConflict) {
+	const isDbNotFound = dbError.name === "DocumentNotFoundError";
+	if (isDbValidation || isDbConflict || isDbNotFound) {
 		handleDatabaseError(dbError, req, res, method, requestId);
 		return;
 	}

@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
 import {
 	ChecklistIdParamsSchema,
 	ChecklistItemParamsSchema,
@@ -43,7 +43,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateBody(CreateChecklistSchema),
 	ChecklistController.createChecklist,
 );

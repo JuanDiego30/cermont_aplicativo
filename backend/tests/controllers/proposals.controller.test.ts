@@ -14,7 +14,7 @@ const mockApproveProposalService = vi.fn();
 const mockRejectProposalService = vi.fn();
 const mockConvertProposalToOrderService = vi.fn();
 
-vi.mock("../../modules/proposal/proposal.service.js", () => ({
+vi.mock("../../src/modules/proposal/proposal.service", () => ({
 	createProposal: mockCreateProposalService,
 	findAllProposals: mockFindAllProposals,
 	findProposalById: mockFindProposalById,
@@ -23,7 +23,7 @@ vi.mock("../../modules/proposal/proposal.service.js", () => ({
 	convertProposalToOrder: mockConvertProposalToOrderService,
 }));
 
-const importController = async () => import("../../modules/proposal/proposal.controller.js");
+const importController = async () => import("../../src/modules/proposal/proposal.controller");
 
 const PROPOSAL_ID = "507f1f77bcf86cd799439011";
 const USER_ID = "507f1f77bcf86cd799439031";

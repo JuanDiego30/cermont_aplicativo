@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, MANAGEMENT_ROLES, TECHNICAL_EXECUTION_ROLES } from "@cermont/domain";
 import {
 	ApproveTechnicalReportSchema,
 	GenerateTechnicalReportSchema,
@@ -36,7 +36,7 @@ router.get(
 
 router.post(
 	"/:id/generate",
-	authorize("gerente", "residente", "supervisor", "tecnico"),
+	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(GenerateTechnicalReportSchema),
 	WorkflowController.generateTechnicalReport,
@@ -44,7 +44,7 @@ router.post(
 
 router.patch(
 	"/:id",
-	authorize("gerente", "residente", "supervisor", "tecnico"),
+	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(GenerateTechnicalReportSchema),
 	WorkflowController.updateTechnicalReport,
@@ -52,7 +52,7 @@ router.patch(
 
 router.post(
 	"/:id/submit",
-	authorize("gerente", "residente", "supervisor", "tecnico"),
+	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(ApproveTechnicalReportSchema),
 	WorkflowController.submitTechnicalReport,
@@ -60,7 +60,7 @@ router.post(
 
 router.post(
 	"/:id/approve",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(ApproveTechnicalReportSchema),
 	WorkflowController.approveTechnicalReport,
@@ -68,7 +68,7 @@ router.post(
 
 router.post(
 	"/:id/reject",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(RejectTechnicalReportSchema),
 	WorkflowController.rejectTechnicalReport,
@@ -76,21 +76,21 @@ router.post(
 
 router.post(
 	"/:id/cancel",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	WorkflowController.cancelTechnicalReport,
 );
 
 router.post(
 	"/:id/archive",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	WorkflowController.cancelTechnicalReport,
 );
 
 router.post(
 	"/:id/evidences",
-	authorize("gerente", "residente", "supervisor", "tecnico"),
+	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(AttachEvidenceSchema),
 	WorkflowController.attachTechnicalReportEvidence,
@@ -98,7 +98,7 @@ router.post(
 
 router.post(
 	"/:id/documents",
-	authorize("gerente", "residente", "supervisor", "tecnico"),
+	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(AttachDocumentSchema),
 	WorkflowController.attachTechnicalReportDocument,
@@ -106,7 +106,7 @@ router.post(
 
 router.post(
 	"/:id/generated-document",
-	authorize("gerente", "residente", "supervisor", "tecnico"),
+	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(AttachDocumentSchema),
 	WorkflowController.attachTechnicalReportDocument,

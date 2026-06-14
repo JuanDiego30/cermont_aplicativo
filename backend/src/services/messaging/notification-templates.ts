@@ -126,10 +126,10 @@ Días vencida: ${v.overdueDays || "0"}</p>`,
 export function compileNotificationTemplate(
 	templateName: string,
 	variables: Record<string, string> = {},
-): CompiledTemplate | null {
+): CompiledTemplate | undefined {
 	const templateFn = TEMPLATES[templateName];
 	if (!templateFn) {
-		return null;
+		return;
 	}
 	return templateFn(variables);
 }

@@ -13,7 +13,7 @@ const mockGetCostById = vi.fn();
 const mockGetOrderSummary = vi.fn();
 const mockGetCostDashboard = vi.fn();
 
-vi.mock("../../modules/cost/cost.service.js", () => ({
+vi.mock("../../src/modules/cost/cost.service", () => ({
 	listCosts: mockListCosts,
 	getCostsByOrderId: mockGetCostsByOrderId,
 	getCostById: mockGetCostById,
@@ -21,7 +21,7 @@ vi.mock("../../modules/cost/cost.service.js", () => ({
 	getCostDashboard: mockGetCostDashboard,
 }));
 
-const importController = async () => import("../../modules/cost/cost.controller.js");
+const importController = async () => import("../../src/modules/cost/cost.controller");
 
 function mockReq(overrides: Partial<Request> = {}): Request {
 	return {

@@ -67,7 +67,7 @@ export function useCreateFormSubmission() {
 
 	return useMutation({
 		mutationFn: async (payload: FormSubmissionPayload): Promise<FormSubmissionEnvelope> => {
-			return apiClient.post<FormSubmissionEnvelope>("/api/form-submissions", payload);
+			return apiClient.post<FormSubmissionEnvelope>("/form-submissions", payload);
 		},
 		onSuccess: (_data, variables) => {
 			// Invalidate the list for this service case

@@ -1,12 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { FormField, Select, TextField } from "@/core/ui/FormField";
+import { KitItemSection } from "@/modules/kits/ui/KitItemSection";
 
 const kitWizardSchema = z.object({
 	name: z.string().min(3, "El nombre debe tener al menos 3 caracteres").max(200),
@@ -206,226 +207,56 @@ export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWi
 			{/* Tools Section */}
 			{activeSection === "tools" && (
 				<section className="space-y-4">
-					<div className="flex flex-wrap items-center justify-between gap-3">
-						<div>
-							<h2 className="text-lg font-semibold text-[var(--text-primary)]">Herramientas</h2>
-							<p className="text-sm text-[var(--text-secondary)]">
-								Agrega las herramientas requeridas para la actividad.
-							</p>
-						</div>
-						<button
-							type="button"
-							onClick={() => toolFields.append({ ...DEFAULT_TOOL })}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-medium)] px-4 py-2 text-sm font-medium text-[var(--color-brand)] transition hover:bg-[var(--color-cermont-blue-bg)]"
-						>
-							<Plus className="size-4" />
-							Añadir herramienta
-						</button>
-					</div>
-
-					{toolFields.fields.length === 0 ? (
-						<p className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-medium)] px-4 py-6 text-sm text-[var(--text-tertiary)]">
-							No hay herramientas. Agrega al menos una.
-						</p>
-					) : (
-						<div className="space-y-4">
-							{toolFields.fields.map((field, index) => {
-								const toolError = errors.tools?.[index];
-								return (
-									<article
-										key={field.id}
-										className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)] p-4"
-									>
-										<div className="grid gap-4 lg:grid-cols-[1.4fr_0.5fr_0.6fr_auto] lg:items-start">
-											<FormField label="Nombre" required error={toolError?.name?.message}>
-												<TextField
-													id={`tool-name-${field.id}`}
-													placeholder="Ej: Taladro percutor"
-													error={Boolean(toolError?.name)}
-													{...register(`tools.${index}.name` as const)}
-												/>
-											</FormField>
-
-											<FormField label="Cantidad" required error={toolError?.quantity?.message}>
-												<TextField
-													id={`tool-qty-${field.id}`}
-													type="number"
-													min={1}
-													error={Boolean(toolError?.quantity)}
-													{...register(`tools.${index}.quantity` as const, { valueAsNumber: true })}
-												/>
-											</FormField>
-
-											<FormField label="Unidad" required error={toolError?.unit?.message}>
-												<TextField
-													id={`tool-unit-${field.id}`}
-													placeholder="unidad"
-													{...register(`tools.${index}.unit` as const)}
-												/>
-											</FormField>
-
-											<button
-												type="button"
-												onClick={() => toolFields.remove(index)}
-												disabled={toolFields.fields.length === 1}
-												className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-medium)] px-3 text-sm font-medium text-[var(--color-danger)] transition hover:bg-[var(--color-danger-bg)] disabled:cursor-not-allowed disabled:opacity-40"
-											>
-												<Trash2 className="size-4" />
-												Quitar
-											</button>
-										</div>
-									</article>
-								);
-							})}
-						</div>
-					)}
-					{errors.tools ? (
-						<p role="alert" className="text-sm text-[var(--color-danger)]">
-							{errors.tools.message || "Verifica las herramientas del kit."}
-						</p>
-					) : null}
+					<KitItemSection
+						name="tools"
+						label="Herramientas"
+						description="Agrega las herramientas requeridas para la actividad."
+						emptyMessage="No hay herramientas. Agrega al menos una."
+						addButtonLabel="Añadir herramienta"
+						fields={toolFields.fields}
+						register={register}
+						errors={errors}
+						onAppend={() => toolFields.append({ ...DEFAULT_TOOL })}
+						onRemove={(i) => toolFields.remove(i)}
+						minItems={1}
+						showDescription
+					/>
 				</section>
 			)}
 
 			{/* Materials Section */}
 			{activeSection === "materials" && (
 				<section className="space-y-4">
-					<div className="flex flex-wrap items-center justify-between gap-3">
-						<div>
-							<h2 className="text-lg font-semibold text-[var(--text-primary)]">Materiales</h2>
-							<p className="text-sm text-[var(--text-secondary)]">
-								Opcionalmente agrega materiales necesarios.
-							</p>
-						</div>
-						<button
-							type="button"
-							onClick={() => materialFields.append({ ...DEFAULT_MATERIAL })}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-medium)] px-4 py-2 text-sm font-medium text-[var(--color-brand)] transition hover:bg-[var(--color-cermont-blue-bg)]"
-						>
-							<Plus className="size-4" />
-							Añadir material
-						</button>
-					</div>
-
-					{materialFields.fields.length === 0 ? (
-						<p className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-medium)] px-4 py-6 text-sm text-[var(--text-tertiary)]">
-							No hay materiales. Puedes dejar esta sección vacía.
-						</p>
-					) : (
-						<div className="space-y-4">
-							{materialFields.fields.map((field, index) => (
-								<article
-									key={field.id}
-									className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)] p-4"
-								>
-									<div className="grid gap-4 lg:grid-cols-[1.4fr_0.5fr_0.6fr_auto] lg:items-start">
-										<FormField label="Nombre" required>
-											<TextField
-												id={`mat-name-${field.id}`}
-												placeholder="Ej: Cable THHN #12"
-												{...register(`materials.${index}.name` as const)}
-											/>
-										</FormField>
-										<FormField label="Cantidad" required>
-											<TextField
-												id={`mat-qty-${field.id}`}
-												type="number"
-												min={1}
-												{...register(`materials.${index}.quantity` as const, {
-													valueAsNumber: true,
-												})}
-											/>
-										</FormField>
-										<FormField label="Unidad" required>
-											<TextField
-												id={`mat-unit-${field.id}`}
-												placeholder="metro, kg"
-												{...register(`materials.${index}.unit` as const)}
-											/>
-										</FormField>
-										<button
-											type="button"
-											onClick={() => materialFields.remove(index)}
-											className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-medium)] px-3 text-sm font-medium text-[var(--color-danger)] transition hover:bg-[var(--color-danger-bg)]"
-										>
-											<Trash2 className="size-4" />
-											Quitar
-										</button>
-									</div>
-								</article>
-							))}
-						</div>
-					)}
+					<KitItemSection
+						name="materials"
+						label="Materiales"
+						description="Opcionalmente agrega materiales necesarios."
+						emptyMessage="No hay materiales. Puedes dejar esta sección vacía."
+						addButtonLabel="Añadir material"
+						fields={materialFields.fields}
+						register={register}
+						errors={errors}
+						onAppend={() => materialFields.append({ ...DEFAULT_MATERIAL })}
+						onRemove={(i) => materialFields.remove(i)}
+					/>
 				</section>
 			)}
 
 			{/* EPP Section */}
 			{activeSection === "epp" && (
 				<section className="space-y-4">
-					<div className="flex flex-wrap items-center justify-between gap-3">
-						<div>
-							<h2 className="text-lg font-semibold text-[var(--text-primary)]">EPP y Seguridad</h2>
-							<p className="text-sm text-[var(--text-secondary)]">
-								Equipos de protección personal requeridos.
-							</p>
-						</div>
-						<button
-							type="button"
-							onClick={() => eppFields.append({ ...DEFAULT_EPP })}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-medium)] px-4 py-2 text-sm font-medium text-[var(--color-brand)] transition hover:bg-[var(--color-cermont-blue-bg)]"
-						>
-							<Plus className="size-4" />
-							Añadir EPP
-						</button>
-					</div>
-
-					{eppFields.fields.length === 0 ? (
-						<p className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-medium)] px-4 py-6 text-sm text-[var(--text-tertiary)]">
-							No hay EPP configurado. Puedes dejarlo vacío.
-						</p>
-					) : (
-						<div className="space-y-4">
-							{eppFields.fields.map((field, index) => (
-								<article
-									key={field.id}
-									className="rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-secondary)] p-4"
-								>
-									<div className="grid gap-4 lg:grid-cols-[1.4fr_0.5fr_0.6fr_auto] lg:items-start">
-										<FormField label="Nombre" required>
-											<TextField
-												id={`epp-name-${field.id}`}
-												placeholder="Ej: Casco de seguridad"
-												{...register(`epp.${index}.name` as const)}
-											/>
-										</FormField>
-										<FormField label="Cantidad" required>
-											<TextField
-												id={`epp-qty-${field.id}`}
-												type="number"
-												min={1}
-												{...register(`epp.${index}.quantity` as const, { valueAsNumber: true })}
-											/>
-										</FormField>
-										<FormField label="Unidad" required>
-											<TextField
-												id={`epp-unit-${field.id}`}
-												placeholder="unidad"
-												{...register(`epp.${index}.unit` as const)}
-											/>
-										</FormField>
-										<button
-											type="button"
-											onClick={() => eppFields.remove(index)}
-											className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-medium)] px-3 text-sm font-medium text-[var(--color-danger)] transition hover:bg-[var(--color-danger-bg)]"
-										>
-											<Trash2 className="size-4" />
-											Quitar
-										</button>
-									</div>
-								</article>
-							))}
-						</div>
-					)}
+					<KitItemSection
+						name="epp"
+						label="EPP y Seguridad"
+						description="Equipos de protección personal requeridos."
+						emptyMessage="No hay EPP configurado. Puedes dejarlo vacío."
+						addButtonLabel="Añadir EPP"
+						fields={eppFields.fields}
+						register={register}
+						errors={errors}
+						onAppend={() => eppFields.append({ ...DEFAULT_EPP })}
+						onRemove={(i) => eppFields.remove(i)}
+					/>
 				</section>
 			)}
 

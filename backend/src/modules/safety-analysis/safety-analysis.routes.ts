@@ -4,7 +4,7 @@
  * Order: authenticate → authorize → validate → controller
  */
 
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, REPORTING_ACCESS_ROLES, TECHNICAL_EXECUTION_ROLES } from "@cermont/domain";
 import {
 	ASTIdParamsSchema,
 	CreateASTSchema,
@@ -41,7 +41,7 @@ router.get(
 // POST /api/asts — create AST (técnico, supervisor, residente, HES)
 router.post(
 	"/",
-	authorize("tecnico", "supervisor", "residente", "hes", "gerente"),
+	authorize(...TECHNICAL_EXECUTION_ROLES, "hes"),
 	validateBody(CreateASTSchema),
 	SafetyAnalysisController.createAST,
 );
@@ -49,7 +49,7 @@ router.post(
 // PATCH /api/asts/:id — update draft AST
 router.patch(
 	"/:id",
-	authorize("tecnico", "supervisor", "residente", "hes", "gerente"),
+	authorize(...TECHNICAL_EXECUTION_ROLES, "hes"),
 	validateParams(ASTIdParamsSchema),
 	validateBody(UpdateASTSchema),
 	SafetyAnalysisController.updateAST,
@@ -58,7 +58,7 @@ router.patch(
 // POST /api/asts/:id/transition — FSM transition (draft→reviewed→approved→completed)
 router.post(
 	"/:id/transition",
-	authorize("supervisor", "residente", "hes", "gerente"),
+	authorize(...REPORTING_ACCESS_ROLES),
 	validateParams(ASTIdParamsSchema),
 	SafetyAnalysisController.transitionAST,
 );
@@ -66,7 +66,7 @@ router.post(
 // POST /api/asts/:id/sign — sign as elaborated/reviewed/approved
 router.post(
 	"/:id/sign",
-	authorize("tecnico", "supervisor", "residente", "hes", "gerente"),
+	authorize(...TECHNICAL_EXECUTION_ROLES, "hes"),
 	validateParams(ASTIdParamsSchema),
 	validateBody(SignASTSchema),
 	SafetyAnalysisController.signAST,

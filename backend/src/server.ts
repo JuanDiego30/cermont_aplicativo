@@ -88,9 +88,20 @@ process.once("SIGTERM", () => {
 	void shutdown("SIGTERM");
 });
 
+/**
+ * Track unhandled rejections for observability without crashing the process.
+ * Unlike uncaughtException, unhandledRejection can be recovered from —
+ * the promise was rejected but no .catch() was attached. Logging and
+ * tracking the metric is sufficient; process.exit would kill all in-flight
+ * requests unnecessarily.
+ */
+let unhandledRejectionCount = 0;
 process.on("unhandledRejection", (reason) => {
-	log.error("Unhandled promise rejection", { reason: String(reason) });
-	process.exit(1);
+	unhandledRejectionCount++;
+	log.error("Unhandled promise rejection", {
+		reason: String(reason),
+		totalUnhandled: unhandledRejectionCount,
+	});
 });
 
 process.on("uncaughtException", (error) => {

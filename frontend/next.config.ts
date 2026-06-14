@@ -44,6 +44,13 @@ const nextConfig: NextConfig = {
 	allowedDevOrigins: [...localDevOrigins],
 	async rewrites() {
 		return [
+			// Generic backend proxy — all API calls except dedicated Route Handlers
+			// (login, refresh, forgot-password, register-client have their own handlers
+			// under src/app/api/auth/* with retry logic and explicit cookie forwarding)
+			{
+				source: "/api/backend/:path*",
+				destination: `${backendUrl}/api/:path*`,
+			},
 			{
 				source: "/uploads/:path*",
 				destination: `${backendUrl}/uploads/:path*`,

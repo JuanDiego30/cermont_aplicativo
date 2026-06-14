@@ -1,3 +1,4 @@
+import { ADMIN_PLUS_RESIDENTE } from "@cermont/domain";
 import { CreateOrderInvoiceSchema, ServiceEntrySheetIdParamsSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -11,7 +12,7 @@ router.use(authenticate);
 
 router.post(
 	"/:id/invoice",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(CreateOrderInvoiceSchema),
 	WorkflowController.createInvoiceFromServiceEntrySheet,

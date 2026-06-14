@@ -16,7 +16,7 @@
  * - GET /api/users/role/:role → GER, RES, SUP
  */
 
-import { MANAGEMENT_ROLES } from "@cermont/domain";
+import { MANAGEMENT_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
 import {
 	AddUserCertificationSchema,
 	CreateUserSchema,
@@ -71,7 +71,7 @@ router.post(
 router.get(
 	"/role/:role",
 	authenticate,
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...SUPERVISORY_ROLES),
 	validateParams(UserRoleParamsSchema),
 	UserController.getUsersByRole,
 );

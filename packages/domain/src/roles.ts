@@ -97,6 +97,44 @@ export const MANAGEMENT_ROLES = ["gerente", "residente"] as const satisfies read
 
 export const APPROVER_ROLES = ["gerente", "supervisor"] as const satisfies readonly UserRole[];
 
+/** Roles that manage field operations (orders, proposals, work-requests). */
+export const FIELD_MANAGEMENT_ROLES = [
+	"gerente",
+	"residente",
+	"hes",
+] as const satisfies readonly UserRole[];
+
+/** Roles with supervisory management access (CRUD on shared resources). */
+export const SUPERVISORY_ROLES = [
+	"gerente",
+	"residente",
+	"supervisor",
+] as const satisfies readonly UserRole[];
+
+/** Roles that produce or review technical execution records. */
+export const TECHNICAL_EXECUTION_ROLES = [
+	"gerente",
+	"residente",
+	"supervisor",
+	"tecnico",
+] as const satisfies readonly UserRole[];
+
+/** Roles with document management access (create, edit, ingest). */
+export const DOCUMENT_MANAGEMENT_ROLES = [
+	"gerente",
+	"residente",
+	"administrativo",
+	"supervisor",
+] as const satisfies readonly UserRole[];
+
+/** Roles with reporting and inspection access (HES-inclusive). */
+export const REPORTING_ACCESS_ROLES = [
+	"gerente",
+	"residente",
+	"hes",
+	"supervisor",
+] as const satisfies readonly UserRole[];
+
 export const MAINTENANCE_MANAGEMENT_ROLES = [
 	"gerente",
 	"residente",

@@ -32,7 +32,7 @@ export function useKitTemplates() {
 	return useQuery({
 		queryKey: KITS_KEYS.templates,
 		queryFn: async () => {
-			const body = await apiClient.get<KitTemplatesContract>("/kits/templates");
+			const body = await apiClient.get<KitTemplatesContract>("/kits");
 			return body?.data ?? [];
 		},
 		staleTime: 30_000,

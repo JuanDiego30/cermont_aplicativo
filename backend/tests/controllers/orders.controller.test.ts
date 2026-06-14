@@ -15,7 +15,7 @@ const mockGetOrderByIdWithAuth = vi.fn();
 const mockUpdateOrder = vi.fn();
 const mockDeleteOrder = vi.fn();
 
-vi.mock("../../modules/order/order-crud.service.js", () => ({
+vi.mock("../../src/modules/order/order-crud.service", () => ({
 	listOrders: mockListOrders,
 	createOrder: mockCreateOrder,
 	getOrderById: mockGetOrderById,
@@ -25,7 +25,7 @@ vi.mock("../../modules/order/order-crud.service.js", () => ({
 }));
 
 // Dynamic import so mocks are applied
-const importController = async () => import("../../modules/order/order-crud.controller.js");
+const importController = async () => import("../../src/modules/order/order-crud.controller");
 
 function mockReq(overrides: Partial<Request> = {}): Request {
 	return {

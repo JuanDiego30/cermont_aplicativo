@@ -8,7 +8,7 @@
  * - Order: authenticate → authorize → validate → controller
  */
 
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { FIELD_MANAGEMENT_ROLES, INTERNAL_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
 import {
 	CreateWorkRequestSchema,
 	ListWorkRequestsQuerySchema,
@@ -86,7 +86,7 @@ router.patch(
 router.patch(
 	"/:id/status",
 	authenticate,
-	authorize("gerente", "residente", "hes"),
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateParams(WorkRequestIdParamsSchema),
 	validateBody(UpdateWorkRequestStatusSchema),
 	WorkRequestController.updateWorkRequestStatus,
@@ -100,7 +100,7 @@ router.patch(
 router.post(
 	"/:id/qualify",
 	authenticate,
-	authorize("gerente", "residente", "hes"),
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateParams(WorkRequestIdParamsSchema),
 	WorkRequestController.qualifyWorkRequest,
 );
@@ -126,7 +126,7 @@ router.delete(
 router.post(
 	"/:id/visits",
 	authenticate,
-	authorize("gerente", "residente", "hes", "supervisor"),
+	authorize(...REPORTING_ACCESS_ROLES),
 	validateParams(WorkRequestIdParamsSchema),
 	validateBody(ScheduleVisitSchema),
 	WorkRequestController.createSiteVisit,

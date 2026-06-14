@@ -214,6 +214,11 @@ yarn.lock
 # ==========================================
 build-error.txt
 error-log.txt
+
+# ==========================================
+# 21. Audit script generated outputs
+# ==========================================
+scripts/audit/output/
 ts-errors.txt
 typecheck.log
 CODEBASE_ANALYSIS_QUICK_REFERENCE.csv

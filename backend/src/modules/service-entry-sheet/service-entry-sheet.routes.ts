@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	ApproveServiceEntrySheetSchema,
 	CreateOrderServiceEntrySheetSchema,
@@ -29,7 +29,7 @@ router.get(
 
 router.post(
 	"/from-delivery-record/:id",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(CreateOrderServiceEntrySheetSchema),
 	WorkflowController.createServiceEntrySheetFromDeliveryRecord,
@@ -44,7 +44,7 @@ router.get(
 
 router.post(
 	"/:id/submit",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(SubmitServiceEntrySheetSchema),
 	WorkflowController.submitServiceEntrySheet,
@@ -52,7 +52,7 @@ router.post(
 
 router.post(
 	"/:id/approve",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(ApproveServiceEntrySheetSchema),
 	WorkflowController.approveServiceEntrySheet,
@@ -60,7 +60,7 @@ router.post(
 
 router.post(
 	"/:id/reject",
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(RejectServiceEntrySheetSchema),
 	WorkflowController.rejectServiceEntrySheet,
@@ -68,21 +68,21 @@ router.post(
 
 router.post(
 	"/:id/cancel",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	WorkflowController.cancelServiceEntrySheet,
 );
 
 router.post(
 	"/:id/archive",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	WorkflowController.cancelServiceEntrySheet,
 );
 
 router.post(
 	"/:id/mark-external-submitted",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(SubmitServiceEntrySheetSchema),
 	WorkflowController.submitServiceEntrySheet,
@@ -90,7 +90,7 @@ router.post(
 
 router.post(
 	"/:id/sync-ariba",
-	authorize("gerente", "residente", "administrativo"),
+	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(SubmitServiceEntrySheetSchema),
 	WorkflowController.submitServiceEntrySheet,
