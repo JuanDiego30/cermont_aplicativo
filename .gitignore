@@ -325,3 +325,7 @@ packages/shared-types/shared-types-lint.txt
 
 # Entornos de produccion con secretos reales - NUNCA commitear
 .env.production
+
+# Codex worktrees
+.codex/worktrees/
+
