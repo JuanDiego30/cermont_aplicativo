@@ -112,11 +112,18 @@
 			}
 		},
 		{
-			"includes": ["**/scripts/**/*"],
+			"includes": ["**/scripts/**/*", "**/tooling/**/*"],
 			"linter": {
 				"rules": {
 					"complexity": {
 						"noExcessiveCognitiveComplexity": "off"
+					},
+					"style": {
+						"useNamingConvention": "off",
+						"useBlockStatements": "off"
+					},
+					"suspicious": {
+						"noAssignInExpressions": "off"
 					}
 				}
 			}
