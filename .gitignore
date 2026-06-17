@@ -282,10 +282,11 @@ claude.exe
 *.jpeg
 # Config serialization
 *.yml
-!docker-compose.yml
-!docker-compose*.yml
+!.github/**
 *.txt
 *.csv
+# Deployment scripts with credentials (never commit)
+*.py
 # Generated reports
 react-doctor-*
 task-*
