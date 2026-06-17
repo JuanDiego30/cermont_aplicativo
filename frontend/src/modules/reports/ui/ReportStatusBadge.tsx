@@ -7,25 +7,25 @@ const STATUS_CONFIG: Record<ReportStatus, { label: string; className: string; do
 		draft: {
 			label: "Borrador",
 			className:
-				"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[color:var(--border-default)]/20",
+				"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-subtle)]/20",
 			dotClass: "bg-[var(--text-tertiary)]",
 		},
 		pending_review: {
 			label: "En revisión",
 			className:
-				"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[color:var(--color-warning)]/15",
+				"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[var(--color-warning)]/15",
 			dotClass: "bg-[var(--color-warning)]",
 		},
 		approved: {
 			label: "Aprobado",
 			className:
-				"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[color:var(--color-success)]/15",
+				"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[var(--color-success)]/15",
 			dotClass: "bg-[var(--color-success)]",
 		},
 		rejected: {
 			label: "Rechazado",
 			className:
-				"bg-[var(--color-danger-bg)] text-[var(--color-danger)] ring-[color:var(--color-danger)]/15",
+				"bg-[var(--color-danger-bg)] text-[var(--color-danger)] ring-[var(--color-danger)]/15",
 			dotClass: "bg-[var(--color-danger)]",
 		},
 	};

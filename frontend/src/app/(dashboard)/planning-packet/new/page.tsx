@@ -412,11 +412,11 @@ function PlanningPacketNewPageContent() {
 				/>
 
 				{/* Submit */}
-				<div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4">
+				<div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
 					<button
 						type="button"
 						onClick={() => setShowCaseSelector(true)}
-						className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 text-sm font-medium text-[var(--text-primary)]"
+						className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--border-subtle)] px-4 text-sm font-medium text-[var(--text-primary)]"
 					>
 						Cambiar caso
 					</button>
@@ -424,7 +424,7 @@ function PlanningPacketNewPageContent() {
 						{selectedCaseId && (
 							<Link
 								href={`/service-cases/${selectedCaseId}`}
-								className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 text-sm font-medium text-[var(--text-primary)]"
+								className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] px-4 text-sm font-medium text-[var(--text-primary)]"
 							>
 								Ver caso
 							</Link>

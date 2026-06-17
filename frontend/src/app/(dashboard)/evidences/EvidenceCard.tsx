@@ -16,7 +16,7 @@ export function EvidenceCard({ evidence }: EvidenceCardProps) {
 	const subtitle = getEvidenceSubtitle(evidence);
 
 	return (
-		<article className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)] transition-shadow hover:shadow-[var(--shadow-3)]">
+		<article className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)] transition-shadow hover:shadow-[var(--shadow-3)]">
 			<div className="relative aspect-[4/3] overflow-hidden bg-[var(--surface-secondary)]">
 				<Image
 					src={evidence.url}
@@ -55,7 +55,7 @@ export function EvidenceCard({ evidence }: EvidenceCardProps) {
 				) : null}
 
 				{/* Link to order */}
-				<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/50 px-3 py-2">
+				<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/50 px-3 py-2">
 					<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
 						Orden asociada
 					</p>

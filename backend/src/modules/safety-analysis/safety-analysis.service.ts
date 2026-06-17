@@ -82,7 +82,7 @@ export async function updateAST(id: string, data: UpdateAST, userId: string) {
 			...(data.date ? { date: new Date(data.date) } : {}),
 			updatedBy: userId,
 		},
-		{ new: true, runValidators: true },
+		{ returnDocument: "after", runValidators: true },
 	);
 	if (!updated) {
 		throw new AppError("AST no encontrado", 404, "AST_NOT_FOUND");
@@ -103,7 +103,7 @@ export async function transitionAST(id: string, target: ASTStatus, userId: strin
 	const updated = await SafetyAnalysisModel.findByIdAndUpdate(
 		id,
 		{ status: target, updatedBy: userId },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (!updated) {
 		throw new AppError("AST no encontrado", 404, "AST_NOT_FOUND");
@@ -148,7 +148,7 @@ export async function signAST(id: string, input: SignAST, userId: string) {
 	const updated = await SafetyAnalysisModel.findByIdAndUpdate(
 		id,
 		{ [field]: signature, updatedBy: userId },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (!updated) {
 		throw new AppError("AST no encontrado", 404, "AST_NOT_FOUND");

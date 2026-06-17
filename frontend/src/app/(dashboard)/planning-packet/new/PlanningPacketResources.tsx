@@ -133,8 +133,8 @@ export function PlanningPacketResources({
 								aria-label={`Herramienta, fila ${i + 1} — cambiar disponibilidad`}
 								className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
 									row.available
-										? "bg-green-100 text-green-700 hover:bg-green-200"
-										: "bg-gray-100 text-gray-500 hover:bg-gray-200"
+										? "bg-success-bg text-brand-annotate hover:bg-green-200"
+										: "bg-surface-soft text-steel hover:bg-surface-soft"
 								}`}
 							>
 								{row.available ? (
@@ -197,7 +197,7 @@ export function PlanningPacketResources({
 								}}
 								aria-label={`Equipo, fila ${i + 1} — cambiar disponibilidad`}
 								className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-									row.available ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+									row.available ? "bg-success-bg text-brand-annotate" : "bg-surface-soft text-steel"
 								}`}
 							>
 								{row.available ? "Sí" : "No"}
@@ -215,8 +215,8 @@ export function PlanningPacketResources({
 								aria-label={`Equipo, fila ${i + 1} — certificado requerido`}
 								className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
 									row.certificateRequired
-										? "bg-amber-100 text-amber-700"
-										: "bg-gray-100 text-gray-500"
+										? "bg-amber-100 text-brand-warn"
+										: "bg-surface-soft text-steel"
 								}`}
 							>
 								{row.certificateRequired ? "Sí" : "No"}

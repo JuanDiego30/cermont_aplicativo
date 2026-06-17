@@ -218,7 +218,7 @@ describe("AuthService refresh token rotation", () => {
 					}),
 				},
 			}),
-			{ new: true },
+			{ returnDocument: "after" },
 		);
 		expect(RefreshToken.create).toHaveBeenCalledTimes(1);
 	});

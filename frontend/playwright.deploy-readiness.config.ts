@@ -8,7 +8,7 @@ const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 export default defineConfig({
 	testDir: "./tests/e2e",
-	testMatch: /deploy-readiness\.spec\.ts$/,
+	testMatch: /(deploy-readiness|auth-sw-idb-regression)\.spec\.ts$/,
 	workers: 1,
 	timeout: 120_000,
 	expect: { timeout: 15_000 },

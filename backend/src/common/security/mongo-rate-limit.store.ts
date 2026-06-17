@@ -70,7 +70,11 @@ export class MongoRateLimitStore implements Store {
 					},
 				},
 			],
-			{ new: true, upsert: true },
+			{
+				returnDocument: "after",
+				updatePipeline: true,
+				upsert: true,
+			},
 		)
 			.lean<StoredRateLimitBucket>()
 			.exec();
@@ -86,9 +90,11 @@ export class MongoRateLimitStore implements Store {
 	}
 
 	async decrement(key: string): Promise<void> {
-		await RateLimitBucket.updateOne({ key: this.buildKey(key), expiresAt: { $gt: new Date() } }, [
-			{ $set: { hits: { $max: [0, { $subtract: ["$hits", 1] }] } } },
-		]).exec();
+		await RateLimitBucket.updateOne(
+			{ key: this.buildKey(key), expiresAt: { $gt: new Date() } },
+			[{ $set: { hits: { $max: [0, { $subtract: ["$hits", 1] }] } } }],
+			{ updatePipeline: true },
+		).exec();
 	}
 
 	async resetKey(key: string): Promise<void> {

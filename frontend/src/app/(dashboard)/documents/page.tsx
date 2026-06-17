@@ -20,7 +20,7 @@ import { useOrders } from "@/modules/orders/queries";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
 
 const FILTER_FIELD_CLASS =
-	"rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15";
+	"rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15";
 
 const DOCUMENT_PURPOSE_FILTER_OPTIONS: Array<{ label: string; value: DocumentPurpose }> = [
 	{ value: "library", label: "Biblioteca" },
@@ -120,7 +120,7 @@ export default function DocumentsPage() {
 function DocumentsLoading() {
 	return (
 		<section className="space-y-6" aria-labelledby="documents-page-title">
-			<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+			<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 				<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
 			</div>
 		</section>
@@ -231,8 +231,8 @@ function DocumentsPageHeader({
 	orderCount: number;
 }) {
 	return (
-		<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-			<div className="border-b border-[var(--border-default)] bg-[var(--gradient-header)] p-5 sm:px-6">
+		<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+			<div className="border-b border-[var(--border-subtle)] bg-[var(--gradient-header)] p-5 sm:px-6">
 				<p className="text-sm text-[var(--text-secondary)]">Dashboard / Documentos</p>
 
 				<div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -259,7 +259,7 @@ function DocumentsPageHeader({
 
 					<Link
 						href="/orders"
-						className="inline-flex items-center rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-1.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-primary)]"
+						className="inline-flex items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-primary)]"
 					>
 						Ir a órdenes
 					</Link>
@@ -267,7 +267,7 @@ function DocumentsPageHeader({
 			</div>
 			<div className="p-5 sm:px-6">
 				<div className="grid gap-3 sm:grid-cols-3">
-					<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/50 p-4">
+					<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/50 p-4">
 						<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
 							Documentos
 						</p>
@@ -275,13 +275,13 @@ function DocumentsPageHeader({
 							{filteredCount}
 						</p>
 					</article>
-					<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/50 p-4">
+					<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/50 p-4">
 						<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
 							Órdenes visibles
 						</p>
 						<p className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">{orderCount}</p>
 					</article>
-					<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/50 p-4">
+					<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/50 p-4">
 						<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
 							Modo
 						</p>
@@ -334,7 +334,7 @@ function DocumentsFilters({
 }) {
 	return (
 		<section
-			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)]"
+			className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)]"
 			aria-labelledby="documents-filters-title"
 		>
 			<h2 id="documents-filters-title" className="sr-only">
@@ -462,13 +462,13 @@ function DocumentsFilters({
 					<button
 						type="button"
 						onClick={handleReset}
-						className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-secondary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-primary)] xl:col-span-1 xl:self-end"
+						className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-primary)] xl:col-span-1 xl:self-end"
 					>
 						Limpiar filtros
 					</button>
 				</form>
 
-				<div className="mt-4 flex flex-col gap-3 border-t border-[var(--border-default)] pt-4 md:flex-row md:items-center md:justify-between">
+				<div className="mt-4 flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-4 md:flex-row md:items-center md:justify-between">
 					<label
 						htmlFor="documents-include-archived"
 						className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]"
@@ -478,7 +478,7 @@ function DocumentsFilters({
 							type="checkbox"
 							checked={includeArchived}
 							onChange={(event) => setIncludeArchived(event.target.checked)}
-							className="size-4 rounded border-[var(--border-default)] text-[var(--color-brand)] focus:ring-[var(--color-brand)]"
+							className="size-4 rounded border-[var(--border-subtle)] text-[var(--color-brand)] focus:ring-[var(--color-brand)]"
 						/>
 						Mostrar archivados
 					</label>
@@ -690,7 +690,7 @@ function DocumentsPageInner() {
 					/>
 				)
 			) : (
-				<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+				<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 					<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
 				</div>
 			)}

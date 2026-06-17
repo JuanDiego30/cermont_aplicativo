@@ -96,20 +96,20 @@ function ServiceCaseDetailInner() {
 					<button
 						type="button"
 						onClick={() => advance.reset()}
-						className="absolute top-4 right-4 text-xs font-semibold text-rose-700 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 hover:underline"
+						className="absolute top-4 right-4 text-xs font-semibold text-brand-error hover:text-brand-error dark:text-brand-error dark:hover:text-brand-error hover:underline"
 					>
 						Cerrar aviso
 					</button>
 					<div className="flex items-start gap-3">
 						<AlertCircle
-							className="size-5 shrink-0 mt-0.5 text-rose-700 dark:text-rose-300"
+							className="size-5 shrink-0 mt-0.5 text-brand-error dark:text-brand-error"
 							aria-hidden="true"
 						/>
 						<div className="space-y-1">
-							<h3 className="text-sm font-bold text-rose-900 dark:text-rose-200">
+							<h3 className="text-sm font-bold text-brand-error dark:text-brand-error">
 								{isBlockedTransition ? "Avance de paso bloqueado" : "Error al avanzar paso"}
 							</h3>
-							<p className="text-xs text-rose-800 dark:text-rose-300 opacity-90">
+							<p className="text-xs text-brand-error dark:text-brand-error opacity-90">
 								{isBlockedTransition
 									? "El sistema no permite realizar esta transición porque existen bloqueadores críticos en el paso actual:"
 									: apiError.message || "Ocurrió un error inesperado al intentar avanzar."}
@@ -125,14 +125,14 @@ function ServiceCaseDetailInner() {
 												className="rounded-[var(--radius-md)] border border-rose-200 bg-white/90 p-3 shadow-sm text-xs dark:border-rose-900/40 dark:bg-zinc-950/80"
 											>
 												<div className="flex items-start gap-2">
-													<span className="shrink-0 rounded-full bg-rose-100 text-rose-800 px-2 py-0.5 text-[9px] font-bold uppercase dark:bg-rose-900/40 dark:text-rose-200">
+													<span className="shrink-0 rounded-full bg-rose-100 text-brand-error px-2 py-0.5 text-[9px] font-bold uppercase dark:bg-rose-900/40 dark:text-brand-error">
 														{blocker.code || "B-XXX"}
 													</span>
 													<div className="space-y-1">
-														<p className="font-semibold text-rose-950 dark:text-rose-100">
+														<p className="font-semibold text-brand-error dark:text-brand-error">
 															{blocker.message}
 														</p>
-														<p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+														<p className="text-[10px] text-steel dark:text-steel">
 															Responsable:{" "}
 															<span className="font-semibold">{blocker.ownerRole || "N/A"}</span>
 														</p>

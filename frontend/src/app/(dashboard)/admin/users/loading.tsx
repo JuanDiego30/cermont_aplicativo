@@ -5,10 +5,10 @@ export default function AdminUsersLoading() {
 			aria-live="polite"
 		>
 			<div
-				className="size-10 motion-safe:animate-spin rounded-full border-4 border-zinc-200 border-t-rose-600"
+				className="size-10 motion-safe:animate-spin rounded-full border-4 border-hairline border-t-rose-600"
 				aria-hidden="true"
 			/>
-			<p className="text-sm text-zinc-500">Cargando usuarios…</p>
+			<p className="text-sm text-steel">Cargando usuarios…</p>
 		</div>
 	);
 }

@@ -71,7 +71,7 @@ export const MonthlyTrendChart = memo(function MonthlyTrendChart({
 							cursor={{ fill: "transparent" }}
 							contentStyle={{
 								borderRadius: 12,
-								border: "1px solid var(--border-default)",
+								border: "1px solid var(--border-subtle)",
 								boxShadow: "var(--shadow-2)",
 								background: "var(--surface-primary)",
 							}}

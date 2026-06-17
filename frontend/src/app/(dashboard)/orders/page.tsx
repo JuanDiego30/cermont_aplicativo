@@ -151,7 +151,7 @@ function OrdersPageInner() {
 				<aside
 					data-orders-reveal
 					role="alert"
-					className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
+					className="rounded-2xl border border-red-200 bg-danger-bg p-4 text-sm text-brand-error dark:border-red-800 dark:bg-red-950/30 dark:text-brand-error"
 				>
 					Ocurrió un error al cargar las órdenes.
 				</aside>

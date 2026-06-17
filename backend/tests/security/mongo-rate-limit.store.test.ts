@@ -78,7 +78,11 @@ describe("MongoRateLimitStore", () => {
 		const [filter, pipeline, options] = mocks.findOneAndUpdate.mock.calls[0];
 		expect(filter.key).toMatch(/^global:[0-9a-f]{64}$/);
 		expect(pipeline).toHaveLength(1);
-		expect(options).toEqual({ new: true, upsert: true });
+		expect(options).toEqual({
+			returnDocument: "after",
+			updatePipeline: true,
+			upsert: true,
+		});
 	});
 
 	it("fails closed when MongoDB does not return the updated bucket", async () => {
@@ -101,6 +105,7 @@ describe("MongoRateLimitStore", () => {
 		await store.resetAll();
 
 		expect(mocks.updateOne.mock.calls[0][0].key).toMatch(/^auth:[0-9a-f]{64}$/);
+		expect(mocks.updateOne.mock.calls[0][2]).toEqual({ updatePipeline: true });
 		expect(mocks.deleteOne.mock.calls[0][0].key).toMatch(/^auth:[0-9a-f]{64}$/);
 		expect(mocks.deleteMany).toHaveBeenCalledWith({ key: { $regex: "^auth:" } });
 	});

@@ -21,6 +21,7 @@ import analyticsReportRoutes from "./modules/analytics-report/analytics-report.r
 import assetRoutes from "./modules/asset/asset.routes";
 import auditRoutes from "./modules/audit/audit.routes";
 import authRoutes from "./modules/auth/auth.routes";
+import businessDocumentRoutes from "./modules/business-document/business-document.routes";
 import checklistRoutes from "./modules/checklist/checklist.routes";
 import clientRoutes from "./modules/client/client.routes";
 import clientSignatureRoutes from "./modules/client-signature/client-signature.routes";
@@ -35,6 +36,7 @@ import documentRoutes from "./modules/documents/document.routes";
 import documentImportRoutes from "./modules/documents/document-import.routes";
 import documentIngestionRoutes from "./modules/documents/document-ingestion.routes";
 import documentTemplateRoutes from "./modules/documents/document-template.routes";
+import erpConnectorRoutes from "./modules/erp-connector/erp-connector.routes";
 import evidenceRoutes from "./modules/evidence/evidence.routes";
 import evidenceCollectionRoutes from "./modules/evidence/evidence-collection.routes";
 import executionSessionRoutes from "./modules/execution-session/execution-session.routes";
@@ -122,39 +124,11 @@ const allowedOrigins = Array.from(
 	),
 );
 
-/**
- * Check if a given origin string belongs to a Docker bridge/overlay network.
- * Docker Compose assigns private IPs in 172.x.x.x, 10.x.x.x, or 192.168.x.x
- * ranges to containers. These origins are safe for development/staging.
- * In production, CORS should be locked to a specific domain via FRONTEND_URL.
- */
-function isDockerNetworkOrigin(origin: string): boolean {
-	if (!origin) {
-		return false;
-	}
-	try {
-		const url = new URL(origin);
-		const host = url.hostname;
-		if (["localhost", "127.0.0.1", "0.0.0.0", "host.docker.internal"].includes(host)) {
-			return true;
-		}
-		// Docker bridge: 172.16.0.0/12, 172.17.0.0/16 ... 172.31.0.0/16
-		// Docker Desktop: 192.168.x.x
-		// Overlay/Compose: 10.x.x.x
-		if (/^(172\.(1[6-9]|2\d|3[01])\.|10\.|192\.168\.)/.test(host)) {
-			return true;
-		}
-		return false;
-	} catch {
-		return false;
-	}
-}
-
 app.use(
 	cors({
 		origin: (origin, callback) => {
 			// Allow requests without an origin header (Postman, curl, server-side)
-			if (!origin || allowedOrigins.includes(origin) || (isDev && isDockerNetworkOrigin(origin))) {
+			if (!origin || allowedOrigins.includes(origin)) {
 				callback(null, true);
 				return;
 			}
@@ -184,7 +158,7 @@ app.use(
 				objectSrc: ["'none'"],
 				mediaSrc: ["'self'"],
 				frameSrc: ["'none'"],
-				upgradeInsecureRequests: isDev ? null : [],
+				...(!isDev ? { upgradeInsecureRequests: [] } : {}),
 			},
 		},
 		crossOriginEmbedderPolicy: !isDev,
@@ -296,6 +270,8 @@ const API_MOUNTS: ApiMount[] = [
 	{ prefix: "/api/dispatch", router: dispatchRoutes },
 	{ prefix: "/api/system-config", router: systemConfigRoutes },
 	{ prefix: "/api/admin/backups", router: adminBackupRoutes },
+	{ prefix: "/api/business-documents", router: businessDocumentRoutes },
+	{ prefix: "/api/erp-connectors", router: erpConnectorRoutes },
 ];
 
 for (const mount of API_MOUNTS) {

@@ -24,7 +24,7 @@ export function ActivityTimeline({ items }: ActivityTimelineProps) {
 		<section
 			data-dash="panel"
 			aria-labelledby="recent-activity-title"
-			className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+			className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
 		>
 			<div className="flex items-center gap-3">
 				<div className="flex size-10 items-center justify-center rounded-xl bg-[var(--color-cermont-blue-bg)] text-[var(--color-cermont-blue)]">
@@ -58,7 +58,7 @@ export function ActivityTimeline({ items }: ActivityTimelineProps) {
 							/>
 							{index < items.length - 1 ? (
 								<span
-									className="absolute left-[4px] top-5 h-[calc(100%-12px)] w-px bg-[var(--border-default)]"
+									className="absolute left-[4px] top-5 h-[calc(100%-12px)] w-px bg-[var(--border-subtle)]"
 									aria-hidden="true"
 								/>
 							) : null}

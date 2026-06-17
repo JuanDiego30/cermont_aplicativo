@@ -228,7 +228,7 @@ function NewPaymentForm() {
 
 			<form
 				onSubmit={handleSubmit}
-				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
 				noValidate
 			>
 				<div className="space-y-4">
@@ -237,7 +237,7 @@ function NewPaymentForm() {
 							htmlFor="paymentReference"
 							className="text-sm font-medium text-[var(--text-primary)]"
 						>
-							Referencia de pago <span className="text-red-500">*</span>
+							Referencia de pago <span className="text-brand-error">*</span>
 						</label>
 						<input
 							id="paymentReference"
@@ -246,14 +246,14 @@ function NewPaymentForm() {
 							value={paymentReference}
 							onChange={(e) => dispatch({ type: "SET_PAYMENT_REFERENCE", payload: e.target.value })}
 							placeholder="Ej. TXN-2024-001"
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
 					</div>
 
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div className="space-y-1.5">
 							<label htmlFor="paidAt" className="text-sm font-medium text-[var(--text-primary)]">
-								Fecha y hora de pago <span className="text-red-500">*</span>
+								Fecha y hora de pago <span className="text-brand-error">*</span>
 							</label>
 							<input
 								id="paidAt"
@@ -261,12 +261,12 @@ function NewPaymentForm() {
 								required
 								value={paidAt}
 								onChange={(e) => dispatch({ type: "SET_PAID_AT", payload: e.target.value })}
-								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 							/>
 						</div>
 						<div className="space-y-1.5">
 							<label htmlFor="amount" className="text-sm font-medium text-[var(--text-primary)]">
-								Monto (COP) <span className="text-red-500">*</span>
+								Monto (COP) <span className="text-brand-error">*</span>
 							</label>
 							<input
 								id="amount"
@@ -277,7 +277,7 @@ function NewPaymentForm() {
 								value={amount}
 								onChange={(e) => dispatch({ type: "SET_AMOUNT", payload: e.target.value })}
 								placeholder="0"
-								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 							/>
 						</div>
 					</div>
@@ -295,7 +295,7 @@ function NewPaymentForm() {
 							onChange={(e) =>
 								dispatch({ type: "SET_PAYMENT_METHOD", payload: e.target.value as PaymentMethod })
 							}
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						>
 							{Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
 								<option key={value} value={value}>
@@ -319,7 +319,7 @@ function NewPaymentForm() {
 							value={bankReference}
 							onChange={(e) => dispatch({ type: "SET_BANK_REFERENCE", payload: e.target.value })}
 							placeholder="Número de comprobante o referencia bancaria"
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
 					</div>
 				</div>

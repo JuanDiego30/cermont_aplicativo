@@ -116,14 +116,16 @@ const STEPS: StepItem[] = [
 	},
 ];
 
+/**
+ * Color-as-signal: brand colors used for borders, text, and ring accents only.
+ * Card backgrounds are always neutral (bg-canvas) per DESIGN.md rules.
+ * Category is signaled via the left- border accent and category label color.
+ */
 const CATEGORY_COLORS: Record<StepCategory, string> = {
-	comercial:
-		"border-[var(--color-cermont-blue)]/30 text-[var(--color-cermont-blue)] bg-[var(--color-cermont-blue-bg)]",
-	operativo:
-		"border-[var(--color-cermont-green)]/30 text-[var(--color-cermont-green-deep)] bg-[var(--color-cermont-green-bg)]",
-	cierre:
-		"border-[var(--color-warning)]/30 text-[var(--color-warning)] bg-[var(--color-warning-bg)]",
-	financiero: "border-[var(--color-info)]/30 text-[var(--color-info)] bg-[var(--color-info-bg)]",
+	comercial: "border-brand-green/30 text-brand-green bg-canvas",
+	operativo: "border-brand-annotate/30 text-brand-annotate bg-canvas",
+	cierre: "border-brand-warn/30 text-brand-warn bg-canvas",
+	financiero: "border-brand-tag/30 text-brand-tag bg-canvas",
 };
 
 interface StepTimelineProps {
@@ -137,15 +139,11 @@ export function StepTimeline({ stepDistribution = [] }: StepTimelineProps) {
 		selectedCategory === "all" ? STEPS : STEPS.filter((step) => step.category === selectedCategory);
 
 	return (
-		<section className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:p-6">
-			<div className="mb-6 flex flex-col gap-4 border-b border-[var(--border-default)] pb-4 sm:flex-row sm:items-center sm:justify-between">
+		<section className="rounded-[var(--radius-xl)] border border-hairline bg-canvas p-4 shadow-[var(--shadow-1)] sm:p-6">
+			<div className="mb-6 flex flex-col gap-4 border-b border-hairline pb-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h3 className="text-lg font-semibold text-[var(--text-primary)]">
-						Flujo Operativo de 14 Pasos
-					</h3>
-					<p className="mt-1 text-sm text-[var(--text-secondary)]">
-						Casos activos según el paso real del flujo.
-					</p>
+					<h3 className="text-lg font-semibold text-ink">Flujo Operativo de 14 Pasos</h3>
+					<p className="mt-1 text-sm text-charcoal">Casos activos según el paso real del flujo.</p>
 				</div>
 				<fieldset className="flex flex-wrap gap-2">
 					<legend className="sr-only">Filtrar pasos por categoría</legend>
@@ -173,39 +171,35 @@ export function StepTimeline({ stepDistribution = [] }: StepTimelineProps) {
 						<article
 							key={item.code}
 							className={cn(
-								"flex min-h-44 flex-col justify-between rounded-2xl border p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md",
+								"flex min-h-44 flex-col justify-between rounded-2xl border-2 p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md",
 								CATEGORY_COLORS[item.category],
-								activeCount > 0 ? "ring-1 ring-[var(--color-brand)]/20" : "",
+								activeCount > 0 ? "ring-1 ring-brand-green/20" : "",
 							)}
 						>
 							<div>
 								<div className="flex items-center justify-between">
-									<span className="font-mono text-xs font-bold">
+									<span className="font-mono text-xs font-bold text-ink">
 										Paso {String(item.step).padStart(2, "0")}
 									</span>
 									{activeCount > 0 ? (
-										<span className="inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[var(--color-brand)] px-1 font-mono text-[10px] font-bold text-white">
+										<span className="inline-flex min-h-6 min-w-6 items-center justify-center rounded-full border border-brand-green bg-canvas px-1 font-mono text-[10px] font-bold text-brand-green">
 											<span aria-hidden="true">{activeCount}</span>
 											<span className="sr-only">
 												{activeCount} casos activos en {item.label}
 											</span>
 										</span>
 									) : (
-										<Circle className="size-3.5 opacity-40" aria-hidden="true" />
+										<Circle className="size-3.5 text-steel" aria-hidden="true" />
 									)}
 								</div>
-								<h4 className="mt-3 text-xs font-bold leading-tight text-[var(--text-primary)]">
-									{item.label}
-								</h4>
-								<p className="mt-1 text-[11px] leading-normal text-[var(--text-secondary)]">
-									{item.description}
-								</p>
+								<h4 className="mt-3 text-xs font-bold leading-tight text-ink">{item.label}</h4>
+								<p className="mt-1 text-[11px] leading-normal text-charcoal">{item.description}</p>
 							</div>
 
-							<div className="mt-4 flex items-center justify-between font-mono text-[9px] font-semibold uppercase tracking-wider opacity-85">
+							<div className="mt-4 flex items-center justify-between font-mono text-[9px] font-semibold uppercase tracking-wider opacity-85 text-steel">
 								<span>{item.category}</span>
 								{activeCount > 0 ? (
-									<span className="flex items-center gap-0.5 font-bold text-[var(--color-brand)]">
+									<span className="flex items-center gap-0.5 font-bold text-brand-green">
 										Activo <ArrowRight className="size-2.5" aria-hidden="true" />
 									</span>
 								) : null}
@@ -233,10 +227,10 @@ function CategoryButton({
 			onClick={onClick}
 			aria-pressed={active}
 			className={cn(
-				"min-h-11 rounded-full border px-4 py-2 text-xs font-semibold capitalize transition-colors",
+				"min-h-11 rounded-full border-2 px-4 py-2 text-xs font-semibold capitalize transition-colors",
 				active
-					? "border-[var(--color-brand)] bg-[var(--color-brand)] text-white"
-					: "border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)] hover:bg-[var(--surface-primary)]",
+					? "border-brand-green bg-canvas text-brand-green"
+					: "border-hairline bg-surface text-charcoal hover:bg-canvas",
 			)}
 		>
 			{label}

@@ -124,7 +124,7 @@ export const SLAService = {
 		const doc = await SLAConfigModel.findOneAndUpdate(
 			{},
 			{ $set: { configs, updatedBy: new Types.ObjectId(userId) } },
-			{ upsert: true, new: true, runValidators: true },
+			{ upsert: true, returnDocument: "after", runValidators: true },
 		);
 		return doc.configs;
 	},

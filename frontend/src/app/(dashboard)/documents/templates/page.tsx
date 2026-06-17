@@ -46,11 +46,11 @@ function useDeleteTemplateDraft() {
 
 function statusBadge(status: string) {
 	const map: Record<string, string> = {
-		draft: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
-		submitted: "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300",
-		approved: "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300",
-		rejected: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300",
-		converted: "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300",
+		draft: "bg-zinc-100 text-charcoal dark:bg-surface dark:text-muted-text",
+		submitted: "bg-amber-100 text-brand-warn dark:bg-amber-900/20 dark:text-brand-warn",
+		approved: "bg-success-bg text-brand-annotate dark:bg-green-900/20 dark:text-brand-annotate",
+		rejected: "bg-danger-bg text-brand-error dark:bg-red-900/20 dark:text-brand-error",
+		converted: "bg-info-bg text-brand-green dark:bg-blue-900/20 dark:text-brand-green",
 	};
 	return map[status] ?? map.draft;
 }
@@ -62,7 +62,7 @@ export default function TemplatesPage() {
 	if (isLoading) {
 		return (
 			<section className="space-y-6" aria-labelledby="templates-page-title">
-				<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+				<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 					<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
 				</div>
 			</section>
@@ -72,7 +72,7 @@ export default function TemplatesPage() {
 	if (error) {
 		return (
 			<section className="space-y-6" aria-labelledby="templates-page-title">
-				<div className="rounded-[var(--radius-xl)] border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-300">
+				<div className="rounded-[var(--radius-xl)] border border-red-200 bg-danger-bg p-6 text-brand-error dark:border-red-900/30 dark:bg-red-900/10 dark:text-brand-error">
 					Error al cargar las plantillas. Intente de nuevo.
 				</div>
 			</section>
@@ -103,9 +103,9 @@ export default function TemplatesPage() {
 					description="Crea tu primera plantilla para agilizar la generación de documentos."
 				/>
 			) : (
-				<div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+				<div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 					<table className="w-full text-left text-sm">
-						<thead className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)]">
+						<thead className="border-b border-[var(--border-subtle)] bg-[var(--surface-secondary)]">
 							<tr>
 								<th className="px-4 py-3 font-medium text-[var(--text-secondary)]">Nombre</th>
 								<th className="px-4 py-3 font-medium text-[var(--text-secondary)]">Propósito</th>
@@ -116,7 +116,7 @@ export default function TemplatesPage() {
 								</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-[var(--border-default)]">
+						<tbody className="divide-y divide-[var(--border-subtle)]">
 							{items.map((template) => (
 								<tr
 									key={template._id}
@@ -144,7 +144,7 @@ export default function TemplatesPage() {
 													deleteMutation.mutate(template._id);
 												}
 											}}
-											className="text-xs text-red-600 hover:underline dark:text-red-400"
+											className="text-xs text-brand-error hover:underline dark:text-brand-error"
 										>
 											Eliminar
 										</button>

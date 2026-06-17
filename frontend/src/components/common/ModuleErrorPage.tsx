@@ -23,7 +23,7 @@ const ExclamationIcon = () => (
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="0 0 24 24"
 		fill="currentColor"
-		className="size-7 text-red-500"
+		className="size-7 text-brand-error"
 		aria-hidden="true"
 	>
 		<path
@@ -49,19 +49,19 @@ export function ModuleErrorPage({ error, reset, moduleName, homeHref }: ModuleEr
 			aria-labelledby={`${moduleName.toLowerCase()}-error-title`}
 		>
 			<header className="flex flex-col items-center gap-2">
-				<span className="flex size-14 items-center justify-center rounded-full bg-red-50">
+				<span className="flex size-14 items-center justify-center rounded-full bg-danger-bg">
 					<ExclamationIcon />
 				</span>
 				<h2
 					id={`${moduleName.toLowerCase()}-error-title`}
-					className="text-lg font-semibold text-zinc-900"
+					className="text-lg font-semibold text-ink"
 				>
 					Error en {moduleName}
 				</h2>
-				<p className="max-w-sm text-sm text-zinc-600">
+				<p className="max-w-sm text-sm text-steel">
 					Ocurrió un error al cargar el módulo de {moduleName.toLowerCase()}.
 				</p>
-				{error.digest && <p className="text-xs text-zinc-400">Código: {error.digest}</p>}
+				{error.digest && <p className="text-xs text-stone">Código: {error.digest}</p>}
 			</header>
 			<footer className="flex gap-3">
 				<button
@@ -74,7 +74,7 @@ export function ModuleErrorPage({ error, reset, moduleName, homeHref }: ModuleEr
 				{homeHref && (
 					<Link
 						href={homeHref}
-						className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+						className="rounded-lg border border-hairline bg-canvas px-4 py-2 text-sm font-medium text-charcoal transition hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
 					>
 						Ir al inicio
 					</Link>

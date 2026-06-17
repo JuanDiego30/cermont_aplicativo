@@ -137,19 +137,19 @@ export function OrderAdministrativeWorkflowLane({
 	return (
 		<section
 			aria-label="Administrative chain for the work order"
-			className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
+			className="rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 border-800 bg-900"
 		>
 			<div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 				<div>
-					<h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
+					<h3 className="text-sm font-semibold text-[var(--text-primary)] dark:text-white">
 						Administrative chain
 					</h3>
-					<p className="mt-1 text-xs leading-5 text-zinc-600 dark:text-zinc-400">
+					<p className="mt-1 text-xs leading-5 text-[var(--text-secondary)] text-400">
 						Track delivery record, SES, invoice, and payment from the same order without losing
 						document support.
 					</p>
 				</div>
-				<p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">OT {orderId}</p>
+				<p className="text-xs font-medium text-[var(--text-tertiary)] text-400">OT {orderId}</p>
 			</div>
 
 			<div className="mt-4 grid gap-3 xl:grid-cols-2">
@@ -472,15 +472,17 @@ function AdministrativeWorkflowCard({
 	value: string;
 }) {
 	return (
-		<article className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+		<article className="rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 border-800 bg-950">
 			<div className="flex items-start justify-between gap-3">
 				<div className="flex items-start gap-3">
 					<div className="rounded-md bg-[var(--color-cermont-blue-bg)]/50 p-2 text-[var(--color-brand-blue-light)] dark:bg-[var(--color-cermont-blue)]/20 dark:text-[var(--color-cermont-blue-light)]">
 						<Icon className="size-4" aria-hidden="true" />
 					</div>
 					<div>
-						<p className="text-sm font-semibold text-zinc-900 dark:text-white">{title}</p>
-						<p className="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">{value}</p>
+						<p className="text-sm font-semibold text-[var(--text-primary)] dark:text-white">
+							{title}
+						</p>
+						<p className="mt-1 text-xs font-medium text-[var(--text-tertiary)] text-400">{value}</p>
 					</div>
 				</div>
 				<span
@@ -490,7 +492,7 @@ function AdministrativeWorkflowCard({
 				</span>
 			</div>
 
-			<p className="mt-4 text-xs leading-5 text-zinc-600 dark:text-zinc-400">{description}</p>
+			<p className="mt-4 text-xs leading-5 text-[var(--text-secondary)] text-400">{description}</p>
 
 			<div className="mt-4 flex flex-wrap gap-2">
 				{primaryAction}
@@ -503,7 +505,7 @@ function AdministrativeWorkflowCard({
 				>
 					<button
 						type="button"
-						className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
+						className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-surface border-700 bg-950 text-200 dark:hover:bg-zinc-900"
 					>
 						<UploadCloud className="size-4" aria-hidden="true" />
 						Attach support
@@ -554,14 +556,14 @@ function AdministrativeWorkflowLaneSkeleton() {
 	const skeletonItems = Array.from({ length: 4 }, (_, index) => `workflow-skeleton-${index}`);
 
 	return (
-		<section className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-			<div className="h-5 w-44 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-			<div className="mt-2 h-4 w-80 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+		<section className="rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 border-800 bg-900">
+			<div className="h-5 w-44 animate-pulse rounded bg-[var(--surface-secondary)] bg-800" />
+			<div className="mt-2 h-4 w-80 animate-pulse rounded bg-[var(--surface-secondary)] bg-800" />
 			<div className="mt-4 grid gap-3 xl:grid-cols-2">
 				{skeletonItems.map((item) => (
 					<div
 						key={item}
-						className="h-40 animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+						className="h-40 animate-pulse rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] border-800 bg-950"
 					/>
 				))}
 			</div>

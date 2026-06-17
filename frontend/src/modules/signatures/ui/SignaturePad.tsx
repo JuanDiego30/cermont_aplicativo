@@ -113,7 +113,7 @@ export function SignaturePad({ onChange, height = 200 }: SignaturePadProps) {
 				<canvas
 					ref={canvasRef}
 					style={{ height, touchAction: "none" }}
-					className="w-full cursor-crosshair rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--border-default)] bg-white"
+					className="w-full cursor-crosshair rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--border-subtle)] bg-canvas"
 					onPointerDown={handlePointerDown}
 					onPointerMove={handlePointerMove}
 					onPointerUp={handlePointerUp}
@@ -123,7 +123,7 @@ export function SignaturePad({ onChange, height = 200 }: SignaturePadProps) {
 				{!hasStrokes && (
 					<p
 						aria-hidden="true"
-						className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-zinc-400"
+						className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-stone"
 					>
 						Firme aquí
 					</p>
@@ -134,7 +134,7 @@ export function SignaturePad({ onChange, height = 200 }: SignaturePadProps) {
 					type="button"
 					onClick={handleClear}
 					disabled={!hasStrokes}
-					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
+					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
 				>
 					<Eraser className="size-3.5" aria-hidden="true" />
 					Limpiar firma

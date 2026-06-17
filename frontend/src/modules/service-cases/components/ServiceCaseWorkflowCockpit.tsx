@@ -117,7 +117,7 @@ export function ServiceCaseWorkflowCockpit({
 				uploadPurpose={uploadPurpose}
 			/>
 
-			<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-2 shadow-card">
+			<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-2 shadow-card">
 				<OperationalStepProgress currentStepCode={currentStepCode} steps={serviceCase.steps} />
 			</div>
 
@@ -193,7 +193,7 @@ function WorkflowHeader({
 }) {
 	const isStuck = typeof daysInCurrentStep === "number" && daysInCurrentStep >= 5;
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
+		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-card">
 			<div className="flex flex-wrap items-start justify-between gap-4">
 				<div className="flex gap-4">
 					<div className="rounded-xl bg-[var(--color-brand-blue-bg)] p-3">
@@ -217,7 +217,7 @@ function WorkflowHeader({
 								<span
 									className={`rounded-full border px-2.5 py-1 font-semibold ${
 										isStuck
-											? "border-amber-300 bg-amber-50 text-amber-700"
+											? "border-brand-warn bg-warning-bg text-brand-warn"
 											: "border-[var(--border-subtle)] bg-[var(--surface-secondary)]"
 									}`}
 									title={isStuck ? "Este caso lleva varios días sin avanzar" : undefined}
@@ -326,7 +326,7 @@ function SummarySection({
 	title: string;
 }) {
 	return (
-		<section className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card">
+		<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card">
 			<p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
 				{title}
 			</p>
@@ -341,7 +341,7 @@ function SummarySection({
 
 function ArtifactsSection({ artifacts }: { artifacts: ServiceCaseWorkflowViewModel["artifacts"] }) {
 	return (
-		<section className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card">
+		<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card">
 			<div className="mb-4 flex items-center justify-between">
 				<h3 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]">
 					<FileText className="size-4 text-[var(--color-brand)]" />
@@ -382,7 +382,7 @@ function ArtifactCard({
 					{artifact.code ?? String(artifact.id).slice(-8)}
 				</p>
 				<span
-					className={`inline-flex rounded-full border border-current bg-white px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(artifact.status)}`}
+					className={`inline-flex rounded-full border border-current bg-canvas px-1.5 py-0.5 text-[9px] font-bold uppercase ${statusColor(artifact.status)}`}
 				>
 					{artifact.status}
 				</span>
@@ -397,7 +397,7 @@ function TimelineSection({ timeline }: { timeline: ServiceCaseWorkflowViewModel[
 	}
 
 	return (
-		<section className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card">
+		<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card">
 			<p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
 				Línea de tiempo
 			</p>

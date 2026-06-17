@@ -56,10 +56,10 @@ const INSPECTION_STATUS_LABELS: Record<InspectionRecord["status"], string> = {
 };
 
 const STATUS_STYLES: Record<InspectionRecord["status"], string> = {
-	pending: "bg-zinc-100 text-zinc-700 ring-zinc-200",
-	approved: "bg-emerald-100 text-emerald-700 ring-emerald-200",
-	rejected: "bg-rose-100 text-rose-700 ring-rose-200",
-	conditional: "bg-amber-100 text-amber-700 ring-amber-200",
+	pending: "bg-zinc-100 text-charcoal ring-zinc-200",
+	approved: "bg-emerald-100 text-brand-annotate ring-emerald-200",
+	rejected: "bg-rose-100 text-brand-error ring-rose-200",
+	conditional: "bg-amber-100 text-brand-warn ring-amber-200",
 };
 
 function formatDate(value?: string): string {
@@ -106,7 +106,7 @@ export default function InspectionDetailPage() {
 				data?: InspectionRecord;
 				error?: string;
 				message?: string;
-			}>(`/orders/${id}/inspections/${inspectionId}`);
+			}>(`/inspections/${inspectionId}`);
 
 			if (!payload?.success) {
 				throw new Error(payload?.message || payload?.error || "Error al cargar inspección");
@@ -119,7 +119,7 @@ export default function InspectionDetailPage() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-64 items-center justify-center text-zinc-500">
+			<div className="flex h-64 items-center justify-center text-steel">
 				<Loader2 className="mr-2 size-6 animate-spin" /> Cargando inspección…
 			</div>
 		);
@@ -127,7 +127,7 @@ export default function InspectionDetailPage() {
 
 	if (error || !inspection) {
 		return (
-			<div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-900/20 dark:bg-red-900/20 dark:text-red-400">
+			<div className="rounded-lg border border-red-200 bg-red-50 p-4 text-brand-error dark:border-red-900/20 dark:bg-red-900/20 dark:text-brand-error">
 				No se pudo cargar la inspección. {(error as Error)?.message}
 			</div>
 		);
@@ -140,7 +140,7 @@ export default function InspectionDetailPage() {
 		<section className="space-y-6" aria-labelledby="inspection-detail-title">
 			<Link
 				href={`/orders/${id}`}
-				className="inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+				className="inline-flex items-center gap-2 text-sm text-steel hover:text-ink dark:text-stone dark:hover:text-white"
 			>
 				<ArrowLeft aria-hidden="true" className="size-4" />
 				Volver a la orden
@@ -152,11 +152,11 @@ export default function InspectionDetailPage() {
 						<div className="flex flex-wrap items-center gap-3">
 							<h1
 								id="inspection-detail-title"
-								className="flex items-center gap-2 text-2xl font-semibold text-zinc-900 dark:text-white"
+								className="flex items-center gap-2 text-2xl font-semibold text-ink dark:text-white"
 							>
 								<ClipboardCheck
 									aria-hidden="true"
-									className="size-6 text-blue-600 dark:text-blue-400"
+									className="size-6 text-brand-green dark:text-brand-green"
 								/>
 								Inspección , {INSPECTION_TYPE_LABELS[inspection.inspection_type]}
 							</h1>
@@ -166,9 +166,9 @@ export default function InspectionDetailPage() {
 								{INSPECTION_STATUS_LABELS[inspection.status]}
 							</span>
 						</div>
-						<p className="text-sm text-zinc-600 dark:text-zinc-400">
+						<p className="text-sm text-steel dark:text-steel">
 							Orden:{" "}
-							<span className="font-mono text-zinc-900 dark:text-white">{inspection.order_id}</span>
+							<span className="font-mono text-ink dark:text-white">{inspection.order_id}</span>
 						</p>
 					</div>
 
@@ -183,7 +183,7 @@ export default function InspectionDetailPage() {
 
 			<section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				<article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-					<h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+					<h2 className="mb-4 text-base font-semibold text-ink dark:text-white">
 						Información general
 					</h2>
 					<dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -200,27 +200,23 @@ export default function InspectionDetailPage() {
 				</article>
 
 				<article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-					<h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
-						Observaciones
-					</h2>
+					<h2 className="mb-4 text-base font-semibold text-ink dark:text-white">Observaciones</h2>
 					{inspection.observations ? (
-						<p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+						<p className="text-sm leading-relaxed text-charcoal dark:text-stone">
 							{inspection.observations}
 						</p>
 					) : (
-						<p className="text-sm text-zinc-500 dark:text-zinc-400">
-							Sin observaciones registradas.
-						</p>
+						<p className="text-sm text-steel dark:text-steel">Sin observaciones registradas.</p>
 					)}
 				</article>
 			</section>
 
 			<section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-				<h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+				<h2 className="mb-4 text-base font-semibold text-ink dark:text-white">
 					Ítems de inspección
 				</h2>
 				{inspection.items.length === 0 ? (
-					<p className="text-sm text-zinc-500 dark:text-zinc-400">No hay ítems registrados.</p>
+					<p className="text-sm text-steel dark:text-steel">No hay ítems registrados.</p>
 				) : (
 					<ul className="space-y-3">
 						{inspection.items.map((item) => (
@@ -230,21 +226,21 @@ export default function InspectionDetailPage() {
 							>
 								<div className="flex items-start justify-between gap-4">
 									<div className="space-y-1">
-										<p className="font-mono text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+										<p className="font-mono text-xs font-semibold text-steel dark:text-steel">
 											{item.code}
 										</p>
-										<h3 className="text-sm font-medium text-zinc-900 dark:text-white">
+										<h3 className="text-sm font-medium text-ink dark:text-white">
 											{item.description}
 										</h3>
 										{item.notes ? (
-											<p className="text-xs text-zinc-500 dark:text-zinc-400">{item.notes}</p>
+											<p className="text-xs text-steel dark:text-steel">{item.notes}</p>
 										) : null}
 										{item.evidence_url ? (
 											<a
 												href={item.evidence_url}
 												target="_blank"
 												rel="noreferrer"
-												className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+												className="inline-flex items-center gap-1 text-xs font-medium text-brand-green hover:underline dark:text-brand-green"
 											>
 												Ver evidencia
 											</a>
@@ -253,8 +249,8 @@ export default function InspectionDetailPage() {
 									<span
 										className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${
 											item.passed
-												? "bg-emerald-100 text-emerald-700 ring-emerald-200"
-												: "bg-rose-100 text-rose-700 ring-rose-200"
+												? "bg-emerald-100 text-brand-annotate ring-emerald-200"
+												: "bg-rose-100 text-brand-error ring-rose-200"
 										}`}
 									>
 										{item.passed ? "Aprobado" : "Rechazado"}
@@ -268,12 +264,12 @@ export default function InspectionDetailPage() {
 
 			<section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
 				<div className="mb-4 flex items-center gap-2">
-					<Camera aria-hidden="true" className="size-5 text-zinc-500 dark:text-zinc-400" />
-					<h2 className="text-base font-semibold text-zinc-900 dark:text-white">Fotos</h2>
+					<Camera aria-hidden="true" className="size-5 text-steel dark:text-steel" />
+					<h2 className="text-base font-semibold text-ink dark:text-white">Fotos</h2>
 				</div>
 
 				{inspection.photos.length === 0 ? (
-					<p className="text-sm text-zinc-500 dark:text-zinc-400">No hay fotos adjuntas.</p>
+					<p className="text-sm text-steel dark:text-steel">No hay fotos adjuntas.</p>
 				) : (
 					<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
 						{inspection.photos.map((photoUrl) => (
@@ -306,8 +302,8 @@ export default function InspectionDetailPage() {
 function InfoBlock({ label, value }: { label: string; value: string }) {
 	return (
 		<div className="rounded-xl bg-zinc-50 px-4 py-3 dark:bg-zinc-950">
-			<dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</dt>
-			<dd className="mt-1 text-sm font-medium text-zinc-900 dark:text-white">{value}</dd>
+			<dt className="text-xs font-medium text-steel dark:text-steel">{label}</dt>
+			<dd className="mt-1 text-sm font-medium text-ink dark:text-white">{value}</dd>
 		</div>
 	);
 }
@@ -315,10 +311,10 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
 type MiniStatTone = "green" | "red" | "blue" | "slate";
 
 const MINI_STAT_TONES: Record<MiniStatTone, string> = {
-	green: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300",
-	red: "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300",
-	blue: "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300",
-	slate: "bg-zinc-50 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+	green: "bg-emerald-50 text-brand-annotate dark:bg-emerald-900/20 dark:text-brand-annotate",
+	red: "bg-rose-50 text-brand-error dark:bg-rose-900/20 dark:text-brand-error",
+	blue: "bg-blue-50 text-brand-green dark:bg-blue-900/20 dark:text-brand-green",
+	slate: "bg-zinc-50 text-charcoal dark:bg-zinc-800 dark:text-stone",
 };
 
 function MiniStat({ label, value, tone }: { label: string; value: number; tone: MiniStatTone }) {

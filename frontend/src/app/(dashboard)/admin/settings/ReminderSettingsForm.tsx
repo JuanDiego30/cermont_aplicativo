@@ -74,19 +74,19 @@ export function ReminderSettingsForm({ config, isPending, onSave }: ReminderSett
 
 	return (
 		<section
-			className="space-y-5 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900"
+			className="space-y-5 rounded-xl border border-hairline bg-canvas p-5 dark:border-zinc-700 dark:bg-canvas"
 			aria-labelledby="reminder-settings-title"
 		>
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<h2
 						id="reminder-settings-title"
-						className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white"
+						className="flex items-center gap-2 text-sm font-semibold text-ink dark:text-white"
 					>
 						<BellRing className="size-4" aria-hidden="true" />
 						Recordatorios operativos
 					</h2>
-					<p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+					<p className="mt-1 text-xs text-steel dark:text-stone">
 						Configura anticipación, canales y responsables sin desplegar código.
 					</p>
 				</div>
@@ -118,14 +118,14 @@ export function ReminderSettingsForm({ config, isPending, onSave }: ReminderSett
 				{rules.map((rule) => (
 					<article
 						key={rule.type}
-						className="space-y-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700"
+						className="space-y-4 rounded-lg border border-hairline p-4 dark:border-zinc-700"
 					>
 						<div className="flex items-center justify-between gap-4">
 							<div>
-								<h3 className="text-sm font-medium text-zinc-900 dark:text-white">
+								<h3 className="text-sm font-medium text-ink dark:text-white">
 									{REMINDER_LABELS[rule.type]}
 								</h3>
-								<p className="text-xs text-zinc-500 dark:text-zinc-400">
+								<p className="text-xs text-steel dark:text-stone">
 									Umbrales expresados en {SCHEDULE_LABELS[rule.scheduleMode]}.
 								</p>
 							</div>
@@ -157,7 +157,7 @@ export function ReminderSettingsForm({ config, isPending, onSave }: ReminderSett
 							</FormField>
 
 							<fieldset disabled={!workerEnabled || !rule.enabled}>
-								<legend className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+								<legend className="mb-2 text-sm font-medium text-charcoal dark:text-muted-text">
 									Canales
 								</legend>
 								<div className="flex flex-wrap gap-4">
@@ -181,7 +181,7 @@ export function ReminderSettingsForm({ config, isPending, onSave }: ReminderSett
 						</div>
 
 						<fieldset disabled={!workerEnabled || !rule.enabled}>
-							<legend className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+							<legend className="mb-2 text-sm font-medium text-charcoal dark:text-muted-text">
 								Roles responsables
 							</legend>
 							<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -205,7 +205,7 @@ export function ReminderSettingsForm({ config, isPending, onSave }: ReminderSett
 			</div>
 
 			{validationError ? (
-				<p className="text-sm font-medium text-red-600 dark:text-red-400" role="alert">
+				<p className="text-sm font-medium text-brand-error dark:text-brand-error" role="alert">
 					{validationError}
 				</p>
 			) : null}

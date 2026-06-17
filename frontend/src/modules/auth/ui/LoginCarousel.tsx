@@ -136,7 +136,7 @@ export function LoginCarousel() {
 							}`}
 						>
 							<div className="flex flex-col gap-4">
-								<div className="flex size-12 items-center justify-center rounded-2xl bg-white/10 text-[var(--color-cermont-green-light)] shadow-inner ring-1 ring-white/20">
+								<div className="flex size-12 items-center justify-center rounded-2xl bg-canvas/10 text-[var(--color-cermont-green-light)] shadow-inner ring-1 ring-white/20">
 									<slide.icon className="size-6" />
 								</div>
 								<div className="space-y-2">
@@ -163,7 +163,7 @@ export function LoginCarousel() {
 								className={`h-1.5 rounded-full transition-[width,background-color,opacity] duration-[var(--duration-slow)] ease-[var(--ease-standard)] ${
 									index === currentSlide
 										? "w-10 bg-[var(--color-cermont-green-light)]"
-										: "w-3 bg-white/20 hover:bg-white/40"
+										: "w-3 bg-canvas/20 hover:bg-canvas/40"
 								}`}
 								aria-label={`Ir a slide ${index + 1}`}
 							/>
@@ -174,7 +174,7 @@ export function LoginCarousel() {
 						<button
 							type="button"
 							onClick={goToPrev}
-							className={`${MOTION.button} flex size-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/15 active:scale-95`}
+							className={`${MOTION.button} flex size-12 items-center justify-center rounded-full border border-white/10 bg-canvas/5 text-white hover:bg-canvas/15 active:scale-95`}
 							aria-label="Slide anterior"
 						>
 							<ChevronLeft className="size-5" />
@@ -182,7 +182,7 @@ export function LoginCarousel() {
 						<button
 							type="button"
 							onClick={goToNext}
-							className={`${MOTION.button} flex size-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/15 active:scale-95`}
+							className={`${MOTION.button} flex size-12 items-center justify-center rounded-full border border-white/10 bg-canvas/5 text-white hover:bg-canvas/15 active:scale-95`}
 							aria-label="Siguiente slide"
 						>
 							<ChevronRight className="size-5" />

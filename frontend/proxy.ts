@@ -90,3 +90,17 @@ export function proxy(request: NextRequest) {
 export const config = {
 	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\..*).*)"],
 };
+
+// Service Worker Cache Headers
+// In production, the service worker (/serwist/sw.js) is served via Next.js
+// Route Handler. Nginx or reverse proxy should override Cache-Control to
+// prevent stale SW registration:
+//
+//   location /serwist/sw.js {
+//       add_header Cache-Control "no-cache, no-store, must-revalidate";
+//       add_header Pragma "no-cache";
+//       expires 0;
+//   }
+//
+// In the VPS nginx config (or equivalent reverse proxy), ensure these
+// headers are set so the browser always fetches the latest SW version.

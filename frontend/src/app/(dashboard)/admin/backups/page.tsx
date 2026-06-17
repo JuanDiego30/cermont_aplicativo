@@ -90,13 +90,13 @@ export default function AdminBackupsPage() {
 				</p>
 			</header>
 
-			<div className="flex flex-wrap items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4">
+			<div className="flex flex-wrap items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
 				<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 					Período
 					<select
 						value={month}
 						onChange={(e) => setMonth(Number(e.target.value))}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)]"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)]"
 					>
 						<option value={0}>Todo el histórico</option>
 						{MONTHS.map((label, index) => (
@@ -116,7 +116,7 @@ export default function AdminBackupsPage() {
 							max={currentYear}
 							value={year}
 							onChange={(e) => setYear(Number(e.target.value))}
-							className="w-28 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)]"
+							className="w-28 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)]"
 						/>
 					</label>
 				)}
@@ -126,7 +126,7 @@ export default function AdminBackupsPage() {
 			</div>
 
 			{collections.length === 0 ? (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-16 text-center">
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-16 text-center">
 					<Database
 						className="mx-auto mb-3 size-10 text-[var(--text-tertiary)]"
 						aria-hidden="true"
@@ -138,7 +138,7 @@ export default function AdminBackupsPage() {
 					{collections.map((collection) => (
 						<li
 							key={collection.name}
-							className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4"
+							className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4"
 						>
 							<div className="min-w-0">
 								<p className="truncate text-sm font-medium text-[var(--text-primary)]">
@@ -151,7 +151,7 @@ export default function AdminBackupsPage() {
 							<a
 								href={buildExportUrl(collection.name)}
 								download
-								className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--color-brand-blue)] hover:bg-[var(--surface-secondary)]"
+								className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--color-brand-blue)] hover:bg-[var(--surface-secondary)]"
 							>
 								<Download className="size-3.5" aria-hidden="true" />
 								Exportar

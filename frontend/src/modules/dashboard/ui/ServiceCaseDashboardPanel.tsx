@@ -87,8 +87,8 @@ export function ServiceCaseDashboardPanel({
 			value: executionLoad + inPlanning,
 			href: "/execution",
 			icon: Wrench,
-			tone: "text-[var(--color-brand-deep)]",
-			surface: "bg-[var(--color-brand-light)]",
+			tone: "text-[var(--color-brand-strong)]",
+			surface: "bg-[var(--color-brand-hover)]",
 		},
 		{
 			label: "Bloqueados",
@@ -112,12 +112,12 @@ export function ServiceCaseDashboardPanel({
 		<section
 			data-dash="service-case"
 			aria-labelledby="service-case-dashboard-title"
-			className="rounded-[1.5rem] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)] sm:p-6"
+			className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)] sm:p-6"
 		>
 			<div className="grid gap-6 xl:grid-cols-[0.96fr_1.04fr]">
 				<div>
 					<div className="flex items-start gap-3">
-						<span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-light)] text-[var(--color-brand-deep)]">
+						<span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-hover)] text-[var(--color-brand-strong)]">
 							<Route className="size-5" aria-hidden="true" />
 						</span>
 						<div>
@@ -138,7 +138,7 @@ export function ServiceCaseDashboardPanel({
 					</div>
 
 					<div className="mt-6 grid gap-3 sm:grid-cols-3">
-						<div className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-secondary)] p-4">
+						<div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
 							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
 								Pipeline
 							</p>
@@ -147,7 +147,7 @@ export function ServiceCaseDashboardPanel({
 							</p>
 							<p className="mt-1 text-xs text-[var(--text-secondary)]">casos derivados de KPIs</p>
 						</div>
-						<div className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-secondary)] p-4">
+						<div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
 							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
 								Kits activos
 							</p>
@@ -156,7 +156,7 @@ export function ServiceCaseDashboardPanel({
 							</p>
 							<p className="mt-1 text-xs text-[var(--text-secondary)]">herramientas y equipos</p>
 						</div>
-						<div className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-secondary)] p-4">
+						<div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
 							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
 								Presupuesto
 							</p>
@@ -187,7 +187,7 @@ export function ServiceCaseDashboardPanel({
 							<Link
 								key={label}
 								href={href}
-								className="group rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-2)]"
+								className="group rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[var(--border-medium)] hover:shadow-[var(--shadow-2)]"
 							>
 								<div className="flex items-center justify-between gap-3">
 									<span
@@ -204,7 +204,7 @@ export function ServiceCaseDashboardPanel({
 						))}
 					</div>
 
-					<div className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-secondary)] p-4">
+					<div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
 						<div className="flex items-center gap-2 text-[var(--text-primary)]">
 							<FileText className="size-4 text-[var(--color-brand-blue)]" aria-hidden="true" />
 							<p className="text-sm font-semibold">Cadena documental</p>
@@ -217,7 +217,7 @@ export function ServiceCaseDashboardPanel({
 											key={step}
 											className="flex items-center gap-2 text-xs text-[var(--text-secondary)]"
 										>
-											<span className="flex size-5 items-center justify-center rounded-full bg-[var(--surface-primary)] font-mono text-[10px] font-semibold text-[var(--color-brand-deep)]">
+											<span className="flex size-5 items-center justify-center rounded-full bg-[var(--surface-primary)] font-mono text-[10px] font-semibold text-[var(--color-brand-strong)]">
 												{index + (group === workflowCloseout ? workflowPreview.length : 0) + 1}
 											</span>
 											{step}

@@ -131,7 +131,7 @@ export function ImagePreview({
 											type="button"
 											variant="outline"
 											size="sm"
-											className="border-white/30 bg-white/10 text-white hover:bg-white/20"
+											className="border-white/30 bg-canvas/10 text-white hover:bg-canvas/20"
 										>
 											<a
 												href={downloadHref ?? file.url}
@@ -147,7 +147,7 @@ export function ImagePreview({
 												type="button"
 												variant="ghost"
 												size="icon"
-												className="text-white hover:bg-white/20"
+												className="text-white hover:bg-canvas/20"
 												aria-label="Cerrar vista previa"
 											>
 												<X className="size-5" aria-hidden="true" />
@@ -162,7 +162,7 @@ export function ImagePreview({
 											type="button"
 											variant="ghost"
 											size="icon"
-											className="text-white hover:bg-white/20"
+											className="text-white hover:bg-canvas/20"
 											aria-label="Cerrar vista previa"
 										>
 											<X className="size-5" aria-hidden="true" />

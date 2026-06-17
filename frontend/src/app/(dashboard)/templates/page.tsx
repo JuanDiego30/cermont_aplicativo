@@ -45,7 +45,7 @@ export default function TemplatesPage() {
 					<button
 						type="button"
 						onClick={() => refetch()}
-						className="mt-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
+						className="mt-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
 					>
 						Reintentar
 					</button>
@@ -60,7 +60,7 @@ export default function TemplatesPage() {
 			)}
 
 			{!isLoading && !isError && items.length === 0 && (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] p-6">
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6">
 					<div className="flex items-start gap-4">
 						<div className="flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-brand-blue-bg)] text-[var(--color-brand)]">
 							<FileText className="size-5" aria-hidden="true" />
@@ -80,7 +80,7 @@ export default function TemplatesPage() {
 			)}
 
 			{items.length > 0 && (
-				<div className="hidden overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-card md:block">
+				<div className="hidden overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-card md:block">
 					<table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
 						<thead className="bg-[var(--surface-secondary)] text-left text-xs uppercase text-[var(--text-muted)]">
 							<tr>
@@ -98,7 +98,7 @@ export default function TemplatesPage() {
 									</td>
 									<td className="px-4 py-3 text-[var(--text-secondary)]">v{tpl.version ?? 1}</td>
 									<td className="px-4 py-3">
-										<span className="inline-flex rounded-full border px-2.5 py-1 text-xs font-medium border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]">
+										<span className="inline-flex rounded-full border px-2.5 py-1 text-xs font-medium border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]">
 											{tpl.status}
 										</span>
 									</td>
@@ -116,7 +116,7 @@ export default function TemplatesPage() {
 				{items.map((tpl) => (
 					<article
 						key={tpl._id}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-card"
 					>
 						<div className="flex items-start justify-between gap-3">
 							<div>

@@ -136,7 +136,7 @@ describe("SafetyAnalysisService", () => {
 						confirmed: true,
 					}),
 				}),
-				{ new: true },
+				{ returnDocument: "after" },
 			);
 		});
 	});

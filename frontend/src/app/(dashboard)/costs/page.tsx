@@ -130,7 +130,7 @@ export default function CostsPage() {
 
 	return (
 		<section className="space-y-6" aria-labelledby="costs-page-title">
-			<header className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]">
+			<header className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]">
 				<p className="text-sm text-[var(--text-tertiary)]">Dashboard / Costos</p>
 				<div className="mt-3 flex flex-wrap items-start justify-between gap-4">
 					<div className="flex items-start gap-3">
@@ -152,7 +152,7 @@ export default function CostsPage() {
 					</div>
 					<Link
 						href="/orders"
-						className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 text-sm font-medium text-[var(--text-primary)] transition hover:bg-[var(--surface-secondary)]"
+						className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] px-4 text-sm font-medium text-[var(--text-primary)] transition hover:bg-[var(--surface-secondary)]"
 					>
 						Órdenes
 						<ArrowRight className="size-4" aria-hidden="true" />
@@ -199,7 +199,7 @@ export default function CostsPage() {
 			)}
 
 			<section
-				className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+				className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
 				aria-labelledby="costs-lookup-title"
 			>
 				<h2 id="costs-lookup-title" className="text-sm font-semibold text-[var(--text-primary)]">
@@ -220,7 +220,7 @@ export default function CostsPage() {
 							value={orderId}
 							onChange={(event) => setOrderId(event.target.value)}
 							placeholder="Pega aquí el ID de la orden"
-							className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/15"
+							className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/15"
 						/>
 					</div>
 					<button
@@ -234,10 +234,10 @@ export default function CostsPage() {
 			</section>
 
 			<section
-				className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]"
+				className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]"
 				aria-labelledby="costs-list-title"
 			>
-				<div className="border-b border-[var(--border-default)] px-6 py-4">
+				<div className="border-b border-[var(--border-subtle)] px-6 py-4">
 					<h2 id="costs-list-title" className="text-sm font-semibold text-[var(--text-primary)]">
 						Últimos costos registrados
 					</h2>
@@ -277,7 +277,7 @@ export default function CostsPage() {
 									<th className="px-6 py-3 font-semibold">Orden</th>
 								</tr>
 							</thead>
-							<tbody className="divide-y divide-[var(--border-default)]">
+							<tbody className="divide-y divide-[var(--border-subtle)]">
 								{costItems.map((cost) => {
 									const variance = cost.actualAmount - cost.estimatedAmount;
 									const variancePct =
@@ -333,7 +333,7 @@ export default function CostsPage() {
 
 function MetricCard({ label, value, color }: { label: string; value: string; color?: string }) {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 			<p className="text-xs font-medium uppercase text-[var(--text-tertiary)]">{label}</p>
 			<p className={`mt-2 text-xl font-semibold ${color ?? "text-[var(--text-primary)]"}`}>
 				{value}

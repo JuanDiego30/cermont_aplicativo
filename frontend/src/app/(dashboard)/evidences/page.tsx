@@ -39,7 +39,7 @@ import { EvidenceTableRow } from "./EvidenceTableRow";
 import { type EvidenceViewMode, getEvidenceTitle, toEvidenceViewMode } from "./evidence-helpers";
 
 const FIELD_CLASS =
-	"w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/15";
+	"w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/15";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -166,7 +166,7 @@ function EvidenceUploadSection({
 	return (
 		<section
 			aria-label="Subir evidencia del trabajo realizado"
-			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)] sm:p-6"
+			className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)] sm:p-6"
 		>
 			<div className="mb-4 flex items-center gap-2">
 				<Camera className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
@@ -251,7 +251,7 @@ function EvidenceUploadSection({
 					className={`relative block cursor-pointer rounded-[var(--radius-lg)] border-2 border-dashed p-5 text-center transition-colors sm:p-6 ${
 						previewUrl
 							? "border-[var(--color-brand-blue)]/30"
-							: "border-[var(--border-default)] hover:border-[var(--color-brand-blue)]/50"
+							: "border-[var(--border-subtle)] hover:border-[var(--color-brand-blue)]/50"
 					}`}
 				>
 					<input
@@ -351,7 +351,7 @@ function EvidencesFiltersForm({
 	return (
 		<form
 			onSubmit={onSubmit}
-			className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)]"
+			className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)]"
 			aria-labelledby="evidences-filters-title"
 		>
 			<h2 id="evidences-filters-title" className="sr-only">
@@ -412,7 +412,7 @@ function EvidencesFiltersForm({
 					<button
 						type="button"
 						onClick={onClear}
-						className="inline-flex items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)]"
+						className="inline-flex items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)]"
 					>
 						Limpiar
 					</button>
@@ -432,7 +432,7 @@ interface EvidencesViewToggleProps {
 function EvidencesViewToggle({ viewMode, onChange }: EvidencesViewToggleProps) {
 	return (
 		<fieldset
-			className="inline-flex rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-1 shadow-[var(--shadow-1)]"
+			className="inline-flex rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-1 shadow-[var(--shadow-1)]"
 			aria-label="Modo de visualización"
 		>
 			<legend className="sr-only">Modo de visualización</legend>
@@ -478,7 +478,7 @@ function EvidencesEmptyState({
 	description: string;
 }) {
 	return (
-		<section className="rounded-[var(--radius-xl)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)]/40 p-10 text-center">
+		<section className="rounded-[var(--radius-xl)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)]/40 p-10 text-center">
 			{icon}
 			<h2 className="mt-4 text-lg font-semibold text-[var(--text-primary)]">{title}</h2>
 			<p className="mt-1 text-sm text-[var(--text-secondary)]">{description}</p>
@@ -507,7 +507,7 @@ function EvidencesTableView({ evidences }: { evidences: Evidence[] }) {
 				))}
 			</div>
 
-			<section className="hidden overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] md:block">
+			<section className="hidden overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] md:block">
 				<table className="min-w-full text-left text-sm">
 					<caption className="sr-only">Evidencias registradas con título y fecha.</caption>
 					<thead className="bg-[var(--surface-secondary)]/60 text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">
@@ -526,7 +526,7 @@ function EvidencesTableView({ evidences }: { evidences: Evidence[] }) {
 							</th>
 						</tr>
 					</thead>
-					<tbody className="divide-y divide-[color:var(--border-default)]/60 bg-[var(--surface-primary)]">
+					<tbody className="divide-y divide-[var(--border-subtle)]/60 bg-[var(--surface-primary)]">
 						{evidences.map((evidence) => (
 							<EvidenceTableRow key={evidence._id} evidence={evidence} />
 						))}
@@ -595,7 +595,7 @@ function useEvidenceFilters() {
 function EvidencesLoading() {
 	return (
 		<section className="space-y-6" aria-labelledby="evidences-page-title">
-			<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+			<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 				<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
 			</div>
 		</section>
@@ -696,8 +696,8 @@ function EvidencesPageInner() {
 			<SyncBanner isOnline={isOnline} />
 			<section className="space-y-6" aria-labelledby="evidences-page-title">
 				{/* Header */}
-				<header className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-					<div className="border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
+				<header className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+					<div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
 						<p className="text-sm text-[var(--text-secondary)]">Dashboard / Evidencias</p>
 						<div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 							<div className="space-y-1">
@@ -753,7 +753,7 @@ function EvidencesPageInner() {
 						description="Selecciona una orden de trabajo para ver sus evidencias y subir nuevas imágenes."
 					/>
 				) : isLoadingEvidences ? (
-					<section className="flex h-64 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)]">
+					<section className="flex h-64 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)]">
 						<div className="flex items-center gap-3 text-[var(--text-secondary)]">
 							<Loader2 className="size-5 animate-spin" aria-hidden="true" />
 							Cargando evidencias…
@@ -766,7 +766,7 @@ function EvidencesPageInner() {
 					</section>
 				) : (
 					<section aria-labelledby="evidences-list-title" className="space-y-4">
-						<div className="flex flex-col gap-4 rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)] md:flex-row md:items-center md:justify-between">
+						<div className="flex flex-col gap-4 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)] md:flex-row md:items-center md:justify-between">
 							<div className="space-y-1">
 								<h2
 									id="evidences-list-title"

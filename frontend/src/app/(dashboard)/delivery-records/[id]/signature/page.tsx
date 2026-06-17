@@ -20,7 +20,7 @@ export default function SignaturePage({ params }: SignaturePageProps) {
 	if (!id) {
 		return (
 			<div className="mx-auto max-w-2xl px-4 py-12 text-center">
-				<h1 className="text-xl font-semibold text-red-600">Falta ID del acta</h1>
+				<h1 className="text-xl font-semibold text-brand-error">Falta ID del acta</h1>
 			</div>
 		);
 	}

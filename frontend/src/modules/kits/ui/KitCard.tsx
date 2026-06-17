@@ -5,10 +5,8 @@ import { Archive, CheckCircle2, Package2, Trash2 } from "lucide-react";
 import { KIT_ACTIVITY_LABELS, KIT_STATUS_LABELS } from "@/modules/kits/constants";
 
 const STATUS_STYLES: Record<string, string> = {
-	draft:
-		"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[color:var(--color-warning)]/15",
-	active:
-		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[color:var(--color-success)]/15",
+	draft: "bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[var(--color-warning)]/15",
+	active: "bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[var(--color-success)]/15",
 	archived:
 		"bg-[var(--surface-secondary)] text-[var(--text-tertiary)] ring-[var(--border-medium)]/30",
 	voided: "bg-[var(--color-danger-bg)] text-[var(--color-danger)] ring-[var(--color-danger)]/15",

@@ -36,7 +36,7 @@ function TemplateCard({
 	return (
 		<Link
 			href={href}
-			className="group flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-[var(--color-brand)] hover:shadow-[var(--shadow-2)]"
+			className="group flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-[var(--color-brand)] hover:shadow-[var(--shadow-2)]"
 		>
 			<div className="flex items-start justify-between gap-3">
 				<span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-blue-bg)]">
@@ -105,7 +105,7 @@ function FormsIndexContent() {
 							</span>
 						)}
 						{executionSessionId && (
-							<span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-1 text-[11px] text-[var(--text-secondary)]">
+							<span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1 text-[11px] text-[var(--text-secondary)]">
 								Sesión de ejecución: {executionSessionId.slice(-8)}
 							</span>
 						)}

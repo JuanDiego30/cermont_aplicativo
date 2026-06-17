@@ -3,7 +3,7 @@
 import type { ApiEnvelope, SiteVisitRecord } from "@cermont/shared-types";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { STALE_TIMES } from "@/lib/constants/query-config";
-import { apiClient, isOfflineLikeError } from "@/lib/http/api-client";
+import { ApiError, apiClient, isOfflineLikeError } from "@/lib/http/api-client";
 import {
 	readSiteVisitListSnapshot,
 	saveSiteVisitListSnapshot,
@@ -146,6 +146,14 @@ export function useCreateSiteVisit() {
 		retry: 0,
 		onSuccess: () => {
 			void qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.all });
+		},
+		onError: (error) => {
+			if (error instanceof ApiError) {
+				console.warn(`[site-visits:create:error] status=${error.status} code=${error.code}`, {
+					details: error.details,
+					message: error.message,
+				});
+			}
 		},
 	});
 }

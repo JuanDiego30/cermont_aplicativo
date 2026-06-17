@@ -38,7 +38,7 @@ function statusTone(status: string): string {
 	if (status === "in_progress") {
 		return "border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] text-[var(--color-warning)]";
 	}
-	return "border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]";
+	return "border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]";
 }
 
 export default function SiteVisitsPage() {
@@ -67,7 +67,7 @@ export default function SiteVisitsPage() {
 				<nav className="flex flex-wrap gap-2" aria-label="Acciones de visitas">
 					<Link
 						href={APP_ROUTES.siteVisitNew}
-						className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)] shadow-card transition-colors hover:bg-[var(--surface-secondary)]"
+						className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)] shadow-card transition-colors hover:bg-[var(--surface-secondary)]"
 					>
 						Nueva visita
 						<ArrowRight className="size-4 text-[var(--color-brand)]" aria-hidden="true" />
@@ -131,7 +131,7 @@ export default function SiteVisitsPage() {
 							<button
 								type="button"
 								onClick={() => refetch()}
-								className="mt-3 inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
+								className="mt-3 inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
 							>
 								<RefreshCw className="size-4" aria-hidden="true" />
 								Reintentar
@@ -156,7 +156,7 @@ export default function SiteVisitsPage() {
 
 			{items.length > 0 ? (
 				<>
-					<div className="hidden overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-card md:block">
+					<div className="hidden overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-card md:block">
 						<table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
 							<thead className="bg-[var(--surface-secondary)] text-left text-xs uppercase text-[var(--text-muted)]">
 								<tr>
@@ -194,7 +194,7 @@ export default function SiteVisitsPage() {
 						{items.map((visit) => (
 							<article
 								key={visit._id}
-								className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card"
+								className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-card"
 							>
 								<div className="flex items-start justify-between gap-3">
 									<div>
@@ -210,7 +210,7 @@ export default function SiteVisitsPage() {
 								<div className="mt-3 flex items-center gap-2 text-xs text-[var(--text-muted)]">
 									<MapPin className="size-3" />
 									<span>{visit.location}</span>
-									<span className="text-[var(--border-default)]">|</span>
+									<span className="text-[var(--border-subtle)]">|</span>
 									<CalendarClock className="size-3" />
 									<span>{formatDate(visit.visitDate)}</span>
 								</div>
@@ -233,7 +233,7 @@ function StatCard({
 	value: number;
 }) {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card">
+		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-card">
 			<div className="flex items-center gap-3">
 				<div className="flex size-9 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-brand-blue-bg)] text-[var(--color-brand)]">
 					<Icon className="size-4" aria-hidden="true" />

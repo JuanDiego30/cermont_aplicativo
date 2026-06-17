@@ -124,7 +124,7 @@ export function ModuleQuickActions({
 				ref={panelRef}
 				hidden={!isOpen}
 				aria-labelledby="module-quick-actions-title"
-				className="w-[min(92vw,28rem)] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-3)]"
+				className="w-[min(92vw,28rem)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-3)]"
 			>
 				<div className="mb-3 flex items-center justify-between">
 					<h2
@@ -139,7 +139,7 @@ export function ModuleQuickActions({
 						type="button"
 						onClick={() => closePanel(true)}
 						aria-label="Cerrar acciones rápidas"
-						className="rounded-lg border border-[var(--border-default)] p-1 text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+						className="rounded-lg border border-[var(--border-subtle)] p-1 text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 					>
 						<X className="size-4" aria-hidden="true" />
 					</button>
@@ -154,7 +154,7 @@ export function ModuleQuickActions({
 						className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
 							mode === "document"
 								? "bg-(--color-brand-blue) text-white shadow-brand"
-								: "border border-(--border-default) text-(--text-secondary) hover:bg-surface-secondary"
+								: "border border-(--border-subtle) text-(--text-secondary) hover:bg-surface-secondary"
 						}`}
 					>
 						Documento externo
@@ -166,7 +166,7 @@ export function ModuleQuickActions({
 						className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
 							mode === "evidence"
 								? "bg-(--color-brand-blue) text-white shadow-brand"
-								: "border border-(--border-default) text-(--text-secondary) hover:bg-surface-secondary"
+								: "border border-(--border-subtle) text-(--text-secondary) hover:bg-surface-secondary"
 						}`}
 					>
 						Foto evidencia
@@ -232,7 +232,7 @@ function QuickActionPanelBody({
 		return (
 			<p
 				aria-live="polite"
-				className="rounded-xl border border-(--border-default) bg-surface-secondary px-3 py-2 text-xs text-(--text-secondary)"
+				className="rounded-xl border border-(--border-subtle) bg-surface-secondary px-3 py-2 text-xs text-(--text-secondary)"
 			>
 				Cargando órdenes recientes…
 			</p>
@@ -275,7 +275,7 @@ function QuickActionError({ message, onRetry }: { message: string; onRetry: () =
 			<button
 				type="button"
 				onClick={() => void onRetry()}
-				className="inline-flex rounded-lg border border-[var(--color-danger)]/20 px-2 py-1 font-medium hover:bg-white/70"
+				className="inline-flex rounded-lg border border-[var(--color-danger)]/20 px-2 py-1 font-medium hover:bg-canvas/70"
 			>
 				Reintentar
 			</button>
@@ -297,12 +297,12 @@ function QuickEvidenceUploader({
 	return (
 		<div className="space-y-3">
 			<label htmlFor="quick-actions-order" className="block text-sm">
-				<span className="mb-1 block text-xs font-medium text-zinc-700">Orden asociada</span>
+				<span className="mb-1 block text-xs font-medium text-charcoal">Orden asociada</span>
 				<select
 					id="quick-actions-order"
 					value={selectedOrderId}
 					onChange={(event) => onSelectedOrderChange(event.target.value)}
-					className="w-full rounded-lg border border-[var(--border-default)] px-3 py-2 text-sm outline-none focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20"
+					className="w-full rounded-lg border border-[var(--border-subtle)] px-3 py-2 text-sm outline-none focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20"
 				>
 					{orders.map((order) => (
 						<option key={order.id} value={order.id}>
@@ -315,7 +315,7 @@ function QuickEvidenceUploader({
 			{selectedOrder ? (
 				<EvidenceUploader key={selectedOrder.id} orderId={selectedOrder.id} />
 			) : (
-				<p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+				<p className="rounded-xl border border-red-200 bg-danger-bg px-3 py-2 text-xs text-brand-error">
 					Selecciona una orden válida para cargar evidencia.
 				</p>
 			)}

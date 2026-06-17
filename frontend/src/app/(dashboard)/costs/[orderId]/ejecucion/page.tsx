@@ -10,14 +10,11 @@ export default function ExecutionCostsPage() {
 	return (
 		<section className="space-y-6" aria-labelledby="execution-costs-title">
 			<header className="space-y-2">
-				<p className="text-sm text-zinc-500 dark:text-zinc-400">Dashboard / Costos</p>
-				<h1
-					id="execution-costs-title"
-					className="text-3xl font-semibold text-zinc-950 dark:text-white"
-				>
+				<p className="text-sm text-steel dark:text-steel">Dashboard / Costos</p>
+				<h1 id="execution-costs-title" className="text-3xl font-semibold text-ink dark:text-white">
 					Costos de la orden {orderId}
 				</h1>
-				<p className="text-sm text-zinc-600 dark:text-zinc-400">
+				<p className="text-sm text-steel dark:text-steel">
 					Resumen, desglose y registro de costos reales contra la estimación.
 				</p>
 			</header>

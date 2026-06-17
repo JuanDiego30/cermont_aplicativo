@@ -34,7 +34,7 @@ export function InheritedField({ field, value, onChange, readOnly }: InheritedFi
 				</span>
 			</div>
 			{isReadOnly ? (
-				<div className="min-h-11 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2.5 text-sm text-[var(--text-primary)] opacity-70">
+				<div className="min-h-11 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-2.5 text-sm text-[var(--text-primary)] opacity-70">
 					{displayValue || <span className="italic text-[var(--text-muted)]">Sin dato</span>}
 				</div>
 			) : (
@@ -45,7 +45,7 @@ export function InheritedField({ field, value, onChange, readOnly }: InheritedFi
 					onChange={(e) => onChange?.(e.target.value)}
 					required={field.required}
 					aria-label={field.label}
-					className="min-h-11 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--color-focus-ring)]"
+					className="min-h-11 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--color-focus-ring)]"
 				/>
 			)}
 		</div>

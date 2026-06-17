@@ -9,13 +9,13 @@ import { LANDING_FEATURES, type LandingTone } from "../landing-data";
 gsap.registerPlugin(ScrollTrigger);
 
 const TONE_CLASSES: Record<LandingTone, string> = {
-	brand: "bg-(--color-brand-blue-bg) text-(--color-brand-blue)",
-	info: "bg-(--color-info-bg) text-(--color-info)",
-	success: "bg-(--color-success-bg) text-(--color-success)",
-	warning: "bg-(--color-warning-bg) text-(--color-warning)",
-	purple: "bg-purple-100 text-purple-600",
-	neutral: "bg-surface-secondary text-text-secondary",
-	danger: "bg-(--color-danger-bg) text-(--color-danger)",
+	brand: "bg-surface text-ink",
+	info: "bg-surface text-charcoal",
+	success: "bg-surface text-charcoal",
+	warning: "bg-surface text-charcoal",
+	purple: "bg-surface text-charcoal",
+	neutral: "bg-surface text-charcoal",
+	danger: "bg-surface text-charcoal",
 };
 
 export function FeaturesSection({ shouldReduceMotion = false }: { shouldReduceMotion?: boolean }) {
@@ -68,10 +68,10 @@ export function FeaturesSection({ shouldReduceMotion = false }: { shouldReduceMo
 			className="mx-auto max-w-7xl px-6 py-20 lg:px-8"
 		>
 			<div className="mx-auto max-w-2xl text-center">
-				<h2 id="features-title" className="text-3xl font-semibold tracking-tight text-text-primary">
+				<h2 id="features-title" className="text-3xl font-semibold tracking-tight text-ink">
 					Lo que nos define como empresa
 				</h2>
-				<p className="mt-4 text-lg text-text-secondary">
+				<p className="mt-4 text-lg text-charcoal">
 					Una plataforma integral disenada para el mantenimiento industrial, seguridad y control
 				</p>
 			</div>
@@ -81,16 +81,14 @@ export function FeaturesSection({ shouldReduceMotion = false }: { shouldReduceMo
 					const Icon = feature.icon;
 					return (
 						<li key={feature.title} data-feature-card>
-							<article className="flex flex-col rounded-2xl border border-border-default bg-surface-primary p-6 shadow-1 transition-shadow hover:shadow-2">
+							<article className="flex flex-col rounded-2xl border border-hairline bg-canvas p-6 shadow-1 transition-shadow hover:shadow-2">
 								<div
 									className={`flex size-12 items-center justify-center rounded-xl ${TONE_CLASSES[feature.tone]}`}
 								>
 									<Icon className="size-6" aria-hidden="true" />
 								</div>
-								<h3 className="mt-4 text-lg font-semibold text-text-primary">{feature.title}</h3>
-								<p className="mt-2 text-sm leading-relaxed text-text-secondary">
-									{feature.description}
-								</p>
+								<h3 className="mt-4 text-lg font-semibold text-ink">{feature.title}</h3>
+								<p className="mt-2 text-sm leading-relaxed text-charcoal">{feature.description}</p>
 							</article>
 						</li>
 					);

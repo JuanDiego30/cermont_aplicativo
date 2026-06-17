@@ -118,7 +118,7 @@ export function OrdersTable({
 											checked={selectedIds.has(order._id)}
 											onChange={() => onToggleOrderSelection?.(order._id)}
 											aria-label={`Seleccionar orden ${order.code}`}
-											className="size-4.5 rounded border-[var(--border-medium)] text-[var(--color-brand)] focus:ring-[color:var(--color-brand)]/20"
+											className="size-4.5 rounded border-[var(--border-medium)] text-[var(--color-brand)] focus:ring-[var(--color-brand)]/20"
 										/>
 									</td>
 								) : null}
@@ -176,7 +176,7 @@ export function OrdersTable({
 					<article
 						key={order._id}
 						className={cn(
-							"rounded-2xl border border-[var(--border-subtle)] bg-white p-5 shadow-sm transition-all hover:shadow-md",
+							"rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-5 shadow-sm transition-all hover:shadow-md",
 							selectedIds.has(order._id) && "ring-2 ring-[var(--color-brand)]/50",
 						)}
 					>

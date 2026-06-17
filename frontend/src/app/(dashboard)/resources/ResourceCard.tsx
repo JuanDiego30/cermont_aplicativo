@@ -40,7 +40,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
 	const statusLabel = STATUS_LABELS[statusKey] ?? statusKey;
 
 	return (
-		<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]">
+		<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]">
 			<div className="flex items-start justify-between gap-3">
 				<div className="min-w-0">
 					<h3 className="truncate text-base font-semibold text-[var(--text-primary)]">
@@ -55,7 +55,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
 					</p>
 				</div>
 				<span
-					className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ring-1 ring-inset ${STATUS_STYLES[statusKey] ?? "bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-default)]"}`}
+					className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ring-1 ring-inset ${STATUS_STYLES[statusKey] ?? "bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-subtle)]"}`}
 				>
 					{statusLabel}
 				</span>
@@ -67,7 +67,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
 					{resource.images.slice(0, 3).map((img) => (
 						<div
 							key={img.id}
-							className="size-12 shrink-0 overflow-hidden rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)]"
+							className="size-12 shrink-0 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-secondary)]"
 						>
 							<Image
 								src={img.url}
@@ -80,7 +80,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
 						</div>
 					))}
 					{resource.images.length > 3 ? (
-						<div className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] text-xs text-[var(--text-tertiary)]">
+						<div className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-xs text-[var(--text-tertiary)]">
 							+{resource.images.length - 3}
 						</div>
 					) : null}

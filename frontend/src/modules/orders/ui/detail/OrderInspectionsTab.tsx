@@ -26,28 +26,28 @@ export function OrderInspectionsTab({ orderId }: OrderInspectionsTabProps) {
 	const { data: order, isLoading, error } = useOrder(orderId);
 
 	if (isLoading) {
-		return <div className="h-40 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />;
+		return <div className="h-40 animate-pulse rounded-xl bg-[var(--surface-secondary)] bg-800" />;
 	}
 
 	if (error) {
 		return (
-			<div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-900/30 dark:bg-red-900/10">
+			<div className="flex items-start gap-3 rounded-xl border border-red-200 bg-danger-bg px-4 py-3 dark:border-red-900/30 dark:bg-red-900/10">
 				<AlertCircle
-					className="mt-0.5 size-5 shrink-0 text-red-600 dark:text-red-400"
+					className="mt-0.5 size-5 shrink-0 text-brand-error dark:text-brand-error"
 					aria-hidden="true"
 				/>
 				<div>
-					<p className="text-sm font-medium text-red-900 dark:text-red-300">
+					<p className="text-sm font-medium text-brand-error dark:text-brand-error">
 						Error al cargar las inspecciones.
 					</p>
-					<p className="mt-1 text-xs text-red-700 dark:text-red-400">{error.message}</p>
+					<p className="mt-1 text-xs text-brand-error dark:text-brand-error">{error.message}</p>
 				</div>
 			</div>
 		);
 	}
 
 	if (!order) {
-		return <p className="text-sm text-zinc-400">Sin inspecciones registradas.</p>;
+		return <p className="text-sm text-[var(--text-muted)]">Sin inspecciones registradas.</p>;
 	}
 
 	const isInspectionOrder = order.type === "inspection";
@@ -55,19 +55,19 @@ export function OrderInspectionsTab({ orderId }: OrderInspectionsTabProps) {
 	return (
 		<section
 			aria-label="Inspecciones"
-			className="space-y-6 rounded-xl border border-zinc-200 bg-white p-4 sm:p-6 dark:border-zinc-800 dark:bg-zinc-950"
+			className="space-y-6 rounded-xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 sm:p-6 border-800 bg-950"
 		>
 			{/* Order type context */}
-			<div className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900">
+			<div className="flex items-start gap-3 rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] px-4 py-3 border-700 bg-900">
 				<ShieldCheck
-					className="mt-0.5 size-5 shrink-0 text-zinc-500 dark:text-zinc-400"
+					className="mt-0.5 size-5 shrink-0 text-[var(--text-tertiary)] text-400"
 					aria-hidden="true"
 				/>
 				<div>
-					<p className="text-sm font-medium text-zinc-900 dark:text-white">
+					<p className="text-sm font-medium text-[var(--text-primary)] dark:text-white">
 						Tipo de orden: {INSPECTION_TYPE_LABELS[order.type] ?? order.type}
 					</p>
-					<p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+					<p className="mt-1 text-xs text-[var(--text-tertiary)] text-400">
 						{isInspectionOrder
 							? "Esta orden es una inspeccion de seguridad (HES). Los checklists operativos se gestionan en la pestaña de ejecucion."
 							: "Las inspecciones de seguridad pueden asociarse a esta orden desde el módulo de inspecciones."}
@@ -77,7 +77,7 @@ export function OrderInspectionsTab({ orderId }: OrderInspectionsTabProps) {
 
 			{/* Inspection checkpoints */}
 			<div>
-				<h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+				<h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--text-tertiary)] text-400">
 					<ClipboardList className="size-4" aria-hidden="true" />
 					Checkpoints de inspección
 				</h3>
@@ -89,8 +89,8 @@ export function OrderInspectionsTab({ orderId }: OrderInspectionsTabProps) {
 				</div>
 			</div>
 
-			<div className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-				<p className="inline-flex items-center gap-2 rounded-full border border-zinc-200 px-3 py-1.5 dark:border-zinc-800">
+			<div className="text-center text-sm text-[var(--text-tertiary)] text-400">
+				<p className="inline-flex items-center gap-2 rounded-full border border-[var(--border-medium)] px-3 py-1.5 border-800">
 					<CheckSquare className="size-4" aria-hidden="true" />
 					Las inspecciones se administran desde el flujo de la orden.
 				</p>
@@ -100,9 +100,9 @@ export function OrderInspectionsTab({ orderId }: OrderInspectionsTabProps) {
 }
 
 const statusStyles = {
-	pending: "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900",
-	passed: "border-green-200 bg-green-50 dark:border-green-900/30 dark:bg-green-900/10",
-	failed: "border-red-200 bg-red-50 dark:border-red-900/30 dark:bg-red-900/10",
+	pending: "border-hairline bg-[var(--surface-card)] border-700 bg-900",
+	passed: "border-green-200 bg-success-bg dark:border-green-900/30 dark:bg-green-900/10",
+	failed: "border-red-200 bg-danger-bg dark:border-red-900/30 dark:bg-red-900/10",
 };
 
 const statusLabels = {
@@ -112,7 +112,7 @@ const statusLabels = {
 };
 
 const dotColors = {
-	pending: "bg-zinc-300 dark:bg-zinc-600",
+	pending: "bg-zinc-300 bg-600",
 	passed: "bg-green-500 dark:bg-green-400",
 	failed: "bg-red-500 dark:bg-red-400",
 };
@@ -128,8 +128,10 @@ function CheckpointCard({
 		<div
 			className={`flex items-center justify-between rounded-lg border px-4 py-3 ${statusStyles[status]}`}
 		>
-			<span className="text-sm font-medium text-zinc-900 dark:text-white">{label}</span>
-			<span className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+			<span className="text-sm font-medium text-[var(--text-primary)] dark:text-white">
+				{label}
+			</span>
+			<span className="flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] text-400">
 				<span className={`size-2 rounded-full ${dotColors[status]}`} aria-hidden="true" />
 				{statusLabels[status]}
 			</span>

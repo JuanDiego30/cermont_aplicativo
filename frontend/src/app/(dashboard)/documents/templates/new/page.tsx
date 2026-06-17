@@ -12,7 +12,7 @@ const TEMPLATE_KEYS = {
 };
 
 const INPUT_CLASS =
-	"w-full rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--color-focus-ring)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 transition-colors";
+	"w-full rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--color-focus-ring)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]/20 transition-colors";
 
 const LABEL_CLASS = "block text-sm font-medium text-[var(--text-secondary)] mb-1";
 
@@ -57,7 +57,7 @@ export default function NewTemplatePage() {
 
 			<form
 				onSubmit={handleSubmit}
-				className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+				className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
 			>
 				<div>
 					<label htmlFor="template-name" className={LABEL_CLASS}>

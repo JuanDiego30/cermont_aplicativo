@@ -13,7 +13,7 @@ function statusTone(status: string): string {
 	if (status === "rejected") {
 		return "border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]";
 	}
-	return "border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]";
+	return "border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]";
 }
 
 function statusIcon(status: string) {
@@ -49,7 +49,7 @@ export default function PurchaseOrdersPage() {
 				<nav className="flex flex-wrap gap-2" aria-label="Acciones de PO">
 					<Link
 						href="/purchase-orders/new"
-						className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)] shadow-card transition-colors hover:bg-[var(--surface-secondary)]"
+						className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)] shadow-card transition-colors hover:bg-[var(--surface-secondary)]"
 					>
 						Nueva PO
 						<ArrowRight className="size-4 text-[var(--color-brand)]" aria-hidden="true" />
@@ -59,7 +59,7 @@ export default function PurchaseOrdersPage() {
 
 			{isLoading ? (
 				<output
-					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4"
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4"
 					aria-live="polite"
 				>
 					<span className="sr-only">Cargando órdenes de compra</span>
@@ -84,7 +84,7 @@ export default function PurchaseOrdersPage() {
 							<button
 								type="button"
 								onClick={() => refetch()}
-								className="mt-3 inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
+								className="mt-3 inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
 							>
 								<RefreshCw className="size-4" aria-hidden="true" />
 								Reintentar
@@ -104,7 +104,7 @@ export default function PurchaseOrdersPage() {
 			) : null}
 
 			{items.length > 0 ? (
-				<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-card">
+				<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-card">
 					<table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
 						<thead className="bg-[var(--surface-secondary)] text-left text-xs uppercase text-[var(--text-muted)]">
 							<tr>

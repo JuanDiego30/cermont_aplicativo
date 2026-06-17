@@ -19,20 +19,22 @@ export default function OrdersError({
 
 	return (
 		<section
-			className="flex h-[50vh] flex-col items-center justify-center gap-y-4 rounded-xl border border-red-100 bg-red-50 p-6 text-center"
+			className="flex h-[50vh] flex-col items-center justify-center gap-y-4 rounded-xl border border-red-100 bg-danger-bg p-6 text-center"
 			role="alert"
 			aria-live="assertive"
 			aria-labelledby="orders-error-title"
 		>
-			<AlertCircle className="size-10 text-red-500" aria-hidden="true" />
+			<AlertCircle className="size-10 text-brand-error" aria-hidden="true" />
 			<div>
-				<h2 id="orders-error-title" className="text-lg font-semibold text-red-800">
+				<h2 id="orders-error-title" className="text-lg font-semibold text-brand-error">
 					Error al cargar las órdenes
 				</h2>
-				<p className="mt-1 text-sm text-red-600">
+				<p className="mt-1 text-sm text-brand-error">
 					Ocurrió un problema al obtener los datos. Por favor, intenta de nuevo.
 				</p>
-				{error.digest ? <p className="mt-2 text-xs text-red-500">Código: {error.digest}</p> : null}
+				{error.digest ? (
+					<p className="mt-2 text-xs text-brand-error">Código: {error.digest}</p>
+				) : null}
 			</div>
 			<button
 				type="button"

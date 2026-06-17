@@ -77,7 +77,7 @@ function OrderCard({
 		<div
 			ref={setDragRef}
 			className={cn(
-				"cursor-grab rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] transition-all",
+				"cursor-grab rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] transition-all",
 				"active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]",
 			)}
 		>
@@ -102,7 +102,7 @@ function OrderCard({
 					id={`kanban-order-status-${order.id}`}
 					value={order.status}
 					onChange={(event) => onMove(order.id, event.target.value)}
-					className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-xs text-[var(--text-primary)] shadow-sm outline-none focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20"
+					className="w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-xs text-[var(--text-primary)] shadow-sm outline-none focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20"
 				>
 					{VISIBLE_COLUMNS.map((status) => (
 						<option key={status} value={status}>
@@ -147,7 +147,7 @@ function KanbanColumn({
 	);
 	const label = COLUMN_LABELS[status] ?? status;
 	const colors =
-		COLUMN_COLORS[status] ?? "bg-[var(--surface-secondary)] border-[var(--border-default)]";
+		COLUMN_COLORS[status] ?? "bg-[var(--surface-secondary)] border-[var(--border-subtle)]";
 
 	return (
 		<div
@@ -156,7 +156,7 @@ function KanbanColumn({
 				"flex w-80 flex-shrink-0 flex-col rounded-[var(--radius-xl)] border transition-all",
 				colors,
 				isOver &&
-					"ring-2 ring-[color:var(--color-brand-blue)] ring-offset-2 ring-offset-[var(--surface-page)]",
+					"ring-2 ring-[var(--color-brand-blue)] ring-offset-2 ring-offset-[var(--surface-page)]",
 			)}
 		>
 			<div className="flex items-center justify-between px-5 py-4">
@@ -172,7 +172,7 @@ function KanbanColumn({
 					<OrderCard key={order.id} order={order} onMove={onDrop} />
 				))}
 				{orders.length === 0 && (
-					<div className="flex h-24 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)]/80">
+					<div className="flex h-24 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-primary)]/80">
 						<p className="text-xs font-medium text-[var(--text-tertiary)]">Sin órdenes</p>
 					</div>
 				)}
@@ -248,7 +248,7 @@ export default function OrdersKanbanPage() {
 			{(error || loadError) && (
 				<div
 					role="alert"
-					className="rounded-[var(--radius-lg)] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+					className="rounded-[var(--radius-lg)] border border-red-200 bg-danger-bg px-4 py-3 text-sm text-brand-error"
 				>
 					{error || "No se pudo cargar el tablero kanban."}
 				</div>

@@ -213,7 +213,7 @@ export default function MaintenancePage() {
 					{canCreate ? (
 						<Link
 							href="/maintenance/new"
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-white px-5 py-3 text-sm font-semibold text-[var(--color-cermont-blue-deep)] transition hover:bg-white/90"
+							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-canvas px-5 py-3 text-sm font-semibold text-[var(--color-cermont-blue-deep)] transition hover:bg-canvas/90"
 						>
 							<Plus className="size-4" />
 							Nuevo Kit

@@ -59,7 +59,7 @@ export function CustomerForm({ initial, isSaving, onSubmit, onCancel }: Customer
 	});
 
 	const inputClasses =
-		"w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
+		"w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
 	return (
 		<form
@@ -111,7 +111,7 @@ export function CustomerForm({ initial, isSaving, onSubmit, onCancel }: Customer
 				<button
 					type="button"
 					onClick={onCancel}
-					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar
 				</button>

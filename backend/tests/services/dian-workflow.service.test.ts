@@ -168,7 +168,7 @@ describe("DIAN workflow service", () => {
 				lastInvoiceNumber: 0,
 			},
 			{ $set: { lastInvoiceNumber: 10 } },
-			{ new: true },
+			{ returnDocument: "after" },
 		);
 		expect(result.invoiceNumber).toBe("FV10");
 		expect(result.dianStatus).toBe("accepted");

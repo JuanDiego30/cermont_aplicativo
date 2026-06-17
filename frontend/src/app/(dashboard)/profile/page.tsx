@@ -70,7 +70,7 @@ export default function ProfilePage() {
 
 	if (isAuthLoading || isUserLoading) {
 		return (
-			<section className="mx-auto flex min-h-[18rem] max-w-2xl items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+			<section className="mx-auto flex min-h-[18rem] max-w-2xl items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 				<div className="flex items-center gap-3 text-[var(--text-secondary)]">
 					<Loader2
 						className="size-5 animate-spin text-[var(--color-brand-blue)]"
@@ -114,7 +114,7 @@ export default function ProfilePage() {
 							</Link>
 							<Link
 								href="/login"
-								className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)]"
+								className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)]"
 							>
 								Iniciar sesión otra vez
 							</Link>

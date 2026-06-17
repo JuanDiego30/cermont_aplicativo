@@ -22,7 +22,9 @@
  * @tag deploy
  */
 
-import { expect, test } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
+import { type APIRequestContext, expect, test } from "@playwright/test";
 import { E2E_TEST_USERS } from "./auth-credentials";
 
 // ── Configuration ────────────────────────────────────────────────────────────
@@ -33,6 +35,33 @@ const MANAGER = {
 	password: process.env.E2E_MANAGER_PASSWORD ?? E2E_TEST_USERS.admin.password,
 };
 
+interface ApiEnvelope<T> {
+	success: boolean;
+	data: T;
+}
+
+interface AuthData {
+	accessToken: string;
+}
+
+interface HealthResponse {
+	status: string;
+	uptime: number;
+	timestamp: string;
+	readyState: number;
+}
+
+interface OrderResponse {
+	_id: string;
+	description: string;
+	status: string;
+}
+
+interface ProposalResponse {
+	_id: string;
+	status: string;
+}
+
 // ── Shared auth state ────────────────────────────────────────────────────────
 // Login once and reuse across API sections to avoid rate limiting.
 let SHARED_TOKEN = "";
@@ -42,29 +71,19 @@ let TOKEN_OBTAINED = false;
  * Authenticate with retry on 429 (rate limit).
  * Sleeps up to 30s before giving up.
  */
-async function authenticate(
-	request: Parameters<test["beforeAll"]["arguments"]>[0] extends { request: infer R } ? R : never,
-): Promise<string> {
+async function authenticate(request: APIRequestContext): Promise<string> {
 	if (TOKEN_OBTAINED && SHARED_TOKEN) {
 		return SHARED_TOKEN;
 	}
 
 	for (let attempt = 1; attempt <= 5; attempt++) {
-		const response = await (
-			request as unknown as {
-				post: (
-					url: string,
-					opts: Record<string, unknown>,
-				) => Promise<{ status(): number; json(): Promise<Record<string, unknown>> }>;
-			}
-		).post(`${API_BASE}/auth/login`, {
+		const response = await request.post(`${API_BASE}/auth/login`, {
 			data: { email: MANAGER.email, password: MANAGER.password },
 		});
 
 		if (response.status() === 200) {
-			// biome-ignore lint/suspicious/noExplicitAny: runtime shape
-			const body = (await response.json()) as any;
-			SHARED_TOKEN = body.data?.accessToken ?? "";
+			const body: ApiEnvelope<AuthData> = await response.json();
+			SHARED_TOKEN = body.data.accessToken;
 			TOKEN_OBTAINED = true;
 			return SHARED_TOKEN;
 		}
@@ -91,8 +110,7 @@ test.describe("1. Backend Health", () => {
 		const response = await request.get(`${API_BASE}/health`);
 		expect(response.status()).toBe(200);
 
-		// biome-ignore lint/suspicious/noExplicitAny: runtime response
-		const body = (await response.json()) as any;
+		const body: HealthResponse = await response.json();
 		expect(body.status).toBe("ok");
 		expect(typeof body.uptime).toBe("number");
 		expect(typeof body.timestamp).toBe("string");
@@ -108,15 +126,8 @@ test.describe("2. API Authentication", () => {
 		expect(token).toBeTruthy();
 	});
 
-	test("refreshToken cookie is HttpOnly and secure", async ({ request }) => {
-		const response = await (
-			request as unknown as {
-				post: (
-					url: string,
-					opts: Record<string, unknown>,
-				) => Promise<{ status(): number; headers(): Record<string, string> }>;
-			}
-		).post(`${API_BASE}/auth/login`, {
+	test("refreshToken cookie uses transport-appropriate security flags", async ({ request }) => {
+		const response = await request.post(`${API_BASE}/auth/login`, {
 			data: { email: MANAGER.email, password: MANAGER.password },
 		});
 		// May be 429 if rate limited; accept either
@@ -132,45 +143,37 @@ test.describe("2. API Authentication", () => {
 		expect(setCookieHeader).toContain("refreshToken=");
 		expect(setCookieHeader).toContain("HttpOnly");
 		expect(setCookieHeader).toContain("Path=/");
+		expect(setCookieHeader).toContain("SameSite=Lax");
+
+		if (new URL(API_BASE).protocol === "https:") {
+			expect(setCookieHeader).toContain("Secure");
+		} else {
+			expect(setCookieHeader).not.toContain("Secure");
+		}
 	});
 
 	test("login with invalid credentials returns 401", async ({ request }) => {
-		const response = await (
-			request as unknown as {
-				post: (
-					url: string,
-					opts: Record<string, unknown>,
-				) => Promise<{ status(): number; json(): Promise<Record<string, unknown>> }>;
-			}
-		).post(`${API_BASE}/auth/login`, {
+		const response = await request.post(`${API_BASE}/auth/login`, {
 			data: { email: "invalid@test.co", password: "wrong_password_123" },
 		});
 		// Accept 401, 403, or 429 (rate limited)
 		expect([401, 403, 429]).toContain(response.status());
 		if (response.status() !== 429) {
-			// biome-ignore lint/suspicious/noExplicitAny: runtime
-			const body = (await response.json()) as any;
+			const body: { success: boolean } = await response.json();
 			expect(body.success).toBe(false);
 		}
 	});
 
 	test("GET /api/auth/me requires authentication", async ({ request }) => {
-		const response = await (
-			request as unknown as {
-				get: (url: string, opts: Record<string, unknown>) => Promise<{ status(): number }>;
-			}
-		).get(`${API_BASE}/auth/me`, {
+		const response = await request.get(`${API_BASE}/auth/me`, {
 			headers: { Authorization: "Bearer invalid_token" },
 		});
 		expect([401, 403]).toContain(response.status());
 	});
 });
 
-import fs from "node:fs";
 // ── 3. UI Login & Navigation ────────────────────────────────────────────────
 // Login once in beforeAll and reuse storage state across all module tests.
-import path from "node:path";
-
 const AUTH_STATE_PATH = path.join(process.cwd(), "tests/e2e/fixtures/.auth/deploy-ui-state.json");
 
 test.describe("3. UI Login & Module Navigation", () => {
@@ -267,134 +270,73 @@ test.describe("3. UI Login & Module Navigation", () => {
 // ── 4. CRUD Orders ──────────────────────────────────────────────────────────
 
 test.describe("4. CRUD Orders (Critical Path)", () => {
+	test.describe.configure({ mode: "serial" });
+
 	let accessToken = "";
 	let orderId = "";
 	const testOrderRef = `E2E-Deploy-${Date.now()}`;
 
 	test.beforeAll(async ({ request }) => {
-		try {
-			accessToken = await authenticate(request);
-		} catch (e) {
-			console.log(`  ⚠️ No se pudo autenticar: ${e}`);
-		}
+		accessToken = await authenticate(request);
 	});
 
 	test("4a. Crear orden de trabajo", async ({ request }) => {
-		test.skip(!accessToken, "Saltado: sin token de autenticación");
-
-		const response = await (
-			request as unknown as {
-				post: (
-					url: string,
-					opts: Record<string, unknown>,
-				) => Promise<{ status(): number; json(): Promise<Record<string, unknown>> }>;
-			}
-		).post(`${API_BASE}/orders`, {
+		const response = await request.post(`${API_BASE}/orders`, {
 			data: {
-				title: `Orden E2E Deploy ${testOrderRef}`,
+				type: "maintenance",
 				description: `Orden creada por prueba de deploy readiness - ${testOrderRef}`,
-				orderType: "correctivo",
-				priority: "alta",
+				priority: "high",
+				assetId: `ASSET-${testOrderRef}`,
+				assetName: "Activo de validación E2E",
 				location: "Bogotá, Planta Principal",
-				clientName: "Cermont E2E",
-				projectName: "Deploy Readiness Test",
-				requestedBy: MANAGER.email,
+				materials: [],
 			},
 			headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
 		});
 
-		const status = response.status();
-		// biome-ignore lint/suspicious/noExplicitAny: runtime
-		const body = (await response.json()) as any;
-
-		if (status === 201 || (status === 200 && body?.success)) {
-			orderId = body.data?._id ?? body.data?.id ?? "";
-			expect(orderId).toBeTruthy();
-			test.info().annotations.push({ type: "info", description: `Orden creada: ${orderId}` });
-		} else {
-			test.info().annotations.push({
-				type: "warning",
-				description: `No se pudo crear orden (HTTP ${status}): ${JSON.stringify(body)}`,
-			});
-		}
+		expect(response.status()).toBe(201);
+		const body: ApiEnvelope<OrderResponse> = await response.json();
+		expect(body.success).toBe(true);
+		orderId = body.data._id;
+		expect(orderId).toBeTruthy();
+		expect(body.data.description).toContain(testOrderRef);
 	});
 
 	test("4b. Consultar orden por ID", async ({ request }) => {
-		test.skip(!orderId, "No hay orderId para consultar");
-		const response = await (
-			request as unknown as {
-				get: (
-					url: string,
-					opts: Record<string, unknown>,
-				) => Promise<{ status(): number; json(): Promise<Record<string, unknown>> }>;
-			}
-		).get(`${API_BASE}/orders/${orderId}`, {
+		const response = await request.get(`${API_BASE}/orders/${orderId}`, {
 			headers: { Authorization: `Bearer ${accessToken}` },
 		});
-		expect([200, 404]).toContain(response.status());
-		if (response.status() === 200) {
-			// biome-ignore lint/suspicious/noExplicitAny: runtime
-			const body = (await response.json()) as any;
-			expect(body.data).toBeTruthy();
-		}
+		expect(response.status()).toBe(200);
+		const body: ApiEnvelope<OrderResponse> = await response.json();
+		expect(body.data._id).toBe(orderId);
+		expect(body.data.description).toContain(testOrderRef);
 	});
 
 	test("4c. Editar orden (actualizar descripción)", async ({ request }) => {
-		test.skip(!orderId, "No hay orderId para editar");
-		const response = await (
-			request as unknown as {
-				put: (
-					url: string,
-					opts: Record<string, unknown>,
-				) => Promise<{ status(): number; json(): Promise<Record<string, unknown>> }>;
-			}
-		).put(`${API_BASE}/orders/${orderId}`, {
+		const updatedDescription = `[Actualizada ${testOrderRef}] Descripción modificada por E2E`;
+		const response = await request.put(`${API_BASE}/orders/${orderId}`, {
 			data: {
-				description: `[Actualizada ${new Date().toISOString()}] Descripción modificada por E2E`,
+				description: updatedDescription,
 				observations: "Orden actualizada durante prueba de deploy readiness",
 			},
 			headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
 		});
 
-		if (response.status() === 200) {
-			// biome-ignore lint/suspicious/noExplicitAny: runtime
-			const body = (await response.json()) as any;
-			expect(body.success).toBe(true);
-		} else {
-			test.info().annotations.push({
-				type: "warning",
-				description: `PUT /orders/${orderId} respondió ${response.status()}. La edición podría requerir estado específico.`,
-			});
-		}
+		expect(response.status()).toBe(200);
+		const body: ApiEnvelope<OrderResponse> = await response.json();
+		expect(body.success).toBe(true);
+		expect(body.data.description).toBe(updatedDescription);
 	});
 
 	test("4d. Cancelar orden (soft delete)", async ({ request }) => {
-		test.skip(!orderId, "No hay orderId para cancelar");
-		const response = await (
-			request as unknown as {
-				delete: (
-					url: string,
-					opts: Record<string, unknown>,
-				) => Promise<{ status(): number; json(): Promise<Record<string, unknown>> }>;
-			}
-		).delete(`${API_BASE}/orders/${orderId}`, {
+		const response = await request.delete(`${API_BASE}/orders/${orderId}`, {
 			headers: { Authorization: `Bearer ${accessToken}` },
 		});
 
-		if (response.status() === 200) {
-			// biome-ignore lint/suspicious/noExplicitAny: runtime
-			const body = (await response.json()) as any;
-			expect(body.success).toBe(true);
-			test.info().annotations.push({
-				type: "info",
-				description: `Orden ${orderId} cancelada (soft delete).`,
-			});
-		} else {
-			test.info().annotations.push({
-				type: "warning",
-				description: `DELETE /orders/${orderId} → ${response.status()}. RBAC: solo "gerente" puede cancelar.`,
-			});
-		}
+		expect(response.status()).toBe(200);
+		const body: ApiEnvelope<OrderResponse> = await response.json();
+		expect(body.success).toBe(true);
+		expect(body.data.status).toBe("cancelled");
 	});
 });
 
@@ -404,21 +346,13 @@ test.describe("5. Functional Gap Detection — Cancel / Delete Mechanism", () =>
 	let accessToken = "";
 
 	test.beforeAll(async ({ request }) => {
-		try {
-			accessToken = await authenticate(request);
-		} catch (e) {
-			console.log(`  ⚠️ No se pudo autenticar: ${e}`);
-		}
+		accessToken = await authenticate(request);
 	});
 
 	test("5a. Órdenes — DELETE devuelve 200/404 (soft delete implementado)", async ({ request }) => {
 		test.skip(!accessToken, "Saltado: sin token de autenticación");
 
-		const response = await (
-			request as unknown as {
-				delete: (url: string, opts: Record<string, unknown>) => Promise<{ status(): number }>;
-			}
-		).delete(`${API_BASE}/orders/000000000000000000000000`, {
+		const response = await request.delete(`${API_BASE}/orders/000000000000000000000000`, {
 			headers: { Authorization: `Bearer ${accessToken}` },
 		});
 		expect([200, 404]).toContain(response.status());
@@ -432,88 +366,44 @@ test.describe("5. Functional Gap Detection — Cancel / Delete Mechanism", () =>
 		});
 	});
 
-	test("5b. PROPUESTAS — Verificar mecanismo de anulación/eliminación", async ({ request }) => {
-		test.skip(!accessToken, "Saltado: sin token de autenticación");
-
-		// Crear propuesta
-		const createResponse = await (
-			request as unknown as {
-				post: (
-					url: string,
-					opts: Record<string, unknown>,
-				) => Promise<{ status(): number; json(): Promise<Record<string, unknown>> }>;
-			}
-		).post(`${API_BASE}/proposals`, {
+	test("5b. Propuestas — crear y rechazar mediante endpoint de estado", async ({ request }) => {
+		const proposalRef = `E2E-Proposal-${Date.now()}`;
+		const createResponse = await request.post(`${API_BASE}/proposals`, {
 			data: {
-				title: `Propuesta E2E Gap Test ${Date.now()}`,
+				title: `Propuesta ${proposalRef}`,
 				clientName: "Cliente E2E Deploy Test",
-				serviceType: "Mantenimiento",
-				description: "Propuesta creada para verificar mecanismo de anulación.",
-				estimatedValue: 1_500_000,
+				items: [
+					{
+						description: "Servicio de mantenimiento para validación E2E",
+						unit: "servicio",
+						quantity: 1,
+						unitCost: 1_500_000,
+					},
+				],
 				validUntil: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+				notes: "Propuesta creada para validar persistencia y rechazo administrativo.",
 			},
 			headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
 		});
-		const createStatus = createResponse.status();
-		// biome-ignore lint/suspicious/noExplicitAny: runtime
-		const createBody = (await createResponse.json()) as any;
-		const proposalId = createBody.data?._id ?? createBody.data?.id ?? "";
 
-		if (createStatus === 201 || (createStatus === 200 && createBody.success)) {
-			test
-				.info()
-				.annotations.push({ type: "info", description: `Propuesta creada: ${proposalId}.` });
+		expect(createResponse.status()).toBe(201);
+		const createBody: ApiEnvelope<ProposalResponse> = await createResponse.json();
+		expect(createBody.success).toBe(true);
+		const proposalId = createBody.data._id;
+		expect(proposalId).toBeTruthy();
 
-			// Intentar DELETE
-			const deleteResponse = await (
-				request as unknown as {
-					delete: (url: string, opts: Record<string, unknown>) => Promise<{ status(): number }>;
-				}
-			).delete(`${API_BASE}/proposals/${proposalId}`, {
-				headers: { Authorization: `Bearer ${accessToken}` },
-			});
+		const getResponse = await request.get(`${API_BASE}/proposals/${proposalId}`, {
+			headers: { Authorization: `Bearer ${accessToken}` },
+		});
+		expect(getResponse.status()).toBe(200);
 
-			if (deleteResponse.status() === 200) {
-				test
-					.info()
-					.annotations.push({ type: "info", description: "✅ Propuestas: DELETE implementado." });
-				return;
-			}
-
-			// Intentar PATCH reject como alternativa
-			const rejectResponse = await (
-				request as unknown as {
-					patch: (url: string, opts: Record<string, unknown>) => Promise<{ status(): number }>;
-				}
-			).patch(`${API_BASE}/proposals/${proposalId}/reject`, {
-				data: { reason: "Anulación E2E" },
-				headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
-			});
-
-			if (rejectResponse.status() === 200) {
-				test.info().annotations.push({
-					type: "info",
-					description: "✅ PATCH /proposals/:id/reject funciona.",
-				});
-			} else {
-				test.info().annotations.push({
-					type: "critical",
-					description:
-						"⚠️ BRECHA FUNCIONAL [Propuestas]: No hay DELETE ni reject funcional. " +
-						"Implementar soft delete (deletedAt/deletedBy/deleteReason) o estado 'cancelled' con auditoría.",
-				});
-			}
-		} else if (createStatus === 403) {
-			test.info().annotations.push({
-				type: "warning",
-				description: `No se pudo crear propuesta (403). El usuario gerente quizás no tiene permiso.`,
-			});
-		} else {
-			test.info().annotations.push({
-				type: "warning",
-				description: `No se pudo crear propuesta (HTTP ${createStatus}): ${JSON.stringify(createBody)}`,
-			});
-		}
+		const rejectResponse = await request.patch(`${API_BASE}/proposals/${proposalId}/status`, {
+			data: { status: "rejected" },
+			headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+		});
+		expect(rejectResponse.status()).toBe(200);
+		const rejectBody: ApiEnvelope<ProposalResponse> = await rejectResponse.json();
+		expect(rejectBody.data.status).toBe("rejected");
 	});
 
 	test("5c. [INFO] Resumen de mecanismos de anulación por módulo", async () => {
@@ -523,8 +413,8 @@ test.describe("5. Functional Gap Detection — Cancel / Delete Mechanism", () =>
 			"═══════════════════════════════════════════════════════════",
 			"  Solicitudes   → Editar (borrador), Anular (con motivo)",
 			"  Visitas       → Editar/Anular con motivo",
-			"  Propuestas    → ❌ GAP: Sin DELETE ni cancel endpoint",
-			"  Órdenes       → ✅ DELETE implementado (soft delete)",
+			"  Propuestas    → Rechazar mediante PATCH /proposals/:id/status",
+			"  Órdenes       → DELETE implementado (soft delete)",
 			"  Planeación    → Editar hasta antes de ejecución",
 			"  Ejecución     → Cerrar/corregir con historial",
 			"  Evidencias    → Eliminar si no asociadas, marcar reemplazo",

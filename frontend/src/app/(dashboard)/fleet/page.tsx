@@ -40,7 +40,7 @@ const VEHICLE_TYPES = [
 ] as const;
 
 const inputClasses =
-	"rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
+	"rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
 export default function FleetPage() {
 	const [page, setPage] = useState(1);
@@ -120,7 +120,7 @@ export default function FleetPage() {
 			)}
 
 			{!isLoading && !error && vehicles.length === 0 && (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-16 text-center">
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-16 text-center">
 					<Truck className="mx-auto mb-3 size-10 text-[var(--text-tertiary)]" aria-hidden="true" />
 					<p className="text-[var(--text-secondary)]">Aún no hay vehículos registrados.</p>
 				</div>
@@ -131,7 +131,7 @@ export default function FleetPage() {
 					{vehicles.map((vehicle) => (
 						<li
 							key={vehicle._id}
-							className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4"
+							className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4"
 						>
 							<div className="min-w-0">
 								<div className="flex items-center gap-2">
@@ -170,7 +170,7 @@ export default function FleetPage() {
 						type="button"
 						disabled={page <= 1}
 						onClick={() => setPage((p) => Math.max(1, p - 1))}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Anterior
 					</button>
@@ -181,7 +181,7 @@ export default function FleetPage() {
 						type="button"
 						disabled={page >= pagination.totalPages}
 						onClick={() => setPage((p) => p + 1)}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Siguiente
 					</button>
@@ -271,7 +271,7 @@ function NewVehicleForm({ onClose }: { onClose: () => void }) {
 	}
 
 	return (
-		<fieldset className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-4 border-0 p-0">
+		<fieldset className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-4 border-0 p-0">
 			<legend className="sr-only">Nuevo vehículo</legend>
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Placa
@@ -362,7 +362,7 @@ function NewVehicleForm({ onClose }: { onClose: () => void }) {
 				<button
 					type="button"
 					onClick={onClose}
-					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar
 				</button>

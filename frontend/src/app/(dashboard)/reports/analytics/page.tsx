@@ -54,17 +54,14 @@ function AnalyticsPage() {
 		<section className="mx-auto max-w-6xl space-y-6 px-4 py-8" aria-labelledby="analytics-title">
 			<header>
 				<div className="flex items-center gap-3">
-					<div className="flex size-11 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+					<div className="flex size-11 items-center justify-center rounded-xl bg-info-bg text-brand-green dark:bg-blue-900/30 dark:text-brand-green">
 						<BarChart3 className="size-5" aria-hidden="true" />
 					</div>
 					<div>
-						<h1
-							id="analytics-title"
-							className="text-xl font-semibold text-zinc-900 dark:text-white"
-						>
+						<h1 id="analytics-title" className="text-xl font-semibold text-ink dark:text-white">
 							Analítica y Reportes
 						</h1>
-						<p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+						<p className="mt-0.5 text-sm text-steel dark:text-stone">
 							Genera reportes personalizados con filtros y exportación
 						</p>
 					</div>
@@ -84,20 +81,20 @@ function AnalyticsPage() {
 					{Object.entries(kpi.steps).map(([key, value]) => (
 						<div
 							key={key}
-							className="rounded-xl border border-zinc-200 bg-white p-3 text-center dark:border-zinc-700 dark:bg-zinc-900"
+							className="rounded-xl border border-hairline bg-canvas p-3 text-center dark:border-zinc-700 dark:bg-canvas"
 						>
-							<p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+							<p className="text-xs font-medium uppercase tracking-wide text-steel dark:text-stone">
 								{key.replace(/([A-Z])/g, " $1").trim()}
 							</p>
-							<p className="mt-1 text-xl font-bold text-[#2154A6] dark:text-blue-400">{value}</p>
+							<p className="mt-1 text-xl font-bold text-[#2154A6] dark:text-brand-green">{value}</p>
 						</div>
 					))}
 				</div>
 			)}
 
 			{/* Filters */}
-			<div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900">
-				<h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
+			<div className="rounded-xl border border-hairline bg-canvas p-5 dark:border-zinc-700 dark:bg-canvas">
+				<h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink dark:text-white">
 					<Search className="size-4" aria-hidden="true" />
 					Generar Reporte
 				</h2>
@@ -183,14 +180,14 @@ function AnalyticsPage() {
 			{/* Results */}
 			{reportMutation.isPending && (
 				<div className="flex justify-center py-16">
-					<Loader2 className="size-8 animate-spin text-zinc-400" />
+					<Loader2 className="size-8 animate-spin text-stone" />
 				</div>
 			)}
 
 			{reportMutation.data && !reportMutation.isPending && (
-				<div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
-					<div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/50">
-						<p className="text-xs text-zinc-500 dark:text-zinc-400">
+				<div className="overflow-hidden rounded-xl border border-hairline dark:border-zinc-700">
+					<div className="flex items-center justify-between border-b border-hairline bg-surface px-4 py-3 dark:border-zinc-700 dark:bg-surface/50">
+						<p className="text-xs text-steel dark:text-stone">
 							{reportMutation.data.total}{" "}
 							{reportMutation.data.total === 1 ? "resultado" : "resultados"}
 						</p>
@@ -208,11 +205,11 @@ function AnalyticsPage() {
 					<div className="overflow-x-auto">
 						<table className="w-full text-left text-sm">
 							<thead>
-								<tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800/30">
+								<tr className="border-b border-hairline bg-surface dark:border-zinc-700 dark:bg-surface/30">
 									{reportMutation.data.headers.map((header) => (
 										<th
 											key={header}
-											className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-wider text-zinc-500"
+											className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-wider text-steel"
 										>
 											{header}
 										</th>
@@ -224,7 +221,7 @@ function AnalyticsPage() {
 									<tr>
 										<td
 											colSpan={reportMutation.data.headers.length}
-											className="px-4 py-12 text-center text-sm text-zinc-400"
+											className="px-4 py-12 text-center text-sm text-stone"
 										>
 											No se encontraron resultados con los filtros aplicados
 										</td>
@@ -233,12 +230,12 @@ function AnalyticsPage() {
 									reportMutation.data.rows.map((row) => (
 										<tr
 											key={String(row.ID)}
-											className="border-b border-zinc-100 transition hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/30"
+											className="border-b border-zinc-100 transition hover:bg-surface dark:border-zinc-800 dark:hover:bg-zinc-800/30"
 										>
 											{reportMutation.data.headers.map((header) => (
 												<td
 													key={header}
-													className="whitespace-nowrap px-4 py-2.5 text-zinc-700 dark:text-zinc-300"
+													className="whitespace-nowrap px-4 py-2.5 text-charcoal dark:text-muted-text"
 												>
 													{String(row[header] ?? "—")}
 												</td>

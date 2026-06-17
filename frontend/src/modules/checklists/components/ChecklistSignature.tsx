@@ -34,8 +34,8 @@ export function ChecklistSignature({ onChange, disabled = false }: ChecklistSign
 			context.lineCap = "round";
 			context.lineJoin = "round";
 			context.lineWidth = 2.5;
-			context.strokeStyle = "#0f172a";
-			context.fillStyle = "#ffffff";
+			context.strokeStyle = "#1A1A1A";
+			context.fillStyle = "#F5F5F5";
 			context.fillRect(0, 0, rect.width, rect.height);
 		};
 
@@ -124,17 +124,17 @@ export function ChecklistSignature({ onChange, disabled = false }: ChecklistSign
 		context.setTransform(1, 0, 0, 1, 0, 0);
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.restore();
-		context.fillStyle = "#ffffff";
+		context.fillStyle = "#F5F5F5";
 		context.fillRect(0, 0, rect.width, rect.height);
 		onChange(null);
 	};
 
 	return (
-		<section className="space-y-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
+		<section className="space-y-3 rounded-2xl border border-hairline bg-surface p-4 dark:border-zinc-800 dark:bg-canvas/60">
 			<div className="flex items-start justify-between gap-3">
 				<div>
-					<h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Firma digital</h3>
-					<p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+					<h3 className="text-sm font-semibold text-ink dark:text-white">Firma digital</h3>
+					<p className="mt-1 text-xs text-steel dark:text-stone">
 						Dibuja con el dedo, stylus o mouse. La firma se envia al firmar el checklist.
 					</p>
 				</div>
@@ -143,14 +143,14 @@ export function ChecklistSignature({ onChange, disabled = false }: ChecklistSign
 					type="button"
 					onClick={handleClear}
 					disabled={disabled}
-					className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:text-white"
+					className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-canvas px-3 py-1.5 text-xs font-medium text-steel transition hover:border-hairline hover:text-ink disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-muted-text dark:hover:border-zinc-600 dark:hover:text-white"
 				>
 					<Trash2 className="size-3.5" aria-hidden="true" />
 					Limpiar
 				</button>
 			</div>
 
-			<div className="overflow-hidden rounded-2xl border border-dashed border-zinc-300 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-950">
+			<div className="overflow-hidden rounded-2xl border border-dashed border-hairline bg-canvas shadow-sm dark:border-zinc-700 dark:bg-zinc-950">
 				<canvas
 					ref={canvasRef}
 					className={
@@ -166,7 +166,7 @@ export function ChecklistSignature({ onChange, disabled = false }: ChecklistSign
 				/>
 			</div>
 
-			<div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+			<div className="flex items-center gap-2 text-xs text-steel dark:text-stone">
 				<RotateCcw className="size-3.5" aria-hidden="true" />
 				Si la firma no queda visible, repite el trazo con un movimiento mas lento.
 			</div>

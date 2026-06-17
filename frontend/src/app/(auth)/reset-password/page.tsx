@@ -7,9 +7,9 @@ import { ResetPasswordContent } from "@/modules/auth/ui/ResetPasswordContent";
 function ResetPasswordFallback() {
 	return (
 		<div className="flex min-h-75 flex-col items-center justify-center gap-4" aria-live="polite">
-			<Loader2 className="size-8 animate-spin text-blue-400" aria-hidden="true" />
+			<Loader2 className="size-8 animate-spin text-brand-green" aria-hidden="true" />
 			<span className="sr-only">Cargando restablecimiento de contraseña…</span>
-			<p className="font-medium text-zinc-400">Cargando…</p>
+			<p className="font-medium text-stone">Cargando…</p>
 		</div>
 	);
 }

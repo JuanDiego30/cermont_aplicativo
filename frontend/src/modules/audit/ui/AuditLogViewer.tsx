@@ -64,7 +64,7 @@ function DetailBlock({ label, value }: { label: string; value: AuditJsonValue })
 			<p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
 				{label}
 			</p>
-			<pre className="max-h-64 overflow-auto rounded-[var(--radius-lg)] bg-zinc-950 p-3 text-xs leading-5 text-zinc-100">
+			<pre className="max-h-64 overflow-auto rounded-[var(--radius-lg)] bg-zinc-950 p-3 text-xs leading-5 text-muted-text">
 				{JSON.stringify(value)}
 			</pre>
 		</div>
@@ -203,7 +203,7 @@ export function AuditLogViewer() {
 				{!isOnline ? (
 					<BadgePill
 						leadingIcon={<WifiOff className="size-3.5" />}
-						className="bg-amber-50 text-amber-800 ring-amber-200"
+						className="bg-warning-bg text-brand-warn ring-amber-200"
 					>
 						Mostrando caché disponible
 					</BadgePill>
@@ -225,7 +225,7 @@ export function AuditLogViewer() {
 						<select
 							value={draft.action}
 							onChange={(event) => updateDraft("action", event.target.value)}
-							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)]"
+							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)]"
 						>
 							<option value="">Todas</option>
 							{ACTION_OPTIONS.map((action) => (
@@ -242,7 +242,7 @@ export function AuditLogViewer() {
 							onChange={(event) => updateDraft("entity", event.target.value)}
 							placeholder="ServiceCase, Order..."
 							maxLength={100}
-							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)]"
+							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)]"
 						/>
 					</label>
 					<label className="space-y-1 text-xs font-medium text-[var(--text-secondary)]">
@@ -251,7 +251,7 @@ export function AuditLogViewer() {
 							type="date"
 							value={draft.from}
 							onChange={(event) => updateDraft("from", event.target.value)}
-							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)]"
+							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)]"
 						/>
 					</label>
 					<label className="space-y-1 text-xs font-medium text-[var(--text-secondary)]">
@@ -261,7 +261,7 @@ export function AuditLogViewer() {
 							{...(draft.from ? { min: draft.from } : {})}
 							value={draft.to}
 							onChange={(event) => updateDraft("to", event.target.value)}
-							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)]"
+							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)]"
 						/>
 					</label>
 					<label className="space-y-1 text-xs font-medium text-[var(--text-secondary)]">
@@ -271,7 +271,7 @@ export function AuditLogViewer() {
 							onChange={(event) => updateDraft("userId", event.target.value)}
 							pattern={OBJECT_ID_PATTERN}
 							title="Debe ser un ObjectId de 24 caracteres hexadecimales"
-							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 font-mono text-sm text-[var(--text-primary)]"
+							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 font-mono text-sm text-[var(--text-primary)]"
 						/>
 					</label>
 					<label className="space-y-1 text-xs font-medium text-[var(--text-secondary)]">
@@ -281,7 +281,7 @@ export function AuditLogViewer() {
 							onChange={(event) => updateDraft("entityId", event.target.value)}
 							pattern={OBJECT_ID_PATTERN}
 							title="Debe ser un ObjectId de 24 caracteres hexadecimales"
-							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 font-mono text-sm text-[var(--text-primary)]"
+							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 font-mono text-sm text-[var(--text-primary)]"
 						/>
 					</label>
 					<label className="space-y-1 text-xs font-medium text-[var(--text-secondary)] md:col-span-2">
@@ -291,7 +291,7 @@ export function AuditLogViewer() {
 							onChange={(event) => updateDraft("requestId", event.target.value)}
 							maxLength={128}
 							pattern="[A-Za-z0-9][A-Za-z0-9._:-]*"
-							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 font-mono text-sm text-[var(--text-primary)]"
+							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 font-mono text-sm text-[var(--text-primary)]"
 						/>
 					</label>
 				</div>

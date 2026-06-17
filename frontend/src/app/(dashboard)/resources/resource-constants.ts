@@ -43,14 +43,13 @@ export const UNIT_LABELS: Record<string, string> = {
 
 export const STATUS_STYLES: Record<string, string> = {
 	available:
-		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[color:var(--color-success)]/15",
-	assigned: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[color:var(--color-info)]/15",
+		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[var(--color-success)]/15",
+	assigned: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[var(--color-info)]/15",
 	maintenance:
-		"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[color:var(--color-warning)]/15",
-	expired:
-		"bg-[var(--color-danger-bg)] text-[var(--color-danger)] ring-[color:var(--color-danger)]/15",
+		"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[var(--color-warning)]/15",
+	expired: "bg-[var(--color-danger-bg)] text-[var(--color-danger)] ring-[var(--color-danger)]/15",
 	inactive:
-		"bg-[var(--surface-secondary)] text-[var(--text-tertiary)] ring-[var(--border-default)]/30",
+		"bg-[var(--surface-secondary)] text-[var(--text-tertiary)] ring-[var(--border-subtle)]/30",
 };
 
 export const STATUS_LABELS: Record<string, string> = {

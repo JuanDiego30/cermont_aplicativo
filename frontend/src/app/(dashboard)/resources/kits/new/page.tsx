@@ -29,7 +29,7 @@ export default function NewKitPage() {
 	};
 
 	return (
-		<section className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
+		<section className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
 			<Loader2 className="mr-2 size-6 animate-spin" aria-hidden="true" />
 			<span className="text-sm">Preparando formulario…</span>
 

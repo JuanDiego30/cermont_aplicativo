@@ -97,7 +97,7 @@ export async function updateInspectionStatus(
 	}
 
 	const inspection = await Inspection.findByIdAndUpdate(id, updateData, {
-		new: true,
+		returnDocument: "after",
 		runValidators: true,
 	}).lean();
 	if (!inspection) {

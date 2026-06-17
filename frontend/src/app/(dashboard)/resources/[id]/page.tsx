@@ -47,7 +47,7 @@ export default function ResourceDetailPage() {
 	const statusKey = resource?.status ?? "available";
 	const statusLabel = STATUS_LABELS[statusKey] ?? statusKey;
 	const unitLabel = resource?.unit ? (UNIT_LABELS[resource.unit] ?? resource.unit) : "";
-	const statusStyle = STATUS_STYLES[statusKey] ?? "bg-zinc-100 text-zinc-600 ring-zinc-300";
+	const statusStyle = STATUS_STYLES[statusKey] ?? "bg-zinc-100 text-steel ring-zinc-300";
 
 	// Loading state
 	if (isLoading) {

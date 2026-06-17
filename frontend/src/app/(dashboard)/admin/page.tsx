@@ -6,20 +6,18 @@ import { getUsers } from "@/modules/users/queries";
 import type { User } from "@/modules/users/types";
 
 const ROLE_COLORS: Record<string, string> = {
-	gerente:
-		"bg-[var(--color-purple-bg)] text-[var(--color-purple)] ring-[color:var(--color-purple)]/15",
-	residente: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[color:var(--color-info)]/15",
-	hes: "bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[color:var(--color-warning)]/15",
-	supervisor:
-		"bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[color:var(--color-info)]/15",
+	gerente: "bg-[var(--color-purple-bg)] text-[var(--color-purple)] ring-[var(--color-purple)]/15",
+	residente: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[var(--color-info)]/15",
+	hes: "bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[var(--color-warning)]/15",
+	supervisor: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[var(--color-info)]/15",
 	operador:
-		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[color:var(--color-success)]/15",
+		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[var(--color-success)]/15",
 	tecnico:
-		"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[color:var(--border-default)]/20",
+		"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-subtle)]/20",
 	administrativo:
-		"bg-[var(--color-brand-blue-bg)] text-[var(--color-brand-blue)] ring-[color:var(--color-brand-blue)]/15",
+		"bg-[var(--color-brand-blue-bg)] text-[var(--color-brand-blue)] ring-[var(--color-brand-blue)]/15",
 	cliente:
-		"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[color:var(--border-default)]/20",
+		"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-subtle)]/20",
 };
 
 export default async function AdminPage() {
@@ -50,8 +48,8 @@ export default async function AdminPage() {
 
 	return (
 		<section className="space-y-6" aria-labelledby="admin-page-title">
-			<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-				<div className="border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
+			<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+				<div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
 					<div className="flex items-center gap-3">
 						<div className="flex size-11 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-brand-blue-bg)] text-[var(--color-brand-blue)]">
 							<ShieldCheck aria-hidden="true" className="size-5" />
@@ -75,7 +73,7 @@ export default async function AdminPage() {
 						{summaryCards.map((card) => (
 							<li
 								key={card.label}
-								className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/50 p-4"
+								className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/50 p-4"
 							>
 								<p className="text-sm font-medium text-[var(--text-secondary)]">{card.label}</p>
 								<p className={`mt-2 text-3xl font-semibold ${card.tone}`}>{card.value}</p>
@@ -94,7 +92,7 @@ export default async function AdminPage() {
 					{summaryCards.map((card) => (
 						<article
 							key={card.label}
-							className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]"
+							className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]"
 						>
 							<p className="text-sm font-medium text-[var(--text-secondary)]">{card.label}</p>
 							<p className={`mt-2 text-3xl font-semibold ${card.tone}`}>{card.value}</p>
@@ -104,7 +102,7 @@ export default async function AdminPage() {
 			</section>
 
 			<section
-				className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+				className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
 				aria-labelledby="users-by-role-title"
 			>
 				<header className="mb-4 flex items-center justify-between gap-4">
@@ -117,7 +115,7 @@ export default async function AdminPage() {
 
 					<Link
 						href="/admin/users"
-						className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-1.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-primary)]"
+						className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-primary)]"
 					>
 						<Users aria-hidden="true" className="size-4" />
 						Gestionar usuarios
@@ -128,10 +126,10 @@ export default async function AdminPage() {
 					{usersByRole.map((roleGroup) => (
 						<li
 							key={roleGroup.role}
-							className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/60 px-4 py-3"
+							className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/60 px-4 py-3"
 						>
 							<span
-								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${ROLE_COLORS[roleGroup.role] ?? "bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[color:var(--border-default)]/20"}`}
+								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${ROLE_COLORS[roleGroup.role] ?? "bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-subtle)]/20"}`}
 							>
 								{ROLE_LABELS[roleGroup.role as keyof typeof ROLE_LABELS] ?? roleGroup.role}
 							</span>
@@ -153,7 +151,7 @@ export default async function AdminPage() {
 					<li>
 						<Link
 							href="/admin/users"
-							className="flex items-center gap-4 rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)] transition-transform hover:-translate-y-0.5 hover:shadow-[var(--shadow-3)]"
+							className="flex items-center gap-4 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)] transition-transform hover:-translate-y-0.5 hover:shadow-[var(--shadow-3)]"
 						>
 							<span
 								aria-hidden="true"

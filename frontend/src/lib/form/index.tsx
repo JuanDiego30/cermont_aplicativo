@@ -96,12 +96,12 @@ interface DraftRestoreBannerProps {
 
 export function DraftRestoreBanner({ onRestore, onDiscard }: DraftRestoreBannerProps) {
 	return (
-		<section className="flex flex-col gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sky-900 dark:border-sky-900/40 dark:bg-sky-900/10 dark:text-sky-100 sm:flex-row sm:items-center sm:justify-between">
+		<section className="flex flex-col gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-brand-green dark:border-sky-900/40 dark:bg-sky-900/10 dark:text-brand-green sm:flex-row sm:items-center sm:justify-between">
 			<div className="flex items-start gap-3">
 				<RotateCcw className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 				<div>
 					<p className="text-sm font-semibold">Se detectó un borrador guardado</p>
-					<p className="text-xs text-sky-900/75 dark:text-sky-100/75">
+					<p className="text-xs text-brand-green dark:text-brand-green">
 						Puedes restaurarlo o descartarlo para continuar con la captura actual.
 					</p>
 				</div>

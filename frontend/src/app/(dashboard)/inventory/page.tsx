@@ -33,7 +33,7 @@ const MOVEMENT_TYPES = [
 ] as const;
 
 const inputClasses =
-	"rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
+	"rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
 interface InventoryViewState {
 	category: string;
@@ -126,7 +126,7 @@ export default function InventoryPage() {
 						className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
 							category === cat.value
 								? "bg-[var(--color-brand-blue)] text-white"
-								: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+								: "border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 						}`}
 					>
 						{cat.label}
@@ -137,7 +137,7 @@ export default function InventoryPage() {
 						type="checkbox"
 						checked={onlyLowStock}
 						onChange={(e) => dispatchView({ type: "SET_LOW_STOCK", checked: e.target.checked })}
-						className="size-4 rounded border-[var(--border-default)]"
+						className="size-4 rounded border-[var(--border-subtle)]"
 					/>
 					Solo stock bajo
 				</label>
@@ -174,7 +174,7 @@ export default function InventoryPage() {
 			)}
 
 			{!isLoading && !error && items.length === 0 && (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-16 text-center">
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-16 text-center">
 					<Package
 						className="mx-auto mb-3 size-10 text-[var(--text-tertiary)]"
 						aria-hidden="true"
@@ -194,7 +194,7 @@ export default function InventoryPage() {
 						return (
 							<li
 								key={item._id}
-								className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4"
+								className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4"
 							>
 								<div className="min-w-0">
 									<div className="flex items-center gap-2">
@@ -219,7 +219,7 @@ export default function InventoryPage() {
 								<button
 									type="button"
 									onClick={() => dispatchView({ type: "OPEN_MOVEMENT", item })}
-									className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+									className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 								>
 									<ArrowDownUp className="size-3.5" aria-hidden="true" />
 									Movimiento
@@ -236,7 +236,7 @@ export default function InventoryPage() {
 						type="button"
 						disabled={page <= 1}
 						onClick={() => dispatchView({ type: "SET_PAGE", page: Math.max(1, page - 1) })}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Anterior
 					</button>
@@ -247,7 +247,7 @@ export default function InventoryPage() {
 						type="button"
 						disabled={page >= pagination.totalPages}
 						onClick={() => dispatchView({ type: "SET_PAGE", page: page + 1 })}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Siguiente
 					</button>
@@ -325,7 +325,7 @@ function NewItemForm({ onClose }: { onClose: () => void }) {
 	return (
 		<form
 			aria-label="Nuevo item de inventario"
-			className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-3"
+			className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-3"
 			action="#"
 			onSubmit={() => {
 				void handleCreateItem();
@@ -407,7 +407,7 @@ function NewItemForm({ onClose }: { onClose: () => void }) {
 				<button
 					type="button"
 					onClick={onClose}
-					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar
 				</button>
@@ -504,7 +504,7 @@ function MovementForm({ item, onClose }: { item: InventoryItem; onClose: () => v
 				<button
 					type="button"
 					onClick={onClose}
-					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar
 				</button>

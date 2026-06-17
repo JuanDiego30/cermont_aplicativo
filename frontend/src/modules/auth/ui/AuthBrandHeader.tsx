@@ -12,7 +12,7 @@ export function AuthBrandHeader({ screenReaderTitle = "Cermont" }: AuthBrandHead
 		<header className="mb-8">
 			<Link
 				href="/login"
-				className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-zinc-400 transition hover:text-primary-300"
+				className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-stone transition hover:text-primary-300"
 			>
 				<ArrowLeft className="size-4" aria-hidden="true" />
 				Volver
@@ -23,7 +23,7 @@ export function AuthBrandHeader({ screenReaderTitle = "Cermont" }: AuthBrandHead
 				</div>
 				<div>
 					<h1 className="text-xl font-semibold text-white">{screenReaderTitle}</h1>
-					<p className="text-sm text-zinc-400">Cermont</p>
+					<p className="text-sm text-stone">Cermont</p>
 				</div>
 			</div>
 		</header>

@@ -85,13 +85,13 @@ export function PlanningPacketBasicInfo({
 
 			{/* Kit suggestion banner */}
 			{(autoSuggestedKey || kitSuggestionKey) && (
-				<div className="rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50 p-4">
+				<div className="rounded-[var(--radius-lg)] border border-amber-200 bg-warning-bg p-4">
 					<div className="flex items-start justify-between gap-3">
 						<div>
-							<p className="text-sm font-semibold text-amber-900">
+							<p className="text-sm font-semibold text-brand-warn">
 								Kit típico sugerido para: {inheritedWorkTypeName}
 							</p>
-							<p className="mt-0.5 text-xs text-amber-700">
+							<p className="mt-0.5 text-xs text-brand-warn">
 								{KIT_SUGGESTIONS[autoSuggestedKey || kitSuggestionKey]?.label}
 							</p>
 						</div>
@@ -108,7 +108,7 @@ export function PlanningPacketBasicInfo({
 			)}
 
 			{/* General data */}
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5">
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5">
 				<h2 className="mb-4 text-sm font-semibold text-[var(--text-primary)]">Datos generales</h2>
 				<div className="grid gap-4 md:grid-cols-2">
 					<FormField label="Responsable de inspección" required htmlFor="responsible-name">

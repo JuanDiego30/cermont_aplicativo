@@ -112,7 +112,7 @@ export function StepRequirementPanel({
 	const canUserAdvance = hasRoleLevel(4);
 
 	return (
-		<div className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card">
+		<div className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card">
 			<div className="flex items-center justify-between">
 				<div>
 					<h3 className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]">
@@ -161,7 +161,7 @@ export function StepRequirementPanel({
 							{blockers.map((blocker) => (
 								<li
 									key={`${blocker.code}-${blocker.field || blocker.artifactType}`}
-									className="rounded-md border border-[var(--color-warning)]/30 bg-white/60 p-3 text-xs"
+									className="rounded-md border border-[var(--color-warning)]/30 bg-canvas/60 p-3 text-xs"
 								>
 									<p className="font-semibold text-[var(--text-primary)]">{blocker.message}</p>
 									<p className="mt-1 text-[11px] text-[var(--text-secondary)]">

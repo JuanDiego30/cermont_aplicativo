@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
 vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:3000/api/proxy");

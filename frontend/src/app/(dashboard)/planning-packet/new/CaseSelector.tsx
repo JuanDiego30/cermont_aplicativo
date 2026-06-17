@@ -42,7 +42,7 @@ export function CaseSelector({ isCasesLoading, casesData, onSelectCase }: CaseSe
 			) : (
 				<div className="grid gap-3">
 					{(casesData?.items ?? []).length === 0 ? (
-						<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-8 text-center">
+						<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-8 text-center">
 							<Search className="mx-auto size-8 text-[var(--text-muted)]" />
 							<p className="mt-3 text-sm text-[var(--text-secondary)]">
 								No hay casos disponibles con PO aprobada.
@@ -55,7 +55,7 @@ export function CaseSelector({ isCasesLoading, casesData, onSelectCase }: CaseSe
 									key={c._id}
 									type="button"
 									onClick={() => onSelectCase(c._id)}
-									className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 text-left transition-all hover:border-[var(--color-brand)] hover:shadow-sm"
+									className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 text-left transition-all hover:border-[var(--color-brand)] hover:shadow-sm"
 								>
 									<div>
 										<p className="font-semibold text-[var(--text-primary)]">{c.clientName}</p>

@@ -53,15 +53,15 @@ export function EditOrderForm({ orderId }: EditOrderFormProps) {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-64 items-center justify-center rounded-3xl border border-zinc-200 dark:border-zinc-800">
-				<span className="text-zinc-500">Cargando datos de la orden…</span>
+			<div className="flex h-64 items-center justify-center rounded-3xl border border-[var(--border-medium)] border-800">
+				<span className="text-steel">Cargando datos de la orden…</span>
 			</div>
 		);
 	}
 
 	if (fetchError || !order) {
 		return (
-			<div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+			<div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error">
 				{fetchError instanceof Error ? fetchError.message : "No se pudo cargar la orden"}
 			</div>
 		);

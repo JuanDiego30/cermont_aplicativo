@@ -8,10 +8,10 @@
  *
  * Uso:
  *   npm run seed          (desde backend, con tsx)
- *   npm run seed:prod     (con node + dist compilado)
  *   npm run db:seed       (desde la raíz del monorepo)
  *
- * Contraseña para TODOS los usuarios: definida por SEED_DEFAULT_PASSWORD
+ * Cuenta principal: gerencia@cermont.co / Cermont2026! (fija, no depende de env vars)
+ * Demás cuentas:     {email} / SEED_DEFAULT_PASSWORD (o Cermont2026! si no se configura)
  */
 import dotenv from "dotenv";
 
@@ -29,12 +29,18 @@ const env = validateEnv();
 if (!env.MONGODB_URI) {
 	throw new Error("MONGODB_URI is required to run the seed script");
 }
-if (!env.SEED_DEFAULT_PASSWORD) {
-	throw new Error("SEED_DEFAULT_PASSWORD is required to run the seed script");
-}
 
 const MONGODB_URI = env.MONGODB_URI;
-const DEFAULT_PASSWORD = env.SEED_DEFAULT_PASSWORD;
+
+// Contraseña fija para gerencia — no depende de SEED_DEFAULT_PASSWORD
+const GERENCIA_PASSWORD = "Cermont2026!";
+const DEFAULT_PASSWORD = env.SEED_DEFAULT_PASSWORD ?? GERENCIA_PASSWORD;
+
+if (!env.SEED_DEFAULT_PASSWORD) {
+	console.warn(
+		"⚠️  SEED_DEFAULT_PASSWORD no configurada en backend/.env. Usando 'Cermont2026!' por defecto.",
+	);
+}
 
 // ─── Seed data ─────────────────────────────────────────────────────────────────
 
@@ -48,77 +54,148 @@ interface SeedUser {
 }
 
 const SEED_USERS: SeedUser[] = [
+	// ── Gerencia ──────────────────────────────────────────────────
 	{
 		name: "Gerencia General",
 		email: "gerencia@cermont.co",
-		password: DEFAULT_PASSWORD,
+		password: GERENCIA_PASSWORD,
 		role: "gerente",
 		isActive: true,
 		phone: "+57 300 000 0000",
 	},
 	{
 		name: "Gerente Principal",
-		email: "gerente@cermont.com",
+		email: "gerente@cermont.co",
 		password: DEFAULT_PASSWORD,
 		role: "gerente",
 		isActive: true,
 		phone: "+57 300 000 0001",
 	},
+
+	// ── Residencia ────────────────────────────────────────────────
 	{
 		name: "Ing. Residente Carlos",
-		email: "residente@cermont.com",
+		email: "residente@cermont.co",
 		password: DEFAULT_PASSWORD,
 		role: "residente",
 		isActive: true,
 		phone: "+57 300 000 0002",
 	},
+
+	// ── HES ───────────────────────────────────────────────────────
 	{
 		name: "Ana Coordinadora HES",
-		email: "hes@cermont.com",
+		email: "hes@cermont.co",
 		password: DEFAULT_PASSWORD,
 		role: "hes",
 		isActive: true,
 		phone: "+57 300 000 0003",
 	},
 	{
-		name: "Pedro Supervisor",
-		email: "supervisor@cermont.com",
+		name: "Carlos Auxiliar HES",
+		email: "auxiliar.hes@cermont.co",
 		password: DEFAULT_PASSWORD,
-		role: "supervisor",
+		role: "auxiliar_hes",
+		isActive: true,
+		phone: "+57 300 000 0010",
+	},
+
+	// ── Administrativo / Financiero ───────────────────────────────
+	{
+		name: "Coordinador Administrativo Laura",
+		email: "coord.admin@cermont.co",
+		password: DEFAULT_PASSWORD,
+		role: "coord_administrativo",
 		isActive: true,
 		phone: "+57 300 000 0004",
 	},
 	{
-		name: "Luis Operador",
-		email: "operador@cermont.com",
+		name: "Auxiliar Contable Pedro",
+		email: "auxiliar.contable@cermont.co",
 		password: DEFAULT_PASSWORD,
-		role: "operador",
+		role: "auxiliar_contable",
 		isActive: true,
 		phone: "+57 300 000 0005",
 	},
 	{
-		name: "María Técnica",
-		email: "tecnico@cermont.com",
+		name: "Roberto Administrativo",
+		email: "administrativo@cermont.co",
 		password: DEFAULT_PASSWORD,
-		role: "tecnico",
+		role: "administrativo",
 		isActive: true,
 		phone: "+57 300 000 0006",
 	},
+
+	// ── Supervisión ───────────────────────────────────────────────
 	{
-		name: "Roberto Administrativo",
-		email: "administrativo@cermont.com",
+		name: "Supervisor General Pedro",
+		email: "supervisor@cermont.co",
 		password: DEFAULT_PASSWORD,
-		role: "administrativo",
+		role: "supervisor",
 		isActive: true,
 		phone: "+57 300 000 0007",
 	},
 	{
+		name: "Supervisor Electricista Miguel",
+		email: "supervisor.electricista@cermont.co",
+		password: DEFAULT_PASSWORD,
+		role: "supervisor_electricista",
+		isActive: true,
+		phone: "+57 300 000 0008",
+	},
+
+	// ── Técnicos / Operativos ─────────────────────────────────────
+	{
+		name: "Técnico Electricista Juan",
+		email: "tecnico.electricista@cermont.co",
+		password: DEFAULT_PASSWORD,
+		role: "tecnico_electricista",
+		isActive: true,
+		phone: "+57 300 000 0009",
+	},
+	{
+		name: "Luis Operador",
+		email: "operador@cermont.co",
+		password: DEFAULT_PASSWORD,
+		role: "operador",
+		isActive: true,
+		phone: "+57 300 000 0010",
+	},
+	{
+		name: "María Técnica",
+		email: "tecnico@cermont.co",
+		password: DEFAULT_PASSWORD,
+		role: "tecnico",
+		isActive: true,
+		phone: "+57 300 000 0011",
+	},
+	{
+		name: "Oficial Construcción José",
+		email: "oficial.construccion@cermont.co",
+		password: DEFAULT_PASSWORD,
+		role: "oficial_construccion",
+		isActive: true,
+		phone: "+57 300 000 0012",
+	},
+
+	// ── Pasante ──────────────────────────────────────────────────
+	{
+		name: "Pasante Sofia",
+		email: "pasante@cermont.co",
+		password: DEFAULT_PASSWORD,
+		role: "pasante",
+		isActive: true,
+		phone: "+57 300 000 0013",
+	},
+
+	// ── Cliente ──────────────────────────────────────────────────
+	{
 		name: "Cliente Demo",
-		email: "cliente@cermont.com",
+		email: "cliente@cermont.co",
 		password: DEFAULT_PASSWORD,
 		role: "cliente",
 		isActive: true,
-		phone: "+57 300 000 0008",
+		phone: "+57 300 000 0014",
 	},
 ];
 
@@ -131,10 +208,9 @@ async function seed(): Promise<void> {
 	console.log("✅ Conectado a MongoDB");
 
 	try {
-		// Limpiar usuarios seed existentes (por email)
-		const seedEmails = SEED_USERS.map((u) => u.email);
-		const deleteResult = await User.deleteMany({ email: { $in: seedEmails } });
-		console.log(`🗑️  Eliminados ${deleteResult.deletedCount} usuarios seed previos`);
+		// Limpiar TODA la colección users (no solo emails del seed)
+		const deleteResult = await User.deleteMany({});
+		console.log(`🗑️  Eliminados ${deleteResult.deletedCount} usuarios existentes`);
 
 		// Crear usuarios — el hook pre('save') hashea la contraseña automáticamente
 		const created: string[] = [];
@@ -144,18 +220,29 @@ async function seed(): Promise<void> {
 			created.push(user.email);
 		}
 
-		// Reporte
+		// Reporte con columna de contraseña
 		console.log(`\n✅ Seed completado — ${created.length} usuarios creados\n`);
-		console.log("┌─────────────────────────────────────┬──────────────────┐");
-		console.log("│ Email                               │ Rol              │");
-		console.log("├─────────────────────────────────────┼──────────────────┤");
+		console.log(
+			"┌─────────────────────────────────────────────┬──────────────────────────┬──────────────────────┐",
+		);
+		console.log(
+			"│ Email                                       │ Rol                      │ Contraseña           │",
+		);
+		console.log(
+			"├─────────────────────────────────────────────┼──────────────────────────┼──────────────────────┤",
+		);
 		for (const u of SEED_USERS) {
-			const email = u.email.padEnd(35);
-			const roleLabel = `${u.role} (${ROLE_LABELS[u.role]})`.padEnd(16);
-			console.log(`│ ${email} │ ${roleLabel} │`);
+			const email = u.email.padEnd(43);
+			const roleLabel = `${u.role} (${ROLE_LABELS[u.role]})`.padEnd(24);
+			const passLabel =
+				u.password === GERENCIA_PASSWORD
+					? "Cermont2026! (fija)".padEnd(20)
+					: "(SEED_DEFAULT_PASSWORD)".padEnd(20);
+			console.log(`│ ${email} │ ${roleLabel} │ ${passLabel} │`);
 		}
-		console.log("└─────────────────────────────────────┴──────────────────┘");
-		console.log("🔐 Contraseña definida por SEED_DEFAULT_PASSWORD");
+		console.log(
+			"└─────────────────────────────────────────────┴──────────────────────────┴──────────────────────┘",
+		);
 	} catch (error) {
 		console.error("❌ Error en seed:", error);
 		process.exit(1);

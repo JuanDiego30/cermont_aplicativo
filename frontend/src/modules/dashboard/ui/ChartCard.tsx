@@ -26,7 +26,7 @@ export function ChartCard({
 		<section
 			aria-labelledby={headingId}
 			className={cn(
-				"col-span-12 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-5 pb-5 pt-6 shadow-[var(--shadow-1)] transition-all hover:shadow-[var(--shadow-2)] sm:px-6",
+				"col-span-12 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-5 pb-5 pt-6 shadow-[var(--shadow-1)] transition-all hover:shadow-[var(--shadow-2)] sm:px-6",
 				className,
 			)}
 		>

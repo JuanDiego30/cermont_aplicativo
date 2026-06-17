@@ -51,13 +51,6 @@
 		"contracts:check": "tsx tooling/contracts/check-contract-guard.ts",
 		"contracts:snapshot:update": "tsx tooling/contracts/update-contract-snapshot.ts",
 		"ghost:check": "tsx tooling/prevent-ghost-dirs.ts",
-		"docker:up": "docker compose up --build -d",
-		"docker:down": "docker compose down",
-		"docker:reset": "docker compose down -v --remove-orphans && docker compose up --build -d",
-		"docker:logs": "docker compose logs -f",
-		"db:dev": "docker compose -f docker-compose.dev.yml up mongodb -d",
-		"db:dev:stop": "docker compose -f docker-compose.dev.yml stop mongodb",
-		"db:dev:down": "docker compose -f docker-compose.dev.yml down -v",
 		"deploy:pm2:start": "pm2 start ecosystem.config.cjs --env production",
 		"deploy:pm2:status": "pm2 status",
 		"deploy:pm2:logs": "pm2 logs",
@@ -101,6 +94,7 @@
 		]
 	},
 	"dependencies": {
+		"html5-qrcode": "^2.3.8",
 		"superpowers": "^0.0.2"
 	}
 }

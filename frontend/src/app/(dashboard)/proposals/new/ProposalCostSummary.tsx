@@ -15,7 +15,7 @@ export function ProposalCostSummary({
 }: ProposalCostSummaryProps) {
 	return (
 		<section
-			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+			className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
 			aria-labelledby="cost-breakdown-title"
 		>
 			<h2 id="cost-breakdown-title" className="text-base font-semibold text-[var(--text-primary)]">

@@ -166,7 +166,12 @@ export const SystemConfigService = {
 		const config = await SystemConfig.findOneAndUpdate(
 			{ singletonKey: "system" },
 			{ $setOnInsert: DEFAULT_CONFIG },
-			{ upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true },
+			{
+				upsert: true,
+				returnDocument: "after",
+				setDefaultsOnInsert: true,
+				runValidators: true,
+			},
 		);
 		if (!config) {
 			throw new AppError(

@@ -28,7 +28,7 @@ export function SettingsSwitch({
 			aria-label={`${label}: ${checked ? "activado" : "desactivado"}`}
 		>
 			<span
-				className={`inline-block size-5 rounded-full bg-white shadow-sm transition-transform ${
+				className={`inline-block size-5 rounded-full bg-canvas shadow-sm transition-transform ${
 					checked ? "translate-x-5" : "translate-x-0"
 				}`}
 			/>

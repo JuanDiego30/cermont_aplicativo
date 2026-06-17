@@ -82,7 +82,7 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 		form;
 
 	const inputClasses =
-		"w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
+		"w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -125,7 +125,7 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
+			className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
 			aria-label="Nuevo AST"
 		>
 			<div className="grid gap-4 sm:grid-cols-2">
@@ -219,7 +219,7 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 				{steps.map((step, index) => (
 					<div
 						key={step._key}
-						className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border-default)] p-3"
+						className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] p-3"
 					>
 						<div className="flex items-center justify-between">
 							<span className="text-xs font-medium text-[var(--text-secondary)]">
@@ -291,7 +291,7 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 					onClick={() =>
 						dispatch({ type: "SET_STEPS", updater: (prev) => [...prev, createStepDraft()] })
 					}
-					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					<Plus className="size-3.5" aria-hidden="true" />
 					Agregar paso
@@ -308,7 +308,7 @@ export function ASTForm({ orderId, isSaving, onSubmit, onCancel }: ASTFormProps)
 				<button
 					type="button"
 					onClick={onCancel}
-					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar
 				</button>

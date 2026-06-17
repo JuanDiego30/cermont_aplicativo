@@ -179,7 +179,7 @@ function ActionDialog({
 						value={reason}
 						onChange={(event) => setReason(event.target.value)}
 						placeholder="Ej: documento duplicado o reemplazado"
-						className="mt-1 w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
+						className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 					/>
 					<div className="mt-5 flex justify-end gap-3">
 						<Button type="button" variant="secondary" onClick={handleClose}>
@@ -210,7 +210,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 
 	if (!documents.length) {
 		return (
-			<div className="flex min-h-40 items-center justify-center rounded-lg border-2 border-dashed border-[var(--border-default)]">
+			<div className="flex min-h-40 items-center justify-center rounded-lg border-2 border-dashed border-[var(--border-subtle)]">
 				<p className="text-sm text-[var(--text-tertiary)]">Sin documentos</p>
 			</div>
 		);
@@ -272,7 +272,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 											? "border-red-300 opacity-60 dark:border-red-700"
 											: isProtected
 												? "border-blue-300 dark:border-blue-700"
-												: "border-[var(--border-default)]"
+												: "border-[var(--border-subtle)]"
 								}`}
 							>
 								<div>
@@ -297,13 +297,13 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 
 										<div className="flex shrink-0 flex-col items-end gap-1">
 											{isArchived && (
-												<span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+												<span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-brand-warn dark:bg-amber-900/30 dark:text-brand-warn">
 													<Archive className="size-3" aria-hidden="true" />
 													Archivado
 												</span>
 											)}
 											{isDeleted && (
-												<span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
+												<span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2 py-0.5 text-[11px] font-medium text-brand-error dark:bg-red-900/30 dark:text-brand-error">
 													Eliminado
 												</span>
 											)}
@@ -314,7 +314,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 												</span>
 											)}
 											{document.signed && !isArchived && !isDeleted && (
-												<span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+												<span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-brand-annotate dark:bg-emerald-900/30 dark:text-brand-annotate">
 													<FileCheck2 className="size-3" aria-hidden="true" />
 													Firmado
 												</span>
@@ -362,7 +362,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 									)}
 
 									{isArchived && (
-										<div className="mt-3 rounded-lg border border-amber-100 bg-amber-50/70 p-3 text-xs leading-5 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200">
+										<div className="mt-3 rounded-lg border border-amber-100 bg-warning-bg/70 p-3 text-xs leading-5 text-brand-warn dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-brand-warn">
 											<p className="font-medium">Archivado el {formatDate(document.archivedAt)}</p>
 											{document.retentionUntil && (
 												<p>Retencion hasta {formatDate(document.retentionUntil)}</p>
@@ -388,7 +388,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 														disabled={hasPendingMutation}
 														aria-label="Firmar documento"
 														title="Firmar"
-														className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-emerald-600 transition-colors hover:bg-emerald-50 disabled:opacity-50"
+														className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-brand-annotate transition-colors hover:bg-emerald-50 disabled:opacity-50"
 													>
 														<PenLine className="size-3" aria-hidden="true" />
 														Firmar
@@ -404,7 +404,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 													disabled={hasPendingMutation}
 													aria-label="Archivar documento"
 													title="Archivar"
-													className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-amber-600 transition-colors hover:bg-amber-50 disabled:opacity-50"
+													className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-brand-warn transition-colors hover:bg-warning-bg disabled:opacity-50"
 												>
 													<Archive className="size-3" aria-hidden="true" />
 													Archivar
@@ -419,7 +419,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 													disabled={hasPendingMutation}
 													aria-label="Eliminar documento"
 													title={isProtected ? "Retirar con retencion" : "Eliminar"}
-													className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+													className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-brand-error transition-colors hover:bg-danger-bg disabled:opacity-50"
 												>
 													<Trash2 className="size-3" aria-hidden="true" />
 													{isProtected ? "Retirar" : "Eliminar"}

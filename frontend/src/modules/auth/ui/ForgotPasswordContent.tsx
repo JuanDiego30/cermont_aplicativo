@@ -38,15 +38,15 @@ export function ForgotPasswordContent() {
 	if (state.success) {
 		return (
 			<div className="mt-2 text-center">
-				<div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-6 text-emerald-100">
+				<div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-6 text-brand-annotate">
 					<p className="text-lg font-semibold">Correo enviado</p>
-					<p className="mt-2 text-sm text-emerald-100/80">
+					<p className="mt-2 text-sm text-brand-annotate">
 						Revisa tu bandeja de entrada para restablecer tu contraseña.
 					</p>
 				</div>
 				<Link
 					href="/login"
-					className="mt-4 block rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
+					className="mt-4 block rounded-xl border border-white/10 bg-canvas/5 px-4 py-3 text-sm font-medium text-stone transition hover:bg-canvas/10"
 				>
 					Volver al inicio de sesión
 				</Link>
@@ -56,21 +56,21 @@ export function ForgotPasswordContent() {
 
 	return (
 		<form action={formAction} className="mt-6 flex w-full flex-col gap-4">
-			<p className="text-sm text-zinc-300">
+			<p className="text-sm text-muted-text">
 				Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
 			</p>
 
 			{state.error && (
 				<p
 					role="alert"
-					className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+					className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error"
 				>
 					{state.error}
 				</p>
 			)}
 
 			<div className="flex flex-col gap-2">
-				<label htmlFor="email" className="text-sm font-semibold text-zinc-300">
+				<label htmlFor="email" className="text-sm font-semibold text-muted-text">
 					Correo electrónico
 				</label>
 				<input
@@ -80,7 +80,7 @@ export function ForgotPasswordContent() {
 					autoComplete="email"
 					required
 					placeholder="correo@empresa.com"
-					className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-white/10 focus-visible:ring-4 focus-visible:ring-primary-500/20"
+					className="rounded-xl border border-white/10 bg-canvas/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-canvas/10 focus-visible:ring-4 focus-visible:ring-primary-500/20"
 				/>
 			</div>
 

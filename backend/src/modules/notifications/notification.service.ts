@@ -416,7 +416,7 @@ export async function markAsRead(notificationId: string, userId: string) {
 		},
 		{
 			arrayFilters: [{ "elem.channel": "in_app" }],
-			new: true,
+			returnDocument: "after",
 		},
 	).lean();
 

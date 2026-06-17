@@ -105,7 +105,7 @@ export function QRCodeButton({ data, label, variant = "icon" }: QRCodeButtonProp
 				{variant === "icon" ? (
 					<button
 						type="button"
-						className="inline-flex items-center justify-center rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+						className="inline-flex items-center justify-center rounded-lg p-2 text-steel transition hover:bg-zinc-100 hover:text-charcoal dark:text-stone dark:hover:bg-zinc-800 dark:hover:text-stone"
 						aria-label={`Código QR: ${label}`}
 						title="Ver código QR"
 					>
@@ -114,7 +114,7 @@ export function QRCodeButton({ data, label, variant = "icon" }: QRCodeButtonProp
 				) : (
 					<button
 						type="button"
-						className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+						className="inline-flex items-center gap-2 rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm font-medium text-charcoal transition hover:bg-surface dark:border-zinc-700 dark:bg-canvas dark:text-muted-text dark:hover:bg-zinc-800"
 						aria-label={`Código QR: ${label}`}
 					>
 						<QrCode className="size-4" aria-hidden="true" />
@@ -125,18 +125,18 @@ export function QRCodeButton({ data, label, variant = "icon" }: QRCodeButtonProp
 
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out" />
-				<Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[90vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl focus:outline-none dark:border-zinc-700 dark:bg-zinc-900">
+				<Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[90vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-hairline bg-canvas p-6 shadow-xl focus:outline-none dark:border-zinc-700 dark:bg-canvas">
 					<Dialog.Close asChild>
 						<button
 							type="button"
-							className="absolute right-3 top-3 rounded-lg p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+							className="absolute right-3 top-3 rounded-lg p-1 text-stone transition hover:bg-zinc-100 hover:text-steel dark:hover:bg-zinc-800 dark:hover:text-muted-text"
 							aria-label="Cerrar"
 						>
 							<X className="size-5" />
 						</button>
 					</Dialog.Close>
 
-					<Dialog.Title className="text-center text-lg font-semibold text-zinc-900 dark:text-white">
+					<Dialog.Title className="text-center text-lg font-semibold text-ink dark:text-white">
 						{label}
 					</Dialog.Title>
 
@@ -152,19 +152,19 @@ export function QRCodeButton({ data, label, variant = "icon" }: QRCodeButtonProp
 							/>
 						) : qrState.status === "error" ? (
 							<div
-								className="flex h-56 w-56 items-center justify-center rounded-lg bg-red-50 p-5 text-center text-sm text-red-600 dark:bg-red-900/10 dark:text-red-400"
+								className="flex h-56 w-56 items-center justify-center rounded-lg bg-danger-bg p-5 text-center text-sm text-brand-error dark:bg-red-900/10 dark:text-brand-error"
 								role="alert"
 							>
 								{qrState.message}
 							</div>
 						) : (
-							<div className="flex h-56 w-56 items-center justify-center rounded-lg bg-zinc-50 dark:bg-zinc-800">
-								<QrCode className="size-12 animate-pulse text-zinc-300 dark:text-zinc-600" />
+							<div className="flex h-56 w-56 items-center justify-center rounded-lg bg-surface dark:bg-surface">
+								<QrCode className="size-12 animate-pulse text-muted-text dark:text-steel" />
 							</div>
 						)}
 					</div>
 
-					<p className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+					<p className="mt-4 text-center text-xs text-steel dark:text-stone">
 						Escanee con su dispositivo móvil para ver los detalles
 					</p>
 

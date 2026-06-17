@@ -111,7 +111,7 @@ describe("InventoryService", () => {
 			expect(mocks.itemFindByIdAndUpdate).toHaveBeenCalledWith(
 				ITEM_ID,
 				expect.objectContaining({ currentStock: 2 }),
-				{ new: true },
+				{ returnDocument: "after" },
 			);
 		});
 
@@ -134,7 +134,7 @@ describe("InventoryService", () => {
 			expect(mocks.itemFindByIdAndUpdate).toHaveBeenCalledWith(
 				ITEM_ID,
 				expect.objectContaining({ currentStock: 10 }),
-				{ new: true },
+				{ returnDocument: "after" },
 			);
 		});
 	});

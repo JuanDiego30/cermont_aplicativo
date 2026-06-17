@@ -33,8 +33,8 @@ type ProxyMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
 
 function resolveBackendBaseUrl(): string {
 	// BACKEND_URL es la única fuente de verdad. Sin ella, se usa localhost:4000
-	// para desarrollo local y npm run start. Docker Compose inyecta explícitamente
-	// BACKEND_URL=http://backend:4000 en el contenedor frontend.
+	// para desarrollo local y npm run start. En producción VPS, se configura
+	// BACKEND_URL=http://127.0.0.1:4000 en el archivo .env.local del frontend.
 	return (env.BACKEND_URL?.trim() || "http://localhost:4000").replace(/\/+$/, "");
 }
 

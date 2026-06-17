@@ -34,17 +34,12 @@ export function LandingHeader() {
 	return (
 		<header
 			ref={headerRef}
-			className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[var(--surface-page)]/80 backdrop-blur-xl transition-all duration-200"
+			className="sticky top-0 z-40 border-b border-hairline bg-canvas/80 backdrop-blur-xl transition-all duration-200"
 		>
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div className="flex flex-col gap-4 py-3 lg:flex-row lg:items-center lg:justify-between">
 					<div className="flex items-center justify-between gap-4">
-						<Logo
-							href="/"
-							className="gap-3"
-							size="md"
-							wordmarkClassName="text-[var(--text-primary)]"
-						/>
+						<Logo href="/" className="gap-3" size="md" wordmarkClassName="text-ink" />
 						<div className="flex items-center gap-2 lg:hidden">
 							<ThemeToggle />
 							<Button asChild size="sm" variant="outline">
@@ -58,7 +53,7 @@ export function LandingHeader() {
 							<a
 								key={href}
 								href={href}
-								className="rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-focus-ring)]/40"
+								className="rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-charcoal transition-all hover:bg-surface hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/40"
 							>
 								{label}
 							</a>
@@ -68,7 +63,7 @@ export function LandingHeader() {
 					<div className="hidden items-center gap-3 lg:flex">
 						<BadgePill
 							className="px-3 py-1.5 font-mono"
-							dotClassName="bg-[var(--color-success)]"
+							dotClassName="bg-brand-annotate"
 							ariaLabel={CORPORATE_LOCATION}
 						>
 							{CORPORATE_LOCATION}

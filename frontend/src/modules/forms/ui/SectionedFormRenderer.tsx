@@ -33,19 +33,19 @@ const CONFORMITY_OPTIONS = [
 		value: "C",
 		label: "C",
 		title: "Conforme",
-		color: "border-green-400 bg-green-50 text-green-700 hover:bg-green-100",
+		color: "border-green-400 bg-success-bg text-brand-annotate hover:bg-success-bg",
 	},
 	{
 		value: "NC",
 		label: "NC",
 		title: "No conforme",
-		color: "border-red-400 bg-red-50 text-red-700 hover:bg-red-100",
+		color: "border-red-400 bg-danger-bg text-brand-error hover:bg-danger-bg",
 	},
 	{
 		value: "NA",
 		label: "NA",
 		title: "No aplica",
-		color: "border-zinc-300 bg-zinc-50 text-zinc-500 hover:bg-zinc-100",
+		color: "border-hairline bg-surface text-steel hover:bg-zinc-100",
 	},
 ] as const satisfies ReadonlyArray<{
 	value: string;
@@ -83,7 +83,7 @@ function ConformityInput({
 						className={`w-14 rounded-[var(--radius-md)] border-2 py-1.5 text-xs font-bold transition-all ${
 							isSelected
 								? `${opt.color} ring-2 ring-offset-1 ring-current`
-								: "border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-muted)] hover:border-[var(--border-strong)]"
+								: "border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-muted)] hover:border-[var(--border-medium)]"
 						} disabled:cursor-not-allowed disabled:opacity-50`}
 					>
 						{opt.label}
@@ -143,7 +143,7 @@ function PhotoInput({
 						width={64}
 						height={64}
 						unoptimized
-						className="size-16 rounded-[var(--radius-md)] object-cover ring-1 ring-[var(--border-default)]"
+						className="size-16 rounded-[var(--radius-md)] object-cover ring-1 ring-[var(--border-subtle)]"
 					/>
 					<button
 						type="button"
@@ -162,7 +162,7 @@ function PhotoInput({
 					</button>
 				</div>
 			) : (
-				<div className="flex size-16 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)]">
+				<div className="flex size-16 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)]">
 					<Camera className="size-5 text-[var(--text-muted)]" aria-hidden="true" />
 				</div>
 			)}
@@ -188,9 +188,9 @@ function FieldRenderer({
 	const id = `f-${field.key}`;
 
 	const inputClass =
-		"h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 disabled:bg-[var(--surface-secondary)] disabled:opacity-60";
+		"h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 disabled:bg-[var(--surface-secondary)] disabled:opacity-60";
 	const textareaClass =
-		"w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 disabled:opacity-60";
+		"w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 disabled:opacity-60";
 
 	const fieldAriaLabel = field.label ? String(field.label) : undefined;
 
@@ -280,7 +280,7 @@ function FieldRenderer({
 							checked={(value as boolean) ?? false}
 							disabled={disabled}
 							onChange={(e) => onChange(e.target.checked)}
-							className="size-4 rounded border-[var(--border-default)] accent-[var(--color-brand)]"
+							className="size-4 rounded border-[var(--border-subtle)] accent-[var(--color-brand)]"
 							aria-label={fieldAriaLabel}
 						/>
 						<span className="text-sm text-[var(--text-primary)]">{field.label}</span>
@@ -303,7 +303,7 @@ function FieldRenderer({
 
 			case "signature":
 				return (
-					<div className="flex h-20 w-full items-center justify-center rounded-[var(--radius-md)] border-2 border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] text-xs text-[var(--text-muted)]">
+					<div className="flex h-20 w-full items-center justify-center rounded-[var(--radius-md)] border-2 border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-xs text-[var(--text-muted)]">
 						Firma digital (próxima versión)
 					</div>
 				);
@@ -332,7 +332,7 @@ function FieldRenderer({
 		return (
 			<div className={`${field.span === 2 ? "sm:col-span-2" : ""}`}>
 				{input}
-				{error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+				{error && <p className="mt-1 text-xs text-brand-error">{error}</p>}
 			</div>
 		);
 	}
@@ -341,13 +341,13 @@ function FieldRenderer({
 		<div className={`space-y-1.5 ${field.span === 2 ? "sm:col-span-2" : ""}`}>
 			<label htmlFor={id} className="text-sm font-medium text-[var(--text-primary)]">
 				{field.label}
-				{field.required && <span className="ml-1 text-red-500">*</span>}
+				{field.required && <span className="ml-1 text-brand-error">*</span>}
 			</label>
 			{input}
 			{field.hint && field.type !== "photo" && (
 				<p className="text-[10px] text-[var(--text-muted)]">{field.hint}</p>
 			)}
-			{error && <p className="mt-0.5 text-xs text-red-500">{error}</p>}
+			{error && <p className="mt-0.5 text-xs text-brand-error">{error}</p>}
 		</div>
 	);
 }
@@ -370,7 +370,7 @@ function SectionBlock({
 	const [collapsed, setCollapsed] = useState(false);
 
 	return (
-		<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-card">
+		<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-card">
 			<button
 				type="button"
 				onClick={() => setCollapsed((c) => !c)}

@@ -96,7 +96,7 @@ export function PlanningPacketSafety({
 				onToggle={() => onToggleSection("docs")}
 			>
 				<div className="grid gap-3 sm:grid-cols-2">
-					<label className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] p-3 cursor-pointer">
+					<label className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3 cursor-pointer">
 						<input
 							type="checkbox"
 							checked={astRequired}
@@ -110,7 +110,7 @@ export function PlanningPacketSafety({
 							<p className="text-xs text-[var(--text-muted)]">Requerido para tareas de riesgo</p>
 						</div>
 					</label>
-					<label className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] p-3 cursor-pointer">
+					<label className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3 cursor-pointer">
 						<input
 							type="checkbox"
 							checked={ptwRequired}
@@ -128,7 +128,7 @@ export function PlanningPacketSafety({
 			</CollapsibleSection>
 
 			{/* Notes */}
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5">
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5">
 				<FormField label="Observaciones adicionales" htmlFor="planning-notes">
 					<textarea
 						id="planning-notes"

@@ -46,7 +46,7 @@ function getBannerState(props: SyncBannerProps): {
 			icon: <CloudOff className="size-4 shrink-0" aria-hidden="true" />,
 			message: "Sin conexión — los cambios se sincronizarán automáticamente",
 			className:
-				"bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
+				"bg-warning-bg text-brand-warn border-amber-200 dark:bg-amber-900/20 dark:text-brand-warn dark:border-amber-800",
 		};
 	}
 
@@ -57,7 +57,7 @@ function getBannerState(props: SyncBannerProps): {
 			icon: <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />,
 			message: `Error de sincronización: ${lastSyncError}`,
 			className:
-				"bg-red-50 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800",
+				"bg-danger-bg text-brand-error border-red-200 dark:bg-red-900/20 dark:text-brand-error dark:border-red-800",
 		};
 	}
 
@@ -113,7 +113,7 @@ export function SyncBanner(props: SyncBannerProps) {
 					onClick={onSyncNow}
 					className={cn(
 						"shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors",
-						"bg-black/[0.08] hover:bg-black/[0.12] dark:bg-white/[0.12] dark:hover:bg-white/[0.18]",
+						"bg-black/[0.08] hover:bg-black/[0.12] dark:bg-canvas/[0.12] dark:hover:bg-canvas/[0.18]",
 						"focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-1",
 					)}
 				>

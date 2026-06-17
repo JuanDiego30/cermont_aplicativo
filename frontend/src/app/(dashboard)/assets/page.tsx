@@ -39,7 +39,10 @@ function AssetList() {
 	if (isLoading) {
 		return (
 			<div className="flex justify-center py-24" aria-live="polite">
-				<Loader2 className="size-8 animate-spin text-brand-blue" aria-hidden="true" />
+				<Loader2
+					className="size-8 animate-spin text-[var(--color-brand-blue)]"
+					aria-hidden="true"
+				/>
 				<span className="sr-only">Cargando activos…</span>
 			</div>
 		);
@@ -69,7 +72,7 @@ function AssetList() {
 				<Link
 					key={item._id}
 					href={buildAssetRoute(item._id)}
-					className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-card)] p-5 transition hover:shadow-[var(--shadow-2)]"
+					className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-5 transition hover:shadow-[var(--shadow-2)]"
 				>
 					<div className="flex items-center justify-between">
 						<span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-brand-blue)]">

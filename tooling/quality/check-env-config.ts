@@ -1,11 +1,9 @@
 /**
  * Environment Configuration Verification
  *
- * Validates that environment configurations don't mix local and Docker settings.
+ * Validates that environment configurations are consistent.
  * - .env.example (local dev) must NOT contain http://backend:4000
- * - .env.docker.example documents required operator-provided values
- * - Source code must not force http://backend:4000 based on NODE_ENV alone
- * - docker-compose.yml must explicitly inject BACKEND_URL=http://backend:4000
+ * - Source code must use BACKEND_URL env var, not hardcoded service names
  */
 
 import { readFileSync } from "node:fs";
@@ -40,24 +38,10 @@ console.log("\n🔍 Environment Configuration Verification\n");
 checkFile(
 	".env.example",
 	(content) => !content.includes("http://backend:4000"),
-	"Must NOT reference 'http://backend:4000' (Docker hostname). This file documents local development.",
+	"Must NOT reference 'http://backend:4000' (production hostname). This file documents local development.",
 );
 
-// 2. .env.docker.example must document required production values without seed defaults
-checkFile(
-	".env.docker.example",
-	(content) =>
-		[
-			"MONGO_ROOT_USER=",
-			"MONGO_ROOT_PASSWORD=",
-			"JWT_SECRET=",
-			"REFRESH_TOKEN_SECRET=",
-			"FRONTEND_URL=",
-		].every((key) => content.includes(key)) && !content.includes("SEED_ON_START"),
-	"Must document required values and must not enable automatic seed.",
-);
-
-// 3. next.config.ts must use BACKEND_URL as SSOT, not NODE_ENV-based fallback
+// 2. next.config.ts must use BACKEND_URL as SSOT, not NODE_ENV-based fallback
 checkFile(
 	"frontend/next.config.ts",
 	(content) => {
@@ -69,7 +53,7 @@ checkFile(
 	"Must NOT hardcode 'http://backend:4000' based on isProduction(). Must read BACKEND_URL from env.",
 );
 
-// 4. Proxy route must not have NODE_ENV-dependent fallback
+// 3. Proxy route must not have NODE_ENV-dependent fallback
 checkFile(
 	"frontend/src/app/api/backend/[...path]/route.ts",
 	(content) => {
@@ -80,25 +64,14 @@ checkFile(
 	"Must NOT hardcode 'http://backend:4000' based on isProduction(). Must read BACKEND_URL from env.",
 );
 
-// 5. docker-compose.yml must inject BACKEND_URL for the frontend service
-checkFile(
-	"docker-compose.yml",
-	(content) => {
-		const hasFrontendBackendUrl =
-			/frontend:/.test(content) && /BACKEND_URL.*backend:4000/.test(content);
-		return hasFrontendBackendUrl;
-	},
-	"Frontend service must have 'BACKEND_URL: http://backend:4000' environment variable.",
-);
-
-// 6. Backend .env.example should use PORT=4000 (matching docker-compose and frontend proxy)
+// 4. Backend .env.example should use PORT=4000 (matching frontend proxy default)
 checkFile(
 	"backend/.env.example",
 	(content) => content.includes("PORT=4000"),
-	"Should use PORT=4000 to match docker-compose.yml and frontend proxy default.",
+	"Should use PORT=4000 to match frontend proxy default.",
 );
 
-// 7. frontend/.env.example should have BACKEND_URL=http://127.0.0.1:4000 for local dev
+// 5. frontend/.env.example should have BACKEND_URL for local dev
 checkFile(
 	"frontend/.env.example",
 	(content) => content.includes("BACKEND_URL="),

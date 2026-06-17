@@ -72,7 +72,7 @@ export function ContextualDocumentUploadModal({
 				<Dialog.Overlay className="fixed inset-0 z-40 bg-[var(--surface-overlay)] backdrop-blur-sm" />
 				<Dialog.Content
 					aria-labelledby="contextual-upload-dialog-title"
-					className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(960px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-modal)]"
+					className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(960px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-modal)]"
 				>
 					<div className="border-b border-[var(--border-subtle)] px-6 py-5">
 						<div className="flex items-start justify-between gap-4">

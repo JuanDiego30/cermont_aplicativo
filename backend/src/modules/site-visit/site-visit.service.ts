@@ -210,7 +210,11 @@ export async function updateSiteVisit(
 	id: string,
 	input: UpdateSiteVisitRecordInput,
 ): Promise<SiteVisitRecord> {
-	const doc = await SiteVisitModel.findByIdAndUpdate(id, { $set: input }, { new: true });
+	const doc = await SiteVisitModel.findByIdAndUpdate(
+		id,
+		{ $set: input },
+		{ returnDocument: "after" },
+	);
 	if (!doc) {
 		throw new AppError("Site visit not found", 404, "SITE_VISIT_NOT_FOUND");
 	}

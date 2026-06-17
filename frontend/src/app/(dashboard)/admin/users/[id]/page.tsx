@@ -81,13 +81,13 @@ export default function UserDetailPage() {
 	if (isLoading) {
 		return (
 			<div className="flex h-64 items-center justify-center rounded-3xl border border-zinc-200 dark:border-zinc-800">
-				<span className="text-zinc-500">Cargando detalles del usuario…</span>
+				<span className="text-steel">Cargando detalles del usuario…</span>
 			</div>
 		);
 	}
 	if (error || !user) {
 		return (
-			<div className="p-4 bg-red-50 text-red-600 rounded-lg dark:bg-red-900/20 dark:text-red-400">
+			<div className="p-4 bg-red-50 text-brand-error rounded-lg dark:bg-red-900/20 dark:text-brand-error">
 				No se pudo cargar el usuario. {(error as Error)?.message}
 			</div>
 		);
@@ -101,7 +101,7 @@ export default function UserDetailPage() {
 				<div className="flex items-start gap-4">
 					<Link
 						href="/admin/users"
-						className="mt-1 flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
+						className="mt-1 flex items-center gap-1 text-sm text-steel hover:text-charcoal dark:text-steel"
 					>
 						<ArrowLeft aria-hidden="true" className="size-4" />
 						Volver
@@ -119,23 +119,23 @@ export default function UserDetailPage() {
 									className="size-10 rounded-full object-cover"
 								/>
 							) : (
-								<User className="size-5 text-blue-600" aria-hidden="true" />
+								<User className="size-5 text-brand-green" aria-hidden="true" />
 							)}
 						</figure>
 						<div className="leading-tight">
 							<h1
 								id="user-detail-title"
-								className="text-2xl font-semibold text-zinc-900 dark:text-white"
+								className="text-2xl font-semibold text-ink dark:text-white"
 							>
 								{fullName}
 							</h1>
-							<p className="text-sm text-zinc-500 dark:text-zinc-400">{user.email}</p>
+							<p className="text-sm text-steel dark:text-steel">{user.email}</p>
 						</div>
 					</fieldset>
 				</div>
 				<Link
 					href={`/admin/users/${user._id}/edit`}
-					className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 dark:bg-zinc-900"
+					className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-charcoal shadow-sm hover:bg-zinc-50 dark:bg-zinc-900"
 				>
 					Editar
 				</Link>
@@ -147,46 +147,46 @@ export default function UserDetailPage() {
 			>
 				<h2
 					id="perfil-titulo"
-					className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400"
+					className="mb-4 text-sm font-semibold uppercase tracking-wider text-steel"
 				>
 					Información del perfil
 				</h2>
 				<dl className="grid grid-cols-2 gap-4 text-sm">
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Nombre</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">{fullName}</dd>
+						<dt className="font-medium text-steel dark:text-steel">Nombre</dt>
+						<dd className="mt-1 text-ink dark:text-white">{fullName}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Email</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">{user.email}</dd>
+						<dt className="font-medium text-steel dark:text-steel">Email</dt>
+						<dd className="mt-1 text-ink dark:text-white">{user.email}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Rol</dt>
+						<dt className="font-medium text-steel dark:text-steel">Rol</dt>
 						<dd className="mt-1">
 							<span
-								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${ROLE_COLORS[user.role] ?? "bg-zinc-100 text-zinc-600 ring-zinc-200 dark:text-zinc-300"}`}
+								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${ROLE_COLORS[user.role] ?? "bg-zinc-100 text-steel ring-zinc-200 dark:text-stone"}`}
 							>
 								{ROLE_LABELS[user.role as keyof typeof ROLE_LABELS] ?? user.role}
 							</span>
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Estado</dt>
+						<dt className="font-medium text-steel dark:text-steel">Estado</dt>
 						<dd className="mt-1">
 							<span
-								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${user.active ? "bg-green-50 text-green-700 ring-green-200" : "bg-zinc-100 text-zinc-500 ring-zinc-200 dark:text-zinc-400"}`}
+								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${user.active ? "bg-green-50 text-brand-annotate ring-green-200" : "bg-zinc-100 text-steel ring-zinc-200 dark:text-steel"}`}
 							>
 								{user.active ? "Activo" : "Inactivo"}
 							</span>
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Teléfono</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">{user.phone ?? ","}</dd>
+						<dt className="font-medium text-steel dark:text-steel">Teléfono</dt>
+						<dd className="mt-1 text-ink dark:text-white">{user.phone ?? ","}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Email verificado</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
+						<dt className="font-medium text-steel dark:text-steel">Email verificado</dt>
+						<dd className="mt-1 text-ink dark:text-white">
 							{user.email_verified_at ? formatDate(user.email_verified_at) : "No verificado"}
 						</dd>
 					</div>
@@ -199,30 +199,30 @@ export default function UserDetailPage() {
 			>
 				<h2
 					id="acceso-titulo"
-					className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400"
+					className="mb-4 text-sm font-semibold uppercase tracking-wider text-steel"
 				>
 					Estadísticas de acceso
 				</h2>
 				<dl className="grid grid-cols-2 gap-4 text-sm">
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Último acceso</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
+						<dt className="font-medium text-steel dark:text-steel">Último acceso</dt>
+						<dd className="mt-1 text-ink dark:text-white">
 							{user.last_login ? formatDateTime(user.last_login) : "Nunca"}
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Intentos fallidos</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">{user.login_attempts}</dd>
+						<dt className="font-medium text-steel dark:text-steel">Intentos fallidos</dt>
+						<dd className="mt-1 text-ink dark:text-white">{user.login_attempts}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Bloqueado hasta</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
+						<dt className="font-medium text-steel dark:text-steel">Bloqueado hasta</dt>
+						<dd className="mt-1 text-ink dark:text-white">
 							{user.locked_until ? formatDateTime(user.locked_until) : ","}
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Registrado</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">{formatDate(user.created_at)}</dd>
+						<dt className="font-medium text-steel dark:text-steel">Registrado</dt>
+						<dd className="mt-1 text-ink dark:text-white">{formatDate(user.created_at)}</dd>
 					</div>
 				</dl>
 			</section>

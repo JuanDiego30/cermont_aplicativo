@@ -9,11 +9,11 @@ export function AboutSection() {
 			id="nosotros"
 			data-landing-section
 			aria-labelledby="about-heading"
-			className="bg-surface-secondary py-16 sm:py-20 lg:py-24 scroll-mt-28"
+			className="bg-surface py-16 sm:py-20 lg:py-24 scroll-mt-28"
 		>
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
-					<article className="rounded-[2.25rem] border border-border-default bg-surface-primary p-8 shadow-2">
+					<article className="rounded-[2.25rem] border border-hairline bg-canvas p-8 shadow-2">
 						<SectionHeading
 							eyebrow="Quiénes somos"
 							title="Una empresa joven con una meta clara."
@@ -21,7 +21,7 @@ export function AboutSection() {
 						/>
 
 						<div className="mt-8 space-y-6">
-							<p className="text-base leading-7 text-text-secondary">
+							<p className="text-base leading-7 text-charcoal">
 								CERMONT S.A.S es una empresa joven, ubicada en la calle 21 No. 25-43, en el corazon
 								de Arauca-Arauca, identificada con NIT 900.223.449-5 adscrita a la camara de
 								comercio de la ciudad de Arauca y con una meta clara: la satisfaccion total de
@@ -31,22 +31,22 @@ export function AboutSection() {
 							</p>
 
 							<div className="grid gap-4 sm:grid-cols-2">
-								<div className="rounded-2xl border border-border-default bg-surface-secondary p-5">
+								<div className="rounded-2xl border border-hairline bg-surface p-5">
 									<div className="flex items-center gap-3">
-										<Building2 className="size-5 text-cermont-blue" aria-hidden="true" />
-										<h3 className="text-sm font-semibold text-text-primary">Base operativa</h3>
+										<Building2 className="size-5 text-charcoal" aria-hidden="true" />
+										<h3 className="text-sm font-semibold text-ink">Base operativa</h3>
 									</div>
-									<p className="mt-3 text-sm leading-6 text-text-secondary">
+									<p className="mt-3 text-sm leading-6 text-charcoal">
 										Sede principal en Arauca (Calle 21 No. 25-43) y oficina en Bogota (Calle 70A No.
 										17-16). Atencion nacional con personal calificado.
 									</p>
 								</div>
-								<div className="rounded-2xl border border-border-default bg-surface-secondary p-5">
+								<div className="rounded-2xl border border-hairline bg-surface p-5">
 									<div className="flex items-center gap-3">
-										<Sparkles className="size-5 text-cermont-green" aria-hidden="true" />
-										<h3 className="text-sm font-semibold text-text-primary">Enfoque</h3>
+										<Sparkles className="size-5 text-charcoal" aria-hidden="true" />
+										<h3 className="text-sm font-semibold text-ink">Enfoque</h3>
 									</div>
-									<p className="mt-3 text-sm leading-6 text-text-secondary">
+									<p className="mt-3 text-sm leading-6 text-charcoal">
 										Respeto, lealtad, responsabilidad y transparencia como principios de nuestro
 										codigo de clientes.
 									</p>

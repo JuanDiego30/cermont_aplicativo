@@ -24,12 +24,12 @@ export default function ReportsError({ error, reset }: ErrorProps) {
 			aria-labelledby="reports-error-title"
 		>
 			<div className="flex flex-col items-center gap-2">
-				<div className="flex size-14 items-center justify-center rounded-full bg-red-50">
+				<div className="flex size-14 items-center justify-center rounded-full bg-danger-bg">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
 						fill="currentColor"
-						className="size-7 text-red-500"
+						className="size-7 text-brand-error"
 						aria-hidden="true"
 					>
 						<path
@@ -39,13 +39,13 @@ export default function ReportsError({ error, reset }: ErrorProps) {
 						/>
 					</svg>
 				</div>
-				<h2 id="reports-error-title" className="text-lg font-semibold text-zinc-900">
+				<h2 id="reports-error-title" className="text-lg font-semibold text-ink">
 					Error en Reportes
 				</h2>
-				<p className="max-w-sm text-sm text-zinc-600">
+				<p className="max-w-sm text-sm text-steel">
 					Ocurrió un error al cargar el módulo de reportes.
 				</p>
-				{error.digest && <p className="text-xs text-zinc-400">Código: {error.digest}</p>}
+				{error.digest && <p className="text-xs text-stone">Código: {error.digest}</p>}
 			</div>
 			<div className="flex gap-3">
 				<button
@@ -57,7 +57,7 @@ export default function ReportsError({ error, reset }: ErrorProps) {
 				</button>
 				<Link
 					href="/dashboard"
-					className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+					className="rounded-lg border border-hairline bg-canvas px-4 py-2 text-sm font-medium text-charcoal transition hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
 				>
 					Ir al inicio
 				</Link>

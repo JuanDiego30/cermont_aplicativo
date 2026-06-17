@@ -39,7 +39,7 @@ const STATUS_COLORS: Record<string, string> = {
 	draft: "bg-gray-100 text-gray-700",
 	submitted: "bg-blue-50 text-brand",
 	qualified: "bg-success/10 text-success",
-	visit_required: "bg-amber-50 text-amber-700",
+	visit_required: "bg-amber-50 text-brand-warn",
 	proposal_pending: "bg-purple-50 text-purple-700",
 	cancelled: "bg-destructive/10 text-destructive",
 };
@@ -282,7 +282,7 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 							>
 								Visita técnica requerida
 							</h2>
-							<div className="flex items-center gap-2 text-sm text-amber-700">
+							<div className="flex items-center gap-2 text-sm text-brand-warn">
 								<ClipboardCheck className="size-4" aria-hidden="true" />
 								Programar visita para evaluar en sitio
 							</div>

@@ -55,16 +55,21 @@ function StepStatusClasses({
 	const isDone = step.status === "completed";
 	const isBlocked = step.status === "blocked";
 
+	/* Color-as-signal: brand colors are borders + text only, never background fills.
+	   Completed = green border, neutral bg, green icon
+	   Blocked   = amber border, neutral bg, amber icon
+	   Active    = blue border, neutral bg, blue icon + subtle blue ring
+	   Pending   = gray border, neutral bg, gray number */
 	if (isDone) {
-		return "border-[var(--color-success)] bg-[var(--color-success)] text-white";
+		return "border-brand-annotate bg-canvas text-brand-annotate";
 	}
 	if (isBlocked) {
-		return "border-[var(--color-warning)] bg-[var(--color-warning-bg)] text-[var(--color-warning)]";
+		return "border-brand-warn bg-canvas text-brand-warn";
 	}
 	if (isCurrent) {
-		return "border-[var(--color-brand)] bg-[var(--surface-primary)] text-[var(--color-brand)] shadow-[0_0_0_4px_var(--color-brand-blue-bg)]";
+		return "border-brand-green bg-canvas text-brand-green shadow-[0_0_0_4px_rgba(33,84,166,0.12)] ring-2 ring-brand-green/20";
 	}
-	return "border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-muted)]";
+	return "border-hairline bg-canvas text-steel";
 }
 
 function StepItem({
@@ -101,13 +106,13 @@ function StepItem({
 				<div className="absolute -bottom-10 flex w-24 flex-col items-center gap-1 text-center">
 					<span
 						className={`text-[9px] leading-tight transition-colors ${
-							isCurrent ? "font-bold text-[var(--text-primary)]" : "text-[var(--text-muted)]"
+							isCurrent ? "font-bold text-ink" : "text-steel"
 						}`}
 					>
 						{step.label}
 					</span>
 					{(missingDocuments > 0 || missingSignatures > 0) && (
-						<div className="flex items-center gap-1 text-[9px] text-[var(--color-warning)]">
+						<div className="flex items-center gap-1 text-[9px] text-brand-warn">
 							{missingDocuments > 0 && <FileWarning className="size-3" />}
 							{missingSignatures > 0 && <PenSquare className="size-3" />}
 						</div>
@@ -118,7 +123,7 @@ function StepItem({
 			{!isLast && (
 				<div
 					className={`mx-1 mt-4 h-0.5 w-10 transition-colors duration-500 ${
-						isDone ? "bg-[var(--color-success)]" : "bg-[var(--border-subtle)]"
+						isDone ? "bg-brand-annotate/40" : "bg-hairline"
 					}`}
 				/>
 			)}

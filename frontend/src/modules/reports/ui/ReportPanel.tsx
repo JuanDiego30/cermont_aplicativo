@@ -131,7 +131,7 @@ export function ReportPanel({ orderId, readOnly = false }: ReportPanelProps) {
 
 	if (orderError || reportError) {
 		return (
-			<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-300">
+			<div className="rounded-xl border border-red-200 bg-danger-bg p-4 text-sm text-brand-error dark:border-red-900/30 dark:bg-red-900/10 dark:text-brand-error">
 				No se pudo cargar el informe.
 			</div>
 		);
@@ -146,7 +146,7 @@ export function ReportPanel({ orderId, readOnly = false }: ReportPanelProps) {
 	return (
 		<section
 			aria-labelledby="work-report-title"
-			className="space-y-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-6"
+			className="space-y-4 rounded-xl border border-hairline bg-canvas p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-6"
 		>
 			<ReportPanelHeader
 				actionPending={actionPending}
@@ -193,15 +193,12 @@ function ReportPanelHeader({
 		<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 			<div className="space-y-2">
 				<div className="flex flex-wrap items-center gap-2">
-					<h2
-						id="work-report-title"
-						className="text-lg font-semibold text-zinc-950 dark:text-white"
-					>
+					<h2 id="work-report-title" className="text-lg font-semibold text-ink dark:text-white">
 						Informe de trabajo
 					</h2>
 					{report ? <ReportStatusBadge status={report.status} /> : <MissingReportBadge />}
 				</div>
-				<p className="text-sm text-zinc-600 dark:text-zinc-400">
+				<p className="text-sm text-steel dark:text-stone">
 					Consolida checklist firmado, costos, evidencias y la aprobación operativa antes de
 					facturar.
 				</p>
@@ -224,7 +221,7 @@ function ReportPanelHeader({
 
 function MissingReportBadge() {
 	return (
-		<span className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+		<span className="rounded-full border border-hairline bg-surface px-2.5 py-1 text-xs font-medium text-charcoal dark:border-zinc-800 dark:bg-canvas dark:text-muted-text">
 			Sin informe
 		</span>
 	);
@@ -310,11 +307,11 @@ function ReportInclusionGrid({ report }: { report: WorkReport }) {
 
 function ReportSummaryBlock({ summary }: { summary: string }) {
 	return (
-		<div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-			<p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+		<div className="rounded-lg border border-hairline bg-surface p-4 dark:border-zinc-800 dark:bg-canvas">
+			<p className="text-xs font-medium uppercase tracking-wide text-steel dark:text-stone">
 				Resumen
 			</p>
-			<p className="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{summary}</p>
+			<p className="mt-2 text-sm leading-relaxed text-charcoal dark:text-muted-text">{summary}</p>
 		</div>
 	);
 }
@@ -340,7 +337,7 @@ function ReportDraftActions({
 				type="button"
 				onClick={onSendToReview}
 				disabled={actionPending}
-				className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-900 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-300"
+				className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-200 bg-warning-bg px-4 py-2 text-sm font-medium text-brand-warn transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-brand-warn"
 			>
 				<Send className="size-4" aria-hidden="true" />
 				Enviar a revisión
@@ -371,8 +368,8 @@ function PendingReviewBlock({
 	}
 
 	return (
-		<div className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-			<p className="text-sm text-zinc-700 dark:text-zinc-300">El informe espera revisión.</p>
+		<div className="space-y-3 rounded-lg border border-hairline bg-surface p-4 dark:border-zinc-800 dark:bg-canvas">
+			<p className="text-sm text-charcoal dark:text-muted-text">El informe espera revisión.</p>
 			{canReview ? (
 				<ReportReviewActions
 					actionPending={actionPending}
@@ -382,7 +379,7 @@ function PendingReviewBlock({
 					onRejectionReasonChange={onRejectionReasonChange}
 				/>
 			) : (
-				<p className="text-sm text-zinc-500 dark:text-zinc-400">
+				<p className="text-sm text-steel dark:text-stone">
 					Solo supervisor o gerente pueden aprobar o rechazar.
 				</p>
 			)}
@@ -420,13 +417,13 @@ function ReportReviewActions({
 					onChange={(event) => onRejectionReasonChange(event.target.value)}
 					placeholder="Motivo de rechazo"
 					aria-label="Motivo de rechazo"
-					className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+					className="min-w-0 flex-1 rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm text-ink outline-none transition focus:border-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
 				/>
 				<button
 					type="button"
 					onClick={onReject}
 					disabled={actionPending}
-					className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-900 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-300"
+					className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-danger-bg px-4 py-2 text-sm font-medium text-brand-error transition-colors hover:bg-danger-bg disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/30 dark:bg-red-900/10 dark:text-brand-error"
 				>
 					<ShieldAlert className="size-4" aria-hidden="true" />
 					Rechazar
@@ -449,7 +446,7 @@ function ApprovedReportBlock({
 
 	return (
 		<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-			<p className="text-sm text-green-700 dark:text-green-300">
+			<p className="text-sm text-brand-annotate dark:text-brand-annotate">
 				El informe fue aprobado y ya puede descargarse.
 			</p>
 			<ReportDownloadButton orderId={orderId} />
@@ -475,8 +472,8 @@ function RejectedReportBlock({
 	}
 
 	return (
-		<div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/30 dark:bg-red-900/10">
-			<div className="flex items-start gap-2 text-sm text-red-900 dark:text-red-300">
+		<div className="space-y-3 rounded-lg border border-red-200 bg-danger-bg p-4 dark:border-red-900/30 dark:bg-red-900/10">
+			<div className="flex items-start gap-2 text-sm text-brand-error dark:text-brand-error">
 				<FileWarning className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
 				<p>
 					{rejectionReason || "El informe fue rechazado y requiere ajustes antes de reenviarlo."}
@@ -486,7 +483,7 @@ function RejectedReportBlock({
 				type="button"
 				onClick={onRegenerate}
 				disabled={actionPending}
-				className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-zinc-900 ring-1 ring-inset ring-zinc-300 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-950 dark:text-white dark:ring-zinc-700 dark:hover:bg-zinc-900"
+				className="inline-flex items-center justify-center gap-2 rounded-lg bg-canvas px-4 py-2 text-sm font-medium text-ink ring-1 ring-inset ring-zinc-300 transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-950 dark:text-white dark:ring-zinc-700 dark:hover:bg-zinc-900"
 			>
 				<RefreshCw className="size-4" aria-hidden="true" />
 				Regenerar
@@ -497,7 +494,7 @@ function RejectedReportBlock({
 
 function NoReportState() {
 	return (
-		<div className="flex items-start gap-3 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-4 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
+		<div className="flex items-start gap-3 rounded-lg border border-dashed border-hairline bg-surface p-4 text-sm text-steel dark:border-zinc-700 dark:bg-canvas dark:text-stone">
 			<FileWarning className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
 			<p>El informe aún no existe para esta orden.</p>
 		</div>
@@ -515,15 +512,15 @@ function InfoCard({
 }) {
 	return (
 		<article
-			className={`rounded-lg border p-3 ${tone === "green" ? "border-green-200 bg-green-50 dark:border-green-900/30 dark:bg-green-900/10" : "border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"}`}
+			className={`rounded-lg border p-3 ${tone === "green" ? "border-green-200 bg-success-bg dark:border-green-900/30 dark:bg-green-900/10" : "border-hairline bg-surface dark:border-zinc-800 dark:bg-canvas"}`}
 		>
 			<p
-				className={`text-xs font-medium uppercase tracking-wide ${tone === "green" ? "text-green-700 dark:text-green-300" : "text-zinc-500 dark:text-zinc-400"}`}
+				className={`text-xs font-medium uppercase tracking-wide ${tone === "green" ? "text-brand-annotate dark:text-brand-annotate" : "text-steel dark:text-stone"}`}
 			>
 				{label}
 			</p>
 			<p
-				className={`mt-1 text-sm font-medium ${tone === "green" ? "text-green-900 dark:text-green-300" : "text-zinc-900 dark:text-white"}`}
+				className={`mt-1 text-sm font-medium ${tone === "green" ? "text-brand-annotate dark:text-brand-annotate" : "text-ink dark:text-white"}`}
 			>
 				{value}
 			</p>
@@ -535,15 +532,15 @@ function ReportSkeleton() {
 	const kpiKeys = Array.from({ length: 3 }, (_, i) => `report-kpi-sk-${i}`);
 
 	return (
-		<div className="animate-pulse space-y-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
-			<div className="h-6 w-48 rounded bg-zinc-200 dark:bg-zinc-800" />
-			<div className="h-4 w-80 rounded bg-zinc-200 dark:bg-zinc-800" />
+		<div className="animate-pulse space-y-4 rounded-xl border border-hairline bg-canvas p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
+			<div className="h-6 w-48 rounded bg-zinc-200 dark:bg-surface" />
+			<div className="h-4 w-80 rounded bg-zinc-200 dark:bg-surface" />
 			<div className="grid gap-3 sm:grid-cols-3">
 				{kpiKeys.map((k) => (
-					<div key={k} className="h-16 rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+					<div key={k} className="h-16 rounded-lg bg-zinc-200 dark:bg-surface" />
 				))}
 			</div>
-			<div className="h-24 rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+			<div className="h-24 rounded-lg bg-zinc-200 dark:bg-surface" />
 		</div>
 	);
 }

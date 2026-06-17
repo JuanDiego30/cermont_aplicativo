@@ -84,7 +84,7 @@ export function OrderClosureTab({ orderId }: OrderClosureTabProps) {
 	return (
 		<section
 			aria-label="Cierre administrativo"
-			className="space-y-6 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-6"
+			className="space-y-6 rounded-xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 border-800 bg-950 sm:p-6"
 		>
 			<ReportPanel orderId={orderId} />
 
@@ -137,7 +137,7 @@ function ClosureDetails({
 }) {
 	return (
 		<div>
-			<h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+			<h2 className="mb-4 text-base font-semibold text-[var(--text-primary)] dark:text-white">
 				Detalles de cierre
 			</h2>
 			<dl className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
@@ -187,10 +187,12 @@ function ClosureObservations({ observations }: { observations?: string }) {
 
 	return (
 		<div>
-			<h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">Observaciones</h2>
+			<h2 className="mb-4 text-base font-semibold text-[var(--text-primary)] dark:text-white">
+				Observaciones
+			</h2>
 			<dl>
 				<dt className="sr-only">Observaciones de cierre</dt>
-				<dd className="rounded-lg bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+				<dd className="rounded-lg bg-[var(--surface-card)] p-4 text-sm leading-relaxed text-[var(--text-secondary)] bg-900 text-300">
 					{observations}
 				</dd>
 			</dl>
@@ -296,9 +298,9 @@ function AdministrativeClosureRequirements({
 }) {
 	if (isLoading) {
 		return (
-			<div className="animate-pulse rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-				<div className="h-4 w-48 rounded bg-zinc-200 dark:bg-zinc-800" />
-				<div className="mt-3 h-16 rounded bg-zinc-200 dark:bg-zinc-800" />
+			<div className="animate-pulse rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 border-800 bg-900">
+				<div className="h-4 w-48 rounded bg-[var(--surface-secondary)] bg-800" />
+				<div className="mt-3 h-16 rounded bg-[var(--surface-secondary)] bg-800" />
 			</div>
 		);
 	}
@@ -310,13 +312,13 @@ function AdministrativeClosureRequirements({
 	return (
 		<section
 			aria-label="Requisitos de cierre administrativo pasos 8 a 14"
-			className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
+			className="rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 border-800 bg-900"
 		>
 			<div className="flex items-center justify-between gap-3">
-				<h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
+				<h3 className="text-sm font-semibold text-[var(--text-primary)] dark:text-white">
 					Cierre administrativo (acta → SES → factura → pago)
 				</h3>
-				<span className="text-xs font-medium text-zinc-500">
+				<span className="text-xs font-medium text-[var(--text-tertiary)]">
 					{report.completionPercentage}% completado
 				</span>
 			</div>
@@ -324,18 +326,16 @@ function AdministrativeClosureRequirements({
 				{report.requirements.map((requirement) => (
 					<li
 						key={requirement.kind}
-						className="flex items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs dark:border-zinc-700 dark:bg-zinc-950"
+						className="flex items-center justify-between rounded-md border border-[var(--border-medium)] bg-[var(--surface-card)] px-3 py-2 text-xs border-700 bg-950"
 					>
-						<span className="font-medium text-zinc-800 dark:text-zinc-200">
-							{requirement.label}
-						</span>
+						<span className="font-medium text-charcoal text-200">{requirement.label}</span>
 						<span
 							className={
 								requirement.status === "completed"
-									? "text-green-600"
+									? "text-brand-annotate"
 									: requirement.status === "pending"
-										? "text-amber-600"
-										: "text-red-600"
+										? "text-brand-warn"
+										: "text-brand-error"
 							}
 						>
 							{requirement.status === "completed"
@@ -407,15 +407,15 @@ function ClosureGateAlert({ description, title }: { description: string; title: 
 		<div
 			data-testid="invoicing-gate-error"
 			role="alert"
-			className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/30 dark:bg-amber-900/10"
+			className="flex items-start gap-3 rounded-lg border border-amber-200 bg-warning-bg px-4 py-3 dark:border-amber-900/30 dark:bg-amber-900/10"
 		>
 			<AlertCircle
-				className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400"
+				className="mt-0.5 size-5 shrink-0 text-brand-warn dark:text-brand-warn"
 				aria-hidden="true"
 			/>
 			<div>
-				<p className="text-sm font-medium text-amber-900 dark:text-amber-300">{title}</p>
-				<p className="mt-1 text-xs text-amber-700 dark:text-amber-400">{description}</p>
+				<p className="text-sm font-medium text-brand-warn dark:text-brand-warn">{title}</p>
+				<p className="mt-1 text-xs text-brand-warn dark:text-brand-warn">{description}</p>
 			</div>
 		</div>
 	);
@@ -427,12 +427,12 @@ function ClosedNotice({ visible }: { visible: boolean }) {
 	}
 
 	return (
-		<div className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
+		<div className="flex items-center gap-3 rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 border-800 bg-900">
 			<CheckCircle
-				className="size-5 shrink-0 text-zinc-500 dark:text-zinc-400"
+				className="size-5 shrink-0 text-[var(--text-tertiary)] text-400"
 				aria-hidden="true"
 			/>
-			<p className="text-sm text-zinc-600 dark:text-zinc-400">
+			<p className="text-sm text-[var(--text-secondary)] text-400">
 				Esta orden ha sido cerrada administrativamente.
 			</p>
 		</div>
@@ -450,14 +450,16 @@ function ClosureStatusIndicator({
 }) {
 	if (isClosed) {
 		return (
-			<div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-900/30 dark:bg-green-900/10">
+			<div className="flex items-center gap-3 rounded-lg border border-green-200 bg-success-bg px-4 py-3 dark:border-green-900/30 dark:bg-green-900/10">
 				<CheckCircle
-					className="size-5 shrink-0 text-green-600 dark:text-green-400"
+					className="size-5 shrink-0 text-brand-annotate dark:text-brand-annotate"
 					aria-hidden="true"
 				/>
 				<div>
-					<p className="text-sm font-semibold text-green-900 dark:text-green-300">Orden cerrada</p>
-					<p className="text-xs text-green-700 dark:text-green-400">
+					<p className="text-sm font-semibold text-brand-annotate dark:text-brand-annotate">
+						Orden cerrada
+					</p>
+					<p className="text-xs text-brand-annotate dark:text-brand-annotate">
 						El cierre administrativo ha sido completado.
 					</p>
 				</div>
@@ -486,16 +488,16 @@ function ClosureStatusIndicator({
 
 	if (isReadyForInvoicing) {
 		return (
-			<div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-900/30 dark:bg-green-900/10">
+			<div className="flex items-center gap-3 rounded-lg border border-green-200 bg-success-bg px-4 py-3 dark:border-green-900/30 dark:bg-green-900/10">
 				<CheckCircle
-					className="size-5 shrink-0 text-green-600 dark:text-green-400"
+					className="size-5 shrink-0 text-brand-annotate dark:text-brand-annotate"
 					aria-hidden="true"
 				/>
 				<div>
-					<p className="text-sm font-semibold text-green-900 dark:text-green-300">
+					<p className="text-sm font-semibold text-brand-annotate dark:text-brand-annotate">
 						Lista para facturación
 					</p>
-					<p className="text-xs text-green-700 dark:text-green-400">
+					<p className="text-xs text-brand-annotate dark:text-brand-annotate">
 						El informe fue aprobado y la orden ya puede facturarse.
 					</p>
 				</div>
@@ -504,16 +506,16 @@ function ClosureStatusIndicator({
 	}
 
 	return (
-		<div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/30 dark:bg-amber-900/10">
+		<div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-warning-bg px-4 py-3 dark:border-amber-900/30 dark:bg-amber-900/10">
 			<AlertCircle
-				className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400"
+				className="mt-0.5 size-5 shrink-0 text-brand-warn dark:text-brand-warn"
 				aria-hidden="true"
 			/>
 			<div>
-				<p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
+				<p className="text-sm font-semibold text-brand-warn dark:text-brand-warn">
 					Orden no completada
 				</p>
-				<p className="text-xs text-amber-700 dark:text-amber-400">
+				<p className="text-xs text-brand-warn dark:text-brand-warn">
 					La orden debe estar completada antes de proceder al cierre administrativo.
 				</p>
 			</div>
@@ -534,13 +536,15 @@ function InfoBlock({
 }) {
 	return (
 		<div
-			className={`rounded-lg border px-4 py-3 ${highlight ? "border-green-200 bg-green-50 dark:border-green-900/30 dark:bg-green-900/10" : "border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"}`}
+			className={`rounded-lg border px-4 py-3 ${highlight ? "border-green-200 bg-success-bg dark:border-green-900/30 dark:bg-green-900/10" : "border-hairline bg-[var(--surface-card)] border-800 bg-900"}`}
 		>
-			<dt className="flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+			<dt className="flex items-center gap-2 text-xs font-medium text-[var(--text-tertiary)] text-400">
 				{icon}
 				{label}
 			</dt>
-			<dd className="mt-1 text-sm font-medium text-zinc-900 dark:text-white">{value}</dd>
+			<dd className="mt-1 text-sm font-medium text-[var(--text-primary)] dark:text-white">
+				{value}
+			</dd>
 		</div>
 	);
 }
@@ -549,23 +553,23 @@ function LoadingSkeleton() {
 	const skeletonKeys = Array.from({ length: 4 }, (_, i) => `closure-sk-${i}`);
 
 	return (
-		<div className="animate-pulse space-y-6 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
-			<div className="h-14 w-full rounded-lg bg-zinc-200 dark:bg-zinc-800" />
-			<div className="h-5 w-40 rounded bg-zinc-200 dark:bg-zinc-800" />
+		<div className="animate-pulse space-y-6 rounded-xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 border-800 bg-950 sm:p-6">
+			<div className="h-14 w-full rounded-lg bg-[var(--surface-secondary)] bg-800" />
+			<div className="h-5 w-40 rounded bg-[var(--surface-secondary)] bg-800" />
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				{skeletonKeys.map((k) => (
-					<div key={k} className="h-16 rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+					<div key={k} className="h-16 rounded-lg bg-[var(--surface-secondary)] bg-800" />
 				))}
 			</div>
-			<div className="h-20 w-full rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+			<div className="h-20 w-full rounded-lg bg-[var(--surface-secondary)] bg-800" />
 		</div>
 	);
 }
 
 function ErrorState() {
 	return (
-		<div className="rounded-xl border border-red-200 bg-red-50 p-6 dark:border-red-900/30 dark:bg-red-900/10">
-			<p className="text-sm text-red-600 dark:text-red-400">
+		<div className="rounded-xl border border-red-200 bg-danger-bg p-6 dark:border-red-900/30 dark:bg-red-900/10">
+			<p className="text-sm text-brand-error dark:text-brand-error">
 				No se pudo cargar la información de cierre de la orden.
 			</p>
 		</div>

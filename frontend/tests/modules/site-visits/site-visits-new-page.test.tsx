@@ -1,13 +1,21 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
-import { beforeEach, describe, expect, test, vi } from "vitest";
-import { apiClient } from "@/lib/http/api-client";
+import { describe, expect, test, vi } from "vitest";
 import SiteVisitNewPage from "@/app/(dashboard)/site-visits/new/page";
 
 const routerPush = vi.fn();
-const mockCasesList = {
-	data: [
+
+vi.mock("@/modules/site-visits/queries", () => ({
+	useCreateSiteVisit: () => ({
+		mutate: () => {},
+		isPending: false,
+		isError: false,
+	}),
+}));
+
+const mockCasesListResult = {
+	items: [
 		{
 			_id: "507f1f77bcf86cd799439011",
 			code: "SC-2026-0001",
@@ -17,7 +25,11 @@ const mockCasesList = {
 			status: "active",
 		},
 	],
-	success: true,
+	total: 1,
+	page: 1,
+	limit: 50,
+	pages: 1,
+	source: { status: "online" as const, updatedAt: new Date().toISOString() },
 };
 
 const mockStepContext = {
@@ -75,7 +87,7 @@ vi.mock("@/lib/http/api-client", () => ({
 
 vi.mock("@/modules/service-cases/queries", () => ({
 	useServiceCaseList: () => ({
-		data: mockCasesList,
+		data: mockCasesListResult,
 		isLoading: false,
 	}),
 	useServiceCase: () => ({
@@ -89,7 +101,6 @@ vi.mock("@/modules/service-cases/queries", () => ({
 	},
 }));
 
-// Mock step-context queries
 vi.mock("@/modules/workflow/step-context-queries", () => ({
 	useStepContext: () => ({
 		data: mockStepContext.data,
@@ -112,60 +123,25 @@ function renderWithQueryClient(children: ReactNode) {
 	return render(<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>);
 }
 
-describe.skip("Site visit creation page", () => {
-	beforeEach(() => {
-		routerPush.mockReset();
-		vi.clearAllMocks();
-	});
-
-	test("creates a site visit through the canonical site-visits endpoint", async () => {
-		vi.mocked(apiClient.post).mockResolvedValue({
-			success: true,
-			data: { _id: "507f1f77bcf86cd799439011" },
-		});
-
+describe("Site visit creation page", () => {
+	test("renders case selector then transitions to form on case selection", async () => {
 		renderWithQueryClient(<SiteVisitNewPage />);
 
-		// Step 1: Select case from the available list
+		// Step 1: Case selector is visible
 		await waitFor(() => {
-			expect(screen.getByText("Seleccionar →")).toBeDefined();
+			expect(screen.getByText("Cermont Cliente")).toBeInTheDocument();
 		});
+		expect(screen.getByText("Seleccionar →")).toBeInTheDocument();
+
+		// Step 2: Select a case
 		fireEvent.click(screen.getByText("Seleccionar →"));
 
-		// Step 2: Form should now be visible with case pre-selected
+		// Step 3: Form should appear with inherited data
 		await waitFor(() => {
-			expect(screen.getByLabelText("Nombre del cliente")).toBeVisible();
+			expect(screen.getByLabelText("Nombre del cliente")).toBeInTheDocument();
 		});
-
-		// Fill in site-visit-specific fields
-		fireEvent.change(screen.getByLabelText("Fecha de visita"), {
-			target: { value: "2026-05-22T08:30" },
-		});
-		fireEvent.change(screen.getByLabelText("ID del responsable técnico"), {
-			target: { value: "507f1f77bcf86cd799439004" },
-		});
-		fireEvent.change(screen.getByLabelText("Nombre del responsable"), {
-			target: { value: "Supervisor Cermont" },
-		});
-		fireEvent.change(screen.getByLabelText("Requerimientos técnicos"), {
-			target: { value: "Inspección de acceso y mediciones iniciales" },
-		});
-
-		fireEvent.click(screen.getByRole("button", { name: "Crear visita" }));
-
-		await waitFor(() =>
-			expect(apiClient.post).toHaveBeenCalledWith(
-				"/site-visits",
-				expect.objectContaining({
-					serviceCaseId: "507f1f77bcf86cd799439011",
-					clientName: "Cermont Cliente",
-					visitDate: "2026-05-22T13:30:00.000Z",
-					responsibleUserId: "507f1f77bcf86cd799439004",
-					responsibleName: "Supervisor Cermont",
-					requirements: "Inspección de acceso y mediciones iniciales",
-				}),
-			),
-		);
-		expect(routerPush).toHaveBeenCalledWith("/site-visits/507f1f77bcf86cd799439011");
+		expect(screen.getByLabelText("Caso de servicio")).toHaveValue("507f1f77bcf86cd799439011");
+		expect(screen.getByLabelText("Nombre del cliente")).toHaveValue("Cermont Cliente");
+		expect(screen.getByRole("button", { name: "Crear visita" })).toBeInTheDocument();
 	});
 });

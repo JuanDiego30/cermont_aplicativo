@@ -32,28 +32,28 @@ export default function ArchiveReportsPage() {
 	return (
 		<section className="space-y-6" aria-labelledby="archive-reports-title">
 			<div>
-				<h1 id="archive-reports-title" className="text-2xl font-semibold text-zinc-900">
+				<h1 id="archive-reports-title" className="text-2xl font-semibold text-ink">
 					Archivo histórico
 				</h1>
-				<p className="text-sm text-zinc-500">Consulta y descarga órdenes archivadas por periodo.</p>
+				<p className="text-sm text-steel">Consulta y descarga órdenes archivadas por periodo.</p>
 			</div>
 
 			<div
-				className="rounded-xl border border-zinc-200 bg-background p-4 shadow-sm"
+				className="rounded-xl border border-hairline bg-background p-4 shadow-sm"
 				aria-busy={isLoading}
 			>
 				{isLoading ? (
-					<p role="status" aria-live="polite" className="text-sm text-zinc-500">
+					<p role="status" aria-live="polite" className="text-sm text-steel">
 						Cargando periodos…
 					</p>
 				) : null}
 				{isError ? (
 					<div role="alert" className="space-y-2">
-						<p className="text-sm text-red-600">No se pudo cargar el histórico.</p>
+						<p className="text-sm text-brand-error">No se pudo cargar el histórico.</p>
 						<button
 							type="button"
 							onClick={() => refetch()}
-							className="rounded-md border border-zinc-300 px-3 py-1 text-sm"
+							className="rounded-md border border-hairline px-3 py-1 text-sm"
 						>
 							Reintentar
 						</button>
@@ -61,7 +61,7 @@ export default function ArchiveReportsPage() {
 				) : null}
 
 				{!isLoading && !isError && (data?.length ?? 0) === 0 ? (
-					<p className="text-sm text-zinc-500">No hay periodos archivados.</p>
+					<p className="text-sm text-steel">No hay periodos archivados.</p>
 				) : null}
 
 				{!isLoading && !isError && (data?.length ?? 0) > 0 ? (
@@ -70,7 +70,7 @@ export default function ArchiveReportsPage() {
 							Periodos archivados con cantidad de órdenes y acción para descarga.
 						</caption>
 						<thead>
-							<tr className="border-b border-zinc-100 text-left text-zinc-500">
+							<tr className="border-b border-zinc-100 text-left text-steel">
 								<th scope="col" className="p-2">
 									Periodo
 								</th>
@@ -85,14 +85,14 @@ export default function ArchiveReportsPage() {
 						<tbody>
 							{data?.map((period) => (
 								<tr key={period.periodo} className="border-b border-zinc-100">
-									<th scope="row" className="p-2 text-left font-medium text-zinc-900">
+									<th scope="row" className="p-2 text-left font-medium text-ink">
 										{period.periodo}
 									</th>
-									<td className="p-2 text-zinc-700">{period.count}</td>
+									<td className="p-2 text-charcoal">{period.count}</td>
 									<td className="p-2 text-right">
 										<a
 											href={toApiUrl(`/reports/archive/${period.periodo}/download`)}
-											className="inline-flex items-center gap-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50"
+											className="inline-flex items-center gap-1 rounded-md border border-hairline px-2.5 py-1.5 text-xs font-medium text-charcoal hover:bg-surface"
 										>
 											<Download aria-hidden="true" className="size-3.5" />
 											Descargar

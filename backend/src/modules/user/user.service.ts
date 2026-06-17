@@ -51,6 +51,7 @@ function validateRole(role: string): void {
 
 /**
  * Format user document for API response (exclude sensitive fields)
+ * Defensively handles Mongoose documents with type-safe property extraction.
  */
 function formatUserResponse(doc: IUserDocument): UserContract {
 	return {

@@ -131,7 +131,7 @@ export async function verifySignature(id: string, userId: string) {
 	const updated = await ClientSignatureModel.findByIdAndUpdate(
 		id,
 		{ status: "verified", verifiedAt: new Date(), verifiedBy: userId },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (!updated) {
 		throw new AppError("Firma no encontrada", 404, "SIGNATURE_NOT_FOUND");
@@ -151,7 +151,7 @@ export async function rejectSignature(id: string, reason: string, userId: string
 	const updated = await ClientSignatureModel.findByIdAndUpdate(
 		id,
 		{ status: "rejected", rejectedAt: new Date(), rejectedBy: userId, rejectionReason: reason },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (!updated) {
 		throw new AppError("Firma no encontrada", 404, "SIGNATURE_NOT_FOUND");

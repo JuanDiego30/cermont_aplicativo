@@ -2,11 +2,11 @@ import { cn } from "@/lib/utils";
 
 const toneClasses = {
 	default:
-		"border-zinc-200 bg-zinc-50 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white",
+		"border-hairline bg-surface text-ink dark:border-zinc-800 dark:bg-canvas dark:text-white",
 	warning:
-		"border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-amber-200",
+		"border-amber-200 bg-warning-bg text-brand-warn dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-brand-warn",
 	success:
-		"border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-900/10 dark:text-emerald-200",
+		"border-emerald-200 bg-emerald-50 text-brand-annotate dark:border-emerald-900/40 dark:bg-emerald-900/10 dark:text-brand-annotate",
 } as const;
 
 export function SummaryCard({

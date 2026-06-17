@@ -13,8 +13,8 @@ export function OrderCostsTab({ orderId }: OrderCostsTabProps) {
 	return (
 		<section aria-label="Costos de la orden" className="space-y-6">
 			<div className="space-y-2">
-				<h2 className="text-xl font-semibold text-zinc-950 dark:text-white">Costos</h2>
-				<p className="text-sm text-zinc-600 dark:text-zinc-400">
+				<h2 className="text-xl font-semibold text-ink dark:text-white">Costos</h2>
+				<p className="text-sm text-[var(--text-secondary)] text-400">
 					Registra costos reales, revisa el resumen y controla la variación antes del cierre.
 				</p>
 			</div>

@@ -14,34 +14,34 @@ type ColorVariant = "blue" | "green" | "amber" | "red" | "indigo" | "cyan";
 
 const COLOR_MAP: Record<ColorVariant, { iconBg: string; iconText: string; accent: string }> = {
 	blue: {
-		iconBg: "bg-[var(--color-cermont-blue-bg)]",
-		iconText: "text-[var(--color-cermont-blue)]",
-		accent: "bg-[var(--color-cermont-blue)]",
+		iconBg: "bg-brand-green/10",
+		iconText: "text-brand-green",
+		accent: "bg-brand-green",
 	},
 	green: {
-		iconBg: "bg-[var(--color-cermont-green-bg)]",
-		iconText: "text-[var(--color-cermont-green)]",
-		accent: "bg-[var(--color-cermont-green)]",
+		iconBg: "bg-brand-annotate/10",
+		iconText: "text-brand-annotate",
+		accent: "bg-brand-annotate",
 	},
 	amber: {
-		iconBg: "bg-[var(--color-warning-bg)]",
-		iconText: "text-[var(--color-warning)]",
-		accent: "bg-[var(--color-warning)]",
+		iconBg: "bg-warning-bg",
+		iconText: "text-brand-warn",
+		accent: "bg-brand-warn",
 	},
 	red: {
-		iconBg: "bg-[var(--color-danger-bg)]",
-		iconText: "text-[var(--color-danger)]",
-		accent: "bg-[var(--color-danger)]",
+		iconBg: "bg-danger-bg",
+		iconText: "text-brand-error",
+		accent: "bg-brand-error",
 	},
 	indigo: {
-		iconBg: "bg-[var(--color-info-bg)]",
-		iconText: "text-[var(--color-info)]",
-		accent: "bg-[var(--color-info)]",
+		iconBg: "bg-info-bg",
+		iconText: "text-brand-tag",
+		accent: "bg-brand-tag",
 	},
 	cyan: {
-		iconBg: "bg-[var(--color-info-bg)]",
-		iconText: "text-[var(--color-info)]",
-		accent: "bg-[var(--color-info)]",
+		iconBg: "bg-info-bg",
+		iconText: "text-brand-tag",
+		accent: "bg-brand-tag",
 	},
 };
 
@@ -80,14 +80,10 @@ export function KPICard({
 }: KPICardProps) {
 	const colors = COLOR_MAP[color];
 	const cardRef = useRef<HTMLElement>(null);
-	// Direct DOM ref for the counter — we write textContent on every frame
-	// instead of calling setState. This prevents ~72 React re-renders per
-	// 1.2s animation and removes a major source of jank.
 	const valueRef = useRef<HTMLParagraphElement>(null);
 	const numericTarget = typeof value === "number" ? value : null;
 	const staticDisplay = typeof value === "string" ? value : formatValue(numericTarget ?? 0, format);
 
-	// Card entrance + counter animation
 	useGSAP(
 		() => {
 			if (!valueRef.current) {
@@ -95,7 +91,6 @@ export function KPICard({
 			}
 
 			if (prefersReducedMotion()) {
-				// Paint the final value once; no animation.
 				if (numericTarget !== null) {
 					valueRef.current.textContent = formatValue(numericTarget, format);
 				}
@@ -111,7 +106,6 @@ export function KPICard({
 
 			if (numericTarget !== null) {
 				const counter = { value: 0 };
-				// Seed the DOM node so we don't render "0" briefly.
 				valueRef.current.textContent = formatValue(0, format);
 				gsap.to(counter, {
 					value: numericTarget,
@@ -119,7 +113,6 @@ export function KPICard({
 					delay: 0.1,
 					ease: "power2.out",
 					onUpdate() {
-						// Direct DOM mutation — bypass React reconciliation.
 						if (valueRef.current) {
 							valueRef.current.textContent = formatValue(counter.value, format);
 						}
@@ -139,7 +132,7 @@ export function KPICard({
 		<article
 			ref={cardRef}
 			className={cn(
-				`${MOTION.card} group relative overflow-hidden rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-card hover:border-[var(--border-medium)] hover:shadow-md`,
+				`${MOTION.card} group relative overflow-hidden rounded-[24px] border border-hairline bg-canvas p-6 shadow-card hover:border-hairline hover:shadow-md`,
 				className,
 			)}
 		>
@@ -165,8 +158,8 @@ export function KPICard({
 						className={cn(
 							"flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold font-mono",
 							trend.isPositive
-								? "bg-(--color-success-bg) text-brand-green-deep"
-								: "bg-(--color-danger-bg) text-(--color-danger)",
+								? "bg-success-bg text-brand-green-deep"
+								: "bg-danger-bg text-brand-error",
 						)}
 					>
 						{trend.isPositive ? (
@@ -180,20 +173,18 @@ export function KPICard({
 			</div>
 
 			<div className="mt-5">
-				<h3 className="text-sm font-semibold text-(--text-secondary) uppercase tracking-wider font-mono">
+				<h3 className="text-sm font-semibold text-charcoal uppercase tracking-wider font-mono">
 					{title}
 				</h3>
 				<p
 					ref={valueRef}
-					// For string values we render the static text;
-					// for numeric targets GSAP overwrites textContent on every frame.
 					suppressHydrationWarning
-					className="mt-1 text-3xl font-bold tracking-tight text-(--text-primary)"
+					className="mt-1 text-3xl font-bold tracking-tight text-ink"
 				>
 					{staticDisplay}
 				</p>
 				{description && (
-					<p className="mt-2 text-xs font-medium text-(--text-tertiary) truncate">{description}</p>
+					<p className="mt-2 text-xs font-medium text-slate truncate">{description}</p>
 				)}
 				{sparkline && sparkline.length > 1 ? (
 					<KpiSparkline values={sparkline} label={`Tendencia de ${title}`} />
@@ -215,7 +206,7 @@ function KpiSparkline({ values, label }: { values: number[]; label: string }) {
 			viewBox="0 0 100 32"
 			role="img"
 			aria-label={label}
-			className="mt-4 h-8 w-full text-[var(--color-brand-blue)]"
+			className="mt-4 h-8 w-full text-brand-green"
 			preserveAspectRatio="none"
 		>
 			<polyline

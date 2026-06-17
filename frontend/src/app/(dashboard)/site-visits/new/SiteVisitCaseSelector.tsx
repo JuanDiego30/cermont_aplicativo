@@ -50,7 +50,7 @@ export function SiteVisitCaseSelector({ cases, isLoading, onSelect }: SiteVisitC
 			) : (
 				<div className="grid gap-3">
 					{!cases || cases.length === 0 ? (
-						<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-8 text-center">
+						<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-8 text-center">
 							<Search className="mx-auto size-8 text-[var(--text-muted)]" />
 							<p className="mt-3 text-sm text-[var(--text-secondary)]">
 								No hay casos de servicio disponibles. Cree primero una solicitud.
@@ -69,7 +69,7 @@ export function SiteVisitCaseSelector({ cases, isLoading, onSelect }: SiteVisitC
 								key={caseItem._id}
 								type="button"
 								onClick={() => onSelect(caseItem._id)}
-								className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 text-left transition-all hover:border-[var(--color-brand)] hover:shadow-sm"
+								className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 text-left transition-all hover:border-[var(--color-brand)] hover:shadow-sm"
 							>
 								<div>
 									<p className="font-semibold text-[var(--text-primary)]">{caseItem.clientName}</p>

@@ -10,9 +10,9 @@ interface WorkflowBlockerListProps {
 function severityTone(severity: DomainBlocker["severity"]): string {
 	switch (severity) {
 		case "info":
-			return "border-sky-200 bg-sky-50 text-sky-700";
+			return "border-sky-200 bg-sky-50 text-brand-green";
 		case "warning":
-			return "border-amber-200 bg-amber-50 text-amber-700";
+			return "border-amber-200 bg-warning-bg text-brand-warn";
 		default:
 			return "border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]";
 	}
@@ -20,7 +20,7 @@ function severityTone(severity: DomainBlocker["severity"]): string {
 
 export function WorkflowBlockerList({ blockers }: WorkflowBlockerListProps) {
 	return (
-		<section className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card">
+		<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card">
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
@@ -54,7 +54,7 @@ export function WorkflowBlockerList({ blockers }: WorkflowBlockerListProps) {
 										<p className="text-sm font-semibold text-[var(--text-primary)]">
 											{blocker.message}
 										</p>
-										<span className="rounded-full border border-current/20 bg-white/70 px-2 py-0.5 text-[10px] font-bold uppercase">
+										<span className="rounded-full border border-current/20 bg-canvas/70 px-2 py-0.5 text-[10px] font-bold uppercase">
 											{blocker.severity}
 										</span>
 									</div>

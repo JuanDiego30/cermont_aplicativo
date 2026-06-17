@@ -30,7 +30,7 @@ CounterSchema.statics.inc = async function (key: string): Promise<number> {
 	const result = await this.findOneAndUpdate(
 		{ _id: key },
 		{ $inc: { seq: 1 } },
-		{ upsert: true, new: true },
+		{ upsert: true, returnDocument: "after" },
 	);
 	return result.seq;
 };

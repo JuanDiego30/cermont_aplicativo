@@ -27,16 +27,22 @@ describe("production deployment configuration", () => {
 		expect(compose).not.toContain("SEED_ON_START");
 	});
 
-	it("passes public URLs at frontend image build time", () => {
+	it("passes frontend URLs at image build time", () => {
 		const compose = read("docker-compose.yml");
 		const dockerfile = read("frontend/Dockerfile");
 		const publicAppUrlAssignment = ["NEXT_PUBLIC_APP_URL=", "$", "{NEXT_PUBLIC_APP_URL}"].join("");
+		const backendUrlAssignment = ["BACKEND_URL=", "$", "{BACKEND_URL}"].join("");
 
 		expect(compose).toMatch(
 			/dockerfile: frontend\/Dockerfile[\s\S]*?args:[\s\S]*?NEXT_PUBLIC_APP_URL:/,
 		);
+		expect(compose).toMatch(
+			/dockerfile: frontend\/Dockerfile[\s\S]*?args:[\s\S]*?BACKEND_URL: http:\/\/backend:4000/,
+		);
 		expect(dockerfile).toContain("ARG NEXT_PUBLIC_APP_URL");
+		expect(dockerfile).toContain("ARG BACKEND_URL");
 		expect(dockerfile).toContain(publicAppUrlAssignment);
+		expect(dockerfile).toContain(backendUrlAssignment);
 	});
 
 	it("uses readiness probes for backend dependencies and smoke checks", () => {

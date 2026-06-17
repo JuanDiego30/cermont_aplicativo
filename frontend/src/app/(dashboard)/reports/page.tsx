@@ -15,15 +15,15 @@ const REPORT_TYPE_LABELS: Record<string, string> = {
 };
 
 const REPORT_TYPE_COLORS: Record<string, string> = {
-	ejecucion: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[color:var(--color-info)]/15",
+	ejecucion: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[var(--color-info)]/15",
 	entrega:
-		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[color:var(--color-success)]/15",
+		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[var(--color-success)]/15",
 	cierre:
-		"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[color:var(--border-default)]/20",
+		"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-subtle)]/20",
 	tecnico:
-		"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[color:var(--color-warning)]/15",
+		"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[var(--color-warning)]/15",
 	financiero:
-		"bg-[var(--color-purple-bg)] text-[var(--color-purple)] ring-[color:var(--color-purple)]/15",
+		"bg-[var(--color-purple-bg)] text-[var(--color-purple)] ring-[var(--color-purple)]/15",
 };
 
 function reportValue(report: object, key: string): unknown {
@@ -83,7 +83,7 @@ function ReportTableRow({ report }: { report: object }) {
 			</td>
 			<td className="px-5 py-3.5">
 				<span
-					className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${REPORT_TYPE_COLORS[type] ?? "bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[color:var(--border-default)]/20"}`}
+					className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${REPORT_TYPE_COLORS[type] ?? "bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-subtle)]/20"}`}
 				>
 					{REPORT_TYPE_LABELS[type] ?? type}
 				</span>
@@ -137,8 +137,8 @@ export default function ReportsPage() {
 
 	return (
 		<section className="space-y-6" aria-labelledby="reports-page-title">
-			<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-				<div className="border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
+			<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+				<div className="border-b border-[var(--border-subtle)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
 					<p className="text-sm text-[var(--text-secondary)]">Dashboard / Informes</p>
 					<div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
 						<div>
@@ -172,7 +172,7 @@ export default function ReportsPage() {
 						].map((card) => (
 							<article
 								key={card.label}
-								className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/50 p-4"
+								className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/50 p-4"
 							>
 								<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
 									{card.label}
@@ -186,7 +186,7 @@ export default function ReportsPage() {
 
 			{/* Table */}
 			{isLoading ? (
-				<div className="flex h-32 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-secondary)] shadow-[var(--shadow-2)]">
+				<div className="flex h-32 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-sm text-[var(--text-secondary)] shadow-[var(--shadow-2)]">
 					Cargando informes…
 				</div>
 			) : isError ? (
@@ -194,18 +194,18 @@ export default function ReportsPage() {
 					Error al cargar informes
 				</div>
 			) : reports.length === 0 ? (
-				<div className="flex h-32 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-secondary)] shadow-[var(--shadow-2)]">
+				<div className="flex h-32 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-sm text-[var(--text-secondary)] shadow-[var(--shadow-2)]">
 					No hay informes registrados
 				</div>
 			) : (
-				<div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+				<div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 					<div className="overflow-x-auto">
 						<table className="w-full min-w-[700px] text-sm">
 							<caption className="sr-only">
 								Informes con tipo, orden relacionada, fecha, descarga en PDF y enlace al detalle.
 							</caption>
 							<thead>
-								<tr className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)]/60 text-left">
+								<tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-secondary)]/60 text-left">
 									<th scope="col" className="px-5 py-3 font-medium text-[var(--text-secondary)]">
 										Título
 									</th>
@@ -229,7 +229,7 @@ export default function ReportsPage() {
 									</th>
 								</tr>
 							</thead>
-							<tbody className="divide-y divide-[color:var(--border-default)]/60">
+							<tbody className="divide-y divide-[var(--border-subtle)]/60">
 								{reports.map((report) => (
 									<ReportTableRow key={reportString(report, "_id", "id")} report={report} />
 								))}

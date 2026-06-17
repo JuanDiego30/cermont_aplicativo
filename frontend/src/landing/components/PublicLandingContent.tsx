@@ -115,7 +115,7 @@ export function PublicLandingContent() {
 	return (
 		<div
 			ref={containerRef}
-			className="relative isolate w-full max-w-full overflow-x-hidden bg-surface-page text-primary"
+			className="relative isolate w-full max-w-full overflow-x-hidden bg-canvas text-ink"
 		>
 			<LandingHeader />
 

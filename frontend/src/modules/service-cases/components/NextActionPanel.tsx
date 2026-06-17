@@ -60,7 +60,7 @@ export function NextActionPanel({
 	const supportLabel = resolveSupportLabel(stepCode, blockers);
 
 	return (
-		<section className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card">
+		<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card">
 			<p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
 				Próximas acciones
 			</p>

@@ -7,8 +7,8 @@ const monorepoRoot = path.resolve(__dirname, "..");
 const env = validateEnv();
 // Backend runs on port 4000 (see backend/package.json scripts)
 // BACKEND_URL es la única fuente de verdad. El fallback localhost:4000 funciona
-// para desarrollo local y npm run start. Docker Compose inyecta explícitamente
-// BACKEND_URL=http://backend:4000 en el contenedor frontend.
+// para desarrollo local y npm run start. En producción VPS, se configura
+// BACKEND_URL=http://127.0.0.1:4000 en el archivo .env.local del frontend.
 const defaultBackendUrl = "http://localhost:4000";
 const backendUrl = (env.BACKEND_URL || defaultBackendUrl).replace(/\/+$/, "");
 const isWindowsBuild = process.platform === "win32";

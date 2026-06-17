@@ -72,6 +72,7 @@ export async function createWorkRequest(
 	const serviceCase = await ServiceCase.create({
 		code: scCode,
 		clientName: data.clientName,
+		...(data.clientId ? { clientId: new Types.ObjectId(data.clientId) } : {}),
 		currentStage: "intake",
 		currentStepCode: "step_01_work_request",
 		artifacts: {
@@ -234,7 +235,7 @@ export async function updateWorkRequest(
 		id,
 		{ ...data, updatedBy: userId },
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	).populate("createdBy", "name email");
@@ -280,7 +281,7 @@ export async function updateWorkRequestStatus(
 		id,
 		{ status, updatedBy: userId },
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	).populate("createdBy", "name email");
@@ -312,7 +313,7 @@ export async function deleteWorkRequest(id: string, userId: string, userRole: st
 		id,
 		{ status: "cancelled", updatedBy: userId },
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	);

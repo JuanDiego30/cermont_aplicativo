@@ -92,11 +92,15 @@ function extractBlock(source, startIdx) {
  */
 function extractPath(block) {
 	// Template literal with interpolations
-	const tplMatch = block.match(/^`([^`]*)`/);
+	const blockWithoutConditionalQuery = block.replace(
+		/\$\{\s*([A-Za-z_$][\w$]*)\s*\?\s*`\?\$\{\s*\1\s*\}`\s*:\s*""\s*\}/g,
+		"",
+	);
+	const tplMatch = blockWithoutConditionalQuery.match(/^`([^`]*)`/);
 	if (tplMatch) {
 		// Replace interpolations with {param} placeholders
 		return tplMatch[1]
-			.replace(/\$\{[^}]*(?:encodeURIComponent\()?(\w+)(?:\))?[^}]*\}/g, "{$1}")
+			.replace(/\$\{\s*(?:encodeURIComponent\(\s*)?([A-Za-z_$][\w$]*)(?:\s*\))?\s*\}/g, "{$1}")
 			.replace(/\$\{[^}]+\}/g, "{param}");
 	}
 	// Double-quoted
@@ -179,6 +183,7 @@ function parseFile(filePath) {
 		const isMutation =
 			detectMutation(source, match.index) || ["POST", "PUT", "PATCH", "DELETE"].includes(method);
 		const fnName = getEnclosingFn(source, match.index);
+		const hasDynamicRouteSelector = /\{(?:action|endpoint|path|route)\}/i.test(rawPath);
 
 		calls.push({
 			sourceFile: relPath,
@@ -189,6 +194,7 @@ function parseFile(filePath) {
 			functionName: fnName,
 			isMutation,
 			hasOfflineSupport: hasOffline,
+			hasDynamicRouteSelector,
 		});
 	}
 

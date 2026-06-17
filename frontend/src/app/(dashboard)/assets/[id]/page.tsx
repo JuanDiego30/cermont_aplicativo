@@ -108,13 +108,13 @@ function AssetDetailContent({ id }: { id: string }) {
 					<button
 						type="button"
 						onClick={() => back()}
-						className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+						className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-steel hover:bg-zinc-100 dark:text-steel dark:hover:bg-zinc-800"
 						aria-label="Volver al listado de activos"
 					>
 						<ArrowLeft className="size-4" aria-hidden="true" />
 						<span className="hidden sm:inline">Volver</span>
 					</button>
-					<span className="font-mono text-sm font-semibold text-blue-600 dark:text-blue-400">
+					<span className="font-mono text-sm font-semibold text-brand-green dark:text-brand-green">
 						{asset.code}
 					</span>
 					<StatusBadge status={asset.status} />
@@ -126,12 +126,10 @@ function AssetDetailContent({ id }: { id: string }) {
 					</div>
 				</div>
 
-				<h1 className="text-xl font-semibold text-zinc-900 dark:text-white sm:text-2xl">
-					{asset.name}
-				</h1>
+				<h1 className="text-xl font-semibold text-ink dark:text-white sm:text-2xl">{asset.name}</h1>
 
 				{asset.description && (
-					<p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+					<p className="mt-3 text-sm leading-relaxed text-steel dark:text-steel">
 						{asset.description}
 					</p>
 				)}
@@ -141,37 +139,37 @@ function AssetDetailContent({ id }: { id: string }) {
 			<div className="grid gap-6 md:grid-cols-2">
 				{/* General Info */}
 				<section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-					<h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
+					<h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink dark:text-white">
 						<Tag className="size-4" aria-hidden="true" />
 						Información General
 					</h2>
 					<dl className="space-y-3 text-sm">
 						<div className="flex justify-between">
-							<dt className="text-zinc-500 dark:text-zinc-400">Tipo</dt>
-							<dd className="font-medium text-zinc-900 dark:text-white">
+							<dt className="text-steel dark:text-steel">Tipo</dt>
+							<dd className="font-medium text-ink dark:text-white">
 								{TYPE_LABELS[asset.type] ?? asset.type}
 							</dd>
 						</div>
 						<div className="flex justify-between">
-							<dt className="text-zinc-500 dark:text-zinc-400">Código</dt>
-							<dd className="font-mono font-medium text-zinc-900 dark:text-white">{asset.code}</dd>
+							<dt className="text-steel dark:text-steel">Código</dt>
+							<dd className="font-mono font-medium text-ink dark:text-white">{asset.code}</dd>
 						</div>
 						{asset.serialNumber && (
 							<div className="flex justify-between">
-								<dt className="text-zinc-500 dark:text-zinc-400">N° Serie</dt>
-								<dd className="font-medium text-zinc-900 dark:text-white">{asset.serialNumber}</dd>
+								<dt className="text-steel dark:text-steel">N° Serie</dt>
+								<dd className="font-medium text-ink dark:text-white">{asset.serialNumber}</dd>
 							</div>
 						)}
 						{asset.brand && (
 							<div className="flex justify-between">
-								<dt className="text-zinc-500 dark:text-zinc-400">Marca</dt>
-								<dd className="font-medium text-zinc-900 dark:text-white">{asset.brand}</dd>
+								<dt className="text-steel dark:text-steel">Marca</dt>
+								<dd className="font-medium text-ink dark:text-white">{asset.brand}</dd>
 							</div>
 						)}
 						{asset.model && (
 							<div className="flex justify-between">
-								<dt className="text-zinc-500 dark:text-zinc-400">Modelo</dt>
-								<dd className="font-medium text-zinc-900 dark:text-white">{asset.model}</dd>
+								<dt className="text-steel dark:text-steel">Modelo</dt>
+								<dd className="font-medium text-ink dark:text-white">{asset.model}</dd>
 							</div>
 						)}
 					</dl>
@@ -179,33 +177,33 @@ function AssetDetailContent({ id }: { id: string }) {
 
 				{/* Status & Maintenance */}
 				<section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-					<h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
+					<h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink dark:text-white">
 						<CalendarClock className="size-4" aria-hidden="true" />
 						Estado y Mantenimiento
 					</h2>
 					<dl className="space-y-3 text-sm">
 						<div className="flex justify-between">
-							<dt className="text-zinc-500 dark:text-zinc-400">Estado</dt>
+							<dt className="text-steel dark:text-steel">Estado</dt>
 							<dd>
 								<StatusBadge status={asset.status} />
 							</dd>
 						</div>
 						<div className="flex justify-between">
-							<dt className="text-zinc-500 dark:text-zinc-400">Último Mantenimiento</dt>
-							<dd className="font-medium text-zinc-900 dark:text-white">
+							<dt className="text-steel dark:text-steel">Último Mantenimiento</dt>
+							<dd className="font-medium text-ink dark:text-white">
 								{formatDate(asset.lastMaintenanceAt)}
 							</dd>
 						</div>
 						<div className="flex justify-between">
-							<dt className="text-zinc-500 dark:text-zinc-400">Próximo Mantenimiento</dt>
-							<dd className="font-medium text-zinc-900 dark:text-white">
+							<dt className="text-steel dark:text-steel">Próximo Mantenimiento</dt>
+							<dd className="font-medium text-ink dark:text-white">
 								{formatDate(asset.nextMaintenanceAt)}
 							</dd>
 						</div>
 						{asset.purchaseDate && (
 							<div className="flex justify-between">
-								<dt className="text-zinc-500 dark:text-zinc-400">Fecha de Compra</dt>
-								<dd className="font-medium text-zinc-900 dark:text-white">
+								<dt className="text-steel dark:text-steel">Fecha de Compra</dt>
+								<dd className="font-medium text-ink dark:text-white">
 									{formatDate(asset.purchaseDate)}
 								</dd>
 							</div>
@@ -215,26 +213,26 @@ function AssetDetailContent({ id }: { id: string }) {
 
 				{/* Metadata */}
 				<section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950 md:col-span-2">
-					<h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
+					<h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink dark:text-white">
 						<HardDrive className="size-4" aria-hidden="true" />
 						Metadatos
 					</h2>
 					<dl className="grid gap-3 text-sm sm:grid-cols-3">
 						<div>
-							<dt className="text-zinc-500 dark:text-zinc-400">Creado por</dt>
-							<dd className="font-medium text-zinc-900 dark:text-white">
+							<dt className="text-steel dark:text-steel">Creado por</dt>
+							<dd className="font-medium text-ink dark:text-white">
 								{asset.createdBy?.name ?? "—"}
 							</dd>
 						</div>
 						<div>
-							<dt className="text-zinc-500 dark:text-zinc-400">Fecha de creación</dt>
-							<dd className="font-medium text-zinc-900 dark:text-white">
+							<dt className="text-steel dark:text-steel">Fecha de creación</dt>
+							<dd className="font-medium text-ink dark:text-white">
 								{formatDate(asset.createdAt)}
 							</dd>
 						</div>
 						<div>
-							<dt className="text-zinc-500 dark:text-zinc-400">Última actualización</dt>
-							<dd className="font-medium text-zinc-900 dark:text-white">
+							<dt className="text-steel dark:text-steel">Última actualización</dt>
+							<dd className="font-medium text-ink dark:text-white">
 								{formatDate(asset.updatedAt)}
 							</dd>
 						</div>

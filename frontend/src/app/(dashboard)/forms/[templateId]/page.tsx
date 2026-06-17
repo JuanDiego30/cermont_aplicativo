@@ -101,7 +101,7 @@ function FormTemplateContent() {
 		return (
 			<div className="mx-auto max-w-xl px-4 py-16 text-center">
 				<div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-green-50">
-					<CheckCircle2 className="size-8 text-green-600" />
+					<CheckCircle2 className="size-8 text-brand-annotate" />
 				</div>
 				<h1 className="text-xl font-semibold text-[var(--text-primary)]">Formulario guardado</h1>
 				<p className="mt-2 text-sm text-[var(--text-secondary)]">Redirigiendo…</p>

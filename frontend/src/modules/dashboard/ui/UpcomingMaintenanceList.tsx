@@ -24,7 +24,7 @@ export function UpcomingMaintenanceList({ kits }: UpcomingMaintenanceListProps) 
 	return (
 		<section
 			aria-labelledby={headingId}
-			className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-5 pb-3 pt-6 shadow-[var(--shadow-1)] transition-all hover:shadow-[var(--shadow-2)] sm:px-6 xl:pb-2"
+			className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-5 pb-3 pt-6 shadow-[var(--shadow-1)] transition-all hover:shadow-[var(--shadow-2)] sm:px-6 xl:pb-2"
 		>
 			<div className="mb-5 flex items-center justify-between gap-3">
 				<div>
@@ -38,7 +38,7 @@ export function UpcomingMaintenanceList({ kits }: UpcomingMaintenanceListProps) 
 
 				<Link
 					href="/maintenance"
-					className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-default)] px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition hover:border-[var(--color-brand-blue)]/30 hover:bg-[var(--color-info-bg)] hover:text-[var(--color-brand-blue)]"
+					className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition hover:border-[var(--color-brand-blue)]/30 hover:bg-[var(--color-info-bg)] hover:text-[var(--color-brand-blue)]"
 				>
 					<Package2 className="size-4" />
 					Ver catálogo
@@ -53,7 +53,7 @@ export function UpcomingMaintenanceList({ kits }: UpcomingMaintenanceListProps) 
 
 					return (
 						<li
-							className="flex items-center gap-4 rounded-[var(--radius-lg)] border border-transparent bg-[var(--surface-secondary)] px-4 py-3 transition-colors hover:border-[var(--border-default)] hover:bg-[var(--surface-page)]"
+							className="flex items-center gap-4 rounded-[var(--radius-lg)] border border-transparent bg-[var(--surface-secondary)] px-4 py-3 transition-colors hover:border-[var(--border-subtle)] hover:bg-[var(--surface-page)]"
 							key={item._id}
 						>
 							<div className="relative flex size-12 shrink-0 items-center justify-center rounded-full bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">

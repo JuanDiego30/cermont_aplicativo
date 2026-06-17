@@ -80,7 +80,7 @@ function ServiceCaseCard({ serviceCase }: { serviceCase: ServiceCase }) {
 	const evidenceCount = serviceCase.operationalSummary?.evidenceCount;
 
 	return (
-		<article className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)] transition hover:border-[var(--color-brand)] hover:shadow-[var(--shadow-2)]">
+		<article className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)] transition hover:border-[var(--color-brand)] hover:shadow-[var(--shadow-2)]">
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-brand-blue)]">

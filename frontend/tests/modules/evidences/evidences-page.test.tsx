@@ -23,6 +23,14 @@ vi.mock("next/image", () => ({
 	default: ({ alt }: { alt?: string }) => <span data-alt={alt ?? ""} data-testid="mock-image" />,
 }));
 
+vi.mock("@/lib/hooks/useOnlineStatus", () => ({
+	useOnlineStatus: () => true,
+}));
+
+vi.mock("@/components/common/SyncBanner", () => ({
+	SyncBanner: () => null,
+}));
+
 vi.mock("@tanstack/react-query", () => ({
 	keepPreviousData: Symbol("keepPreviousData"),
 	useMutation: () => ({
@@ -102,38 +110,48 @@ describe("Evidences page", () => {
 		useQueryMock.mockClear();
 	});
 
-	test.skip("renders the gallery grouped by operational stage for the selected order", async () => {
+	test("renders the gallery view for the selected order", async () => {
 		render(<EvidencesPage />);
 
-		expect(await screen.findByRole("heading", { name: "Evidencias del trabajo" })).toBeTruthy();
-		expect(screen.getByRole("heading", { name: "OT-001 · Compresor principal" })).toBeTruthy();
-		expect(screen.getByRole("button", { name: "Galería" }).getAttribute("aria-pressed")).toBe(
-			"true",
+		expect(
+			await screen.findByRole("heading", { name: "Evidencias del trabajo" }),
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole("heading", { name: "OT-001 · Compresor principal" }),
+		).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "Galería" })).toHaveAttribute("aria-pressed", "true");
+		expect(screen.getByRole("button", { name: "Tabla" })).toHaveAttribute("aria-pressed", "false");
+		expect(useQueryMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				enabled: true,
+				queryKey: ["evidences", "order-1", 0],
+			}),
 		);
-		expect(screen.getByRole("heading", { name: "Antes" })).toBeTruthy();
-		expect(screen.getByRole("heading", { name: "Durante" })).toBeTruthy();
-		expect(screen.getByRole("heading", { name: "Después" })).toBeTruthy();
-		expect(useQueryMock.mock.calls[0]?.[0]).toMatchObject({
-			enabled: true,
-			queryKey: ["evidences", "order-1"],
-		});
 	});
 
-	test.skip("persists table mode and stage filter into the URL", async () => {
+	test("persists view mode changes into the URL", async () => {
 		render(<EvidencesPage />);
 
-		expect(await screen.findByRole("heading", { name: "Evidencias del trabajo" })).toBeTruthy();
+		expect(
+			await screen.findByRole("heading", { name: "Evidencias del trabajo" }),
+		).toBeInTheDocument();
 
+		// Click Tabla
 		fireEvent.click(screen.getByRole("button", { name: "Tabla" }));
 		expect(replaceMock).toHaveBeenLastCalledWith("/evidences?orderId=order-1&view=table");
 
-		fireEvent.change(screen.getByLabelText("Etapa"), {
-			target: { value: "safety" },
-		});
-		fireEvent.click(screen.getByRole("button", { name: "Aplicar filtros" }));
+		// Click Galería (back)
+		fireEvent.click(screen.getByRole("button", { name: "Galería" }));
+		expect(replaceMock).toHaveBeenLastCalledWith("/evidences?orderId=order-1");
 
-		expect(replaceMock).toHaveBeenLastCalledWith(
-			"/evidences?orderId=order-1&label=safety&view=table",
-		);
+		// Type search and submit
+		const searchInput = screen.getByPlaceholderText("Título o descripción");
+		fireEvent.change(searchInput, { target: { value: "motor" } });
+		fireEvent.click(screen.getByRole("button", { name: "Aplicar filtros" }));
+		expect(replaceMock).toHaveBeenLastCalledWith("/evidences?orderId=order-1&q=motor");
+
+		// Clear filters
+		fireEvent.click(screen.getByRole("button", { name: "Limpiar" }));
+		expect(replaceMock).toHaveBeenLastCalledWith("/evidences");
 	});
 });

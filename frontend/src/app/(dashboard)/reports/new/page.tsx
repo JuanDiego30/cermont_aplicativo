@@ -163,7 +163,7 @@ function NewTechnicalReportForm() {
 
 			<form
 				onSubmit={handleSubmit}
-				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
 				noValidate
 			>
 				<div className="space-y-4">
@@ -172,7 +172,7 @@ function NewTechnicalReportForm() {
 							htmlFor="executionSummary"
 							className="text-sm font-medium text-[var(--text-primary)]"
 						>
-							Resumen de ejecución <span className="text-red-500">*</span>
+							Resumen de ejecución <span className="text-brand-error">*</span>
 						</label>
 						<textarea
 							id="executionSummary"
@@ -181,7 +181,7 @@ function NewTechnicalReportForm() {
 							value={executionSummary}
 							onChange={(e) => setExecutionSummary(e.target.value)}
 							placeholder="Describe el trabajo realizado, condiciones encontradas y resultados obtenidos..."
-							className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
+							className="w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
 						/>
 					</div>
 
@@ -196,7 +196,7 @@ function NewTechnicalReportForm() {
 							value={findingsRaw}
 							onChange={(e) => setFindingsRaw(e.target.value)}
 							placeholder={"Hallazgo 1\nHallazgo 2\nHallazgo 3"}
-							className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
+							className="w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
 						/>
 					</div>
 
@@ -211,7 +211,7 @@ function NewTechnicalReportForm() {
 							value={deviationsRaw}
 							onChange={(e) => setDeviationsRaw(e.target.value)}
 							placeholder="Desviación identificada..."
-							className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
+							className="w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
 						/>
 					</div>
 				</div>

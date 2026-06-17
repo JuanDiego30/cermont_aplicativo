@@ -9,29 +9,31 @@ export const metadata: Metadata = { title: "Solicitar acceso" };
 const INPUT_CLASS =
 	"rounded-xl border border-white/10 bg-background/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-background/10 focus-visible:ring-4 focus-visible:ring-primary-500/20";
 
-const LABEL_CLASS = "text-sm font-semibold text-zinc-300";
+const LABEL_CLASS = "text-sm font-semibold text-muted-text";
 
 const REGISTER_STATUS_MESSAGES = {
 	submitted: {
 		role: "status",
 		className:
-			"rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100",
+			"rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-brand-annotate",
 		text: "Solicitud enviada correctamente. Quedó pendiente de validación por un administrador.",
 	},
 	duplicate: {
 		role: "alert",
 		className:
-			"rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100",
+			"rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-brand-warn",
 		text: "Ya existe una solicitud o usuario asociado a ese correo electrónico.",
 	},
 	invalid: {
 		role: "alert",
-		className: "rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100",
+		className:
+			"rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error",
 		text: "No se pudo procesar la solicitud. Revisa los datos e intenta de nuevo.",
 	},
 	error: {
 		role: "alert",
-		className: "rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100",
+		className:
+			"rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error",
 		text: "Ocurrió un error interno al registrar la solicitud.",
 	},
 } as const;
@@ -106,7 +108,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 					<h1 id="register-page-title" className="mt-3 text-2xl font-semibold text-white">
 						Solicitar acceso
 					</h1>
-					<p className="mt-2 text-sm leading-6 text-zinc-300">
+					<p className="mt-2 text-sm leading-6 text-muted-text">
 						Este formulario es solo para clientes. Tu solicitud quedará pendiente de validación
 						antes de habilitar tu acceso.
 					</p>
@@ -189,7 +191,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
 					<Link
 						href="/login"
-						className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-background/5 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:bg-background/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/30"
+						className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-background/5 px-4 py-3 text-sm font-medium text-stone transition hover:bg-background/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/30"
 					>
 						<ArrowLeft className="size-4" aria-hidden="true" />
 						Volver al inicio de sesión

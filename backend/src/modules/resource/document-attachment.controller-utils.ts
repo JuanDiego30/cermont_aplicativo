@@ -123,7 +123,7 @@ export async function upsertEntityDocumentAttachment(
 				createdBy: userObjectId,
 			},
 		},
-		{ new: true, upsert: true, setDefaultsOnInsert: true },
+		{ returnDocument: "after", upsert: true, setDefaultsOnInsert: true },
 	).exec();
 
 	if (!attachment) {

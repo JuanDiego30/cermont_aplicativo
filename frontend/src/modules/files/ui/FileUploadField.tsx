@@ -154,13 +154,13 @@ export function FileUploadField({
 					"rounded-2xl border-2 border-dashed px-6 py-8",
 					"cursor-pointer transition-colors",
 					"focus-within:ring-2 focus-within:ring-cermont-green focus-within:ring-offset-2",
-					isDragOver ? "border-cermont-green bg-green-50" : "border-gray-300 bg-white",
+					isDragOver ? "border-cermont-green bg-success-bg" : "border-hairline bg-canvas",
 					disabled || isBusy ? "cursor-not-allowed opacity-60" : "hover:border-cermont-blue",
 				].join(" ")}
 			>
 				<Upload className="h-6 w-6 text-cermont-blue" aria-hidden="true" />
-				<span className="text-sm font-medium text-gray-700">{label}</span>
-				<span className="text-xs text-gray-500">
+				<span className="text-sm font-medium text-charcoal">{label}</span>
+				<span className="text-xs text-steel">
 					Arrastra un archivo aquí o haz clic para seleccionar
 				</span>
 				<input
@@ -175,16 +175,16 @@ export function FileUploadField({
 				/>
 			</label>
 
-			{helperText && !errorMessage ? <p className="text-xs text-gray-500">{helperText}</p> : null}
+			{helperText && !errorMessage ? <p className="text-xs text-steel">{helperText}</p> : null}
 
 			{errorMessage ? (
-				<p role="alert" className="text-xs text-red-600">
+				<p role="alert" className="text-xs text-brand-error">
 					{errorMessage}
 				</p>
 			) : null}
 
 			{isBusy ? (
-				<div className="flex items-center gap-2 text-xs text-gray-600">
+				<div className="flex items-center gap-2 text-xs text-slate">
 					<span className="h-3 w-3 animate-spin rounded-full border-2 border-cermont-blue border-t-transparent" />
 					Subiendo…
 				</div>

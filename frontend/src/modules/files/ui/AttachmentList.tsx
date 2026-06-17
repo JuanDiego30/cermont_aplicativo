@@ -77,7 +77,7 @@ function FileCard({
 	onDelete: (id: string) => void;
 }) {
 	return (
-		<li className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3">
+		<li className="flex items-center gap-3 rounded-xl border border-hairline bg-canvas p-3">
 			{isImage(asset.mimeType) ? (
 				<Image
 					src={asset.thumbnailUrl ?? asset.url}
@@ -88,7 +88,7 @@ function FileCard({
 					unoptimized
 				/>
 			) : (
-				<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+				<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-info-bg">
 					<FileIcon mimeType={asset.mimeType} />
 				</div>
 			)}
@@ -98,11 +98,11 @@ function FileCard({
 					href={asset.url}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="block truncate text-sm font-medium text-gray-900 hover:text-cermont-blue"
+					className="block truncate text-sm font-medium text-ink hover:text-cermont-blue"
 				>
 					{asset.originalName}
 				</a>
-				<p className="text-xs text-gray-500">
+				<p className="text-xs text-steel">
 					{formatSize(asset.sizeBytes)} · {formatDate(asset.uploadedAt)}
 				</p>
 			</div>
@@ -115,7 +115,7 @@ function FileCard({
 					onClick={() => onDelete(asset.id)}
 					aria-label={`Eliminar ${asset.originalName}`}
 				>
-					<Trash2 className="h-4 w-4 text-red-600" />
+					<Trash2 className="h-4 w-4 text-brand-error" />
 				</Button>
 			) : null}
 		</li>
@@ -161,7 +161,7 @@ export function AttachmentList({
 				{[0, 1, 2].map((i) => (
 					<div
 						key={i}
-						className="h-16 animate-pulse rounded-xl border border-gray-200 bg-gray-50"
+						className="h-16 animate-pulse rounded-xl border border-hairline bg-surface"
 					/>
 				))}
 			</div>
@@ -171,7 +171,7 @@ export function AttachmentList({
 	if (isError) {
 		return (
 			<div
-				className={`rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 ${className}`}
+				className={`rounded-xl border border-red-200 bg-danger-bg p-4 text-sm text-brand-error ${className}`}
 				role="alert"
 			>
 				<p className="font-medium">No se pudieron cargar los archivos.</p>
@@ -192,7 +192,7 @@ export function AttachmentList({
 	if (sorted.length === 0) {
 		return (
 			<div
-				className={`rounded-xl border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-500 ${className}`}
+				className={`rounded-xl border border-dashed border-hairline bg-canvas p-6 text-center text-sm text-steel ${className}`}
 			>
 				{emptyMessage}
 			</div>

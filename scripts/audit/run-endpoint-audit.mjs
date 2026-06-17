@@ -110,6 +110,10 @@ function checkOrphanRoutes(backendRoutes, frontendCallSet) {
 
 function checkMissingRoutes(frontendCalls, backendRouteSet) {
 	for (const call of frontendCalls) {
+		if (call.hasDynamicRouteSelector) {
+			continue;
+		}
+
 		const key = routeKey(call.method, call.normalizedBackendPath);
 		if (!backendRouteSet.has(key)) {
 			addFinding({
@@ -146,6 +150,10 @@ function checkMethodMismatches(backendRoutes, frontendCalls) {
 	// Build map: normalizedPath → Set<method> (frontend)
 	const frontendByPath = new Map();
 	for (const c of frontendCalls) {
+		if (c.hasDynamicRouteSelector) {
+			continue;
+		}
+
 		const np = normalizePath(c.normalizedBackendPath);
 		if (!frontendByPath.has(np)) {
 			frontendByPath.set(np, new Set());

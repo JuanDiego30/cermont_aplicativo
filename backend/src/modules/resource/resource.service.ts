@@ -203,7 +203,7 @@ async function attachImage(id: string, input: AttachResourceImageInput): Promise
 	const resource = await Resource.findByIdAndUpdate(
 		id,
 		{ $push: { fileAssets: input.image } },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (!resource) {
 		throw new AppError("Recurso no encontrado", 404, "RESOURCE_NOT_FOUND");
@@ -220,7 +220,7 @@ async function detachImage(id: string, input: DetachResourceImageInput): Promise
 	const resource = await Resource.findByIdAndUpdate(
 		id,
 		{ $pull: { fileAssets: { id: input.imageId } } },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (!resource) {
 		throw new AppError("Recurso no encontrado", 404, "RESOURCE_NOT_FOUND");

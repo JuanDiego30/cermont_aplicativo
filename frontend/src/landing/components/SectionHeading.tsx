@@ -18,10 +18,10 @@ export function SectionHeading({
 }: SectionHeadingProps) {
 	const alignment = align === "center" ? "text-center items-center" : "text-left items-start";
 	const eyebrowClassName = inverse
-		? "border-white/10 bg-white/5 text-zinc-200 shadow-none"
-		: "border-border-default bg-surface-primary text-text-secondary shadow-1";
-	const titleClassName = inverse ? "text-white" : "text-text-primary";
-	const descriptionClassName = inverse ? "text-zinc-300" : "text-text-secondary";
+		? "border-white/10 bg-canvas/5 text-stone shadow-none"
+		: "border-hairline bg-canvas text-charcoal shadow-1";
+	const titleClassName = inverse ? "text-white" : "text-ink";
+	const descriptionClassName = inverse ? "text-muted-text" : "text-charcoal";
 
 	return (
 		<div className={cn("flex flex-col gap-4", alignment)}>
@@ -30,7 +30,7 @@ export function SectionHeading({
 					"px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em]",
 					eyebrowClassName,
 				)}
-				dotClassName="bg-(--color-brand-blue)"
+				dotClassName="bg-brand-annotate"
 				ariaLabel={eyebrow}
 			>
 				{eyebrow}

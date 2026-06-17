@@ -1184,7 +1184,11 @@ export async function closeServiceCase(id: string, _userId: string) {
 	}
 
 	// Close using findByIdAndUpdate (avoids TypeScript model property issues)
-	const updated = await ServiceCase.findByIdAndUpdate(id, { status: "closed" }, { new: true });
+	const updated = await ServiceCase.findByIdAndUpdate(
+		id,
+		{ status: "closed" },
+		{ returnDocument: "after" },
+	);
 	if (!updated) {
 		throw new NotFoundError("Service case not found after update");
 	}
@@ -1211,7 +1215,7 @@ export async function archiveServiceCase(id: string, userId: string) {
 	const updated = await ServiceCase.findByIdAndUpdate(
 		id,
 		{ currentStage: "archived" },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (!updated) {
 		throw new NotFoundError("Service case not found after update");

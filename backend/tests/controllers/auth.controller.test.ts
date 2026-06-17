@@ -84,6 +84,16 @@ describe("AuthController", () => {
 
 			expect(mockLogin).toHaveBeenCalledWith("test@cermont.com", "password123");
 			expect(res.cookie).toHaveBeenCalledTimes(2);
+			expect(res.cookie).toHaveBeenNthCalledWith(
+				1,
+				"refreshToken",
+				"refresh-token-123",
+				expect.objectContaining({
+					httpOnly: true,
+					secure: false,
+					sameSite: "lax",
+				}),
+			);
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -91,6 +101,43 @@ describe("AuthController", () => {
 					data: expect.objectContaining({
 						accessToken: "access-token-123",
 					}),
+				}),
+			);
+		});
+
+		it("should mark cookies secure behind an HTTPS reverse proxy", async () => {
+			mockLogin.mockResolvedValue({
+				accessToken: "access-token-123",
+				refreshToken: "refresh-token-123",
+				user: { _id: "user-1", name: "Test User", email: "test@cermont.com", role: "gerente" },
+			});
+
+			const req = mockReq({
+				body: { email: "test@cermont.com", password: "password123" },
+				headers: { "x-forwarded-proto": "https" },
+			});
+			const res = mockRes();
+
+			await controller.login(req, res);
+
+			expect(res.cookie).toHaveBeenNthCalledWith(
+				1,
+				"refreshToken",
+				"refresh-token-123",
+				expect.objectContaining({
+					httpOnly: true,
+					secure: true,
+					sameSite: "lax",
+				}),
+			);
+			expect(res.cookie).toHaveBeenNthCalledWith(
+				2,
+				"userRole",
+				"gerente",
+				expect.objectContaining({
+					httpOnly: false,
+					secure: true,
+					sameSite: "lax",
 				}),
 			);
 		});

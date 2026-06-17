@@ -420,7 +420,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<RefreshC
 				},
 			},
 		},
-		{ new: true },
+		{ returnDocument: "after" },
 	).exec();
 
 	if (!rotated) {

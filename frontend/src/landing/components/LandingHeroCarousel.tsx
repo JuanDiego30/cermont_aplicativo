@@ -62,7 +62,7 @@ export function LandingHeroCarousel() {
 	return (
 		<section
 			aria-label="Carrusel visual de servicios Cermont"
-			className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]"
+			className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] border border-hairline bg-surface"
 			onMouseEnter={() => setPaused(true)}
 			onMouseLeave={() => setPaused(false)}
 			onFocus={() => setPaused(true)}
@@ -97,7 +97,7 @@ export function LandingHeroCarousel() {
 							>
 								<span
 									className={`h-1.5 rounded-full transition-all ${
-										index === currentSlide ? "w-8 bg-white" : "w-3 bg-white/45"
+										index === currentSlide ? "w-8 bg-canvas" : "w-3 bg-canvas/45"
 									}`}
 									aria-hidden="true"
 								/>

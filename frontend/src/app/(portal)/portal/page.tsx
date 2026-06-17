@@ -77,10 +77,10 @@ export default function PortalDashboardPage() {
 					>
 						Órdenes Recientes
 					</h2>
-					<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
+					<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
 						<table className="w-full text-left text-sm">
 							<thead>
-								<tr className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]">
+								<tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]">
 									<th className="px-4 py-3 font-medium">Código</th>
 									<th className="px-4 py-3 font-medium">Estado</th>
 									<th className="px-4 py-3 font-medium">Tipo</th>
@@ -91,7 +91,7 @@ export default function PortalDashboardPage() {
 								{orders.slice(0, 5).map((order) => (
 									<tr
 										key={order._id}
-										className="border-b border-[var(--border-default)] last:border-0 hover:bg-[var(--surface-secondary)]/50"
+										className="border-b border-[var(--border-subtle)] last:border-0 hover:bg-[var(--surface-secondary)]/50"
 									>
 										<td className="px-4 py-3 font-medium text-[var(--color-brand-blue)]">
 											{order.code}
@@ -110,7 +110,7 @@ export default function PortalDashboardPage() {
 							</tbody>
 						</table>
 						{orders.length > 5 && (
-							<div className="border-t border-[var(--border-default)] px-4 py-2 text-right">
+							<div className="border-t border-[var(--border-subtle)] px-4 py-2 text-right">
 								<Link
 									href="/portal/orders"
 									className="text-xs font-medium text-[var(--color-brand-blue)] hover:underline"
@@ -125,7 +125,7 @@ export default function PortalDashboardPage() {
 
 			{/* Empty state */}
 			{orders?.length === 0 && (
-				<section className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-12 text-center">
+				<section className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-12 text-center">
 					<ClipboardList
 						className="mx-auto mb-3 size-10 text-[var(--text-tertiary)]"
 						aria-hidden="true"
@@ -156,7 +156,7 @@ function PortalKpiCard({
 	color: string;
 }) {
 	return (
-		<div className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+		<div className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 			<div
 				className={`flex size-10 items-center justify-center rounded-[var(--radius-lg)] ${PORTAL_COLOR_MAP[color] ?? PORTAL_COLOR_MAP.blue}`}
 			>
@@ -172,17 +172,17 @@ function PortalKpiCard({
 
 const STATUS_BADGE_COLORS: Record<string, string> = {
 	in_progress: "bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand-blue)]",
-	completed: "bg-green-100 text-green-800",
-	closed: "bg-gray-100 text-gray-800",
-	pending: "bg-yellow-100 text-yellow-800",
-	approved: "bg-green-100 text-green-800",
-	rejected: "bg-red-100 text-red-800",
+	completed: "bg-success-bg text-brand-annotate",
+	closed: "bg-surface-soft text-ink",
+	pending: "bg-yellow-100 text-brand-warn",
+	approved: "bg-success-bg text-brand-annotate",
+	rejected: "bg-danger-bg text-brand-error",
 };
 
 function StatusBadge({ status }: { status: string }) {
 	return (
 		<span
-			className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_BADGE_COLORS[status] ?? "bg-gray-100 text-gray-600"}`}
+			className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_BADGE_COLORS[status] ?? "bg-surface-soft text-slate"}`}
 		>
 			{status.replace(/_/g, " ")}
 		</span>
@@ -213,7 +213,7 @@ function PortalErrorState({ message }: { message: string }) {
 
 function PortalOfflineState() {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-12 text-center">
+		<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-12 text-center">
 			<p className="text-[var(--text-tertiary)]">
 				Sin conexión. Conéctate para ver tu información.
 			</p>

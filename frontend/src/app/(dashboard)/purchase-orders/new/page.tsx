@@ -170,7 +170,7 @@ function NewPurchaseOrderContent() {
 
 			<form
 				onSubmit={handleSubmit(onSubmit)}
-				className="space-y-6 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+				className="space-y-6 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
 				noValidate
 			>
 				<div className="grid gap-4 md:grid-cols-2">

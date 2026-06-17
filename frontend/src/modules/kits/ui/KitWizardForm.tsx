@@ -197,7 +197,7 @@ export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWi
 								{...register("description")}
 								rows={3}
 								placeholder="Describe el propósito del kit, condiciones de uso o notas relevantes…"
-								className="w-full rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-primary)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 resize-y min-h-[80px]"
+								className="w-full rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-primary)] px-4 py-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]/20 resize-y min-h-[80px]"
 							/>
 						</FormField>
 					</div>

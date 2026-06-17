@@ -53,6 +53,8 @@ export const APP_ROUTES = {
 	offlineSync: "/offline-sync",
 	inventory: "/inventory",
 	fleet: "/fleet",
+	businessDocuments: "/business-documents",
+	erpConnectors: "/admin/erp-connectors",
 } as const;
 
 export type AppRouteKey = keyof typeof APP_ROUTES;

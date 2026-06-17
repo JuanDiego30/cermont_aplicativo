@@ -19,12 +19,12 @@ import { LANDING_RESOURCES } from "../landing-data";
 
 export function LandingFooter() {
 	return (
-		<footer className="border-t border-white/10 bg-cermont-bg-deep">
+		<footer className="border-t border-white/10 bg-canvas-dark">
 			<div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
 				<div className="grid gap-10 lg:grid-cols-[1.2fr_0.9fr_0.95fr_0.95fr]">
 					<div>
 						<Logo href="/" className="gap-3" size="md" wordmarkClassName="text-white" />
-						<p className="mt-4 max-w-md text-sm leading-6 text-zinc-400">
+						<p className="mt-4 max-w-md text-sm leading-6 text-stone">
 							{CORPORATE_NAME}. presta servicios de construccion, electricidad, refrigeracion,
 							telecomunicaciones y montajes con disciplina, seguridad y trazabilidad. NIT{" "}
 							{CORPORATE_NIT}.
@@ -34,8 +34,8 @@ export function LandingFooter() {
 							{["Calidad", "Seguridad", "Trazabilidad"].map((item) => (
 								<BadgePill
 									key={item}
-									className="border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-200"
-									dotClassName="bg-cermont-blue-light"
+									className="border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-stone"
+									dotClassName="bg-brand-annotate"
 									ariaLabel={item}
 								>
 									{item}
@@ -45,16 +45,13 @@ export function LandingFooter() {
 					</div>
 
 					<nav aria-label="Navegacion de empresa">
-						<h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-300">
+						<h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-text">
 							Empresa
 						</h3>
 						<ul className="space-y-2.5">
 							{NAV_ITEMS.map(({ label, href }) => (
 								<li key={label}>
-									<a
-										href={href}
-										className="text-sm text-zinc-500 transition-colors hover:text-white"
-									>
+									<a href={href} className="text-sm text-steel transition-colors hover:text-white">
 										{label}
 									</a>
 								</li>
@@ -62,7 +59,7 @@ export function LandingFooter() {
 							<li>
 								<Link
 									href="/login"
-									className="text-sm text-zinc-500 transition-colors hover:text-white"
+									className="text-sm text-steel transition-colors hover:text-white"
 								>
 									Acceso privado
 								</Link>
@@ -71,7 +68,7 @@ export function LandingFooter() {
 					</nav>
 
 					<nav aria-label="Documentos y descargas">
-						<h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-300">
+						<h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-text">
 							Documentos
 						</h3>
 						<ul className="space-y-2.5">
@@ -80,7 +77,7 @@ export function LandingFooter() {
 									<a
 										href={href}
 										download
-										className="text-sm text-zinc-500 transition-colors hover:text-white"
+										className="text-sm text-steel transition-colors hover:text-white"
 									>
 										{title}
 									</a>
@@ -90,10 +87,10 @@ export function LandingFooter() {
 					</nav>
 
 					<div>
-						<h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-300">
+						<h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-text">
 							Contacto
 						</h3>
-						<div className="space-y-2.5 text-sm text-zinc-500">
+						<div className="space-y-2.5 text-sm text-steel">
 							<a
 								href={CORPORATE_MAILTO}
 								className="flex items-center gap-2 transition-colors hover:text-white"
@@ -128,7 +125,7 @@ export function LandingFooter() {
 					</div>
 				</div>
 
-				<div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-8 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+				<div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-8 text-xs text-steel sm:flex-row sm:items-center sm:justify-between">
 					<p suppressHydrationWarning>
 						&copy; {new Date().getFullYear()} {CORPORATE_NAME}. Todos los derechos reservados.
 					</p>

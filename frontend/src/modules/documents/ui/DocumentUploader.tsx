@@ -433,7 +433,7 @@ function PurposeSelector({
 						className={`rounded-xl border p-4 text-left transition-colors ${
 							isActive
 								? "border-brand bg-[var(--surface-elevated)]"
-								: "border-[var(--border-default)] bg-[var(--surface-secondary)] hover:border-brand/50"
+								: "border-[var(--border-subtle)] bg-[var(--surface-secondary)] hover:border-brand/50"
 						}`}
 					>
 						<div className="flex items-center gap-2">
@@ -470,7 +470,7 @@ function FileAndStepFields({
 				<select
 					id="doc-step"
 					{...register("targetStepCode")}
-					className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
+					className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 				>
 					<option value="">Sugerencia automática / opcional</option>
 					{CERMONT_OPERATIONAL_STEPS.map((step) => (
@@ -509,7 +509,7 @@ function FileAndStepFields({
 							{(selectedFile.size / 1024).toFixed(1)} KB , {selectedFile.name}
 						</p>
 					)}
-					{errors.file && <p className="text-xs text-red-600">{errors.file.message}</p>}
+					{errors.file && <p className="text-xs text-brand-error">{errors.file.message}</p>}
 				</div>
 			) : null}
 		</div>
@@ -531,7 +531,7 @@ function OrderField({
 			<select
 				id="doc-order"
 				{...register("orderId")}
-				className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
+				className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 			>
 				<option value="">Sin orden</option>
 				{orders.map((order) => (
@@ -578,7 +578,7 @@ function ServiceCaseField({
 					<select
 						id="doc-service-case"
 						{...register("serviceCaseId")}
-						className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
+						className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 					>
 						<option value="">Seleccione un caso</option>
 						{serviceCases.map((serviceCase) => (
@@ -593,11 +593,11 @@ function ServiceCaseField({
 						type="text"
 						{...register("serviceCaseId")}
 						placeholder="ID del caso de servicio"
-						className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
+						className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 					/>
 				)}
 				{errors.serviceCaseId && (
-					<p className="text-xs text-red-600">{errors.serviceCaseId.message}</p>
+					<p className="text-xs text-brand-error">{errors.serviceCaseId.message}</p>
 				)}
 			</div>
 			<p className="text-xs text-(--text-secondary)">
@@ -686,7 +686,7 @@ export function DocumentUploader({
 	return (
 		<div className={`w-full ${className ?? ""}`} {...rest}>
 			{/* Mode selector */}
-			<div className="mb-4 flex gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] p-1">
+			<div className="mb-4 flex gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-1">
 				<button
 					type="button"
 					onClick={() => {
@@ -734,7 +734,7 @@ export function DocumentUploader({
 					className={`space-y-5 rounded-xl border bg-[var(--surface-primary)] p-4 transition-colors sm:p-6 ${
 						isDragging
 							? "border-brand bg-[var(--surface-secondary)]"
-							: "border-[var(--border-default)]"
+							: "border-[var(--border-subtle)]"
 					}`}
 					onDragOver={(event) => {
 						event.preventDefault();
@@ -773,7 +773,7 @@ export function DocumentUploader({
 								<select
 									id="library-doc-select"
 									{...register("selectedDocumentId")}
-									className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
+									className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 									onChange={(e) => {
 										setValue("selectedDocumentId", e.target.value, { shouldValidate: true });
 										const selectedDoc = libraryDocuments?.find((doc) => doc._id === e.target.value);
@@ -791,7 +791,7 @@ export function DocumentUploader({
 								</select>
 							)}
 							{errors.selectedDocumentId && (
-								<p className="text-xs text-red-600">{errors.selectedDocumentId.message}</p>
+								<p className="text-xs text-brand-error">{errors.selectedDocumentId.message}</p>
 							)}
 						</div>
 					)}
@@ -808,7 +808,7 @@ export function DocumentUploader({
 							type="text"
 							{...register("title")}
 							placeholder="Ej: Acta de entrega SES 2026-05"
-							className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
+							className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 						/>
 						{errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
 					</div>

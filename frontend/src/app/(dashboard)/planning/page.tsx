@@ -53,7 +53,7 @@ export default function PlanningPage() {
 
 	return (
 		<section className="space-y-6" aria-labelledby="planning-title">
-			<header className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]">
+			<header className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]">
 				<p className="text-sm font-medium text-[var(--color-brand)]">Paso 5 / Planeacion</p>
 				<h1 id="planning-title" className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
 					Paquetes de planeacion
@@ -87,7 +87,7 @@ export default function PlanningPage() {
 				/>
 			</div>
 
-			<div className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+			<div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 				<div className="flex items-center justify-between border-b border-[var(--border-subtle)] p-4">
 					<h2 className="text-base font-semibold text-[var(--text-primary)]">Planeacion activa</h2>
 					<Button type="button" variant="ghost" size="sm" onClick={() => refetch()}>
@@ -144,7 +144,7 @@ function Metric({
 	value: number;
 }) {
 	return (
-		<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card">
+		<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-card">
 			<div className="flex items-center justify-between gap-3">
 				<div>
 					<p className="text-sm text-[var(--text-secondary)]">{label}</p>
@@ -178,7 +178,7 @@ function DocumentLink({
 		>
 			<button
 				type="button"
-				className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 text-left shadow-card transition-colors hover:border-[var(--color-brand)]"
+				className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 text-left shadow-card transition-colors hover:border-[var(--color-brand)]"
 			>
 				<div className="flex gap-3">
 					<Icon className="mt-0.5 size-5 text-[var(--color-brand)]" aria-hidden="true" />

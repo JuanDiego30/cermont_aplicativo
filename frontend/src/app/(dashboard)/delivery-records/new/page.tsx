@@ -161,7 +161,7 @@ function NewDeliveryRecordForm() {
 
 			<form
 				onSubmit={handleSubmit}
-				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
 				noValidate
 			>
 				<div className="grid gap-4 md:grid-cols-2">
@@ -177,7 +177,7 @@ function NewDeliveryRecordForm() {
 							type="date"
 							value={deliveryDate}
 							onChange={(e) => setDeliveryDate(e.target.value)}
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm md:max-w-xs"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm md:max-w-xs"
 						/>
 					</div>
 
@@ -195,7 +195,7 @@ function NewDeliveryRecordForm() {
 							value={clientRepresentative}
 							onChange={(e) => setClientRepresentative(e.target.value)}
 							placeholder="Nombre del representante"
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
 					</div>
 
@@ -213,7 +213,7 @@ function NewDeliveryRecordForm() {
 							value={clientContact}
 							onChange={(e) => setClientContact(e.target.value)}
 							placeholder="Teléfono o correo"
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
 					</div>
 
@@ -231,7 +231,7 @@ function NewDeliveryRecordForm() {
 							value={clientObservations}
 							onChange={(e) => setClientObservations(e.target.value)}
 							placeholder="Observaciones o comentarios del cliente al recibir el servicio..."
-							className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
+							className="w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
 						/>
 					</div>
 				</div>

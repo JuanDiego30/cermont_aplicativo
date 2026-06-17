@@ -92,7 +92,7 @@ export function OfflineUploadQueueStatus({
 					: ""}
 			</p>
 		);
-		tone = "border-red-200 bg-red-50 text-red-800";
+		tone = "border-red-200 bg-danger-bg text-brand-error";
 	} else if (isOffline) {
 		icon = <WifiOff className="h-5 w-5" aria-hidden="true" />;
 		title = "Sin conexión";
@@ -103,7 +103,7 @@ export function OfflineUploadQueueStatus({
 					: "Las fotos y cambios nuevos se guardarán localmente hasta que vuelvas a tener señal."}
 			</p>
 		);
-		tone = "border-amber-200 bg-amber-50 text-amber-800";
+		tone = "border-amber-200 bg-warning-bg text-brand-warn";
 	} else if (isSyncing) {
 		icon = <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />;
 		title = "Sincronizando";
@@ -112,7 +112,7 @@ export function OfflineUploadQueueStatus({
 				Subiendo {pluralize(pendingCount, "cambio pendiente", "cambios pendientes")}…
 			</p>
 		);
-		tone = "border-sky-200 bg-sky-50 text-sky-800";
+		tone = "border-sky-200 bg-sky-50 text-brand-green";
 	} else {
 		// Online + pending items, not currently syncing → waiting to flush
 		icon = <CloudOff className="h-5 w-5" aria-hidden="true" />;
@@ -122,7 +122,7 @@ export function OfflineUploadQueueStatus({
 				{pluralize(pendingCount, "cambio espera", "cambios esperan")} para subirse al servidor.
 			</p>
 		);
-		tone = "border-emerald-200 bg-emerald-50 text-emerald-800";
+		tone = "border-emerald-200 bg-emerald-50 text-brand-annotate";
 	}
 
 	return (
@@ -160,7 +160,7 @@ export function OfflineUploadQueueStatus({
 				</Button>
 			</div>
 			{!isOffline && !hasErrors && pendingCount === 0 && isOnline ? (
-				<CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" aria-hidden="true" />
+				<CheckCircle2 className="h-5 w-5 shrink-0 text-brand-annotate" aria-hidden="true" />
 			) : null}
 		</section>
 	);

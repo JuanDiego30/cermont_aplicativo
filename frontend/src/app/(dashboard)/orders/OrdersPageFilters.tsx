@@ -39,7 +39,7 @@ export function OrdersPageFilters({
 							name="search"
 							defaultValue={search}
 							placeholder="Buscar por N° OT, activo o ubicación…"
-							className="w-full rounded-full border border-[var(--border-medium)] bg-[var(--surface-page)] py-3 pl-11 pr-5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-all focus:border-[var(--color-focus-ring)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 shadow-inner"
+							className="w-full rounded-full border border-[var(--border-medium)] bg-[var(--surface-page)] py-3 pl-11 pr-5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-all focus:border-[var(--color-focus-ring)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]/20 shadow-inner"
 							aria-label="Buscar órdenes"
 						/>
 					</form>

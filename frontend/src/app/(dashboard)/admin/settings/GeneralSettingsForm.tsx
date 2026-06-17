@@ -24,12 +24,12 @@ export function GeneralSettingsForm({ config, isPending, onSave }: GeneralSettin
 
 	return (
 		<section
-			className="space-y-5 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900"
+			className="space-y-5 rounded-xl border border-hairline bg-canvas p-5 dark:border-zinc-700 dark:bg-canvas"
 			aria-labelledby="general-settings-title"
 		>
 			<h2
 				id="general-settings-title"
-				className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white"
+				className="flex items-center gap-2 text-sm font-semibold text-ink dark:text-white"
 			>
 				<Settings2 className="size-4" aria-hidden="true" />
 				Ajustes generales
@@ -37,8 +37,8 @@ export function GeneralSettingsForm({ config, isPending, onSave }: GeneralSettin
 
 			<div className="flex items-center justify-between gap-4">
 				<div>
-					<p className="text-sm font-medium text-zinc-900 dark:text-white">Modo mantenimiento</p>
-					<p className="text-xs text-zinc-500 dark:text-zinc-400">
+					<p className="text-sm font-medium text-ink dark:text-white">Modo mantenimiento</p>
+					<p className="text-xs text-steel dark:text-stone">
 						Deshabilita el acceso para usuarios no administradores.
 					</p>
 				</div>

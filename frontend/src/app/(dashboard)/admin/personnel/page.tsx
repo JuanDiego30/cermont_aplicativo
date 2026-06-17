@@ -170,7 +170,7 @@ export default function AdminPersonnelPage() {
 			)}
 
 			{technicalUsers.length === 0 ? (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-16 text-center">
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-16 text-center">
 					<p className="text-[var(--text-secondary)]">No hay personal activo registrado.</p>
 				</div>
 			) : (
@@ -180,7 +180,7 @@ export default function AdminPersonnelPage() {
 						return (
 							<li
 								key={user._id}
-								className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
+								className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
 							>
 								<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 									<div className="min-w-0">
@@ -232,7 +232,7 @@ export default function AdminPersonnelPage() {
 													}))
 												}
 												placeholder="Trabajo en alturas"
-												className="w-44 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
+												className="w-44 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
 											/>
 										</label>
 										<label className="flex flex-col gap-1 text-[10px] font-medium text-[var(--text-tertiary)]">
@@ -246,7 +246,7 @@ export default function AdminPersonnelPage() {
 														[user._id]: { ...draft, expiresAt: e.target.value },
 													}))
 												}
-												className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
+												className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
 											/>
 										</label>
 										<button

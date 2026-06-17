@@ -56,7 +56,7 @@ export function ErrorFallback({
 			)}
 		>
 			{/* Error icon */}
-			<div className="motion-subtle mb-6 flex size-16 items-center justify-center rounded-full bg-[color:var(--color-danger-bg)] text-[var(--color-danger)]">
+			<div className="motion-subtle mb-6 flex size-16 items-center justify-center rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger)]">
 				<AlertCircle className="size-8" aria-hidden="true" />
 			</div>
 

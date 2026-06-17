@@ -18,7 +18,7 @@ export const STATUS_LABELS: Record<ChecklistStatus, string> = {
 
 export const STATUS_STYLES: Record<ChecklistStatus, string> = {
 	pending:
-		"border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
+		"border-hairline bg-surface-soft text-charcoal dark:border-hairline dark:bg-canvas dark:text-slate",
 	in_progress:
 		"border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/40 dark:bg-sky-900/10 dark:text-sky-300",
 	completed:

@@ -1,6 +1,13 @@
 {
-	"currentSnapshotHash": "sha256:d6ecf6c6ab88578db2f31a5cfbc85f97bbcc817cba4d99a09dde41d8b0447978",
+	"currentSnapshotHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64",
 	"migrations": [
+		{
+			"id": "050-business-document-erp-connector-schemas",
+			"date": "2026-06-14",
+			"type": "non-breaking",
+			"description": "Add BusinessDocument and ErpConnector schemas for multi-ERP abstraction and document-driven template engine.",
+			"toHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64"
+		},
 		{
 			"id": "000-initial-baseline",
 			"date": "2026-04-06",
@@ -350,6 +357,13 @@
 			"type": "non-breaking",
 			"description": "Broaden audit entityId validation from MongoDB ObjectId to general entity identifier pattern; add DIAN, dispatch, SLA, and system-config schema contracts for production wave 5.",
 			"toHash": "sha256:d6ecf6c6ab88578db2f31a5cfbc85f97bbcc817cba4d99a09dde41d8b0447978"
+		},
+		{
+			"id": "050-business-document-erp-connector-schemas",
+			"date": "2026-06-14",
+			"type": "non-breaking",
+			"description": "Add BusinessDocument and ErpConnector schemas for multi-ERP abstraction and document-driven template engine.",
+			"toHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64"
 		}
 	]
 }

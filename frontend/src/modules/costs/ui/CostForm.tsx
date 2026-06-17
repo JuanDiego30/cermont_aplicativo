@@ -342,7 +342,7 @@ function CostFormActions({
 					type="button"
 					onClick={onCancel}
 					disabled={readOnly || isSubmitting}
-					className="inline-flex items-center justify-center rounded-full border border-zinc-200 px-4 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+					className="inline-flex items-center justify-center rounded-full border border-[var(--border-medium)] px-4 py-2.5 text-sm font-semibold text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-60"
 				>
 					Cancelar
 				</button>
@@ -351,7 +351,7 @@ function CostFormActions({
 			<button
 				type="submit"
 				disabled={readOnly || isSubmitting}
-				className="inline-flex items-center justify-center rounded-full bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+				className="inline-flex items-center justify-center rounded-full bg-[var(--color-neutral-900)] px-4 py-2.5 text-sm font-semibold text-[var(--text-inverse)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
 			>
 				{getSubmitLabel(isSubmitting, isEditing)}
 			</button>

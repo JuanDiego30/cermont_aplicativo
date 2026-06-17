@@ -51,13 +51,13 @@ const STATUS_LABELS: Record<ExecutionSessionStatus, string> = {
 
 const STATUS_STYLES: Record<ExecutionSessionStatus, string> = {
 	draft: "bg-surface-secondary text-muted-foreground",
-	ready: "bg-blue-50 text-brand",
-	in_progress: "bg-green-50 text-success",
-	paused: "bg-amber-50 text-amber-700",
-	completed: "bg-emerald-50 text-emerald-700",
-	cancelled: "bg-red-50 text-destructive",
-	sync_pending: "bg-sky-50 text-sky-700",
-	sync_failed: "bg-red-50 text-destructive",
+	ready: "bg-info-bg text-[var(--color-brand)]",
+	in_progress: "bg-success-bg text-success",
+	paused: "bg-warning-bg text-brand-warn",
+	completed: "bg-emerald-50 text-brand-annotate",
+	cancelled: "bg-danger-bg text-destructive",
+	sync_pending: "bg-sky-50 text-brand-green",
+	sync_failed: "bg-danger-bg text-destructive",
 };
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
@@ -101,7 +101,7 @@ export default function ExecutionPage() {
 			<header className="rounded-xl border border-border bg-card p-5 shadow-sm">
 				<div className="flex flex-wrap items-start justify-between gap-4">
 					<div>
-						<p className="text-sm font-medium text-brand">Paso 6 / Ejecucion</p>
+						<p className="text-sm font-medium text-[var(--color-brand)]">Paso 6 / Ejecucion</p>
 						<h1 id="execution-title" className="mt-2 text-2xl font-semibold text-foreground">
 							Sesiones de ejecucion
 						</h1>
@@ -138,7 +138,7 @@ export default function ExecutionPage() {
 								onClick={() => setStatus(filter.value)}
 								className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
 									status === filter.value
-										? "border-brand bg-brand-blue-bg text-brand"
+										? "border-[var(--color-brand)] bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand)]"
 										: "border-border text-muted-foreground hover:bg-surface-secondary"
 								}`}
 							>
@@ -213,7 +213,7 @@ function KpiCard({
 					<p className="text-sm text-muted-foreground">{label}</p>
 					<p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
 				</div>
-				<span className="flex size-10 items-center justify-center rounded-md bg-brand-blue-bg text-brand">
+				<span className="flex size-10 items-center justify-center rounded-md bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand)]">
 					<Icon className="size-5" aria-hidden="true" />
 				</span>
 			</div>
@@ -271,10 +271,10 @@ function ActionLink({
 		>
 			<button
 				type="button"
-				className="group w-full rounded-lg border border-border bg-card p-4 text-left shadow-card transition-colors hover:border-brand"
+				className="group w-full rounded-lg border border-border bg-card p-4 text-left shadow-card transition-colors hover:border-[var(--color-brand)]"
 			>
 				<div className="flex items-start gap-3">
-					<span className="flex size-10 items-center justify-center rounded-md bg-surface-secondary text-brand">
+					<span className="flex size-10 items-center justify-center rounded-md bg-surface-secondary text-[var(--color-brand)]">
 						<Icon className="size-5" aria-hidden="true" />
 					</span>
 					<div>

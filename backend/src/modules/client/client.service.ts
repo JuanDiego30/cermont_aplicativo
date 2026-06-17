@@ -64,7 +64,7 @@ export async function updateClient(id: string, data: UpdateClient, userId: strin
 	const client = await ClientModel.findByIdAndUpdate(
 		id,
 		{ ...data, updatedBy: userId },
-		{ new: true, runValidators: true },
+		{ returnDocument: "after", runValidators: true },
 	);
 	if (!client) {
 		throw new AppError("Cliente no encontrado", 404, "CLIENT_NOT_FOUND");
@@ -76,7 +76,7 @@ export async function deactivateClient(id: string, userId: string) {
 	const client = await ClientModel.findByIdAndUpdate(
 		id,
 		{ status: "inactive", updatedBy: userId },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (!client) {
 		throw new AppError("Cliente no encontrado", 404, "CLIENT_NOT_FOUND");

@@ -9,12 +9,12 @@ export default function NewUserPage() {
 			<header className="flex items-center gap-3">
 				<Link
 					href="/admin/users"
-					className="flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
+					className="flex items-center gap-1 text-sm text-steel hover:text-charcoal dark:text-stone"
 				>
 					<ArrowLeft className="size-4" aria-hidden="true" />
 					Volver
 				</Link>
-				<h1 id="new-user-title" className="text-2xl font-semibold text-zinc-900 dark:text-white">
+				<h1 id="new-user-title" className="text-2xl font-semibold text-ink dark:text-white">
 					Nuevo usuario
 				</h1>
 			</header>

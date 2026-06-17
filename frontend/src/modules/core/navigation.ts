@@ -16,6 +16,7 @@ import {
 	ListChecks,
 	MapPinned,
 	Package,
+	Plug,
 	Receipt,
 	ScanLine,
 	ScrollText,
@@ -214,6 +215,11 @@ export const NAV_GROUPS = [
 				label: "Mantenimiento",
 				icon: Wrench,
 			},
+			{
+				to: APP_ROUTES.businessDocuments,
+				label: "Documentos de negocio",
+				icon: FileText,
+			},
 		],
 	},
 	{
@@ -248,6 +254,11 @@ export const NAV_GROUPS = [
 				to: APP_ROUTES.adminSettings,
 				label: "Configuracion",
 				icon: Settings2,
+			},
+			{
+				to: APP_ROUTES.erpConnectors,
+				label: "Conectores ERP",
+				icon: Plug,
 			},
 		],
 	},

@@ -85,12 +85,12 @@ export function administrativeWorkflowStatusLabel(
 
 export function administrativeWorkflowStatusTone(status: AdministrativeWorkflowCardStatus): string {
 	if (status === "completed") {
-		return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-900/10 dark:text-green-300";
+		return "border-green-200 bg-success-bg text-brand-annotate dark:border-green-900/30 dark:bg-green-900/10 dark:text-green-300";
 	}
 
 	if (status === "pending") {
-		return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-300";
+		return "border-amber-200 bg-warning-bg text-amber-700 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-300";
 	}
 
-	return "border-zinc-200 bg-zinc-50 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300";
+	return "border-hairline bg-surface text-zinc-600 dark:border-zinc-800 dark:bg-canvas dark:text-muted-text";
 }

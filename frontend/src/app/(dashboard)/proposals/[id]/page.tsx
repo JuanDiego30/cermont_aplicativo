@@ -121,14 +121,14 @@ export default function ProposalDetailPage() {
 	if (isLoading) {
 		return (
 			<div className="flex h-64 items-center justify-center rounded-3xl border border-zinc-200 dark:border-zinc-800">
-				<span className="text-zinc-500">Cargando detalles de propuesta…</span>
+				<span className="text-steel">Cargando detalles de propuesta…</span>
 			</div>
 		);
 	}
 
 	if (error || !proposal) {
 		return (
-			<div className="p-4 bg-red-50 text-red-600 rounded-lg dark:bg-red-900/20 dark:text-red-400">
+			<div className="p-4 bg-red-50 text-brand-error rounded-lg dark:bg-red-900/20 dark:text-brand-error">
 				No se pudo cargar la propuesta. {(error as Error)?.message}
 			</div>
 		);
@@ -143,23 +143,26 @@ export default function ProposalDetailPage() {
 				<div className="flex items-start gap-4">
 					<Link
 						href="/proposals"
-						className="mt-1 flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+						className="mt-1 flex items-center gap-1 text-sm text-steel hover:text-charcoal dark:text-steel dark:hover:text-stone"
 					>
 						<ArrowLeft aria-hidden="true" className="size-4" />
 						Volver
 					</Link>
 					<div>
 						<div className="flex items-center gap-3">
-							<FileText aria-hidden="true" className="size-6 text-blue-600 dark:text-blue-500" />
+							<FileText
+								aria-hidden="true"
+								className="size-6 text-brand-green dark:text-brand-green"
+							/>
 							<h1
 								id="proposal-detail-title"
-								className="text-2xl font-semibold font-mono text-zinc-900 dark:text-white"
+								className="text-2xl font-semibold font-mono text-ink dark:text-white"
 							>
 								{proposal.code}
 							</h1>
 							<ProposalStatusBadge status={proposal.status} />
 						</div>
-						<p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{proposal.clientName}</p>
+						<p className="mt-1 text-sm text-steel dark:text-steel">{proposal.clientName}</p>
 					</div>
 				</div>
 
@@ -171,52 +174,52 @@ export default function ProposalDetailPage() {
 
 			{/* Details Card */}
 			<div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-steel">
 					Información General
 				</h2>
 				<dl className="grid grid-cols-2 gap-4 text-sm">
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Número</dt>
-						<dd className="mt-1 font-mono text-zinc-900 dark:text-white">{proposal.code}</dd>
+						<dt className="font-medium text-steel dark:text-steel">Número</dt>
+						<dd className="mt-1 font-mono text-ink dark:text-white">{proposal.code}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Estado</dt>
+						<dt className="font-medium text-steel dark:text-steel">Estado</dt>
 						<dd className="mt-1">
 							<ProposalStatusBadge status={proposal.status} />
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Cliente</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">{proposal.clientName}</dd>
+						<dt className="font-medium text-steel dark:text-steel">Cliente</dt>
+						<dd className="mt-1 text-ink dark:text-white">{proposal.clientName}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Total</dt>
-						<dd className="mt-1 font-semibold text-zinc-900 dark:text-white">
+						<dt className="font-medium text-steel dark:text-steel">Total</dt>
+						<dd className="mt-1 font-semibold text-ink dark:text-white">
 							{formatCOP(Number(proposal.total))}
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Válida hasta</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
+						<dt className="font-medium text-steel dark:text-steel">Válida hasta</dt>
+						<dd className="mt-1 text-ink dark:text-white">
 							{proposal.validUntil ? formatProposalDate(proposal.validUntil) : ","}
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Aprobada el</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
+						<dt className="font-medium text-steel dark:text-steel">Aprobada el</dt>
+						<dd className="mt-1 text-ink dark:text-white">
 							{proposal.approvedAt ? formatProposalDate(proposal.approvedAt) : ","}
 						</dd>
 					</div>
 					{Array.isArray(proposal.generatedOrders) && proposal.generatedOrders.length > 0 && (
 						<div>
-							<dt className="font-medium text-zinc-500 dark:text-zinc-400">Ordenes generadas</dt>
+							<dt className="font-medium text-steel dark:text-steel">Ordenes generadas</dt>
 							<dd className="mt-1">
 								<div className="space-y-1">
 									{proposal.generatedOrders.map((orderId) => (
 										<Link
 											key={orderId}
 											href={`/orders/${orderId}`}
-											className="font-mono text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+											className="font-mono text-brand-green hover:text-brand-green hover:underline dark:text-brand-green dark:hover:text-brand-green"
 										>
 											Ver orden →
 										</Link>
@@ -226,14 +229,14 @@ export default function ProposalDetailPage() {
 						</div>
 					)}
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Creada</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
+						<dt className="font-medium text-steel dark:text-steel">Creada</dt>
+						<dd className="mt-1 text-ink dark:text-white">
 							{proposal.createdAt ? formatProposalDate(proposal.createdAt) : ","}
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Actualizada</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
+						<dt className="font-medium text-steel dark:text-steel">Actualizada</dt>
+						<dd className="mt-1 text-ink dark:text-white">
 							{proposal.updatedAt ? formatProposalDate(proposal.updatedAt) : ","}
 						</dd>
 					</div>
@@ -242,10 +245,10 @@ export default function ProposalDetailPage() {
 
 			{/* Description */}
 			<div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-				<h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+				<h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-steel">
 					Descripción
 				</h2>
-				<p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+				<p className="text-sm text-charcoal dark:text-stone whitespace-pre-wrap">
 					{proposal.title}
 					{proposal.notes ? `\n\n${proposal.notes}` : ""}
 				</p>

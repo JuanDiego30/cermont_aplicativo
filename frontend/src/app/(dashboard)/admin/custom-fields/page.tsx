@@ -87,7 +87,7 @@ export default function AdminCustomFieldsPage() {
 						className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
 							entityType === et.value
 								? "bg-[var(--color-brand-blue)] text-white"
-								: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+								: "border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 						}`}
 					>
 						{et.label}
@@ -128,7 +128,7 @@ export default function AdminCustomFieldsPage() {
 			)}
 
 			{!isLoading && !error && definitions.length === 0 && (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-12 text-center">
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-12 text-center">
 					<p className="text-[var(--text-secondary)]">
 						No hay campos personalizados para esta entidad.
 					</p>
@@ -140,7 +140,7 @@ export default function AdminCustomFieldsPage() {
 					{definitions.map((def) => (
 						<li
 							key={def._id ?? def.name}
-							className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4"
+							className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4"
 						>
 							<div className="min-w-0">
 								<div className="flex items-center gap-2">

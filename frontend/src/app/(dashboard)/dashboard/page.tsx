@@ -419,7 +419,7 @@ export default function DashboardPage() {
 							<ChevronRight className="size-4" aria-hidden="true" />
 						</Link>
 					</div>
-					<div className="overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-2 shadow-[var(--shadow-1)]">
+					<div className="overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-2 shadow-[var(--shadow-1)]">
 						<RecentOrdersTable orders={recentOrders} />
 					</div>
 				</section>
@@ -490,7 +490,7 @@ function DashboardWelcomeBanner({
 	return (
 		<div
 			data-dash="banner"
-			className="rounded-[1.5rem] border border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(24,226,153,0.16),rgba(43,92,168,0.08))] px-5 py-4 text-[var(--text-primary)] shadow-[var(--shadow-1)]"
+			className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-[linear-gradient(135deg,rgba(24,226,153,0.16),rgba(43,92,168,0.08))] px-5 py-4 text-[var(--text-primary)] shadow-[var(--shadow-1)]"
 		>
 			<div className="flex items-center justify-between gap-4">
 				<div>
@@ -503,12 +503,12 @@ function DashboardWelcomeBanner({
 						label="Órdenes activas"
 						value={kpis.overview.active_orders ?? 0}
 					/>
-					<div className="h-10 w-px bg-[var(--border-default)]" />
+					<div className="h-10 w-px bg-[var(--border-subtle)]" />
 					<DashboardWelcomeMetric
 						label="Mant. abiertos"
 						value={kpis.overview.maintenance_open_count ?? activeKitCount}
 					/>
-					<div className="h-10 w-px bg-[var(--border-default)]" />
+					<div className="h-10 w-px bg-[var(--border-subtle)]" />
 					<DashboardWelcomeMetric
 						label="Completados (mes)"
 						value={kpis.overview.completed_month_count ?? 0}
@@ -580,7 +580,7 @@ function DashboardStatusSummary({ items }: { items: StatusSummaryItem[] }) {
 				<div
 					key={label}
 					data-dash="panel"
-					className="flex items-center gap-3.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
+					className="flex items-center gap-3.5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
 				>
 					<div
 						className={`flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] ${bg}`}

@@ -214,22 +214,24 @@ export const LANDING_WORKFLOW: LandingWorkflowStep[] = [
 
 export const LANDING_RESOURCES: LandingResource[] = [
 	{
-		title: "Perfil corporativo",
-		description: "Resumen institucional y capacidades del servicio.",
-		href: "/landing/perfil-corporativo.md",
-		meta: "MD",
+		title: "Solicitar cotizacion",
+		description:
+			"Reciba una propuesta personalizada para su proyecto electrico, construccion o mantenimiento.",
+		href: "#contacto",
+		meta: "Contacto",
 	},
 	{
-		title: "Catalogo de servicios",
-		description: "Lineas operativas, alcance y coordinacion.",
-		href: "/landing/catalogo-servicios.md",
-		meta: "MD",
+		title: "Portal de seguimiento",
+		description:
+			"Acceda al estado de sus servicios, evidencias y documentacion desde nuestro portal cliente.",
+		href: "/portal",
+		meta: "Portal",
 	},
 	{
-		title: "Guia HSE",
-		description: "Buenas practicas y control documental para el frente.",
-		href: "/landing/guia-hse.md",
-		meta: "MD",
+		title: "Certificaciones",
+		description: "Conozca nuestras certificaciones en seguridad, calidad y gestion ambiental.",
+		href: "#mision-vision",
+		meta: "Info",
 	},
 ];
 

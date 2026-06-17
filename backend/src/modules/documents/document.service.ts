@@ -490,7 +490,7 @@ export async function signDocument(id: string, userId: string): Promise<unknown>
 	const document = await Document.findByIdAndUpdate(
 		id,
 		{ signed: true, signedBy: userId, signedAt: new Date() },
-		{ new: true },
+		{ returnDocument: "after" },
 	).lean();
 
 	if (!document) {

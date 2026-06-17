@@ -23,12 +23,12 @@ export default async function NewOrderPage({ searchParams }: NewOrderPageProps) 
 			<div className="flex items-center gap-3">
 				<Link
 					href="/orders"
-					className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700"
+					className="flex items-center gap-1 text-sm text-steel dark:text-stone hover:text-charcoal"
 				>
 					<ArrowLeft aria-hidden="true" className="size-4" />
 					Volver
 				</Link>
-				<h1 id="new-order-title" className="text-2xl font-semibold text-zinc-900 dark:text-white">
+				<h1 id="new-order-title" className="text-2xl font-semibold text-ink dark:text-white">
 					Nueva Orden de Trabajo
 				</h1>
 			</div>
@@ -40,7 +40,7 @@ export default async function NewOrderPage({ searchParams }: NewOrderPageProps) 
 					workRequestId={workRequestId}
 				/>
 			) : (
-				<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
+				<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
 					<h2 className="text-lg font-semibold text-[var(--text-primary)]">
 						Primero cree o seleccione un caso de servicio.
 					</h2>
@@ -56,7 +56,7 @@ export default async function NewOrderPage({ searchParams }: NewOrderPageProps) 
 						</Link>
 						<Link
 							href="/work-requests/new"
-							className="rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]"
+							className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]"
 						>
 							Nueva solicitud
 						</Link>

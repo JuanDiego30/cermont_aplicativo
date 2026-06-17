@@ -58,7 +58,7 @@ export function HeaderNotifications({
 				aria-expanded={showNotifications}
 				aria-controls="header-notifications-panel"
 				aria-label={unreadCount > 0 ? `Notificaciones, ${unreadCount} sin leer` : "Notificaciones"}
-				className="relative flex size-10 items-center justify-center rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--color-info-bg)] hover:text-[var(--color-brand-blue)]"
+				className="relative flex size-10 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--color-info-bg)] hover:text-[var(--color-brand-blue)]"
 			>
 				{unreadCount > 0 ? (
 					<span
@@ -74,9 +74,9 @@ export function HeaderNotifications({
 			{showNotifications ? (
 				<div
 					id="header-notifications-panel"
-					className="animate-scale-in origin-top-right absolute right-0 mt-2 min-w-[360px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
+					className="animate-scale-in origin-top-right absolute right-0 mt-2 min-w-[360px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
 				>
-					<header className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3">
+					<header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
 						<h2
 							id="header-notifications-title"
 							className="text-sm font-semibold text-[var(--text-primary)]"
@@ -114,7 +114,7 @@ export function HeaderNotifications({
 													}
 												}
 											}}
-											className={`w-full border-b border-[var(--border-default)] px-4 py-3 text-left transition hover:bg-[var(--surface-secondary)] ${
+											className={`w-full border-b border-[var(--border-subtle)] px-4 py-3 text-left transition hover:bg-[var(--surface-secondary)] ${
 												notification.leida
 													? "bg-[var(--surface-primary)]"
 													: "bg-[var(--color-info-bg)]/70"

@@ -33,7 +33,7 @@ interface VarianceBadgeProps {
 function VarianceBadge({ status }: VarianceBadgeProps) {
 	if (status === "ok") {
 		return (
-			<span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-[10px] font-bold uppercase text-green-700">
+			<span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-success-bg px-2.5 py-1 text-[10px] font-bold uppercase text-brand-annotate">
 				<CheckCircle2 className="size-3" aria-hidden="true" />
 				Dentro del presupuesto
 			</span>
@@ -41,14 +41,14 @@ function VarianceBadge({ status }: VarianceBadgeProps) {
 	}
 	if (status === "warning") {
 		return (
-			<span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase text-amber-700">
+			<span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-warning-bg px-2.5 py-1 text-[10px] font-bold uppercase text-brand-warn">
 				<AlertTriangle className="size-3" aria-hidden="true" />
 				Alerta de costo
 			</span>
 		);
 	}
 	return (
-		<span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[10px] font-bold uppercase text-red-700">
+		<span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-danger-bg px-2.5 py-1 text-[10px] font-bold uppercase text-brand-error">
 			<TrendingDown className="size-3" aria-hidden="true" />
 			Costo con pérdida
 		</span>
@@ -66,9 +66,9 @@ function CategoryRow({ label, estimated, actual }: CategoryRowProps) {
 	const isOver = diff > 0;
 	const isUnder = diff < 0;
 	const diffColor = isOver
-		? "text-red-600"
+		? "text-brand-error"
 		: isUnder
-			? "text-green-600"
+			? "text-brand-annotate"
 			: "text-[var(--text-muted)]";
 
 	return (
@@ -152,7 +152,7 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 
 	return (
 		<section
-			className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card"
+			className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card"
 			aria-label="Panel de costos"
 		>
 			{/* Header */}
@@ -191,9 +191,9 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 					<p
 						className={`mt-2 font-mono text-base font-semibold ${
 							variance.status === "loss"
-								? "text-red-600"
+								? "text-brand-error"
 								: variance.status === "warning"
-									? "text-amber-600"
+									? "text-brand-warn"
 									: "text-[var(--text-primary)]"
 						}`}
 					>
@@ -202,7 +202,7 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 					{variance.costDifference !== 0 && estimatedTotal > 0 && (
 						<p
 							className={`mt-0.5 text-[10px] font-semibold ${
-								variance.costDifference > 0 ? "text-red-600" : "text-green-600"
+								variance.costDifference > 0 ? "text-brand-error" : "text-brand-annotate"
 							}`}
 						>
 							{variance.costDifference > 0 ? "+" : ""}
@@ -218,7 +218,7 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 					</p>
 					<p
 						className={`mt-2 font-mono text-base font-semibold ${
-							estimated.estimatedMargin < 0 ? "text-red-600" : "text-[var(--text-primary)]"
+							estimated.estimatedMargin < 0 ? "text-brand-error" : "text-[var(--text-primary)]"
 						}`}
 					>
 						{estimated.estimatedMargin !== 0 ? fmt(estimated.estimatedMargin) : "—"}
@@ -226,7 +226,9 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 					{actual.actualMargin !== 0 && (
 						<p
 							className={`mt-0.5 text-[10px] ${
-								actual.actualMargin < 0 ? "text-red-600 font-semibold" : "text-[var(--text-muted)]"
+								actual.actualMargin < 0
+									? "text-brand-error font-semibold"
+									: "text-[var(--text-muted)]"
 							}`}
 						>
 							Real: {fmt(actual.actualMargin)}
@@ -278,7 +280,7 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 							label="Factura"
 							value={billing.invoiceValue}
 							total={billingTotal}
-							color="bg-[var(--color-brand-deep)]"
+							color="bg-[var(--color-brand-strong)]"
 						/>
 						<BillingBar
 							label="Pagado"
@@ -289,7 +291,7 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 						{billing.pendingValue > 0 && (
 							<div className="flex items-center justify-between pt-1 text-xs">
 								<span className="text-[var(--text-muted)]">Saldo pendiente</span>
-								<span className="font-mono font-semibold text-amber-600">
+								<span className="font-mono font-semibold text-brand-warn">
 									{fmt(billing.pendingValue)}
 								</span>
 							</div>

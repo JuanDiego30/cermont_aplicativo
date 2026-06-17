@@ -23,7 +23,7 @@ type ActionButtonVariant = "default" | "primary" | "success" | "danger";
 
 const ACTION_BUTTON_VARIANTS: Record<ActionButtonVariant, string> = {
 	default:
-		"border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800",
+		"border border-hairline bg-canvas text-charcoal hover:bg-surface dark:border-zinc-700 dark:bg-canvas dark:text-muted-text dark:hover:bg-zinc-800",
 	primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400",
 	success: "bg-green-600 text-white hover:bg-green-700 disabled:bg-green-400",
 	danger: "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400",
@@ -151,7 +151,7 @@ export function ProposalActions({
 					))}
 
 				{showNone && (
-					<p className="text-sm text-zinc-500 dark:text-zinc-400">
+					<p className="text-sm text-steel dark:text-stone">
 						Esta propuesta no tiene acciones disponibles.
 					</p>
 				)}

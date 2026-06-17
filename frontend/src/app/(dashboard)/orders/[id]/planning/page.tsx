@@ -31,7 +31,7 @@ import { type FormEvent, type ReactNode, useMemo, useReducer } from "react";
 import { ApiError } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { usePermissions } from "@/modules/core/hooks/usePermissions";
-import { useKitTemplates, type KitTemplate as QueryKitTemplate } from "@/modules/kits/queries";
+import { type KitTemplate as QueryKitTemplate, useKitTemplates } from "@/modules/kits/queries";
 import { useOrder } from "@/modules/orders/queries";
 import {
 	useApplyKitToPlanning,
@@ -155,7 +155,7 @@ function PlanningHeader({ id, otNumber, clientName, statusConfig }: SectionProps
 			<div className="flex items-center gap-4">
 				<Link
 					href={`/orders/${id}`}
-					className="inline-flex items-center gap-2 text-sm text-zinc-650 dark:text-zinc-350 hover:text-zinc-900 dark:hover:text-white transition-colors"
+					className="inline-flex items-center gap-2 text-sm text-zinc-650 dark:text-zinc-350 hover:text-ink dark:hover:text-white transition-colors"
 				>
 					<ArrowLeft aria-hidden="true" className="size-4" />
 					Volver a la orden
@@ -166,11 +166,11 @@ function PlanningHeader({ id, otNumber, clientName, statusConfig }: SectionProps
 				<div>
 					<h1
 						id="order-planning-title"
-						className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight"
+						className="text-2xl font-bold text-ink dark:text-white tracking-tight"
 					>
 						Planificación de Trabajo — {otNumber}
 					</h1>
-					<p className="text-sm text-zinc-550 dark:text-zinc-400 mt-1">
+					<p className="text-sm text-zinc-550 dark:text-steel mt-1">
 						Cliente: <span className="font-semibold">{clientName}</span>
 					</p>
 				</div>
@@ -200,12 +200,12 @@ function EmptyPlanningState({
 		<div className="rounded-2xl border-2 border-dashed border-zinc-300 p-12 text-center dark:border-zinc-800 max-w-2xl mx-auto bg-white/50 dark:bg-zinc-900/50 shadow-sm">
 			<Calendar
 				aria-hidden="true"
-				className="mx-auto size-16 text-zinc-400 dark:text-zinc-650 mb-4 animate-pulse"
+				className="mx-auto size-16 text-steel dark:text-zinc-650 mb-4 animate-pulse"
 			/>
-			<h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+			<h3 className="text-xl font-bold text-ink dark:text-white mb-2">
 				Sin Planificación Registrada
 			</h3>
-			<p className="text-sm text-zinc-500 dark:text-zinc-450 mb-6">
+			<p className="text-sm text-steel dark:text-zinc-450 mb-6">
 				Esta orden de trabajo no cuenta con una planeación formal y recursos asignados en el
 				sistema.
 			</p>
@@ -220,7 +220,7 @@ function EmptyPlanningState({
 					Inicializar Plan de Trabajo
 				</button>
 			) : (
-				<p className="text-sm text-amber-600 dark:text-amber-400 italic">
+				<p className="text-sm text-brand-warn dark:text-brand-warn italic">
 					No tienes permisos para inicializar la planeación.
 				</p>
 			)}
@@ -253,15 +253,15 @@ function PlanningDetailCard({
 		<div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200 dark:border-zinc-850 p-6 relative overflow-hidden">
 			<div className="absolute top-0 left-0 w-2 h-full bg-blue-600" />
 			<div className="flex justify-between items-center mb-6">
-				<h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2 ml-2">
-					<Settings className="size-5 text-blue-600" />
+				<h2 className="text-lg font-bold text-ink dark:text-white flex items-center gap-2 ml-2">
+					<Settings className="size-5 text-brand-green" />
 					Detalles del Plan
 				</h2>
 				{!isEditing && planningPacket.status !== "approved" && isPlanningRole && (
 					<button
 						type="button"
 						onClick={startEdit}
-						className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-450 dark:hover:text-blue-400 border border-blue-200 dark:border-blue-900/60 px-3 py-1.5 rounded-lg transition-colors"
+						className="text-xs font-semibold text-brand-green hover:text-brand-green dark:text-brand-green dark:hover:text-brand-green border border-blue-200 dark:border-blue-900/60 px-3 py-1.5 rounded-lg transition-colors"
 					>
 						Editar Plan
 					</button>
@@ -274,7 +274,7 @@ function PlanningDetailCard({
 						<div>
 							<label
 								htmlFor="inspector"
-								className="block text-xs font-semibold text-zinc-550 dark:text-zinc-400 mb-1 uppercase tracking-wider"
+								className="block text-xs font-semibold text-zinc-550 dark:text-steel mb-1 uppercase tracking-wider"
 							>
 								Inspector Responsable
 							</label>
@@ -292,7 +292,7 @@ function PlanningDetailCard({
 						<div>
 							<label
 								htmlFor="place"
-								className="block text-xs font-semibold text-zinc-550 dark:text-zinc-400 mb-1 uppercase tracking-wider"
+								className="block text-xs font-semibold text-zinc-550 dark:text-steel mb-1 uppercase tracking-wider"
 							>
 								Lugar / Locación
 							</label>
@@ -314,7 +314,7 @@ function PlanningDetailCard({
 						<div>
 							<label
 								htmlFor="plannedDate"
-								className="block text-xs font-semibold text-zinc-550 dark:text-zinc-400 mb-1 uppercase tracking-wider"
+								className="block text-xs font-semibold text-zinc-550 dark:text-steel mb-1 uppercase tracking-wider"
 							>
 								Fecha Planificada
 							</label>
@@ -331,7 +331,7 @@ function PlanningDetailCard({
 						<div>
 							<label
 								htmlFor="bu"
-								className="block text-xs font-semibold text-zinc-550 dark:text-zinc-400 mb-1 uppercase tracking-wider"
+								className="block text-xs font-semibold text-zinc-550 dark:text-steel mb-1 uppercase tracking-wider"
 							>
 								Unidad de Negocio
 							</label>
@@ -358,7 +358,7 @@ function PlanningDetailCard({
 					<div>
 						<label
 							htmlFor="scope"
-							className="block text-xs font-semibold text-zinc-550 dark:text-zinc-400 mb-1 uppercase tracking-wider"
+							className="block text-xs font-semibold text-zinc-550 dark:text-steel mb-1 uppercase tracking-wider"
 						>
 							Alcance de Actividad (Mínimo 20 caracteres)
 						</label>
@@ -379,7 +379,7 @@ function PlanningDetailCard({
 						<button
 							type="button"
 							onClick={() => dispatch({ type: "TOGGLE_EDIT", payload: false })}
-							className="text-sm font-semibold text-zinc-650 hover:text-zinc-900 dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
+							className="text-sm font-semibold text-zinc-650 hover:text-ink dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
 						>
 							Cancelar
 						</button>
@@ -397,36 +397,36 @@ function PlanningDetailCard({
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-2">
 					<div className="space-y-4">
 						<div className="flex items-start gap-2.5">
-							<User aria-hidden="true" className="size-4.5 text-zinc-400 mt-0.5" />
+							<User aria-hidden="true" className="size-4.5 text-steel mt-0.5" />
 							<div>
-								<h4 className="text-xs font-semibold text-zinc-500 dark:text-zinc-455 uppercase tracking-wider">
+								<h4 className="text-xs font-semibold text-steel dark:text-zinc-455 uppercase tracking-wider">
 									Inspector Responsable
 								</h4>
-								<p className="text-sm font-medium text-zinc-850 dark:text-zinc-100 mt-0.5">
+								<p className="text-sm font-medium text-zinc-850 dark:text-muted-text mt-0.5">
 									{planningPacket.responsibleInspectorName || "No especificado"}
 								</p>
 							</div>
 						</div>
 
 						<div className="flex items-start gap-2.5">
-							<MapPin aria-hidden="true" className="size-4.5 text-zinc-400 mt-0.5" />
+							<MapPin aria-hidden="true" className="size-4.5 text-steel mt-0.5" />
 							<div>
-								<h4 className="text-xs font-semibold text-zinc-500 dark:text-zinc-455 uppercase tracking-wider">
+								<h4 className="text-xs font-semibold text-steel dark:text-zinc-455 uppercase tracking-wider">
 									Lugar / Locación
 								</h4>
-								<p className="text-sm font-medium text-zinc-850 dark:text-zinc-100 mt-0.5">
+								<p className="text-sm font-medium text-zinc-850 dark:text-muted-text mt-0.5">
 									{planningPacket.place || "No especificado"}
 								</p>
 							</div>
 						</div>
 
 						<div className="flex items-start gap-2.5">
-							<Calendar aria-hidden="true" className="size-4.5 text-zinc-400 mt-0.5" />
+							<Calendar aria-hidden="true" className="size-4.5 text-steel mt-0.5" />
 							<div>
-								<h4 className="text-xs font-semibold text-zinc-500 dark:text-zinc-455 uppercase tracking-wider">
+								<h4 className="text-xs font-semibold text-steel dark:text-zinc-455 uppercase tracking-wider">
 									Fecha Planificada
 								</h4>
-								<p className="text-sm font-medium text-zinc-850 dark:text-zinc-100 mt-0.5">
+								<p className="text-sm font-medium text-zinc-850 dark:text-muted-text mt-0.5">
 									{planningPacket.plannedDate
 										? new Date(planningPacket.plannedDate).toLocaleString("es-CO", {
 												dateStyle: "medium",
@@ -440,24 +440,24 @@ function PlanningDetailCard({
 
 					<div className="space-y-4">
 						<div className="flex items-start gap-2.5">
-							<Briefcase aria-hidden="true" className="size-4.5 text-zinc-400 mt-0.5" />
+							<Briefcase aria-hidden="true" className="size-4.5 text-steel mt-0.5" />
 							<div>
-								<h4 className="text-xs font-semibold text-zinc-500 dark:text-zinc-455 uppercase tracking-wider">
+								<h4 className="text-xs font-semibold text-steel dark:text-zinc-455 uppercase tracking-wider">
 									Unidad de Negocio
 								</h4>
-								<p className="text-sm font-medium text-zinc-850 dark:text-zinc-100 mt-0.5">
+								<p className="text-sm font-medium text-zinc-850 dark:text-muted-text mt-0.5">
 									{planningPacket.businessUnit || "No especificada"}
 								</p>
 							</div>
 						</div>
 
 						<div className="flex items-start gap-2.5">
-							<FileText aria-hidden="true" className="size-4.5 text-zinc-400 mt-0.5" />
+							<FileText aria-hidden="true" className="size-4.5 text-steel mt-0.5" />
 							<div>
-								<h4 className="text-xs font-semibold text-zinc-500 dark:text-zinc-455 uppercase tracking-wider">
+								<h4 className="text-xs font-semibold text-steel dark:text-zinc-455 uppercase tracking-wider">
 									Alcance Técnico
 								</h4>
-								<p className="text-sm text-zinc-850 dark:text-zinc-200 mt-0.5 whitespace-pre-wrap leading-relaxed">
+								<p className="text-sm text-zinc-850 dark:text-stone mt-0.5 whitespace-pre-wrap leading-relaxed">
 									{planningPacket.scope || "No detallado"}
 								</p>
 							</div>
@@ -485,10 +485,10 @@ function TypicalKitSelector({
 	return (
 		<div className="rounded-2xl bg-zinc-50 dark:bg-zinc-950 p-6 border border-zinc-250 dark:border-zinc-850 flex flex-col md:flex-row md:items-center justify-between gap-4">
 			<div>
-				<h3 className="text-base font-bold text-zinc-900 dark:text-white">
+				<h3 className="text-base font-bold text-ink dark:text-white">
 					Aplicar Plantilla de Kit Típico
 				</h3>
-				<p className="text-xs text-zinc-500 dark:text-zinc-455 mt-1 max-w-md">
+				<p className="text-xs text-steel dark:text-zinc-455 mt-1 max-w-md">
 					Carga automáticamente un listado estandarizado de materiales, herramientas, y EPIs
 					correspondientes al tipo de actividad.
 				</p>
@@ -547,8 +547,8 @@ function ResourceTabs({
 	return (
 		<div className="rounded-2xl bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200 dark:border-zinc-850 p-6">
 			<div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-850 pb-3 mb-6">
-				<h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-					<Package aria-hidden="true" className="size-5 text-blue-600" />
+				<h2 className="text-lg font-bold text-ink dark:text-white flex items-center gap-2">
+					<Package aria-hidden="true" className="size-5 text-brand-green" />
 					Recursos Planificados
 				</h2>
 				{planningPacket.kitSnapshot && (
@@ -567,7 +567,7 @@ function ResourceTabs({
 						className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
 							activeTab === tab.key
 								? "bg-blue-600 text-white shadow-sm"
-								: "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-150 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-850"
+								: "text-steel hover:text-ink hover:bg-zinc-150 dark:text-steel dark:hover:text-white dark:hover:bg-zinc-850"
 						}`}
 					>
 						{tab.label} ({tab.count})
@@ -601,8 +601,8 @@ function ResourceTabs({
 									<span
 										className={`inline-flex px-2 py-0.5 text-xs font-bold rounded-full ${
 											item.available
-												? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-450"
-												: "bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-450"
+												? "bg-emerald-100 text-brand-annotate dark:bg-emerald-950/30 dark:text-brand-annotate"
+												: "bg-rose-100 text-brand-error dark:bg-rose-950/30 dark:text-brand-error"
 										}`}
 									>
 										{item.available ? "Disponible" : "Sin Stock"}
@@ -626,8 +626,8 @@ function ResourceTabs({
 									<span
 										className={`inline-flex px-2 py-0.5 text-xs font-bold rounded-full ${
 											item.available
-												? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-450"
-												: "bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-450"
+												? "bg-emerald-100 text-brand-annotate dark:bg-emerald-950/30 dark:text-brand-annotate"
+												: "bg-rose-100 text-brand-error dark:bg-rose-950/30 dark:text-brand-error"
 										}`}
 									>
 										{item.available ? "Disponible" : "Sin Stock"}
@@ -640,8 +640,8 @@ function ResourceTabs({
 									<span
 										className={`inline-flex px-2 py-0.5 text-xs font-bold rounded-full ${
 											item.certificateRequired
-												? "bg-amber-100 text-amber-850 dark:bg-amber-950/30 dark:text-amber-450"
-												: "bg-zinc-100 text-zinc-650 dark:bg-zinc-800 dark:text-zinc-400"
+												? "bg-amber-100 text-brand-warn dark:bg-amber-950/30 dark:text-brand-warn"
+												: "bg-zinc-100 text-zinc-650 dark:bg-zinc-800 dark:text-steel"
 										}`}
 									>
 										{item.certificateRequired ? "Sí" : "No"}
@@ -686,7 +686,7 @@ function ResourceTable<T extends Record<string, unknown>>({
 	keyExtractor: (item: T) => string;
 }) {
 	if (!items || items.length === 0) {
-		return <p className="text-sm text-zinc-500 dark:text-zinc-455 italic py-4">{emptyMessage}</p>;
+		return <p className="text-sm text-steel dark:text-zinc-455 italic py-4">{emptyMessage}</p>;
 	}
 
 	return (
@@ -696,7 +696,7 @@ function ResourceTable<T extends Record<string, unknown>>({
 					{columns.map((col) => (
 						<th
 							key={col.header}
-							className="px-4 py-3 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider"
+							className="px-4 py-3 text-left text-xs font-bold text-steel dark:text-steel uppercase tracking-wider"
 						>
 							{col.header}
 						</th>
@@ -707,7 +707,7 @@ function ResourceTable<T extends Record<string, unknown>>({
 				{items.map((item) => (
 					<tr key={keyExtractor(item)} className="hover:bg-zinc-50 dark:hover:bg-zinc-850/40">
 						{columns.map((col) => (
-							<td key={col.header} className="px-4 py-3 text-sm text-zinc-900 dark:text-white">
+							<td key={col.header} className="px-4 py-3 text-sm text-ink dark:text-white">
 								{col.render
 									? col.render(item)
 									: col.accessor
@@ -737,17 +737,17 @@ function WorkflowStatusPanel({
 }) {
 	return (
 		<div className="rounded-2xl bg-zinc-50 dark:bg-zinc-900 p-6 border border-zinc-200 dark:border-zinc-850 shadow-sm">
-			<h3 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2 mb-4">
-				<ListTodo aria-hidden="true" className="size-5 text-blue-600" />
+			<h3 className="text-base font-bold text-ink dark:text-white flex items-center gap-2 mb-4">
+				<ListTodo aria-hidden="true" className="size-5 text-brand-green" />
 				Flujo de Aprobación
 			</h3>
 
 			<div className="space-y-4">
 				<div className="bg-white dark:bg-zinc-950 p-4 rounded-xl border border-zinc-200 dark:border-zinc-850">
-					<span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+					<span className="text-xs font-semibold text-steel uppercase tracking-wider">
 						Estado de Tarea
 					</span>
-					<p className="text-sm font-bold text-zinc-900 dark:text-white mt-1 capitalize">
+					<p className="text-sm font-bold text-ink dark:text-white mt-1 capitalize">
 						{planningPacket.status}
 					</p>
 				</div>
@@ -757,7 +757,7 @@ function WorkflowStatusPanel({
 						type="button"
 						onClick={handleValidateReadiness}
 						disabled={isValidationPending}
-						className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-zinc-100 text-zinc-700 font-semibold border border-zinc-300 dark:bg-zinc-950 dark:hover:bg-zinc-900 dark:text-zinc-300 dark:border-zinc-800 px-4 py-2.5 rounded-xl shadow-sm transition-all text-sm active:scale-[0.98]"
+						className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-zinc-100 text-charcoal font-semibold border border-zinc-300 dark:bg-zinc-950 dark:hover:bg-zinc-900 dark:text-stone dark:border-zinc-800 px-4 py-2.5 rounded-xl shadow-sm transition-all text-sm active:scale-[0.98]"
 					>
 						{isValidationPending ? (
 							<Loader2 className="animate-spin size-4" />
@@ -791,9 +791,9 @@ function WorkflowStatusPanel({
 				)}
 
 				{planningPacket.status === "approved" && (
-					<div className="bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-450 p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/40 text-xs leading-relaxed space-y-2">
+					<div className="bg-emerald-50 dark:bg-emerald-950/20 text-brand-annotate dark:text-brand-annotate p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/40 text-xs leading-relaxed space-y-2">
 						<p className="font-bold flex items-center gap-1">
-							<CheckCircle aria-hidden="true" className="size-4 text-emerald-600" />
+							<CheckCircle aria-hidden="true" className="size-4 text-brand-annotate" />
 							Módulo Aprobado
 						</p>
 						<p>
@@ -801,7 +801,7 @@ function WorkflowStatusPanel({
 							puede iniciarse.
 						</p>
 						{planningPacket.approvedAt && (
-							<p className="text-[10px] text-zinc-500">
+							<p className="text-[10px] text-steel">
 								Aprobado el: {new Date(planningPacket.approvedAt).toLocaleString()}
 							</p>
 						)}
@@ -826,11 +826,11 @@ function ApprovalModal({
 	return (
 		<div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
 			<div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 max-w-md w-full p-6 space-y-4">
-				<h3 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-					<Lock aria-hidden="true" className="text-emerald-600" />
+				<h3 className="text-lg font-bold text-ink dark:text-white flex items-center gap-2">
+					<Lock aria-hidden="true" className="text-brand-annotate" />
 					Aprobar Planificación
 				</h3>
-				<p className="text-sm text-zinc-500 dark:text-zinc-450">
+				<p className="text-sm text-steel dark:text-zinc-450">
 					Por favor, registre cualquier comentario técnico o nota sobre la viabilidad del plan de
 					trabajo antes de autorizar su ejecución en campo.
 				</p>
@@ -850,7 +850,7 @@ function ApprovalModal({
 						type="button"
 						onClick={() => dispatch({ type: "SHOW_APPROVAL_MODAL", payload: false })}
 						aria-label="Cancelar aprobación"
-						className="text-sm font-semibold text-zinc-650 hover:text-zinc-900 dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
+						className="text-sm font-semibold text-zinc-650 hover:text-ink dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
 					>
 						Cancelar
 					</button>
@@ -884,11 +884,11 @@ function ReopenModal({
 	return (
 		<div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
 			<div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 max-w-md w-full p-6 space-y-4">
-				<h3 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-					<Unlock aria-hidden="true" className="text-rose-600" />
+				<h3 className="text-lg font-bold text-ink dark:text-white flex items-center gap-2">
+					<Unlock aria-hidden="true" className="text-brand-error" />
 					Reabrir Planificación
 				</h3>
-				<p className="text-sm text-zinc-500 dark:text-zinc-450">
+				<p className="text-sm text-steel dark:text-zinc-450">
 					Esto cambiará el estado del plan de trabajo a borrador, bloqueando temporalmente el inicio
 					de la ejecución. Es obligatorio especificar el motivo del cambio.
 				</p>
@@ -909,7 +909,7 @@ function ReopenModal({
 						type="button"
 						onClick={() => dispatch({ type: "SHOW_REOPEN_MODAL", payload: false })}
 						aria-label="Cancelar reapertura"
-						className="text-sm font-semibold text-zinc-650 hover:text-zinc-900 dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
+						className="text-sm font-semibold text-zinc-650 hover:text-ink dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
 					>
 						Cancelar
 					</button>
@@ -936,43 +936,52 @@ function getStatusConfig(status: string) {
 		case "approved":
 			return {
 				text: "Aprobado",
-				bg: "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/60",
+				bg: "bg-emerald-100 text-brand-annotate border-emerald-300 dark:bg-emerald-950/40 dark:text-brand-annotate dark:border-emerald-900/60",
 				icon: (
 					<CheckCircle
 						aria-hidden="true"
-						className="size-4 text-emerald-600 dark:text-emerald-400"
+						className="size-4 text-brand-annotate dark:text-brand-annotate"
 					/>
 				),
 			};
 		case "ready":
 			return {
 				text: "Listo para Ejecutar",
-				bg: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/60",
+				bg: "bg-blue-100 text-brand-green border-blue-300 dark:bg-blue-950/40 dark:text-brand-green dark:border-blue-900/60",
 				icon: (
-					<CheckCircle aria-hidden="true" className="size-4 text-blue-600 dark:text-blue-400" />
+					<CheckCircle
+						aria-hidden="true"
+						className="size-4 text-brand-green dark:text-brand-green"
+					/>
 				),
 			};
 		case "blocked":
 			return {
 				text: "Bloqueado",
-				bg: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900/60",
+				bg: "bg-rose-100 text-brand-error border-rose-300 dark:bg-rose-950/40 dark:text-brand-error dark:border-rose-900/60",
 				icon: (
-					<ShieldAlert aria-hidden="true" className="size-4 text-rose-600 dark:text-rose-400" />
+					<ShieldAlert
+						aria-hidden="true"
+						className="size-4 text-brand-error dark:text-brand-error"
+					/>
 				),
 			};
 		case "incomplete":
 			return {
 				text: "Incompleto",
-				bg: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/60",
+				bg: "bg-amber-100 text-brand-warn border-amber-300 dark:bg-amber-950/40 dark:text-brand-warn dark:border-amber-900/60",
 				icon: (
-					<AlertTriangle aria-hidden="true" className="size-4 text-amber-600 dark:text-amber-400" />
+					<AlertTriangle
+						aria-hidden="true"
+						className="size-4 text-brand-warn dark:text-brand-warn"
+					/>
 				),
 			};
 		default:
 			return {
 				text: "Borrador",
-				bg: "bg-zinc-100 text-zinc-800 border-zinc-300 dark:bg-zinc-850 dark:text-zinc-400 dark:border-zinc-800",
-				icon: <FileText aria-hidden="true" className="size-4 text-zinc-500 dark:text-zinc-450" />,
+				bg: "bg-zinc-100 text-charcoal border-zinc-300 dark:bg-zinc-850 dark:text-steel dark:border-zinc-800",
+				icon: <FileText aria-hidden="true" className="size-4 text-steel dark:text-zinc-450" />,
 			};
 	}
 }
@@ -1113,8 +1122,8 @@ export default function OrderPlanningPage() {
 
 	if (orderLoading || planningLoading) {
 		return (
-			<div className="flex h-64 items-center justify-center text-zinc-500">
-				<Loader2 className="animate-spin size-6 mr-2 text-blue-600" />
+			<div className="flex h-64 items-center justify-center text-steel">
+				<Loader2 className="animate-spin size-6 mr-2 text-brand-green" />
 				Cargando planificación y detalles de la OT…
 			</div>
 		);

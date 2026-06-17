@@ -63,9 +63,9 @@ export function ResetPasswordContent({ token }: ResetPasswordContentProps) {
 	if (state.success) {
 		return (
 			<div className="mt-6 text-center">
-				<div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-6 text-emerald-100">
+				<div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-6 text-brand-annotate">
 					<p className="text-lg font-semibold">Contraseña restablecida</p>
-					<p className="mt-2 text-sm text-emerald-100/80">
+					<p className="mt-2 text-sm text-brand-annotate">
 						Ya puedes iniciar sesión con tu nueva contraseña.
 					</p>
 				</div>
@@ -85,20 +85,20 @@ export function ResetPasswordContent({ token }: ResetPasswordContentProps) {
 			{state.error && (
 				<p
 					role="alert"
-					className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+					className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error"
 				>
 					{state.error}
 				</p>
 			)}
 
 			{!token && (
-				<p className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+				<p className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-brand-warn">
 					El enlace de recuperación ha expirado o es inválido.
 				</p>
 			)}
 
 			<div className="flex flex-col gap-2">
-				<label htmlFor="password" className="text-sm font-semibold text-zinc-300">
+				<label htmlFor="password" className="text-sm font-semibold text-muted-text">
 					Nueva contraseña
 				</label>
 				<div className="relative">
@@ -110,12 +110,12 @@ export function ResetPasswordContent({ token }: ResetPasswordContentProps) {
 						required
 						disabled={!token}
 						placeholder="••••••••"
-						className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 pr-12 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-white/10 focus-visible:ring-4 focus-visible:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+						className="w-full rounded-xl border border-white/10 bg-canvas/5 px-4 py-3 pr-12 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-canvas/10 focus-visible:ring-4 focus-visible:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50"
 					/>
 					<button
 						type="button"
 						onClick={() => setShowPassword(!showPassword)}
-						className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 transition hover:text-zinc-300"
+						className="absolute right-3 top-1/2 -translate-y-1/2 text-stone transition hover:text-muted-text"
 						aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
 					>
 						{showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
@@ -124,7 +124,7 @@ export function ResetPasswordContent({ token }: ResetPasswordContentProps) {
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<label htmlFor="confirmPassword" className="text-sm font-semibold text-zinc-300">
+				<label htmlFor="confirmPassword" className="text-sm font-semibold text-muted-text">
 					Confirmar contraseña
 				</label>
 				<input
@@ -135,7 +135,7 @@ export function ResetPasswordContent({ token }: ResetPasswordContentProps) {
 					required
 					disabled={!token}
 					placeholder="••••••••"
-					className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-white/10 focus-visible:ring-4 focus-visible:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+					className="rounded-xl border border-white/10 bg-canvas/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-canvas/10 focus-visible:ring-4 focus-visible:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50"
 				/>
 			</div>
 

@@ -114,7 +114,7 @@ export async function updateAsset(id: AssetId, data: UpdateAssetInput, userRole:
 		id,
 		{ ...data },
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	).populate("createdBy", "name email");
@@ -165,7 +165,7 @@ export async function updateAssetStatus(id: AssetId, status: string, userRole: s
 		id,
 		{ status },
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	).populate("createdBy", "name email");
@@ -197,7 +197,7 @@ export async function deleteAsset(id: AssetId, userRole: string) {
 		id,
 		{ status: "retired" },
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	).populate("createdBy", "name email");

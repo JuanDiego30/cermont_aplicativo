@@ -47,7 +47,7 @@ describe("SystemConfigService", () => {
 		expect(mocks.findOneAndUpdate).toHaveBeenCalledWith(
 			{ singletonKey: "system" },
 			expect.objectContaining({ $setOnInsert: expect.any(Object) }),
-			expect.objectContaining({ upsert: true, new: true }),
+			expect.objectContaining({ upsert: true, returnDocument: "after" }),
 		);
 		expect(config.updatedBy).toBeInstanceOf(Types.ObjectId);
 		expect(String(config.updatedBy)).toBe(userId);

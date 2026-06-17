@@ -2,7 +2,7 @@ import express from "express";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 import app from "../../src/index";
-import { createAuthLimiter } from "../../src/middlewares/rate-limiter";
+import { createAuthLimiter, createGeneralLimiter } from "../../src/middlewares/rate-limiter";
 
 describe("HTTP security hardening", () => {
 	it("limits the sixth credential attempt and returns Retry-After", async () => {
@@ -38,6 +38,36 @@ describe("HTTP security hardening", () => {
 				message: "Demasiadas solicitudes. Intenta nuevamente más tarde.",
 			},
 		});
+	});
+
+	it("does not count successful authentication responses", async () => {
+		const isolatedApp = express();
+		isolatedApp.use(express.json());
+		isolatedApp.use(createAuthLimiter(2));
+		isolatedApp.post("/login", (_req, res) => {
+			res.status(200).json({ success: true });
+		});
+
+		for (let attempt = 1; attempt <= 3; attempt += 1) {
+			const response = await request(isolatedApp).post("/login").send({
+				email: "valid-user@cermont.com",
+				password: "ValidPassword123!",
+			});
+			expect(response.status).toBe(200);
+		}
+	});
+
+	it("supports normal SPA request bursts above one hundred requests", async () => {
+		const isolatedApp = express();
+		isolatedApp.use(createGeneralLimiter());
+		isolatedApp.get("/dashboard", (_req, res) => {
+			res.status(200).json({ success: true });
+		});
+
+		for (let requestNumber = 1; requestNumber <= 101; requestNumber += 1) {
+			const response = await request(isolatedApp).get("/dashboard");
+			expect(response.status).toBe(200);
+		}
 	});
 
 	it("keeps automated test traffic from exhausting the shared auth limiter", async () => {

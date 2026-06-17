@@ -19,7 +19,7 @@ export default function MobileBottomNav() {
 	return (
 		<nav
 			aria-label="Navegación rápida móvil"
-			className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-default)] bg-[var(--surface-primary)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg lg:hidden"
+			className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[var(--surface-primary)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg lg:hidden"
 		>
 			<ul className="grid grid-cols-5">
 				{mobileNavItems.map(({ href, icon: Icon, label }) => {

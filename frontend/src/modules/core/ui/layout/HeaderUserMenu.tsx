@@ -93,7 +93,7 @@ export function HeaderUserMenu({
 				aria-expanded={dropdownOpen}
 				aria-controls="header-user-menu"
 				aria-label={user?.name ? `Menú de usuario de ${user.name}` : "Menú de usuario"}
-				className="flex items-center gap-3 rounded-full border border-transparent p-1 pr-3 transition-all hover:border-[var(--border-default)] hover:bg-[var(--surface-secondary)]"
+				className="flex items-center gap-3 rounded-full border border-transparent p-1 pr-3 transition-all hover:border-[var(--border-subtle)] hover:bg-[var(--surface-secondary)]"
 			>
 				<span className="hidden text-right lg:block">
 					<span className="block text-sm font-semibold text-[var(--text-primary)]">
@@ -120,7 +120,7 @@ export function HeaderUserMenu({
 				)}
 
 				<ChevronDown
-					className="hidden size-4 text-zinc-500 dark:text-zinc-400 sm:block"
+					className="hidden size-4 text-steel dark:text-stone sm:block"
 					aria-hidden="true"
 				/>
 			</button>
@@ -128,7 +128,7 @@ export function HeaderUserMenu({
 			{dropdownOpen ? (
 				<div
 					id="header-user-menu"
-					className="animate-scale-in origin-top-right absolute right-0 mt-4 flex w-64 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
+					className="animate-scale-in origin-top-right absolute right-0 mt-4 flex w-64 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
 				>
 					<ul className="flex flex-col gap-1 p-3">
 						<li>
@@ -141,7 +141,7 @@ export function HeaderUserMenu({
 								Mi Perfil
 							</Link>
 						</li>
-						<li className="mt-1 border-t border-[var(--border-default)] pt-1">
+						<li className="mt-1 border-t border-[var(--border-subtle)] pt-1">
 							<button
 								type="button"
 								onClick={() => void handleLogout()}

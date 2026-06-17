@@ -32,7 +32,7 @@ export function ThemeToggle() {
 				type="button"
 				aria-label="Cambiar tema"
 				title="Cambiar tema"
-				className="flex size-11 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 transition-colors hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+				className="flex size-11 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-sidebar-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-focus-ring)"
 				disabled
 			>
 				<Monitor className="size-4" aria-hidden="true" />
@@ -44,7 +44,7 @@ export function ThemeToggle() {
 		<button
 			type="button"
 			onClick={handleToggle}
-			className="flex size-11 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 transition-colors hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+			className="flex size-11 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-sidebar-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-focus-ring)"
 			aria-label={`Cambiar tema. Actual: ${theme}`}
 			title={`Cambiar tema. Actual: ${theme}`}
 		>

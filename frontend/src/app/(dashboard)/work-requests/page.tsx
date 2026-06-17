@@ -63,7 +63,7 @@ function WorkRequestList() {
 					<Link
 						key={item._id}
 						href={`/work-requests/${item._id}`}
-						className="group rounded-2xl border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-2)]"
+						className="group rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-2)]"
 					>
 						<div className="flex items-center justify-between">
 							<span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-brand-blue)]">

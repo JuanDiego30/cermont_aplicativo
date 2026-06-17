@@ -84,7 +84,7 @@ export default function ResourcesPage() {
 	return (
 		<section className="space-y-6" aria-labelledby="resources-page-title">
 			{/* Header */}
-			<header className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
+			<header className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
 				<div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 					<div className="space-y-2">
 						<p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
@@ -118,7 +118,7 @@ export default function ResourcesPage() {
 				].map((stat) => (
 					<article
 						key={stat.label}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
 					>
 						<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
 							{stat.label}
@@ -141,7 +141,7 @@ export default function ResourcesPage() {
 			</section>
 
 			{/* Search + tabs */}
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 				<div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
 					<div className="relative w-full lg:max-w-md">
 						<label htmlFor="resource-search" className="sr-only">
@@ -157,7 +157,7 @@ export default function ResourcesPage() {
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
 							placeholder="Buscar por nombre, tipo, marca…"
-							className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] py-2.5 pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20"
+							className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] py-2.5 pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20"
 						/>
 					</div>
 				</div>
@@ -178,7 +178,7 @@ export default function ResourcesPage() {
 							className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
 								activeTab === tab.value
 									? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
-									: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+									: "border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 							}`}
 						>
 							{tab.label}
@@ -194,7 +194,7 @@ export default function ResourcesPage() {
 				</h2>
 
 				{isLoading ? (
-					<div className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
+					<div className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
 						<Loader2 className="mr-2 size-6 animate-spin" aria-hidden="true" />
 						Cargando recursos…
 					</div>
@@ -208,7 +208,7 @@ export default function ResourcesPage() {
 						</Button>
 					</div>
 				) : resources.length === 0 ? (
-					<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
+					<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
 						<EmptyState
 							title={query || activeTab !== "all" ? "Sin resultados" : "No hay recursos"}
 							description={

@@ -44,7 +44,7 @@ export default function PortalOrderDetailPage() {
 				<span
 					className={`inline-block rounded-full px-3 py-1 text-xs font-medium capitalize ${
 						order.status === "completed" || order.status === "closed"
-							? "bg-green-100 text-green-800"
+							? "bg-green-100 text-brand-annotate"
 							: "bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand-blue)]"
 					}`}
 				>

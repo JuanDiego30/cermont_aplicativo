@@ -28,7 +28,7 @@ export default function PortalInvoicesPage() {
 		return (
 			<div className="space-y-6">
 				<h1 className="text-2xl font-semibold text-[var(--text-primary)]">Mis Facturas</h1>
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-16 text-center">
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-16 text-center">
 					<DollarSign
 						className="mx-auto mb-3 size-10 text-[var(--text-tertiary)]"
 						aria-hidden="true"
@@ -54,10 +54,10 @@ export default function PortalInvoicesPage() {
 					</p>
 				</div>
 			</div>
-			<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
+			<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
 				<table className="w-full text-left text-sm">
 					<thead>
-						<tr className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]">
+						<tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]">
 							<th className="px-4 py-3 font-medium">Código</th>
 							<th className="px-4 py-3 font-medium">Estado</th>
 							<th className="hidden px-4 py-3 font-medium md:table-cell">Emisión</th>
@@ -69,12 +69,12 @@ export default function PortalInvoicesPage() {
 						{invoices.map((inv) => (
 							<tr
 								key={inv._id}
-								className="border-b border-[var(--border-default)] last:border-0 hover:bg-[var(--surface-secondary)]/50"
+								className="border-b border-[var(--border-subtle)] last:border-0 hover:bg-[var(--surface-secondary)]/50"
 							>
 								<td className="px-4 py-3 font-medium text-[var(--color-brand-blue)]">{inv.code}</td>
 								<td className="px-4 py-3">
 									<span
-										className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${inv.status === "paid" ? "bg-green-100 text-green-800" : inv.status === "cancelled" ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800"}`}
+										className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${inv.status === "paid" ? "bg-success-bg text-brand-annotate" : inv.status === "cancelled" ? "bg-danger-bg text-brand-error" : "bg-yellow-100 text-brand-warn"}`}
 									>
 										{inv.status.replace(/_/g, " ")}
 									</span>

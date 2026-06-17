@@ -13128,6 +13128,229 @@
       ],
       "type": "object"
     },
+    "BusinessDocumentFieldMappingSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "fieldName": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "fieldType": {
+          "enum": [
+            "text",
+            "number",
+            "date",
+            "signature",
+            "photo",
+            "checkbox",
+            "select",
+            "table",
+            "textarea"
+          ],
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "type": "boolean"
+        },
+        "validation": {
+          "type": "string"
+        },
+        "xpath": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fieldName",
+        "fieldType",
+        "required"
+      ],
+      "type": "object"
+    },
+    "BusinessDocumentListQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentType": {
+          "enum": [
+            "work_planning",
+            "cctv_maintenance",
+            "lifeline_inspection",
+            "sgsst_induction",
+            "ladder_anchor_photo",
+            "safety_control_hierarchy",
+            "field_permit",
+            "ast_safety_analysis"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "BusinessDocumentMetadataSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "businessUnit": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "description": {
+          "type": "string"
+        },
+        "regulatoryBody": {
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "BusinessDocumentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "documentType": {
+          "enum": [
+            "work_planning",
+            "cctv_maintenance",
+            "lifeline_inspection",
+            "sgsst_induction",
+            "ladder_anchor_photo",
+            "safety_control_hierarchy",
+            "field_permit",
+            "ast_safety_analysis"
+          ],
+          "type": "string"
+        },
+        "fieldMappings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "fieldName": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "fieldType": {
+                "enum": [
+                  "text",
+                  "number",
+                  "date",
+                  "signature",
+                  "photo",
+                  "checkbox",
+                  "select",
+                  "table",
+                  "textarea"
+                ],
+                "type": "string"
+              },
+              "required": {
+                "default": false,
+                "type": "boolean"
+              },
+              "validation": {
+                "type": "string"
+              },
+              "xpath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fieldName",
+              "fieldType",
+              "required"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "formatType": {
+          "enum": [
+            "pdf",
+            "xlsx",
+            "docx",
+            "image",
+            "hybrid"
+          ],
+          "type": "string"
+        },
+        "lifecycleStatus": {
+          "default": "active",
+          "enum": [
+            "active",
+            "deleted"
+          ],
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": false,
+          "properties": {
+            "businessUnit": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": {
+              "type": "string"
+            },
+            "regulatoryBody": {
+              "type": "string"
+            },
+            "title": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "type": "object"
+        },
+        "sourceFile": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "_id",
+        "documentType",
+        "formatType",
+        "version",
+        "sourceFile",
+        "fieldMappings",
+        "metadata",
+        "lifecycleStatus",
+        "createdAt",
+        "updatedAt"
+      ],
+      "type": "object"
+    },
     "CancelDeliveryRecordSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -18013,6 +18236,118 @@
       ],
       "type": "object"
     },
+    "CreateBusinessDocumentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentType": {
+          "enum": [
+            "work_planning",
+            "cctv_maintenance",
+            "lifeline_inspection",
+            "sgsst_induction",
+            "ladder_anchor_photo",
+            "safety_control_hierarchy",
+            "field_permit",
+            "ast_safety_analysis"
+          ],
+          "type": "string"
+        },
+        "fieldMappings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "fieldName": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "fieldType": {
+                "enum": [
+                  "text",
+                  "number",
+                  "date",
+                  "signature",
+                  "photo",
+                  "checkbox",
+                  "select",
+                  "table",
+                  "textarea"
+                ],
+                "type": "string"
+              },
+              "required": {
+                "default": false,
+                "type": "boolean"
+              },
+              "validation": {
+                "type": "string"
+              },
+              "xpath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fieldName",
+              "fieldType",
+              "required"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "formatType": {
+          "enum": [
+            "pdf",
+            "xlsx",
+            "docx",
+            "image",
+            "hybrid"
+          ],
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": false,
+          "properties": {
+            "businessUnit": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": {
+              "type": "string"
+            },
+            "regulatoryBody": {
+              "type": "string"
+            },
+            "title": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "type": "object"
+        },
+        "sourceFile": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "documentType",
+        "formatType",
+        "version",
+        "sourceFile",
+        "fieldMappings",
+        "metadata"
+      ],
+      "type": "object"
+    },
     "CreateCertificateSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -20193,6 +20528,73 @@
       "required": [
         "name",
         "fields"
+      ],
+      "type": "object"
+    },
+    "CreateErpConnectorSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "authConfig": {
+          "additionalProperties": {},
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "authType": {
+          "enum": [
+            "api_key",
+            "oauth2",
+            "basic",
+            "jwt",
+            "none"
+          ],
+          "type": "string"
+        },
+        "baseUrl": {
+          "format": "uri",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": {},
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provider": {
+          "enum": [
+            "fssm",
+            "gmao_csm",
+            "sap",
+            "ariba",
+            "dian",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "syncInterval": {
+          "default": 300,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "provider",
+        "name",
+        "authType",
+        "enabled",
+        "syncInterval"
       ],
       "type": "object"
     },
@@ -35600,6 +36002,99 @@
         "condition",
         "recordedAt",
         "recordedBy"
+      ],
+      "type": "object"
+    },
+    "ErpConnectorConfigSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "authConfig": {
+          "additionalProperties": {},
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "authType": {
+          "enum": [
+            "api_key",
+            "oauth2",
+            "basic",
+            "jwt",
+            "none"
+          ],
+          "type": "string"
+        },
+        "baseUrl": {
+          "format": "uri",
+          "type": "string"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "lifecycleStatus": {
+          "default": "active",
+          "enum": [
+            "active",
+            "deleted"
+          ],
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {},
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provider": {
+          "enum": [
+            "fssm",
+            "gmao_csm",
+            "sap",
+            "ariba",
+            "dian",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "syncInterval": {
+          "default": 300,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "_id",
+        "provider",
+        "name",
+        "authType",
+        "enabled",
+        "syncInterval",
+        "lifecycleStatus",
+        "createdAt",
+        "updatedAt"
       ],
       "type": "object"
     },
@@ -88591,6 +89086,110 @@
       },
       "type": "object"
     },
+    "UpdateBusinessDocumentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentType": {
+          "enum": [
+            "work_planning",
+            "cctv_maintenance",
+            "lifeline_inspection",
+            "sgsst_induction",
+            "ladder_anchor_photo",
+            "safety_control_hierarchy",
+            "field_permit",
+            "ast_safety_analysis"
+          ],
+          "type": "string"
+        },
+        "fieldMappings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "fieldName": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "fieldType": {
+                "enum": [
+                  "text",
+                  "number",
+                  "date",
+                  "signature",
+                  "photo",
+                  "checkbox",
+                  "select",
+                  "table",
+                  "textarea"
+                ],
+                "type": "string"
+              },
+              "required": {
+                "default": false,
+                "type": "boolean"
+              },
+              "validation": {
+                "type": "string"
+              },
+              "xpath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fieldName",
+              "fieldType",
+              "required"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "formatType": {
+          "enum": [
+            "pdf",
+            "xlsx",
+            "docx",
+            "image",
+            "hybrid"
+          ],
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": false,
+          "properties": {
+            "businessUnit": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": {
+              "type": "string"
+            },
+            "regulatoryBody": {
+              "type": "string"
+            },
+            "title": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "type": "object"
+        },
+        "sourceFile": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "UpdateChecklistItemSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -89834,6 +90433,66 @@
           "maxLength": 200,
           "minLength": 1,
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UpdateErpConnectorSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "authConfig": {
+          "additionalProperties": {},
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "authType": {
+          "enum": [
+            "api_key",
+            "oauth2",
+            "basic",
+            "jwt",
+            "none"
+          ],
+          "type": "string"
+        },
+        "baseUrl": {
+          "format": "uri",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": {},
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provider": {
+          "enum": [
+            "fssm",
+            "gmao_csm",
+            "sap",
+            "ariba",
+            "dian",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "syncInterval": {
+          "default": 300,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
         }
       },
       "type": "object"

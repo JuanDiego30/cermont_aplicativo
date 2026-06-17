@@ -118,7 +118,7 @@ export default function NotificationsPage() {
 					<button
 						type="button"
 						onClick={() => setShowFilters((v) => !v)}
-						className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+						className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 					>
 						<Filter className="size-3.5" aria-hidden="true" />
 						Filtrar
@@ -150,7 +150,7 @@ export default function NotificationsPage() {
 							className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
 								typeFilter === t.value
 									? "bg-[var(--color-brand-blue)] text-white"
-									: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+									: "border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 							}`}
 						>
 							{t.label}
@@ -178,7 +178,7 @@ export default function NotificationsPage() {
 					{notifications.map((n) => (
 						<li
 							key={n._id}
-							className={`rounded-[var(--radius-lg)] border border-[var(--border-default)] p-4 transition-colors ${
+							className={`rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-4 transition-colors ${
 								n.isRead
 									? "bg-[var(--surface-primary)]"
 									: "border-l-4 border-l-[var(--color-brand-blue)] bg-[var(--color-info-bg)]/40"
@@ -197,7 +197,7 @@ export default function NotificationsPage() {
 											{n.title}
 										</p>
 										{n.priority === "high" || n.priority === "critical" ? (
-											<span className="shrink-0 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-medium text-red-700">
+											<span className="shrink-0 rounded bg-danger-bg px-1.5 py-0.5 text-[10px] font-medium text-brand-error">
 												{n.priority}
 											</span>
 										) : null}
@@ -232,7 +232,7 @@ export default function NotificationsPage() {
 						type="button"
 						disabled={page <= 1}
 						onClick={() => setPage((p) => Math.max(1, p - 1))}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Anterior
 					</button>
@@ -243,7 +243,7 @@ export default function NotificationsPage() {
 						type="button"
 						disabled={page >= pagination.totalPages}
 						onClick={() => setPage((p) => p + 1)}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Siguiente
 					</button>

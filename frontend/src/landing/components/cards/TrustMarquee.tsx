@@ -8,7 +8,7 @@ export function TrustMarquee({ shouldReduceMotion }: { shouldReduceMotion: boole
 	];
 
 	return (
-		<div className="overflow-hidden rounded-[1.75rem] border border-border-default bg-surface-secondary p-4">
+		<div className="overflow-hidden rounded-[1.75rem] border border-hairline bg-surface p-4">
 			<div
 				className={
 					shouldReduceMotion ? "flex flex-wrap gap-2" : "flex flex-wrap items-center gap-2"
@@ -17,8 +17,8 @@ export function TrustMarquee({ shouldReduceMotion }: { shouldReduceMotion: boole
 				{items.map((item) => (
 					<BadgePill
 						key={item}
-						className="border-border-default bg-surface-primary px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-text-secondary"
-						dotClassName="bg-cermont-green"
+						className="border-hairline bg-canvas px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-charcoal"
+						dotClassName="bg-brand-annotate"
 						ariaLabel={item}
 					>
 						{item}

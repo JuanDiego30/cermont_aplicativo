@@ -180,7 +180,7 @@ describe("PlanningPacketService", () => {
 			expect(mocks.planningPacketFindByIdAndUpdate).toHaveBeenCalledWith(
 				PLANNING_PACKET_ID,
 				{ status: "incomplete", updatedBy: USER_ID },
-				expect.objectContaining({ new: true, runValidators: true }),
+				expect.objectContaining({ returnDocument: "after", runValidators: true }),
 			);
 			expect(result.status).toBe("incomplete");
 			expect(mocks.createAuditLog).toHaveBeenCalledWith(
@@ -205,7 +205,7 @@ describe("PlanningPacketService", () => {
 			expect(mocks.planningPacketFindByIdAndUpdate).toHaveBeenCalledWith(
 				PLANNING_PACKET_ID,
 				{ status: "ready", updatedBy: USER_ID },
-				expect.objectContaining({ new: true, runValidators: true }),
+				expect.objectContaining({ returnDocument: "after", runValidators: true }),
 			);
 			expect(result.status).toBe("ready");
 			expect(mocks.createAuditLog).toHaveBeenCalledWith(
@@ -232,7 +232,7 @@ describe("PlanningPacketService", () => {
 			expect(mocks.planningPacketFindByIdAndUpdate).toHaveBeenCalledWith(
 				PLANNING_PACKET_ID,
 				{ status: "incomplete", updatedBy: USER_ID },
-				expect.objectContaining({ new: true, runValidators: true }),
+				expect.objectContaining({ returnDocument: "after", runValidators: true }),
 			);
 			expect(result.status).toBe("incomplete");
 		});
@@ -261,7 +261,7 @@ describe("PlanningPacketService", () => {
 					approvalNotes: "Planeación revisada contra formato de obra.",
 					updatedBy: USER_ID,
 				}),
-				expect.objectContaining({ new: true, runValidators: true }),
+				expect.objectContaining({ returnDocument: "after", runValidators: true }),
 			);
 			expect(result.status).toBe("approved");
 			expect(mocks.createAuditLog).toHaveBeenCalledWith(

@@ -105,6 +105,6 @@ export async function archiveFormSubmission(id: string): Promise<FormSubmissionD
 	return FormSubmission.findByIdAndUpdate(
 		id,
 		{ status: "archived" },
-		{ new: true },
+		{ returnDocument: "after" },
 	).lean<FormSubmissionDocument>();
 }

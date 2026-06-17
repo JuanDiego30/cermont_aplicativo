@@ -86,8 +86,8 @@ function RecoveryStatusBadge({ status }: { status: OfflineOutboxItem["status"] }
 		<BadgePill
 			className={
 				isConflict
-					? "bg-amber-50 text-amber-800 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:ring-amber-800"
-					: "bg-red-50 text-red-700 ring-red-200 dark:bg-red-950/30 dark:text-red-300 dark:ring-red-800"
+					? "bg-warning-bg text-brand-warn ring-amber-200 dark:bg-amber-950/30 dark:text-brand-warn dark:ring-amber-800"
+					: "bg-danger-bg text-brand-error ring-red-200 dark:bg-red-950/30 dark:text-brand-error dark:ring-red-800"
 			}
 			dotClassName={isConflict ? "bg-amber-500" : "bg-red-500"}
 		>
@@ -219,7 +219,7 @@ function RecoveryItemCard({
 				</div>
 			</header>
 
-			<output className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+			<output className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-amber-200 bg-warning-bg p-4 text-sm text-brand-warn dark:border-amber-800 dark:bg-amber-950/30 dark:text-brand-warn">
 				<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
 				<p>{item.conflict?.reason ?? item.lastError ?? "La sincronización no pudo completarse."}</p>
 			</output>
@@ -255,7 +255,7 @@ function UploadRecoveryCard({
 							{entry.originalName}
 						</h2>
 						<BadgePill
-							className="bg-red-50 text-red-700 ring-red-200 dark:bg-red-950/30 dark:text-red-300 dark:ring-red-800"
+							className="bg-danger-bg text-brand-error ring-red-200 dark:bg-red-950/30 dark:text-brand-error dark:ring-red-800"
 							dotClassName="bg-red-500"
 						>
 							Archivo con error
@@ -271,7 +271,7 @@ function UploadRecoveryCard({
 				</div>
 			</header>
 
-			<output className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">
+			<output className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-red-200 bg-danger-bg p-4 text-sm text-brand-error dark:border-red-800 dark:bg-red-950/30 dark:text-brand-error">
 				<AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
 				<p>{entry.lastError ?? "El archivo no pudo enviarse al servidor."}</p>
 			</output>
@@ -392,7 +392,7 @@ export function OfflineRecoveryCenter() {
 			</header>
 
 			{!isOnline ? (
-				<div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+				<div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-amber-200 bg-warning-bg p-4 text-sm text-brand-warn dark:border-amber-800 dark:bg-amber-950/30 dark:text-brand-warn">
 					<CloudOff className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
 					<p>
 						Puedes revisar y resolver conflictos sin conexión. Los reintentos se enviarán al
@@ -403,10 +403,14 @@ export function OfflineRecoveryCenter() {
 
 			<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
 				{[
-					{ label: "Pendientes", value: pendingCount, color: "text-blue-600" },
-					{ label: "Errores", value: failedCount, color: "text-red-600" },
-					{ label: "Conflictos", value: conflictCount, color: "text-amber-600" },
-					{ label: "Estado", value: isSyncing ? "Enviando" : "En espera", color: "text-green-600" },
+					{ label: "Pendientes", value: pendingCount, color: "text-brand-green" },
+					{ label: "Errores", value: failedCount, color: "text-brand-error" },
+					{ label: "Conflictos", value: conflictCount, color: "text-brand-warn" },
+					{
+						label: "Estado",
+						value: isSyncing ? "Enviando" : "En espera",
+						color: "text-brand-annotate",
+					},
 				].map((metric) => (
 					<div
 						key={metric.label}

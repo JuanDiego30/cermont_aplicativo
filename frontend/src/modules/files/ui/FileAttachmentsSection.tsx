@@ -69,7 +69,7 @@ export function FileAttachmentsSection({
 			<OfflineUploadQueueStatus entityHint={title} />
 
 			{canUpload ? (
-				<div className="rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-4">
+				<div className="rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
 					{imagesOnly ? (
 						<ImageUploadField entityType={entityType} entityId={entityId} category={category} />
 					) : (

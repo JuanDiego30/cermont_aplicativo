@@ -45,7 +45,7 @@ export function EvidenceSubmitBar({
 				<button
 					type="button"
 					onClick={onCancel}
-					className="text-sm text-zinc-500 underline hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+					className="text-sm text-[var(--text-tertiary)] underline hover:text-[var(--text-secondary)]"
 				>
 					Cancelar todo
 				</button>

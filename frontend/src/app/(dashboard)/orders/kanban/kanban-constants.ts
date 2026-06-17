@@ -36,9 +36,9 @@ export const COLUMN_LABELS: Record<string, string> = {
 };
 
 export const COLUMN_COLORS: Record<string, string> = {
-	open: "bg-slate-50 border-slate-200 dark:border-slate-800 dark:bg-slate-800/50",
-	assigned: "bg-blue-50/50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30",
+	open: "bg-surface border-hairline dark:border-slate-800 dark:bg-surface/50",
+	assigned: "bg-info-bg/50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30",
 	in_progress: "bg-indigo-50/50 border-indigo-100 dark:bg-indigo-900/10 dark:border-indigo-900/30",
-	on_hold: "bg-yellow-50/50 border-yellow-100 dark:bg-yellow-900/10 dark:border-yellow-900/30",
-	completed: "bg-green-50/50 border-green-100 dark:bg-green-900/10 dark:border-green-900/30",
+	on_hold: "bg-warning-bg/50 border-yellow-100 dark:bg-yellow-900/10 dark:border-yellow-900/30",
+	completed: "bg-success-bg/50 border-green-100 dark:bg-green-900/10 dark:border-green-900/30",
 };

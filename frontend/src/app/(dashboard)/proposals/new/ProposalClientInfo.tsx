@@ -11,7 +11,7 @@ interface ProposalClientInfoProps {
 export function ProposalClientInfo({ register, errors }: ProposalClientInfoProps) {
 	return (
 		<section
-			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+			className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
 			aria-labelledby="client-section-title"
 		>
 			<h2 id="client-section-title" className="text-base font-semibold text-[var(--text-primary)]">

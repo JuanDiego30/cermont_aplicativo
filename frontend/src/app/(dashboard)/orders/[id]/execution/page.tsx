@@ -88,7 +88,7 @@ export default function OrderExecutionPage({ params }: OrderExecutionPageProps) 
 			)}
 
 			{executionQuery.isError || createMutation.isError ? (
-				<div className="rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+				<div className="rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50 p-4 text-sm text-brand-warn">
 					<div className="flex gap-2">
 						<AlertTriangle className="mt-0.5 size-4" aria-hidden="true" />
 						<span>

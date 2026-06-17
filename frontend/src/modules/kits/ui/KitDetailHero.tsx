@@ -39,16 +39,16 @@ export function KitDetailHero({
 
 				<div className="flex flex-wrap items-center gap-3">
 					<h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{kit.name}</h1>
-					<span className="rounded-[var(--radius-full)] bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/80">
+					<span className="rounded-[var(--radius-full)] bg-canvas/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/80">
 						{KIT_ACTIVITY_LABELS[kit.activityType] ?? kit.activityType}
 					</span>
 					<span
 						className={`rounded-[var(--radius-full)] px-3 py-1 text-xs font-semibold uppercase tracking-wider ${
 							kit.status === "active"
-								? "bg-emerald-400/15 text-emerald-200"
+								? "bg-emerald-400/15 text-brand-annotate"
 								: kit.status === "draft"
-									? "bg-amber-400/15 text-amber-200"
-									: "bg-zinc-500/20 text-zinc-200"
+									? "bg-amber-400/15 text-brand-warn"
+									: "bg-zinc-500/20 text-stone"
 						}`}
 					>
 						{KIT_STATUS_LABELS[kit.status] ?? kit.status}
@@ -75,7 +75,7 @@ export function KitDetailHero({
 						<button
 							type="button"
 							onClick={onRestore}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-white/15 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/25"
+							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-canvas/15 px-5 py-3 text-sm font-semibold text-white transition hover:bg-canvas/25"
 						>
 							Restaurar kit
 						</button>
@@ -83,7 +83,7 @@ export function KitDetailHero({
 					{canManage && kit.status !== "voided" ? (
 						<Link
 							href={`/maintenance/${kit._id}/edit`}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-white px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-100"
+							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] bg-[var(--surface-card)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] transition hover:bg-[var(--surface-secondary)]"
 						>
 							<PencilLine className="size-4" />
 							Editar
@@ -93,7 +93,7 @@ export function KitDetailHero({
 						<button
 							type="button"
 							onClick={onDuplicate}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-white/15 bg-canvas/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-canvas/10"
 						>
 							<Copy className="size-4" />
 							Duplicar
@@ -103,7 +103,7 @@ export function KitDetailHero({
 						<button
 							type="button"
 							onClick={onArchive}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-white/15 bg-canvas/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-canvas/10"
 						>
 							<Archive className="size-4" />
 							Archivar
@@ -114,7 +114,7 @@ export function KitDetailHero({
 							type="button"
 							onClick={onDelete}
 							disabled={isDeleting}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-red-400/30 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-red-400/30 bg-red-500/10 px-5 py-3 text-sm font-semibold text-brand-error transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
 						>
 							{isDeleting ? (
 								<Loader2 className="size-4 animate-spin" />

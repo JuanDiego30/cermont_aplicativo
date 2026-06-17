@@ -10,6 +10,7 @@ import { E2E_ADMIN, loginAsUser } from "./auth-credentials";
  * 3. Preview generation
  * 4. Gallery display
  * 5. Offline queue handling
+ * 6. UI elements render correctly
  */
 
 test.describe("Evidence Flow", () => {
@@ -42,5 +43,27 @@ test.describe("Evidence Flow", () => {
 				/selecciona una orden de trabajo para ver sus evidencias y subir nuevas imágenes/i,
 			),
 		).toBeVisible();
+	});
+
+	test("upload form buttons are visible before order selection", async ({ page }) => {
+		await page.goto("/evidences");
+
+		// Tomar foto and Escanear QR buttons should be visible
+		await expect(page.getByRole("button", { name: /tomar foto/i })).toBeVisible();
+		await expect(page.getByRole("button", { name: /escanear.*qr/i })).toBeVisible();
+	});
+
+	test("camera button is clickable", async ({ page }) => {
+		await page.goto("/evidences");
+
+		const cameraBtn = page.getByRole("button", { name: /tomar foto/i });
+		await expect(cameraBtn).toBeEnabled();
+	});
+
+	test("QR scanner button is clickable", async ({ page }) => {
+		await page.goto("/evidences");
+
+		const qrBtn = page.getByRole("button", { name: /escanear.*qr/i });
+		await expect(qrBtn).toBeEnabled();
 	});
 });

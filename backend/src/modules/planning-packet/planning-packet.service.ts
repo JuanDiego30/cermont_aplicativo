@@ -345,7 +345,7 @@ export async function updatePlanningPacket(
 		id,
 		{ ...data, updatedBy: userId },
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	)
@@ -398,7 +398,7 @@ export async function validatePlanningReadiness(id: string, userId: string, user
 		id,
 		{ status: newStatus, updatedBy: userId },
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	)
@@ -521,7 +521,7 @@ export async function approvePlanningPacket(
 			},
 			updatedBy: userId,
 		},
-		{ new: true, runValidators: true },
+		{ returnDocument: "after", runValidators: true },
 	)
 		.populate("supervisorId", "name email role")
 		.populate("hesResponsibleId", "name email role")
@@ -582,7 +582,7 @@ export async function reopenPlanningPacket(
 			updatedBy: userId,
 		},
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		},
 	)

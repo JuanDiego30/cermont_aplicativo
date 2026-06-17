@@ -1,58 +1,48 @@
 # Variables de Entorno
 
 **Estado:** CANONICO
-**Actualizado:** 2026-06-13
+**Actualizado:** 2026-06-14
 
-Usar `.env.docker.example` como plantilla para Docker Compose. El archivo
-`.env` real debe tener permisos restringidos y nunca debe versionarse.
+Usar `backend/.env.example` como plantilla. El archivo `.env` real debe tener
+permisos restringidos y nunca debe versionarse.
 
-## Requeridas por Compose
+## Requeridas por el backend
 
 | Variable | Regla |
 |---|---|
-| `MONGO_ROOT_USER` | Usuario interno, sin valor publico predeterminado |
-| `MONGO_ROOT_PASSWORD` | Secreto aleatorio de al menos 16 caracteres |
+| `MONGODB_URI` | URI de conexion a MongoDB. Ej: `mongodb://127.0.0.1:27017/cermont` |
 | `JWT_SECRET` | Secreto aleatorio de al menos 32 caracteres |
 | `REFRESH_TOKEN_SECRET` | Secreto diferente de `JWT_SECRET`, minimo 32 caracteres |
 | `FRONTEND_URL` | Origen HTTPS exacto permitido por CORS |
-
-Compose falla durante `docker compose config` si falta uno de estos valores.
 
 ## Build del frontend
 
 | Variable | Uso |
 |---|---|
+| `BACKEND_URL` | URL usada por los rewrites de Next.js; en produccion VPS usar `http://127.0.0.1:4000` |
 | `NEXT_PUBLIC_APP_URL` | URL publica para metadata y sitemap |
 | `NEXT_PUBLIC_API_URL` | URL publica documentada del API |
 | `NEXT_PUBLIC_APP_NAME` | Nombre visible del aplicativo |
 
-Next.js incorpora `NEXT_PUBLIC_*` durante el build. Cambiar estos valores exige
-reconstruir la imagen frontend.
-
 Las solicitudes de negocio del navegador usan el proxy relativo
-`/api/backend/*`; `BACKEND_URL=http://backend:4000` se inyecta internamente y
-no se expone al cliente.
+`/api/backend/*`; `BACKEND_URL=http://127.0.0.1:4000` se define en `.env.local`.
+
+El proxy TLS del host debe enviar `X-Forwarded-Proto: https`. El backend usa
+ese encabezado para marcar el refresh token como `HttpOnly; Secure`; en HTTP
+local omite `Secure` para que el navegador pueda enviar la cookie.
 
 ## Runtime
 
 | Variable | Default | Uso |
 |---|---|---|
-| `NODE_ENV` | `production` en contenedores | Modo de ejecucion |
-| `PORT` | `4000` backend, `3000` frontend | Puertos internos |
+| `NODE_ENV` | `production` | Modo de ejecucion |
+| `PORT` | `4000` backend, `3000` frontend | Puertos de los procesos PM2 |
 | `JWT_EXPIRES_IN` | `15m` | Vida del access token |
 | `REFRESH_TOKEN_EXPIRES_IN` | `7d` | Vida del refresh token |
 | `BCRYPT_ROUNDS` | `12` | Costo de hash |
 | `LOG_LEVEL` | `info` | Nivel de logs |
-| `UPLOAD_DIR` | `/app/uploads` | Volumen persistente |
+| `UPLOAD_DIR` | `./uploads` | Directorio de archivos subidos |
 | `MAX_FILE_SIZE` | `52428800` | Limite de carga en bytes |
-| `CLAMAV_ENABLED` | `false` | Escaneo antimalware |
-| `NGINX_PORT` | `0.0.0.0:80` | Binding del nginx del stack |
-
-En produccion con TLS en el host, usar:
-
-```env
-NGINX_PORT=127.0.0.1:8081
-```
 
 ## Seed
 
@@ -60,12 +50,12 @@ NGINX_PORT=127.0.0.1:8081
 ejecutar manualmente el seed sobre una base vacia:
 
 ```bash
-docker compose exec -e SEED_DEFAULT_PASSWORD backend \
-  node backend/dist/scripts/seed.js
+cd /opt/cermont/app && NODE_ENV=production SEED_DEFAULT_PASSWORD=<password> npx tsx backend/src/scripts/seed.ts
 ```
 
-La variable debe tener al menos 16 caracteres. No existe seed automatico ni
-contraseña predeterminada.
+La variable debe tener al menos 12 caracteres. No existe seed automatico ni
+contraseña predeterminada. La cuenta `gerencia@cermont.co` usa la contraseña
+fija `Cermont2026!` (definida en el script de seed).
 
 ## Generacion
 
@@ -76,13 +66,3 @@ openssl rand -hex 64
 
 No reutilizar secretos entre ambientes. Rotar `JWT_SECRET` y
 `REFRESH_TOKEN_SECRET` invalida sesiones activas.
-
-## Validacion
-
-```bash
-docker compose config --quiet
-docker compose --env-file .env.docker.example config --quiet
-```
-
-La segunda orden valida la estructura con valores de ejemplo; no convierte esos
-valores en credenciales aptas para produccion.

@@ -37,7 +37,7 @@ function handleRateLimit(_req: Request, res: Response, _next: () => void, option
 export function createGeneralLimiter() {
 	return rateLimit({
 		windowMs: 15 * 60 * 1000,
-		limit: 100,
+		limit: 1000,
 		standardHeaders: true,
 		legacyHeaders: false,
 		keyGenerator: clientKey,
@@ -55,6 +55,7 @@ export function createAuthLimiter(limit = env.NODE_ENV === "test" ? 1000 : 5) {
 		legacyHeaders: false,
 		keyGenerator: clientKey,
 		skip: shouldSkipAuthRateLimit,
+		skipSuccessfulRequests: true,
 		store: createStore("auth:"),
 		handler: handleRateLimit,
 	});

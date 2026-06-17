@@ -81,7 +81,7 @@ export function ResourceImageEditor({
 	return (
 		<section
 			aria-labelledby="resource-image-editor-title"
-			className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-sm"
+			className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-sm"
 		>
 			<h2
 				id="resource-image-editor-title"
@@ -94,7 +94,7 @@ export function ResourceImageEditor({
 			<div className="mb-4">
 				<label
 					htmlFor="resource-image-upload"
-					className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] px-4 py-6 text-sm text-[var(--text-tertiary)] transition-colors hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
+					className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-6 text-sm text-[var(--text-tertiary)] transition-colors hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
 				>
 					<Upload className="size-5" aria-hidden="true" />
 					<span>Seleccionar imagen para adjuntar</span>
@@ -125,7 +125,7 @@ export function ResourceImageEditor({
 					{images.map((file) => (
 						<div
 							key={file.id}
-							className="group relative aspect-square overflow-hidden rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)]"
+							className="group relative aspect-square overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-secondary)]"
 						>
 							<button
 								type="button"

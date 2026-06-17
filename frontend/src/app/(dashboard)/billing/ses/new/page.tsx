@@ -176,7 +176,7 @@ function NewSESForm() {
 
 			<form
 				onSubmit={handleSubmit}
-				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
 				noValidate
 			>
 				<div className="space-y-4">
@@ -194,7 +194,7 @@ function NewSESForm() {
 							value={aribaDocumentNumber}
 							onChange={(e) => setAribaDocumentNumber(e.target.value)}
 							placeholder="Ej. ARIBA-2024-001"
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
 					</div>
 
@@ -212,7 +212,7 @@ function NewSESForm() {
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
 							placeholder="Descripción del servicio ejecutado..."
-							className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
+							className="w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm"
 						/>
 					</div>
 
@@ -229,12 +229,12 @@ function NewSESForm() {
 								value={subtotal}
 								onChange={(e) => setSubtotal(e.target.value)}
 								placeholder="0"
-								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 							/>
 						</div>
 						<div className="space-y-1.5">
 							<label htmlFor="total" className="text-sm font-medium text-[var(--text-primary)]">
-								Total (COP) <span className="text-red-500">*</span>
+								Total (COP) <span className="text-brand-error">*</span>
 							</label>
 							<input
 								id="total"
@@ -245,7 +245,7 @@ function NewSESForm() {
 								value={total}
 								onChange={(e) => setTotal(e.target.value)}
 								placeholder="0"
-								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 							/>
 						</div>
 					</div>

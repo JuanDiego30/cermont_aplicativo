@@ -66,7 +66,7 @@ export function PlanningPacketSchedule({
 			</CollapsibleSection>
 
 			{/* Readiness summary */}
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)] p-4">
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
 				<p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
 					Resumen de readiness
 				</p>

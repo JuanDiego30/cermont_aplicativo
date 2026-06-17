@@ -165,9 +165,9 @@ export function BarcodeScanner({
 	const hasError = scanState === "error";
 
 	return (
-		<div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
+		<div className="rounded-xl border border-hairline bg-canvas p-4 dark:border-zinc-700 dark:bg-canvas">
 			<div className="mb-3 flex items-center justify-between">
-				<span className="flex items-center gap-2 text-sm font-medium text-zinc-900 dark:text-white">
+				<span className="flex items-center gap-2 text-sm font-medium text-ink dark:text-white">
 					<ScanLine className="size-4 text-[#2154A6]" aria-hidden="true" />
 					{label}
 				</span>
@@ -175,7 +175,7 @@ export function BarcodeScanner({
 					<button
 						type="button"
 						onClick={stopCamera}
-						className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800"
+						className="rounded-lg p-1.5 text-stone hover:bg-zinc-100 hover:text-steel dark:hover:bg-zinc-800"
 						aria-label="Detener escaneo"
 						title="Detener escaneo"
 					>
@@ -211,14 +211,14 @@ export function BarcodeScanner({
 						<button
 							type="button"
 							onClick={startCamera}
-							className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-zinc-300 px-4 py-8 text-sm text-zinc-500 transition hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] dark:border-zinc-600 dark:hover:border-[var(--color-cermont-blue-light)]"
+							className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-hairline px-4 py-8 text-sm text-steel transition hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] dark:border-zinc-600 dark:hover:border-[var(--color-cermont-blue-light)]"
 							aria-label="Abrir cámara para escanear código"
 						>
 							<Camera className="size-6" aria-hidden="true" />
 							<span>Abrir cámara</span>
 						</button>
 					) : (
-						<p className="text-xs text-amber-600 dark:text-amber-400">
+						<p className="text-xs text-brand-warn dark:text-brand-warn">
 							Escáner por cámara no disponible en este navegador. Ingrese el código manualmente.
 						</p>
 					)}
@@ -237,7 +237,7 @@ export function BarcodeScanner({
 								}
 							}}
 							placeholder={placeholder}
-							className="block flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+							className="block flex-1 rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm dark:border-zinc-600 dark:bg-surface dark:text-white"
 						/>
 						<button
 							type="button"
@@ -254,9 +254,9 @@ export function BarcodeScanner({
 
 			{/* Detected state */}
 			{isDetected && (
-				<div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 dark:bg-green-900/10">
-					<ScanLine className="size-5 text-green-500" aria-hidden="true" />
-					<span className="text-sm text-green-700 dark:text-green-400">
+				<div className="flex items-center gap-2 rounded-lg bg-success-bg px-4 py-3 dark:bg-green-900/10">
+					<ScanLine className="size-5 text-brand-annotate" aria-hidden="true" />
+					<span className="text-sm text-brand-annotate dark:text-brand-annotate">
 						Código escaneado correctamente
 					</span>
 				</div>
@@ -264,15 +264,15 @@ export function BarcodeScanner({
 
 			{/* Error state */}
 			{hasError && (
-				<div className="rounded-lg bg-red-50 px-4 py-3 dark:bg-red-900/10">
-					<p className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+				<div className="rounded-lg bg-danger-bg px-4 py-3 dark:bg-red-900/10">
+					<p className="flex items-center gap-2 text-sm text-brand-error dark:text-brand-error">
 						<CameraOff className="size-4" aria-hidden="true" />
 						{errorMessage || "Error al acceder a la cámara"}
 					</p>
 					<button
 						type="button"
 						onClick={() => setScanState("idle")}
-						className="mt-2 text-xs text-zinc-500 underline hover:text-zinc-700"
+						className="mt-2 text-xs text-steel underline hover:text-charcoal"
 					>
 						Volver e ingresar manualmente
 					</button>

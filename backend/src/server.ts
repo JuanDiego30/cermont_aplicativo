@@ -17,7 +17,12 @@ import { User } from "./models/User";
 import { startRefreshTokenCleanupWorker } from "./modules/auth/auth.service";
 import { startOutboxWorker } from "./modules/notifications/notification.service";
 import { startSlaWorker } from "./modules/sla/sla.service";
+import { erpEngine, FSSMAdapter, GMAOCSMAdapter } from "./services/erp";
 import { startReminderWorker } from "./services/reminder-worker.service";
+import { workflowRegistry } from "./services/workflow-variant-registry";
+import { cermont14StepWorkflow } from "./services/workflows/cermont-14step.workflow";
+import { fssmStandardWorkflow } from "./services/workflows/fssm-standard.workflow";
+import { gmaoMaintenanceWorkflow } from "./services/workflows/gmao-maintenance.workflow";
 
 const log = createLogger("server");
 let server: ReturnType<typeof app.listen> | undefined;
@@ -69,6 +74,18 @@ async function bootstrap() {
 	await connectDB();
 	await ensureAuditLogIndexes();
 	void warnIfNoUsers();
+
+	// Register ERP adapters
+	erpEngine.registerProvider(new FSSMAdapter());
+	erpEngine.registerProvider(new GMAOCSMAdapter());
+	await erpEngine.getProvider("fssm")?.initialize();
+	await erpEngine.getProvider("gmao_csm")?.initialize();
+
+	// Register workflow variants
+	workflowRegistry.register(cermont14StepWorkflow);
+	workflowRegistry.register(fssmStandardWorkflow);
+	workflowRegistry.register(gmaoMaintenanceWorkflow);
+
 	stopOutboxWorker = startOutboxWorker();
 	stopSlaWorker = startSlaWorker();
 	stopReminderWorker = startReminderWorker();

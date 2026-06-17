@@ -241,7 +241,7 @@ export default function DispatchPage() {
 	return (
 		<section className="mx-auto max-w-7xl space-y-6 px-4 py-8" aria-labelledby="dispatch-title">
 			<header className="flex items-center gap-3">
-				<div className="flex size-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+				<div className="flex size-11 items-center justify-center rounded-xl bg-emerald-100 text-brand-annotate dark:bg-emerald-900/30 dark:text-brand-annotate">
 					<Truck className="size-5" aria-hidden="true" />
 				</div>
 				<div>
@@ -259,7 +259,7 @@ export default function DispatchPage() {
 					className={
 						state.notice.status === "error"
 							? "rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
-							: "rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+							: "rounded-xl border border-green-200 bg-success-bg px-4 py-3 text-sm text-brand-annotate"
 					}
 					role={state.notice.status === "error" ? "alert" : "status"}
 				>

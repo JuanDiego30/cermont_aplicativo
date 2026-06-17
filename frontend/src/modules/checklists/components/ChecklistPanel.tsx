@@ -288,7 +288,7 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 
 function ReadOnlyNotice() {
 	return (
-		<div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-amber-200">
+		<div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-warning-bg px-4 py-3 text-brand-warn dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-brand-warn">
 			<AlertCircle className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
 			<p className="text-sm">
 				La orden esta cerrada o bloqueada. El checklist queda en modo de solo lectura.
@@ -309,15 +309,15 @@ function EmptyChecklistState({
 	return (
 		<section className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)] sm:p-6">
 			<header className="space-y-2">
-				<span className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-sky-700 dark:border-sky-900/40 dark:bg-sky-900/10 dark:text-sky-300">
+				<span className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-green dark:border-sky-900/40 dark:bg-sky-900/10 dark:text-brand-green">
 					<ClipboardList className="size-3.5" aria-hidden="true" />
 					Checklist operativo
 				</span>
 				<div className="space-y-1">
-					<h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
+					<h3 className="text-lg font-semibold text-ink dark:text-white">
 						Checklist estándar de la orden
 					</h3>
-					<p className="text-sm text-zinc-500 dark:text-zinc-400">
+					<p className="text-sm text-steel dark:text-stone">
 						Genera la plantilla base vinculada a esta orden para empezar a marcar items requeridos.
 					</p>
 				</div>
@@ -329,7 +329,7 @@ function EmptyChecklistState({
 				type="button"
 				onClick={onCreate}
 				disabled={readOnly || isPending}
-				className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
+				className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-canvas dark:text-ink dark:hover:bg-zinc-200"
 			>
 				{isPending ? (
 					<Loader2 className="size-4 animate-spin" aria-hidden="true" />
@@ -354,14 +354,14 @@ function ProgressBar({
 	return (
 		<div className="space-y-2">
 			<div className="flex items-center justify-between gap-3 text-sm">
-				<span className="font-medium text-zinc-600 dark:text-zinc-300">
+				<span className="font-medium text-steel dark:text-muted-text">
 					Progreso de items requeridos
 				</span>
-				<span className="font-semibold text-zinc-900 dark:text-white">
+				<span className="font-semibold text-ink dark:text-white">
 					{completed}/{total || 0}
 				</span>
 			</div>
-			<div className="h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+			<div className="h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-surface">
 				<div
 					className={cn(
 						"h-full rounded-full transition-all duration-300",
@@ -403,10 +403,10 @@ function ChecklistCategoryList({
 				return (
 					<div key={category} className="space-y-2">
 						<div className="flex items-center justify-between gap-3">
-							<h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
+							<h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-steel dark:text-stone">
 								{CATEGORY_LABELS[category]}
 							</h4>
-							<span className="text-xs text-zinc-400 dark:text-zinc-500">{items.length} items</span>
+							<span className="text-xs text-stone dark:text-steel">{items.length} items</span>
 						</div>
 
 						<div className="grid gap-2">
@@ -456,7 +456,7 @@ function ChecklistItemButton({
 				"flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-all",
 				item.completed
 					? "border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/40 dark:bg-emerald-900/10"
-					: "border-zinc-200 bg-white hover:border-sky-300 hover:bg-sky-50/40 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-sky-900/40 dark:hover:bg-sky-900/10",
+					: "border-hairline bg-canvas hover:border-sky-300 hover:bg-sky-50/40 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-sky-900/40 dark:hover:bg-sky-900/10",
 				disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer",
 			)}
 		>
@@ -465,7 +465,7 @@ function ChecklistItemButton({
 					"mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border",
 					item.completed
 						? "border-emerald-500 bg-emerald-500 text-white"
-						: "border-zinc-300 bg-white text-zinc-400 dark:border-zinc-600 dark:bg-zinc-900",
+						: "border-hairline bg-canvas text-stone dark:border-zinc-600 dark:bg-canvas",
 				)}
 				aria-hidden="true"
 			>
@@ -478,8 +478,8 @@ function ChecklistItemButton({
 						className={cn(
 							"text-sm font-medium",
 							item.completed
-								? "text-emerald-900 dark:text-emerald-200"
-								: "text-zinc-900 dark:text-white",
+								? "text-brand-annotate dark:text-brand-annotate"
+								: "text-ink dark:text-white",
 						)}
 					>
 						{item.description}
@@ -488,18 +488,18 @@ function ChecklistItemButton({
 						className={cn(
 							"rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.15em]",
 							item.required
-								? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-amber-200"
-								: "border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400",
+								? "border-amber-200 bg-warning-bg text-brand-warn dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-brand-warn"
+								: "border-hairline bg-surface text-steel dark:border-zinc-700 dark:bg-canvas dark:text-stone",
 						)}
 					>
 						{item.required ? "Requerido" : "Opcional"}
 					</span>
 				</div>
 
-				<p className="text-xs text-zinc-500 dark:text-zinc-400">{CATEGORY_LABELS[category]}</p>
+				<p className="text-xs text-steel dark:text-stone">{CATEGORY_LABELS[category]}</p>
 
 				{item.observation ? (
-					<p className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+					<p className="rounded-xl border border-dashed border-hairline bg-surface px-3 py-2 text-xs text-steel dark:border-zinc-800 dark:bg-canvas dark:text-muted-text">
 						{item.observation}
 					</p>
 				) : null}
@@ -531,18 +531,18 @@ function ChecklistCompletionForm({
 		<div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
 			<ChecklistSignature onChange={onSignatureChange} disabled={!canMutate} />
 
-			<section className="space-y-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+			<section className="space-y-3 rounded-2xl border border-hairline bg-surface p-4 dark:border-zinc-800 dark:bg-canvas/50">
 				<div className="space-y-1">
-					<h4 className="text-sm font-semibold text-zinc-900 dark:text-white">
+					<h4 className="text-sm font-semibold text-ink dark:text-white">
 						Observaciones de cierre
 					</h4>
-					<p className="text-xs text-zinc-500 dark:text-zinc-400">
+					<p className="text-xs text-steel dark:text-stone">
 						Agrega notas finales antes de enviar la firma al backend.
 					</p>
 				</div>
 
 				<label className="block space-y-2">
-					<span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
+					<span className="text-xs font-semibold uppercase tracking-[0.18em] text-steel dark:text-stone">
 						Observaciones
 					</span>
 					<textarea
@@ -550,7 +550,7 @@ function ChecklistCompletionForm({
 						onChange={(event) => onObservationsChange(event.target.value)}
 						disabled={!canMutate}
 						rows={6}
-						className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-950/40 dark:disabled:bg-zinc-900"
+						className="w-full rounded-2xl border border-hairline bg-canvas px-4 py-3 text-sm text-ink outline-none transition placeholder:text-stone focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-steel dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-950/40 dark:disabled:bg-zinc-900"
 						placeholder="Describe hallazgos, pendientes o condiciones especiales."
 					/>
 				</label>
@@ -565,7 +565,7 @@ function ChecklistCompletionForm({
 					Completar checklist y firmar
 				</button>
 
-				<p className="text-xs text-zinc-500 dark:text-zinc-400">
+				<p className="text-xs text-steel dark:text-stone">
 					La firma solo se envia cuando todos los items requeridos esten completados.
 				</p>
 			</section>

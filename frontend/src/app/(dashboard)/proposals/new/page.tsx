@@ -185,7 +185,7 @@ function NewProposalContent() {
 				<div className="flex justify-end gap-3">
 					<Link
 						href={serviceCaseId ? `/service-cases/${serviceCaseId}` : "/proposals"}
-						className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
+						className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
 					>
 						Cancelar
 					</Link>

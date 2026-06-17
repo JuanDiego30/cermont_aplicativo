@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { createSerwistRoute } from "@serwist/turbopack";
 
 // Git revision is used for service worker cache busting.
-// In Docker builds there's no .git directory, so we fall back to a random UUID.
+// In CI or VPS builds (shallow clones) there's no .git directory, so we fall back to a random UUID.
 const revision = (() => {
 	try {
 		const result = spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" });

@@ -30,7 +30,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
 						Ocurrió un error crítico en la aplicación.{" "}
 						{error.digest ? `Código: ${error.digest}.` : ""}
 					</p>
-					<section className="relative z-10 flex w-full max-w-lg flex-col items-center gap-5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-8 text-center shadow-[var(--shadow-3)]">
+					<section className="relative z-10 flex w-full max-w-lg flex-col items-center gap-5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-8 text-center shadow-[var(--shadow-3)]">
 						<header className="space-y-2">
 							<p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-danger)]">
 								Cermont
@@ -51,14 +51,14 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
 						<footer className="flex flex-wrap justify-center gap-3">
 							<button
 								onClick={() => reset()}
-								className="rounded-lg bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-brand)] transition-colors hover:bg-[var(--color-brand-blue-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-blue)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-primary)]"
+								className="rounded-lg bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-brand)] transition-colors hover:bg-[var(--color-brand-blue-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-primary)]"
 								type="button"
 							>
 								Reintentar
 							</button>
 							<Link
 								href="/"
-								className="rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-blue)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-primary)]"
+								className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-blue)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-primary)]"
 							>
 								Ir al inicio
 							</Link>

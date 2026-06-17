@@ -99,7 +99,7 @@ export async function updateItem(id: string, input: UpdateInventoryItemInput, us
 	const item = await InventoryItemModel.findByIdAndUpdate(
 		id,
 		{ ...input, updatedBy: userId },
-		{ new: true, runValidators: true },
+		{ returnDocument: "after", runValidators: true },
 	);
 	if (!item) {
 		throw new AppError("Item de inventario no encontrado", 404, "INVENTORY_ITEM_NOT_FOUND");
@@ -148,7 +148,7 @@ export async function registerMovement(
 	const updated = await InventoryItemModel.findByIdAndUpdate(
 		itemId,
 		{ currentStock: newStock, lastMovementDate: new Date(), updatedBy: userId },
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 
 	return { item: updated, movement };

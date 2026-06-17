@@ -118,7 +118,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 				onPhotoSelect={handlePhotoSelect}
 			/>
 
-			<section className="rounded-3xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-sm">
+			<section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-sm">
 				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
 					Información Personal
 				</h2>
@@ -299,7 +299,7 @@ function PasswordChangeSection({
 	userEmail: string;
 }) {
 	return (
-		<section className="rounded-3xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-sm">
+		<section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-sm">
 			<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
 				Cambiar Contraseña
 			</h2>
@@ -401,7 +401,7 @@ function PasswordChangeSection({
 					<button
 						type="submit"
 						disabled={changePasswordMutation.isPending}
-						className="flex items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] px-5 py-2.5 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-sidebar-hover)] disabled:opacity-60"
+						className="flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-5 py-2.5 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-sidebar-hover)] disabled:opacity-60"
 					>
 						{changePasswordMutation.isPending && <Loader2 className="size-4 animate-spin" />}
 						Cambiar Contraseña

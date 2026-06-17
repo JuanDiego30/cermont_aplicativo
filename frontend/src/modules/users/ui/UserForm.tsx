@@ -119,7 +119,7 @@ export function UserForm({ user, onSuccess, defaultRole }: UserFormProps) {
 
 	return (
 		<section
-			className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+			className="rounded-xl border border-hairline bg-canvas p-6 shadow-sm dark:border-zinc-800 dark:bg-canvas"
 			aria-labelledby="user-form-title"
 		>
 			<h2 id="user-form-title" className="sr-only">
@@ -138,7 +138,7 @@ export function UserForm({ user, onSuccess, defaultRole }: UserFormProps) {
 					<p
 						role="alert"
 						aria-live="assertive"
-						className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700"
+						className="rounded-lg bg-danger-bg px-4 py-3 text-sm text-brand-error"
 					>
 						{errorMessage}
 					</p>
@@ -147,7 +147,7 @@ export function UserForm({ user, onSuccess, defaultRole }: UserFormProps) {
 				<footer className="flex justify-end gap-3 pt-2">
 					<Link
 						href={isEdit ? `/admin/users/${user._id}` : "/admin/users"}
-						className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+						className="rounded-lg border border-hairline bg-canvas px-4 py-2 text-sm font-medium text-charcoal transition-colors hover:bg-surface dark:border-zinc-700 dark:bg-canvas dark:text-muted-text dark:hover:bg-zinc-800"
 					>
 						Cancelar
 					</Link>

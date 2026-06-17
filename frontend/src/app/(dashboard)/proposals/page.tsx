@@ -86,7 +86,7 @@ export default function ProposalsPage() {
 function ProposalsLoading() {
 	return (
 		<section className="space-y-6" aria-labelledby="proposals-page-title">
-			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
+			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
 				Cargando propuestas…
 			</div>
 		</section>
@@ -164,13 +164,13 @@ function ProposalsPageInner() {
 
 			{/* KPI Cards */}
 			<section aria-label="Resumen de propuestas" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
 						Total
 					</p>
 					<p className="mt-2 text-3xl font-semibold text-[var(--text-primary)]">{total}</p>
 				</article>
-				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
 						Enviadas
 					</p>
@@ -178,7 +178,7 @@ function ProposalsPageInner() {
 						{metrics.sentCount}
 					</p>
 				</article>
-				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
 						Aprobadas
 					</p>
@@ -186,7 +186,7 @@ function ProposalsPageInner() {
 						{metrics.approvedCount}
 					</p>
 				</article>
-				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
 						Aprobación
 					</p>
@@ -212,7 +212,7 @@ function ProposalsPageInner() {
 						{page > 1 && (
 							<Link
 								href={buildProposalPageHref(searchParams, limit, page - 1)}
-								className="rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors"
+								className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors"
 							>
 								Anterior
 							</Link>
@@ -220,7 +220,7 @@ function ProposalsPageInner() {
 						{page < totalPages && (
 							<Link
 								href={buildProposalPageHref(searchParams, limit, page + 1)}
-								className="rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors"
+								className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors"
 							>
 								Siguiente
 							</Link>
@@ -245,7 +245,7 @@ function ProposalListContent({
 
 	if (isLoading) {
 		return (
-			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
+			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
 				Cargando propuestas…
 			</div>
 		);
@@ -278,7 +278,7 @@ function ProposalListContent({
 
 function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 	return (
-		<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
+		<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
 			<div className="overflow-x-auto">
 				<table className="w-full min-w-[750px] text-sm">
 					<caption className="sr-only">
@@ -286,7 +286,7 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 						detalle.
 					</caption>
 					<thead>
-						<tr className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)] text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+						<tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]">
 							<th scope="col" className="px-5 py-3 font-medium">
 								N° Propuesta
 							</th>
@@ -310,7 +310,7 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 							</th>
 						</tr>
 					</thead>
-					<tbody className="divide-y divide-[var(--border-default)]">
+					<tbody className="divide-y divide-[var(--border-subtle)]">
 						{proposals.map((p) => (
 							<tr
 								key={p._id}

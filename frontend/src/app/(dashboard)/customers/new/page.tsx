@@ -38,7 +38,7 @@ export default function NewCustomerPage() {
 				</p>
 			)}
 
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
 				<CustomerForm
 					isSaving={createMutation.isPending}
 					onSubmit={async (input) => {

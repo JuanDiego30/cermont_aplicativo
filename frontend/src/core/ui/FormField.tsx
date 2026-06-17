@@ -102,12 +102,12 @@ export function TextField({
 				type={type}
 				ref={ref}
 				className={cn(
-					"motion-input w-full rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
+					"motion-input w-full rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
 					TEXT_FIELD_SIZE_CLASSES[size],
 					leftIcon ? "pl-11" : "",
 					rightIcon || onClear ? "pr-11" : "",
 					error
-						? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[color:var(--color-danger)]/20"
+						? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]/20"
 						: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
 					className,
 				)}
@@ -141,9 +141,9 @@ export function TextArea({ className, error, ref, ...props }: TextAreaProps) {
 		<textarea
 			ref={ref}
 			className={cn(
-				"motion-input w-full rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] px-4 py-3 text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)] resize-y min-h-[100px]",
+				"motion-input w-full rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] px-4 py-3 text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)] resize-y min-h-[100px]",
 				error
-					? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[color:var(--color-danger)]/20"
+					? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]/20"
 					: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
 				className,
 			)}
@@ -171,11 +171,11 @@ export function Select({ className, error, size = "md", children, ref, ...props 
 			<select
 				ref={ref}
 				className={cn(
-					"motion-input w-full cursor-pointer appearance-none rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
+					"motion-input w-full cursor-pointer appearance-none rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
 					SELECT_SIZE_CLASSES[size],
 					"bg-[right_1rem_center] bg-no-repeat pr-10",
 					error
-						? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[color:var(--color-danger)]/20"
+						? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]/20"
 						: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
 					className,
 				)}

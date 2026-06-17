@@ -11,7 +11,7 @@ interface ProposalNotesSectionProps {
 export function ProposalNotesSection({ register, errors }: ProposalNotesSectionProps) {
 	return (
 		<section
-			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+			className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
 			aria-labelledby="notes-section-title"
 		>
 			<h2 id="notes-section-title" className="text-base font-semibold text-[var(--text-primary)]">

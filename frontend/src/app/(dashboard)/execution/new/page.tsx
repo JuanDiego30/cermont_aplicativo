@@ -160,13 +160,13 @@ function NewExecutionSessionForm() {
 
 			<form
 				onSubmit={handleSubmit}
-				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+				className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
 				noValidate
 			>
 				<div className="grid gap-4 md:grid-cols-2">
 					<div className="space-y-1.5">
 						<label htmlFor="workOrderId" className="text-sm font-medium text-[var(--text-primary)]">
-							ID de Orden de Trabajo <span className="text-red-500">*</span>
+							ID de Orden de Trabajo <span className="text-brand-error">*</span>
 						</label>
 						<input
 							id="workOrderId"
@@ -175,7 +175,7 @@ function NewExecutionSessionForm() {
 							value={workOrderId}
 							onChange={(e) => setWorkOrderId(e.target.value)}
 							placeholder="ObjectId de 24 caracteres"
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
 						{derivedWorkOrderId && (
 							<p className="text-[10px] text-[var(--color-brand)]">↑ Heredado del caso</p>
@@ -195,7 +195,7 @@ function NewExecutionSessionForm() {
 							value={planningPacketId}
 							onChange={(e) => setPlanningPacketId(e.target.value)}
 							placeholder="ObjectId de planeación"
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
 						{derivedPlanningId && (
 							<p className="text-[10px] text-[var(--color-brand)]">↑ Heredado del caso</p>
@@ -218,7 +218,7 @@ function NewExecutionSessionForm() {
 							value={assignedCrewRaw}
 							onChange={(e) => setAssignedCrewRaw(e.target.value)}
 							placeholder="userId1, userId2, userId3"
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
 					</div>
 				</div>

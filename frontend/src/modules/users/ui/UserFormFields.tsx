@@ -80,7 +80,7 @@ export function UserFormFields({ register, errors, isEdit }: UserFormFieldsProps
 					htmlFor="user-phone"
 					label={
 						<>
-							Teléfono <span className="text-zinc-400">(opcional)</span>
+							Teléfono <span className="text-stone">(opcional)</span>
 						</>
 					}
 					error={errors.phone?.message}

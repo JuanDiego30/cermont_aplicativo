@@ -25,24 +25,24 @@ export function NetworkStatusChip() {
 
 	let icon = <Wifi className="size-4" />;
 	let text = "";
-	let badgeColor = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+	let badgeColor = "bg-emerald-500/10 text-brand-annotate border-emerald-500/20";
 
 	if (alertCount > 0) {
 		icon = <AlertTriangle className="size-4 animate-pulse" />;
 		text = `${alertCount} alerta${alertCount > 1 ? "s" : ""}`;
-		badgeColor = "bg-rose-500/10 text-rose-500 border-rose-500/20";
+		badgeColor = "bg-rose-500/10 text-brand-error border-rose-500/20";
 	} else if (isSyncing) {
 		icon = <Loader2 className="size-4 animate-spin" />;
 		text = "Sincronizando...";
-		badgeColor = "bg-sky-500/10 text-sky-500 border-sky-500/20";
+		badgeColor = "bg-sky-500/10 text-brand-green border-sky-500/20";
 	} else if (!isOnline) {
 		icon = <WifiOff className="size-4" />;
 		text =
 			pendingCount > 0 ? `${pendingCount} pendiente${pendingCount > 1 ? "s" : ""}` : "Sin conexión";
-		badgeColor = "bg-amber-500/10 text-amber-500 border-amber-500/20";
+		badgeColor = "bg-amber-500/10 text-brand-warn border-amber-500/20";
 	} else if (pendingCount > 0) {
 		text = `${pendingCount} pendiente${pendingCount > 1 ? "s" : ""}`;
-		badgeColor = "bg-sky-500/10 text-sky-500 border-sky-500/20";
+		badgeColor = "bg-sky-500/10 text-brand-green border-sky-500/20";
 	}
 
 	return (

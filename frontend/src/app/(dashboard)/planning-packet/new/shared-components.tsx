@@ -56,7 +56,7 @@ export function CollapsibleSection({
 	children: ReactNode;
 }) {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] overflow-hidden">
+		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] overflow-hidden">
 			<button
 				type="button"
 				onClick={onToggle}
@@ -176,7 +176,7 @@ export function ResourceTable<T>({
 			<button
 				type="button"
 				onClick={onAdd}
-				className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] px-3 py-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
+				className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] px-3 py-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
 			>
 				<Plus className="size-3.5" />
 				Agregar fila
@@ -198,12 +198,12 @@ export function ReadinessBadge({
 		<div
 			className={`flex items-center gap-2 rounded-[var(--radius-md)] border p-2.5 ${
 				ready
-					? "border-green-200 bg-green-50"
-					: "border-[var(--border-default)] bg-[var(--surface-primary)]"
+					? "border-green-200 bg-success-bg"
+					: "border-[var(--border-subtle)] bg-[var(--surface-primary)]"
 			}`}
 		>
 			{ready ? (
-				<CheckCircle className="size-4 text-green-600 shrink-0" />
+				<CheckCircle className="size-4 text-brand-annotate shrink-0" />
 			) : (
 				<XCircle className="size-4 text-[var(--text-muted)] shrink-0" />
 			)}

@@ -7,7 +7,7 @@ import { readSearchParam } from "@/lib/utils/search-params";
 
 // ── Constants ──
 const filterInputCls =
-	"w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] py-2.5 px-4 font-medium text-[var(--text-primary)] outline-none transition focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20";
+	"w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] py-2.5 px-4 font-medium text-[var(--text-primary)] outline-none transition focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/20";
 
 export function DashboardFilters() {
 	return (
@@ -19,7 +19,7 @@ export function DashboardFilters() {
 
 function DashboardFiltersSkeleton() {
 	return (
-		<div className="h-[90px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]" />
+		<div className="h-[90px] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]" />
 	);
 }
 
@@ -62,7 +62,7 @@ function DashboardFiltersInner() {
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="flex flex-wrap items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+			className="flex flex-wrap items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
 		>
 			<div className="flex flex-col gap-1.5 min-w-[140px]">
 				<label
@@ -124,7 +124,7 @@ function DashboardFiltersInner() {
 					<button
 						type="button"
 						onClick={handleClear}
-						className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-5 py-2.5 text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)]"
+						className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-5 py-2.5 text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)]"
 					>
 						<X aria-hidden="true" className="size-4" />
 						Limpiar

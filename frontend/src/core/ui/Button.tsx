@@ -4,20 +4,18 @@ import type { ButtonHTMLAttributes, Ref } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-	"motion-button inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[background-color,color,box-shadow,transform,opacity] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-focus-ring) focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+	"motion-button inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[background-color,color,box-shadow,transform,opacity] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
 	{
 		variants: {
 			variant: {
-				default: "bg-zinc-900 text-white shadow-button hover:opacity-90",
-				primary: "bg-brand text-white shadow-button hover:opacity-90",
-				secondary:
-					"border border-border-medium bg-card text-foreground shadow-button hover:bg-surface-secondary",
-				accent: "bg-brand-accent text-white shadow-button hover:opacity-90",
-				ghost: "bg-transparent text-muted-foreground hover:bg-border-subtle hover:text-foreground",
-				destructive: "bg-destructive text-white shadow-button hover:opacity-90",
-				outline:
-					"border border-border-subtle bg-transparent text-foreground hover:bg-border-subtle",
-				link: "text-brand underline-offset-4 hover:underline",
+				default: "bg-primary text-on-primary shadow-button hover:opacity-90",
+				primary: "bg-brand-green text-on-dark shadow-button hover:opacity-90",
+				secondary: "border border-hairline bg-canvas text-ink shadow-button hover:bg-surface",
+				accent: "bg-brand-tag text-on-dark shadow-button hover:opacity-90",
+				ghost: "bg-transparent text-charcoal hover:bg-hairline hover:text-ink",
+				destructive: "bg-brand-error text-on-dark shadow-button hover:opacity-90",
+				outline: "border border-hairline bg-transparent text-ink hover:bg-hairline",
+				link: "text-brand-green underline-offset-4 hover:underline",
 			},
 			size: {
 				default: "h-10 px-6 py-2",

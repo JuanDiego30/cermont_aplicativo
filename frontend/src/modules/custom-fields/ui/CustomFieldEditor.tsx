@@ -84,7 +84,7 @@ export function CustomFieldEditor({
 		form;
 
 	const inputClasses =
-		"w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
+		"w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
 
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -129,7 +129,7 @@ export function CustomFieldEditor({
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
+			className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
 			aria-label={initial ? "Editar campo personalizado" : "Nuevo campo personalizado"}
 		>
 			<div className="grid gap-4 sm:grid-cols-2">
@@ -240,7 +240,7 @@ export function CustomFieldEditor({
 							onChange={(e) =>
 								dispatch({ type: "SET", field: "required", value: e.target.checked })
 							}
-							className="size-4 rounded border-[var(--border-default)]"
+							className="size-4 rounded border-[var(--border-subtle)]"
 						/>
 						Obligatorio
 					</label>
@@ -251,7 +251,7 @@ export function CustomFieldEditor({
 							onChange={(e) =>
 								dispatch({ type: "SET", field: "isActive", value: e.target.checked })
 							}
-							className="size-4 rounded border-[var(--border-default)]"
+							className="size-4 rounded border-[var(--border-subtle)]"
 						/>
 						Activo
 					</label>
@@ -287,7 +287,7 @@ export function CustomFieldEditor({
 				<button
 					type="button"
 					onClick={onCancel}
-					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar
 				</button>

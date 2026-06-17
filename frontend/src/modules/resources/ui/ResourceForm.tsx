@@ -109,7 +109,7 @@ export function ResourceForm({ resource, open, onOpenChange, onSuccess }: Resour
 					className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 outline-none sm:items-center"
 					aria-labelledby={titleId}
 				>
-					<div className="w-full max-w-2xl rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-xl sm:p-8">
+					<div className="w-full max-w-2xl rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-xl sm:p-8">
 						<Dialog.Title id={titleId} className="text-lg font-semibold text-[var(--text-primary)]">
 							{isEdit ? "Editar recurso" : "Nuevo recurso"}
 						</Dialog.Title>
@@ -260,7 +260,7 @@ export function ResourceForm({ resource, open, onOpenChange, onSuccess }: Resour
 							</fieldset>
 
 							{/* Actions */}
-							<div className="flex items-center justify-end gap-3 border-t border-[var(--border-default)] pt-5">
+							<div className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] pt-5">
 								<Dialog.Close asChild>
 									<Button type="button" variant="outline" disabled={isPending}>
 										Cancelar

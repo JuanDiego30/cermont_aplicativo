@@ -117,7 +117,7 @@ export async function updateVehicle(id: string, input: UpdateVehicleInput, userI
 			...(input.plate ? { plate: input.plate.toUpperCase() } : {}),
 			updatedBy: userId,
 		},
-		{ new: true, runValidators: true },
+		{ returnDocument: "after", runValidators: true },
 	);
 	if (!updated) {
 		throw new AppError("Vehículo no encontrado", 404, "VEHICLE_NOT_FOUND");

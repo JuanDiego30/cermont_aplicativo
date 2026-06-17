@@ -1,7 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { E2E_ADMIN } from "./auth-credentials";
 
-const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL ?? "http://localhost:3000";
 const LOGIN_EMAIL = E2E_ADMIN.email;
 const LOGIN_PASSWORD = E2E_ADMIN.password;
 const OFFLINE_DB_NAME = "CermontOfflineDB";
@@ -22,7 +21,7 @@ const EXPECTED_OFFLINE_STORES = [
 ] as const;
 
 async function login(page: Page): Promise<void> {
-	await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
+	await page.goto("/login", { waitUntil: "domcontentloaded" });
 	await page.getByLabel("Correo electrónico").first().fill(LOGIN_EMAIL);
 	await page.getByLabel("Contraseña").first().fill(LOGIN_PASSWORD);
 	await page
@@ -137,7 +136,7 @@ test.describe("Auth, Service Worker and IndexedDB regression", () => {
 	});
 
 	test("2. login succeeds with the production Service Worker active", async ({ page }) => {
-		await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
+		await page.goto("/login", { waitUntil: "domcontentloaded" });
 		const scriptUrl = await waitForServiceWorker(page);
 		expect(scriptUrl).toContain("/serwist/sw.js");
 
@@ -188,7 +187,7 @@ test.describe("Auth, Service Worker and IndexedDB regression", () => {
 	});
 
 	test("5. a v1 database upgrades without losing pending data", async ({ page }) => {
-		await page.goto(`${BASE_URL}/offline.html`, { waitUntil: "domcontentloaded" });
+		await page.goto("/offline.html", { waitUntil: "domcontentloaded" });
 		await resetDatabase(page, OFFLINE_DB_NAME);
 		await resetDatabase(page, LEGACY_QUEUE_DB_NAME);
 
@@ -281,7 +280,7 @@ test.describe("Auth, Service Worker and IndexedDB regression", () => {
 	test("6. warmed service cases render after network loss", async ({ context, page }) => {
 		await login(page);
 		await waitForServiceWorker(page);
-		await page.goto(`${BASE_URL}/service-cases`, { waitUntil: "domcontentloaded" });
+		await page.goto("/service-cases", { waitUntil: "domcontentloaded" });
 		await expect(
 			page.getByRole("heading", { name: "Casos de Servicio", exact: true }),
 		).toBeVisible();

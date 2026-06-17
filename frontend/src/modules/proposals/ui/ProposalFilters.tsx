@@ -66,7 +66,7 @@ function ProposalFiltersSkeleton() {
 	return (
 		<section
 			aria-label="Filtros de propuestas"
-			className="h-[50px] rounded-lg border border-zinc-300 bg-white dark:border-zinc-700 dark:bg-zinc-900"
+			className="h-[50px] rounded-lg border border-hairline bg-canvas dark:border-zinc-700 dark:bg-canvas"
 		/>
 	);
 }
@@ -173,7 +173,7 @@ function ProposalFiltersInner() {
 			<div className="flex gap-2">
 				<div className="relative flex-1">
 					<Search
-						className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400"
+						className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-stone"
 						aria-hidden="true"
 					/>
 					<input
@@ -181,7 +181,7 @@ function ProposalFiltersInner() {
 						value={searchInput}
 						onChange={handleSearchChange}
 						placeholder="Buscar por número, cliente o descripción…"
-						className="w-full rounded-lg border border-zinc-300 bg-white py-2.5 pl-10 pr-4 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500 dark:focus:border-blue-400"
+						className="w-full rounded-lg border border-hairline bg-canvas py-2.5 pl-10 pr-4 text-sm text-ink placeholder:text-stone focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-canvas dark:text-white dark:placeholder:text-steel dark:focus:border-blue-400"
 						aria-label="Buscar propuestas"
 					/>
 					{searchInput && (
@@ -191,7 +191,7 @@ function ProposalFiltersInner() {
 								dispatch({ type: "SET_SEARCH", payload: "" });
 								applyFilters("", status, dateFrom, dateTo);
 							}}
-							className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+							className="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-steel dark:hover:text-muted-text"
 							aria-label="Limpiar búsqueda"
 						>
 							<X className="size-4" />
@@ -201,7 +201,7 @@ function ProposalFiltersInner() {
 				<button
 					type="button"
 					onClick={() => dispatch({ type: "TOGGLE_FILTERS" })}
-					className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+					className="inline-flex items-center gap-2 rounded-lg border border-hairline bg-canvas px-4 py-2.5 text-sm font-medium text-charcoal hover:bg-surface dark:border-zinc-700 dark:bg-canvas dark:text-muted-text dark:hover:bg-zinc-800"
 					aria-expanded={showFilters}
 					aria-controls="advanced-filters"
 				>
@@ -214,12 +214,12 @@ function ProposalFiltersInner() {
 			{showFilters && (
 				<div
 					id="advanced-filters"
-					className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row"
+					className="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4 dark:border-zinc-800 dark:bg-canvas sm:flex-row"
 				>
 					<div className="flex-1">
 						<label
 							htmlFor="filter-status"
-							className="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400"
+							className="mb-1.5 block text-xs font-medium text-steel dark:text-stone"
 						>
 							Estado
 						</label>
@@ -227,7 +227,7 @@ function ProposalFiltersInner() {
 							id="filter-status"
 							value={status}
 							onChange={handleStatusChange}
-							className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+							className="w-full rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm text-ink focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
 						>
 							{STATUS_OPTIONS.map((opt) => (
 								<option key={opt.value} value={opt.value}>
@@ -240,7 +240,7 @@ function ProposalFiltersInner() {
 					<div className="flex-1">
 						<label
 							htmlFor="filter-date-from"
-							className="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400"
+							className="mb-1.5 block text-xs font-medium text-steel dark:text-stone"
 						>
 							Desde
 						</label>
@@ -249,14 +249,14 @@ function ProposalFiltersInner() {
 							type="date"
 							value={dateFrom}
 							onChange={handleDateFromChange}
-							className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+							className="w-full rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm text-ink focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
 						/>
 					</div>
 
 					<div className="flex-1">
 						<label
 							htmlFor="filter-date-to"
-							className="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-400"
+							className="mb-1.5 block text-xs font-medium text-steel dark:text-stone"
 						>
 							Hasta
 						</label>
@@ -265,7 +265,7 @@ function ProposalFiltersInner() {
 							type="date"
 							value={dateTo}
 							onChange={handleDateToChange}
-							className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
+							className="w-full rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm text-ink focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
 						/>
 					</div>
 
@@ -273,7 +273,7 @@ function ProposalFiltersInner() {
 						<button
 							type="button"
 							onClick={handleClearFilters}
-							className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
+							className="rounded-lg px-4 py-2 text-sm font-medium text-steel hover:bg-zinc-200 dark:text-stone dark:hover:bg-zinc-800"
 						>
 							Limpiar filtros
 						</button>

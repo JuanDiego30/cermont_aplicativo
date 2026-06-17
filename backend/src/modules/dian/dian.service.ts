@@ -531,7 +531,7 @@ async function claimInvoiceForSubmission(invoiceId: string): Promise<InvoiceDocu
 			$set: { dianStatus: "submitting" },
 			$unset: { dianErrorCode: "" },
 		},
-		{ new: true },
+		{ returnDocument: "after" },
 	);
 	if (invoice) {
 		assertInvoiceCanBeSent(invoice);
@@ -575,7 +575,7 @@ async function reserveInvoiceNumber(
 			lastInvoiceNumber: config.lastInvoiceNumber,
 		},
 		{ $set: { lastInvoiceNumber: nextNumber } },
-		{ new: true },
+		{ returnDocument: "after" },
 	).select("+softwarePin +technicalKey");
 	if (!updated) {
 		const refreshed = await loadDianConfiguration();
@@ -632,7 +632,12 @@ export const DianService = {
 				},
 				$setOnInsert: { singletonKey: "dian" },
 			},
-			{ upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
+			{
+				upsert: true,
+				returnDocument: "after",
+				runValidators: true,
+				setDefaultsOnInsert: true,
+			},
 		).select("+softwarePin +technicalKey");
 		if (!config) {
 			throw new AppError(

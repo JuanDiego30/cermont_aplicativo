@@ -48,7 +48,7 @@ export function ASTCard({ ast, currentUserName }: ASTCardProps) {
 	const nextTransition = NEXT_TRANSITION[ast.status];
 
 	return (
-		<article className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+		<article className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 			<header className="flex items-start justify-between gap-2">
 				<div className="min-w-0">
 					<div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export function ASTCard({ ast, currentUserName }: ASTCardProps) {
 									input: { role: slot.role, signedByName: currentUserName },
 								})
 							}
-							className="flex items-center gap-1 rounded-full border border-dashed border-[var(--border-default)] px-2 py-1 text-[10px] font-medium text-[var(--text-tertiary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
+							className="flex items-center gap-1 rounded-full border border-dashed border-[var(--border-subtle)] px-2 py-1 text-[10px] font-medium text-[var(--text-tertiary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
 						>
 							<PenLine className="size-3" aria-hidden="true" />
 							Firmar {slot.label}

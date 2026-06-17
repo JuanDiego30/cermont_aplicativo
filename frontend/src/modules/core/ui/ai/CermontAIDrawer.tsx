@@ -225,10 +225,10 @@ export function CermontAIDrawer() {
 				open={chatOpen || undefined}
 				aria-labelledby="cermont-ai-title"
 				aria-modal="true"
-				className={`${MOTION.drawer} fixed inset-y-4 right-4 z-[101] flex w-[380px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.24)]`}
+				className={`${MOTION.drawer} fixed inset-y-4 right-4 z-[101] flex w-[380px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.24)]`}
 			>
 				{/* Header */}
-				<div className="flex items-center justify-between border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.16),rgba(15,23,41,0.03),transparent)] px-5 py-4">
+				<div className="flex items-center justify-between border-b border-[var(--border-subtle)] bg-[linear-gradient(135deg,rgba(58,120,216,0.16),rgba(15,23,41,0.03),transparent)] px-5 py-4">
 					<div className="flex items-center gap-3">
 						<div className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--color-brand-blue)] to-[var(--color-info)] text-white shadow-[var(--shadow-brand)]">
 							<Bot className="size-5" />
@@ -256,7 +256,7 @@ export function CermontAIDrawer() {
 					</button>
 				</div>
 
-				<div className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)]/60 px-4 py-3">
+				<div className="border-b border-[var(--border-subtle)] bg-[var(--surface-secondary)]/60 px-4 py-3">
 					<div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
 						<Sparkles className="size-3.5 text-[var(--color-brand-blue)]" />
 						Atajos rápidos
@@ -267,7 +267,7 @@ export function CermontAIDrawer() {
 								key={prompt}
 								type="button"
 								onClick={() => handleSend(prompt)}
-								className="motion-button rounded-full border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
+								className="motion-button rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
 							>
 								{prompt}
 							</button>
@@ -304,7 +304,7 @@ export function CermontAIDrawer() {
 												key={`${msg.id}-${action}`}
 												type="button"
 												onClick={() => handleSend(action)}
-												className="rounded-full border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1 text-[11px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
+												className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1 text-[11px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
 											>
 												{action}
 											</button>
@@ -318,8 +318,8 @@ export function CermontAIDrawer() {
 				</div>
 
 				{/* Input area */}
-				<div className="border-t border-[var(--border-default)] bg-[var(--surface-primary)] p-4">
-					<div className="relative flex items-end gap-2 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)] p-2 transition-all focus-within:border-[var(--border-focus)] focus-within:bg-[var(--surface-primary)] focus-within:ring-1 focus-within:ring-[color:var(--color-brand-blue)]/20">
+				<div className="border-t border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
+					<div className="relative flex items-end gap-2 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-2 transition-all focus-within:border-[var(--border-focus)] focus-within:bg-[var(--surface-primary)] focus-within:ring-1 focus-within:ring-[var(--color-brand-blue)]/20">
 						<textarea
 							rows={1}
 							value={input}

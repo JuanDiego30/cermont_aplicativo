@@ -150,7 +150,7 @@ export default function NewWorkRequestPage() {
 				Volver a solicitudes
 			</Link>
 
-			<header className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]">
+			<header className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]">
 				<p className="text-sm font-medium text-[var(--color-brand)]">Paso 1 / Solicitud</p>
 				<h1 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
 					Nueva solicitud de trabajo
@@ -162,7 +162,7 @@ export default function NewWorkRequestPage() {
 
 			<form
 				onSubmit={submitForm}
-				className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]"
+				className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]"
 			>
 				<div className="grid gap-4 md:grid-cols-2">
 					<TextInput
@@ -217,7 +217,7 @@ export default function NewWorkRequestPage() {
 						<select
 							value={form.urgency}
 							onChange={(event) => updateField("urgency", event.target.value as WorkRequestUrgency)}
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
 						>
 							{URGENCY_OPTIONS.map((option) => (
 								<option key={option.value} value={option.value}>
@@ -233,7 +233,7 @@ export default function NewWorkRequestPage() {
 							onChange={(event) =>
 								updateField("sourceChannel", event.target.value as WorkRequestSourceChannel)
 							}
-							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
+							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
 						>
 							{CHANNEL_OPTIONS.map((option) => (
 								<option key={option.value} value={option.value}>
@@ -270,7 +270,7 @@ export default function NewWorkRequestPage() {
 							onChange={(event) => updateField("description", event.target.value)}
 							required
 							rows={5}
-							className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)]"
+							className="w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)]"
 							aria-invalid={Boolean(getFieldError(fieldErrors, "description"))}
 							{...(getFieldError(fieldErrors, "description")
 								? { "aria-describedby": "description-error" }
@@ -291,7 +291,7 @@ export default function NewWorkRequestPage() {
 							type="checkbox"
 							checked={form.requiresSiteVisit}
 							onChange={(event) => updateField("requiresSiteVisit", event.target.checked)}
-							className="size-4 rounded border-[var(--border-default)]"
+							className="size-4 rounded border-[var(--border-subtle)]"
 						/>
 						Requiere visita tecnica
 					</label>
@@ -379,7 +379,7 @@ function TextInput({
 				value={value}
 				onChange={(event) => onChange(event.target.value)}
 				required={required}
-				className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
+				className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
 				aria-invalid={Boolean(error)}
 				{...(error ? { "aria-describedby": `${id}-error` } : {})}
 			/>

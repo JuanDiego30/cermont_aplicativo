@@ -159,10 +159,10 @@ function TemplateDraftReviewerSidebar({
 					Configuración Operativa
 				</h4>
 
-				<div className="rounded-xl border border-brand/20 bg-brand-blue-bg p-4">
+				<div className="rounded-xl border border-[var(--color-brand)]/20 bg-[var(--color-cermont-blue-bg)] p-4">
 					<label
 						htmlFor="draft-target-step"
-						className="text-[10px] font-bold uppercase tracking-wider text-brand"
+						className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-brand)]"
 					>
 						Paso operativo CERMONT
 					</label>
@@ -171,7 +171,7 @@ function TemplateDraftReviewerSidebar({
 						value={targetStepCode}
 						onChange={(event) => onTargetStepCodeChange(event.target.value)}
 						disabled={isEditingLocked}
-						className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground focus:border-brand focus:ring-1 focus:ring-brand"
+						className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground focus:border-[var(--color-brand)] focus:ring-1 focus:ring-brand"
 					>
 						<option value="">Sin asignar</option>
 						{CERMONT_OPERATIONAL_STEPS.map((step) => (
@@ -218,7 +218,7 @@ function TemplateDraftReviewerSidebar({
 
 			<div className="rounded-xl border border-border-subtle bg-surface-secondary p-4">
 				<div className="flex gap-3">
-					<Sparkles className="mt-0.5 size-4 shrink-0 text-amber-500" />
+					<Sparkles className="mt-0.5 size-4 shrink-0 text-brand-warn" />
 					<p className="text-[10px] leading-relaxed text-secondary">
 						<span className="font-bold text-foreground">Regla de publicación:</span> la plantilla
 						solo debe aprobarse cuando los campos, opciones y firmas requeridas representen la
@@ -260,7 +260,7 @@ function TemplateDraftReviewerHeaderActions({
 				<button
 					type="button"
 					onClick={onSave}
-					className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-bold text-foreground shadow-sm transition-colors hover:border-brand"
+					className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-bold text-foreground shadow-sm transition-colors hover:border-[var(--color-brand)]"
 					disabled={pending.save}
 				>
 					<Save className="size-4" />
@@ -301,7 +301,7 @@ function TemplateDraftReviewerHeaderActions({
 				</button>
 			)}
 			{status === "converted_to_template" && (
-				<div className="flex items-center gap-2 rounded-lg border border-brand bg-brand-blue-bg px-4 py-2 text-sm font-bold text-brand">
+				<div className="flex items-center gap-2 rounded-lg border border-[var(--color-brand)] bg-[var(--color-cermont-blue-bg)] px-4 py-2 text-sm font-bold text-[var(--color-brand)]">
 					<CheckCircle2 className="size-4" />
 					Plantilla publicada
 				</div>
@@ -336,7 +336,7 @@ function FieldEditor({
 					<button
 						type="button"
 						onClick={() => onMove(sectionId, field.fieldId, "up")}
-						className="rounded border border-border p-1 text-muted-foreground hover:text-brand"
+						className="rounded border border-border p-1 text-muted-foreground hover:text-[var(--color-brand)]"
 						aria-label="Subir campo"
 					>
 						<ArrowUp className="size-3.5" />
@@ -344,7 +344,7 @@ function FieldEditor({
 					<button
 						type="button"
 						onClick={() => onMove(sectionId, field.fieldId, "down")}
-						className="rounded border border-border p-1 text-muted-foreground hover:text-brand"
+						className="rounded border border-border p-1 text-muted-foreground hover:text-[var(--color-brand)]"
 						aria-label="Bajar campo"
 					>
 						<ArrowDown className="size-3.5" />
@@ -410,7 +410,7 @@ function FieldEditor({
 							})
 						}
 						disabled={isEditingLocked}
-						className="rounded border-border bg-card text-brand focus:ring-brand"
+						className="rounded border-border bg-card text-[var(--color-brand)] focus:ring-brand"
 					/>
 					Campo obligatorio
 				</label>
@@ -440,7 +440,7 @@ function FieldEditor({
 							type="button"
 							onClick={() => onAddOption(sectionId, field.fieldId)}
 							disabled={isEditingLocked}
-							className="text-[10px] font-bold text-brand"
+							className="text-[10px] font-bold text-[var(--color-brand)]"
 						>
 							Agregar opción
 						</button>
@@ -474,7 +474,7 @@ function FieldEditor({
 								})
 							}
 							disabled={isEditingLocked}
-							className="rounded border-border bg-card text-brand focus:ring-brand"
+							className="rounded border-border bg-card text-[var(--color-brand)] focus:ring-brand"
 						/>
 						Permitir “otro, ¿cuál?”
 					</label>
@@ -641,7 +641,7 @@ export function TemplateDraftReviewer({ draft }: TemplateDraftReviewerProps) {
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div className="flex items-center gap-4">
 					<div className="rounded-xl border border-border bg-surface-secondary p-3">
-						<FileText className="size-6 text-brand" />
+						<FileText className="size-6 text-[var(--color-brand)]" />
 					</div>
 					<div className="space-y-2">
 						<input
@@ -739,7 +739,7 @@ export function TemplateDraftReviewer({ draft }: TemplateDraftReviewerProps) {
 									<button
 										type="button"
 										onClick={() => addField(section.sectionId)}
-										className="mt-4 inline-flex items-center gap-2 rounded-md border border-dashed border-brand px-3 py-2 text-xs font-bold text-brand"
+										className="mt-4 inline-flex items-center gap-2 rounded-md border border-dashed border-[var(--color-brand)] px-3 py-2 text-xs font-bold text-[var(--color-brand)]"
 									>
 										<Plus className="size-3.5" />
 										Agregar campo
@@ -753,7 +753,7 @@ export function TemplateDraftReviewer({ draft }: TemplateDraftReviewerProps) {
 						<button
 							type="button"
 							onClick={addSection}
-							className="inline-flex items-center gap-2 rounded-lg border border-dashed border-brand bg-brand-blue-bg px-4 py-3 text-sm font-bold text-brand"
+							className="inline-flex items-center gap-2 rounded-lg border border-dashed border-[var(--color-brand)] bg-[var(--color-cermont-blue-bg)] px-4 py-3 text-sm font-bold text-[var(--color-brand)]"
 						>
 							<Plus className="size-4" />
 							Agregar sección

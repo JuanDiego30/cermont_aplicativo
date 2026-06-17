@@ -12,12 +12,9 @@ interface CostSummaryCardProps {
 }
 
 const METRIC_TONE_CLASSES = {
-	neutral:
-		"border-zinc-200 bg-zinc-50 text-zinc-950 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white",
-	success:
-		"border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900/40 dark:bg-emerald-900/10 dark:text-emerald-100",
-	danger:
-		"border-rose-200 bg-rose-50 text-rose-950 dark:border-rose-900/40 dark:bg-rose-900/10 dark:text-rose-100",
+	neutral: "border-[var(--border-medium)] bg-[var(--surface-secondary)] text-[var(--text-primary)]",
+	success: "border-[var(--border-medium)] bg-[var(--color-success-bg)] text-[var(--text-primary)]",
+	danger: "border-[var(--border-medium)] bg-[var(--color-danger-bg)] text-[var(--text-primary)]",
 } as const;
 
 export function CostSummaryCard({ summary, isLoading = false, error }: CostSummaryCardProps) {
@@ -37,16 +34,16 @@ export function CostSummaryCard({ summary, isLoading = false, error }: CostSumma
 	const isVarianceNegative = summary.variance < 0;
 
 	return (
-		<section className="grid gap-4 rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-6 xl:grid-cols-[1.2fr_0.8fr]">
+		<section className="grid gap-4 rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 shadow-sm sm:p-6 xl:grid-cols-[1.2fr_0.8fr]">
 			<div className="space-y-4">
 				<div className="space-y-1">
-					<p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
+					<p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
 						Resumen de costos
 					</p>
-					<h3 className="text-xl font-semibold text-zinc-950 dark:text-white">
+					<h3 className="text-xl font-semibold text-[var(--text-primary)]">
 						Orden {summary.orderId}
 					</h3>
-					<p className="text-sm text-zinc-500 dark:text-zinc-400">
+					<p className="text-sm text-[var(--text-tertiary)]">
 						Consolidado de costos reales, impuestos y variación contra el estimado.
 					</p>
 				</div>
@@ -74,21 +71,21 @@ export function CostSummaryCard({ summary, isLoading = false, error }: CostSumma
 				</div>
 			</div>
 
-			<aside className="flex flex-col justify-between gap-4 rounded-3xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+			<aside className="flex flex-col justify-between gap-4 rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-secondary)] p-4">
 				<div className="space-y-3">
-					<div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
+					<div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
 						{isVariancePositive ? (
-							<TrendingUp className="size-4 text-rose-500" aria-hidden="true" />
+							<TrendingUp className="size-4 text-[var(--color-danger)]" aria-hidden="true" />
 						) : (
-							<TrendingDown className="size-4 text-emerald-500" aria-hidden="true" />
+							<TrendingDown className="size-4 text-[var(--color-success)]" aria-hidden="true" />
 						)}
 						Desviación
 					</div>
-					<div className="rounded-2xl bg-white p-4 dark:bg-zinc-950">
-						<p className="text-3xl font-black tracking-tight text-zinc-950 dark:text-white">
+					<div className="rounded-2xl bg-[var(--surface-card)] p-4">
+						<p className="text-3xl font-black tracking-tight text-[var(--text-primary)]">
 							{formatPercent(getValue(summary.variancePercent, 0))}
 						</p>
-						<p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+						<p className="mt-2 text-sm text-[var(--text-tertiary)]">
 							{summary.variance > 0
 								? "El costo real excede el estimado."
 								: summary.variance < 0
@@ -98,11 +95,11 @@ export function CostSummaryCard({ summary, isLoading = false, error }: CostSumma
 					</div>
 				</div>
 
-				<div className="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
+				<div className="flex items-center gap-2 rounded-2xl border border-[var(--border-medium)] bg-[var(--surface-card)] px-3 py-2 text-sm text-[var(--text-secondary)]">
 					{summary.hasCosts ? (
-						<CheckCircle2 className="size-4 text-emerald-500" aria-hidden="true" />
+						<CheckCircle2 className="size-4 text-[var(--color-success)]" aria-hidden="true" />
 					) : (
-						<AlertTriangle className="size-4 text-amber-500" aria-hidden="true" />
+						<AlertTriangle className="size-4 text-[var(--color-warning)]" aria-hidden="true" />
 					)}
 					{summary.hasCosts
 						? `Estado de costos: ${labelForCostDataState(summary.dataState)}.`
@@ -133,12 +130,12 @@ function Metric({
 }
 
 function SkeletonCard() {
-	return <div className="h-56 animate-pulse rounded-3xl bg-zinc-200 dark:bg-zinc-800" />;
+	return <div className="h-56 animate-pulse rounded-3xl bg-[var(--surface-secondary)]" />;
 }
 
 function ErrorCard({ message }: { message: string }) {
 	return (
-		<div className="rounded-3xl border border-rose-200 bg-rose-50 p-5 text-rose-900 dark:border-rose-900/40 dark:bg-rose-900/10 dark:text-rose-100">
+		<div className="rounded-3xl border border-[var(--color-danger)] bg-[var(--color-danger-bg)] p-5 text-[var(--color-danger)]">
 			<p className="text-sm font-semibold">No se pudo cargar el resumen</p>
 			<p className="mt-1 text-sm">{message}</p>
 		</div>
@@ -147,7 +144,7 @@ function ErrorCard({ message }: { message: string }) {
 
 function EmptyCard() {
 	return (
-		<div className="rounded-3xl border border-dashed border-zinc-300 bg-zinc-50 p-5 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/50 dark:text-zinc-300">
+		<div className="rounded-3xl border border-dashed border-[var(--border-medium)] bg-[var(--surface-secondary)] p-5 text-[var(--text-secondary)]">
 			<p className="text-sm font-semibold">Sin resumen disponible</p>
 			<p className="mt-1 text-sm">No hay costos para esta orden todavía.</p>
 		</div>

@@ -70,7 +70,7 @@ export default function CustomersPage() {
 						}
 					}}
 					placeholder="Buscar por nombre, NIT o contacto..."
-					className="w-full max-w-md rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
+					className="w-full max-w-md rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
 				/>
 				<button
 					type="button"
@@ -78,7 +78,7 @@ export default function CustomersPage() {
 						setSubmittedSearch(search.trim());
 						setPage(1);
 					}}
-					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					<Search className="size-4" aria-hidden="true" />
 					Buscar
@@ -107,7 +107,7 @@ export default function CustomersPage() {
 			)}
 
 			{!isLoading && !error && customers.length === 0 && (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-16 text-center">
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-16 text-center">
 					<Building2
 						className="mx-auto mb-3 size-10 text-[var(--text-tertiary)]"
 						aria-hidden="true"
@@ -126,7 +126,7 @@ export default function CustomersPage() {
 						<li key={customer._id}>
 							<Link
 								href={`/customers/${customer._id}`}
-								className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 transition-colors hover:bg-[var(--surface-secondary)]"
+								className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 transition-colors hover:bg-[var(--surface-secondary)]"
 							>
 								<div className="min-w-0">
 									<div className="flex items-center gap-2">
@@ -157,7 +157,7 @@ export default function CustomersPage() {
 						type="button"
 						disabled={page <= 1}
 						onClick={() => setPage((p) => Math.max(1, p - 1))}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Anterior
 					</button>
@@ -168,7 +168,7 @@ export default function CustomersPage() {
 						type="button"
 						disabled={page >= pagination.totalPages}
 						onClick={() => setPage((p) => p + 1)}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Siguiente
 					</button>
