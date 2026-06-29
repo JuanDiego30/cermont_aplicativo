@@ -1,0 +1,168 @@
+"use client";
+
+/**
+ * /fleet/[id] — Vehicle detail page with document alerts
+ */
+
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, CalendarClock, Loader2, Truck } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { EmptyState } from "@/core/ui/EmptyState";
+import { Skeleton } from "@/core/ui/Skeleton";
+import { apiClient } from "@/lib/http/api-client";
+
+type VehicleDetail = {
+	_id: string;
+	plate: string;
+	brand: string;
+	model: string;
+	year: number;
+	type: string;
+	status: string;
+	kilometers: number;
+	driverName?: string;
+	driverId?: string;
+	soatExpiry?: string;
+	technoMechanicalExpiry?: string;
+	insuranceExpiry?: string;
+	lastMaintenanceAt?: string;
+	createdAt: string;
+};
+
+const STATUS_LABELS: Record<string, string> = {
+	active: "Activo",
+	maintenance: "En mantenimiento",
+	out_of_service: "Fuera de servicio",
+};
+
+const STATUS_STYLES: Record<string, string> = {
+	active: "bg-[var(--color-success-bg)] text-[var(--color-success)]",
+	maintenance: "bg-[var(--color-warning-bg)] text-[var(--color-warning)]",
+	out_of_service: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
+};
+
+export default function FleetDetailPage() {
+	const { id } = useParams<{ id: string }>();
+
+	const { data, isLoading, error } = useQuery<VehicleDetail>({
+		queryKey: ["vehicle", id],
+		queryFn: async () => {
+			const json = await apiClient.get<{ success: boolean; data: VehicleDetail }>(
+				`/fleet/${id}`,
+			);
+			return json.data;
+		},
+	});
+
+	if (isLoading) {
+		return (
+			<section className="space-y-4" aria-label="Cargando vehículo">
+				<Skeleton variant="text" width="30%" />
+				<Skeleton variant="chart" height={120} />
+				<div className="grid gap-4 sm:grid-cols-2">
+					<Skeleton variant="text" />
+					<Skeleton variant="text" />
+				</div>
+			</section>
+		);
+	}
+
+	if (error || !data) {
+		return (
+			<section>
+				<Link
+					href="/fleet"
+					className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--color-brand-blue)] hover:underline"
+				>
+					<ArrowLeft className="size-4" aria-hidden="true" />
+					Volver al parque automotor
+				</Link>
+				<EmptyState
+					icon="truck"
+					title="Vehículo no encontrado"
+					description="No se pudo cargar la información del vehículo."
+				/>
+			</section>
+		);
+	}
+
+	return (
+		<section className="space-y-6" aria-labelledby="vehicle-title">
+			<Link
+				href="/fleet"
+				className="inline-flex items-center gap-1 text-sm text-[var(--color-brand-blue)] hover:underline"
+			>
+				<ArrowLeft className="size-4" aria-hidden="true" />
+				Volver al parque automotor
+			</Link>
+
+			<header className="flex items-start justify-between gap-4">
+				<div>
+					<h1 id="vehicle-title" className="text-xl font-semibold text-[var(--text-primary)]">
+						{data.plate}
+					</h1>
+					<p className="mt-0.5 text-sm text-[var(--text-secondary)]">
+						{data.brand} {data.model} {data.year} — {data.type}
+					</p>
+				</div>
+				<span
+					className={`shrink-0 rounded px-2 py-1 text-xs font-medium ${
+						STATUS_STYLES[data.status] ?? ""
+					}`}
+				>
+					{STATUS_LABELS[data.status] ?? data.status}
+				</span>
+			</header>
+
+			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				<InfoCard label="Kilometraje" value={`${data.kilometers.toLocaleString("es-CO")} km`} />
+				<InfoCard label="Conductor" value={data.driverName ?? "Sin asignar"} />
+				<InfoCard
+					label="SOAT"
+					value={data.soatExpiry ? new Date(data.soatExpiry).toLocaleDateString("es-CO") : "No registrado"}
+				/>
+				<InfoCard
+					label="Tecnomecánica"
+					value={
+						data.technoMechanicalExpiry
+							? new Date(data.technoMechanicalExpiry).toLocaleDateString("es-CO")
+							: "No registrado"
+					}
+				/>
+				<InfoCard
+					label="Póliza"
+					value={
+						data.insuranceExpiry
+							? new Date(data.insuranceExpiry).toLocaleDateString("es-CO")
+							: "No registrado"
+					}
+				/>
+				<InfoCard
+					label="Último mantenimiento"
+					value={
+						data.lastMaintenanceAt
+							? new Date(data.lastMaintenanceAt).toLocaleDateString("es-CO")
+							: "Sin registro"
+					}
+				/>
+			</div>
+
+			{data.soatExpiry && new Date(data.soatExpiry) < new Date() && (
+				<div className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/40 p-3 text-sm text-[var(--color-danger)]">
+					<CalendarClock className="size-4 shrink-0" aria-hidden="true" />
+					<span>SOAT vencido. No se puede asignar conductor.</span>
+				</div>
+			)}
+		</section>
+	);
+}
+
+function InfoCard({ label, value }: { label: string; value: string }) {
+	return (
+		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
+			<p className="text-xs text-[var(--text-tertiary)]">{label}</p>
+			<p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{value}</p>
+		</div>
+	);
+}
