@@ -1,21 +1,41 @@
 "use client";
 
 /**
- * /fleet/[id] — Vehicle detail page with document alerts
+ * /fleet/[id] — Vehicle detail page with tabs.
+ *
+ * Tabs:
+ *   - Información general (km, conductor, tipo)
+ *   - Documentos          (SOAT / Tecnomecánica / Póliza con semáforo)
+ *   - Fotos               (galería existente FleetPhotoGallery)
+ *
+ * Before: flat card list of InfoCards, no document status colors
+ * After:  tabbed layout with professional document status cards
  */
 
 import { evaluateFleetReadiness, hasRole, MANAGEMENT_ROLES } from "@cermont/domain";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CalendarClock } from "lucide-react";
+import {
+	ArrowLeft,
+	CalendarClock,
+	Camera,
+	FileText,
+	Gauge,
+	Info,
+	Loader2,
+	Milestone,
+	User,
+} from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useMemo, useSyncExternalStore } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useSyncExternalStore } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
-import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { FleetPhotoGallery } from "@/modules/fleet/ui/FleetPhotoGallery";
 import { FleetReadinessBadge } from "@/modules/fleet/ui/FleetReadinessBadge";
+import { VehicleDocumentsTab } from "@/modules/fleet/ui/VehicleDocumentsTab";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type VehicleDetail = {
 	_id: string;
@@ -26,12 +46,15 @@ type VehicleDetail = {
 	type: string;
 	status: string;
 	kilometers: number;
+	capacity?: string;
+	notes?: string;
 	driverName?: string;
 	driverId?: string;
 	soatExpiry?: string;
 	technoMechanicalExpiry?: string;
 	insuranceExpiry?: string;
 	lastMaintenanceAt?: string;
+	nextMaintenanceKm?: number;
 	createdAt: string;
 };
 
@@ -41,13 +64,23 @@ const STATUS_LABELS: Record<string, string> = {
 	out_of_service: "Fuera de servicio",
 };
 
-const STATUS_STYLES: Record<string, string> = {
+const STATUS_PILL: Record<string, string> = {
 	active: "bg-[var(--color-success-bg)] text-[var(--color-success)]",
 	maintenance: "bg-[var(--color-warning-bg)] text-[var(--color-warning)]",
 	out_of_service: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
 };
 
-function useIsClient(): boolean {
+const VEHICLE_TYPE_LABELS: Record<string, string> = {
+	camioneta: "Camioneta",
+	camion: "Camión",
+	moto: "Moto",
+	van: "Van",
+	otro: "Otro",
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function useMounted(): boolean {
 	return useSyncExternalStore(
 		() => () => {},
 		() => true,
@@ -55,9 +88,66 @@ function useIsClient(): boolean {
 	);
 }
 
+// ─── Tab definitions ──────────────────────────────────────────────────────────
+
+type TabId = "info" | "documents" | "photos";
+
+const TABS: { id: TabId; label: string; icon: typeof Info }[] = [
+	{ id: "info", label: "Información", icon: Info },
+	{ id: "documents", label: "Documentos", icon: FileText },
+	{ id: "photos", label: "Fotos", icon: Camera },
+];
+
+// ─── InfoRow ─────────────────────────────────────────────────────────────────
+
+function InfoRow({
+	icon: Icon,
+	label,
+	value,
+}: {
+	icon: typeof Info;
+	label: string;
+	value: string;
+}) {
+	return (
+		<div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3">
+			<div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--surface-secondary)]">
+				<Icon className="size-4 text-[var(--text-tertiary)]" aria-hidden="true" />
+			</div>
+			<div>
+				<p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">{label}</p>
+				<p className="mt-0.5 text-sm font-medium text-[var(--text-primary)]">{value}</p>
+			</div>
+		</div>
+	);
+}
+
+// ─── FleetDetailPage ──────────────────────────────────────────────────────────
+
 export default function FleetDetailPage() {
+	return (
+		<Suspense
+			fallback={
+				<section className="space-y-4" aria-label="Cargando vehículo">
+					<div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
+						<Loader2 className="size-4 animate-spin text-[var(--color-brand-blue)]" aria-hidden="true" />
+						<span>Cargando…</span>
+					</div>
+				</section>
+			}
+		>
+			<FleetDetailPageInner />
+		</Suspense>
+	);
+}
+
+function FleetDetailPageInner() {
 	const { id } = useParams<{ id: string }>();
-	const isClient = useIsClient();
+	const searchParams = useSearchParams();
+	const rawTab = searchParams.get("tab") as TabId | null;
+	const activeTab: TabId = TABS.some((t) => t.id === rawTab) ? (rawTab as TabId) : "info";
+
+	const mounted = useMounted();
 	const { user } = useAuth();
 	const canManage = hasRole(user?.role ?? "", MANAGEMENT_ROLES);
 
@@ -69,24 +159,44 @@ export default function FleetDetailPage() {
 		},
 	});
 
-	const isSoatExpired = useMemo(
-		() => isClient && data?.soatExpiry && new Date(data.soatExpiry) < new Date(),
-		[isClient, data?.soatExpiry],
-	);
+	const readiness = useMemo(() => {
+		if (!data) {
+			return null;
+		}
+		return evaluateFleetReadiness({
+			soatExpiry: data.soatExpiry,
+			technoMechanicalExpiry: data.technoMechanicalExpiry,
+			insuranceExpiry: data.insuranceExpiry,
+			lastMaintenanceAt: data.lastMaintenanceAt,
+			status: data.status,
+		});
+	}, [data]);
 
+	// ── Loading ──
 	if (isLoading) {
 		return (
 			<section className="space-y-4" aria-label="Cargando vehículo">
-				<Skeleton variant="text" />
-				<Skeleton variant="chart" height={120} />
-				<div className="grid gap-4 sm:grid-cols-2">
-					<Skeleton variant="text" />
-					<Skeleton variant="text" />
+				<div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
+					<Loader2
+						className="size-4 animate-spin text-[var(--color-brand-blue)]"
+						aria-hidden="true"
+					/>
+					Cargando…
+				</div>
+				<div className="h-28 animate-pulse rounded-[var(--radius-xl)] bg-[var(--surface-secondary)]" />
+				<div className="grid gap-3 sm:grid-cols-3">
+					{[1, 2, 3].map((i) => (
+						<div
+							key={i}
+							className="h-24 animate-pulse rounded-[var(--radius-xl)] bg-[var(--surface-secondary)]"
+						/>
+					))}
 				</div>
 			</section>
 		);
 	}
 
+	// ── Error / not found ──
 	if (error || !data) {
 		return (
 			<section>
@@ -106,16 +216,12 @@ export default function FleetDetailPage() {
 		);
 	}
 
-	const readiness = evaluateFleetReadiness({
-		soatExpiry: data.soatExpiry,
-		technoMechanicalExpiry: data.technoMechanicalExpiry,
-		insuranceExpiry: data.insuranceExpiry,
-		lastMaintenanceAt: data.lastMaintenanceAt,
-		status: data.status,
-	});
+	// ── Soat expired warning ──
+	const isSoatExpired = mounted && data.soatExpiry ? new Date(data.soatExpiry) < new Date() : false;
 
 	return (
 		<section className="space-y-6" aria-labelledby="vehicle-title">
+			{/* ── Back ── */}
 			<Link
 				href="/fleet"
 				className="inline-flex items-center gap-1 text-sm text-[var(--color-brand-blue)] hover:underline"
@@ -124,83 +230,156 @@ export default function FleetDetailPage() {
 				Volver al parque automotor
 			</Link>
 
-			<header className="flex items-start justify-between gap-4">
-				<div>
-					<h1 id="vehicle-title" className="text-xl font-semibold text-[var(--text-primary)]">
-						{data.plate}
-					</h1>
-					<p className="mt-0.5 text-sm text-[var(--text-secondary)]">
-						{data.brand} {data.model} {data.year} — {data.type}
-					</p>
-				</div>
-				<div className="flex shrink-0 flex-col items-end gap-2">
-					<span
-						className={`rounded px-2 py-1 text-xs font-medium ${STATUS_STYLES[data.status] ?? ""}`}
-					>
-						{STATUS_LABELS[data.status] ?? data.status}
-					</span>
+			{/* ── Vehicle Header Card ── */}
+			<div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-1)]">
+				<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+					<div>
+						<div className="flex flex-wrap items-center gap-2">
+							<h1
+								id="vehicle-title"
+								className="text-2xl font-bold tracking-wide text-[var(--text-primary)]"
+							>
+								{data.plate}
+							</h1>
+							<span
+								className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_PILL[data.status] ?? ""}`}
+							>
+								{STATUS_LABELS[data.status] ?? data.status}
+							</span>
+						</div>
+						<p className="mt-1 text-sm text-[var(--text-secondary)]">
+							{data.brand} {data.model} {data.year}
+							{data.capacity && ` · Capacidad: ${data.capacity}`}
+						</p>
+					</div>
+
 					<FleetReadinessBadge
-						score={readiness.score}
-						ready={readiness.ready}
-						blockerCount={readiness.blockers.length}
+						score={readiness?.score ?? 0}
+						ready={readiness?.ready ?? false}
+						blockerCount={readiness?.blockers.length ?? 0}
 					/>
 				</div>
-			</header>
 
-			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				<InfoCard label="Kilometraje" value={`${data.kilometers.toLocaleString("es-CO")} km`} />
-				<InfoCard label="Conductor" value={data.driverName ?? "Sin asignar"} />
-				<InfoCard
-					label="SOAT"
-					value={
-						data.soatExpiry
-							? new Date(data.soatExpiry).toLocaleDateString("es-CO")
-							: "No registrado"
-					}
-				/>
-				<InfoCard
-					label="Tecnomecánica"
-					value={
-						data.technoMechanicalExpiry
-							? new Date(data.technoMechanicalExpiry).toLocaleDateString("es-CO")
-							: "No registrado"
-					}
-				/>
-				<InfoCard
-					label="Póliza"
-					value={
-						data.insuranceExpiry
-							? new Date(data.insuranceExpiry).toLocaleDateString("es-CO")
-							: "No registrado"
-					}
-				/>
-				<InfoCard
-					label="Último mantenimiento"
-					value={
-						data.lastMaintenanceAt
-							? new Date(data.lastMaintenanceAt).toLocaleDateString("es-CO")
-							: "Sin registro"
-					}
-				/>
+				{/* Quick stats row */}
+				<div className="mt-4 flex flex-wrap gap-4 border-t border-[var(--border-subtle)] pt-4">
+					<div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+						<Gauge className="size-3.5 text-[var(--text-tertiary)]" aria-hidden="true" />
+						<span className="font-medium tabular-nums">
+							{data.kilometers.toLocaleString("es-CO")} km
+						</span>
+						{data.nextMaintenanceKm && (
+							<span className="text-[var(--text-tertiary)]">
+								/ próx. mantenimiento: {data.nextMaintenanceKm.toLocaleString("es-CO")} km
+							</span>
+						)}
+					</div>
+					{data.driverName && (
+						<div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+							<User className="size-3.5 text-[var(--text-tertiary)]" aria-hidden="true" />
+							<span>{data.driverName}</span>
+						</div>
+					)}
+					<div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+						<Milestone className="size-3.5 text-[var(--text-tertiary)]" aria-hidden="true" />
+						<span>{VEHICLE_TYPE_LABELS[data.type] ?? data.type}</span>
+					</div>
+				</div>
+
+				{/* SOAT expired warning */}
+				{isSoatExpired && (
+					<div className="mt-4 flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/40 p-3 text-sm text-[var(--color-danger)]">
+						<CalendarClock className="size-4 shrink-0" aria-hidden="true" />
+						<span>SOAT vencido — no se puede asignar conductor a este vehículo.</span>
+					</div>
+				)}
 			</div>
 
-			{isSoatExpired && (
-				<div className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/40 p-3 text-sm text-[var(--color-danger)]">
-					<CalendarClock className="size-4 shrink-0" aria-hidden="true" />
-					<span>SOAT vencido. No se puede asignar conductor.</span>
+			{/* ── Tabs ── */}
+			<div>
+				{/* Tab nav */}
+				<nav
+					aria-label="Secciones del vehículo"
+					className="flex gap-0.5 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-1"
+				>
+					{TABS.map(({ id: tabId, label, icon: TabIcon }) => {
+						const isActive = activeTab === tabId;
+						return (
+							<Link
+								key={tabId}
+								href={`/fleet/${id}?tab=${tabId}`}
+								role="tab"
+								aria-selected={isActive}
+								className={`flex flex-1 items-center justify-center gap-1.5 rounded-[var(--radius-lg)] px-3 py-2 text-xs font-medium transition-all ${
+									isActive
+										? "bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-[var(--shadow-1)]"
+										: "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+								}`}
+							>
+								<TabIcon className="size-3.5" aria-hidden="true" />
+								{label}
+							</Link>
+						);
+					})}
+				</nav>
+
+				{/* Tab panels */}
+				<div className="mt-4">
+					{/* ── Info tab ── */}
+					{activeTab === "info" && (
+						<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<InfoRow
+								icon={Gauge}
+								label="Kilometraje"
+								value={`${data.kilometers.toLocaleString("es-CO")} km`}
+							/>
+							<InfoRow
+								icon={User}
+								label="Conductor asignado"
+								value={data.driverName ?? "Sin asignar"}
+							/>
+							<InfoRow
+								icon={Milestone}
+								label="Tipo de vehículo"
+								value={VEHICLE_TYPE_LABELS[data.type] ?? data.type}
+							/>
+							{data.capacity && <InfoRow icon={Info} label="Capacidad" value={data.capacity} />}
+							{data.lastMaintenanceAt && (
+								<InfoRow
+									icon={CalendarClock}
+									label="Último mantenimiento"
+									value={new Date(data.lastMaintenanceAt).toLocaleDateString("es-CO")}
+								/>
+							)}
+							{data.nextMaintenanceKm && (
+								<InfoRow
+									icon={Gauge}
+									label="Próximo mantenimiento"
+									value={`${data.nextMaintenanceKm.toLocaleString("es-CO")} km`}
+								/>
+							)}
+							{data.notes && (
+								<div className="sm:col-span-2 lg:col-span-3">
+									<InfoRow icon={FileText} label="Observaciones" value={data.notes} />
+								</div>
+							)}
+						</div>
+					)}
+
+					{/* ── Documents tab ── */}
+					{activeTab === "documents" && (
+						<VehicleDocumentsTab
+							soatExpiry={data.soatExpiry}
+							technoMechanicalExpiry={data.technoMechanicalExpiry}
+							insuranceExpiry={data.insuranceExpiry}
+						/>
+					)}
+
+					{/* ── Photos tab ── */}
+					{activeTab === "photos" && (
+						<FleetPhotoGallery vehicleId={data._id} canManage={canManage} />
+					)}
 				</div>
-			)}
-
-			<FleetPhotoGallery vehicleId={data._id} canManage={canManage} />
+			</div>
 		</section>
-	);
-}
-
-function InfoCard({ label, value }: { label: string; value: string }) {
-	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
-			<p className="text-xs text-[var(--text-tertiary)]">{label}</p>
-			<p className="mt-1 text-sm font-medium text-[var(--text-primary)]">{value}</p>
-		</div>
 	);
 }

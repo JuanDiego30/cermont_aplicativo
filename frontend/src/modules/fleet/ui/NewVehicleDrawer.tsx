@@ -10,7 +10,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import { type Resolver, type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useCreateVehicle } from "../queries";
 
@@ -70,8 +70,10 @@ export function NewVehicleDrawer({ open, onClose }: NewVehicleDrawerProps) {
 		reset,
 		formState: { errors, isSubmitting },
 	} = useForm<DrawerForm & Record<string, unknown>>({
-		// biome-ignore lint/suspicious/noExplicitAny: resolver type mismatch requires fallback to any
-		resolver: zodResolver(DrawerFormSchema) as any,
+		resolver: zodResolver(DrawerFormSchema) as unknown as Resolver<
+			DrawerForm & Record<string, unknown>,
+			unknown
+		>,
 		defaultValues: {
 			plate: "",
 			brand: "",
@@ -90,15 +92,20 @@ export function NewVehicleDrawer({ open, onClose }: NewVehicleDrawerProps) {
 	}, [open]);
 
 	// Close on Escape
+	const onCloseRef = useRef(onClose);
+	useEffect(() => {
+		onCloseRef.current = onClose;
+	}, [onClose]);
+
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
 			if (e.key === "Escape" && open) {
-				onClose();
+				onCloseRef.current();
 			}
 		}
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [open, onClose]);
+	}, [open]);
 
 	const onSubmit: SubmitHandler<DrawerForm & Record<string, unknown>> = async (data) => {
 		await createMutation.mutateAsync({

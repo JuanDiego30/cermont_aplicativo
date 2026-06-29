@@ -10,7 +10,7 @@
 
 import { AlertOctagon, AlertTriangle, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useExpiringVehicleDocuments } from "@/modules/fleet/queries";
 
 const DOCUMENT_LABELS: Record<string, string> = {
@@ -22,8 +22,13 @@ const DOCUMENT_LABELS: Record<string, string> = {
 export function FleetAlertsBanner() {
 	const { data: alerts, isLoading } = useExpiringVehicleDocuments();
 	const [isVisible, setIsVisible] = useState(true);
+	const [mounted, setMounted] = useState(false);
 
-	if (isLoading || !alerts || alerts.length === 0 || !isVisible) {
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted || isLoading || !alerts || alerts.length === 0 || !isVisible) {
 		return null;
 	}
 
