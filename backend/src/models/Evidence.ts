@@ -212,9 +212,9 @@ EvidenceSchema.plugin(softDeletePlugin);
 // toJSON: limpiar __v de respuestas
 EvidenceSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
-		return obj;
+		const { __v: _removed, ...clean } = ret;
+		void _removed;
+		return clean;
 	},
 });
 
