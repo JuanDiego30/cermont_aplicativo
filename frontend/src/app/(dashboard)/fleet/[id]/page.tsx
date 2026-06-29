@@ -49,9 +49,7 @@ export default function FleetDetailPage() {
 	const { data, isLoading, error } = useQuery<VehicleDetail>({
 		queryKey: ["vehicle", id],
 		queryFn: async () => {
-			const json = await apiClient.get<{ success: boolean; data: VehicleDetail }>(
-				`/fleet/${id}`,
-			);
+			const json = await apiClient.get<{ success: boolean; data: VehicleDetail }>(`/fleet/${id}`);
 			return json.data;
 		},
 	});
@@ -121,7 +119,11 @@ export default function FleetDetailPage() {
 				<InfoCard label="Conductor" value={data.driverName ?? "Sin asignar"} />
 				<InfoCard
 					label="SOAT"
-					value={data.soatExpiry ? new Date(data.soatExpiry).toLocaleDateString("es-CO") : "No registrado"}
+					value={
+						data.soatExpiry
+							? new Date(data.soatExpiry).toLocaleDateString("es-CO")
+							: "No registrado"
+					}
 				/>
 				<InfoCard
 					label="Tecnomecánica"

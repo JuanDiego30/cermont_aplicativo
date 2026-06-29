@@ -81,9 +81,11 @@ export function useEvidenceForm(orderId: string, onSuccess?: () => void) {
 		formData.append("file", state.file);
 		formData.append("orderId", orderId);
 		formData.append("type", "during");
-		formData.append("description", state.description.trim()
-			? `${state.title.trim()} — ${state.description.trim()}`
-			: state.title.trim(),
+		formData.append(
+			"description",
+			state.description.trim()
+				? `${state.title.trim()} — ${state.description.trim()}`
+				: state.title.trim(),
 		);
 		formData.append("capturedAt", new Date().toISOString());
 

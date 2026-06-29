@@ -1,7 +1,7 @@
 "use client";
 
-import { ConsentGate } from "@/modules/consents/ui/ConsentGate";
 import type { ReactNode } from "react";
+import { ConsentGate } from "@/modules/consents/ui/ConsentGate";
 import { CermontAIDrawer } from "@/modules/core/ui/ai/CermontAIDrawer";
 import Header from "@/modules/core/ui/layout/Header";
 import MobileBottomNav from "@/modules/core/ui/layout/MobileBottomNav";

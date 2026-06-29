@@ -41,7 +41,11 @@ const STATUS_LABELS: Record<string, string> = {
 export default function ChecklistsPage() {
 	const [search, setSearch] = useState("");
 
-	const { data: checklists = [], isLoading, error } = useQuery<ChecklistSummary[]>({
+	const {
+		data: checklists = [],
+		isLoading,
+		error,
+	} = useQuery<ChecklistSummary[]>({
 		queryKey: ["checklists"],
 		queryFn: async () => {
 			const json = await apiClient.get<{ success: boolean; data: ChecklistSummary[] }>(
@@ -71,7 +75,10 @@ export default function ChecklistsPage() {
 					</p>
 				</div>
 				<div className="relative w-full sm:w-64">
-					<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-tertiary)]" aria-hidden="true" />
+					<Search
+						className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-tertiary)]"
+						aria-hidden="true"
+					/>
 					<input
 						type="search"
 						value={search}
@@ -111,7 +118,10 @@ export default function ChecklistsPage() {
 						>
 							<div className="min-w-0">
 								<div className="flex items-center gap-2">
-									<ClipboardList className="size-4 shrink-0 text-[var(--color-brand-blue)]" aria-hidden="true" />
+									<ClipboardList
+										className="size-4 shrink-0 text-[var(--color-brand-blue)]"
+										aria-hidden="true"
+									/>
 									<p className="text-sm font-medium text-[var(--text-primary)]">
 										{cl.templateName}
 									</p>

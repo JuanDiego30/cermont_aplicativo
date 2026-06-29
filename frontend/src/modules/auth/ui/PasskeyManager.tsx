@@ -8,9 +8,10 @@ import { apiClient } from "@/lib/http/api-client";
 export function PasskeyManager() {
 	const registerMutation = useMutation({
 		mutationFn: async () => {
-			const result = await apiClient.post<{ success: boolean; data: PublicKeyCredentialCreationOptions }>(
-				"/auth/passkeys/register/options", {},
-			);
+			const result = await apiClient.post<{
+				success: boolean;
+				data: PublicKeyCredentialCreationOptions;
+			}>("/auth/passkeys/register/options", {});
 			const credential = await navigator.credentials.create({ publicKey: result.data });
 			await apiClient.post("/auth/passkeys/register/verify", { credential });
 		},
@@ -40,7 +41,8 @@ export function PasskeyManager() {
 				</button>
 			</div>
 			<p className="text-xs text-[var(--text-tertiary)]">
-				Registra una llave de acceso para iniciar sesión sin contraseña usando tu huella digital, rostro o PIN.
+				Registra una llave de acceso para iniciar sesión sin contraseña usando tu huella digital,
+				rostro o PIN.
 			</p>
 		</div>
 	);

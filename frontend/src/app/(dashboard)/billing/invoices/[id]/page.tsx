@@ -8,7 +8,6 @@ import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { RejectForm } from "@/core/ui/RejectForm";
-import { usePermissions } from "@/modules/core/hooks/usePermissions";
 import {
 	useApproveInvoice,
 	useCancelInvoice,
@@ -16,6 +15,7 @@ import {
 	useRejectInvoice,
 	useSubmitInvoice,
 } from "@/modules/billing/queries";
+import { usePermissions } from "@/modules/core/hooks/usePermissions";
 
 function invoiceStatusTone(status: Invoice["status"]): string {
 	if (status === "approved" || status === "accepted" || status === "paid") {

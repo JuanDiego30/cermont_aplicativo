@@ -8,14 +8,18 @@ import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/core/ui/Button";
 import { Skeleton } from "@/core/ui/Skeleton";
-import { apiClient } from "@/lib/http/api-client";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
+import { apiClient } from "@/lib/http/api-client";
 
 export default function EvidenceDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const isOnline = useOnlineStatus();
 
-	const { data: evidence, isLoading, error } = useQuery({
+	const {
+		data: evidence,
+		isLoading,
+		error,
+	} = useQuery({
 		queryKey: ["evidence", id],
 		queryFn: async () => {
 			const result = await apiClient.get<{ success: boolean; data: EvidenceDetail }>(
@@ -28,10 +32,10 @@ export default function EvidenceDetailPage() {
 
 	const downloadMutation = useMutation({
 		mutationFn: async () => {
-			const result = await apiClient.post<{ success: boolean; data: { url: string; filename: string } }>(
-				`/evidences/${id}/download`,
-				{},
-			);
+			const result = await apiClient.post<{
+				success: boolean;
+				data: { url: string; filename: string };
+			}>(`/evidences/${id}/download`, {});
 			return result.data;
 		},
 		onSuccess: (data) => {
@@ -131,7 +135,10 @@ export default function EvidenceDetailPage() {
 				<InfoCard label="Tamaño" value={`${(evidence.sizeBytes / 1024).toFixed(1)} KB`} />
 				<InfoCard label="Tipo" value={evidence.mimeType} />
 				{evidence.capturedAt && (
-					<InfoCard label="Capturada" value={new Date(evidence.capturedAt).toLocaleString("es-CO")} />
+					<InfoCard
+						label="Capturada"
+						value={new Date(evidence.capturedAt).toLocaleString("es-CO")}
+					/>
 				)}
 				{evidence.uploadedAt && (
 					<InfoCard label="Subida" value={new Date(evidence.uploadedAt).toLocaleString("es-CO")} />

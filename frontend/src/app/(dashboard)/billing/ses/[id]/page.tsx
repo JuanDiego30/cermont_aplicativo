@@ -8,7 +8,6 @@ import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { RejectForm } from "@/core/ui/RejectForm";
-import { usePermissions } from "@/modules/core/hooks/usePermissions";
 import {
 	useApproveServiceEntrySheet,
 	useCancelServiceEntrySheet,
@@ -16,6 +15,7 @@ import {
 	useServiceEntrySheet,
 	useSubmitServiceEntrySheet,
 } from "@/modules/billing/queries";
+import { usePermissions } from "@/modules/core/hooks/usePermissions";
 
 const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
 const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");

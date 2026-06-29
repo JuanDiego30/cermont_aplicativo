@@ -6,9 +6,7 @@
 export default function ConsentPage() {
 	return (
 		<main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-			<h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-				Consentimiento de Datos
-			</h1>
+			<h1 className="text-2xl font-semibold text-[var(--text-primary)]">Consentimiento de Datos</h1>
 			<p className="mt-2 text-sm text-[var(--text-secondary)]">
 				Última actualización: {new Date().toLocaleDateString("es-CO")}
 			</p>
@@ -36,18 +34,18 @@ export default function ConsentPage() {
 				<section>
 					<h2 className="text-lg font-medium">Derechos del titular</h2>
 					<p className="mt-2 text-[var(--text-secondary)]">
-						Puedes ejercer tus derechos de acceso, rectificación, cancelación y oposición
-						(ARCO) contactando al administrador del sistema. También puedes solicitar la
-						portabilidad de tus datos.
+						Puedes ejercer tus derechos de acceso, rectificación, cancelación y oposición (ARCO)
+						contactando al administrador del sistema. También puedes solicitar la portabilidad de
+						tus datos.
 					</p>
 				</section>
 
 				<section>
 					<h2 className="text-lg font-medium">Revocación</h2>
 					<p className="mt-2 text-[var(--text-secondary)]">
-						Puedes revocar este consentimiento en cualquier momento, pero esto puede
-						afectar tu capacidad para usar el sistema. La revocación no afecta la licitud
-						del tratamiento basado en el consentimiento previo.
+						Puedes revocar este consentimiento en cualquier momento, pero esto puede afectar tu
+						capacidad para usar el sistema. La revocación no afecta la licitud del tratamiento
+						basado en el consentimiento previo.
 					</p>
 				</section>
 			</div>

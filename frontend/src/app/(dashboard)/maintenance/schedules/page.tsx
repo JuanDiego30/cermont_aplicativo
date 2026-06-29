@@ -23,8 +23,11 @@ type Schedule = {
 };
 
 const FREQ_LABELS: Record<string, string> = {
-	daily: "Diario", weekly: "Semanal", monthly: "Mensual",
-	quarterly: "Trimestral", yearly: "Anual",
+	daily: "Diario",
+	weekly: "Semanal",
+	monthly: "Mensual",
+	quarterly: "Trimestral",
+	yearly: "Anual",
 };
 
 const STATUS_STYLES: Record<string, string> = {
@@ -75,7 +78,9 @@ export default function MaintenanceSchedulesPage() {
 					<h1 id="schedules-title" className="text-xl font-semibold text-[var(--text-primary)]">
 						Programación de mantenimiento
 					</h1>
-					<p className="mt-0.5 text-sm text-[var(--text-secondary)]">{(data ?? []).length} programaciones</p>
+					<p className="mt-0.5 text-sm text-[var(--text-secondary)]">
+						{(data ?? []).length} programaciones
+					</p>
 				</div>
 				<button
 					type="button"
@@ -89,34 +94,64 @@ export default function MaintenanceSchedulesPage() {
 			{showForm && (
 				<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 space-y-3">
 					<div>
-						<label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">Título</label>
-						<input value={title} onChange={(e) => setTitle(e.target.value)}
-							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm" />
+						<label htmlFor="sched-title" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+							Título
+						</label>
+						<input
+							id="sched-title"
+							value={title}
+							onChange={(e) => setTitle(e.target.value)}
+							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm"
+						/>
 					</div>
 					<div className="grid grid-cols-3 gap-3">
 						<div>
-							<label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">Frecuencia</label>
-							<select value={frequency} onChange={(e) => setFrequency(e.target.value)}
-								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm">
+							<label htmlFor="sched-freq" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+								Frecuencia
+							</label>
+							<select
+								id="sched-freq"
+								value={frequency}
+								onChange={(e) => setFrequency(e.target.value)}
+								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm"
+							>
 								{Object.entries(FREQ_LABELS).map(([k, v]) => (
-									<option key={k} value={k}>{v}</option>
+									<option key={k} value={k}>
+										{v}
+									</option>
 								))}
 							</select>
 						</div>
 						<div>
-							<label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">Activo ID</label>
-							<input value={assetId} onChange={(e) => setAssetId(e.target.value)}
-								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm" />
+							<label htmlFor="sched-asset" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+								Activo ID
+							</label>
+							<input
+								id="sched-asset"
+								value={assetId}
+								onChange={(e) => setAssetId(e.target.value)}
+								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm"
+							/>
 						</div>
 						<div>
-							<label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">Inicio</label>
-							<input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm" />
+							<label htmlFor="sched-start" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+								Inicio
+							</label>
+							<input
+								id="sched-start"
+								type="date"
+								value={startDate}
+								onChange={(e) => setStartDate(e.target.value)}
+								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm"
+							/>
 						</div>
 					</div>
-					<button type="button" disabled={createMutation.isPending || !title || !assetId || !startDate}
+					<button
+						type="button"
+						disabled={createMutation.isPending || !title || !assetId || !startDate}
 						onClick={() => createMutation.mutate()}
-						className="rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
+						className="rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+					>
 						{createMutation.isPending ? "Creando…" : "Crear programación"}
 					</button>
 				</div>
@@ -126,28 +161,46 @@ export default function MaintenanceSchedulesPage() {
 
 			{error && (
 				<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 p-4 text-sm text-[var(--color-danger)]">
-					Error al cargar programaciones. <button onClick={() => refetch()} className="underline">Reintentar</button>
+					Error al cargar programaciones.{" "}
+					<button type="button" onClick={() => refetch()} className="underline">
+						Reintentar
+					</button>
 				</div>
 			)}
 
 			{!isLoading && !error && (data ?? []).length === 0 && (
-				<EmptyState icon="maintenance" title="Sin programaciones" description="No hay programaciones de mantenimiento." />
+				<EmptyState
+					icon="maintenance"
+					title="Sin programaciones"
+					description="No hay programaciones de mantenimiento."
+				/>
 			)}
 
 			{(data ?? []).length > 0 && (
 				<div className="space-y-2">
 					{(data ?? []).map((s) => (
-						<div key={s._id} className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3">
+						<div
+							key={s._id}
+							className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3"
+						>
 							<div className="min-w-0">
-								<Link href={`/maintenance/schedules/${s._id}`} className="text-sm font-medium text-[var(--text-primary)] hover:underline">
+								<Link
+									href={`/maintenance/schedules/${s._id}`}
+									className="text-sm font-medium text-[var(--text-primary)] hover:underline"
+								>
 									{s.title}
 								</Link>
 								<p className="text-xs text-[var(--text-tertiary)]">
-									{FREQ_LABELS[s.frequency] ?? s.frequency} — {s.assetId?.name ?? s.assetId?.code ?? "—"}
-									{s.nextDueAt ? ` — Próximo: ${new Date(s.nextDueAt).toLocaleDateString("es-CO")}` : ""}
+									{FREQ_LABELS[s.frequency] ?? s.frequency} —{" "}
+									{s.assetId?.name ?? s.assetId?.code ?? "—"}
+									{s.nextDueAt
+										? ` — Próximo: ${new Date(s.nextDueAt).toLocaleDateString("es-CO")}`
+										: ""}
 								</p>
 							</div>
-							<span className={`shrink-0 rounded px-2 py-0.5 text-[10px] font-medium ${STATUS_STYLES[s.status] ?? ""}`}>
+							<span
+								className={`shrink-0 rounded px-2 py-0.5 text-[10px] font-medium ${STATUS_STYLES[s.status] ?? ""}`}
+							>
 								{s.status}
 							</span>
 						</div>

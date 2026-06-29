@@ -95,7 +95,15 @@ export function EvidenceForm({ selectedOrderId, onUploadComplete }: EvidenceForm
 		} finally {
 			setIsUploading(false);
 		}
-	}, [selectedFile, selectedOrderId, evidenceTitle, evidenceDesc, uploadMutation, resetForm, onUploadComplete]);
+	}, [
+		selectedFile,
+		selectedOrderId,
+		evidenceTitle,
+		evidenceDesc,
+		uploadMutation,
+		resetForm,
+		onUploadComplete,
+	]);
 
 	const canUpload = !!selectedOrderId && !!selectedFile && !!evidenceTitle.trim() && !isUploading;
 
@@ -112,7 +120,10 @@ export function EvidenceForm({ selectedOrderId, onUploadComplete }: EvidenceForm
 
 			<div className="grid gap-4 sm:grid-cols-2">
 				<div>
-					<label htmlFor="ev-title" className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+					<label
+						htmlFor="ev-title"
+						className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]"
+					>
 						Título <span className="text-[var(--color-danger)]">*</span>
 					</label>
 					<input
@@ -128,7 +139,10 @@ export function EvidenceForm({ selectedOrderId, onUploadComplete }: EvidenceForm
 			</div>
 
 			<div className="mt-3">
-				<label htmlFor="ev-desc" className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+				<label
+					htmlFor="ev-desc"
+					className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]"
+				>
 					Descripción adicional
 				</label>
 				<textarea
@@ -173,7 +187,10 @@ export function EvidenceForm({ selectedOrderId, onUploadComplete }: EvidenceForm
 								/>
 								<button
 									type="button"
-									onClick={(e) => { e.stopPropagation(); resetForm(); }}
+									onClick={(e) => {
+										e.stopPropagation();
+										resetForm();
+									}}
 									className="absolute right-2 top-2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
 									aria-label="Quitar imagen"
 								>
@@ -181,12 +198,16 @@ export function EvidenceForm({ selectedOrderId, onUploadComplete }: EvidenceForm
 								</button>
 							</div>
 							<p className="text-xs text-[var(--text-tertiary)]">
-								{selectedFile?.name} ({(selectedFile ? selectedFile.size / 1024 / 1024 : 0).toFixed(1)} MB)
+								{selectedFile?.name} (
+								{(selectedFile ? selectedFile.size / 1024 / 1024 : 0).toFixed(1)} MB)
 							</p>
 						</div>
 					) : (
 						<div>
-							<ImageIcon className="mx-auto mb-2 size-10 text-[var(--text-tertiary)]" aria-hidden="true" />
+							<ImageIcon
+								className="mx-auto mb-2 size-10 text-[var(--text-tertiary)]"
+								aria-hidden="true"
+							/>
 							<p className="text-sm font-medium text-[var(--text-primary)]">
 								Arrastra una imagen o haz clic para seleccionar
 							</p>

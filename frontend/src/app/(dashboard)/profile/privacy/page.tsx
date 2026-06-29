@@ -37,7 +37,11 @@ export default function PrivacyRequestsPage() {
 	const [requestType, setRequestType] = useState("");
 	const [description, setDescription] = useState("");
 
-	const { data: requests = [], isLoading, refetch } = useQuery<PrivacyRequest[]>({
+	const {
+		data: requests = [],
+		isLoading,
+		refetch,
+	} = useQuery<PrivacyRequest[]>({
 		queryKey: ["privacy-requests"],
 		queryFn: async () => {
 			const json = await apiClient.get<{ success: boolean; data: PrivacyRequest[] }>(
@@ -77,7 +81,10 @@ export default function PrivacyRequestsPage() {
 				<h2 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">Nueva solicitud</h2>
 				<div className="space-y-3">
 					<div>
-						<label htmlFor="privacy-type" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+						<label
+							htmlFor="privacy-type"
+							className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+						>
 							Tipo de solicitud
 						</label>
 						<select
@@ -88,12 +95,17 @@ export default function PrivacyRequestsPage() {
 						>
 							<option value="">Selecciona un tipo</option>
 							{REQUEST_TYPES.map((t) => (
-								<option key={t.value} value={t.value}>{t.label}</option>
+								<option key={t.value} value={t.value}>
+									{t.label}
+								</option>
 							))}
 						</select>
 					</div>
 					<div>
-						<label htmlFor="privacy-desc" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+						<label
+							htmlFor="privacy-desc"
+							className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+						>
 							Descripción
 						</label>
 						<textarea
@@ -121,7 +133,11 @@ export default function PrivacyRequestsPage() {
 					<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" />
 				</div>
 			) : requests.length === 0 ? (
-				<EmptyState icon="generic" title="Sin solicitudes" description="No has realizado solicitudes de privacidad." />
+				<EmptyState
+					icon="generic"
+					title="Sin solicitudes"
+					description="No has realizado solicitudes de privacidad."
+				/>
 			) : (
 				<div className="space-y-2">
 					{requests.map((req) => (
@@ -135,7 +151,9 @@ export default function PrivacyRequestsPage() {
 								</p>
 								<p className="text-xs text-[var(--text-tertiary)]">{req.description}</p>
 							</div>
-							<span className={`rounded px-2 py-0.5 text-[10px] font-medium ${STATUS_STYLES[req.status] ?? ""}`}>
+							<span
+								className={`rounded px-2 py-0.5 text-[10px] font-medium ${STATUS_STYLES[req.status] ?? ""}`}
+							>
 								{req.status}
 							</span>
 						</div>

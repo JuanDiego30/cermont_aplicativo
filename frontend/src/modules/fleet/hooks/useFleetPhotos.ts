@@ -4,11 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import {
-	getVehiclePhotos,
-	uploadVehiclePhoto,
-	setVehiclePrimaryPhoto,
 	deleteVehiclePhoto,
 	type FleetPhoto,
+	getVehiclePhotos,
+	setVehiclePrimaryPhoto,
+	uploadVehiclePhoto,
 } from "../api/fleet-api";
 
 const FLEET_PHOTOS_KEY = "fleet-photos";
@@ -16,7 +16,12 @@ const FLEET_PHOTOS_KEY = "fleet-photos";
 export function useFleetPhotos(vehicleId: string) {
 	const queryClient = useQueryClient();
 
-	const { data: photos = [], isLoading, error, refetch } = useQuery<FleetPhoto[]>({
+	const {
+		data: photos = [],
+		isLoading,
+		error,
+		refetch,
+	} = useQuery<FleetPhoto[]>({
 		queryKey: [FLEET_PHOTOS_KEY, vehicleId],
 		queryFn: () => getVehiclePhotos(vehicleId),
 		enabled: !!vehicleId,

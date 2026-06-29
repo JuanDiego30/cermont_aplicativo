@@ -4,10 +4,10 @@
  * /fleet — Parque automotor con documentos y alertas de vencimiento.
  */
 
+import type { Vehicle, VehicleDocumentAlert } from "@cermont/shared-types";
 import { CalendarClock, Plus, Truck } from "lucide-react";
 import { useReducer, useState } from "react";
 import { Skeleton } from "@/core/ui/Skeleton";
-import type { Vehicle, VehicleDocumentAlert } from "@cermont/shared-types";
 import {
 	useCreateVehicle,
 	useExpiringVehicleDocuments,

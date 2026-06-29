@@ -69,14 +69,19 @@ export async function uploadVehiclePhoto(
 	formData.append("file", file);
 	if (title) formData.append("title", title);
 	const envelope = await apiClient.post<{ success: boolean; data: FleetPhoto }>(
-		`/fleet/${vehicleId}/photos`, formData,
+		`/fleet/${vehicleId}/photos`,
+		formData,
 	);
 	return envelope.data;
 }
 
-export async function setVehiclePrimaryPhoto(vehicleId: string, photoId: string): Promise<FleetPhoto> {
+export async function setVehiclePrimaryPhoto(
+	vehicleId: string,
+	photoId: string,
+): Promise<FleetPhoto> {
 	const envelope = await apiClient.patch<{ success: boolean; data: FleetPhoto }>(
-		`/fleet/${vehicleId}/photos/${photoId}/primary`, {},
+		`/fleet/${vehicleId}/photos/${photoId}/primary`,
+		{},
 	);
 	return envelope.data;
 }

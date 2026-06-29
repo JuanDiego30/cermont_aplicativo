@@ -37,11 +37,12 @@ export function DashboardSlaWidget() {
 	if (!data) return null;
 
 	const { summary } = data;
-	const slaColor = summary.complianceRate >= 95
-		? "var(--color-success)"
-		: summary.complianceRate >= 80
-			? "var(--color-warning)"
-			: "var(--color-danger)";
+	const slaColor =
+		summary.complianceRate >= 95
+			? "var(--color-success)"
+			: summary.complianceRate >= 80
+				? "var(--color-warning)"
+				: "var(--color-danger)";
 
 	return (
 		<Link
@@ -53,10 +54,7 @@ export function DashboardSlaWidget() {
 					<Gauge className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
 					<h3 className="text-sm font-semibold text-[var(--text-primary)]">Cumplimiento SLA</h3>
 				</div>
-				<span
-					className="text-2xl font-bold"
-					style={{ color: slaColor }}
-				>
+				<span className="text-2xl font-bold" style={{ color: slaColor }}>
 					{summary.complianceRate}%
 				</span>
 			</div>

@@ -69,9 +69,8 @@ export default function OrderCostsPage() {
 	}
 
 	const variance = data.totalBudget - data.totalActual;
-	const variancePercent = data.totalBudget > 0
-		? Math.round((variance / data.totalBudget) * 100)
-		: 0;
+	const variancePercent =
+		data.totalBudget > 0 ? Math.round((variance / data.totalBudget) * 100) : 0;
 
 	return (
 		<section className="space-y-6" aria-labelledby="costs-title">
@@ -88,18 +87,14 @@ export default function OrderCostsPage() {
 			</h1>
 
 			<div className="grid gap-4 sm:grid-cols-3">
-				<InfoCard
-					label="Presupuesto"
-					value={`$${data.totalBudget.toLocaleString("es-CO")}`}
-				/>
-				<InfoCard
-					label="Actual"
-					value={`$${data.totalActual.toLocaleString("es-CO")}`}
-				/>
+				<InfoCard label="Presupuesto" value={`$${data.totalBudget.toLocaleString("es-CO")}`} />
+				<InfoCard label="Actual" value={`$${data.totalActual.toLocaleString("es-CO")}`} />
 				<InfoCard
 					label="Variación"
 					value={`${variancePercent >= 0 ? "+" : ""}${variancePercent}%`}
-					className={variancePercent < 0 ? "text-[var(--color-danger)]" : "text-[var(--color-success)]"}
+					className={
+						variancePercent < 0 ? "text-[var(--color-danger)]" : "text-[var(--color-success)]"
+					}
 				/>
 			</div>
 
@@ -117,9 +112,13 @@ export default function OrderCostsPage() {
 						<tbody className="divide-y divide-[var(--border-subtle)]">
 							{data.items.map((item) => (
 								<tr key={item._id}>
-									<td className="px-4 py-3 font-medium text-[var(--text-primary)]">{item.category}</td>
+									<td className="px-4 py-3 font-medium text-[var(--text-primary)]">
+										{item.category}
+									</td>
 									<td className="px-4 py-3 text-[var(--text-secondary)]">{item.description}</td>
-									<td className="px-4 py-3 text-right text-[var(--text-secondary)]">{item.quantity}</td>
+									<td className="px-4 py-3 text-right text-[var(--text-secondary)]">
+										{item.quantity}
+									</td>
 									<td className="px-4 py-3 text-right font-medium text-[var(--text-primary)]">
 										${item.amount.toLocaleString("es-CO")}
 									</td>
@@ -131,18 +130,30 @@ export default function OrderCostsPage() {
 			) : (
 				<div className="flex flex-col items-center gap-2 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-8 text-center">
 					<DollarSign className="size-8 text-[var(--text-tertiary)]" />
-					<p className="text-sm text-[var(--text-secondary)]">No hay costos registrados para esta orden.</p>
+					<p className="text-sm text-[var(--text-secondary)]">
+						No hay costos registrados para esta orden.
+					</p>
 				</div>
 			)}
 		</section>
 	);
 }
 
-function InfoCard({ label, value, className }: { label: string; value: string; className?: string }) {
+function InfoCard({
+	label,
+	value,
+	className,
+}: {
+	label: string;
+	value: string;
+	className?: string;
+}) {
 	return (
 		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
 			<p className="text-xs text-[var(--text-tertiary)]">{label}</p>
-			<p className={`mt-1 text-lg font-semibold text-[var(--text-primary)] ${className ?? ""}`}>{value}</p>
+			<p className={`mt-1 text-lg font-semibold text-[var(--text-primary)] ${className ?? ""}`}>
+				{value}
+			</p>
 		</div>
 	);
 }

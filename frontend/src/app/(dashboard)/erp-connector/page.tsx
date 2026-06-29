@@ -99,7 +99,10 @@ export default function ErpConnectorPage() {
 					>
 						<div className="min-w-0">
 							<div className="flex items-center gap-2">
-								<Plug className="size-4 shrink-0 text-[var(--color-brand-blue)]" aria-hidden="true" />
+								<Plug
+									className="size-4 shrink-0 text-[var(--color-brand-blue)]"
+									aria-hidden="true"
+								/>
 								<p className="text-sm font-medium text-[var(--text-primary)]">{connector.label}</p>
 								<span
 									className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${

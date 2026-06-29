@@ -6,8 +6,8 @@ import { Loader2, UserCircle2 } from "lucide-react";
 import Link from "next/link";
 import { apiClient } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
-import type { ProfileUser } from "@/modules/users/ui/ProfileForm";
 import { PasskeyManager } from "@/modules/auth/ui/PasskeyManager";
+import type { ProfileUser } from "@/modules/users/ui/ProfileForm";
 import { ProfileForm } from "@/modules/users/ui/ProfileForm";
 
 interface ProfileUserSnapshot {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 
 const CONSENT_KEY = "cermont-consent-accepted";
 
@@ -45,20 +45,28 @@ export function ConsentGate() {
 		>
 			<div className="mx-auto flex max-w-5xl flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex items-start gap-3">
-					<ShieldCheck className="mt-0.5 size-5 shrink-0 text-[var(--color-brand-blue)]" aria-hidden="true" />
+					<ShieldCheck
+						className="mt-0.5 size-5 shrink-0 text-[var(--color-brand-blue)]"
+						aria-hidden="true"
+					/>
 					<div>
-						<p className="text-sm font-medium text-[var(--text-primary)]">
-							Aviso de privacidad
-						</p>
+						<p className="text-sm font-medium text-[var(--text-primary)]">Aviso de privacidad</p>
 						<p className="mt-0.5 text-xs text-[var(--text-secondary)]">
 							Utilizamos tus datos únicamente para la operación del sistema. Consulta nuestra{" "}
-							<Link href="/privacy" className="font-medium text-[var(--color-brand-blue)] hover:underline">
+							<Link
+								href="/privacy"
+								className="font-medium text-[var(--color-brand-blue)] hover:underline"
+							>
 								Política de Privacidad
 							</Link>{" "}
 							y{" "}
-							<Link href="/consent" className="font-medium text-[var(--color-brand-blue)] hover:underline">
+							<Link
+								href="/consent"
+								className="font-medium text-[var(--color-brand-blue)] hover:underline"
+							>
 								términos de consentimiento
-							</Link>.
+							</Link>
+							.
 						</p>
 					</div>
 				</div>

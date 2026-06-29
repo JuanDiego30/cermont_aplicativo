@@ -14,15 +14,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
-	const {
-		photos,
-		isLoading,
-		error,
-		handleUpload,
-		handleSetPrimary,
-		handleDelete,
-		isUploading,
-	} = useFleetPhotos(vehicleId);
+	const { photos, isLoading, error, handleUpload, handleSetPrimary, handleDelete, isUploading } =
+		useFleetPhotos(vehicleId);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -83,7 +76,10 @@ export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
 			<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)]/30 p-4">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-end">
 					<div className="flex-1">
-						<label htmlFor="fleet-photo-file" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+						<label
+							htmlFor="fleet-photo-file"
+							className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+						>
 							Agregar foto
 						</label>
 						<input
@@ -98,7 +94,10 @@ export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
 					{selectedFile && (
 						<>
 							<div className="w-full sm:w-48">
-								<label htmlFor="fleet-photo-title" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+								<label
+									htmlFor="fleet-photo-title"
+									className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+								>
 									Título (opcional)
 								</label>
 								<input
@@ -191,7 +190,9 @@ export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
 			{photos.length === 0 && (
 				<div className="flex flex-col items-center gap-2 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-8 text-center">
 					<Camera className="size-8 text-[var(--text-tertiary)]" aria-hidden="true" />
-					<p className="text-sm text-[var(--text-secondary)]">Aún no hay fotos para este vehículo.</p>
+					<p className="text-sm text-[var(--text-secondary)]">
+						Aún no hay fotos para este vehículo.
+					</p>
 				</div>
 			)}
 		</section>
