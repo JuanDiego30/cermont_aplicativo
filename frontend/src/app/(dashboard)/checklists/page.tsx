@@ -6,7 +6,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { ClipboardList, ExternalLink, Loader2, Search } from "lucide-react";
+import { ClipboardList, ExternalLink, Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
