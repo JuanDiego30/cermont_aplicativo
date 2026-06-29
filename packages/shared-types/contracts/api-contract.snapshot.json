@@ -98002,6 +98002,25 @@
       },
       "type": "object"
     },
+    "VerifyEvidenceSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "comment": {
+          "default": "",
+          "maxLength": 1000,
+          "type": "string"
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "verified",
+        "comment"
+      ],
+      "type": "object"
+    },
     "WorkerRequirementsSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
