@@ -292,6 +292,7 @@ react-doctor-*
 task-*
 frontend-lint.txt
 *.md
+!docs/adr/*.md
 !docs/deploy/*.md
 !docs/audits/*.md
 !docs/plans/CERMONT_REBUILD_ROADMAP.md

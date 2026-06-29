@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:32c300d25d52cfd2323d24437af7a321396c8d84e1e589a281555f31db41e303",
+	"currentSnapshotHash": "sha256:b9b1aae32930d20531026ad2a2f8657ea3588422528b7ccfc9831e32a7d9d2bd",
 	"migrations": [
 		{
 			"id": "050-business-document-erp-connector-schemas",
@@ -378,6 +378,13 @@
 			"type": "non-breaking",
 			"description": "Regenerate contract snapshot after evidence controller fix exposes EVIDENCE_REJECTED audit action in generated contracts.",
 			"toHash": "sha256:32c300d25d52cfd2323d24437af7a321396c8d84e1e589a281555f31db41e303"
+		},
+		{
+			"id": "053-webauthn-passkey-audit-action",
+			"date": "2026-06-29",
+			"type": "non-breaking",
+			"description": "Add PASSKEY_REGISTERED audit action and WebAuthn credential schemas for WebAuthn/Passkey authentication support.",
+			"toHash": "sha256:b9b1aae32930d20531026ad2a2f8657ea3588422528b7ccfc9831e32a7d9d2bd"
 		}
 	]
 }

@@ -257,7 +257,8 @@
                 "TEMPLATE_RESPONSE_DELETED",
                 "SYSTEM_FEATURE_FLAG_UPDATED",
                 "SYSTEM_SETTINGS_UPDATED",
-                "DIAN_CONFIGURATION_UPDATED"
+                "DIAN_CONFIGURATION_UPDATED",
+                "PASSKEY_REGISTERED"
               ],
               "type": "string"
             },
@@ -480,7 +481,8 @@
                 "TEMPLATE_RESPONSE_DELETED",
                 "SYSTEM_FEATURE_FLAG_UPDATED",
                 "SYSTEM_SETTINGS_UPDATED",
-                "DIAN_CONFIGURATION_UPDATED"
+                "DIAN_CONFIGURATION_UPDATED",
+                "PASSKEY_REGISTERED"
               ],
               "type": "string"
             },
@@ -716,7 +718,8 @@
                   "TEMPLATE_RESPONSE_DELETED",
                   "SYSTEM_FEATURE_FLAG_UPDATED",
                   "SYSTEM_SETTINGS_UPDATED",
-                  "DIAN_CONFIGURATION_UPDATED"
+                  "DIAN_CONFIGURATION_UPDATED",
+                  "PASSKEY_REGISTERED"
                 ],
                 "type": "string"
               },
@@ -11623,7 +11626,8 @@
             "TEMPLATE_RESPONSE_DELETED",
             "SYSTEM_FEATURE_FLAG_UPDATED",
             "SYSTEM_SETTINGS_UPDATED",
-            "DIAN_CONFIGURATION_UPDATED"
+            "DIAN_CONFIGURATION_UPDATED",
+            "PASSKEY_REGISTERED"
           ],
           "type": "string"
         },
@@ -11844,7 +11848,8 @@
             "TEMPLATE_RESPONSE_DELETED",
             "SYSTEM_FEATURE_FLAG_UPDATED",
             "SYSTEM_SETTINGS_UPDATED",
-            "DIAN_CONFIGURATION_UPDATED"
+            "DIAN_CONFIGURATION_UPDATED",
+            "PASSKEY_REGISTERED"
           ],
           "type": "string"
         },
@@ -11904,6 +11909,62 @@
       "required": [
         "page",
         "limit"
+      ],
+      "type": "object"
+    },
+    "AuthenticatorAssertionResponseSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "authenticatorData": {
+          "type": "string"
+        },
+        "clientDataJSON": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "userHandle": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientDataJSON",
+        "authenticatorData",
+        "signature"
+      ],
+      "type": "object"
+    },
+    "AuthenticatorAttestationResponseSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "attestationObject": {
+          "type": "string"
+        },
+        "authenticatorData": {
+          "type": "string"
+        },
+        "clientDataJSON": {
+          "type": "string"
+        },
+        "publicKey": {
+          "type": "string"
+        },
+        "publicKeyAlgorithm": {
+          "type": "number"
+        },
+        "transports": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "clientDataJSON",
+        "attestationObject"
       ],
       "type": "object"
     },
@@ -98018,6 +98079,285 @@
       "required": [
         "verified",
         "comment"
+      ],
+      "type": "object"
+    },
+    "WebAuthnAuthenticationResponseSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "authenticatorAttachment": {
+          "type": "string"
+        },
+        "clientExtensionResults": {
+          "additionalProperties": {},
+          "properties": {},
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "rawId": {
+          "type": "string"
+        },
+        "response": {
+          "additionalProperties": false,
+          "properties": {
+            "authenticatorData": {
+              "type": "string"
+            },
+            "clientDataJSON": {
+              "type": "string"
+            },
+            "signature": {
+              "type": "string"
+            },
+            "userHandle": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "clientDataJSON",
+            "authenticatorData",
+            "signature"
+          ],
+          "type": "object"
+        },
+        "type": {
+          "const": "public-key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "rawId",
+        "response",
+        "clientExtensionResults",
+        "type"
+      ],
+      "type": "object"
+    },
+    "WebAuthnLoginOptionsRequestSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "format": "email",
+          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "email"
+      ],
+      "type": "object"
+    },
+    "WebAuthnLoginVerifyRequestSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "format": "email",
+          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+          "type": "string"
+        },
+        "response": {
+          "additionalProperties": false,
+          "properties": {
+            "authenticatorAttachment": {
+              "type": "string"
+            },
+            "clientExtensionResults": {
+              "additionalProperties": {},
+              "properties": {},
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "rawId": {
+              "type": "string"
+            },
+            "response": {
+              "additionalProperties": false,
+              "properties": {
+                "authenticatorData": {
+                  "type": "string"
+                },
+                "clientDataJSON": {
+                  "type": "string"
+                },
+                "signature": {
+                  "type": "string"
+                },
+                "userHandle": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "clientDataJSON",
+                "authenticatorData",
+                "signature"
+              ],
+              "type": "object"
+            },
+            "type": {
+              "const": "public-key",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "rawId",
+            "response",
+            "clientExtensionResults",
+            "type"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "email",
+        "response"
+      ],
+      "type": "object"
+    },
+    "WebAuthnRegisterVerifyRequestSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "deviceName": {
+          "maxLength": 100,
+          "type": "string"
+        },
+        "response": {
+          "additionalProperties": false,
+          "properties": {
+            "authenticatorAttachment": {
+              "type": "string"
+            },
+            "clientExtensionResults": {
+              "additionalProperties": {},
+              "properties": {},
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "rawId": {
+              "type": "string"
+            },
+            "response": {
+              "additionalProperties": false,
+              "properties": {
+                "attestationObject": {
+                  "type": "string"
+                },
+                "authenticatorData": {
+                  "type": "string"
+                },
+                "clientDataJSON": {
+                  "type": "string"
+                },
+                "publicKey": {
+                  "type": "string"
+                },
+                "publicKeyAlgorithm": {
+                  "type": "number"
+                },
+                "transports": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "clientDataJSON",
+                "attestationObject"
+              ],
+              "type": "object"
+            },
+            "type": {
+              "const": "public-key",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "rawId",
+            "response",
+            "clientExtensionResults",
+            "type"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "response"
+      ],
+      "type": "object"
+    },
+    "WebAuthnRegistrationResponseSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "authenticatorAttachment": {
+          "type": "string"
+        },
+        "clientExtensionResults": {
+          "additionalProperties": {},
+          "properties": {},
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "rawId": {
+          "type": "string"
+        },
+        "response": {
+          "additionalProperties": false,
+          "properties": {
+            "attestationObject": {
+              "type": "string"
+            },
+            "authenticatorData": {
+              "type": "string"
+            },
+            "clientDataJSON": {
+              "type": "string"
+            },
+            "publicKey": {
+              "type": "string"
+            },
+            "publicKeyAlgorithm": {
+              "type": "number"
+            },
+            "transports": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "clientDataJSON",
+            "attestationObject"
+          ],
+          "type": "object"
+        },
+        "type": {
+          "const": "public-key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "rawId",
+        "response",
+        "clientExtensionResults",
+        "type"
       ],
       "type": "object"
     },
