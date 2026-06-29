@@ -111,9 +111,19 @@ export const NAV_GROUPS = [
 				icon: Camera,
 			},
 			{
+				to: APP_ROUTES.checklists,
+				label: "Checklists",
+				icon: ListChecks,
+			},
+			{
 				to: APP_ROUTES.dispatch,
 				label: "Despacho",
 				icon: MapPinned,
+			},
+			{
+				to: APP_ROUTES.maintenance,
+				label: "Mantenimiento",
+				icon: Wrench,
 			},
 			{
 				to: APP_ROUTES.sla,
@@ -209,11 +219,6 @@ export const NAV_GROUPS = [
 				to: APP_ROUTES.assets,
 				label: "Activos",
 				icon: Building2,
-			},
-			{
-				to: APP_ROUTES.maintenance,
-				label: "Mantenimiento",
-				icon: Wrench,
 			},
 			{
 				to: APP_ROUTES.businessDocuments,
