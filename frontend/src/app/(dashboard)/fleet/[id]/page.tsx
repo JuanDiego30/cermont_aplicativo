@@ -5,7 +5,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CalendarClock, Loader2, Truck } from "lucide-react";
+import { ArrowLeft, CalendarClock } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { EmptyState } from "@/core/ui/EmptyState";
@@ -58,7 +58,7 @@ export default function FleetDetailPage() {
 	if (isLoading) {
 		return (
 			<section className="space-y-4" aria-label="Cargando vehículo">
-				<Skeleton variant="text" width="30%" />
+				<Skeleton variant="text" />
 				<Skeleton variant="chart" height={120} />
 				<div className="grid gap-4 sm:grid-cols-2">
 					<Skeleton variant="text" />
@@ -79,7 +79,7 @@ export default function FleetDetailPage() {
 					Volver al parque automotor
 				</Link>
 				<EmptyState
-					icon="truck"
+					icon="fleet"
 					title="Vehículo no encontrado"
 					description="No se pudo cargar la información del vehículo."
 				/>

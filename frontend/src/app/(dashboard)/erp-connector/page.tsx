@@ -5,7 +5,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plug, RefreshCw } from "lucide-react";
+import { Plug, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { Skeleton } from "@/core/ui/Skeleton";
@@ -46,7 +46,7 @@ export default function ErpConnectorPage() {
 	if (isLoading) {
 		return (
 			<section className="space-y-4" aria-label="Cargando conectores ERP">
-				<Skeleton variant="text" width="40%" />
+				<Skeleton variant="text" />
 				<Skeleton variant="chart" height={80} />
 				<Skeleton variant="chart" height={80} />
 			</section>
@@ -72,7 +72,7 @@ export default function ErpConnectorPage() {
 		return (
 			<section>
 				<EmptyState
-					icon="plug"
+					icon="generic"
 					title="Sin conectores ERP"
 					description="No hay conectores ERP configurados."
 				/>
