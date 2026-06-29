@@ -92,6 +92,8 @@ export interface IEvidenceDocument extends Document {
 	// Verification
 	verifiedAt?: Date;
 	verifiedBy?: Types.ObjectId;
+	verificationStatus?: "approved" | "rejected";
+	verificationComment?: string;
 	lifecycleStatus: "active" | "archived" | "deleted";
 	deletedAt?: Date;
 	deletedBy?: Types.ObjectId;
@@ -179,6 +181,8 @@ const EvidenceSchema = new Schema<IEvidenceDocument>(
 		// Verification
 		verifiedAt: { type: Date },
 		verifiedBy: { type: Types.ObjectId, ref: "User" },
+		verificationStatus: { type: String, enum: ["approved", "rejected"] },
+		verificationComment: { type: String, maxlength: 1000 },
 		deletedAt: { type: Date, index: true },
 	},
 	{ timestamps: true, versionKey: false },

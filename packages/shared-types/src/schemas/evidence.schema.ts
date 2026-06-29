@@ -265,7 +265,15 @@ export const EvidenceListResponseSchema = z
 
 export type EvidenceListResponse = z.infer<typeof EvidenceListResponseSchema>;
 
+export const VerifyEvidenceSchema = z
+	.object({
+		verified: z.boolean(),
+		comment: z.string().max(1000).optional().default(""),
+	})
+	.strict();
+
 export type EvidenceId = z.infer<typeof EvidenceIdSchema>;
 export type EvidenceOrderIdParams = z.infer<typeof EvidenceOrderIdParamsSchema>;
 export type Evidence = z.infer<typeof EvidenceSchema>;
 export type CreateEvidenceInput = z.infer<typeof CreateEvidenceSchema>;
+export type VerifyEvidenceInput = z.infer<typeof VerifyEvidenceSchema>;

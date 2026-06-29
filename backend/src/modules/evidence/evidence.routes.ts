@@ -9,6 +9,7 @@ import {
 	EvidenceIdSchema,
 	EvidenceOrderIdParamsSchema,
 	PaginationQuerySchema,
+	VerifyEvidenceSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -89,6 +90,7 @@ router.post(
 	authenticate,
 	authorize(...SUPERVISORY_ROLES),
 	validateParams(EvidenceIdSchema),
+	validateBody(VerifyEvidenceSchema),
 	EvidenceController.verifyEvidence,
 );
 

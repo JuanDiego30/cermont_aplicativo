@@ -1,7 +1,8 @@
 "use client";
 
+import { SUPERVISORY_ROLES } from "@cermont/domain";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Download, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Download, FileText, Loader2, XCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -10,10 +11,15 @@ import { Button } from "@/core/ui/Button";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { apiClient } from "@/lib/http/api-client";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { EvidenceApprovalPanel } from "@/modules/evidences/ui/EvidenceApprovalPanel";
+
+const SUPERVISORY_ROLE_LIST: readonly string[] = SUPERVISORY_ROLES;
 
 export default function EvidenceDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const isOnline = useOnlineStatus();
+	const { user } = useAuth();
 
 	const {
 		data: evidence,
@@ -77,6 +83,8 @@ export default function EvidenceDetailPage() {
 		);
 	}
 
+	const canVerify = !!user?.role && SUPERVISORY_ROLE_LIST.includes(user.role);
+
 	return (
 		<section className="space-y-6" aria-labelledby="evidence-title">
 			<Link
@@ -95,6 +103,22 @@ export default function EvidenceDetailPage() {
 					<p className="mt-0.5 text-sm text-[var(--text-secondary)]">
 						{evidence.description || "Sin descripción"}
 					</p>
+					{evidence.verificationStatus && (
+						<div
+							className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+								evidence.verificationStatus === "approved"
+									? "bg-[var(--color-success-bg)] text-[var(--color-success)]"
+									: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]"
+							}`}
+						>
+							{evidence.verificationStatus === "approved" ? (
+								<CheckCircle2 className="size-3.5" aria-hidden="true" />
+							) : (
+								<XCircle className="size-3.5" aria-hidden="true" />
+							)}
+							{evidence.verificationStatus === "approved" ? "Aprobada" : "Rechazada"}
+						</div>
+					)}
 				</div>
 				{isOnline && (
 					<Button
@@ -144,6 +168,15 @@ export default function EvidenceDetailPage() {
 					<InfoCard label="Subida" value={new Date(evidence.uploadedAt).toLocaleString("es-CO")} />
 				)}
 			</div>
+
+			{evidence.verificationComment && (
+				<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4">
+					<p className="text-xs text-[var(--text-tertiary)]">Comentario de verificación</p>
+					<p className="mt-1 text-sm text-[var(--text-primary)]">{evidence.verificationComment}</p>
+				</div>
+			)}
+
+			{canVerify && <EvidenceApprovalPanel evidenceId={evidence._id} />}
 		</section>
 	);
 }
@@ -167,4 +200,6 @@ interface EvidenceDetail {
 	description?: string;
 	capturedAt?: string;
 	uploadedAt?: string;
+	verificationStatus?: "approved" | "rejected";
+	verificationComment?: string;
 }

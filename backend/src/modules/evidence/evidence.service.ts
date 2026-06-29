@@ -59,6 +59,8 @@ export interface EvidenceSnapshot {
 	uploadedBy: string;
 	verifiedAt?: Date;
 	verifiedBy?: string;
+	verificationStatus?: "approved" | "rejected";
+	verificationComment?: string;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -784,6 +786,8 @@ export async function verifyEvidence(
 	evidenceId: string,
 	userId: string,
 	userRole: string,
+	approved: boolean,
+	comment: string,
 	actor?: EvidenceActor,
 ): Promise<EvidenceSnapshot> {
 	// RBAC: Only gerente, residente, supervisor can verify
@@ -802,16 +806,19 @@ export async function verifyEvidence(
 
 	evidence.verifiedAt = new Date();
 	evidence.verifiedBy = new Types.ObjectId(userId);
+	evidence.verificationStatus = approved ? "approved" : "rejected";
+	evidence.verificationComment = comment;
 	await evidence.save();
 
 	await createAuditLog({
-		action: "EVIDENCE_VERIFIED",
+		action: approved ? "EVIDENCE_VERIFIED" : "EVIDENCE_REJECTED",
 		entity: "Evidence",
 		entityId: evidence._id.toString(),
 		userId,
 		metadata: {
 			orderId: evidence.workOrderId?.toString() || evidence.orderId?.toString() || "",
 			filename: evidence.filename,
+			comment,
 		},
 	});
 
@@ -831,6 +838,8 @@ export async function verifyEvidence(
 		uploadedBy: evidence.uploadedBy.toString(),
 		verifiedAt: evidence.verifiedAt,
 		verifiedBy: evidence.verifiedBy?.toString(),
+		verificationStatus: evidence.verificationStatus,
+		verificationComment: evidence.verificationComment,
 		createdAt: evidence.createdAt,
 		updatedAt: evidence.updatedAt,
 	};

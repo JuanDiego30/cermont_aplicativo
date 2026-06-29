@@ -465,6 +465,7 @@ describe("EvidenceService", () => {
 			vi.mocked(Evidence.findById).mockResolvedValue(
 				evidenceDoc as unknown as Awaited<ReturnType<typeof Evidence.findById>>,
 			);
+			vi.mocked(getOrderByIdWithAuth).mockResolvedValue(undefined);
 
 			const verifierId = "507f1f77bcf86cd799439088";
 			const result = await evidenceService.verifyEvidence(
@@ -473,6 +474,7 @@ describe("EvidenceService", () => {
 				"gerente",
 				true,
 				"approved",
+				{ _id: verifierId, role: "gerente" },
 			);
 
 			expect(Evidence.findById).toHaveBeenCalledWith("evidence-id-1");
@@ -504,13 +506,13 @@ describe("EvidenceService", () => {
 			);
 
 			await expect(
-				evidenceService.verifyEvidence("evidence-id-1", userId, "supervisor"),
+				evidenceService.verifyEvidence("evidence-id-1", userId, "supervisor", true, ""),
 			).resolves.toBeDefined();
 		});
 
 		it("rejects verification from unauthorized role", async () => {
 			await expect(
-				evidenceService.verifyEvidence("evidence-id-1", userId, "operador"),
+				evidenceService.verifyEvidence("evidence-id-1", userId, "operador", true, ""),
 			).rejects.toThrow("You do not have permission to verify evidence");
 		});
 
@@ -518,8 +520,30 @@ describe("EvidenceService", () => {
 			vi.mocked(Evidence.findById).mockResolvedValue(null);
 
 			await expect(
-				evidenceService.verifyEvidence("missing-id", userId, "gerente"),
+				evidenceService.verifyEvidence("missing-id", userId, "gerente", true, ""),
 			).rejects.toThrow();
+		});
+
+		it("marks evidence as rejected with comment when not approved", async () => {
+			const evidenceDoc = mockEvidenceDocument();
+			vi.mocked(Evidence.findById).mockResolvedValue(
+				evidenceDoc as unknown as Awaited<ReturnType<typeof Evidence.findById>>,
+			);
+
+			const result = await evidenceService.verifyEvidence(
+				"evidence-id-1",
+				userId,
+				"gerente",
+				false,
+				"Foto borrosa, repetir",
+			);
+
+			expect(evidenceDoc.verificationStatus).toBe("rejected");
+			expect(evidenceDoc.verificationComment).toBe("Foto borrosa, repetir");
+			expect(createAuditLog).toHaveBeenCalledWith(
+				expect.objectContaining({ action: "EVIDENCE_REJECTED" }),
+			);
+			expect(result).toEqual(expect.objectContaining({ verificationStatus: "rejected" }));
 		});
 	});
 });

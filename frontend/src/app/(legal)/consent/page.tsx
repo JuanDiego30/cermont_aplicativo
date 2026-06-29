@@ -3,12 +3,14 @@
  * Server component
  */
 
+const LAST_UPDATED_LABEL = "27 de junio de 2026";
+
 export default function ConsentPage() {
 	return (
 		<main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
 			<h1 className="text-2xl font-semibold text-[var(--text-primary)]">Consentimiento de Datos</h1>
 			<p className="mt-2 text-sm text-[var(--text-secondary)]">
-				Última actualización: {new Date().toLocaleDateString("es-CO")}
+				Última actualización: {LAST_UPDATED_LABEL}
 			</p>
 
 			<div className="mt-8 space-y-6 text-sm text-[var(--text-primary)] leading-relaxed">
