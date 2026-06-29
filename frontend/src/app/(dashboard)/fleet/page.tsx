@@ -7,6 +7,7 @@
 import { CalendarClock, Plus, Truck } from "lucide-react";
 import { useReducer, useState } from "react";
 import { Skeleton } from "@/core/ui/Skeleton";
+import type { Vehicle, VehicleDocumentAlert } from "@cermont/shared-types";
 import {
 	useCreateVehicle,
 	useExpiringVehicleDocuments,
@@ -79,7 +80,7 @@ export default function FleetPage() {
 						Documentos por vencer (30 días)
 					</h2>
 					<ul className="space-y-1">
-						{(alerts ?? []).map((alert) => (
+						{(alerts ?? []).map((alert: VehicleDocumentAlert) => (
 							<li
 								key={`${alert.vehicleId}-${alert.documentType}`}
 								className="text-xs text-[var(--text-primary)]"
@@ -128,7 +129,7 @@ export default function FleetPage() {
 
 			{vehicles.length > 0 && (
 				<ul className="space-y-2">
-					{vehicles.map((vehicle) => (
+					{vehicles.map((vehicle: Vehicle) => (
 						<li
 							key={vehicle._id}
 							className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4"

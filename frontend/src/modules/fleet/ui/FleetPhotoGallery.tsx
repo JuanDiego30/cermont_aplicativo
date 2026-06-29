@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, ImageIcon, Loader2, Star, Trash2, Upload } from "lucide-react";
+import { Camera, Loader2, Star, Trash2, Upload } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";

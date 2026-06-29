@@ -1,13 +1,9 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import { Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/core/ui/Button";
-import { apiClient } from "@/lib/http/api-client";
-import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { useOfflineEvidence } from "@/modules/evidences/hooks/useOfflineEvidence";
 
 const FIELD_CLASS =
@@ -22,7 +18,6 @@ export interface EvidenceFormProps {
 }
 
 export function EvidenceForm({ selectedOrderId, onUploadComplete }: EvidenceFormProps) {
-	const isOnline = useOnlineStatus();
 	const uploadMutation = useOfflineEvidence();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
