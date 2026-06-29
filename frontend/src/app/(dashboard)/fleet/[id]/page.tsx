@@ -11,6 +11,7 @@ import { useParams } from "next/navigation";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
+import { FleetPhotoGallery } from "@/modules/fleet/ui/FleetPhotoGallery";
 
 type VehicleDetail = {
 	_id: string;
@@ -154,6 +155,8 @@ export default function FleetDetailPage() {
 					<span>SOAT vencido. No se puede asignar conductor.</span>
 				</div>
 			)}
+
+			<FleetPhotoGallery vehicleId={data._id} />
 		</section>
 	);
 }
