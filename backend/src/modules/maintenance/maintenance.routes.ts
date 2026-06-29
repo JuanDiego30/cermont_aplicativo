@@ -1,20 +1,36 @@
 import { INTERNAL_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	CreateMaintenanceKitSchema,
+	CreateMaintenanceLogSchema,
+	CreateMaintenanceScheduleSchema,
 	PaginationQuerySchema,
 	ResourceIdSchema,
 	UpdateMaintenanceKitSchema,
+	UpdateMaintenanceScheduleSchema,
 } from "@cermont/shared-types";
 import express from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
-import { validate, validateParams, validateQuery } from "../../middlewares/validate";
+import { validate, validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 import {
 	attachDocumentToKit,
 	detachDocumentFromKit,
 	listKitDocuments,
 } from "../resource/kit-document.controller";
-import { createKit, deleteKit, getAllKits, getKitById, updateKit } from "./maintenance.controller";
+import {
+	createKit,
+	createLog,
+	createSchedule,
+	deleteKit,
+	deleteSchedule,
+	getAllKits,
+	getKitById,
+	getSchedule,
+	listLogs,
+	listSchedules,
+	updateKit,
+	updateSchedule,
+} from "./maintenance.controller";
 
 const router = express.Router();
 
@@ -86,6 +102,66 @@ router.delete(
 	"/kits/:kitId/documents/:documentId",
 	authorize(...MANAGEMENT_ROLES),
 	detachDocumentFromKit,
+);
+
+// ─── Maintenance Schedule Routes ────────────────────────────────────
+// GET /api/maintenance/schedules — List schedules
+router.get(
+	"/schedules",
+	authorize(...INTERNAL_ROLES),
+	validateQuery(PaginationQuerySchema),
+	listSchedules,
+);
+
+// POST /api/maintenance/schedules — Create schedule
+router.post(
+	"/schedules",
+	authorize(...MAINTENANCE_MANAGEMENT_ROLES),
+	validateBody(CreateMaintenanceScheduleSchema),
+	createSchedule,
+);
+
+// GET /api/maintenance/schedules/:id — Get single schedule
+router.get(
+	"/schedules/:id",
+	authorize(...INTERNAL_ROLES),
+	validateParams(ResourceIdSchema),
+	getSchedule,
+);
+
+// PATCH /api/maintenance/schedules/:id — Update schedule
+router.patch(
+	"/schedules/:id",
+	authorize(...MAINTENANCE_MANAGEMENT_ROLES),
+	validateParams(ResourceIdSchema),
+	validateBody(UpdateMaintenanceScheduleSchema),
+	updateSchedule,
+);
+
+// DELETE /api/maintenance/schedules/:id — Deactivate schedule
+router.delete(
+	"/schedules/:id",
+	authorize(...MAINTENANCE_MANAGEMENT_ROLES),
+	validateParams(ResourceIdSchema),
+	deleteSchedule,
+);
+
+// ─── Maintenance Log Routes ─────────────────────────────────────────
+// GET /api/maintenance/assets/:assetId/logs — List logs for asset
+router.get(
+	"/assets/:assetId/logs",
+	authorize(...INTERNAL_ROLES),
+	validateParams(ResourceIdSchema),
+	validateQuery(PaginationQuerySchema),
+	listLogs,
+);
+
+// POST /api/maintenance/assets/:assetId/logs — Create log for asset
+router.post(
+	"/assets/:assetId/logs",
+	authorize(...MAINTENANCE_MANAGEMENT_ROLES),
+	validateBody(CreateMaintenanceLogSchema),
+	createLog,
 );
 
 export default router;

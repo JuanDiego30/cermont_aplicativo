@@ -87,3 +87,46 @@ export const ResolveMaintenanceReminderSchema = z.object({
 	resolutionNotes: z.string().min(1),
 	resolvedBy: z.string().optional(),
 });
+
+// ─── Maintenance Schedule ──────────────────────────────────────────────────────
+
+export const ScheduleFrequencyEnum = z.enum([
+	"daily",
+	"weekly",
+	"monthly",
+	"quarterly",
+	"yearly",
+]);
+
+export const CreateMaintenanceScheduleSchema = z.object({
+	assetId: z.string().min(1),
+	title: z.string().min(1),
+	description: z.string().optional(),
+	frequency: ScheduleFrequencyEnum,
+	startDate: z.string().min(1),
+	endDate: z.string().optional(),
+	assignedTo: z.string().optional(),
+});
+
+export type CreateMaintenanceScheduleInput = z.infer<typeof CreateMaintenanceScheduleSchema>;
+
+export const UpdateMaintenanceScheduleSchema = CreateMaintenanceScheduleSchema.partial();
+
+export type UpdateMaintenanceScheduleInput = z.infer<typeof UpdateMaintenanceScheduleSchema>;
+
+// ─── Maintenance Log ───────────────────────────────────────────────────────────
+
+export const MaintenanceLogStatusEnum = z.enum(["completed", "partial", "failed"]);
+
+export const CreateMaintenanceLogSchema = z.object({
+	assetId: z.string().min(1),
+	scheduleId: z.string().optional(),
+	title: z.string().min(1),
+	description: z.string().optional(),
+	performedAt: z.string().min(1),
+	status: MaintenanceLogStatusEnum,
+	notes: z.string().optional(),
+	cost: z.number().nonnegative().optional(),
+});
+
+export type CreateMaintenanceLogInput = z.infer<typeof CreateMaintenanceLogSchema>;

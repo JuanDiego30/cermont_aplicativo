@@ -16,6 +16,8 @@ import {
 import { offsetToPage, parseNumberQuery, toIsoString } from "../../common/utils/mapping";
 import { getString, requireUser } from "../../common/utils/request";
 import { MaintenanceKitService } from "./maintenance.service";
+import * as ScheduleService from "./maintenance-schedule.service";
+import * as LogService from "./maintenance-log.service";
 
 interface MaintenanceKitRecord {
 	_id: unknown;
@@ -112,4 +114,50 @@ export const updateKit = async (req: Request, res: Response) => {
 export const deleteKit = async (req: Request, res: Response) => {
 	await MaintenanceKitService.delete(getString(req.params.id));
 	return sendSuccess(res, { message: "Kit deactivated successfully" });
+};
+
+// ─── Maintenance Schedule controllers ───────────────────────────────
+
+export const listSchedules = async (req: Request, res: Response) => {
+	const page = parseNumberQuery(String(req.query.page ?? "1"), 1);
+	const limit = parseNumberQuery(String(req.query.limit ?? "20"), 20, 100);
+	const result = await ScheduleService.listSchedules(page, limit);
+	return sendPaginated(res, result.data, result.total, page, limit);
+};
+
+export const createSchedule = async (req: Request, res: Response) => {
+	const user = requireUser(req);
+	const schedule = await ScheduleService.createSchedule(req.body, user._id);
+	return sendCreated(res, schedule);
+};
+
+export const getSchedule = async (req: Request, res: Response) => {
+	const schedule = await ScheduleService.getScheduleById(getString(req.params.id));
+	return sendSuccess(res, schedule);
+};
+
+export const updateSchedule = async (req: Request, res: Response) => {
+	const schedule = await ScheduleService.updateSchedule(getString(req.params.id), req.body);
+	return sendSuccess(res, schedule);
+};
+
+export const deleteSchedule = async (req: Request, res: Response) => {
+	const result = await ScheduleService.deleteSchedule(getString(req.params.id));
+	return sendSuccess(res, result);
+};
+
+// ─── Maintenance Log controllers ────────────────────────────────────
+
+export const listLogs = async (req: Request, res: Response) => {
+	const assetId = getString(req.params.assetId);
+	const page = parseNumberQuery(String(req.query.page ?? "1"), 1);
+	const limit = parseNumberQuery(String(req.query.limit ?? "20"), 20, 100);
+	const result = await LogService.listLogs(assetId, page, limit);
+	return sendPaginated(res, result.data, result.total, page, limit);
+};
+
+export const createLog = async (req: Request, res: Response) => {
+	const user = requireUser(req);
+	const logEntry = await LogService.createLog(req.body, user._id);
+	return sendCreated(res, logEntry);
 };
