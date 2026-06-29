@@ -94,7 +94,10 @@ export default function MaintenanceSchedulesPage() {
 			{showForm && (
 				<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 space-y-3">
 					<div>
-						<label htmlFor="sched-title" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+						<label
+							htmlFor="sched-title"
+							className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+						>
 							Título
 						</label>
 						<input
@@ -106,7 +109,10 @@ export default function MaintenanceSchedulesPage() {
 					</div>
 					<div className="grid grid-cols-3 gap-3">
 						<div>
-							<label htmlFor="sched-freq" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+							<label
+								htmlFor="sched-freq"
+								className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+							>
 								Frecuencia
 							</label>
 							<select
@@ -123,7 +129,10 @@ export default function MaintenanceSchedulesPage() {
 							</select>
 						</div>
 						<div>
-							<label htmlFor="sched-asset" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+							<label
+								htmlFor="sched-asset"
+								className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+							>
 								Activo ID
 							</label>
 							<input
@@ -134,7 +143,10 @@ export default function MaintenanceSchedulesPage() {
 							/>
 						</div>
 						<div>
-							<label htmlFor="sched-start" className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
+							<label
+								htmlFor="sched-start"
+								className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+							>
 								Inicio
 							</label>
 							<input

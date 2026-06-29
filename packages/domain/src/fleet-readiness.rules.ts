@@ -35,11 +35,7 @@ function daysUntil(dateStr: string): number {
 	return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
-function getExpiryBlocker(
-	label: string,
-	field: string,
-	expiryDate?: string,
-): FleetBlocker | null {
+function getExpiryBlocker(label: string, field: string, expiryDate?: string): FleetBlocker | null {
 	if (!expiryDate) {
 		return {
 			code: `MISSING_${field.toUpperCase()}`,
@@ -71,20 +67,33 @@ export function evaluateFleetReadiness(vehicle: VehicleDocumentStatus): FleetRea
 
 	const soatBlocker = getExpiryBlocker("SOAT", "soat", vehicle.soatExpiry);
 	if (soatBlocker) {
-		if (soatBlocker.severity === "error") errors.push(soatBlocker);
-		else warnings.push(soatBlocker);
+		if (soatBlocker.severity === "error") {
+			errors.push(soatBlocker);
+		} else {
+			warnings.push(soatBlocker);
+		}
 	}
 
-	const techBlocker = getExpiryBlocker("Tecnomecánica", "technomechanical", vehicle.technoMechanicalExpiry);
+	const techBlocker = getExpiryBlocker(
+		"Tecnomecánica",
+		"technomechanical",
+		vehicle.technoMechanicalExpiry,
+	);
 	if (techBlocker) {
-		if (techBlocker.severity === "error") errors.push(techBlocker);
-		else warnings.push(techBlocker);
+		if (techBlocker.severity === "error") {
+			errors.push(techBlocker);
+		} else {
+			warnings.push(techBlocker);
+		}
 	}
 
 	const insBlocker = getExpiryBlocker("Póliza", "insurance", vehicle.insuranceExpiry);
 	if (insBlocker) {
-		if (insBlocker.severity === "error") errors.push(insBlocker);
-		else warnings.push(insBlocker);
+		if (insBlocker.severity === "error") {
+			errors.push(insBlocker);
+		} else {
+			warnings.push(insBlocker);
+		}
 	}
 
 	if (vehicle.status === "maintenance") {
@@ -95,7 +104,6 @@ export function evaluateFleetReadiness(vehicle: VehicleDocumentStatus): FleetRea
 		});
 	}
 
-	const blocker: FleetBlocker[] = errors;
 	const expiringSoon: FleetBlocker[] = warnings;
 	const totalChecks = 4;
 	const passed = totalChecks - errors.length - warnings.length * 0.5;

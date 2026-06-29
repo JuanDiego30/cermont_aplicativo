@@ -22,10 +22,18 @@ export interface FleetListEnvelope {
 
 export async function listVehicles(filters: FleetListFilters = {}): Promise<FleetListEnvelope> {
 	const searchParams = new URLSearchParams();
-	if (filters.page) searchParams.set("page", String(filters.page));
-	if (filters.limit) searchParams.set("limit", String(filters.limit));
-	if (filters.status) searchParams.set("status", filters.status);
-	if (filters.type) searchParams.set("type", filters.type);
+	if (filters.page) {
+		searchParams.set("page", String(filters.page));
+	}
+	if (filters.limit) {
+		searchParams.set("limit", String(filters.limit));
+	}
+	if (filters.status) {
+		searchParams.set("status", filters.status);
+	}
+	if (filters.type) {
+		searchParams.set("type", filters.type);
+	}
 	const query = searchParams.toString();
 	return apiClient.get<FleetListEnvelope>(`/fleet${query ? `?${query}` : ""}`);
 }
@@ -67,7 +75,9 @@ export async function uploadVehiclePhoto(
 ): Promise<FleetPhoto> {
 	const formData = new FormData();
 	formData.append("file", file);
-	if (title) formData.append("title", title);
+	if (title) {
+		formData.append("title", title);
+	}
 	const envelope = await apiClient.post<{ success: boolean; data: FleetPhoto }>(
 		`/fleet/${vehicleId}/photos`,
 		formData,

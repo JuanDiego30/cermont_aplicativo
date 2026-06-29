@@ -34,7 +34,9 @@ export function DashboardSlaWidget() {
 		);
 	}
 
-	if (!data) return null;
+	if (!data) {
+		return null;
+	}
 
 	const { summary } = data;
 	const slaColor =

@@ -64,6 +64,9 @@ export {
 	validateRequiredEvidence,
 	validateRequiredSignatures,
 } from "./execution";
+// ─── Fleet Readiness Rules ────────────────────────────────────────────────────
+export type { FleetBlocker, FleetReadiness, VehicleDocumentStatus } from "./fleet-readiness.rules";
+export { evaluateFleetReadiness } from "./fleet-readiness.rules";
 // ─── Kit Rules ──────────────────────────────────────────────────────────────
 export type {
 	ApplyKitDecision,
@@ -89,12 +92,12 @@ export {
 	getCriticalItemCount,
 	getMissingCriticalKitItems,
 } from "./kit.rules";
+// ─── Operational Steps ──────────────────────────────────────────────────────
 export type {
 	OperationalStep,
 	OperationalStepKey,
 	OperationalStepStatus,
 } from "./operational-steps";
-// ─── Operational Steps ──────────────────────────────────────────────────────
 export {
 	getNextStep,
 	getStep,
@@ -111,17 +114,14 @@ export {
 	hasPermission,
 	ROLE_PERMISSIONS,
 } from "./permissions";
-export type { PlanningBlocker, PlanningDocumentType, PlanningReadiness } from "./planning.rules";
 // ─── Planning Rules ─────────────────────────────────────────────────────────
+export type { PlanningBlocker, PlanningDocumentType, PlanningReadiness } from "./planning.rules";
 export {
 	getMaxBlockerSeverity,
 	getPlanningBlockers,
 	isPlanningReady,
 	REQUIRED_PLANNING_DOCUMENTS,
 } from "./planning.rules";
-// ─── Fleet Readiness Rules ────────────────────────────────────────────────────
-export type { FleetBlocker, FleetReadiness, VehicleDocumentStatus } from "./fleet-readiness.rules";
-export { evaluateFleetReadiness } from "./fleet-readiness.rules";
 // ─── RBAC ───────────────────────────────────────────────────────────────────
 export {
 	canAccessModule,

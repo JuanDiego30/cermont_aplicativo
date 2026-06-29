@@ -32,11 +32,7 @@ export function FleetReadinessBadge({ score, ready, blockerCount }: FleetReadine
 		<div
 			className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold"
 			style={{ backgroundColor: bgColor, color }}
-			title={
-				ready
-					? "Vehículo listo para operar"
-					: `${blockerCount} bloqueo(s) pendiente(s)`
-			}
+			title={ready ? "Vehículo listo para operar" : `${blockerCount} bloqueo(s) pendiente(s)`}
 		>
 			<Icon className="size-3.5" aria-hidden="true" />
 			{score}%

@@ -36,7 +36,9 @@ describe("Cermont sequential navigation", () => {
 			APP_ROUTES.planning,
 			APP_ROUTES.execution,
 			APP_ROUTES.evidences,
+			APP_ROUTES.checklists,
 			APP_ROUTES.dispatch,
+			APP_ROUTES.maintenance,
 			APP_ROUTES.sla,
 		]);
 	});

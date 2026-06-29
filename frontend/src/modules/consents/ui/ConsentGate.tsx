@@ -7,7 +7,9 @@ import { useCallback, useEffect, useState } from "react";
 const CONSENT_KEY = "cermont-consent-accepted";
 
 function getConsentAccepted(): boolean {
-	if (typeof window === "undefined") return false;
+	if (typeof window === "undefined") {
+		return false;
+	}
 	return localStorage.getItem(CONSENT_KEY) === "true";
 }
 
@@ -35,7 +37,9 @@ export function ConsentGate() {
 		setShow(false);
 	}, []);
 
-	if (!show) return null;
+	if (!show) {
+		return null;
+	}
 
 	return (
 		<div

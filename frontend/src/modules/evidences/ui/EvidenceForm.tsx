@@ -62,7 +62,9 @@ export function EvidenceForm({ selectedOrderId, onUploadComplete }: EvidenceForm
 	}, []);
 
 	const handleUpload = useCallback(async () => {
-		if (!selectedFile || !selectedOrderId) return;
+		if (!selectedFile || !selectedOrderId) {
+			return;
+		}
 		if (!evidenceTitle.trim()) {
 			toast.error("Agrega un título que describa esta evidencia");
 			return;

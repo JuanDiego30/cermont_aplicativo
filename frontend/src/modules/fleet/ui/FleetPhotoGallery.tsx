@@ -37,7 +37,9 @@ export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
 	}, []);
 
 	const handleSubmitUpload = useCallback(() => {
-		if (!selectedFile) return;
+		if (!selectedFile) {
+			return;
+		}
 		handleUpload(selectedFile, photoTitle || undefined);
 		setSelectedFile(null);
 		setPhotoTitle("");
