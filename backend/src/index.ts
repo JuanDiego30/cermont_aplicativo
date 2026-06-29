@@ -59,6 +59,7 @@ import orderExecutionSessionRoutes from "./modules/order/order-execution-session
 import paymentRoutes from "./modules/payment/payment.routes";
 import planningPacketRoutes from "./modules/planning-packet/planning-packet.routes";
 import portalRoutes from "./modules/portal/portal.routes";
+import privacyRequestRoutes from "./modules/privacy-requests/privacy-requests.routes";
 import proposalRoutes from "./modules/proposal/proposal.routes";
 import purchaseOrderRoutes from "./modules/purchase-order/purchase-order.routes";
 import reportRoutes from "./modules/report/report.routes";
@@ -270,6 +271,7 @@ const API_MOUNTS: ApiMount[] = [
 	{ prefix: "/api/dispatch", router: dispatchRoutes },
 	{ prefix: "/api/system-config", router: systemConfigRoutes },
 	{ prefix: "/api/admin/backups", router: adminBackupRoutes },
+	{ prefix: "/api/privacy-requests", router: privacyRequestRoutes },
 	{ prefix: "/api/business-documents", router: businessDocumentRoutes },
 	{ prefix: "/api/erp-connectors", router: erpConnectorRoutes },
 ];

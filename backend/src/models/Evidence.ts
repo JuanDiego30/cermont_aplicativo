@@ -207,6 +207,7 @@ EvidenceSchema.index({ syncStatus: 1 });
 // Query optimization
 EvidenceSchema.index({ uploadedBy: 1, createdAt: -1 });
 EvidenceSchema.index({ capturedAt: 1 });
+EvidenceSchema.index({ serviceCaseId: 1, status: 1, createdAt: -1 });
 EvidenceSchema.plugin(softDeletePlugin);
 
 // toJSON: limpiar __v de respuestas

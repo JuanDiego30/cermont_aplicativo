@@ -194,6 +194,7 @@ export {
 } from "./tool.schema";
 export * from "./user.schema";
 export * from "./vehicle.schema";
+export * from "./webauthn.schema";
 export * from "./work-request.schema";
 export * from "./workflow-blocker.schema";
 export * from "./xlsx-import.schema";

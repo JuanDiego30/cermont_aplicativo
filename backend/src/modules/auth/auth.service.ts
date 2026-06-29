@@ -245,6 +245,50 @@ function parseRefreshToken(refreshToken: string): JwtClaims {
 	}
 }
 
+interface SessionUser {
+	_id: Types.ObjectId;
+	name: string;
+	email: string;
+	role: string;
+	isActive: boolean;
+	tokenVersion?: number;
+}
+
+/**
+ * Issue a token pair + audit log for an already-verified user. Shared tail
+ * for password login and passkey (WebAuthn) login — both authenticate the
+ * user through different means but issue identical sessions.
+ */
+export async function issueLoginSession(
+	user: SessionUser,
+	loginMethod: "password" | "passkey" = "password",
+): Promise<LoginContract> {
+	const tokenVersion = user.tokenVersion ?? 0;
+	const tokenPair = buildTokenPair(user._id.toString(), user.role, tokenVersion);
+	await persistRefreshToken(tokenPair, user._id.toString());
+
+	await createAuditLog({
+		action: "LOGIN_SUCCESS",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		userEmail: user.email,
+		metadata: { role: user.role, loginMethod },
+	});
+
+	return {
+		accessToken: tokenPair.accessToken,
+		refreshToken: tokenPair.refreshToken,
+		user: {
+			_id: user._id.toString(),
+			name: user.name,
+			email: user.email,
+			role: user.role,
+			isActive: user.isActive,
+		},
+	};
+}
+
 export async function login(email: string, password: string): Promise<LoginContract> {
 	const user = await User.findOne({ email }).select("+password +tokenVersion");
 
@@ -260,30 +304,7 @@ export async function login(email: string, password: string): Promise<LoginContr
 		throw new UnauthorizedError("Invalid email or password");
 	}
 
-	const tokenVersion = user.tokenVersion ?? 0;
-	const tokenPair = buildTokenPair(user._id.toString(), user.role, tokenVersion);
-	await persistRefreshToken(tokenPair, user._id.toString());
-
-	await createAuditLog({
-		action: "LOGIN_SUCCESS",
-		entity: "User",
-		entityId: user._id.toString(),
-		userId: user._id.toString(),
-		userEmail: user.email,
-		metadata: { role: user.role },
-	});
-
-	return {
-		accessToken: tokenPair.accessToken,
-		refreshToken: tokenPair.refreshToken,
-		user: {
-			_id: user._id.toString(),
-			name: user.name,
-			email: user.email,
-			role: user.role,
-			isActive: user.isActive,
-		},
-	};
+	return issueLoginSession(user, "password");
 }
 
 export async function changePassword(userId: string, payload: ChangePasswordInput): Promise<void> {

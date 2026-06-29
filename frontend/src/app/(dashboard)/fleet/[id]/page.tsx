@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
@@ -65,6 +65,11 @@ export default function FleetDetailPage() {
 			return json.data;
 		},
 	});
+
+	const isSoatExpired = useMemo(
+		() => isClient && data?.soatExpiry && new Date(data.soatExpiry) < new Date(),
+		[isClient, data?.soatExpiry],
+	);
 
 	if (isLoading) {
 		return (
@@ -176,7 +181,7 @@ export default function FleetDetailPage() {
 				/>
 			</div>
 
-			{isClient && data.soatExpiry && new Date(data.soatExpiry) < new Date() && (
+			{isSoatExpired && (
 				<div className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/40 p-3 text-sm text-[var(--color-danger)]">
 					<CalendarClock className="size-4 shrink-0" aria-hidden="true" />
 					<span>SOAT vencido. No se puede asignar conductor.</span>

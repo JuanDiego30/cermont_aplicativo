@@ -1,7 +1,7 @@
 "use client";
 
 import { SUPERVISORY_ROLES } from "@cermont/domain";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle2, Download, FileText, Loader2, XCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,6 +20,7 @@ export default function EvidenceDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const isOnline = useOnlineStatus();
 	const { user } = useAuth();
+	const queryClient = useQueryClient();
 
 	const {
 		data: evidence,
@@ -47,6 +48,7 @@ export default function EvidenceDetailPage() {
 		onSuccess: (data) => {
 			window.open(data.url, "_blank");
 			toast.success("Descargando evidencia");
+			queryClient.invalidateQueries({ queryKey: ["evidence", id] });
 		},
 		onError: () => {
 			toast.error("Error al descargar la evidencia");

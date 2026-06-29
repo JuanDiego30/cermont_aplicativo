@@ -1,11 +1,12 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Fingerprint, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/http/api-client";
 
 export function PasskeyManager() {
+	const queryClient = useQueryClient();
 	const registerMutation = useMutation({
 		mutationFn: async () => {
 			const result = await apiClient.post<{
@@ -15,7 +16,10 @@ export function PasskeyManager() {
 			const credential = await navigator.credentials.create({ publicKey: result.data });
 			await apiClient.post("/auth/passkeys/register/verify", { credential });
 		},
-		onSuccess: () => toast.success("Llave de acceso registrada"),
+		onSuccess: () => {
+			toast.success("Llave de acceso registrada");
+			queryClient.invalidateQueries({ queryKey: ["passkeys"] });
+		},
 		onError: (err: Error) => toast.error(err.message || "Error al registrar llave de acceso"),
 	});
 

@@ -15,10 +15,22 @@ import { type Document, type Model, model, Schema } from "mongoose";
 export const USER_ROLES: readonly UserRole[] = ALL_AUTHENTICATED_ROLES;
 export type Role = UserRole;
 
+// Passkey/WebAuthn credential — backend-only, never exposed via UserDto
+export interface IWebAuthnCredential {
+	credentialId: string; // base64url, matches WebAuthnCredential.id from @simplewebauthn/server
+	publicKey: string; // base64url-encoded COSE public key
+	counter: number;
+	transports?: string[];
+	deviceName?: string;
+	createdAt: Date;
+}
+
 // Single Source of Truth: Inherit pure business data from UserDto
 export type UserDocumentFields = Omit<UserDto, "_id" | "createdAt" | "updatedAt"> & {
 	password: string; // Not in UserDto (backend only)
 	tokenVersion: number;
+	webauthnCredentials: IWebAuthnCredential[]; // Not in UserDto (backend only)
+	webauthnChallenge?: string; // Not in UserDto (backend only) — pending registration/auth ceremony
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -76,6 +88,24 @@ const UserSchema = new Schema<IUserDocument, UserModel, IUserMethods>(
 			default: [],
 		},
 		skills: { type: [String], default: [] },
+		webauthnCredentials: {
+			type: [
+				new Schema(
+					{
+						credentialId: { type: String, required: true },
+						publicKey: { type: String, required: true },
+						counter: { type: Number, required: true, default: 0 },
+						transports: { type: [String], default: [] },
+						deviceName: { type: String, maxlength: 100 },
+						createdAt: { type: Date, default: Date.now },
+					},
+					{ _id: false },
+				),
+			],
+			default: [],
+			select: false,
+		},
+		webauthnChallenge: { type: String, select: false },
 	},
 	{ timestamps: true, versionKey: false },
 );
