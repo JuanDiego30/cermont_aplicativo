@@ -4,6 +4,7 @@ import type { Cost } from "@cermont/shared-types";
 import { useState } from "react";
 import { useOrderCostSummary, useOrderCosts } from "../queries";
 import { CostBreakdownTable } from "./CostBreakdownTable";
+import { CostComparisonChart } from "./CostComparisonChart";
 import { CostForm } from "./CostForm";
 import { CostSummaryCard } from "./CostSummaryCard";
 
@@ -27,6 +28,12 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
 				isLoading={summaryQuery.isLoading}
 				error={summaryQuery.error instanceof Error ? summaryQuery.error : undefined}
 			/>
+			{summaryQuery.data?.hasCosts && (
+				<CostComparisonChart
+					estimated={summaryQuery.data.totalEstimated}
+					actual={summaryQuery.data.totalActual}
+				/>
+			)}
 			<CostBreakdownTable
 				summary={summaryQuery.data}
 				isLoading={summaryQuery.isLoading}

@@ -4,6 +4,7 @@
  * /fleet — Parque automotor con documentos y alertas de vencimiento.
  */
 
+import { evaluateFleetReadiness } from "@cermont/domain";
 import type { Vehicle, VehicleDocumentAlert } from "@cermont/shared-types";
 import { CalendarClock, Plus, Truck } from "lucide-react";
 import { useReducer, useState } from "react";
@@ -13,6 +14,7 @@ import {
 	useExpiringVehicleDocuments,
 	useVehicles,
 } from "@/modules/fleet/queries";
+import { FleetReadinessBadge } from "@/modules/fleet/ui/FleetReadinessBadge";
 
 const STATUS_LABELS: Record<string, string> = {
 	active: "Activo",
@@ -129,39 +131,55 @@ export default function FleetPage() {
 
 			{vehicles.length > 0 && (
 				<ul className="space-y-2">
-					{vehicles.map((vehicle: Vehicle) => (
-						<li
-							key={vehicle._id}
-							className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4"
-						>
-							<div className="min-w-0">
-								<div className="flex items-center gap-2">
-									<p className="text-sm font-medium text-[var(--text-primary)]">{vehicle.plate}</p>
-									<span
-										className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${STATUS_STYLES[vehicle.status] ?? ""}`}
-									>
-										{STATUS_LABELS[vehicle.status] ?? vehicle.status}
-									</span>
+					{vehicles.map((vehicle: Vehicle) => {
+						const readiness = evaluateFleetReadiness({
+							soatExpiry: vehicle.soatExpiry,
+							technoMechanicalExpiry: vehicle.technoMechanicalExpiry,
+							insuranceExpiry: vehicle.insuranceExpiry,
+							lastMaintenanceAt: vehicle.lastMaintenanceAt,
+							status: vehicle.status,
+						});
+						return (
+							<li
+								key={vehicle._id}
+								className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4"
+							>
+								<div className="min-w-0">
+									<div className="flex items-center gap-2">
+										<p className="text-sm font-medium text-[var(--text-primary)]">
+											{vehicle.plate}
+										</p>
+										<span
+											className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${STATUS_STYLES[vehicle.status] ?? ""}`}
+										>
+											{STATUS_LABELS[vehicle.status] ?? vehicle.status}
+										</span>
+										<FleetReadinessBadge
+											score={readiness.score}
+											ready={readiness.ready}
+											blockerCount={readiness.blockers.length}
+										/>
+									</div>
+									<p className="mt-0.5 text-xs text-[var(--text-tertiary)]">
+										{vehicle.brand} {vehicle.model} {vehicle.year} —{" "}
+										{vehicle.kilometers.toLocaleString("es-CO")} km
+										{vehicle.driverName ? ` — Conductor: ${vehicle.driverName}` : ""}
+									</p>
 								</div>
-								<p className="mt-0.5 text-xs text-[var(--text-tertiary)]">
-									{vehicle.brand} {vehicle.model} {vehicle.year} —{" "}
-									{vehicle.kilometers.toLocaleString("es-CO")} km
-									{vehicle.driverName ? ` — Conductor: ${vehicle.driverName}` : ""}
-								</p>
-							</div>
-							<div className="flex shrink-0 flex-col items-end gap-0.5 text-[10px] text-[var(--text-tertiary)]">
-								{vehicle.soatExpiry && (
-									<span>SOAT: {new Date(vehicle.soatExpiry).toLocaleDateString("es-CO")}</span>
-								)}
-								{vehicle.technoMechanicalExpiry && (
-									<span>
-										Tecnomecánica:{" "}
-										{new Date(vehicle.technoMechanicalExpiry).toLocaleDateString("es-CO")}
-									</span>
-								)}
-							</div>
-						</li>
-					))}
+								<div className="flex shrink-0 flex-col items-end gap-0.5 text-[10px] text-[var(--text-tertiary)]">
+									{vehicle.soatExpiry && (
+										<span>SOAT: {new Date(vehicle.soatExpiry).toLocaleDateString("es-CO")}</span>
+									)}
+									{vehicle.technoMechanicalExpiry && (
+										<span>
+											Tecnomecánica:{" "}
+											{new Date(vehicle.technoMechanicalExpiry).toLocaleDateString("es-CO")}
+										</span>
+									)}
+								</div>
+							</li>
+						);
+					})}
 				</ul>
 			)}
 

@@ -4,6 +4,7 @@
  * /fleet/[id] — Vehicle detail page with document alerts
  */
 
+import { evaluateFleetReadiness } from "@cermont/domain";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 import Link from "next/link";
@@ -13,6 +14,7 @@ import { EmptyState } from "@/core/ui/EmptyState";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
 import { FleetPhotoGallery } from "@/modules/fleet/ui/FleetPhotoGallery";
+import { FleetReadinessBadge } from "@/modules/fleet/ui/FleetReadinessBadge";
 
 type VehicleDetail = {
 	_id: string;
@@ -96,6 +98,14 @@ export default function FleetDetailPage() {
 		);
 	}
 
+	const readiness = evaluateFleetReadiness({
+		soatExpiry: data.soatExpiry,
+		technoMechanicalExpiry: data.technoMechanicalExpiry,
+		insuranceExpiry: data.insuranceExpiry,
+		lastMaintenanceAt: data.lastMaintenanceAt,
+		status: data.status,
+	});
+
 	return (
 		<section className="space-y-6" aria-labelledby="vehicle-title">
 			<Link
@@ -115,13 +125,18 @@ export default function FleetDetailPage() {
 						{data.brand} {data.model} {data.year} — {data.type}
 					</p>
 				</div>
-				<span
-					className={`shrink-0 rounded px-2 py-1 text-xs font-medium ${
-						STATUS_STYLES[data.status] ?? ""
-					}`}
-				>
-					{STATUS_LABELS[data.status] ?? data.status}
-				</span>
+				<div className="flex shrink-0 flex-col items-end gap-2">
+					<span
+						className={`rounded px-2 py-1 text-xs font-medium ${STATUS_STYLES[data.status] ?? ""}`}
+					>
+						{STATUS_LABELS[data.status] ?? data.status}
+					</span>
+					<FleetReadinessBadge
+						score={readiness.score}
+						ready={readiness.ready}
+						blockerCount={readiness.blockers.length}
+					/>
+				</div>
 			</header>
 
 			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

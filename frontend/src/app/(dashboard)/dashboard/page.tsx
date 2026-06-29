@@ -29,6 +29,7 @@ import { useDashboardSummary } from "@/modules/dashboard/hooks/useDashboardSumma
 import { ActivityTimeline } from "@/modules/dashboard/ui/ActivityTimeline";
 import { ChartCard } from "@/modules/dashboard/ui/ChartCard";
 import { DashboardFilters } from "@/modules/dashboard/ui/DashboardFilters";
+import { DashboardSlaWidget } from "@/modules/dashboard/ui/DashboardSlaWidget";
 import { KPICard } from "@/modules/dashboard/ui/KPICard";
 import { RecentOrdersTable } from "@/modules/dashboard/ui/RecentOrdersTable";
 import { ServiceCaseDashboardPanel } from "@/modules/dashboard/ui/ServiceCaseDashboardPanel";
@@ -398,7 +399,10 @@ export default function DashboardPage() {
 				<div className="xl:col-span-2">
 					<LazyMonthlyTrendChart data={monthlyTrendData} />
 				</div>
-				<LazyOrdersByStatusChart data={ordersByStatus} />
+				<div className="space-y-4">
+					<LazyOrdersByStatusChart data={ordersByStatus} />
+					<DashboardSlaWidget />
+				</div>
 			</section>
 
 			{/* Bottom row: Recent orders + activity + maintenance kits */}
