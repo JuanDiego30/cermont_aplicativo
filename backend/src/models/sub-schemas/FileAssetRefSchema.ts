@@ -22,6 +22,7 @@ import { Schema, type Types } from "mongoose";
 export const FILE_ASSET_ENTITY_TYPES = [
 	"kit",
 	"tool",
+	"vehicle",
 	"equipment",
 	"material",
 	"safety_item",
@@ -37,6 +38,7 @@ export const FILE_ASSET_ENTITY_TYPES = [
 export const FILE_ASSET_CATEGORIES = [
 	"kit_image",
 	"tool_image",
+	"vehicle_image",
 	"equipment_image",
 	"material_image",
 	"safety_item_image",

@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
 	fileAssetFindOne: vi.fn(),
 	resourceExists: vi.fn(),
 	resourceUpdateOne: vi.fn(),
+	vehicleExists: vi.fn(),
+	vehicleUpdateOne: vi.fn(),
 }));
 
 vi.mock("../../src/models/FileAsset", () => ({
@@ -24,6 +26,13 @@ vi.mock("../../src/models/Resource", () => ({
 	Resource: {
 		exists: mocks.resourceExists,
 		updateOne: mocks.resourceUpdateOne,
+	},
+}));
+
+vi.mock("../../src/models/Vehicle", () => ({
+	VehicleModel: {
+		exists: mocks.vehicleExists,
+		updateOne: mocks.vehicleUpdateOne,
 	},
 }));
 
@@ -134,6 +143,40 @@ describe("files.service", () => {
 		expect(result.ref.url).toBe(`/api/files/${result.ref.id}/content`);
 		expect(mocks.resourceExists).toHaveBeenCalledWith({ _id: entityId });
 		expect(mocks.resourceUpdateOne).toHaveBeenCalledWith(
+			{ _id: entityId },
+			{ $push: { fileAssets: expect.objectContaining({ id: result.ref.id }) } },
+		);
+	});
+
+	it("persists a vehicle image and appends its ref to the vehicle parent", async () => {
+		const entityId = new Types.ObjectId();
+		const userId = new Types.ObjectId();
+		mocks.vehicleExists.mockResolvedValue({ _id: entityId });
+		mocks.fileAssetFindOne.mockResolvedValue(false);
+		mocks.fileAssetCreate.mockImplementation(async (input) => ({
+			...input,
+			_id: new Types.ObjectId(),
+			uploadedAt: new Date("2026-06-29T12:00:00.000Z"),
+		}));
+		mocks.vehicleUpdateOne.mockResolvedValue({ modifiedCount: 1 });
+		mocks.auditCreate.mockResolvedValue({ id: "audit-vehicle" });
+
+		const result = await createFileAssetFromUpload(
+			{
+				category: "vehicle_image",
+				entityType: "vehicle",
+				entityId: entityId.toString(),
+				description: "Vehicle front view",
+			},
+			makeUploadedFile(),
+			userId.toString(),
+			"supervisor@cermont.test",
+		);
+
+		expect(result.ref.entityType).toBe("vehicle");
+		expect(result.ref.category).toBe("vehicle_image");
+		expect(mocks.vehicleExists).toHaveBeenCalledWith({ _id: entityId });
+		expect(mocks.vehicleUpdateOne).toHaveBeenCalledWith(
 			{ _id: entityId },
 			{ $push: { fileAssets: expect.objectContaining({ id: result.ref.id }) } },
 		);

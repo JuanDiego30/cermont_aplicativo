@@ -8,12 +8,13 @@ import { useFleetPhotos } from "../hooks/useFleetPhotos";
 
 interface FleetPhotoGalleryProps {
 	vehicleId: string;
+	canManage: boolean;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
-export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
+export function FleetPhotoGallery({ vehicleId, canManage }: FleetPhotoGalleryProps) {
 	const { photos, isLoading, error, handleUpload, handleSetPrimary, handleDelete, isUploading } =
 		useFleetPhotos(vehicleId);
 
@@ -75,60 +76,62 @@ export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
 			</h2>
 
 			{/* Upload area */}
-			<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)]/30 p-4">
-				<div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-					<div className="flex-1">
-						<label
-							htmlFor="fleet-photo-file"
-							className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
-						>
-							Agregar foto
-						</label>
-						<input
-							ref={fileInputRef}
-							id="fleet-photo-file"
-							type="file"
-							accept={ACCEPTED_TYPES.join(",")}
-							onChange={handleFileChange}
-							className="w-full text-sm text-[var(--text-primary)] file:mr-3 file:rounded-[var(--radius-lg)] file:border-0 file:bg-[var(--color-brand-blue)] file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white"
-						/>
-					</div>
-					{selectedFile && (
-						<>
-							<div className="w-full sm:w-48">
-								<label
-									htmlFor="fleet-photo-title"
-									className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
-								>
-									Título (opcional)
-								</label>
-								<input
-									id="fleet-photo-title"
-									type="text"
-									value={photoTitle}
-									onChange={(e) => setPhotoTitle(e.target.value)}
-									placeholder="Ej: Frente del vehículo"
-									maxLength={100}
-									className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-sm"
-								/>
-							</div>
-							<button
-								type="button"
-								disabled={isUploading}
-								onClick={handleSubmitUpload}
-								className="flex items-center gap-1.5 rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+			{canManage ? (
+				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)]/30 p-4">
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+						<div className="flex-1">
+							<label
+								htmlFor="fleet-photo-file"
+								className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
 							>
-								{isUploading ? (
-									<Loader2 className="size-4 animate-spin" aria-hidden="true" />
-								) : (
-									<Upload className="size-4" aria-hidden="true" />
-								)}
-								Subir
-							</button>
-						</>
-					)}
+								Agregar foto
+							</label>
+							<input
+								ref={fileInputRef}
+								id="fleet-photo-file"
+								type="file"
+								accept={ACCEPTED_TYPES.join(",")}
+								onChange={handleFileChange}
+								className="w-full text-sm text-[var(--text-primary)] file:mr-3 file:rounded-[var(--radius-lg)] file:border-0 file:bg-[var(--color-brand-blue)] file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white"
+							/>
+						</div>
+						{selectedFile && (
+							<>
+								<div className="w-full sm:w-48">
+									<label
+										htmlFor="fleet-photo-title"
+										className="mb-1 block text-xs font-medium text-[var(--text-secondary)]"
+									>
+										Título (opcional)
+									</label>
+									<input
+										id="fleet-photo-title"
+										type="text"
+										value={photoTitle}
+										onChange={(e) => setPhotoTitle(e.target.value)}
+										placeholder="Ej: Frente del vehículo"
+										maxLength={100}
+										className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-sm"
+									/>
+								</div>
+								<button
+									type="button"
+									disabled={isUploading}
+									onClick={handleSubmitUpload}
+									className="flex items-center gap-1.5 rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+								>
+									{isUploading ? (
+										<Loader2 className="size-4 animate-spin" aria-hidden="true" />
+									) : (
+										<Upload className="size-4" aria-hidden="true" />
+									)}
+									Subir
+								</button>
+							</>
+						)}
+					</div>
 				</div>
-			</div>
+			) : null}
 
 			{/* Primary photo */}
 			{primary && (
@@ -155,7 +158,7 @@ export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
 				<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
 					{gallery.map((photo) => (
 						<div
-							key={photo._id}
+							key={photo.id}
 							className="group relative aspect-square overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)]"
 						>
 							<Image
@@ -166,24 +169,26 @@ export function FleetPhotoGallery({ vehicleId }: FleetPhotoGalleryProps) {
 								sizes="(max-width: 640px) 50vw, 200px"
 								unoptimized
 							/>
-							<div className="absolute inset-0 flex items-end justify-center gap-1 bg-black/0 p-2 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
-								<button
-									type="button"
-									onClick={() => handleSetPrimary(photo._id)}
-									className="rounded-full bg-white/90 p-1.5 text-xs text-[var(--text-primary)] hover:bg-white"
-									aria-label="Establecer como principal"
-								>
-									<Star className="size-3.5" aria-hidden="true" />
-								</button>
-								<button
-									type="button"
-									onClick={() => handleDelete(photo._id)}
-									className="rounded-full bg-white/90 p-1.5 text-xs text-[var(--color-danger)] hover:bg-white"
-									aria-label="Eliminar foto"
-								>
-									<Trash2 className="size-3.5" aria-hidden="true" />
-								</button>
-							</div>
+							{canManage ? (
+								<div className="absolute inset-0 flex items-end justify-center gap-1 bg-black/0 p-2 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
+									<button
+										type="button"
+										onClick={() => handleSetPrimary(photo.id)}
+										className="rounded-full bg-white/90 p-1.5 text-xs text-[var(--text-primary)] hover:bg-white"
+										aria-label="Establecer como principal"
+									>
+										<Star className="size-3.5" aria-hidden="true" />
+									</button>
+									<button
+										type="button"
+										onClick={() => handleDelete(photo.id)}
+										className="rounded-full bg-white/90 p-1.5 text-xs text-[var(--color-danger)] hover:bg-white"
+										aria-label="Eliminar foto"
+									>
+										<Trash2 className="size-3.5" aria-hidden="true" />
+									</button>
+								</div>
+							) : null}
 						</div>
 					))}
 				</div>

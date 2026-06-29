@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ObjectIdSchema } from "./common.schema";
+import { FileAssetRefSchema } from "./file-asset.schema";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Fleet / Vehicle — Parque automotor con documentos obligatorios colombianos
@@ -11,6 +12,37 @@ export type VehicleType = z.infer<typeof VehicleTypeSchema>;
 
 export const VehicleStatusSchema = z.enum(["active", "maintenance", "out_of_service"]);
 export type VehicleStatus = z.infer<typeof VehicleStatusSchema>;
+
+export const VehiclePrimaryPhotoSchema = z.discriminatedUnion("status", [
+	z.object({ status: z.literal("absent") }).strict(),
+	z.object({ status: z.literal("present"), fileAssetId: z.string().min(1).max(64) }).strict(),
+]);
+export type VehiclePrimaryPhoto = z.infer<typeof VehiclePrimaryPhotoSchema>;
+
+export const VehiclePhotoSchema = z
+	.object({
+		id: z.string().min(1).max(64),
+		url: z.string().min(1).max(2048),
+		title: z.string().min(1).max(100),
+		isPrimary: z.boolean(),
+		uploadedAt: z.string().datetime(),
+	})
+	.strict();
+export type VehiclePhoto = z.infer<typeof VehiclePhotoSchema>;
+
+export const VehiclePhotoUploadFormSchema = z
+	.object({
+		title: z.string().trim().min(1).max(100).optional(),
+	})
+	.strict();
+export type VehiclePhotoUploadForm = z.infer<typeof VehiclePhotoUploadFormSchema>;
+
+export const VehiclePhotoParamsSchema = z
+	.object({
+		id: ObjectIdSchema,
+		photoId: z.string().min(1).max(64),
+	})
+	.strict();
 
 export const VehicleSchema = z
 	.object({
@@ -35,6 +67,8 @@ export const VehicleSchema = z
 		kilometers: z.number().int().nonnegative().default(0),
 		status: VehicleStatusSchema.default("active"),
 		notes: z.string().max(500).optional(),
+		fileAssets: z.array(FileAssetRefSchema).default([]),
+		primaryPhoto: VehiclePrimaryPhotoSchema.default({ status: "absent" }),
 		createdAt: z.string().datetime().optional(),
 		updatedAt: z.string().datetime().optional(),
 	})
@@ -43,6 +77,8 @@ export type Vehicle = z.infer<typeof VehicleSchema>;
 
 export const CreateVehicleSchema = VehicleSchema.omit({
 	_id: true,
+	fileAssets: true,
+	primaryPhoto: true,
 	createdAt: true,
 	updatedAt: true,
 });

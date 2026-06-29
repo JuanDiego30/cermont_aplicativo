@@ -10,10 +10,18 @@ import {
 	ListVehiclesQuerySchema,
 	UpdateVehicleSchema,
 	VehicleIdParamsSchema,
+	VehiclePhotoParamsSchema,
+	VehiclePhotoUploadFormSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import { uploadLimiter } from "../../middlewares/rate-limiter";
+import {
+	evidenceUpload,
+	handleUploadError,
+	processUploadedFile,
+} from "../../middlewares/uploadMiddleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 import * as FleetController from "./fleet.controller";
 
@@ -34,6 +42,39 @@ router.get(
 	"/expiring-documents",
 	authorize(...INTERNAL_ROLES),
 	FleetController.getExpiringDocuments,
+);
+
+router.get(
+	"/:id/photos",
+	authorize(...INTERNAL_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	FleetController.listVehiclePhotos,
+);
+
+router.post(
+	"/:id/photos",
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	uploadLimiter,
+	evidenceUpload.single("file"),
+	handleUploadError,
+	processUploadedFile,
+	validateBody(VehiclePhotoUploadFormSchema),
+	FleetController.uploadVehiclePhoto,
+);
+
+router.patch(
+	"/:id/photos/:photoId/primary",
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(VehiclePhotoParamsSchema),
+	FleetController.setPrimaryVehiclePhoto,
+);
+
+router.delete(
+	"/:id/photos/:photoId",
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(VehiclePhotoParamsSchema),
+	FleetController.deleteVehiclePhoto,
 );
 
 // GET /api/fleet/:id — vehicle detail

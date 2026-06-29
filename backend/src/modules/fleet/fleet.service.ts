@@ -11,9 +11,55 @@ import type {
 	ListVehiclesQuery,
 	UpdateVehicleInput,
 	VehicleDocumentAlert,
+	VehiclePhoto,
 } from "@cermont/shared-types";
 import { AppError } from "../../common/errors";
 import { VehicleModel, type VehicleRecord } from "../../models/Vehicle";
+import { createAuditLog } from "../audit/audit.service";
+import {
+	createFileAssetFromUpload,
+	getFileAssetById,
+	listFileAssetsByEntity,
+	softDeleteFileAsset,
+} from "../files/files.service";
+
+interface VehiclePhotoSource {
+	id: string;
+	url: string;
+	originalName: string;
+	description?: string;
+	uploadedAt: Date | string;
+}
+
+function toVehiclePhoto(
+	file: VehiclePhotoSource,
+	primaryPhoto: VehicleRecord["primaryPhoto"],
+): VehiclePhoto {
+	return {
+		id: file.id,
+		url: file.url,
+		title: file.description?.trim() || file.originalName,
+		isPrimary: primaryPhoto.status === "present" && primaryPhoto.fileAssetId === file.id,
+		uploadedAt: file.uploadedAt instanceof Date ? file.uploadedAt.toISOString() : file.uploadedAt,
+	};
+}
+
+function assertVehiclePhoto(
+	file: { entityType: string; entityId: { toString(): string }; category: string },
+	vehicleId: string,
+): void {
+	if (
+		file.entityType !== "vehicle" ||
+		file.category !== "vehicle_image" ||
+		file.entityId.toString() !== vehicleId
+	) {
+		throw new AppError(
+			"La foto no pertenece al vehículo solicitado",
+			404,
+			"VEHICLE_PHOTO_NOT_FOUND",
+		);
+	}
+}
 
 function toDates(input: Partial<CreateVehicleInput>) {
 	return {
@@ -160,4 +206,113 @@ export async function getExpiringDocuments(daysAhead = 30): Promise<VehicleDocum
 		}
 	}
 	return alerts.sort((a, b) => a.expiresAt.localeCompare(b.expiresAt));
+}
+
+export async function listVehiclePhotos(vehicleId: string): Promise<VehiclePhoto[]> {
+	const vehicle = await getVehicleById(vehicleId);
+	const photos = await listFileAssetsByEntity({
+		entityType: "vehicle",
+		entityId: vehicleId,
+		category: "vehicle_image",
+	});
+
+	return photos.map((photo) => toVehiclePhoto(photo, vehicle.primaryPhoto));
+}
+
+export async function uploadVehiclePhoto(
+	vehicleId: string,
+	file: Express.Multer.File,
+	title: string,
+	userId: string,
+	userEmail: string,
+): Promise<VehiclePhoto> {
+	const vehicle = await getVehicleById(vehicleId);
+	const result = await createFileAssetFromUpload(
+		{
+			entityType: "vehicle",
+			entityId: vehicleId,
+			category: "vehicle_image",
+			description: title,
+		},
+		file,
+		userId,
+		userEmail,
+	);
+
+	const shouldBecomePrimary = vehicle.primaryPhoto.status === "absent";
+	const primaryPhoto = shouldBecomePrimary
+		? ({ status: "present", fileAssetId: result.ref.id } as const)
+		: vehicle.primaryPhoto;
+
+	if (shouldBecomePrimary) {
+		await VehicleModel.updateOne({ _id: vehicleId }, { $set: { primaryPhoto, updatedBy: userId } });
+		await createAuditLog({
+			action: "ASSET_PRIMARY_PHOTO_CHANGED",
+			entity: "Vehicle",
+			entityId: vehicleId,
+			userId,
+			metadata: { fileAssetId: result.ref.id, reason: "first_photo_uploaded" },
+		});
+	}
+
+	return toVehiclePhoto(result.ref, primaryPhoto);
+}
+
+export async function setPrimaryVehiclePhoto(
+	vehicleId: string,
+	photoId: string,
+	userId: string,
+): Promise<VehiclePhoto> {
+	await getVehicleById(vehicleId);
+	const photo = await getFileAssetById(photoId);
+	assertVehiclePhoto(photo, vehicleId);
+
+	const primaryPhoto = { status: "present", fileAssetId: photo.id } as const;
+	await VehicleModel.updateOne({ _id: vehicleId }, { $set: { primaryPhoto, updatedBy: userId } });
+	await createAuditLog({
+		action: "ASSET_PRIMARY_PHOTO_CHANGED",
+		entity: "Vehicle",
+		entityId: vehicleId,
+		userId,
+		metadata: { fileAssetId: photo.id },
+	});
+
+	return toVehiclePhoto(photo, primaryPhoto);
+}
+
+export async function deleteVehiclePhoto(
+	vehicleId: string,
+	photoId: string,
+	userId: string,
+): Promise<void> {
+	const vehicle = await getVehicleById(vehicleId);
+	const photo = await getFileAssetById(photoId);
+	assertVehiclePhoto(photo, vehicleId);
+
+	await softDeleteFileAsset(photoId, userId);
+
+	if (vehicle.primaryPhoto.status === "present" && vehicle.primaryPhoto.fileAssetId === photoId) {
+		const remaining = await listFileAssetsByEntity({
+			entityType: "vehicle",
+			entityId: vehicleId,
+			category: "vehicle_image",
+		});
+		const nextPrimary = remaining[0]
+			? ({ status: "present", fileAssetId: remaining[0].id } as const)
+			: ({ status: "absent" } as const);
+		await VehicleModel.updateOne(
+			{ _id: vehicleId },
+			{ $set: { primaryPhoto: nextPrimary, updatedBy: userId } },
+		);
+		await createAuditLog({
+			action: "ASSET_PRIMARY_PHOTO_CHANGED",
+			entity: "Vehicle",
+			entityId: vehicleId,
+			userId,
+			metadata: {
+				fileAssetId: nextPrimary.status === "present" ? nextPrimary.fileAssetId : "absent",
+				reason: "primary_photo_deleted",
+			},
+		});
+	}
 }

@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:b9b1aae32930d20531026ad2a2f8657ea3588422528b7ccfc9831e32a7d9d2bd",
+	"currentSnapshotHash": "sha256:c2cd5b00201976c53ab97502d236b3d3a3b5c88fe3cf06a76f32c39da83328c0",
 	"migrations": [
 		{
 			"id": "050-business-document-erp-connector-schemas",
@@ -385,6 +385,13 @@
 			"type": "non-breaking",
 			"description": "Add PASSKEY_REGISTERED audit action and WebAuthn credential schemas for WebAuthn/Passkey authentication support.",
 			"toHash": "sha256:b9b1aae32930d20531026ad2a2f8657ea3588422528b7ccfc9831e32a7d9d2bd"
+		},
+		{
+			"id": "054-spec-007-snapshot-rebuild",
+			"date": "2026-06-29",
+			"type": "non-breaking",
+			"description": "Regenerate contract snapshot after Spec 007 schema changes (Vehicle, FileAsset, Fleet extensions).",
+			"toHash": "sha256:c2cd5b00201976c53ab97502d236b3d3a3b5c88fe3cf06a76f32c39da83328c0"
 		}
 	]
 }

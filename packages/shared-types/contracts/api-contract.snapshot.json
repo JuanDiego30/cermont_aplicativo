@@ -4205,6 +4205,7 @@
                     "enum": [
                       "kit_image",
                       "tool_image",
+                      "vehicle_image",
                       "equipment_image",
                       "material_image",
                       "safety_item_image",
@@ -4239,6 +4240,7 @@
                     "enum": [
                       "kit",
                       "tool",
+                      "vehicle",
                       "equipment",
                       "material",
                       "safety_item",
@@ -4616,6 +4618,7 @@
                     "enum": [
                       "kit_image",
                       "tool_image",
+                      "vehicle_image",
                       "equipment_image",
                       "material_image",
                       "safety_item_image",
@@ -4650,6 +4653,7 @@
                     "enum": [
                       "kit",
                       "tool",
+                      "vehicle",
                       "equipment",
                       "material",
                       "safety_item",
@@ -11258,6 +11262,7 @@
               "enum": [
                 "kit_image",
                 "tool_image",
+                "vehicle_image",
                 "equipment_image",
                 "material_image",
                 "safety_item_image",
@@ -11292,6 +11297,7 @@
               "enum": [
                 "kit",
                 "tool",
+                "vehicle",
                 "equipment",
                 "material",
                 "safety_item",
@@ -20839,6 +20845,7 @@
               "enum": [
                 "kit_image",
                 "tool_image",
+                "vehicle_image",
                 "equipment_image",
                 "material_image",
                 "safety_item_image",
@@ -20873,6 +20880,7 @@
               "enum": [
                 "kit",
                 "tool",
+                "vehicle",
                 "equipment",
                 "material",
                 "safety_item",
@@ -25259,6 +25267,7 @@
                 "enum": [
                   "kit_image",
                   "tool_image",
+                  "vehicle_image",
                   "equipment_image",
                   "material_image",
                   "safety_item_image",
@@ -25293,6 +25302,7 @@
                 "enum": [
                   "kit",
                   "tool",
+                  "vehicle",
                   "equipment",
                   "material",
                   "safety_item",
@@ -46093,6 +46103,7 @@
           "enum": [
             "kit_image",
             "tool_image",
+            "vehicle_image",
             "equipment_image",
             "material_image",
             "safety_item_image",
@@ -46127,6 +46138,7 @@
           "enum": [
             "kit",
             "tool",
+            "vehicle",
             "equipment",
             "material",
             "safety_item",
@@ -46241,6 +46253,7 @@
           "enum": [
             "kit_image",
             "tool_image",
+            "vehicle_image",
             "equipment_image",
             "material_image",
             "safety_item_image",
@@ -46271,6 +46284,7 @@
           "enum": [
             "kit",
             "tool",
+            "vehicle",
             "equipment",
             "material",
             "safety_item",
@@ -46313,6 +46327,7 @@
           "enum": [
             "kit_image",
             "tool_image",
+            "vehicle_image",
             "equipment_image",
             "material_image",
             "safety_item_image",
@@ -46343,6 +46358,7 @@
           "enum": [
             "kit",
             "tool",
+            "vehicle",
             "equipment",
             "material",
             "safety_item",
@@ -46388,6 +46404,7 @@
               "enum": [
                 "kit_image",
                 "tool_image",
+                "vehicle_image",
                 "equipment_image",
                 "material_image",
                 "safety_item_image",
@@ -46422,6 +46439,7 @@
               "enum": [
                 "kit",
                 "tool",
+                "vehicle",
                 "equipment",
                 "material",
                 "safety_item",
@@ -54879,6 +54897,7 @@
                 "enum": [
                   "kit_image",
                   "tool_image",
+                  "vehicle_image",
                   "equipment_image",
                   "material_image",
                   "safety_item_image",
@@ -54913,6 +54932,7 @@
                 "enum": [
                   "kit",
                   "tool",
+                  "vehicle",
                   "equipment",
                   "material",
                   "safety_item",
@@ -55028,6 +55048,7 @@
               "enum": [
                 "kit_image",
                 "tool_image",
+                "vehicle_image",
                 "equipment_image",
                 "material_image",
                 "safety_item_image",
@@ -55062,6 +55083,7 @@
               "enum": [
                 "kit",
                 "tool",
+                "vehicle",
                 "equipment",
                 "material",
                 "safety_item",
@@ -67080,6 +67102,7 @@
                 "enum": [
                   "kit_image",
                   "tool_image",
+                  "vehicle_image",
                   "equipment_image",
                   "material_image",
                   "safety_item_image",
@@ -67114,6 +67137,7 @@
                 "enum": [
                   "kit",
                   "tool",
+                  "vehicle",
                   "equipment",
                   "material",
                   "safety_item",
@@ -67529,6 +67553,7 @@
                 "enum": [
                   "kit_image",
                   "tool_image",
+                  "vehicle_image",
                   "equipment_image",
                   "material_image",
                   "safety_item_image",
@@ -67563,6 +67588,7 @@
                 "enum": [
                   "kit",
                   "tool",
+                  "vehicle",
                   "equipment",
                   "material",
                   "safety_item",
@@ -93822,6 +93848,7 @@
                 "enum": [
                   "kit_image",
                   "tool_image",
+                  "vehicle_image",
                   "equipment_image",
                   "material_image",
                   "safety_item_image",
@@ -93856,6 +93883,7 @@
                 "enum": [
                   "kit",
                   "tool",
+                  "vehicle",
                   "equipment",
                   "material",
                   "safety_item",
@@ -97914,6 +97942,112 @@
       ],
       "type": "object"
     },
+    "VehiclePhotoParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "photoId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "photoId"
+      ],
+      "type": "object"
+    },
+    "VehiclePhotoSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        "isPrimary": {
+          "type": "boolean"
+        },
+        "title": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        "uploadedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "url": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "url",
+        "title",
+        "isPrimary",
+        "uploadedAt"
+      ],
+      "type": "object"
+    },
+    "VehiclePhotoUploadFormSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "VehiclePrimaryPhotoSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "const": "absent",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "fileAssetId": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            "status": {
+              "const": "present",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "fileAssetId"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "VehicleSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -97943,6 +98077,159 @@
         "driverName": {
           "maxLength": 200,
           "type": "string"
+        },
+        "fileAssets": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "enum": [
+                  "kit_image",
+                  "tool_image",
+                  "vehicle_image",
+                  "equipment_image",
+                  "material_image",
+                  "safety_item_image",
+                  "evidence_photo",
+                  "before_photo",
+                  "after_photo",
+                  "signature_image",
+                  "signed_document",
+                  "delivery_record_attachment",
+                  "technical_report_attachment",
+                  "cctv_photo",
+                  "life_line_photo",
+                  "planning_attachment",
+                  "checklist_evidence",
+                  "report_cover"
+                ],
+                "type": "string"
+              },
+              "checksum": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "description": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "entityId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "entityType": {
+                "enum": [
+                  "kit",
+                  "tool",
+                  "vehicle",
+                  "equipment",
+                  "material",
+                  "safety_item",
+                  "evidence",
+                  "delivery_record",
+                  "technical_report",
+                  "planning",
+                  "checklist_item",
+                  "work_order",
+                  "execution_session"
+                ],
+                "type": "string"
+              },
+              "height": {
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991,
+                "type": "integer"
+              },
+              "id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "mimeType": {
+                "maxLength": 127,
+                "minLength": 1,
+                "type": "string"
+              },
+              "offlineLocalId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "originalName": {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              "sizeBytes": {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "storageKey": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "storedName": {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              "syncStatus": {
+                "enum": [
+                  "synced",
+                  "pending",
+                  "failed"
+                ],
+                "type": "string"
+              },
+              "tags": {
+                "items": {
+                  "maxLength": 50,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              "thumbnailUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "uploadedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "uploadedBy": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "url": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "width": {
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "originalName",
+              "storedName",
+              "mimeType",
+              "sizeBytes",
+              "url",
+              "storageKey",
+              "uploadedBy",
+              "uploadedAt",
+              "entityType",
+              "entityId",
+              "category"
+            ],
+            "type": "object"
+          },
+          "type": "array"
         },
         "insuranceExpiry": {
           "format": "date-time",
@@ -97979,6 +98266,45 @@
           "minLength": 5,
           "pattern": "^[A-Z0-9-]+$",
           "type": "string"
+        },
+        "primaryPhoto": {
+          "default": {
+            "status": "absent"
+          },
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "fileAssetId": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status",
+                "fileAssetId"
+              ],
+              "type": "object"
+            }
+          ]
         },
         "soatExpiry": {
           "format": "date-time",
@@ -98027,7 +98353,9 @@
         "year",
         "type",
         "kilometers",
-        "status"
+        "status",
+        "fileAssets",
+        "primaryPhoto"
       ],
       "type": "object"
     },

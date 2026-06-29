@@ -148,6 +148,12 @@ describe("FileAsset contract", () => {
 	});
 
 	describe("Category taxonomy", () => {
+		it("supports vehicle photos through the canonical file engine", () => {
+			expect(FileAssetEntityType.options).toContain("vehicle");
+			expect(FileAssetCategory.options).toContain("vehicle_image");
+			expect(FileAssetCategoryPresets.vehicle).toBe("vehicle_image");
+		});
+
 		it("exposes the canonical Phase 42 file categories", () => {
 			const values = FileAssetCategory.options;
 			expect(values).toContain("kit_image");

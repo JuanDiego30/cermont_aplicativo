@@ -22,6 +22,7 @@ import { z } from "zod";
 export const FileAssetCategory = z.enum([
 	"kit_image",
 	"tool_image",
+	"vehicle_image",
 	"equipment_image",
 	"material_image",
 	"safety_item_image",
@@ -55,6 +56,7 @@ export type FileAssetSyncStatus = z.infer<typeof FileAssetSyncStatus>;
 export const FileAssetEntityType = z.enum([
 	"kit",
 	"tool",
+	"vehicle",
 	"equipment",
 	"material",
 	"safety_item",
@@ -194,6 +196,7 @@ export type AllowedFileMimeType = (typeof ALLOWED_FILE_MIME_TYPES)[number];
 export const FileAssetCategoryPresets = {
 	kit: "kit_image" as const,
 	tool: "tool_image" as const,
+	vehicle: "vehicle_image" as const,
 	equipment: "equipment_image" as const,
 	material: "material_image" as const,
 	safetyItem: "safety_item_image" as const,

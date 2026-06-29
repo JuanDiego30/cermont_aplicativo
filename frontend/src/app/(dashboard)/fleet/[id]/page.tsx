@@ -4,7 +4,7 @@
  * /fleet/[id] — Vehicle detail page with document alerts
  */
 
-import { evaluateFleetReadiness } from "@cermont/domain";
+import { evaluateFleetReadiness, hasRole, MANAGEMENT_ROLES } from "@cermont/domain";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import { useMemo, useSyncExternalStore } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { FleetPhotoGallery } from "@/modules/fleet/ui/FleetPhotoGallery";
 import { FleetReadinessBadge } from "@/modules/fleet/ui/FleetReadinessBadge";
 
@@ -57,6 +58,8 @@ function useIsClient(): boolean {
 export default function FleetDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const isClient = useIsClient();
+	const { user } = useAuth();
+	const canManage = hasRole(user?.role ?? "", MANAGEMENT_ROLES);
 
 	const { data, isLoading, error } = useQuery<VehicleDetail>({
 		queryKey: ["vehicle", id],
@@ -188,7 +191,7 @@ export default function FleetDetailPage() {
 				</div>
 			)}
 
-			<FleetPhotoGallery vehicleId={data._id} />
+			<FleetPhotoGallery vehicleId={data._id} canManage={canManage} />
 		</section>
 	);
 }

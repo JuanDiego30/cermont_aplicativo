@@ -3,9 +3,15 @@ import {
 	ListVehiclesQuerySchema,
 	UpdateVehicleSchema,
 	VehicleIdParamsSchema,
+	VehiclePhotoParamsSchema,
+	VehiclePhotoUploadFormSchema,
 } from "@cermont/shared-types";
 import type { Request, Response } from "express";
-import { sendCreated, sendSuccess } from "../../common/interceptors/response.interceptor";
+import {
+	sendCreated,
+	sendNoContent,
+	sendSuccess,
+} from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import * as FleetService from "./fleet.service";
 
@@ -45,4 +51,47 @@ export async function updateVehicle(req: Request, res: Response): Promise<void> 
 	const input = UpdateVehicleSchema.parse(req.body);
 	const vehicle = await FleetService.updateVehicle(id, input, String(user._id));
 	sendSuccess(res, vehicle);
+}
+
+export async function listVehiclePhotos(req: Request, res: Response): Promise<void> {
+	requireUser(req);
+	const { id } = VehicleIdParamsSchema.parse(req.params);
+	const photos = await FleetService.listVehiclePhotos(id);
+	sendSuccess(res, photos);
+}
+
+export async function uploadVehiclePhoto(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const { id } = VehicleIdParamsSchema.parse(req.params);
+	const input = VehiclePhotoUploadFormSchema.parse(req.body);
+	if (!req.file) {
+		res.status(400).json({
+			success: false,
+			error: { code: "FILE_REQUIRED", message: "No file was uploaded under field 'file'" },
+		});
+		return;
+	}
+
+	const photo = await FleetService.uploadVehiclePhoto(
+		id,
+		req.file,
+		input.title ?? req.file.originalname,
+		String(user._id),
+		String(user.email ?? user._id),
+	);
+	sendCreated(res, photo);
+}
+
+export async function setPrimaryVehiclePhoto(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const { id, photoId } = VehiclePhotoParamsSchema.parse(req.params);
+	const photo = await FleetService.setPrimaryVehiclePhoto(id, photoId, String(user._id));
+	sendSuccess(res, photo);
+}
+
+export async function deleteVehiclePhoto(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const { id, photoId } = VehiclePhotoParamsSchema.parse(req.params);
+	await FleetService.deleteVehiclePhoto(id, photoId, String(user._id));
+	sendNoContent(res);
 }

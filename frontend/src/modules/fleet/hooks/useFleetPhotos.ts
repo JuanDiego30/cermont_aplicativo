@@ -1,11 +1,11 @@
 "use client";
 
+import type { VehiclePhoto } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import {
 	deleteVehiclePhoto,
-	type FleetPhoto,
 	getVehiclePhotos,
 	setVehiclePrimaryPhoto,
 	uploadVehiclePhoto,
@@ -21,7 +21,7 @@ export function useFleetPhotos(vehicleId: string) {
 		isLoading,
 		error,
 		refetch,
-	} = useQuery<FleetPhoto[]>({
+	} = useQuery<VehiclePhoto[]>({
 		queryKey: [FLEET_PHOTOS_KEY, vehicleId],
 		queryFn: () => getVehiclePhotos(vehicleId),
 		enabled: !!vehicleId,

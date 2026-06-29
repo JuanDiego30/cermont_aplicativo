@@ -4,7 +4,12 @@
  * Thin wrapper over `apiClient` for `/api/fleet` endpoints.
  */
 
-import type { CreateVehicleInput, Vehicle, VehicleDocumentAlert } from "@cermont/shared-types";
+import type {
+	CreateVehicleInput,
+	Vehicle,
+	VehicleDocumentAlert,
+	VehiclePhoto,
+} from "@cermont/shared-types";
 import { apiClient } from "@/lib/http/api-client";
 
 export interface FleetListFilters {
@@ -52,17 +57,8 @@ export async function getExpiringVehicleDocuments(): Promise<VehicleDocumentAler
 
 // ─── Fleet Photo API ────────────────────────────────────────────────
 
-export interface FleetPhoto {
-	_id: string;
-	url: string;
-	filename: string;
-	title: string;
-	isPrimary: boolean;
-	uploadedAt: string;
-}
-
-export async function getVehiclePhotos(vehicleId: string): Promise<FleetPhoto[]> {
-	const envelope = await apiClient.get<{ success: boolean; data: FleetPhoto[] }>(
+export async function getVehiclePhotos(vehicleId: string): Promise<VehiclePhoto[]> {
+	const envelope = await apiClient.get<{ success: boolean; data: VehiclePhoto[] }>(
 		`/fleet/${vehicleId}/photos`,
 	);
 	return envelope.data;
@@ -72,13 +68,13 @@ export async function uploadVehiclePhoto(
 	vehicleId: string,
 	file: File,
 	title?: string,
-): Promise<FleetPhoto> {
+): Promise<VehiclePhoto> {
 	const formData = new FormData();
 	formData.append("file", file);
 	if (title) {
 		formData.append("title", title);
 	}
-	const envelope = await apiClient.post<{ success: boolean; data: FleetPhoto }>(
+	const envelope = await apiClient.post<{ success: boolean; data: VehiclePhoto }>(
 		`/fleet/${vehicleId}/photos`,
 		formData,
 	);
@@ -88,8 +84,8 @@ export async function uploadVehiclePhoto(
 export async function setVehiclePrimaryPhoto(
 	vehicleId: string,
 	photoId: string,
-): Promise<FleetPhoto> {
-	const envelope = await apiClient.patch<{ success: boolean; data: FleetPhoto }>(
+): Promise<VehiclePhoto> {
+	const envelope = await apiClient.patch<{ success: boolean; data: VehiclePhoto }>(
 		`/fleet/${vehicleId}/photos/${photoId}/primary`,
 		{},
 	);

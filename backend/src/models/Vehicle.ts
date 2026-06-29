@@ -1,5 +1,8 @@
 import type { VehicleStatus, VehicleType } from "@cermont/shared-types";
 import mongoose, { type Model, Schema } from "mongoose";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
+
+export type VehiclePrimaryPhoto = { status: "absent" } | { status: "present"; fileAssetId: string };
 
 export interface VehicleRecord {
 	plate: string;
@@ -18,11 +21,27 @@ export interface VehicleRecord {
 	kilometers: number;
 	status: VehicleStatus;
 	notes?: string;
+	fileAssets: FileAssetRef[];
+	primaryPhoto: VehiclePrimaryPhoto;
 	createdBy?: mongoose.Types.ObjectId;
 	updatedBy?: mongoose.Types.ObjectId;
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+const vehiclePrimaryPhotoSchema = new Schema<VehiclePrimaryPhoto>(
+	{
+		status: { type: String, enum: ["absent", "present"], required: true },
+		fileAssetId: {
+			type: String,
+			maxlength: 64,
+			required: function requirePresentPhotoId(this: VehiclePrimaryPhoto) {
+				return this.status === "present";
+			},
+		},
+	},
+	{ _id: false },
+);
 
 const vehicleSchema = new Schema<VehicleRecord>(
 	{
@@ -58,6 +77,12 @@ const vehicleSchema = new Schema<VehicleRecord>(
 			index: true,
 		},
 		notes: { type: String, maxlength: 500 },
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
+		primaryPhoto: {
+			type: vehiclePrimaryPhotoSchema,
+			required: true,
+			default: () => ({ status: "absent" }),
+		},
 		createdBy: { type: Schema.Types.ObjectId, ref: "User" },
 		updatedBy: { type: Schema.Types.ObjectId, ref: "User" },
 	},

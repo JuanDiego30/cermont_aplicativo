@@ -35,6 +35,7 @@ import { FileAsset, type IFileAssetDocument } from "../../models/FileAsset";
 import { Kit } from "../../models/Kit";
 import { Resource } from "../../models/Resource";
 import { TechnicalReport } from "../../models/TechnicalReport";
+import { VehicleModel } from "../../models/Vehicle";
 import { createAuditLog } from "../audit/audit.service";
 
 const log = createLogger("files-service");
@@ -108,6 +109,15 @@ const PARENT_MODELS: Partial<Record<FileAssetEntityType, ParentModel>> = {
 		},
 	),
 	tool: resourceParentModel,
+	vehicle: createParentModel(
+		async (id) => Boolean(await VehicleModel.exists({ _id: id })),
+		async (id, ref) => {
+			await VehicleModel.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await VehicleModel.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
 	equipment: resourceParentModel,
 	material: resourceParentModel,
 	safety_item: resourceParentModel,

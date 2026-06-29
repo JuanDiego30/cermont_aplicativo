@@ -50,6 +50,7 @@ import invoiceRoutes from "./modules/invoice/invoice.routes";
 import invoicePaymentRoutes from "./modules/invoice/invoice-payment.routes";
 import kitRoutes from "./modules/kit/kit.routes";
 import maintenanceRoutes from "./modules/maintenance/maintenance.routes";
+import mediaRoutes from "./modules/media/media.routes";
 import notificationsRoutes from "./modules/notifications/notifications.routes";
 import observabilityRoutes from "./modules/observability/observability.routes";
 import orderRoutes from "./modules/order/order.routes";
@@ -229,6 +230,7 @@ const API_MOUNTS: ApiMount[] = [
 	{ prefix: "/api/custom-fields", router: customFieldRoutes },
 	{ prefix: "/api/kits", router: kitRoutes },
 	{ prefix: "/api/maintenance", router: maintenanceRoutes },
+	{ prefix: "/api/media", router: mediaRoutes },
 	{ prefix: "/api/documents", router: documentRoutes },
 	{ prefix: "/api/documents", router: documentImportRoutes },
 	{ prefix: "/api/documents", router: documentIngestionRoutes },
