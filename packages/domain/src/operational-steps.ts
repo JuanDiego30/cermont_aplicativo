@@ -18,6 +18,7 @@ export type OperationalStepStatus =
 export interface OperationalStep {
 	stepNumber: number;
 	key: string;
+	canonicalCode: string;
 	label: string;
 	entityName: string;
 	requiresEvidence: boolean;
@@ -38,6 +39,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 1,
 		key: "work_request",
+		canonicalCode: "STEP_01_WORK_REQUEST",
 		label: "Solicitud del Cliente",
 		entityName: "WorkRequest",
 		requiresEvidence: false,
@@ -49,6 +51,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 2,
 		key: "site_visit",
+		canonicalCode: "STEP_02_SITE_VISIT",
 		label: "Visita Técnica",
 		entityName: "SiteVisit",
 		requiresEvidence: true,
@@ -60,6 +63,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 3,
 		key: "proposal",
+		canonicalCode: "STEP_03_PROPOSAL",
 		label: "Propuesta Económica",
 		entityName: "Proposal",
 		requiresEvidence: false,
@@ -71,6 +75,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 4,
 		key: "purchase_order",
+		canonicalCode: "STEP_04_PURCHASE_ORDER",
 		label: "Aprobación con PO",
 		entityName: "PurchaseOrder",
 		requiresEvidence: false,
@@ -82,6 +87,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 5,
 		key: "planning",
+		canonicalCode: "STEP_05_PLANNING",
 		label: "Planeación de Obra",
 		entityName: "PlanningPacket",
 		requiresEvidence: false,
@@ -93,6 +99,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 6,
 		key: "execution",
+		canonicalCode: "STEP_06_EXECUTION",
 		label: "Ejecución en Campo",
 		entityName: "ExecutionSession",
 		requiresEvidence: true,
@@ -104,6 +111,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 7,
 		key: "technical_report",
+		canonicalCode: "STEP_07_TECHNICAL_REPORT",
 		label: "Informe Técnico",
 		entityName: "TechnicalReport",
 		requiresEvidence: false,
@@ -115,6 +123,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 8,
 		key: "delivery_record",
+		canonicalCode: "STEP_08_DELIVERY_RECORD",
 		label: "Acta de Entrega",
 		entityName: "DeliveryRecord",
 		requiresEvidence: false,
@@ -126,6 +135,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 9,
 		key: "client_signature",
+		canonicalCode: "STEP_09_CLIENT_SIGNATURE",
 		label: "Firma del Cliente",
 		entityName: "ClientSignature",
 		requiresEvidence: true,
@@ -137,6 +147,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 10,
 		key: "ses",
+		canonicalCode: "STEP_10_SES",
 		label: "SES / Ariba",
 		entityName: "ServiceEntrySheet",
 		requiresEvidence: false,
@@ -148,6 +159,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 11,
 		key: "invoice",
+		canonicalCode: "STEP_11_INVOICE",
 		label: "Factura",
 		entityName: "Invoice",
 		requiresEvidence: false,
@@ -159,6 +171,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 12,
 		key: "invoice_approval",
+		canonicalCode: "STEP_12_INVOICE_APPROVAL",
 		label: "Aprobación de Factura",
 		entityName: "InvoiceApproval",
 		requiresEvidence: false,
@@ -170,6 +183,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 13,
 		key: "payment",
+		canonicalCode: "STEP_13_PAYMENT",
 		label: "Pago",
 		entityName: "Payment",
 		requiresEvidence: false,
@@ -181,6 +195,7 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 14,
 		key: "closure",
+		canonicalCode: "STEP_14_CLOSURE",
 		label: "Cierre Administrativo",
 		entityName: "ServiceCase",
 		requiresEvidence: false,
@@ -190,6 +205,9 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 		allowedRoles: ["gerente", "residente", "administrativo"],
 	},
 ];
+
+/** Canonical codes for all 14 steps */
+export const CANONICAL_CODES: readonly string[] = OPERATIONAL_STEPS.map((s) => s.canonicalCode);
 
 /** Step keys as a type for discriminated unions */
 export type OperationalStepKey = (typeof OPERATIONAL_STEPS)[number]["key"];

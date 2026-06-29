@@ -99,8 +99,8 @@ export type {
 	OperationalStepStatus,
 } from "./operational-steps";
 export {
+	CANONICAL_CODES,
 	getNextStep,
-	getStep,
 	isValidStepKey,
 	OPERATIONAL_STEPS,
 	STEP_BY_KEY,
