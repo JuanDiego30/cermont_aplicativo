@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
@@ -43,8 +44,17 @@ const STATUS_STYLES: Record<string, string> = {
 	out_of_service: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
 };
 
+function useIsClient(): boolean {
+	return useSyncExternalStore(
+		() => () => {},
+		() => true,
+		() => false,
+	);
+}
+
 export default function FleetDetailPage() {
 	const { id } = useParams<{ id: string }>();
+	const isClient = useIsClient();
 
 	const { data, isLoading, error } = useQuery<VehicleDetail>({
 		queryKey: ["vehicle", id],
@@ -151,7 +161,7 @@ export default function FleetDetailPage() {
 				/>
 			</div>
 
-			{data.soatExpiry && new Date(data.soatExpiry) < new Date() && (
+			{isClient && data.soatExpiry && new Date(data.soatExpiry) < new Date() && (
 				<div className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/40 p-3 text-sm text-[var(--color-danger)]">
 					<CalendarClock className="size-4 shrink-0" aria-hidden="true" />
 					<span>SOAT vencido. No se puede asignar conductor.</span>

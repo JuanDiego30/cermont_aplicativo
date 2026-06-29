@@ -467,7 +467,13 @@ describe("EvidenceService", () => {
 			);
 
 			const verifierId = "507f1f77bcf86cd799439088";
-			const result = await evidenceService.verifyEvidence("evidence-id-1", verifierId, "gerente");
+			const result = await evidenceService.verifyEvidence(
+				"evidence-id-1",
+				verifierId,
+				"gerente",
+				true,
+				"approved",
+			);
 
 			expect(Evidence.findById).toHaveBeenCalledWith("evidence-id-1");
 			expect(evidenceDoc.verifiedAt).toBeInstanceOf(Date);

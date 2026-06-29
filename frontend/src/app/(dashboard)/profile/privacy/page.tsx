@@ -4,7 +4,7 @@
  * /profile/privacy — Privacy requests management page
  */
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -36,12 +36,9 @@ const STATUS_STYLES: Record<string, string> = {
 export default function PrivacyRequestsPage() {
 	const [requestType, setRequestType] = useState("");
 	const [description, setDescription] = useState("");
+	const queryClient = useQueryClient();
 
-	const {
-		data: requests = [],
-		isLoading,
-		refetch,
-	} = useQuery<PrivacyRequest[]>({
+	const { data: requests = [], isLoading } = useQuery<PrivacyRequest[]>({
 		queryKey: ["privacy-requests"],
 		queryFn: async () => {
 			const json = await apiClient.get<{ success: boolean; data: PrivacyRequest[] }>(
@@ -59,7 +56,7 @@ export default function PrivacyRequestsPage() {
 			toast.success("Solicitud enviada correctamente");
 			setRequestType("");
 			setDescription("");
-			refetch();
+			queryClient.invalidateQueries({ queryKey: ["privacy-requests"] });
 		},
 		onError: (err: Error) => {
 			toast.error(err.message || "Error al enviar la solicitud");

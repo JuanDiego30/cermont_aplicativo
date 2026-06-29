@@ -147,8 +147,16 @@ export async function deleteEvidence(req: Request, res: Response): Promise<void>
 export async function verifyEvidence(req: Request, res: Response): Promise<void> {
 	const { id } = EvidenceIdSchema.parse(req.params);
 	const user = requireUser(req);
+	const { verified, comment = "" } = req.body as { verified: boolean; comment?: string };
 
-	const evidence = await EvidenceService.verifyEvidence(id, user._id, user.role, user);
+	const evidence = await EvidenceService.verifyEvidence(
+		id,
+		user._id,
+		user.role,
+		verified,
+		comment,
+		user,
+	);
 
 	res.status(200).json({
 		success: true,

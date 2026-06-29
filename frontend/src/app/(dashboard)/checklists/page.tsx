@@ -84,6 +84,7 @@ export default function ChecklistsPage() {
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						placeholder="Buscar por orden…"
+						aria-label="Buscar checklists por orden"
 						className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] py-2 pl-9 pr-3 text-sm"
 					/>
 				</div>

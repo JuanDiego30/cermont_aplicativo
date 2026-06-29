@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:2bba725f7677775336bbfee6a74cefcc7989efb6f2bffa4fa2ce968c3c911f1b",
+	"currentSnapshotHash": "sha256:a4248a4326ae5bb07d55051592268fdc20482caf3f501993510186c52d1b6615",
 	"migrations": [
 		{
 			"id": "050-business-document-erp-connector-schemas",
@@ -371,6 +371,13 @@
 			"type": "non-breaking",
 			"description": "Add CreateMaintenanceScheduleSchema/UpdateMaintenanceScheduleSchema and ScheduleFrequencyEnum for the Spec 008 maintenance schedule CRUD endpoints.",
 			"toHash": "sha256:2bba725f7677775336bbfee6a74cefcc7989efb6f2bffa4fa2ce968c3c911f1b"
+		},
+		{
+			"id": "052-evidence-rejected-audit-action",
+			"date": "2026-06-29",
+			"type": "non-breaking",
+			"description": "Regenerate contract snapshot after evidence controller fix exposes EVIDENCE_REJECTED audit action in generated contracts.",
+			"toHash": "sha256:a4248a4326ae5bb07d55051592268fdc20482caf3f501993510186c52d1b6615"
 		}
 	]
 }

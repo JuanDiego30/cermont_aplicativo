@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/http/api-client";
@@ -20,6 +20,7 @@ export function useEvidenceForm(orderId: string, onSuccess?: () => void) {
 		description: "",
 		file: null,
 	});
+	const queryClient = useQueryClient();
 
 	const uploadMutation = useMutation({
 		mutationFn: async (formData: FormData) => {
@@ -29,6 +30,7 @@ export function useEvidenceForm(orderId: string, onSuccess?: () => void) {
 		onSuccess: () => {
 			toast.success("Evidencia subida correctamente");
 			setState({ title: "", description: "", file: null });
+			queryClient.invalidateQueries({ queryKey: ["evidences"] });
 			onSuccess?.();
 		},
 		onError: (error: Error) => {
