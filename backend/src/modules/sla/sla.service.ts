@@ -298,6 +298,72 @@ export const SLAService = {
 		});
 		return tracking;
 	},
+
+	async getWorkOrderStatus(workOrderId: string) {
+		const tracking = await SLATrackingModel.findOne({
+			serviceCaseId: workOrderId,
+		})
+			.sort({ createdAt: -1 })
+			.lean();
+
+		if (!tracking) {
+			return {
+				status: "not_tracked",
+				message: "No SLA tracking found for this work order",
+			};
+		}
+
+		const now = new Date();
+		const timeRemaining = {
+			response: Math.max(0, tracking.responseDeadline.getTime() - now.getTime()),
+			escalation: Math.max(0, tracking.escalationDeadline.getTime() - now.getTime()),
+			resolution: Math.max(0, tracking.resolutionDeadline.getTime() - now.getTime()),
+		};
+
+		return {
+			status: tracking.status,
+			priority: tracking.priority,
+			currentStep: tracking.currentStep,
+			escalationLevel: tracking.escalationLevel,
+			deadlines: {
+				responseDeadline: tracking.responseDeadline.toISOString(),
+				escalationDeadline: tracking.escalationDeadline.toISOString(),
+				resolutionDeadline: tracking.resolutionDeadline.toISOString(),
+			},
+			timeRemainingMs: timeRemaining,
+			firstResponseAt: tracking.firstResponseAt?.toISOString() ?? null,
+			resolvedAt: tracking.resolvedAt?.toISOString() ?? null,
+			breachReason: tracking.breachReason ?? null,
+			trackingId: tracking._id.toString(),
+		};
+	},
+
+	async getSyncSummary() {
+		await this.refreshTrackingStatuses();
+		const [total, active, breached, atRisk, resolved, escalated] = await Promise.all([
+			SLATrackingModel.countDocuments(),
+			SLATrackingModel.countDocuments({ status: "active" }),
+			SLATrackingModel.countDocuments({ status: "breached" }),
+			SLATrackingModel.countDocuments({ status: "at_risk" }),
+			SLATrackingModel.countDocuments({ status: "resolved" }),
+			SLATrackingModel.countDocuments({ status: "escalated" }),
+		]);
+
+		const settled = resolved + breached + escalated;
+
+		return {
+			summary: {
+				total,
+				active,
+				breached,
+				atRisk,
+				resolved,
+				escalated,
+				complianceRate: settled > 0 ? Math.round((resolved / settled) * 100) : 100,
+			},
+			generatedAt: new Date().toISOString(),
+		};
+	},
 };
 
 export function startSlaWorker(): () => void {

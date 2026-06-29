@@ -495,6 +495,56 @@ export async function createEvidenceV2(
 }
 
 /**
+ * Track evidence download — creates audit log without exposing file content
+ */
+export async function trackDownload(
+	evidenceId: string,
+	userId: string,
+): Promise<{ url: string; filename: string }> {
+	const evidence = await Evidence.findById(evidenceId).lean();
+	if (!evidence) {
+		throw new NotFoundError("Evidence", evidenceId);
+	}
+
+	await createAuditLog({
+		action: "EVIDENCE_PDF_DOWNLOADED",
+		entity: "Evidence",
+		entityId: evidence._id.toString(),
+		userId,
+		metadata: {
+			orderId: evidence.workOrderId?.toString() || evidence.orderId?.toString() || "",
+			filename: evidence.filename,
+			sizeBytes: evidence.sizeBytes,
+		},
+	});
+
+	return { url: evidence.url, filename: evidence.filename };
+}
+
+/**
+ * Track evidence view — records that user viewed the evidence
+ */
+export async function trackView(
+	evidenceId: string,
+	actor: EvidenceActor,
+): Promise<EvidenceSnapshot> {
+	const evidence = await getEvidenceById(evidenceId, actor);
+
+	await createAuditLog({
+		action: "EVIDENCE_FILE_VIEWED",
+		entity: "Evidence",
+		entityId: evidenceId,
+		userId: actor._id,
+		metadata: {
+			orderId: evidence.orderId,
+			filename: evidence.filename,
+		},
+	});
+
+	return evidence;
+}
+
+/**
  * Get evidences for an order
  *
  * @param orderId - Order ID

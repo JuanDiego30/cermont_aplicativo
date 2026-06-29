@@ -37,4 +37,14 @@ router.post(
 	SLAController.escalate,
 );
 
+// GET /api/sla/work-orders/:id/status — SLA status for a specific work order
+router.get(
+	"/work-orders/:id/status",
+	authorize(...INTERNAL_ROLES),
+	SLAController.getWorkOrderStatus,
+);
+
+// GET /api/sla/summary — Aggregated SLA compliance summary
+router.get("/summary", authorize(...INTERNAL_ROLES), SLAController.getSummary);
+
 export default router;

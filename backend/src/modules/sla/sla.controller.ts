@@ -38,4 +38,16 @@ export const SLAController = {
 		const tracking = await SLAService.escalateTracking(trackingId, reason);
 		res.status(200).json({ success: true, data: tracking });
 	},
+
+	async getWorkOrderStatus(req: Request, res: Response) {
+		requireUser(req);
+		const id = req.params.id as string;
+		const data = await SLAService.getWorkOrderStatus(id);
+		res.status(200).json({ success: true, data });
+	},
+
+	async getSummary(_req: Request, res: Response) {
+		const data = await SLAService.getSyncSummary();
+		res.status(200).json({ success: true, data });
+	},
 };

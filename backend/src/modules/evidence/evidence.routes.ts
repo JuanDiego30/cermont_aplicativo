@@ -92,4 +92,24 @@ router.post(
 	EvidenceController.verifyEvidence,
 );
 
+// POST /api/evidences/:id/download — Track evidence PDF download
+// Roles: Todos (all authenticated users)
+router.post(
+	"/:id/download",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(EvidenceIdSchema),
+	EvidenceController.downloadEvidence,
+);
+
+// POST /api/evidences/:id/view — Track evidence file view
+// Roles: Todos (all authenticated users)
+router.post(
+	"/:id/view",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(EvidenceIdSchema),
+	EvidenceController.viewEvidence,
+);
+
 export default router;

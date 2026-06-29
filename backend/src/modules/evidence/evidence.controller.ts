@@ -155,3 +155,21 @@ export async function verifyEvidence(req: Request, res: Response): Promise<void>
 		data: evidence,
 	});
 }
+
+export async function downloadEvidence(req: Request, res: Response): Promise<void> {
+	const { id } = EvidenceIdSchema.parse(req.params);
+	const user = requireUser(req);
+
+	const result = await EvidenceService.trackDownload(id, user._id);
+
+	res.status(200).json({ success: true, data: result });
+}
+
+export async function viewEvidence(req: Request, res: Response): Promise<void> {
+	const { id } = EvidenceIdSchema.parse(req.params);
+	const user = requireUser(req);
+
+	const result = await EvidenceService.trackView(id, user);
+
+	res.status(200).json({ success: true, data: result });
+}
