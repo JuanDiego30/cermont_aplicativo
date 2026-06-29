@@ -5,7 +5,7 @@
  */
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/core/ui/EmptyState";

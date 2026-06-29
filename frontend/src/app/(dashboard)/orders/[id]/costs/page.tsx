@@ -5,7 +5,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, DollarSign, Loader2 } from "lucide-react";
+import { ArrowLeft, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/core/ui/Skeleton";
