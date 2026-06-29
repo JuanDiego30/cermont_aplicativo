@@ -18,6 +18,12 @@ import {
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import { uploadLimiter } from "../../middlewares/rate-limiter";
+import {
+	evidenceUpload,
+	handleUploadError,
+	validateUploadedFileHeaders,
+} from "../../middlewares/uploadMiddleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 import * as AssetController from "./asset.controller";
 
@@ -101,6 +107,83 @@ router.delete(
 	authorize("gerente"),
 	validateParams(AssetIdSchema),
 	AssetController.deleteAsset,
+);
+
+// ─── Asset Photo Endpoints ──────────────────────────────────────────
+
+/**
+ * POST /api/assets/:id/photos
+ * Upload photo for asset
+ * Roles: GER, RES
+ */
+router.post(
+	"/:id/photos",
+	authenticate,
+	authorize(...ASSET_MANAGEMENT_ROLES),
+	validateParams(AssetIdSchema),
+	uploadLimiter,
+	evidenceUpload.single("file"),
+	handleUploadError,
+	validateUploadedFileHeaders,
+	AssetController.uploadPhoto,
+);
+
+/**
+ * GET /api/assets/:id/photos
+ * List photos for asset
+ * Roles: Todos (all authenticated users)
+ */
+router.get(
+	"/:id/photos",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(AssetIdSchema),
+	AssetController.getPhotos,
+);
+
+/**
+ * PATCH /api/assets/:id/primary-photo
+ * Set primary photo for asset
+ * Roles: GER, RES
+ */
+router.patch(
+	"/:id/primary-photo",
+	authenticate,
+	authorize(...ASSET_MANAGEMENT_ROLES),
+	validateParams(AssetIdSchema),
+	AssetController.setPrimaryPhoto,
+);
+
+// ─── Asset Document Endpoints ───────────────────────────────────────
+
+/**
+ * POST /api/assets/:id/documents
+ * Upload document for asset
+ * Roles: GER, RES
+ */
+router.post(
+	"/:id/documents",
+	authenticate,
+	authorize(...ASSET_MANAGEMENT_ROLES),
+	validateParams(AssetIdSchema),
+	uploadLimiter,
+	evidenceUpload.single("file"),
+	handleUploadError,
+	validateUploadedFileHeaders,
+	AssetController.uploadDocument,
+);
+
+/**
+ * GET /api/assets/:id/documents
+ * List documents for asset
+ * Roles: Todos (all authenticated users)
+ */
+router.get(
+	"/:id/documents",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(AssetIdSchema),
+	AssetController.getDocuments,
 );
 
 export default router;

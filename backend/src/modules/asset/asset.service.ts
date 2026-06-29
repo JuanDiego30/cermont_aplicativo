@@ -4,8 +4,13 @@ import type {
 	ListAssetsQuery,
 	UpdateAssetInput,
 } from "@cermont/shared-types";
-import { AppError } from "../../common/errors";
+import { Types } from "mongoose";
+import sharp from "sharp";
+import { v4 as uuidv4 } from "uuid";
+import { AppError, NotFoundError } from "../../common/errors";
+import { saveFile } from "../../common/storage/local-storage";
 import { Asset } from "../../models/Asset";
+import { createAuditLog } from "../audit/audit.service";
 
 /**
  * Create a new asset
@@ -203,4 +208,161 @@ export async function deleteAsset(id: AssetId, userRole: string) {
 	).populate("createdBy", "name email");
 
 	return deletedAsset;
+}
+
+// ─── Asset Photo Service ───────────────────────────────────────────
+
+/**
+ * Upload a photo for an asset
+ */
+export async function uploadPhoto(
+	assetId: string,
+	fileBuffer: Buffer,
+	userId: string,
+	title?: string,
+) {
+	const asset = await Asset.findById(assetId);
+	if (!asset) {
+		throw new NotFoundError("Asset", assetId);
+	}
+
+	const unique = uuidv4();
+	const filename = `${unique}.webp`;
+	const compressedBuffer = await sharp(fileBuffer).webp({ quality: 80 }).toBuffer();
+	const url = await saveFile(filename, compressedBuffer);
+
+	const photo = {
+		_id: new Types.ObjectId(),
+		url,
+		filename,
+		title: title || "",
+		mimeType: "image/webp" as const,
+		sizeBytes: compressedBuffer.length,
+		isPrimary: false,
+		uploadedBy: new Types.ObjectId(userId),
+		uploadedAt: new Date(),
+	};
+
+	await Asset.findByIdAndUpdate(assetId, {
+		$push: { photos: photo },
+	});
+
+	await createAuditLog({
+		action: "ASSET_PHOTO_UPLOADED",
+		entity: "Asset",
+		entityId: assetId,
+		userId,
+		metadata: { filename, sizeBytes: compressedBuffer.length },
+	});
+
+	return photo;
+}
+
+/**
+ * Get photos for an asset
+ */
+export async function getPhotos(assetId: string) {
+	const asset = await Asset.findById(assetId).select("photos");
+	if (!asset) {
+		throw new NotFoundError("Asset", assetId);
+	}
+	return (asset as unknown as { photos?: unknown[] }).photos ?? [];
+}
+
+/**
+ * Set a photo as primary for an asset
+ */
+export async function setPrimaryPhoto(
+	assetId: string,
+	photoId: string,
+	userId: string,
+) {
+	const asset = await Asset.findById(assetId);
+	if (!asset) {
+		throw new NotFoundError("Asset", assetId);
+	}
+
+	const photos = (asset as unknown as { photos?: Array<{ _id: Types.ObjectId; isPrimary: boolean }> }).photos ?? [];
+	const photoIndex = photos.findIndex((p) => p._id.toString() === photoId);
+	if (photoIndex === -1) {
+		throw new AppError("Photo not found on asset", 404, "ASSET_PHOTO_NOT_FOUND");
+	}
+
+	for (const photo of photos) {
+		photo.isPrimary = false;
+	}
+	photos[photoIndex].isPrimary = true;
+
+	await asset.save();
+
+	await createAuditLog({
+		action: "ASSET_PRIMARY_PHOTO_CHANGED",
+		entity: "Asset",
+		entityId: assetId,
+		userId,
+		metadata: { photoId },
+	});
+
+	return photos[photoIndex];
+}
+
+// ─── Asset Document Service ─────────────────────────────────────────
+
+/**
+ * Upload a document for an asset
+ */
+export async function uploadDocument(
+	assetId: string,
+	fileBuffer: Buffer,
+	originalName: string,
+	mimeType: string,
+	userId: string,
+	description?: string,
+) {
+	const asset = await Asset.findById(assetId);
+	if (!asset) {
+		throw new NotFoundError("Asset", assetId);
+	}
+
+	const unique = uuidv4();
+	const ext = originalName.split(".").pop() || "bin";
+	const filename = `${unique}.${ext}`;
+	const url = await saveFile(filename, fileBuffer);
+
+	const document = {
+		_id: new Types.ObjectId(),
+		url,
+		filename: originalName,
+		storedFilename: filename,
+		mimeType,
+		sizeBytes: fileBuffer.length,
+		description: description || "",
+		uploadedBy: new Types.ObjectId(userId),
+		uploadedAt: new Date(),
+	};
+
+	await Asset.findByIdAndUpdate(assetId, {
+		$push: { documents: document },
+	});
+
+	await createAuditLog({
+		action: "ASSET_DOCUMENT_UPLOADED",
+		entity: "Asset",
+		entityId: assetId,
+		userId,
+		metadata: { filename: originalName, mimeType, sizeBytes: fileBuffer.length },
+	});
+
+	return document;
+}
+
+/**
+ * Get documents for an asset
+ */
+export async function getDocuments(assetId: string) {
+	const asset = await Asset.findById(assetId).select("documents");
+	if (!asset) {
+		throw new NotFoundError("Asset", assetId);
+	}
+	return (asset as unknown as { documents?: unknown[] }).documents ?? [];
 }

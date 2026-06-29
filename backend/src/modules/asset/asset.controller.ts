@@ -5,6 +5,7 @@ import {
 	UpdateAssetSchema,
 } from "@cermont/shared-types";
 import type { Request, Response } from "express";
+import { BadRequestError } from "../../common/errors/AppError";
 import { requireUser } from "../../common/utils/request";
 import * as AssetService from "./asset.service";
 
@@ -96,4 +97,97 @@ export async function deleteAsset(req: Request, res: Response) {
 	const asset = await AssetService.deleteAsset({ id }, userRole);
 
 	res.status(200).json({ success: true, data: asset });
+}
+
+// ─── Asset Photo Controllers ────────────────────────────────────────
+
+/**
+ * Upload photo for asset
+ * POST /api/assets/:id/photos
+ * Roles: GER, RES
+ */
+export async function uploadPhoto(req: Request, res: Response) {
+	if (!req.file) {
+		throw new BadRequestError("No file uploaded");
+	}
+	const user = requireUser(req);
+	const { id } = AssetIdSchema.parse(req.params);
+
+	const photo = await AssetService.uploadPhoto(
+		id,
+		req.file.buffer,
+		user._id,
+		req.body.title as string | undefined,
+	);
+
+	res.status(201).json({ success: true, data: photo });
+}
+
+/**
+ * List photos for asset
+ * GET /api/assets/:id/photos
+ * Roles: Todos
+ */
+export async function getPhotos(req: Request, res: Response) {
+	requireUser(req);
+	const { id } = AssetIdSchema.parse(req.params);
+
+	const photos = await AssetService.getPhotos(id);
+
+	res.status(200).json({ success: true, data: photos });
+}
+
+/**
+ * Set primary photo for asset
+ * PATCH /api/assets/:id/primary-photo
+ * Roles: GER, RES
+ */
+export async function setPrimaryPhoto(req: Request, res: Response) {
+	const user = requireUser(req);
+	const { id } = AssetIdSchema.parse(req.params);
+	const { photoId } = req.body as { photoId: string };
+
+	const result = await AssetService.setPrimaryPhoto(id, photoId, user._id);
+
+	res.status(200).json({ success: true, data: result });
+}
+
+// ─── Asset Document Controllers ─────────────────────────────────────
+
+/**
+ * Upload document for asset
+ * POST /api/assets/:id/documents
+ * Roles: GER, RES
+ */
+export async function uploadDocument(req: Request, res: Response) {
+	if (!req.file) {
+		throw new BadRequestError("No file uploaded");
+	}
+	const user = requireUser(req);
+	const { id } = AssetIdSchema.parse(req.params);
+
+	const document = await AssetService.uploadDocument(
+		id,
+		req.file.buffer,
+		req.file.originalname,
+		req.file.mimetype,
+		user._id,
+		req.body.description as string | undefined,
+	);
+
+	res.status(201).json({ success: true, data: document });
+}
+
+/**
+ * List documents for asset
+ * GET /api/assets/:id/documents
+ * Roles: Todos
+ */
+export async function getDocuments(req: Request, res: Response) {
+	requireUser(req);
+	const { id } = AssetIdSchema.parse(req.params);
+
+	const documents = await AssetService.getDocuments(id);
+
+	res.status(200).json({ success: true, data: documents });
 }
