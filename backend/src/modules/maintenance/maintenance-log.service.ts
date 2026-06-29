@@ -7,7 +7,6 @@
 
 import type { CreateMaintenanceLogInput } from "@cermont/shared-types";
 import mongoose from "mongoose";
-import { NotFoundError } from "../../common/errors";
 import { createLogger } from "../../common/utils/logger";
 
 const log = createLogger("maintenance-log");

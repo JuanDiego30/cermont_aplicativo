@@ -125,15 +125,25 @@ export async function updateSchedule(
 	data: UpdateMaintenanceScheduleInput,
 ) {
 	const updateData: Record<string, unknown> = {};
-	if (data.title !== undefined) updateData.title = data.title;
-	if (data.description !== undefined) updateData.description = data.description;
+	if (data.title !== undefined) {
+		updateData.title = data.title;
+	}
+	if (data.description !== undefined) {
+		updateData.description = data.description;
+	}
 	if (data.frequency !== undefined) {
 		updateData.frequency = data.frequency;
 		updateData.nextDueAt = computeNextDueDate(new Date(), data.frequency);
 	}
-	if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
-	if (data.endDate !== undefined) updateData.endDate = new Date(data.endDate);
-	if (data.assignedTo !== undefined) updateData.assignedTo = data.assignedTo;
+	if (data.startDate !== undefined) {
+		updateData.startDate = new Date(data.startDate);
+	}
+	if (data.endDate !== undefined) {
+		updateData.endDate = new Date(data.endDate);
+	}
+	if (data.assignedTo !== undefined) {
+		updateData.assignedTo = data.assignedTo;
+	}
 
 	const schedule = await MaintenanceScheduleModel.findByIdAndUpdate(
 		id,
