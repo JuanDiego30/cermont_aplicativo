@@ -1,376 +1,376 @@
 {
-  "currentSnapshotHash": "sha256:2bba725f7677775336bbfee6a74cefcc7989efb6f2bffa4fa2ce968c3c911f1b",
-  "migrations": [
-    {
-      "id": "050-business-document-erp-connector-schemas",
-      "date": "2026-06-14",
-      "type": "non-breaking",
-      "description": "Add BusinessDocument and ErpConnector schemas for multi-ERP abstraction and document-driven template engine.",
-      "toHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64"
-    },
-    {
-      "id": "000-initial-baseline",
-      "date": "2026-04-06",
-      "type": "baseline",
-      "description": "Baseline inicial de contratos API y schemas Zod.",
-      "toHash": "sha256:06f9dcef8e3bb557e84a64b989d9f9ad60ac8b8ee943395f3ca25303411188b0"
-    },
-    {
-      "id": "001-user-update-avatar-url",
-      "date": "2026-04-14",
-      "type": "non-breaking",
-      "description": "Alinea el contrato de actualización de usuario con avatarUrl compartido.",
-      "toHash": "sha256:70be53118e15f3f5840ab6c2cba7b1373a5d047f72269719779677038d7030d7"
-    },
-    {
-      "id": "002-json-payload-contract-alignment",
-      "date": "2026-04-24",
-      "type": "non-breaking",
-      "description": "Align offline payload contracts with JSON-safe shared types and exported AI response schemas.",
-      "toHash": "sha256:2183a325a40c142ced75a9b6479d29260b825caeec0d4ed557831d8fb07a8690"
-    },
-    {
-      "id": "003-contract-snapshot-refresh",
-      "date": "2026-04-27",
-      "type": "non-breaking",
-      "description": "Refresh generated API contract snapshot after exposing current shared schemas.",
-      "toHash": "sha256:39930368ff2ac0c2139226335ee0fa77d8da3651aa6441d44a73b987eaf87b25"
-    },
-    {
-      "id": "004-contract-snapshot-format-alignment",
-      "date": "2026-04-27",
-      "type": "non-breaking",
-      "description": "Align generated API contract snapshot formatting with the repository Biome configuration.",
-      "toHash": "sha256:9f44104d6cf320e64a9fdc7e4c09349e59e339fec674c4a2df559a93552dd623"
-    },
-    {
-      "id": "005-canonical-role-contracts",
-      "date": "2026-04-28",
-      "type": "breaking",
-      "description": "Emit canonical English role values while keeping legacy role inputs normalized at boundaries.",
-      "toHash": "sha256:2c9b5e8068bfc2e971fb40b9e1ac4ea42d9cf9126a56d64dc2016638de88fb8e"
-    },
-    {
-      "id": "006-cost-dashboard-types",
-      "date": "2026-04-29",
-      "type": "non-breaking",
-      "description": "Fix TypeScript errors in costs module - getCostDashboard method, resolveLineDeltaStatus types, hasCosts field.",
-      "toHash": "sha256:9a2ae1d040bc9de2aaee4c8691a1be55603153ae383180407717b764d9650f02"
-    },
-    {
-      "id": "007-clean-order-and-persistence-field-names",
-      "date": "2026-04-29",
-      "type": "breaking",
-      "description": "Replace legacy Spanish order contract fields and selected snake_case persistence fields with canonical English camelCase names.",
-      "toHash": "sha256:b6ff437fac6e2f761a5e99d56d40b6b408caa8b1a38331bc2ea8d1d002a96558"
-    },
-    {
-      "id": "008-enum-values-spanish-to-english",
-      "date": "2026-04-29",
-      "type": "breaking",
-      "description": "Rename all Spanglish enum values to canonical English across execution phases, activity types, inspection types, and kit categories.",
-      "toHash": "sha256:d814ba922b8ef9721b50d9446eed26285197bd98d748fc3647a06a14fb823944"
-    },
-    {
-      "id": "009-clean-execution-phase-contract",
-      "date": "2026-04-30",
-      "type": "breaking",
-      "description": "Remove legacy execution phase and status aliases and omit absent execution phase timestamps from the public order contract.",
-      "toHash": "sha256:6b9c3d2c4731d208a9874c24019afb9c79247984610c2f7195b1fa49935bc748"
-    },
-    {
-      "id": "010-fsm-order-status-enum-expansion",
-      "date": "2026-04-30",
-      "type": "breaking",
-      "description": "Expand OrderStatus enum to 16 values covering the full FSM pipeline (proposal, planning, billing stages). Add FSM transitions, terminal/active/editable state sets, and kanban column mappings.",
-      "toHash": "sha256:f3a1ec7e38a8fb2dfd8d3d86fc69d73c4c60d17fac0c73c0d238c538e417c4b3"
-    },
-    {
-      "id": "011-cerMont-fsm-complete-implementation",
-      "date": "2026-05-01",
-      "type": "breaking",
-      "description": "Complete implementation of the CERMONT FSM pipeline. Includes dynamic personnel assignments, kit availability checks, backend safety verification synchronization, enhanced dashboard metrics, and catalog management for checklists and report templates.",
-      "toHash": "sha256:d7f9565800adaf028d52210aa47b827d763af892aa250c530a6d6df88361d941"
-    },
-    {
-      "id": "012-post-recovery-snapshot-refresh",
-      "date": "2026-05-26",
-      "type": "non-breaking",
-      "description": "Refresh contract snapshot after monorepo workspace and dependency recovery.",
-      "toHash": "sha256:634a577cbdae850296e1c0e5d311b7b0d9d43132d20c096aece4871bad56a5ab"
-    },
-    {
-      "id": "013-maintenance-kit-custom-fields",
-      "date": "2026-05-27",
-      "type": "non-breaking",
-      "description": "Expose maintenance kit customFields for tools and equipment so planning kits can preserve user-defined field values.",
-      "toHash": "sha256:c1ffb311b207191ac8008ba317a1487daefa0f91e59fe32899905860fd6278bc"
-    },
-    {
-      "id": "014-proposal-schema-english-field-names",
-      "date": "2026-05-28",
-      "type": "breaking",
-      "description": "Normalize CreateProposalInputSchema Spanish field names (cliente, descripcion, valorEstimado) to canonical English (client, description, estimatedValue).",
-      "toHash": "sha256:dbaad0a583a9e4cc0bab0649c23f830721bfe97bdfae89d27ea96fd115a2d752"
-    },
-    {
-      "id": "015-offline-entity-types-extension",
-      "date": "2026-05-29",
-      "type": "non-breaking",
-      "description": "Extend OfflineEntityTypeSchema from 3 to 10 types to support full offline sync for work-request, site-visit, checklist, evidence, planning-packet, cost, delivery-record, service-entry-sheet, invoice, and payment entities.",
-      "toHash": "sha256:d06a944d2e136c184e17e10311028478f2d48f7a6c7bff89f6134bfe464c4f93"
-    },
-    {
-      "id": "016-offline-payload-discriminated-unions",
-      "date": "2026-05-30",
-      "type": "non-breaking",
-      "description": "Add discriminated union schemas for offline sync operations (work-request, site-visit, planning-packet, execution-session, evidence) with typed payloads + uuid id field.",
-      "toHash": "sha256:ddaf27405036d9b9af6040e9c1bb6595b5e15abbcc58675d372c30ea7f788871"
-    },
-    {
-      "id": "017-file-asset-contract",
-      "date": "2026-06-01",
-      "type": "non-breaking",
-      "description": "Introduce FileAsset contract (FileAssetRef, FileAssetUploadInput, FileAssetUploadResponse) with category, sync status and entity type taxonomies, plus mime allowlist (jpeg/png/webp/gif/pdf) and category presets. Supports file/image assets for kits, tools, equipment, materials, evidences, before/after photos, signatures, delivery records, technical reports, cctv, life-line, planning, checklist evidence and report covers.",
-      "toHash": "sha256:53702d5ab3548081301c695bc81cfa1942f4413b5dd3d8525bbe6a82c00345cc"
-    },
-    {
-      "id": "018-file-asset-form-input-and-result",
-      "date": "2026-06-01",
-      "type": "non-breaking",
-      "description": "Add FileAssetUploadInputFormSchema for multipart form validation (accepts tags as string or string[] and coerces to string[]) and CreateFileAssetResultSchema for the service-layer return value of createFileAssetFromUpload. The form schema is used as a route-level validateBody middleware on POST /api/files/upload so the controller can rely on req.body being already validated and coerced.",
-      "toHash": "sha256:09adb5eea63e8ac997c07ffc454d263512894ad7026c7ed2274980be10f331a4"
-    },
-    {
-      "id": "019-kit-tool-image-fields",
-      "date": "2026-06-01",
-      "type": "non-breaking",
-      "description": "Add image (single FileAssetRef) and gallery (array of FileAssetRef) fields to KitItemSchema and ToolSchema for support of item-level images in kits and tools/equipment/materials.",
-      "toHash": "sha256:4fd0f714782ffef1317b5c7ee28317700a463e88aeb9ea04479c4423e61da443"
-    },
-    {
-      "id": "020-file-asset-phase-42-taxonomy",
-      "date": "2026-06-02",
-      "type": "non-breaking",
-      "description": "Align FileAsset contract with Phase 42 implementation by adding safety item images, signed documents, safety_item entity ownership, and synced/pending/failed sync statuses.",
-      "toHash": "sha256:19ddeea54f7e9c55f64331774eafe1222a0e677ff6ba039e716164086229487a"
-    },
-    {
-      "id": "021-planning-packet-operational-form-fields",
-      "date": "2026-06-03",
-      "type": "non-breaking",
-      "description": "Extend PlanningPacket contracts with CERMONT planning form fields for inspector, place, date, business unit, scope, materials, safety elements, worker requirements and responsible signatures. Expands planning support document types for ATS/PTW/procedures and certification evidence.",
-      "toHash": "sha256:546e9f85a52f4a6587ec3aea634cc7044160a9199068b9698d65bfdf9480d7ab"
-    },
-    {
-      "id": "022-rbac-status-object-contract-refresh",
-      "date": "2026-06-03",
-      "type": "breaking",
-      "description": "Refresh the API contract snapshot after aligning shared role schemas with the CERMONT operating roles and status-object absence semantics emitted by current shared schemas.",
-      "toHash": "sha256:757e9899ea0bbae6ce943dce54cef4f612c131cc8f7fbcf8d3ae1d858daa2040"
-    },
-    {
-      "id": "023-rbac-auxiliar-hes-lowercase",
-      "date": "2026-06-03",
-      "type": "breaking",
-      "description": "Normalize the Auxiliar HES role value to lowercase auxiliar_hes so shared RBAC validation, role normalization and generated contracts use a single canonical representation.",
-      "toHash": "sha256:032f145bd6e6d0c0b103e56a65c3dbf427e10ae4ab6d8c92b2059677d48589da"
-    },
-    {
-      "id": "024-offline-sync-modern-outbox",
-      "date": "2026-06-04",
-      "type": "non-breaking",
-      "description": "Extend offline sync contracts with modern outbox items, batch ids, item-level sync results, conflict metadata, file metadata and typed JSON payloads while keeping legacy operation support for existing queues.",
-      "toHash": "sha256:a8bf071798eedaaef099ffde05e6aebe08489bdf9f454e860c8ad9aac9aa99e3"
-    },
-    {
-      "id": "025-cost-support-and-voided-history",
-      "date": "2026-06-04",
-      "type": "breaking",
-      "description": "Require support evidence or documents for actual cost entries and expose cost record status plus void metadata so historical costs are voided instead of physically deleted.",
-      "toHash": "sha256:3faf46eb3a35ca27fb5af3df5ad80b655b3a2800449b09f3e77a48dc372f0425"
-    },
-    {
-      "id": "026-apply-planning-kit",
-      "date": "2026-06-06",
-      "type": "non-breaking",
-      "description": "Add ApplyPlanningKitSchema and its type to support applying typical kits to planning packets.",
-      "toHash": "sha256:75c5ebedd6b499c8aee522e49648c6446b2a0fb71c8822079205d4df33fb6403"
-    },
-    {
-      "id": "027-cost-baseline-snapshot",
-      "date": "2026-06-07",
-      "type": "non-breaking",
-      "description": "Add CostBaselineSnapshotSchema to planning packets and fix contract serialization with optional object defaults.",
-      "toHash": "sha256:d03aff02e4057c5ece1ffca5a1cb2a1899ea545ad8c8e715dae2b81fc018e813"
-    },
-    {
-      "id": "028-prompt-maestro-v3-updates",
-      "date": "2026-06-08",
-      "type": "non-breaking",
-      "description": "Add Colombian DIAN fields to Invoice schema and extract modular sub-schemas for ExecutionSession.",
-      "toHash": "sha256:5a9ab4d947d74377dd977aaf1eb151ed3189113bf83f651ebd196f7d122d96cd"
-    },
-    {
-      "id": "029-blocker-codes-cross-step-validation",
-      "date": "2026-06-08",
-      "type": "non-breaking",
-      "description": "Add SES_NOT_APPROVED_BEFORE_INVOICE and INVOICE_NOT_APPROVED_BEFORE_PAYMENT blocker codes for cross-step administrative closure validation.",
-      "toHash": "sha256:9a3feb85b11bd62d8d86f0874425a9f60ee258a49750cd92c9f9dc8773c1edb5"
-    },
-    {
-      "date": "2026-06-08",
-      "toHash": "sha256:7094003130542477268bf0d61413982ddfe1c086b11de30ca3baf6acf5349c9e",
-      "description": "Add master data schemas (client, site, equipment, material, epp, camera, lifeline).",
-      "id": "031-master-data-schemas",
-      "type": "non-breaking"
-    },
-    {
-      "type": "non-breaking",
-      "toHash": "sha256:6fcc75f0caa49da92586db773920a7b28dc8edef9d78fe3c1c38f583f3f5d6a6",
-      "description": "Add Wave 4 commercial feature schemas (contract, inventory-item, schedule-event).",
-      "date": "2026-06-08",
-      "id": "032-wave4-commercial-schemas"
-    },
-    {
-      "type": "non-breaking",
-      "toHash": "sha256:4996ff0e42088c97de1c5d1366f78f32a1e9cb096d7d62d6973323560db107de",
-      "description": "Add MISSING_KIT_CRITICAL_ITEMS blocker code and normalize 14 step domain semantics (ses_approved step).",
-      "date": "2026-06-08",
-      "id": "033-blocker-code-kit-critical-items"
-    },
-    {
-      "type": "non-breaking",
-      "toHash": "sha256:de7aca55b2a6233c32fc8375ff5b64f6bd123455ff54f32d7399a2c9a0924102",
-      "description": "Add serviceCaseId to WorkRequest schema for step-context inheritance chain (Lote 1-1). Add ServiceCaseStepContext schema with InheritedField, FieldOverride, CanonicalCaseData contracts.",
-      "date": "2026-06-08",
-      "id": "034-service-case-step-context-inheritance"
-    },
-    {
-      "type": "non-breaking",
-      "toHash": "sha256:b5765c49747a1d35f0f1b2f4a33f3916e82430a8c80233bcbf083666f6c01bfb",
-      "description": "Regenerate contract snapshot after build — captures accumulated schema changes including step-context contracts and WorkRequest serviceCaseId field.",
-      "date": "2026-06-08",
-      "id": "035-contract-snapshot-rebuild"
-    },
-    {
-      "type": "non-breaking",
-      "toHash": "sha256:26287fa459779068d0d9e35a715847eab02637a6432e31aa9932e77420195e8e",
-      "description": "Add serviceCaseId to CreateProposalSchema to fix 400 error when creating proposal with linked service case.",
-      "date": "2026-06-09",
-      "id": "036-proposal-servicecaseid-fix"
-    },
-    {
-      "type": "non-breaking",
-      "toHash": "sha256:4a7f784a75bd7f7187b8d5b8390d56c888071798bbf9e928dda96c794149b6e7",
-      "description": "Export ServiceCaseStepContext schemas from shared-types barrel so StepContextQuerySchema is available at runtime.",
-      "date": "2026-06-09",
-      "id": "037-step-context-schema-barrel-export"
-    },
-    {
-      "type": "non-breaking",
-      "toHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73",
-      "description": "Regenerate contract snapshot after fixing getTransitionEvent state mapping in service-case state machine.",
-      "date": "2026-06-09",
-      "id": "038-fix-get-transition-event-state-mapping"
-    },
-    {
-      "id": "038-evidence-title-field",
-      "date": "2026-06-09",
-      "type": "non-breaking",
-      "description": "Add title field to CreateEvidenceSchema and EvidenceSchema for per-photo descriptive titles.",
-      "toHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73"
-    },
-    {
-      "id": "039-days-in-current-step",
-      "date": "2026-06-09",
-      "type": "non-breaking",
-      "description": "Add daysInCurrentStep integer field to ServiceCase contract for KPI tracking.",
-      "toHash": "sha256:22e64afefa4a4b8e47254762503fec7083c522b94532ed77cf62f6300447a705"
-    },
-    {
-      "id": "040-invoice-approval-client-signature-schemas",
-      "date": "2026-06-11",
-      "type": "non-breaking",
-      "description": "Add InvoiceApproval and ClientSignature schemas, enhance Notification schema with multi-channel, add FSM engine.",
-      "toHash": "sha256:682cfea8e65e2c4a1a83523cf912f56a02321f5a44c0e03f4ff96a414cbb2938"
-    },
-    {
-      "id": "041-client-crm-contracts",
-      "date": "2026-06-11",
-      "type": "non-breaking",
-      "description": "Export Client schema from barrel and extend it with city, industry, contracts, Update/ListQuery DTOs for the CRM module.",
-      "toHash": "sha256:c56c139fb449b71e1244848af968b2053251ff8a76915ee2d7a9073788ab0210"
-    },
-    {
-      "id": "042-safety-analysis-ast-contracts",
-      "date": "2026-06-11",
-      "type": "non-breaking",
-      "description": "Export AST (safety analysis) schemas from barrel with Update/ListQuery/Sign DTOs and FSM transition map for the digital AST module.",
-      "toHash": "sha256:0afbdf9828b916e458e05555b4978c366b43bd300322caa7246f9b6a9cd8392d"
-    },
-    {
-      "id": "043-user-certifications-skills",
-      "date": "2026-06-11",
-      "type": "non-breaking",
-      "description": "Add certifications and skills to the User contract with Add/UpdateSkills DTOs for the personnel certification matrix.",
-      "toHash": "sha256:f78c71ec86ca7d61cb6a9754cf42f128fc47a7481f55414a5e2e7e4afcf16c85"
-    },
-    {
-      "id": "044-inventory-contracts",
-      "date": "2026-06-11",
-      "type": "non-breaking",
-      "description": "Export inventory item and stock movement schemas with Create/Update/Movement/ListQuery DTOs for the inventory module.",
-      "toHash": "sha256:7095cbea0bee9881abbba596716c224a2a292cda38bb46887968ff286436aaa1"
-    },
-    {
-      "id": "045-fleet-vehicle-contracts",
-      "date": "2026-06-11",
-      "type": "non-breaking",
-      "description": "Add Vehicle schema with Colombian document expiries (SOAT, tecnomecanica, poliza), Create/Update/ListQuery DTOs and document alert contract for the fleet module.",
-      "toHash": "sha256:4e16858e7a6ac119665a13663419bd0bf17f403e2284c0d5fdf171fd69f7f953"
-    },
-    {
-      "id": "046-operational-maturity-contracts",
-      "date": "2026-06-11",
-      "type": "non-breaking",
-      "description": "Add analytics report, dispatch, SLA, system configuration, reminder, and DIAN contracts; extend invoices with explicit DIAN lifecycle fields.",
-      "toHash": "sha256:a45f2ccf4bb92c153dba07136f313066c346ddaa597980ebfb41d3e40b7acb12"
-    },
-    {
-      "id": "047-offline-conflict-recovery",
-      "date": "2026-06-11",
-      "type": "non-breaking",
-      "description": "Persist structured conflict details on offline outbox items for DLQ inspection and explicit user-driven resolution.",
-      "toHash": "sha256:3c822385ce0b3c165939bd3255c8280f5f1eeeaf5917930de6019f2f9c7bd074"
-    },
-    {
-      "id": "048-forensic-audit-observability",
-      "date": "2026-06-12",
-      "type": "non-breaking",
-      "description": "Add typed audit response contracts, entity and request correlation filters, expanded audit actions, and shared workflow step-to-stage metadata.",
-      "toHash": "sha256:bd9c955e65b194c26cb819c901796f0ae87a4cdf0d9058bd0687fc585bff7553"
-    },
-    {
-      "id": "049-production-wave5-extended-contracts",
-      "date": "2026-06-13",
-      "type": "non-breaking",
-      "description": "Broaden audit entityId validation from MongoDB ObjectId to general entity identifier pattern; add DIAN, dispatch, SLA, and system-config schema contracts for production wave 5.",
-      "toHash": "sha256:d6ecf6c6ab88578db2f31a5cfbc85f97bbcc817cba4d99a09dde41d8b0447978"
-    },
-    {
-      "id": "050-business-document-erp-connector-schemas",
-      "date": "2026-06-14",
-      "type": "non-breaking",
-      "description": "Add BusinessDocument and ErpConnector schemas for multi-ERP abstraction and document-driven template engine.",
-      "toHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64"
-    },
-    {
-      "id": "051-spec008-maintenance-schedule-schema",
-      "date": "2026-06-27",
-      "type": "non-breaking",
-      "description": "Add CreateMaintenanceScheduleSchema/UpdateMaintenanceScheduleSchema and ScheduleFrequencyEnum for the Spec 008 maintenance schedule CRUD endpoints.",
-      "toHash": "sha256:2bba725f7677775336bbfee6a74cefcc7989efb6f2bffa4fa2ce968c3c911f1b"
-    }
-  ]
+	"currentSnapshotHash": "sha256:2bba725f7677775336bbfee6a74cefcc7989efb6f2bffa4fa2ce968c3c911f1b",
+	"migrations": [
+		{
+			"id": "050-business-document-erp-connector-schemas",
+			"date": "2026-06-14",
+			"type": "non-breaking",
+			"description": "Add BusinessDocument and ErpConnector schemas for multi-ERP abstraction and document-driven template engine.",
+			"toHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64"
+		},
+		{
+			"id": "000-initial-baseline",
+			"date": "2026-04-06",
+			"type": "baseline",
+			"description": "Baseline inicial de contratos API y schemas Zod.",
+			"toHash": "sha256:06f9dcef8e3bb557e84a64b989d9f9ad60ac8b8ee943395f3ca25303411188b0"
+		},
+		{
+			"id": "001-user-update-avatar-url",
+			"date": "2026-04-14",
+			"type": "non-breaking",
+			"description": "Alinea el contrato de actualización de usuario con avatarUrl compartido.",
+			"toHash": "sha256:70be53118e15f3f5840ab6c2cba7b1373a5d047f72269719779677038d7030d7"
+		},
+		{
+			"id": "002-json-payload-contract-alignment",
+			"date": "2026-04-24",
+			"type": "non-breaking",
+			"description": "Align offline payload contracts with JSON-safe shared types and exported AI response schemas.",
+			"toHash": "sha256:2183a325a40c142ced75a9b6479d29260b825caeec0d4ed557831d8fb07a8690"
+		},
+		{
+			"id": "003-contract-snapshot-refresh",
+			"date": "2026-04-27",
+			"type": "non-breaking",
+			"description": "Refresh generated API contract snapshot after exposing current shared schemas.",
+			"toHash": "sha256:39930368ff2ac0c2139226335ee0fa77d8da3651aa6441d44a73b987eaf87b25"
+		},
+		{
+			"id": "004-contract-snapshot-format-alignment",
+			"date": "2026-04-27",
+			"type": "non-breaking",
+			"description": "Align generated API contract snapshot formatting with the repository Biome configuration.",
+			"toHash": "sha256:9f44104d6cf320e64a9fdc7e4c09349e59e339fec674c4a2df559a93552dd623"
+		},
+		{
+			"id": "005-canonical-role-contracts",
+			"date": "2026-04-28",
+			"type": "breaking",
+			"description": "Emit canonical English role values while keeping legacy role inputs normalized at boundaries.",
+			"toHash": "sha256:2c9b5e8068bfc2e971fb40b9e1ac4ea42d9cf9126a56d64dc2016638de88fb8e"
+		},
+		{
+			"id": "006-cost-dashboard-types",
+			"date": "2026-04-29",
+			"type": "non-breaking",
+			"description": "Fix TypeScript errors in costs module - getCostDashboard method, resolveLineDeltaStatus types, hasCosts field.",
+			"toHash": "sha256:9a2ae1d040bc9de2aaee4c8691a1be55603153ae383180407717b764d9650f02"
+		},
+		{
+			"id": "007-clean-order-and-persistence-field-names",
+			"date": "2026-04-29",
+			"type": "breaking",
+			"description": "Replace legacy Spanish order contract fields and selected snake_case persistence fields with canonical English camelCase names.",
+			"toHash": "sha256:b6ff437fac6e2f761a5e99d56d40b6b408caa8b1a38331bc2ea8d1d002a96558"
+		},
+		{
+			"id": "008-enum-values-spanish-to-english",
+			"date": "2026-04-29",
+			"type": "breaking",
+			"description": "Rename all Spanglish enum values to canonical English across execution phases, activity types, inspection types, and kit categories.",
+			"toHash": "sha256:d814ba922b8ef9721b50d9446eed26285197bd98d748fc3647a06a14fb823944"
+		},
+		{
+			"id": "009-clean-execution-phase-contract",
+			"date": "2026-04-30",
+			"type": "breaking",
+			"description": "Remove legacy execution phase and status aliases and omit absent execution phase timestamps from the public order contract.",
+			"toHash": "sha256:6b9c3d2c4731d208a9874c24019afb9c79247984610c2f7195b1fa49935bc748"
+		},
+		{
+			"id": "010-fsm-order-status-enum-expansion",
+			"date": "2026-04-30",
+			"type": "breaking",
+			"description": "Expand OrderStatus enum to 16 values covering the full FSM pipeline (proposal, planning, billing stages). Add FSM transitions, terminal/active/editable state sets, and kanban column mappings.",
+			"toHash": "sha256:f3a1ec7e38a8fb2dfd8d3d86fc69d73c4c60d17fac0c73c0d238c538e417c4b3"
+		},
+		{
+			"id": "011-cerMont-fsm-complete-implementation",
+			"date": "2026-05-01",
+			"type": "breaking",
+			"description": "Complete implementation of the CERMONT FSM pipeline. Includes dynamic personnel assignments, kit availability checks, backend safety verification synchronization, enhanced dashboard metrics, and catalog management for checklists and report templates.",
+			"toHash": "sha256:d7f9565800adaf028d52210aa47b827d763af892aa250c530a6d6df88361d941"
+		},
+		{
+			"id": "012-post-recovery-snapshot-refresh",
+			"date": "2026-05-26",
+			"type": "non-breaking",
+			"description": "Refresh contract snapshot after monorepo workspace and dependency recovery.",
+			"toHash": "sha256:634a577cbdae850296e1c0e5d311b7b0d9d43132d20c096aece4871bad56a5ab"
+		},
+		{
+			"id": "013-maintenance-kit-custom-fields",
+			"date": "2026-05-27",
+			"type": "non-breaking",
+			"description": "Expose maintenance kit customFields for tools and equipment so planning kits can preserve user-defined field values.",
+			"toHash": "sha256:c1ffb311b207191ac8008ba317a1487daefa0f91e59fe32899905860fd6278bc"
+		},
+		{
+			"id": "014-proposal-schema-english-field-names",
+			"date": "2026-05-28",
+			"type": "breaking",
+			"description": "Normalize CreateProposalInputSchema Spanish field names (cliente, descripcion, valorEstimado) to canonical English (client, description, estimatedValue).",
+			"toHash": "sha256:dbaad0a583a9e4cc0bab0649c23f830721bfe97bdfae89d27ea96fd115a2d752"
+		},
+		{
+			"id": "015-offline-entity-types-extension",
+			"date": "2026-05-29",
+			"type": "non-breaking",
+			"description": "Extend OfflineEntityTypeSchema from 3 to 10 types to support full offline sync for work-request, site-visit, checklist, evidence, planning-packet, cost, delivery-record, service-entry-sheet, invoice, and payment entities.",
+			"toHash": "sha256:d06a944d2e136c184e17e10311028478f2d48f7a6c7bff89f6134bfe464c4f93"
+		},
+		{
+			"id": "016-offline-payload-discriminated-unions",
+			"date": "2026-05-30",
+			"type": "non-breaking",
+			"description": "Add discriminated union schemas for offline sync operations (work-request, site-visit, planning-packet, execution-session, evidence) with typed payloads + uuid id field.",
+			"toHash": "sha256:ddaf27405036d9b9af6040e9c1bb6595b5e15abbcc58675d372c30ea7f788871"
+		},
+		{
+			"id": "017-file-asset-contract",
+			"date": "2026-06-01",
+			"type": "non-breaking",
+			"description": "Introduce FileAsset contract (FileAssetRef, FileAssetUploadInput, FileAssetUploadResponse) with category, sync status and entity type taxonomies, plus mime allowlist (jpeg/png/webp/gif/pdf) and category presets. Supports file/image assets for kits, tools, equipment, materials, evidences, before/after photos, signatures, delivery records, technical reports, cctv, life-line, planning, checklist evidence and report covers.",
+			"toHash": "sha256:53702d5ab3548081301c695bc81cfa1942f4413b5dd3d8525bbe6a82c00345cc"
+		},
+		{
+			"id": "018-file-asset-form-input-and-result",
+			"date": "2026-06-01",
+			"type": "non-breaking",
+			"description": "Add FileAssetUploadInputFormSchema for multipart form validation (accepts tags as string or string[] and coerces to string[]) and CreateFileAssetResultSchema for the service-layer return value of createFileAssetFromUpload. The form schema is used as a route-level validateBody middleware on POST /api/files/upload so the controller can rely on req.body being already validated and coerced.",
+			"toHash": "sha256:09adb5eea63e8ac997c07ffc454d263512894ad7026c7ed2274980be10f331a4"
+		},
+		{
+			"id": "019-kit-tool-image-fields",
+			"date": "2026-06-01",
+			"type": "non-breaking",
+			"description": "Add image (single FileAssetRef) and gallery (array of FileAssetRef) fields to KitItemSchema and ToolSchema for support of item-level images in kits and tools/equipment/materials.",
+			"toHash": "sha256:4fd0f714782ffef1317b5c7ee28317700a463e88aeb9ea04479c4423e61da443"
+		},
+		{
+			"id": "020-file-asset-phase-42-taxonomy",
+			"date": "2026-06-02",
+			"type": "non-breaking",
+			"description": "Align FileAsset contract with Phase 42 implementation by adding safety item images, signed documents, safety_item entity ownership, and synced/pending/failed sync statuses.",
+			"toHash": "sha256:19ddeea54f7e9c55f64331774eafe1222a0e677ff6ba039e716164086229487a"
+		},
+		{
+			"id": "021-planning-packet-operational-form-fields",
+			"date": "2026-06-03",
+			"type": "non-breaking",
+			"description": "Extend PlanningPacket contracts with CERMONT planning form fields for inspector, place, date, business unit, scope, materials, safety elements, worker requirements and responsible signatures. Expands planning support document types for ATS/PTW/procedures and certification evidence.",
+			"toHash": "sha256:546e9f85a52f4a6587ec3aea634cc7044160a9199068b9698d65bfdf9480d7ab"
+		},
+		{
+			"id": "022-rbac-status-object-contract-refresh",
+			"date": "2026-06-03",
+			"type": "breaking",
+			"description": "Refresh the API contract snapshot after aligning shared role schemas with the CERMONT operating roles and status-object absence semantics emitted by current shared schemas.",
+			"toHash": "sha256:757e9899ea0bbae6ce943dce54cef4f612c131cc8f7fbcf8d3ae1d858daa2040"
+		},
+		{
+			"id": "023-rbac-auxiliar-hes-lowercase",
+			"date": "2026-06-03",
+			"type": "breaking",
+			"description": "Normalize the Auxiliar HES role value to lowercase auxiliar_hes so shared RBAC validation, role normalization and generated contracts use a single canonical representation.",
+			"toHash": "sha256:032f145bd6e6d0c0b103e56a65c3dbf427e10ae4ab6d8c92b2059677d48589da"
+		},
+		{
+			"id": "024-offline-sync-modern-outbox",
+			"date": "2026-06-04",
+			"type": "non-breaking",
+			"description": "Extend offline sync contracts with modern outbox items, batch ids, item-level sync results, conflict metadata, file metadata and typed JSON payloads while keeping legacy operation support for existing queues.",
+			"toHash": "sha256:a8bf071798eedaaef099ffde05e6aebe08489bdf9f454e860c8ad9aac9aa99e3"
+		},
+		{
+			"id": "025-cost-support-and-voided-history",
+			"date": "2026-06-04",
+			"type": "breaking",
+			"description": "Require support evidence or documents for actual cost entries and expose cost record status plus void metadata so historical costs are voided instead of physically deleted.",
+			"toHash": "sha256:3faf46eb3a35ca27fb5af3df5ad80b655b3a2800449b09f3e77a48dc372f0425"
+		},
+		{
+			"id": "026-apply-planning-kit",
+			"date": "2026-06-06",
+			"type": "non-breaking",
+			"description": "Add ApplyPlanningKitSchema and its type to support applying typical kits to planning packets.",
+			"toHash": "sha256:75c5ebedd6b499c8aee522e49648c6446b2a0fb71c8822079205d4df33fb6403"
+		},
+		{
+			"id": "027-cost-baseline-snapshot",
+			"date": "2026-06-07",
+			"type": "non-breaking",
+			"description": "Add CostBaselineSnapshotSchema to planning packets and fix contract serialization with optional object defaults.",
+			"toHash": "sha256:d03aff02e4057c5ece1ffca5a1cb2a1899ea545ad8c8e715dae2b81fc018e813"
+		},
+		{
+			"id": "028-prompt-maestro-v3-updates",
+			"date": "2026-06-08",
+			"type": "non-breaking",
+			"description": "Add Colombian DIAN fields to Invoice schema and extract modular sub-schemas for ExecutionSession.",
+			"toHash": "sha256:5a9ab4d947d74377dd977aaf1eb151ed3189113bf83f651ebd196f7d122d96cd"
+		},
+		{
+			"id": "029-blocker-codes-cross-step-validation",
+			"date": "2026-06-08",
+			"type": "non-breaking",
+			"description": "Add SES_NOT_APPROVED_BEFORE_INVOICE and INVOICE_NOT_APPROVED_BEFORE_PAYMENT blocker codes for cross-step administrative closure validation.",
+			"toHash": "sha256:9a3feb85b11bd62d8d86f0874425a9f60ee258a49750cd92c9f9dc8773c1edb5"
+		},
+		{
+			"date": "2026-06-08",
+			"toHash": "sha256:7094003130542477268bf0d61413982ddfe1c086b11de30ca3baf6acf5349c9e",
+			"description": "Add master data schemas (client, site, equipment, material, epp, camera, lifeline).",
+			"id": "031-master-data-schemas",
+			"type": "non-breaking"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:6fcc75f0caa49da92586db773920a7b28dc8edef9d78fe3c1c38f583f3f5d6a6",
+			"description": "Add Wave 4 commercial feature schemas (contract, inventory-item, schedule-event).",
+			"date": "2026-06-08",
+			"id": "032-wave4-commercial-schemas"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:4996ff0e42088c97de1c5d1366f78f32a1e9cb096d7d62d6973323560db107de",
+			"description": "Add MISSING_KIT_CRITICAL_ITEMS blocker code and normalize 14 step domain semantics (ses_approved step).",
+			"date": "2026-06-08",
+			"id": "033-blocker-code-kit-critical-items"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:de7aca55b2a6233c32fc8375ff5b64f6bd123455ff54f32d7399a2c9a0924102",
+			"description": "Add serviceCaseId to WorkRequest schema for step-context inheritance chain (Lote 1-1). Add ServiceCaseStepContext schema with InheritedField, FieldOverride, CanonicalCaseData contracts.",
+			"date": "2026-06-08",
+			"id": "034-service-case-step-context-inheritance"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:b5765c49747a1d35f0f1b2f4a33f3916e82430a8c80233bcbf083666f6c01bfb",
+			"description": "Regenerate contract snapshot after build — captures accumulated schema changes including step-context contracts and WorkRequest serviceCaseId field.",
+			"date": "2026-06-08",
+			"id": "035-contract-snapshot-rebuild"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:26287fa459779068d0d9e35a715847eab02637a6432e31aa9932e77420195e8e",
+			"description": "Add serviceCaseId to CreateProposalSchema to fix 400 error when creating proposal with linked service case.",
+			"date": "2026-06-09",
+			"id": "036-proposal-servicecaseid-fix"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:4a7f784a75bd7f7187b8d5b8390d56c888071798bbf9e928dda96c794149b6e7",
+			"description": "Export ServiceCaseStepContext schemas from shared-types barrel so StepContextQuerySchema is available at runtime.",
+			"date": "2026-06-09",
+			"id": "037-step-context-schema-barrel-export"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73",
+			"description": "Regenerate contract snapshot after fixing getTransitionEvent state mapping in service-case state machine.",
+			"date": "2026-06-09",
+			"id": "038-fix-get-transition-event-state-mapping"
+		},
+		{
+			"id": "038-evidence-title-field",
+			"date": "2026-06-09",
+			"type": "non-breaking",
+			"description": "Add title field to CreateEvidenceSchema and EvidenceSchema for per-photo descriptive titles.",
+			"toHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73"
+		},
+		{
+			"id": "039-days-in-current-step",
+			"date": "2026-06-09",
+			"type": "non-breaking",
+			"description": "Add daysInCurrentStep integer field to ServiceCase contract for KPI tracking.",
+			"toHash": "sha256:22e64afefa4a4b8e47254762503fec7083c522b94532ed77cf62f6300447a705"
+		},
+		{
+			"id": "040-invoice-approval-client-signature-schemas",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Add InvoiceApproval and ClientSignature schemas, enhance Notification schema with multi-channel, add FSM engine.",
+			"toHash": "sha256:682cfea8e65e2c4a1a83523cf912f56a02321f5a44c0e03f4ff96a414cbb2938"
+		},
+		{
+			"id": "041-client-crm-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Export Client schema from barrel and extend it with city, industry, contracts, Update/ListQuery DTOs for the CRM module.",
+			"toHash": "sha256:c56c139fb449b71e1244848af968b2053251ff8a76915ee2d7a9073788ab0210"
+		},
+		{
+			"id": "042-safety-analysis-ast-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Export AST (safety analysis) schemas from barrel with Update/ListQuery/Sign DTOs and FSM transition map for the digital AST module.",
+			"toHash": "sha256:0afbdf9828b916e458e05555b4978c366b43bd300322caa7246f9b6a9cd8392d"
+		},
+		{
+			"id": "043-user-certifications-skills",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Add certifications and skills to the User contract with Add/UpdateSkills DTOs for the personnel certification matrix.",
+			"toHash": "sha256:f78c71ec86ca7d61cb6a9754cf42f128fc47a7481f55414a5e2e7e4afcf16c85"
+		},
+		{
+			"id": "044-inventory-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Export inventory item and stock movement schemas with Create/Update/Movement/ListQuery DTOs for the inventory module.",
+			"toHash": "sha256:7095cbea0bee9881abbba596716c224a2a292cda38bb46887968ff286436aaa1"
+		},
+		{
+			"id": "045-fleet-vehicle-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Add Vehicle schema with Colombian document expiries (SOAT, tecnomecanica, poliza), Create/Update/ListQuery DTOs and document alert contract for the fleet module.",
+			"toHash": "sha256:4e16858e7a6ac119665a13663419bd0bf17f403e2284c0d5fdf171fd69f7f953"
+		},
+		{
+			"id": "046-operational-maturity-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Add analytics report, dispatch, SLA, system configuration, reminder, and DIAN contracts; extend invoices with explicit DIAN lifecycle fields.",
+			"toHash": "sha256:a45f2ccf4bb92c153dba07136f313066c346ddaa597980ebfb41d3e40b7acb12"
+		},
+		{
+			"id": "047-offline-conflict-recovery",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Persist structured conflict details on offline outbox items for DLQ inspection and explicit user-driven resolution.",
+			"toHash": "sha256:3c822385ce0b3c165939bd3255c8280f5f1eeeaf5917930de6019f2f9c7bd074"
+		},
+		{
+			"id": "048-forensic-audit-observability",
+			"date": "2026-06-12",
+			"type": "non-breaking",
+			"description": "Add typed audit response contracts, entity and request correlation filters, expanded audit actions, and shared workflow step-to-stage metadata.",
+			"toHash": "sha256:bd9c955e65b194c26cb819c901796f0ae87a4cdf0d9058bd0687fc585bff7553"
+		},
+		{
+			"id": "049-production-wave5-extended-contracts",
+			"date": "2026-06-13",
+			"type": "non-breaking",
+			"description": "Broaden audit entityId validation from MongoDB ObjectId to general entity identifier pattern; add DIAN, dispatch, SLA, and system-config schema contracts for production wave 5.",
+			"toHash": "sha256:d6ecf6c6ab88578db2f31a5cfbc85f97bbcc817cba4d99a09dde41d8b0447978"
+		},
+		{
+			"id": "050-business-document-erp-connector-schemas",
+			"date": "2026-06-14",
+			"type": "non-breaking",
+			"description": "Add BusinessDocument and ErpConnector schemas for multi-ERP abstraction and document-driven template engine.",
+			"toHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64"
+		},
+		{
+			"id": "051-spec008-maintenance-schedule-schema",
+			"date": "2026-06-27",
+			"type": "non-breaking",
+			"description": "Add CreateMaintenanceScheduleSchema/UpdateMaintenanceScheduleSchema and ScheduleFrequencyEnum for the Spec 008 maintenance schedule CRUD endpoints.",
+			"toHash": "sha256:2bba725f7677775336bbfee6a74cefcc7989efb6f2bffa4fa2ce968c3c911f1b"
+		}
+	]
 }
