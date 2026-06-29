@@ -54,6 +54,11 @@ export const APP_ROUTES = {
 	inventory: "/inventory",
 	fleet: "/fleet",
 	businessDocuments: "/business-documents",
+	fleetDetail: "/fleet/[id]",
+	evidenceDetail: "/evidences/[id]",
+	checklists: "/checklists",
+	maintenanceSchedules: "/maintenance/schedules",
+	profilePrivacy: "/profile/privacy",
 	erpConnectors: "/admin/erp-connectors",
 } as const;
 
