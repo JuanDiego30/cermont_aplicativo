@@ -119,6 +119,9 @@ export {
 	isPlanningReady,
 	REQUIRED_PLANNING_DOCUMENTS,
 } from "./planning.rules";
+// ─── Fleet Readiness Rules ────────────────────────────────────────────────────
+export type { FleetBlocker, FleetReadiness, VehicleDocumentStatus } from "./fleet-readiness.rules";
+export { evaluateFleetReadiness } from "./fleet-readiness.rules";
 // ─── RBAC ───────────────────────────────────────────────────────────────────
 export {
 	canAccessModule,
