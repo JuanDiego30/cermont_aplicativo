@@ -73,6 +73,67 @@ export class ErpConnectorService {
 			providers,
 		};
 	}
+
+	async validateMapping(id: string, fieldMappings: Record<string, string>) {
+		const connector = await this.getById(id);
+		const errors: string[] = [];
+		const validFields = Object.keys(fieldMappings);
+
+		if (validFields.length === 0) {
+			errors.push("No field mappings provided");
+		}
+
+		for (const [localField, remoteField] of Object.entries(fieldMappings)) {
+			if (!localField || localField.trim().length === 0) {
+				errors.push("Empty local field name detected");
+			}
+			if (!remoteField || remoteField.trim().length === 0) {
+				errors.push(`Remote field mapping missing for: ${localField}`);
+			}
+		}
+
+		return {
+			valid: errors.length === 0,
+			errors,
+			connectorId: connector._id.toString(),
+			provider: connector.provider,
+			fieldCount: validFields.length,
+		};
+	}
+
+	async testSync(id: string) {
+		const connector = await this.getById(id);
+		try {
+			const provider = connector.provider;
+			const adapter = erpEngine.getProvider(provider);
+			if (!adapter) {
+				return {
+					success: false,
+					message: `No ERP adapter registered for provider: ${provider}`,
+					recordsProcessed: 0,
+				};
+			}
+			if (!adapter.enabled) {
+				return {
+					success: false,
+					message: `ERP adapter is disabled: ${provider}`,
+					recordsProcessed: 0,
+				};
+			}
+			const result = await erpEngine.executeOnAll("create_order", { provider });
+			return {
+				success: true,
+				message: `Test sync completed for ${provider}`,
+				recordsProcessed: Array.isArray(result) ? result.length : 1,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: error instanceof Error ? error.message : "Unknown error during test sync",
+				recordsProcessed: 0,
+			};
+		}
+	}
 }
 
 export const erpConnectorService = new ErpConnectorService();

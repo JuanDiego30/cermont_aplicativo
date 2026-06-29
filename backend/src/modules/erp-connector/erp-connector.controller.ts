@@ -39,6 +39,19 @@ export class ErpConnectorController {
 		res.status(200).json({ success: true, data: result });
 	}
 
+	async validateMapping(req: Request, res: Response) {
+		const id = req.params.id as string;
+		const fieldMappings = req.body.fieldMappings as Record<string, string>;
+		const result = await erpConnectorService.validateMapping(id, fieldMappings);
+		res.status(200).json({ success: true, data: result });
+	}
+
+	async testSync(req: Request, res: Response) {
+		const id = req.params.id as string;
+		const result = await erpConnectorService.testSync(id);
+		res.status(200).json({ success: true, data: result });
+	}
+
 	async healthCheck(_req: Request, res: Response) {
 		const result = await erpConnectorService.healthCheckAll();
 		res.status(200).json({ success: true, data: result });
