@@ -31,6 +31,7 @@ import { ChartCard } from "@/modules/dashboard/ui/ChartCard";
 import { DashboardFilters } from "@/modules/dashboard/ui/DashboardFilters";
 import { DashboardHero } from "@/modules/dashboard/ui/DashboardHero";
 import { DashboardSlaWidget } from "@/modules/dashboard/ui/DashboardSlaWidget";
+import { FleetAlertsBanner } from "@/modules/dashboard/ui/FleetAlertsBanner";
 import { KPICard } from "@/modules/dashboard/ui/KPICard";
 import { RecentOrdersTable } from "@/modules/dashboard/ui/RecentOrdersTable";
 import { ServiceCaseDashboardPanel } from "@/modules/dashboard/ui/ServiceCaseDashboardPanel";
@@ -356,6 +357,8 @@ export default function DashboardPage() {
 				</div>
 				<DashboardFilters />
 			</div>
+
+			<FleetAlertsBanner />
 
 			<DashboardHero
 				userName={userName}
