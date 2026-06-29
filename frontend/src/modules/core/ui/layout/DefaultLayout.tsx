@@ -1,5 +1,6 @@
 "use client";
 
+import { ConsentGate } from "@/modules/consents/ui/ConsentGate";
 import type { ReactNode } from "react";
 import { CermontAIDrawer } from "@/modules/core/ui/ai/CermontAIDrawer";
 import Header from "@/modules/core/ui/layout/Header";
@@ -48,6 +49,7 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
 
 			<MobileBottomNav />
 			<CermontAIDrawer />
+			<ConsentGate />
 		</div>
 	);
 }
