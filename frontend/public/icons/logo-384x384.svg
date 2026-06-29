@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 384" width="384" height="384">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 384" width="384" height="384" role="img" aria-labelledby="logo-384-title">
+  <title id="logo-384-title">Logo de CERMONT</title>
   <style>
     .bg { fill: #2154A6; }
     .text { fill: #ffffff; font-family: sans-serif; font-weight: bold; font-size: 268px; }

@@ -22,7 +22,7 @@ type ErpConnector = {
 };
 
 export default function ErpConnectorPage() {
-	const [syncing, setSyncing] = useState<string | null>(null);
+	const [syncing, setSyncing] = useState<string>("");
 
 	const { data, isLoading, error, refetch } = useQuery<ErpConnector[]>({
 		queryKey: ["erp-connectors"],
@@ -39,7 +39,7 @@ export default function ErpConnectorPage() {
 		try {
 			await apiClient.post(`/erp-connectors/${id}/test-sync`, {});
 		} finally {
-			setSyncing(null);
+			setSyncing("");
 		}
 	};
 

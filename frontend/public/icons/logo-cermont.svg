@@ -1,4 +1,5 @@
-<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" class="cermont-logo">
+<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" class="cermont-logo" role="img" aria-labelledby="logo-cermont-full-title">
+  <title id="logo-cermont-full-title">Logo de CERMONT</title>
   <style>
     /* Dynamic Theme Variables */
     :root {

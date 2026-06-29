@@ -117,7 +117,7 @@ export async function uploadPhoto(req: Request, res: Response) {
 		id,
 		req.file.buffer,
 		user._id,
-		req.body.title as string | undefined,
+		req.body.title as string,
 	);
 
 	res.status(201).json({ success: true, data: photo });
@@ -172,7 +172,7 @@ export async function uploadDocument(req: Request, res: Response) {
 		req.file.originalname,
 		req.file.mimetype,
 		user._id,
-		req.body.description as string | undefined,
+		req.body.description as string,
 	);
 
 	res.status(201).json({ success: true, data: document });

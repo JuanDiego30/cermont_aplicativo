@@ -38,7 +38,7 @@ export async function createLog(
 ) {
 	const logEntry = await MaintenanceLogModel.create({
 		assetId: new mongoose.Types.ObjectId(data.assetId),
-		scheduleId: data.scheduleId ? new mongoose.Types.ObjectId(data.scheduleId) : undefined,
+		...(data.scheduleId ? { scheduleId: new mongoose.Types.ObjectId(data.scheduleId) } : {}),
 		title: data.title,
 		description: data.description,
 		performedAt: new Date(data.performedAt),

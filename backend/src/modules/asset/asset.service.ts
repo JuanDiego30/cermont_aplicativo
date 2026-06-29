@@ -12,6 +12,30 @@ import { saveFile } from "../../common/storage/local-storage";
 import { Asset } from "../../models/Asset";
 import { createAuditLog } from "../audit/audit.service";
 
+interface AssetPhotoRecord {
+	_id: Types.ObjectId;
+	url: string;
+	filename: string;
+	title: string;
+	mimeType: string;
+	sizeBytes: number;
+	isPrimary: boolean;
+	uploadedBy: Types.ObjectId;
+	uploadedAt: Date;
+}
+
+interface AssetDocumentRecord {
+	_id: Types.ObjectId;
+	url: string;
+	filename: string;
+	storedFilename: string;
+	mimeType: string;
+	sizeBytes: number;
+	description: string;
+	uploadedBy: Types.ObjectId;
+	uploadedAt: Date;
+}
+
 /**
  * Create a new asset
  * @param data - Validated asset data
@@ -266,7 +290,7 @@ export async function getPhotos(assetId: string) {
 	if (!asset) {
 		throw new NotFoundError("Asset", assetId);
 	}
-	return (asset as unknown as { photos?: unknown[] }).photos ?? [];
+	return (asset as object as { photos?: AssetPhotoRecord[] }).photos ?? [];
 }
 
 /**
@@ -282,7 +306,7 @@ export async function setPrimaryPhoto(
 		throw new NotFoundError("Asset", assetId);
 	}
 
-	const photos = (asset as unknown as { photos?: Array<{ _id: Types.ObjectId; isPrimary: boolean }> }).photos ?? [];
+	const photos = (asset as object as { photos?: AssetPhotoRecord[] }).photos ?? [];
 	const photoIndex = photos.findIndex((p) => p._id.toString() === photoId);
 	if (photoIndex === -1) {
 		throw new AppError("Photo not found on asset", 404, "ASSET_PHOTO_NOT_FOUND");
@@ -364,5 +388,5 @@ export async function getDocuments(assetId: string) {
 	if (!asset) {
 		throw new NotFoundError("Asset", assetId);
 	}
-	return (asset as unknown as { documents?: unknown[] }).documents ?? [];
+	return (asset as object as { documents?: AssetDocumentRecord[] }).documents ?? [];
 }

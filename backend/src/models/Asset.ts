@@ -64,6 +64,36 @@ const AssetSchema = new mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
+		photos: {
+			type: [
+				{
+					url: { type: String, required: true },
+					filename: { type: String, required: true },
+					title: { type: String, default: "" },
+					mimeType: { type: String, required: true },
+					sizeBytes: { type: Number, required: true },
+					isPrimary: { type: Boolean, default: false },
+					uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+					uploadedAt: { type: Date, required: true },
+				},
+			],
+			default: [],
+		},
+		documents: {
+			type: [
+				{
+					url: { type: String, required: true },
+					filename: { type: String, required: true },
+					storedFilename: { type: String, required: true },
+					mimeType: { type: String, required: true },
+					sizeBytes: { type: Number, required: true },
+					description: { type: String, default: "" },
+					uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+					uploadedAt: { type: Date, required: true },
+				},
+			],
+			default: [],
+		},
 	},
 	{
 		timestamps: true,

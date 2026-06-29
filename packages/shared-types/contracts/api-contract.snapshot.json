@@ -159,6 +159,8 @@
                 "EVIDENCE_UPLOADED",
                 "EVIDENCE_DELETED",
                 "EVIDENCE_VERIFIED",
+                "EVIDENCE_PDF_DOWNLOADED",
+                "EVIDENCE_FILE_VIEWED",
                 "EVIDENCE_COLLECTION_CREATED",
                 "EVIDENCE_COLLECTION_DELETED",
                 "EVIDENCE_ITEM_ADDED",
@@ -219,6 +221,9 @@
                 "XLSX_IMPORT_STARTED",
                 "PDF_IMPORT_STARTED",
                 "ASSET_CREATED",
+                "ASSET_PHOTO_UPLOADED",
+                "ASSET_PRIMARY_PHOTO_CHANGED",
+                "ASSET_DOCUMENT_UPLOADED",
                 "CERTIFICATE_ADDED",
                 "MAINTENANCE_RESOLVED",
                 "TOOL_CREATED",
@@ -376,6 +381,8 @@
                 "EVIDENCE_UPLOADED",
                 "EVIDENCE_DELETED",
                 "EVIDENCE_VERIFIED",
+                "EVIDENCE_PDF_DOWNLOADED",
+                "EVIDENCE_FILE_VIEWED",
                 "EVIDENCE_COLLECTION_CREATED",
                 "EVIDENCE_COLLECTION_DELETED",
                 "EVIDENCE_ITEM_ADDED",
@@ -436,6 +443,9 @@
                 "XLSX_IMPORT_STARTED",
                 "PDF_IMPORT_STARTED",
                 "ASSET_CREATED",
+                "ASSET_PHOTO_UPLOADED",
+                "ASSET_PRIMARY_PHOTO_CHANGED",
+                "ASSET_DOCUMENT_UPLOADED",
                 "CERTIFICATE_ADDED",
                 "MAINTENANCE_RESOLVED",
                 "TOOL_CREATED",
@@ -606,6 +616,8 @@
                   "EVIDENCE_UPLOADED",
                   "EVIDENCE_DELETED",
                   "EVIDENCE_VERIFIED",
+                  "EVIDENCE_PDF_DOWNLOADED",
+                  "EVIDENCE_FILE_VIEWED",
                   "EVIDENCE_COLLECTION_CREATED",
                   "EVIDENCE_COLLECTION_DELETED",
                   "EVIDENCE_ITEM_ADDED",
@@ -666,6 +678,9 @@
                   "XLSX_IMPORT_STARTED",
                   "PDF_IMPORT_STARTED",
                   "ASSET_CREATED",
+                  "ASSET_PHOTO_UPLOADED",
+                  "ASSET_PRIMARY_PHOTO_CHANGED",
+                  "ASSET_DOCUMENT_UPLOADED",
                   "CERTIFICATE_ADDED",
                   "MAINTENANCE_RESOLVED",
                   "TOOL_CREATED",
@@ -11507,6 +11522,8 @@
             "EVIDENCE_UPLOADED",
             "EVIDENCE_DELETED",
             "EVIDENCE_VERIFIED",
+            "EVIDENCE_PDF_DOWNLOADED",
+            "EVIDENCE_FILE_VIEWED",
             "EVIDENCE_COLLECTION_CREATED",
             "EVIDENCE_COLLECTION_DELETED",
             "EVIDENCE_ITEM_ADDED",
@@ -11567,6 +11584,9 @@
             "XLSX_IMPORT_STARTED",
             "PDF_IMPORT_STARTED",
             "ASSET_CREATED",
+            "ASSET_PHOTO_UPLOADED",
+            "ASSET_PRIMARY_PHOTO_CHANGED",
+            "ASSET_DOCUMENT_UPLOADED",
             "CERTIFICATE_ADDED",
             "MAINTENANCE_RESOLVED",
             "TOOL_CREATED",
@@ -11722,6 +11742,8 @@
             "EVIDENCE_UPLOADED",
             "EVIDENCE_DELETED",
             "EVIDENCE_VERIFIED",
+            "EVIDENCE_PDF_DOWNLOADED",
+            "EVIDENCE_FILE_VIEWED",
             "EVIDENCE_COLLECTION_CREATED",
             "EVIDENCE_COLLECTION_DELETED",
             "EVIDENCE_ITEM_ADDED",
@@ -11782,6 +11804,9 @@
             "XLSX_IMPORT_STARTED",
             "PDF_IMPORT_STARTED",
             "ASSET_CREATED",
+            "ASSET_PHOTO_UPLOADED",
+            "ASSET_PRIMARY_PHOTO_CHANGED",
+            "ASSET_DOCUMENT_UPLOADED",
             "CERTIFICATE_ADDED",
             "MAINTENANCE_RESOLVED",
             "TOOL_CREATED",
@@ -22628,6 +22653,52 @@
       ],
       "type": "object"
     },
+    "CreateMaintenanceLogSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "assetId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "cost": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "performedAt": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "scheduleId": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "partial",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "assetId",
+        "title",
+        "performedAt",
+        "status"
+      ],
+      "type": "object"
+    },
     "CreateMaintenancePlanSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -22701,6 +22772,50 @@
         "title",
         "type",
         "rules"
+      ],
+      "type": "object"
+    },
+    "CreateMaintenanceScheduleSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "assetId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "assignedTo": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        },
+        "frequency": {
+          "enum": [
+            "daily",
+            "weekly",
+            "monthly",
+            "quarterly",
+            "yearly"
+          ],
+          "type": "string"
+        },
+        "startDate": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "assetId",
+        "title",
+        "frequency",
+        "startDate"
       ],
       "type": "object"
     },
@@ -91928,6 +92043,44 @@
             "type": "object"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "UpdateMaintenanceScheduleSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "assetId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "assignedTo": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        },
+        "frequency": {
+          "enum": [
+            "daily",
+            "weekly",
+            "monthly",
+            "quarterly",
+            "yearly"
+          ],
+          "type": "string"
+        },
+        "startDate": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "type": "string"
         }
       },
       "type": "object"

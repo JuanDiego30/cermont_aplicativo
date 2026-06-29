@@ -77,7 +77,7 @@ export async function createSchedule(
 		description: data.description,
 		frequency: data.frequency,
 		startDate: new Date(data.startDate),
-		endDate: data.endDate ? new Date(data.endDate) : undefined,
+		...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
 		assignedTo: data.assignedTo,
 		status: "active",
 		nextDueAt: computeNextDueDate(new Date(data.startDate), data.frequency),
@@ -124,24 +124,24 @@ export async function updateSchedule(
 	id: string,
 	data: UpdateMaintenanceScheduleInput,
 ) {
-	const updateData: Record<string, unknown> = {};
-	if (data.title !== undefined) {
+	const updateData: Record<string, string | Date> = {};
+	if ("title" in data && data.title) {
 		updateData.title = data.title;
 	}
-	if (data.description !== undefined) {
+	if ("description" in data && data.description) {
 		updateData.description = data.description;
 	}
-	if (data.frequency !== undefined) {
+	if ("frequency" in data && data.frequency) {
 		updateData.frequency = data.frequency;
 		updateData.nextDueAt = computeNextDueDate(new Date(), data.frequency);
 	}
-	if (data.startDate !== undefined) {
+	if ("startDate" in data && data.startDate) {
 		updateData.startDate = new Date(data.startDate);
 	}
-	if (data.endDate !== undefined) {
+	if ("endDate" in data && data.endDate) {
 		updateData.endDate = new Date(data.endDate);
 	}
-	if (data.assignedTo !== undefined) {
+	if ("assignedTo" in data && data.assignedTo) {
 		updateData.assignedTo = data.assignedTo;
 	}
 

@@ -1,4 +1,5 @@
-<svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cermont-maskable-icon-title">
+  <title id="cermont-maskable-icon-title">Icono adaptable de la aplicación CERMONT</title>
   <defs>
     <linearGradient id="bg" x1="108" y1="72" x2="404" y2="440" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#14366C"/>

@@ -90,13 +90,7 @@ export const ResolveMaintenanceReminderSchema = z.object({
 
 // ─── Maintenance Schedule ──────────────────────────────────────────────────────
 
-export const ScheduleFrequencyEnum = z.enum([
-	"daily",
-	"weekly",
-	"monthly",
-	"quarterly",
-	"yearly",
-]);
+export const ScheduleFrequencyEnum = z.enum(["daily", "weekly", "monthly", "quarterly", "yearly"]);
 
 export const CreateMaintenanceScheduleSchema = z.object({
 	assetId: z.string().min(1),

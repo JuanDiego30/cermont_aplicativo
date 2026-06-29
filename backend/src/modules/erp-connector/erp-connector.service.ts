@@ -129,7 +129,7 @@ export class ErpConnectorService {
 		} catch (error) {
 			return {
 				success: false,
-				message: error instanceof Error ? error.message : "Unknown error during test sync",
+				message: error instanceof Error ? error.message : "Unexpected error during test sync",
 				recordsProcessed: 0,
 			};
 		}

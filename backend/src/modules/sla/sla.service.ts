@@ -331,9 +331,9 @@ export const SLAService = {
 				resolutionDeadline: tracking.resolutionDeadline.toISOString(),
 			},
 			timeRemainingMs: timeRemaining,
-			firstResponseAt: tracking.firstResponseAt?.toISOString() ?? null,
-			resolvedAt: tracking.resolvedAt?.toISOString() ?? null,
-			breachReason: tracking.breachReason ?? null,
+			firstResponseAt: tracking.firstResponseAt?.toISOString() ?? "",
+			resolvedAt: tracking.resolvedAt?.toISOString() ?? "",
+			breachReason: tracking.breachReason ?? "",
 			trackingId: tracking._id.toString(),
 		};
 	},

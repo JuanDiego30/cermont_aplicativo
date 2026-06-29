@@ -1,4 +1,5 @@
-<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dashboard-desktop-preview-title">
+  <title id="dashboard-desktop-preview-title">Vista previa del panel de control de CERMONT en escritorio</title>
   <rect width="1440" height="900" fill="#D9E2EC"/>
   <rect x="40" y="40" width="1360" height="820" rx="32" fill="#F8FAFC"/>
   <rect x="72" y="72" width="296" height="756" rx="28" fill="#0F2C59"/>

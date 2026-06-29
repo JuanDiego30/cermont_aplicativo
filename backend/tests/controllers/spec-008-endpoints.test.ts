@@ -91,7 +91,7 @@ vi.mock("../../src/modules/asset/asset.service", () => ({
 // ─── Helpers ────────────────────────────────────────────────────────
 
 function mockReq(overrides: Partial<Request> = {}): Request {
-	return { query: {}, params: {}, body: {}, file: undefined, ...overrides } as Request;
+	return { query: {}, params: {}, body: {}, ...overrides } as Request;
 }
 
 function mockRes(): Response {
