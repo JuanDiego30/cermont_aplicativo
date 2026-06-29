@@ -7,6 +7,7 @@ import Link from "next/link";
 import { apiClient } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import type { ProfileUser } from "@/modules/users/ui/ProfileForm";
+import { PasskeyManager } from "@/modules/auth/ui/PasskeyManager";
 import { ProfileForm } from "@/modules/users/ui/ProfileForm";
 
 interface ProfileUserSnapshot {
@@ -137,5 +138,12 @@ export default function ProfilePage() {
 		lastLogin: user.last_login || null,
 	};
 
-	return <ProfileForm user={profileUser} />;
+	return (
+		<div className="space-y-6">
+			<ProfileForm user={profileUser} />
+			<div className="mx-auto max-w-2xl">
+				<PasskeyManager />
+			</div>
+		</div>
+	);
 }
