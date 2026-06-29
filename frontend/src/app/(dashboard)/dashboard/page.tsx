@@ -29,6 +29,7 @@ import { useDashboardSummary } from "@/modules/dashboard/hooks/useDashboardSumma
 import { ActivityTimeline } from "@/modules/dashboard/ui/ActivityTimeline";
 import { ChartCard } from "@/modules/dashboard/ui/ChartCard";
 import { DashboardFilters } from "@/modules/dashboard/ui/DashboardFilters";
+import { DashboardHero } from "@/modules/dashboard/ui/DashboardHero";
 import { DashboardSlaWidget } from "@/modules/dashboard/ui/DashboardSlaWidget";
 import { KPICard } from "@/modules/dashboard/ui/KPICard";
 import { RecentOrdersTable } from "@/modules/dashboard/ui/RecentOrdersTable";
@@ -356,11 +357,21 @@ export default function DashboardPage() {
 				<DashboardFilters />
 			</div>
 
-			<DashboardWelcomeBanner
-				activeKitCount={activeKitCount}
-				kpis={resolvedKpis}
-				role={user?.role || "Gerente de Mantenimiento"}
+			<DashboardHero
 				userName={userName}
+				role={user?.role || "Gerente de Mantenimiento"}
+				todayLabel={today}
+				metrics={[
+					{ label: "Órdenes activas", value: resolvedKpis.overview.active_orders ?? 0 },
+					{
+						label: "Mant. abiertos",
+						value: resolvedKpis.overview.maintenance_open_count ?? activeKitCount,
+					},
+					{
+						label: "Completados (mes)",
+						value: resolvedKpis.overview.completed_month_count ?? 0,
+					},
+				]}
 			/>
 
 			<StepTimeline stepDistribution={serviceCaseSummary?.stepDistribution ?? []} />
@@ -477,58 +488,6 @@ function DashboardOfflineState({ onRetry }: { onRetry: () => void }) {
 			</h1>
 			<BackendUnavailableState onRetry={onRetry} />
 		</section>
-	);
-}
-
-function DashboardWelcomeBanner({
-	activeKitCount,
-	kpis,
-	role,
-	userName,
-}: {
-	activeKitCount: number;
-	kpis: DashboardKpiSnapshot;
-	role: string;
-	userName: string;
-}) {
-	return (
-		<div
-			data-dash="banner"
-			className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-[linear-gradient(135deg,rgba(24,226,153,0.16),rgba(43,92,168,0.08))] px-5 py-4 text-[var(--text-primary)] shadow-[var(--shadow-1)]"
-		>
-			<div className="flex items-center justify-between gap-4">
-				<div>
-					<p className="text-sm font-medium text-[var(--text-secondary)]">Bienvenido de vuelta,</p>
-					<h2 className="text-lg font-semibold text-[var(--text-primary)]">{userName}</h2>
-					<p className="mt-1 text-sm text-[var(--text-tertiary)] capitalize">{role}</p>
-				</div>
-				<div className="hidden items-center gap-4 sm:flex">
-					<DashboardWelcomeMetric
-						label="Órdenes activas"
-						value={kpis.overview.active_orders ?? 0}
-					/>
-					<div className="h-10 w-px bg-[var(--border-subtle)]" />
-					<DashboardWelcomeMetric
-						label="Mant. abiertos"
-						value={kpis.overview.maintenance_open_count ?? activeKitCount}
-					/>
-					<div className="h-10 w-px bg-[var(--border-subtle)]" />
-					<DashboardWelcomeMetric
-						label="Completados (mes)"
-						value={kpis.overview.completed_month_count ?? 0}
-					/>
-				</div>
-			</div>
-		</div>
-	);
-}
-
-function DashboardWelcomeMetric({ label, value }: { label: string; value: number }) {
-	return (
-		<div className="text-right">
-			<p className="text-2xl font-semibold text-[var(--text-primary)]">{value}</p>
-			<p className="text-xs text-[var(--text-tertiary)]">{label}</p>
-		</div>
 	);
 }
 
