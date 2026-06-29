@@ -77,6 +77,17 @@ export async function createCost(req: Request, res: Response): Promise<void> {
 	res.status(201).json({ success: true, data: cost });
 }
 
+export async function createCostItemForOrder(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const orderId = req.params.orderId as string;
+	const cost = await CostService.createCost(
+		{ ...req.body, orderId },
+		String(user._id),
+	);
+
+	res.status(201).json({ success: true, data: cost });
+}
+
 export async function updateCost(req: Request, res: Response): Promise<void> {
 	const user = requireUser(req);
 	const cost = await CostService.updateCost(

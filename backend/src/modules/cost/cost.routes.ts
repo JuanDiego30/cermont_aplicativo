@@ -97,4 +97,33 @@ router.delete(
 	CostController.deleteCost,
 );
 
+// POST /api/costs/order/:orderId/items — Create cost item scoped to order
+router.post(
+	"/order/:orderId/items",
+	authenticate,
+	authorize(...allowedRoles),
+	validateParams(CostOrderIdSchema),
+	validateBody(CreateCostSchema),
+	CostController.createCostItemForOrder,
+);
+
+// PATCH /api/costs/items/:id — Update cost item (alias for PATCH /:id)
+router.patch(
+	"/items/:id",
+	authenticate,
+	authorize(...allowedRoles),
+	validateParams(CostIdSchema),
+	validateBody(UpdateCostSchema),
+	CostController.updateCost,
+);
+
+// DELETE /api/costs/items/:id — Delete cost item (alias for DELETE /:id)
+router.delete(
+	"/items/:id",
+	authenticate,
+	authorize(...allowedRoles),
+	validateParams(CostIdSchema),
+	CostController.deleteCost,
+);
+
 export default router;
