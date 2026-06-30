@@ -26,10 +26,13 @@ export const ChecklistItemSchema = z
 		category: ChecklistItemCategorySchema,
 		description: z.string().min(3).max(300),
 		required: z.boolean().default(false),
+		isBlocking: z.boolean().default(false),
 		completed: z.boolean().default(false),
 		completedBy: z.string().min(1).optional(),
 		completedAt: z.string().datetime().optional(),
 		observation: z.string().max(500).optional(),
+		requiresPhoto: z.boolean().default(false),
+		requiresSignature: z.boolean().default(false),
 	})
 	.strip();
 export type ChecklistItem = z.infer<typeof ChecklistItemSchema>;

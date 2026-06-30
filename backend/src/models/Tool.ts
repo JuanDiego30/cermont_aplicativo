@@ -126,11 +126,20 @@ export interface IToolDocument extends Document {
 	modelName?: string;
 	purchaseDate?: Date;
 	maintenanceDate?: Date;
+	lastCalibratedAt?: Date;
+	nextCalibrationAt?: Date;
 	category?: string;
 	image?: FileAssetRef;
 	gallery: FileAssetRef[];
 	certifications: ToolCertification[];
 	documents: ToolResourceFileAttachment[];
+	usageHistory: Array<{
+		orderId: Types.ObjectId;
+		orderCode?: string;
+		usedAt: Date;
+		returnedAt?: Date;
+		usedBy?: Types.ObjectId;
+	}>;
 	fileAssets: FileAssetRef[];
 	evidenceRequirements: ToolEvidenceRequirement[];
 	dynamicForms: Types.ObjectId[];
@@ -161,12 +170,26 @@ const ToolSchema = new Schema<IToolDocument>(
 		modelName: { type: String, maxlength: 100 },
 		purchaseDate: { type: Date },
 		maintenanceDate: { type: Date },
+		lastCalibratedAt: { type: Date },
+		nextCalibrationAt: { type: Date, index: true },
 		category: { type: String, maxlength: 100 },
 		image: { type: FileAssetRefSchema },
 		gallery: { type: [FileAssetRefSchema], default: [] },
 		certifications: { type: Schema.Types.Mixed, default: [] },
 		documents: { type: Schema.Types.Mixed, default: [] },
 		fileAssets: { type: [FileAssetRefSchema], default: [] },
+		usageHistory: {
+			type: [
+				{
+					orderId: { type: Schema.Types.ObjectId, ref: "Order" },
+					orderCode: { type: String, maxlength: 40 },
+					usedAt: { type: Date, required: true },
+					returnedAt: { type: Date },
+					usedBy: { type: Schema.Types.ObjectId, ref: "User" },
+				},
+			],
+			default: [],
+		},
 		evidenceRequirements: { type: Schema.Types.Mixed, default: [] },
 		dynamicForms: [{ type: Schema.Types.ObjectId, ref: "DocumentTemplate" }],
 		createdBy: { type: Schema.Types.ObjectId, ref: "User" },

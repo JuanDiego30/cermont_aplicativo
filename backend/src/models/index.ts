@@ -72,5 +72,6 @@ export { type ITemplateResponseDocument, TemplateResponse } from "./TemplateResp
 export { TokenBlacklist } from "./TokenBlacklist";
 export { type IToolDocument, Tool } from "./Tool";
 export { type Role, USER_ROLES, User } from "./User";
+export { VehicleAssignment } from "./VehicleAssignment";
 export { WorkReport } from "./WorkReport";
 export { WorkRequest } from "./WorkRequest";
