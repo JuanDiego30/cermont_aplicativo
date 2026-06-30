@@ -21,7 +21,7 @@ vi.mock("../../src/modules/cost/cost.service", () => ({
 	getCostDashboard: mockGetCostDashboard,
 }));
 
-const importController = async () => import("../../src/modules/cost/cost.controller");
+const controllerPromise = import("../../src/modules/cost/cost.controller");
 
 function mockReq(overrides: Partial<Request> = {}): Request {
 	return {
@@ -58,7 +58,7 @@ describe("CostsController", () => {
 
 			const req = mockReq({ query: { page: "1", limit: "20" } });
 			const res = mockRes();
-			const { listCosts } = await importController();
+			const { listCosts } = await controllerPromise;
 
 			await listCosts(req, res);
 
@@ -84,7 +84,7 @@ describe("CostsController", () => {
 				query: { page: "1", limit: "20" },
 			});
 			const res = mockRes();
-			const { getCostsByOrder } = await importController();
+			const { getCostsByOrder } = await controllerPromise;
 
 			await getCostsByOrder(req, res);
 
@@ -100,7 +100,7 @@ describe("CostsController", () => {
 
 			const req = mockReq({ params: { orderId: "order-1" } });
 			const res = mockRes();
-			const { getCostSummary } = await importController();
+			const { getCostSummary } = await controllerPromise;
 
 			await getCostSummary(req, res);
 
@@ -119,7 +119,7 @@ describe("CostsController", () => {
 
 			const req = mockReq({ params: { id: "cost-1" } });
 			const res = mockRes();
-			const { getCostById } = await importController();
+			const { getCostById } = await controllerPromise;
 
 			await getCostById(req, res);
 

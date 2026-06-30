@@ -122,7 +122,10 @@ describe("Evidence — download & view", () => {
 		const res = mockRes();
 		const ctrl = await import("../../src/modules/evidence/evidence.controller");
 		await ctrl.viewEvidence(req, res);
-		expect(mockTrackView).toHaveBeenCalledWith("507f1f77bcf86cd799439011", { _id: "user-1", role: "gerente" });
+		expect(mockTrackView).toHaveBeenCalledWith("507f1f77bcf86cd799439011", {
+			_id: "user-1",
+			role: "gerente",
+		});
 		expect(res.status).toHaveBeenCalledWith(200);
 	});
 });
@@ -184,7 +187,10 @@ describe("Cost — order items", () => {
 		const res = mockRes();
 		const ctrl = await import("../../src/modules/cost/cost.controller");
 		await ctrl.createCostItemForOrder(req, res);
-		expect(mockCreateCost).toHaveBeenCalledWith(expect.objectContaining({ orderId: "o1" }), "user-1");
+		expect(mockCreateCost).toHaveBeenCalledWith(
+			expect.objectContaining({ orderId: "o1" }),
+			"user-1",
+		);
 		expect(res.status).toHaveBeenCalledWith(201);
 	});
 });
@@ -201,7 +207,12 @@ describe("Asset — photo & document", () => {
 		const res = mockRes();
 		const ctrl = await import("../../src/modules/asset/asset.controller");
 		await ctrl.uploadPhoto(req, res);
-		expect(mockUploadPhoto).toHaveBeenCalledWith("507f1f77bcf86cd799439011", expect.any(Buffer), "user-1", void 0);
+		expect(mockUploadPhoto).toHaveBeenCalledWith(
+			"507f1f77bcf86cd799439011",
+			expect.any(Buffer),
+			"user-1",
+			void 0,
+		);
 		expect(res.status).toHaveBeenCalledWith(201);
 	});
 
@@ -224,7 +235,14 @@ describe("Asset — photo & document", () => {
 		const res = mockRes();
 		const ctrl = await import("../../src/modules/asset/asset.controller");
 		await ctrl.uploadDocument(req, res);
-		expect(mockUploadDocument).toHaveBeenCalledWith("507f1f77bcf86cd799439011", expect.any(Buffer), "doc.pdf", "application/pdf", "user-1", void 0);
+		expect(mockUploadDocument).toHaveBeenCalledWith(
+			"507f1f77bcf86cd799439011",
+			expect.any(Buffer),
+			"doc.pdf",
+			"application/pdf",
+			"user-1",
+			void 0,
+		);
 		expect(res.status).toHaveBeenCalledWith(201);
 	});
 });
