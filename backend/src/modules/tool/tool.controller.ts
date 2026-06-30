@@ -1,11 +1,14 @@
 import {
 	AddToolCertificationSchema,
 	AddToolDocumentSchema,
+	CalibrationsDueQuerySchema,
 	CreateToolSchema,
+	RecordCalibrationSchema,
 	ToolCertificationParamsSchema,
 	ToolDocumentParamsSchema,
 	ToolIdParamsSchema,
 	ToolListQuerySchema,
+	ToolUsageSchema,
 	UpdateToolSchema,
 } from "@cermont/shared-types";
 import type { Request, Response } from "express";
@@ -20,10 +23,14 @@ import {
 	addDocument,
 	createTool,
 	getAllTools,
+	getCalibrationsDue,
 	getExpiredCertifications,
 	getToolById,
+	recordCalibration,
+	recordToolUsage,
 	removeCertification,
 	removeDocument,
+	returnTool,
 	updateTool,
 } from "./tool.service";
 
@@ -112,5 +119,52 @@ export const removeToolDocument = async (req: Request, res: Response) => {
 
 export const listExpiredCertifications = async (_req: Request, res: Response) => {
 	const result = await getExpiredCertifications();
+	return sendSuccess(res, result);
+};
+
+export const recordCalibrationHandler = async (req: Request, res: Response) => {
+	const { id } = ToolIdParamsSchema.parse(req.params);
+	const body = RecordCalibrationSchema.parse(req.body);
+	const user = requireUser(req);
+	const result = await recordCalibration(
+		id,
+		{
+			calibratedAt: new Date(body.calibratedAt),
+			nextCalibrationAt: new Date(body.nextCalibrationAt),
+			certificateId: body.certificateId,
+			issuer: body.issuer,
+			notes: body.notes,
+		},
+		String(user._id),
+	);
+	return sendSuccess(res, result);
+};
+
+export const listCalibrationsDue = async (req: Request, res: Response) => {
+	const query = CalibrationsDueQuerySchema.parse(req.query);
+	const result = await getCalibrationsDue(query.daysAhead);
+	return sendSuccess(res, result);
+};
+
+export const recordToolUsageHandler = async (req: Request, res: Response) => {
+	const { id } = ToolIdParamsSchema.parse(req.params);
+	const body = ToolUsageSchema.parse(req.body);
+	const user = requireUser(req);
+	const result = await recordToolUsage(
+		id,
+		{
+			orderId: body.orderId,
+			orderCode: body.orderCode,
+			usedBy: body.usedBy,
+		},
+		String(user._id),
+	);
+	return sendSuccess(res, result);
+};
+
+export const returnToolHandler = async (req: Request, res: Response) => {
+	const { id } = ToolIdParamsSchema.parse(req.params);
+	const user = requireUser(req);
+	const result = await returnTool(id, String(user._id));
 	return sendSuccess(res, result);
 };
