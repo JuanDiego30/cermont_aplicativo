@@ -5,8 +5,12 @@
  */
 
 import type {
+	CheckinVehicleAssignmentInput,
+	CheckoutVehicleAssignmentInput,
+	CreateVehicleAssignmentInput,
 	CreateVehicleInput,
 	Vehicle,
+	VehicleAssignment,
 	VehicleDocumentAlert,
 	VehiclePhoto,
 } from "@cermont/shared-types";
@@ -94,4 +98,53 @@ export async function setVehiclePrimaryPhoto(
 
 export async function deleteVehiclePhoto(vehicleId: string, photoId: string): Promise<void> {
 	await apiClient.delete(`/fleet/${vehicleId}/photos/${photoId}`);
+}
+
+export async function assignVehicle(
+	vehicleId: string,
+	input: CreateVehicleAssignmentInput,
+): Promise<VehicleAssignment> {
+	const envelope = await apiClient.post<{ success: true; data: VehicleAssignment }>(
+		`/fleet/${vehicleId}/assignments`,
+		input,
+	);
+	return envelope.data;
+}
+
+export async function checkoutVehicle(
+	assignmentId: string,
+	input: CheckoutVehicleAssignmentInput,
+): Promise<VehicleAssignment> {
+	const envelope = await apiClient.post<{ success: true; data: VehicleAssignment }>(
+		`/fleet/assignments/${assignmentId}/checkout`,
+		input,
+	);
+	return envelope.data;
+}
+
+export async function checkinVehicle(
+	assignmentId: string,
+	input: CheckinVehicleAssignmentInput,
+): Promise<VehicleAssignment> {
+	const envelope = await apiClient.post<{ success: true; data: VehicleAssignment }>(
+		`/fleet/assignments/${assignmentId}/checkin`,
+		input,
+	);
+	return envelope.data;
+}
+
+export async function getActiveVehicleAssignment(
+	vehicleId: string,
+): Promise<VehicleAssignment | null> {
+	const envelope = await apiClient.get<{ success: true; data: VehicleAssignment | null }>(
+		`/fleet/${vehicleId}/assignments/active`,
+	);
+	return envelope.data;
+}
+
+export async function getVehicleHistory(vehicleId: string): Promise<VehicleAssignment[]> {
+	const envelope = await apiClient.get<{ success: true; data: VehicleAssignment[] }>(
+		`/fleet/${vehicleId}/assignments/history`,
+	);
+	return envelope.data;
 }

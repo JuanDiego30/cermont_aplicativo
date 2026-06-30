@@ -15,6 +15,7 @@ import type {
 } from "@cermont/shared-types";
 import { AppError } from "../../common/errors";
 import { VehicleModel, type VehicleRecord } from "../../models/Vehicle";
+import { type IVehicleAssignmentDocument, VehicleAssignment } from "../../models/VehicleAssignment";
 import { createAuditLog } from "../audit/audit.service";
 import {
 	createFileAssetFromUpload,
@@ -284,6 +285,22 @@ export async function setPrimaryVehiclePhoto(
 	return toVehiclePhoto(photo, primaryPhoto);
 }
 
+export interface CheckinInput {
+	driverId: string;
+	driverName: string;
+	orderId?: string;
+	notes?: string;
+}
+
+export interface AssignmentEntry {
+	driverId: string;
+	driverName: string;
+	checkedInAt: string;
+	checkedOutAt?: string;
+	orderId?: string;
+	notes?: string;
+}
+
 export async function deleteVehiclePhoto(
 	vehicleId: string,
 	photoId: string,
@@ -319,4 +336,167 @@ export async function deleteVehiclePhoto(
 			},
 		});
 	}
+}
+
+export async function assignVehicle(
+	vehicleId: string,
+	driverId: string,
+	assignedBy: string,
+): Promise<IVehicleAssignmentDocument> {
+	const vehicle = await getVehicleById(vehicleId);
+	if (hasExpiredDocuments(vehicle)) {
+		throw new AppError(
+			"No se puede asignar conductor a un vehículo con SOAT o tecnomecánica vencidos",
+			409,
+			"VEHICLE_DOCUMENTS_EXPIRED",
+		);
+	}
+
+	// Terminate any active assignment for this vehicle first
+	await VehicleAssignment.updateMany(
+		{ vehicleId, status: { $in: ["pending", "active"] } },
+		{ $set: { status: "completed", endedAt: new Date() } },
+	);
+
+	const { User } = require("../../models/User");
+	const user = await User.findById(driverId).lean();
+	const driverName = user ? user.name : "Conductor";
+
+	await VehicleModel.updateOne({ _id: vehicleId }, { $set: { driverId, driverName } });
+
+	const assignment = await VehicleAssignment.create({
+		vehicleId,
+		driverId,
+		driverName,
+		assignedBy,
+		assignedAt: new Date(),
+		status: "pending",
+	});
+
+	await createAuditLog({
+		action: "VEHICLE_ASSIGNED",
+		entity: "Vehicle",
+		entityId: vehicleId,
+		userId: assignedBy,
+		metadata: { driverId, driverName, assignmentId: assignment._id.toString() },
+	});
+
+	return assignment;
+}
+
+export async function checkoutVehicle(
+	assignmentId: string,
+	checkoutData: { mileage: number; fuelLevel: number; photos: string[]; notes?: string },
+	userId: string,
+): Promise<IVehicleAssignmentDocument> {
+	const assignment = await VehicleAssignment.findById(assignmentId);
+	if (!assignment) {
+		throw new AppError("Asignación no encontrada", 404, "ASSIGNMENT_NOT_FOUND");
+	}
+	if (assignment.status !== "pending") {
+		throw new AppError(
+			"El vehículo ya ha sido retirado o la asignación no está pendiente",
+			400,
+			"ASSIGNMENT_NOT_PENDING",
+		);
+	}
+
+	const vehicle = await VehicleModel.findById(assignment.vehicleId);
+	if (!vehicle) {
+		throw new AppError("Vehículo no encontrado", 404, "VEHICLE_NOT_FOUND");
+	}
+
+	if (checkoutData.mileage < vehicle.kilometers) {
+		throw new AppError(
+			`El kilometraje de salida (${checkoutData.mileage}) no puede ser menor al kilometraje actual del vehículo (${vehicle.kilometers})`,
+			400,
+			"INVALID_MILEAGE",
+		);
+	}
+
+	assignment.status = "active";
+	assignment.startedAt = new Date();
+	assignment.checkout = checkoutData;
+	await assignment.save();
+
+	vehicle.status = "active";
+	vehicle.kilometers = checkoutData.mileage;
+	await vehicle.save();
+
+	await createAuditLog({
+		action: "VEHICLE_CHECKED_OUT",
+		entity: "Vehicle",
+		entityId: vehicle._id.toString(),
+		userId,
+		metadata: { assignmentId, mileage: checkoutData.mileage },
+	});
+
+	return assignment;
+}
+
+export async function checkinVehicle(
+	assignmentId: string,
+	checkinData: { mileage: number; fuelLevel: number; photos: string[]; notes?: string },
+	userId: string,
+): Promise<IVehicleAssignmentDocument> {
+	const assignment = await VehicleAssignment.findById(assignmentId);
+	if (!assignment) {
+		throw new AppError("Asignación no encontrada", 404, "ASSIGNMENT_NOT_FOUND");
+	}
+	if (assignment.status !== "active") {
+		throw new AppError(
+			"El vehículo no está en estado activo / retirado",
+			400,
+			"ASSIGNMENT_NOT_ACTIVE",
+		);
+	}
+
+	const checkoutMileage = assignment.checkout?.mileage ?? 0;
+	if (checkinData.mileage < checkoutMileage) {
+		throw new AppError(
+			`El kilometraje de entrada (${checkinData.mileage}) no puede ser menor al kilometraje de salida (${checkoutMileage})`,
+			400,
+			"INVALID_MILEAGE",
+		);
+	}
+
+	assignment.status = "completed";
+	assignment.endedAt = new Date();
+	assignment.checkin = checkinData;
+	await assignment.save();
+
+	const vehicle = await VehicleModel.findById(assignment.vehicleId);
+	if (vehicle) {
+		vehicle.kilometers = checkinData.mileage;
+		vehicle.driverId = undefined;
+		vehicle.driverName = undefined;
+		await vehicle.save();
+	}
+
+	await createAuditLog({
+		action: "VEHICLE_CHECKED_IN",
+		entity: "Vehicle",
+		entityId: assignment.vehicleId.toString(),
+		userId,
+		metadata: { assignmentId, mileage: checkinData.mileage },
+	});
+
+	return assignment;
+}
+
+export async function getVehicleAssignmentHistory(
+	vehicleId: string,
+): Promise<IVehicleAssignmentDocument[]> {
+	return VehicleAssignment.find({ vehicleId })
+		.sort({ assignedAt: -1 })
+		.populate("driverId", "name email")
+		.populate("assignedBy", "name email");
+}
+
+export async function getActiveAssignment(
+	vehicleId: string,
+): Promise<IVehicleAssignmentDocument | null> {
+	return VehicleAssignment.findOne({ vehicleId, status: { $in: ["pending", "active"] } })
+		.populate("driverId", "name email")
+		.populate("assignedBy", "name email");
 }

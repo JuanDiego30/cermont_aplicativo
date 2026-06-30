@@ -6,8 +6,46 @@ import { ObjectIdSchema } from "./common.schema";
 // Evidence Phase — When evidence is captured in the operational flow
 // ──────────────────────────────────────────────────────────────────────────────
 
-export const EvidencePhaseSchema = z.enum(["before", "during", "after", "closure"]);
+export const EvidencePhaseSchema = z.enum(["before", "during", "after", "correction", "hse"]);
 export type EvidencePhase = z.infer<typeof EvidencePhaseSchema>;
+
+export const EvidenceWorkflowStatusSchema = z.enum([
+	"captured",
+	"uploaded",
+	"pending_review",
+	"approved",
+	"rejected",
+	"locked",
+	"archived",
+]);
+export type EvidenceWorkflowStatus = z.infer<typeof EvidenceWorkflowStatusSchema>;
+
+export const EvidenceSourceSchema = z.enum(["camera", "gallery", "upload"]);
+export type EvidenceSource = z.infer<typeof EvidenceSourceSchema>;
+
+export const EvidenceRelationTypeSchema = z.enum([
+	"order",
+	"execution",
+	"checklist",
+	"tool",
+	"vehicle",
+]);
+export type EvidenceRelationType = z.infer<typeof EvidenceRelationTypeSchema>;
+
+const EvidenceWorkflowFields = {
+	fsmStatus: EvidenceWorkflowStatusSchema.default("uploaded"),
+	source: EvidenceSourceSchema.default("upload"),
+	relation: z.object({ type: EvidenceRelationTypeSchema, id: ObjectIdSchema }).strict(),
+	rejection: statusObjectOf(
+		z.object({ reason: z.string().min(3).max(500), rejectedAt: z.string().datetime() }).strict(),
+	).default({ status: "absent" }),
+	replacement: statusObjectOf(
+		z.object({ evidenceId: ObjectIdSchema, fileAssetId: z.string().min(1) }).strict(),
+	).default({ status: "absent" }),
+	lock: statusObjectOf(
+		z.object({ reason: z.string().min(3).max(500), lockedAt: z.string().datetime() }).strict(),
+	).default({ status: "absent" }),
+} as const;
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Evidence Category — Type classification for evidence
@@ -103,6 +141,8 @@ export const EvidenceSchema = z
 		capturedAt: z.string().datetime(),
 		uploadedAt: z.string().datetime(),
 		uploadedBy: ObjectIdSchema,
+		phase: EvidencePhaseSchema.default("during"),
+		...EvidenceWorkflowFields,
 		deletedAt: statusObjectOf(z.string().datetime()).optional(),
 		createdAt: z.string().datetime(),
 		updatedAt: z.string().datetime(),
@@ -113,6 +153,10 @@ export const CreateEvidenceSchema = z
 	.object({
 		orderId: ObjectIdSchema,
 		type: EvidenceTypeSchema,
+		phase: EvidencePhaseSchema.default("during"),
+		source: EvidenceSourceSchema.default("upload"),
+		relationType: EvidenceRelationTypeSchema.default("order"),
+		relationId: ObjectIdSchema.optional(),
 		title: z.string().min(1, "El título es obligatorio").max(120).optional(),
 		description: z.string().max(500).optional(),
 		gpsLocation: z
@@ -170,6 +214,7 @@ export const EvidenceSchemaV2 = z
 				capturedAt: z.string().datetime().optional(),
 			})
 			.optional(),
+		...EvidenceWorkflowFields,
 		deletedAt: statusObjectOf(z.string().datetime()).optional(),
 		createdAt: z.string().datetime(),
 		updatedAt: z.string().datetime(),
@@ -270,6 +315,22 @@ export const VerifyEvidenceSchema = z
 		verified: z.boolean(),
 		comment: z.string().max(1000).optional().default(""),
 	})
+	.strict()
+	.superRefine((value, context) => {
+		if (!value.verified && value.comment.trim().length < 3) {
+			context.addIssue({
+				code: "custom",
+				path: ["comment"],
+				message: "A rejection reason of at least 3 characters is required",
+			});
+		}
+	});
+
+export const ReplaceEvidenceSchema = z
+	.object({
+		fileAssetId: z.string().min(1).max(64),
+		comment: z.string().max(500).optional().default(""),
+	})
 	.strict();
 
 export type EvidenceId = z.infer<typeof EvidenceIdSchema>;
@@ -277,3 +338,4 @@ export type EvidenceOrderIdParams = z.infer<typeof EvidenceOrderIdParamsSchema>;
 export type Evidence = z.infer<typeof EvidenceSchema>;
 export type CreateEvidenceInput = z.infer<typeof CreateEvidenceSchema>;
 export type VerifyEvidenceInput = z.infer<typeof VerifyEvidenceSchema>;
+export type ReplaceEvidenceInput = z.infer<typeof ReplaceEvidenceSchema>;

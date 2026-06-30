@@ -40,10 +40,7 @@ const MaintenanceScheduleSchema = new mongoose.Schema(
 	{ timestamps: true },
 );
 
-const MaintenanceScheduleModel = mongoose.model(
-	"MaintenanceSchedule",
-	MaintenanceScheduleSchema,
-);
+const MaintenanceScheduleModel = mongoose.model("MaintenanceSchedule", MaintenanceScheduleSchema);
 
 function computeNextDueDate(startDate: Date, frequency: string): Date {
 	const next = new Date(startDate);
@@ -67,10 +64,7 @@ function computeNextDueDate(startDate: Date, frequency: string): Date {
 	return next;
 }
 
-export async function createSchedule(
-	data: CreateMaintenanceScheduleInput,
-	userId: string,
-) {
+export async function createSchedule(data: CreateMaintenanceScheduleInput, userId: string) {
 	const schedule = await MaintenanceScheduleModel.create({
 		assetId: new mongoose.Types.ObjectId(data.assetId),
 		title: data.title,
@@ -120,10 +114,7 @@ export async function getScheduleById(id: string) {
 	return schedule;
 }
 
-export async function updateSchedule(
-	id: string,
-	data: UpdateMaintenanceScheduleInput,
-) {
+export async function updateSchedule(id: string, data: UpdateMaintenanceScheduleInput) {
 	const updateData: Record<string, string | Date> = {};
 	if ("title" in data && data.title) {
 		updateData.title = data.title;

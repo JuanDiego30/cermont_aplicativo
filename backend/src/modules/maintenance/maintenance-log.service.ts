@@ -32,10 +32,7 @@ const MaintenanceLogSchema = new mongoose.Schema(
 
 const MaintenanceLogModel = mongoose.model("MaintenanceLog", MaintenanceLogSchema);
 
-export async function createLog(
-	data: CreateMaintenanceLogInput,
-	userId: string,
-) {
+export async function createLog(data: CreateMaintenanceLogInput, userId: string) {
 	const logEntry = await MaintenanceLogModel.create({
 		assetId: new mongoose.Types.ObjectId(data.assetId),
 		...(data.scheduleId ? { scheduleId: new mongoose.Types.ObjectId(data.scheduleId) } : {}),
@@ -52,11 +49,7 @@ export async function createLog(
 	return logEntry.toObject();
 }
 
-export async function listLogs(
-	assetId: string,
-	page: number = 1,
-	limit: number = 20,
-) {
+export async function listLogs(assetId: string, page: number = 1, limit: number = 20) {
 	const skip = (page - 1) * limit;
 	const filter = { assetId: new mongoose.Types.ObjectId(assetId) };
 	const [data, total] = await Promise.all([

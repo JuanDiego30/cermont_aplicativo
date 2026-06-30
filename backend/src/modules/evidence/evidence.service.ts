@@ -14,12 +14,19 @@
 
 import { ADMIN_PLUS_RESIDENTE, type UserRole } from "@cermont/domain";
 // Import V2 types from shared-types
-import type { EvidenceCategory, EvidencePhase } from "@cermont/shared-types";
+import type {
+	EvidenceCategory,
+	EvidencePhase,
+	EvidenceRelationType,
+	EvidenceSource,
+	EvidenceWorkflowStatus,
+} from "@cermont/shared-types";
 import { Types } from "mongoose";
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
 import {
 	BadRequestError,
+	ConflictError,
 	NotFoundError,
 	ServiceUnavailableError,
 	UnsupportedMediaTypeError,
@@ -54,15 +61,26 @@ export interface EvidenceSnapshot {
 		accuracy?: number;
 		capturedAt?: Date;
 	};
-	capturedAt: Date;
-	uploadedAt?: Date;
+	capturedAt: string;
+	uploadedAt: string;
 	uploadedBy: string;
-	verifiedAt?: Date;
+	verifiedAt?: string;
 	verifiedBy?: string;
 	verificationStatus?: "approved" | "rejected";
 	verificationComment?: string;
-	createdAt: Date;
-	updatedAt: Date;
+	phase: EvidencePhase;
+	fsmStatus: EvidenceWorkflowStatus;
+	source: EvidenceSource;
+	relation: { type: EvidenceRelationType; id: string };
+	rejection:
+		| { status: "absent" }
+		| { status: "present"; value: { reason: string; rejectedAt: string } };
+	replacement:
+		| { status: "absent" }
+		| { status: "present"; value: { evidenceId: string; fileAssetId: string } };
+	lock: { status: "absent" } | { status: "present"; value: { reason: string; lockedAt: string } };
+	createdAt: string;
+	updatedAt: string;
 }
 
 interface EvidenceCreationOptions {
@@ -77,6 +95,44 @@ interface EvidenceActor {
 
 function hasGlobalEvidenceAccess(role: UserRole): boolean {
 	return ADMIN_PLUS_RESIDENTE.some((allowedRole) => allowedRole === role);
+}
+
+function resolveEvidencePhase(doc: IEvidenceDocument): EvidencePhase {
+	if (doc.phase) {
+		return doc.phase;
+	}
+	if (doc.type === "before" || doc.type === "during" || doc.type === "after") {
+		return doc.type;
+	}
+	return doc.type === "safety" ? "hse" : "correction";
+}
+
+function resolveEvidenceStatus(doc: IEvidenceDocument): EvidenceWorkflowStatus {
+	const storedStatus = String(doc.fsmStatus || "uploaded");
+	if (storedStatus === "verified") {
+		return "approved";
+	}
+	if (storedStatus === "verification_pending") {
+		return "pending_review";
+	}
+	if (storedStatus === "replaced") {
+		return "archived";
+	}
+	if (doc.verificationStatus === "approved") {
+		return "approved";
+	}
+	return storedStatus as EvidenceWorkflowStatus;
+}
+
+function resolveEvidenceRelation(doc: IEvidenceDocument): {
+	type: EvidenceRelationType;
+	id: string;
+} {
+	const fallbackId = doc.workOrderId?.toString() || doc.orderId?.toString() || "";
+	return {
+		type: doc.relationType || "order",
+		id: doc.relationId?.toString() || fallbackId,
+	};
 }
 
 async function getAccessibleOrderIds(actor: EvidenceActor): Promise<Types.ObjectId[]> {
@@ -121,6 +177,31 @@ async function assertEvidenceOrderAccess(
  * Format evidence document for API response (V1)
  */
 function formatEvidenceResponse(doc: IEvidenceDocument): EvidenceSnapshot {
+	const rejection =
+		doc.rejectionReason && doc.rejectedAt
+			? {
+					status: "present" as const,
+					value: { reason: doc.rejectionReason, rejectedAt: doc.rejectedAt.toISOString() },
+				}
+			: { status: "absent" as const };
+	const replacement =
+		doc.replacedBy && doc.replacementFileAssetId
+			? {
+					status: "present" as const,
+					value: {
+						evidenceId: doc.replacedBy.toString(),
+						fileAssetId: doc.replacementFileAssetId,
+					},
+				}
+			: { status: "absent" as const };
+	const lock =
+		doc.lockReason && doc.lockedAt
+			? {
+					status: "present" as const,
+					value: { reason: doc.lockReason, lockedAt: doc.lockedAt.toISOString() },
+				}
+			: { status: "absent" as const };
+
 	return {
 		_id: doc._id.toString(),
 		orderId: doc.workOrderId?.toString() || doc.orderId?.toString() || "",
@@ -132,13 +213,22 @@ function formatEvidenceResponse(doc: IEvidenceDocument): EvidenceSnapshot {
 		title: doc.title,
 		description: doc.description,
 		gpsLocation: doc.gpsLocation as { lat: number; lng: number; capturedAt: Date } | undefined,
-		capturedAt: doc.capturedAt,
-		uploadedAt: doc.uploadedAt,
+		capturedAt: doc.capturedAt.toISOString(),
+		uploadedAt: (doc.uploadedAt || doc.createdAt).toISOString(),
 		uploadedBy: doc.uploadedBy.toString(),
-		verifiedAt: doc.verifiedAt,
+		verifiedAt: doc.verifiedAt?.toISOString(),
 		verifiedBy: doc.verifiedBy?.toString(),
-		createdAt: doc.createdAt,
-		updatedAt: doc.updatedAt,
+		verificationStatus: doc.verificationStatus,
+		verificationComment: doc.verificationComment,
+		phase: resolveEvidencePhase(doc),
+		fsmStatus: resolveEvidenceStatus(doc),
+		source: doc.source || "upload",
+		relation: resolveEvidenceRelation(doc),
+		rejection,
+		replacement,
+		lock,
+		createdAt: doc.createdAt.toISOString(),
+		updatedAt: doc.updatedAt.toISOString(),
 	};
 }
 
@@ -146,25 +236,49 @@ function formatEvidenceResponse(doc: IEvidenceDocument): EvidenceSnapshot {
  * Format evidence document for API response (V2)
  */
 function formatEvidenceResponseV2(doc: IEvidenceDocument): EvidenceSnapshot {
-	return {
-		_id: doc._id.toString(),
-		orderId: doc.workOrderId?.toString() || doc.orderId?.toString() || "",
-		type: doc.type || "during",
-		url: doc.url,
-		filename: doc.filename,
-		mimeType: doc.mimeType,
-		sizeBytes: doc.sizeBytes,
-		title: doc.title,
-		description: doc.description,
-		gpsLocation: doc.gpsLocation as { lat: number; lng: number; capturedAt: Date } | undefined,
-		capturedAt: doc.capturedAt,
-		uploadedAt: doc.uploadedAt,
-		uploadedBy: doc.uploadedBy.toString(),
-		verifiedAt: doc.verifiedAt,
-		verifiedBy: doc.verifiedBy?.toString(),
-		createdAt: doc.createdAt,
-		updatedAt: doc.updatedAt,
-	};
+	return formatEvidenceResponse(doc);
+}
+
+/**
+ * Check idempotency — returns existing evidence if key matches
+ */
+async function checkEvidenceIdempotency(
+	idempotencyKey: string | undefined,
+): Promise<IEvidenceDocument | null> {
+	if (!idempotencyKey) {
+		return null;
+	}
+	const existing = await Evidence.findOne({ idempotencyKey }).lean();
+	return existing as unknown as IEvidenceDocument | null;
+}
+
+/**
+ * Validate evidence file — checks type, size, and malware
+ */
+async function validateEvidenceFile(fileBuffer: Buffer, label: string): Promise<void> {
+	if (!hasValidImageSignature(fileBuffer)) {
+		throw new UnsupportedMediaTypeError("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
+	}
+	if (fileBuffer.length > MAX_FILE_SIZE) {
+		throw new BadRequestError("File exceeds 20MB limit", "FILE_TOO_LARGE");
+	}
+	const isSafe = await scanWithClamAV(fileBuffer, label);
+	if (!isSafe) {
+		throw new BadRequestError("Malware detected in uploaded evidence file");
+	}
+}
+
+/**
+ * Resolve relation type from payload fields
+ */
+function resolveEvidenceRelationType(payload: {
+	executionSessionId?: string;
+	workOrderId?: string;
+}): EvidenceRelationType {
+	if (payload.executionSessionId) {
+		return "execution";
+	}
+	return "order";
 }
 
 function normalizeIdempotencyKey(value?: string): string | undefined {
@@ -247,6 +361,10 @@ export async function createEvidence(
 	payload: {
 		title?: string;
 		description?: string;
+		phase: EvidencePhase;
+		source: EvidenceSource;
+		relationType: EvidenceRelationType;
+		relationId?: string;
 		gpsLocation?: { lat: number; lng: number; capturedAt: Date };
 		capturedAt: Date;
 	},
@@ -290,7 +408,7 @@ export async function createEvidence(
 	// Process image (compress, convert to WebP, save)
 	const { filename, url, sizeBytes } = await processImageFile(fileBuffer, orderId, userId);
 
-	// Create evidence record
+	// Create evidence record with FSM workflow status
 	const evidence = new Evidence({
 		orderId,
 		type,
@@ -362,11 +480,10 @@ export async function createEvidenceV2(
 ): Promise<EvidenceSnapshot> {
 	const idempotencyKey = normalizeIdempotencyKey(options?.idempotencyKey);
 
-	if (idempotencyKey) {
-		const existingEvidence = await Evidence.findOne({ idempotencyKey }).lean();
-		if (existingEvidence) {
-			return formatEvidenceResponseV2(existingEvidence as unknown as IEvidenceDocument);
-		}
+	// Check idempotency
+	const existingEvidence = await checkEvidenceIdempotency(idempotencyKey);
+	if (existingEvidence) {
+		return formatEvidenceResponseV2(existingEvidence);
 	}
 
 	// Validate order exists if workOrderId provided
@@ -394,22 +511,8 @@ export async function createEvidenceV2(
 		},
 	);
 
-	// Validate image
-	if (!hasValidImageSignature(fileBuffer)) {
-		throw new UnsupportedMediaTypeError("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
-	}
-
-	if (fileBuffer.length > MAX_FILE_SIZE) {
-		throw new BadRequestError("File exceeds 20MB limit", "FILE_TOO_LARGE");
-	}
-
-	const isSafe = await scanWithClamAV(
-		fileBuffer,
-		`evidence-v2-${payload.serviceCaseId}-${uuidv4()}`,
-	);
-	if (!isSafe) {
-		throw new BadRequestError("Malware detected in uploaded evidence file");
-	}
+	// Validate file
+	await validateEvidenceFile(fileBuffer, `evidence-v2-${payload.serviceCaseId}-${uuidv4()}`);
 
 	// Process image - generate variants
 	const unique = uuidv4();
@@ -442,6 +545,7 @@ export async function createEvidenceV2(
 		workOrderId: payload.workOrderId,
 		executionSessionId: payload.executionSessionId,
 		description: payload.description,
+		filename: originalFilename,
 		mimeType: payload.mimeType,
 		sizeBytes: payload.sizeBytes || originalBuffer.length,
 		url: originalUrl,
@@ -464,20 +568,24 @@ export async function createEvidenceV2(
 			},
 		],
 		uploadedBy: payload.uploadedBy,
-		uploadedByName: userId, // Will be populated by population
+		uploadedByName: userId,
+		uploadedAt: new Date(),
 		capturedAt: payload.capturedAt,
 		offlineCapturedAt: payload.capturedAt,
 		gpsLocation: payload.gpsLocation,
 		syncStatus: payload.syncStatus || "synced",
 		idempotencyKey,
 		deviceId: payload.deviceId,
+		source: payload.deviceId ? "camera" : "upload",
+		relationType: resolveEvidenceRelationType(payload),
+		relationId: payload.executionSessionId || payload.workOrderId || payload.serviceCaseId,
+		fsmStatus: "uploaded",
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	});
 
 	await evidence.save();
 
-	// Populate user reference
 	await evidence.populate("uploadedBy", "name email");
 
 	await createAuditLog({
@@ -691,25 +799,7 @@ export async function getEvidenceById(
 
 	await getOrderByIdWithAuth(orderId, actor);
 
-	return {
-		_id: evidence._id.toString(),
-		orderId,
-		type: evidence.type || "during",
-		url: evidence.url,
-		filename: evidence.filename,
-		mimeType: evidence.mimeType,
-		sizeBytes: evidence.sizeBytes,
-		title: evidence.title,
-		description: evidence.description,
-		gpsLocation: evidence.gpsLocation,
-		capturedAt: evidence.capturedAt,
-		uploadedAt: evidence.uploadedAt,
-		uploadedBy: evidence.uploadedBy.toString(),
-		verifiedAt: evidence.verifiedAt,
-		verifiedBy: evidence.verifiedBy?.toString(),
-		createdAt: evidence.createdAt,
-		updatedAt: evidence.updatedAt,
-	};
+	return formatEvidenceResponse(evidence);
 }
 
 /**
@@ -753,25 +843,7 @@ export async function deleteEvidence(
 		},
 	});
 
-	return {
-		_id: evidence._id.toString(),
-		orderId: evidence.workOrderId?.toString() || evidence.orderId?.toString() || "",
-		type: evidence.type || "during",
-		url: evidence.url,
-		filename: evidence.filename,
-		mimeType: evidence.mimeType,
-		sizeBytes: evidence.sizeBytes,
-		title: evidence.title,
-		description: evidence.description,
-		gpsLocation: evidence.gpsLocation,
-		capturedAt: evidence.capturedAt,
-		uploadedAt: evidence.uploadedAt,
-		uploadedBy: evidence.uploadedBy.toString(),
-		verifiedAt: evidence.verifiedAt,
-		verifiedBy: evidence.verifiedBy?.toString(),
-		createdAt: evidence.createdAt,
-		updatedAt: evidence.updatedAt,
-	};
+	return formatEvidenceResponse(evidence);
 }
 
 /**
@@ -808,6 +880,11 @@ export async function verifyEvidence(
 	evidence.verifiedBy = new Types.ObjectId(userId);
 	evidence.verificationStatus = approved ? "approved" : "rejected";
 	evidence.verificationComment = comment;
+	evidence.fsmStatus = approved ? "approved" : "rejected";
+	if (!approved) {
+		evidence.rejectionReason = comment || "No reason provided";
+		evidence.rejectedAt = new Date();
+	}
 	await evidence.save();
 
 	await createAuditLog({
@@ -822,25 +899,126 @@ export async function verifyEvidence(
 		},
 	});
 
+	return formatEvidenceResponse(evidence);
+}
+
+/**
+ * Replace rejected evidence — upload a new version to replace a rejected one
+ *
+ * FSM transition: rejected → replaced (old) / captured → uploaded (new)
+ *
+ * @param originalEvidenceId - The rejected evidence ID
+ * @param fileBuffer - New image buffer
+ * @param userId - User uploading replacement
+ * @param comment - Optional comment for the replacement
+ * @returns Object with { replaced: EvidenceSnapshot, replacement: EvidenceSnapshot }
+ */
+export async function replaceEvidence(
+	originalEvidenceId: string,
+	fileBuffer: Buffer,
+	userId: string,
+	comment?: string,
+): Promise<{ replaced: EvidenceSnapshot; replacement: EvidenceSnapshot }> {
+	const original = await Evidence.findById(originalEvidenceId);
+	if (!original) {
+		throw new NotFoundError("Evidence", originalEvidenceId);
+	}
+	if (original.fsmStatus !== "rejected") {
+		throw new ConflictError(
+			`Cannot replace evidence that has not been rejected. Current status: ${original.fsmStatus}`,
+		);
+	}
+
+	// Process new image
+	const { filename, url, sizeBytes } = await processImageFile(
+		fileBuffer,
+		original.workOrderId?.toString() || original.orderId?.toString() || "",
+		userId,
+	);
+
+	// Mark original as archived (replaced evidence is archived)
+	original.fsmStatus = "archived";
+	original.verificationComment = comment || original.verificationComment || "Replaced by user";
+	await original.save();
+
+	// Create replacement evidence linked to original
+	const replacement = new Evidence({
+		orderId: original.orderId,
+		workOrderId: original.workOrderId,
+		serviceCaseId: original.serviceCaseId,
+		executionSessionId: original.executionSessionId,
+		type: original.type,
+		phase: original.phase,
+		category: original.category,
+		filename,
+		url,
+		mimeType: "image/webp",
+		sizeBytes,
+		capturedAt: new Date(),
+		uploadedAt: new Date(),
+		uploadedBy: userId,
+		fsmStatus: "uploaded",
+		replaces: original._id,
+		description: comment || `Replacement for ${original._id.toString()}`,
+	});
+
+	await replacement.save();
+
+	await createAuditLog({
+		action: "EVIDENCE_REPLACED",
+		entity: "Evidence",
+		entityId: original._id.toString(),
+		userId,
+		metadata: {
+			replacedBy: replacement._id.toString(),
+			filename,
+			sizeBytes,
+		},
+	});
+
 	return {
-		_id: evidence._id.toString(),
-		orderId: evidence.workOrderId?.toString() || evidence.orderId?.toString() || "",
-		type: evidence.type || "during",
-		url: evidence.url,
-		filename: evidence.filename,
-		mimeType: evidence.mimeType,
-		sizeBytes: evidence.sizeBytes,
-		title: evidence.title,
-		description: evidence.description,
-		gpsLocation: evidence.gpsLocation,
-		capturedAt: evidence.capturedAt,
-		uploadedAt: evidence.uploadedAt,
-		uploadedBy: evidence.uploadedBy.toString(),
-		verifiedAt: evidence.verifiedAt,
-		verifiedBy: evidence.verifiedBy?.toString(),
-		verificationStatus: evidence.verificationStatus,
-		verificationComment: evidence.verificationComment,
-		createdAt: evidence.createdAt,
-		updatedAt: evidence.updatedAt,
+		replaced: formatEvidenceResponse(original),
+		replacement: formatEvidenceResponse(replacement),
+	};
+}
+
+/**
+ * Get evidence gallery for an order — all evidence grouped by verification status
+ */
+export async function getEvidenceGallery(
+	orderId: string,
+	actor: { _id: string; role: string },
+): Promise<{
+	verified: EvidenceSnapshot[];
+	pending: EvidenceSnapshot[];
+	rejected: EvidenceSnapshot[];
+	total: number;
+}> {
+	await getOrderByIdWithAuth(orderId, actor);
+
+	const allEvidence = await Evidence.find({
+		$or: [{ orderId }, { workOrderId: orderId }],
+		lifecycleStatus: { $ne: "deleted" },
+	})
+		.sort({ createdAt: -1 })
+		.lean();
+
+	const mapped = allEvidence.map(formatEvidenceResponse);
+
+	return {
+		verified: mapped.filter(
+			(e) => e.fsmStatus === "approved" || e.verificationStatus === "approved",
+		),
+		pending: mapped.filter(
+			(e) =>
+				e.fsmStatus !== "approved" &&
+				e.fsmStatus !== "rejected" &&
+				e.verificationStatus !== "approved" &&
+				e.verificationStatus !== "rejected",
+		),
+		rejected: mapped.filter(
+			(e) => e.fsmStatus === "rejected" || e.verificationStatus === "rejected",
+		),
+		total: mapped.length,
 	};
 }

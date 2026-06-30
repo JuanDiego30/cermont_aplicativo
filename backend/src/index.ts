@@ -83,7 +83,7 @@ const app = express();
 const log = createLogger("app");
 const isDev = env.NODE_ENV !== "production";
 const isTest = env.NODE_ENV === "test";
-const REQUEST_BODY_LIMIT = "2mb";
+const REQUEST_BODY_LIMIT = "10mb";
 const localFrontendOrigins = [
 	"http://localhost:3000",
 	"http://127.0.0.1:3000",

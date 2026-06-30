@@ -17,10 +17,13 @@ const ChecklistItemSchema = new Schema(
 		},
 		description: { type: String, required: true, minlength: 3, maxlength: 300 },
 		required: { type: Boolean, default: false },
+		isBlocking: { type: Boolean, default: false },
 		completed: { type: Boolean, default: false },
 		completedBy: { type: Types.ObjectId, ref: "User" },
 		completedAt: { type: Date },
 		observation: { type: String, maxlength: 500 },
+		requiresPhoto: { type: Boolean, default: false },
+		requiresSignature: { type: Boolean, default: false },
 	},
 	{ _id: false },
 );
@@ -35,10 +38,13 @@ export interface IChecklistDocument extends Document {
 		category: "tool" | "equipment" | "ppe" | "procedure";
 		description: string;
 		required: boolean;
+		isBlocking: boolean;
 		completed: boolean;
 		completedBy?: Types.ObjectId;
 		completedAt?: Date;
 		observation?: string;
+		requiresPhoto: boolean;
+		requiresSignature: boolean;
 	}>;
 	completedBy?: Types.ObjectId;
 	completedAt?: Date;

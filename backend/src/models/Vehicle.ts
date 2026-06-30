@@ -4,6 +4,15 @@ import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRe
 
 export type VehiclePrimaryPhoto = { status: "absent" } | { status: "present"; fileAssetId: string };
 
+export interface AssignmentRecord {
+	driverId: mongoose.Types.ObjectId;
+	driverName: string;
+	checkedInAt: Date;
+	checkedOutAt?: Date;
+	orderId?: mongoose.Types.ObjectId;
+	notes?: string;
+}
+
 export interface VehicleRecord {
 	plate: string;
 	brand: string;
@@ -23,11 +32,25 @@ export interface VehicleRecord {
 	notes?: string;
 	fileAssets: FileAssetRef[];
 	primaryPhoto: VehiclePrimaryPhoto;
+	assignmentHistory: AssignmentRecord[];
+	currentAssignment?: AssignmentRecord;
 	createdBy?: mongoose.Types.ObjectId;
 	updatedBy?: mongoose.Types.ObjectId;
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+const assignmentRecordSchema = new Schema<AssignmentRecord>(
+	{
+		driverId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+		driverName: { type: String, required: true, maxlength: 200 },
+		checkedInAt: { type: Date, required: true },
+		checkedOutAt: { type: Date },
+		orderId: { type: Schema.Types.ObjectId, ref: "Order" },
+		notes: { type: String, maxlength: 500 },
+	},
+	{ _id: false },
+);
 
 const vehiclePrimaryPhotoSchema = new Schema<VehiclePrimaryPhoto>(
 	{
@@ -78,6 +101,11 @@ const vehicleSchema = new Schema<VehicleRecord>(
 		},
 		notes: { type: String, maxlength: 500 },
 		fileAssets: { type: [FileAssetRefSchema], default: [] },
+		assignmentHistory: { type: [assignmentRecordSchema], default: [] },
+		currentAssignment: {
+			type: assignmentRecordSchema,
+			default: null,
+		},
 		primaryPhoto: {
 			type: vehiclePrimaryPhotoSchema,
 			required: true,

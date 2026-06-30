@@ -163,7 +163,9 @@ export * from "./template-response.schema";
 export type {
 	AddToolCertificationInput,
 	AddToolDocumentInput,
+	CalibrationsDueQuery,
 	CreateToolInput,
+	RecordCalibrationInput,
 	Tool as ManagedTool,
 	ToolCertification,
 	ToolCertificationParams,
@@ -173,12 +175,15 @@ export type {
 	ToolIdParams,
 	ToolListQuery,
 	ToolStatus,
+	ToolUsageInput,
 	UpdateToolInput,
 } from "./tool.schema";
 export {
 	AddToolCertificationSchema,
 	AddToolDocumentSchema,
+	CalibrationsDueQuerySchema,
 	CreateToolSchema,
+	RecordCalibrationSchema,
 	ToolCertificationParamsSchema,
 	ToolCertificationSchema as ManagedToolCertificationSchema,
 	ToolCertificationStatusEnum,
@@ -190,6 +195,7 @@ export {
 	ToolListQuerySchema,
 	ToolSchema as ManagedToolSchema,
 	ToolStatusEnum,
+	ToolUsageSchema,
 	UpdateToolSchema,
 } from "./tool.schema";
 export * from "./user.schema";

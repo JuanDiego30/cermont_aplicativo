@@ -16,8 +16,8 @@ import {
 import { offsetToPage, parseNumberQuery, toIsoString } from "../../common/utils/mapping";
 import { getString, requireUser } from "../../common/utils/request";
 import { MaintenanceKitService } from "./maintenance.service";
-import * as ScheduleService from "./maintenance-schedule.service";
 import * as LogService from "./maintenance-log.service";
+import * as ScheduleService from "./maintenance-schedule.service";
 
 interface MaintenanceKitRecord {
 	_id: unknown;

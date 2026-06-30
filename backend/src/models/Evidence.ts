@@ -1,3 +1,13 @@
+import {
+	type EvidencePhase,
+	EvidencePhaseSchema,
+	type EvidenceRelationType,
+	EvidenceRelationTypeSchema,
+	type EvidenceSource,
+	EvidenceSourceSchema,
+	type EvidenceWorkflowStatus,
+	EvidenceWorkflowStatusSchema,
+} from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 import { softDeletePlugin } from "./plugins/soft-delete";
 import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
@@ -35,7 +45,7 @@ export interface IEvidenceDocument extends Document {
 
 	// V2 fields
 	code?: string;
-	phase?: "before" | "during" | "after" | "closure";
+	phase?: EvidencePhase;
 	category?:
 		| "installation"
 		| "deinstallation"
@@ -94,6 +104,20 @@ export interface IEvidenceDocument extends Document {
 	verifiedBy?: Types.ObjectId;
 	verificationStatus?: "approved" | "rejected";
 	verificationComment?: string;
+	rejectionReason?: string;
+	rejectedAt?: Date;
+
+	// FSM Workflow (captured → uploaded → pending_review → approved | rejected → archived)
+	fsmStatus: EvidenceWorkflowStatus;
+	source: EvidenceSource;
+	relationType: EvidenceRelationType;
+	relationId?: Types.ObjectId;
+	replacedBy?: Types.ObjectId;
+	replaces?: Types.ObjectId;
+	replacementFileAssetId?: string;
+	lockedAt?: Date;
+	lockReason?: string;
+
 	lifecycleStatus: "active" | "archived" | "deleted";
 	deletedAt?: Date;
 	deletedBy?: Types.ObjectId;
@@ -115,8 +139,21 @@ const EvidenceSchema = new Schema<IEvidenceDocument>(
 		code: { type: String, unique: true, index: true },
 		phase: {
 			type: String,
-			enum: ["before", "during", "after", "closure"],
+			enum: EvidencePhaseSchema.options,
 		},
+		source: {
+			type: String,
+			enum: EvidenceSourceSchema.options,
+			default: "upload",
+			required: true,
+		},
+		relationType: {
+			type: String,
+			enum: EvidenceRelationTypeSchema.options,
+			default: "order",
+			required: true,
+		},
+		relationId: { type: Types.ObjectId, index: true },
 		category: {
 			type: String,
 			enum: [
@@ -178,6 +215,21 @@ const EvidenceSchema = new Schema<IEvidenceDocument>(
 			default: "synced",
 		},
 
+		// FSM Workflow status
+		fsmStatus: {
+			type: String,
+			enum: EvidenceWorkflowStatusSchema.options,
+			default: "uploaded",
+			index: true,
+		},
+		rejectionReason: { type: String, maxlength: 500 },
+		rejectedAt: { type: Date },
+		replacedBy: { type: Types.ObjectId, ref: "Evidence" },
+		replaces: { type: Types.ObjectId, ref: "Evidence" },
+		replacementFileAssetId: { type: String, maxlength: 64 },
+		lockedAt: { type: Date },
+		lockReason: { type: String, maxlength: 500 },
+
 		// Verification
 		verifiedAt: { type: Date },
 		verifiedBy: { type: Types.ObjectId, ref: "User" },
@@ -207,7 +259,7 @@ EvidenceSchema.index({ syncStatus: 1 });
 // Query optimization
 EvidenceSchema.index({ uploadedBy: 1, createdAt: -1 });
 EvidenceSchema.index({ capturedAt: 1 });
-EvidenceSchema.index({ serviceCaseId: 1, status: 1, createdAt: -1 });
+EvidenceSchema.index({ serviceCaseId: 1, fsmStatus: 1, createdAt: -1 });
 EvidenceSchema.plugin(softDeletePlugin);
 
 // toJSON: limpiar __v de respuestas

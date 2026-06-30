@@ -111,3 +111,67 @@ export const VehicleDocumentAlertSchema = z
 	})
 	.strict();
 export type VehicleDocumentAlert = z.infer<typeof VehicleDocumentAlertSchema>;
+
+export const VehicleAssignmentStatusSchema = z.enum(["pending", "active", "completed"]);
+export type VehicleAssignmentStatus = z.infer<typeof VehicleAssignmentStatusSchema>;
+
+export const VehicleCheckoutSchema = z
+	.object({
+		mileage: z.number().int().nonnegative(),
+		fuelLevel: z.number().int().min(0).max(100),
+		photos: z.array(z.string().min(1).max(64)),
+		notes: z.string().max(500).optional(),
+	})
+	.strict();
+export type VehicleCheckout = z.infer<typeof VehicleCheckoutSchema>;
+
+export const VehicleCheckinSchema = z
+	.object({
+		mileage: z.number().int().nonnegative(),
+		fuelLevel: z.number().int().min(0).max(100),
+		photos: z.array(z.string().min(1).max(64)),
+		notes: z.string().max(500).optional(),
+	})
+	.strict();
+export type VehicleCheckin = z.infer<typeof VehicleCheckinSchema>;
+
+export const VehicleAssignmentSchema = z
+	.object({
+		_id: ObjectIdSchema.optional(),
+		vehicleId: ObjectIdSchema,
+		driverId: ObjectIdSchema,
+		driverName: z.string().max(200).optional(),
+		assignedBy: ObjectIdSchema,
+		assignedAt: z.string().datetime(),
+		startedAt: z.string().datetime().optional(),
+		endedAt: z.string().datetime().optional(),
+		status: VehicleAssignmentStatusSchema.default("pending"),
+		checkout: VehicleCheckoutSchema.optional(),
+		checkin: VehicleCheckinSchema.optional(),
+		createdAt: z.string().datetime().optional(),
+		updatedAt: z.string().datetime().optional(),
+	})
+	.strict();
+export type VehicleAssignment = z.infer<typeof VehicleAssignmentSchema>;
+
+export const CreateVehicleAssignmentSchema = z
+	.object({
+		vehicleId: ObjectIdSchema,
+		driverId: ObjectIdSchema,
+	})
+	.strict();
+export type CreateVehicleAssignmentInput = z.infer<typeof CreateVehicleAssignmentSchema>;
+
+export const CheckoutVehicleAssignmentSchema = z
+	.object({
+		checkout: VehicleCheckoutSchema,
+	})
+	.strict();
+export type CheckoutVehicleAssignmentInput = z.infer<typeof CheckoutVehicleAssignmentSchema>;
+
+export const CheckinVehicleAssignmentSchema = z
+	.object({
+		checkin: VehicleCheckinSchema,
+	})
+	.strict();
+export type CheckinVehicleAssignmentInput = z.infer<typeof CheckinVehicleAssignmentSchema>;

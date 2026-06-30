@@ -296,11 +296,7 @@ export async function getPhotos(assetId: string) {
 /**
  * Set a photo as primary for an asset
  */
-export async function setPrimaryPhoto(
-	assetId: string,
-	photoId: string,
-	userId: string,
-) {
+export async function setPrimaryPhoto(assetId: string, photoId: string, userId: string) {
 	const asset = await Asset.findById(assetId);
 	if (!asset) {
 		throw new NotFoundError("Asset", assetId);

@@ -1,4 +1,7 @@
 import {
+	CheckinVehicleAssignmentSchema,
+	CheckoutVehicleAssignmentSchema,
+	CreateVehicleAssignmentSchema,
 	CreateVehicleSchema,
 	ListVehiclesQuerySchema,
 	UpdateVehicleSchema,
@@ -6,6 +9,7 @@ import {
 	VehiclePhotoParamsSchema,
 	VehiclePhotoUploadFormSchema,
 } from "@cermont/shared-types";
+
 import type { Request, Response } from "express";
 import {
 	sendCreated,
@@ -94,4 +98,35 @@ export async function deleteVehiclePhoto(req: Request, res: Response): Promise<v
 	const { id, photoId } = VehiclePhotoParamsSchema.parse(req.params);
 	await FleetService.deleteVehiclePhoto(id, photoId, String(user._id));
 	sendNoContent(res);
+}
+
+export async function assignVehicle(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const { id } = VehicleIdParamsSchema.parse(req.params);
+	const { driverId } = CreateVehicleAssignmentSchema.parse(req.body);
+	const assignment = await FleetService.assignVehicle(id, driverId, String(user._id));
+	sendSuccess(res, assignment);
+}
+
+export async function checkoutVehicle(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const { assignmentId } = req.params as { assignmentId: string };
+	const { checkout } = CheckoutVehicleAssignmentSchema.parse(req.body);
+	const assignment = await FleetService.checkoutVehicle(assignmentId, checkout, String(user._id));
+	sendSuccess(res, assignment);
+}
+
+export async function checkinVehicle(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const { assignmentId } = req.params as { assignmentId: string };
+	const { checkin } = CheckinVehicleAssignmentSchema.parse(req.body);
+	const assignment = await FleetService.checkinVehicle(assignmentId, checkin, String(user._id));
+	sendSuccess(res, assignment);
+}
+
+export async function getAssignmentHistory(req: Request, res: Response): Promise<void> {
+	requireUser(req);
+	const { id } = VehicleIdParamsSchema.parse(req.params);
+	const result = await FleetService.getVehicleAssignmentHistory(id);
+	sendSuccess(res, result);
 }

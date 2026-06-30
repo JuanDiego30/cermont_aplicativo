@@ -177,6 +177,33 @@ export const ToolDocumentParamsSchema = z
 	.strict();
 export type ToolDocumentParams = z.infer<typeof ToolDocumentParamsSchema>;
 
+export const RecordCalibrationSchema = z
+	.object({
+		calibratedAt: z.string().datetime(),
+		nextCalibrationAt: z.string().datetime(),
+		certificateId: ObjectIdSchema.optional(),
+		issuer: z.string().max(200).optional(),
+		notes: z.string().max(500).optional(),
+	})
+	.strict();
+export type RecordCalibrationInput = z.infer<typeof RecordCalibrationSchema>;
+
+export const ToolUsageSchema = z
+	.object({
+		orderId: ObjectIdSchema,
+		orderCode: z.string().max(100).optional(),
+		usedBy: ObjectIdSchema.optional(),
+	})
+	.strict();
+export type ToolUsageInput = z.infer<typeof ToolUsageSchema>;
+
+export const CalibrationsDueQuerySchema = z
+	.object({
+		daysAhead: z.coerce.number().int().min(1).max(365).default(30),
+	})
+	.strict();
+export type CalibrationsDueQuery = z.infer<typeof CalibrationsDueQuerySchema>;
+
 export const ToolListQuerySchema = z
 	.object({
 		status: ToolStatusEnum.optional(),

@@ -456,6 +456,165 @@ export async function getExpiredCertifications(asOfDate: Date = new Date()): Pro
 }
 
 /**
+ * Record a calibration event for a tool
+ * Updates lastCalibratedAt and nextCalibrationAt
+ */
+export async function recordCalibration(
+	id: string,
+	payload: {
+		calibratedAt: Date;
+		nextCalibrationAt: Date;
+		certificateId?: string;
+		issuer?: string;
+		notes?: string;
+	},
+	userId: string,
+): Promise<IToolDocument> {
+	const tool = await Tool.findById(id);
+	if (!tool) {
+		throw new NotFoundError("Tool", id);
+	}
+
+	tool.lastCalibratedAt = payload.calibratedAt;
+	tool.nextCalibrationAt = payload.nextCalibrationAt;
+
+	// Add calibration as a certification entry
+	tool.certifications.push({
+		certificationId: `cal-${Date.now()}`,
+		type: "calibration",
+		name: `Calibración - ${payload.notes || tool.name}`,
+		issuedAt: payload.calibratedAt,
+		expiresAt: payload.nextCalibrationAt,
+		status: "valid",
+		issuer: payload.issuer,
+		documentId: payload.certificateId,
+	});
+
+	// Update tool status if it was expired
+	if (tool.status === "expired") {
+		tool.status = "available";
+	}
+
+	await tool.save();
+
+	await createAuditLog({
+		userId,
+		entity: "Tool",
+		entityId: tool._id.toString(),
+		action: "TOOL_CERTIFICATION_ADDED",
+		after: {
+			certificationType: "calibration",
+			nextCalibration: payload.nextCalibrationAt.toISOString(),
+		},
+	});
+
+	return tool;
+}
+
+/**
+ * Get tools with calibrations due within N days (default 30)
+ */
+export async function getCalibrationsDue(daysAhead = 30): Promise<
+	{
+		toolId: string;
+		toolName: string;
+		serialNumber?: string;
+		lastCalibratedAt?: Date;
+		nextCalibrationAt?: Date;
+		daysUntilDue: number;
+		overdue: boolean;
+	}[]
+> {
+	const now = new Date();
+	const limitDate = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+
+	const tools = await Tool.find({
+		$or: [{ nextCalibrationAt: { $lte: limitDate } }, { nextCalibrationAt: { $exists: false } }],
+	}).lean();
+
+	return tools
+		.map((tool) => {
+			const nextCal = tool.nextCalibrationAt;
+			if (!nextCal) {
+				return {
+					toolId: tool._id.toString(),
+					toolName: tool.name,
+					serialNumber: tool.serialNumber,
+					lastCalibratedAt: tool.lastCalibratedAt,
+					nextCalibrationAt: undefined,
+					daysUntilDue: -1,
+					overdue: false,
+				};
+			}
+			const daysUntilDue = Math.ceil((nextCal.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+			return {
+				toolId: tool._id.toString(),
+				toolName: tool.name,
+				serialNumber: tool.serialNumber,
+				lastCalibratedAt: tool.lastCalibratedAt,
+				nextCalibrationAt: nextCal,
+				daysUntilDue,
+				overdue: nextCal < now,
+			};
+		})
+		.sort((a, b) => a.daysUntilDue - b.daysUntilDue);
+}
+
+/**
+ * Record tool usage in an order
+ */
+export async function recordToolUsage(
+	id: string,
+	payload: {
+		orderId: string;
+		orderCode?: string;
+		usedBy?: string;
+	},
+	_userId: string,
+): Promise<IToolDocument> {
+	const tool = await Tool.findById(id);
+	if (!tool) {
+		throw new NotFoundError("Tool", id);
+	}
+
+	if (!tool.usageHistory) {
+		tool.usageHistory = [];
+	}
+
+	tool.usageHistory.push({
+		orderId: new Types.ObjectId(payload.orderId),
+		orderCode: payload.orderCode,
+		usedAt: new Date(),
+		usedBy: payload.usedBy ? new Types.ObjectId(payload.usedBy) : undefined,
+	});
+
+	tool.status = "assigned";
+	await tool.save();
+
+	return tool;
+}
+
+/**
+ * Return tool from usage (mark as returned)
+ */
+export async function returnTool(id: string, _userId: string): Promise<IToolDocument> {
+	const tool = await Tool.findById(id);
+	if (!tool) {
+		throw new NotFoundError("Tool", id);
+	}
+
+	const lastUsage = tool.usageHistory?.find((u) => !u.returnedAt);
+	if (lastUsage) {
+		lastUsage.returnedAt = new Date();
+	}
+
+	tool.status = "available";
+	await tool.save();
+
+	return tool;
+}
+
+/**
  * Delete Tool
  */
 export async function deleteTool(id: string, userId: string): Promise<void> {
