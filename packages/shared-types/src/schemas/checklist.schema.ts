@@ -20,6 +20,9 @@ export type ChecklistItemCategory = z.infer<typeof ChecklistItemCategorySchema>;
 export const ChecklistStatusSchema = z.enum(["pending", "in_progress", "completed", "cancelled"]);
 export type ChecklistStatus = z.infer<typeof ChecklistStatusSchema>;
 
+export const ChecklistItemResultSchema = z.enum(["pending", "passed", "failed"]);
+export type ChecklistItemResult = z.infer<typeof ChecklistItemResultSchema>;
+
 export const ChecklistItemSchema = z
 	.object({
 		id: z.string().min(1),
@@ -27,12 +30,14 @@ export const ChecklistItemSchema = z
 		description: z.string().min(3).max(300),
 		required: z.boolean().default(false),
 		isBlocking: z.boolean().default(false),
+		result: ChecklistItemResultSchema.default("pending"),
 		completed: z.boolean().default(false),
 		completedBy: z.string().min(1).optional(),
 		completedAt: z.string().datetime().optional(),
 		observation: z.string().max(500).optional(),
 		requiresPhoto: z.boolean().default(false),
 		requiresSignature: z.boolean().default(false),
+		evidenceAssetIds: z.array(z.string().min(1)).default([]),
 	})
 	.strip();
 export type ChecklistItem = z.infer<typeof ChecklistItemSchema>;
@@ -42,6 +47,7 @@ export const ChecklistResponseSchema = z
 		_id: z.string(),
 		orderId: ObjectIdSchema,
 		templateName: z.string().optional(),
+		templateVersion: z.number().int().positive().default(1),
 		status: ChecklistStatusSchema,
 		items: z.array(ChecklistItemSchema).default([]),
 		completedBy: z.string().min(1).optional(),
@@ -64,10 +70,19 @@ export type CreateChecklistInput = z.infer<typeof CreateChecklistSchema>;
 
 export const UpdateChecklistItemSchema = z
 	.object({
-		completed: z.boolean(),
+		result: ChecklistItemResultSchema,
 		observation: z.string().max(500).optional(),
 	})
-	.strip();
+	.strip()
+	.superRefine((value, context) => {
+		if (value.result === "failed" && !value.observation?.trim()) {
+			context.addIssue({
+				code: "custom",
+				path: ["observation"],
+				message: "Debe registrar el hallazgo cuando el resultado es fallido",
+			});
+		}
+	});
 export type UpdateChecklistItemInput = z.infer<typeof UpdateChecklistItemSchema>;
 
 export const CompleteChecklistSchema = z

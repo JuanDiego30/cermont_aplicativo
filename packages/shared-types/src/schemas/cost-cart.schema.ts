@@ -1,16 +1,11 @@
 import { z } from "zod";
+import { statusObjectOf } from "../utils/status-types";
 import { ObjectIdSchema } from "./common.schema";
+import { CostCategorySchema } from "./cost.schema";
 
 // ─── Cost Catalog Item ───────────────────────────────────────────────────────
 
-export const CostCatalogItemCategoryEnum = z.enum([
-	"material",
-	"labor",
-	"equipment",
-	"transport",
-	"overhead",
-	"other",
-]);
+export const CostCatalogItemCategoryEnum = CostCategorySchema;
 
 export type CostCatalogItemCategory = z.infer<typeof CostCatalogItemCategoryEnum>;
 
@@ -18,18 +13,39 @@ export const CostCatalogItemSchema = z.object({
 	_id: ObjectIdSchema,
 	code: z.string().min(1),
 	name: z.string().min(1),
-	description: z.string().optional(),
+	description: statusObjectOf(z.string().min(1).max(500)),
 	category: CostCatalogItemCategoryEnum,
 	unit: z.string().min(1),
 	unitPrice: z.number().nonnegative(),
 	currency: z.string().default("COP"),
 	isActive: z.boolean().default(true),
-	metadata: z.record(z.string(), z.unknown()).optional(),
 	createdAt: z.string().datetime(),
 	updatedAt: z.string().datetime(),
 });
 
 export type CostCatalogItem = z.infer<typeof CostCatalogItemSchema>;
+
+export const ListCostCatalogQuerySchema = z
+	.object({
+		category: CostCatalogItemCategoryEnum.optional(),
+		page: z.coerce.number().int().min(1).default(1),
+		limit: z.coerce.number().int().min(1).max(100).default(20),
+	})
+	.strip();
+
+export type ListCostCatalogQuery = z.infer<typeof ListCostCatalogQuerySchema>;
+
+export const CostCatalogListSchema = z.object({
+	items: z.array(CostCatalogItemSchema),
+	pagination: z.object({
+		page: z.number().int().min(1),
+		limit: z.number().int().min(1),
+		total: z.number().int().min(0),
+		totalPages: z.number().int().min(0),
+	}),
+});
+
+export type CostCatalogList = z.infer<typeof CostCatalogListSchema>;
 
 // ─── Cost Cart ───────────────────────────────────────────────────────────────
 

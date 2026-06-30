@@ -36,6 +36,14 @@ export const CostByCategorySchema = z.object({
 });
 export type CostByCategory = z.infer<typeof CostByCategorySchema>;
 
+export const CostBudgetRiskSchema = z.enum([
+	"not_available",
+	"within_budget",
+	"threshold_reached",
+	"over_budget",
+]);
+export type CostBudgetRisk = z.infer<typeof CostBudgetRiskSchema>;
+
 function hasCostSupport(data: {
 	actualAmount: number;
 	supportEvidenceIds: string[];
@@ -96,6 +104,13 @@ export const CostSummarySchema = z.object({
 	totalTax: z.number(),
 	variance: z.number(),
 	variancePercent: statusObjectOf(z.number()),
+	approvedBudget: statusObjectOf(z.number().nonnegative()),
+	budgetConsumptionPercent: statusObjectOf(z.number().nonnegative()),
+	budgetRisk: CostBudgetRiskSchema,
+	budgetAlertThreshold: z.number().min(0).max(1),
+	actualCostWithTax: z.number().nonnegative(),
+	grossProfit: statusObjectOf(z.number()),
+	grossMarginPercent: statusObjectOf(z.number()),
 	hasCosts: z.boolean(),
 	dataState: CostDataStateSchema,
 	byCategory: z.array(CostByCategorySchema),

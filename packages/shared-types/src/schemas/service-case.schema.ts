@@ -44,14 +44,14 @@ export const CERMONT_STEP_STAGE_MAP: Record<CermontOperationalStepCode, ServiceC
 	step_04_purchase_order: "authorization",
 	step_05_planning: "planning",
 	step_06_execution: "in_execution",
-	step_07_technical_report: "technical_closure",
-	step_08_delivery_record: "administrative_closure",
-	step_09_client_signature: "administrative_closure",
-	step_10_ses_submission: "ses_pending",
-	step_11_ses_approval: "billing_pending",
-	step_12_invoice_submission: "receivable_open",
+	step_07_evidence: "in_execution",
+	step_08_technical_report: "technical_closure",
+	step_09_delivery_record: "administrative_closure",
+	step_10_client_signature: "administrative_closure",
+	step_11_ses: "ses_pending",
+	step_12_invoice: "billing_pending",
 	step_13_invoice_approval: "receivable_open",
-	step_14_payment_closure: "paid",
+	step_14_payment: "paid",
 };
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -238,14 +238,14 @@ export function mapLegacyServiceCaseStageToStep(
 		planning: "step_05_planning",
 		ready_to_execute: "step_05_planning",
 		in_execution: "step_06_execution",
-		technical_closure: "step_07_technical_report",
-		administrative_closure: "step_08_delivery_record",
-		ses_pending: "step_10_ses_submission",
-		billing_pending: "step_12_invoice_submission",
+		technical_closure: "step_08_technical_report",
+		administrative_closure: "step_09_delivery_record",
+		ses_pending: "step_11_ses",
+		billing_pending: "step_12_invoice",
 		receivable_open: "step_13_invoice_approval",
-		paid: "step_14_payment_closure",
-		archived: "step_14_payment_closure",
-		cancelled: "step_14_payment_closure",
+		paid: "step_14_payment",
+		archived: "step_14_payment",
+		cancelled: "step_14_payment",
 	};
 	return map[stage];
 }

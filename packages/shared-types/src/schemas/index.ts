@@ -6,6 +6,7 @@ export * from "./analytics.schema";
 export * from "./asset.schema";
 export * from "./audit.schema";
 export * from "./auth.schema";
+export * from "./automation.schema";
 export * from "./business-document.schema";
 export * from "./cermont-operational-step.schema";
 export * from "./checklist.schema";

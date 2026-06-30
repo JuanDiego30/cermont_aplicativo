@@ -23,6 +23,7 @@ export const NotificationTypeSchema = z.enum([
 	"EVIDENCE_VERIFIED",
 	"REPORT_APPROVED",
 	"SYSTEM_ALERT",
+	"COST_THRESHOLD_REACHED",
 ]);
 
 export type NotificationType = z.infer<typeof NotificationTypeSchema>;

@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c",
+	"currentSnapshotHash": "sha256:203d499ad6d4b79147cac3c37292ae12389cc4bbf49661c4f665abd109bdb9fe",
 	"migrations": [
 		{
 			"id": "050-business-document-erp-connector-schemas",
@@ -419,7 +419,7 @@
 			"date": "2026-06-29",
 			"type": "non-breaking",
 			"description": "Add RecordCalibrationSchema, ToolUsageSchema, and CalibrationsDueQuerySchema for tool calibration and usage tracking endpoints.",
-			"toHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c"
+			"toHash": "sha256:203d499ad6d4b79147cac3c37292ae12389cc4bbf49661c4f665abd109bdb9fe"
 		}
 	]
 }

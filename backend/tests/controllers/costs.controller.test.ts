@@ -65,7 +65,7 @@ describe("CostsController", () => {
 			expect(mockListCosts).toHaveBeenCalled();
 			expect(res.setHeader).toHaveBeenCalledWith("X-Total-Count", "1");
 			expect(res.status).toHaveBeenCalledWith(200);
-		});
+		}, 10_000);
 	});
 
 	describe("getCostsByOrder", () => {

@@ -76,8 +76,44 @@ export const DashboardAgingBucketSchema = z
 export const DashboardFinancialAgingSchema = z
 	.object({
 		buckets: z.array(DashboardAgingBucketSchema),
-		totalOutstanding: z.number().nonnegative(),
-		totalOverdue: z.number().nonnegative(),
+		totalOutstandingAmount: z.number().nonnegative(),
+		totalOverdueAmount: z.number().nonnegative(),
+		overdueInvoiceCount: z.number().int().nonnegative(),
+	})
+	.strict();
+
+// ── Field readiness ──────────────────────────────────────────────────
+
+export const DashboardFieldReadinessSchema = z
+	.object({
+		blockingChecklistsPending: z.number().int().nonnegative(),
+		blockingChecklistsFailed: z.number().int().nonnegative(),
+		evidencePendingReview: z.number().int().nonnegative(),
+		evidenceRejected: z.number().int().nonnegative(),
+		evidenceGpsCoveragePct: z.number().min(0).max(100),
+		vehicleDocumentsExpiring: z.number().int().nonnegative(),
+		vehicleDocumentsExpired: z.number().int().nonnegative(),
+		toolCertificationsExpiring: z.number().int().nonnegative(),
+		toolCertificationsExpired: z.number().int().nonnegative(),
+		offlineSyncPending: z.number().int().nonnegative(),
+		offlineSyncFailed: z.number().int().nonnegative(),
+	})
+	.strict();
+
+// ── Multi-service demand ─────────────────────────────────────────────
+
+export const DashboardServiceDemandItemSchema = z
+	.object({
+		serviceType: z.string().trim().min(1).max(120),
+		requests: z.number().int().nonnegative(),
+	})
+	.strict();
+
+export const DashboardServiceDemandSchema = z
+	.object({
+		periodDays: z.number().int().positive(),
+		totalRequests: z.number().int().nonnegative(),
+		items: z.array(DashboardServiceDemandItemSchema),
 	})
 	.strict();
 
@@ -183,6 +219,8 @@ export const DashboardSummarySchema = z
 		nextActions: z.array(DashboardNextActionSchema),
 		administrativeClosure: DashboardAdministrativeClosureSchema,
 		financialAging: DashboardFinancialAgingSchema,
+		fieldReadiness: DashboardFieldReadinessSchema,
+		serviceDemand: DashboardServiceDemandSchema,
 		costVariance: DashboardCostVarianceSchema,
 		documentWorkload: DashboardDocumentWorkloadSchema,
 		assetMaintenance: DashboardAssetMaintenanceSchema,
@@ -201,6 +239,9 @@ export type DashboardNextAction = z.infer<typeof DashboardNextActionSchema>;
 export type DashboardAdministrativeClosure = z.infer<typeof DashboardAdministrativeClosureSchema>;
 export type DashboardFinancialAging = z.infer<typeof DashboardFinancialAgingSchema>;
 export type DashboardAgingBucket = z.infer<typeof DashboardAgingBucketSchema>;
+export type DashboardFieldReadiness = z.infer<typeof DashboardFieldReadinessSchema>;
+export type DashboardServiceDemand = z.infer<typeof DashboardServiceDemandSchema>;
+export type DashboardServiceDemandItem = z.infer<typeof DashboardServiceDemandItemSchema>;
 export type DashboardCostVariance = z.infer<typeof DashboardCostVarianceSchema>;
 export type DashboardDocumentWorkload = z.infer<typeof DashboardDocumentWorkloadSchema>;
 export type DashboardAssetMaintenance = z.infer<typeof DashboardAssetMaintenanceSchema>;
