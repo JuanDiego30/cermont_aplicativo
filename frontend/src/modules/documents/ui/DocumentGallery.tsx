@@ -138,16 +138,10 @@ function ActionDialog({
 		>
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-				<Dialog.Content
-					aria-labelledby="document-gallery-dialog-title"
-					className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
-				>
+				<Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]">
 					<div className="flex items-start justify-between gap-4">
 						<div>
-							<Dialog.Title
-								id="document-gallery-dialog-title"
-								className="text-lg font-semibold text-[var(--text-primary)]"
-							>
+							<Dialog.Title className="text-lg font-semibold text-[var(--text-primary)]">
 								{dialogCopy.title}
 							</Dialog.Title>
 							<Dialog.Description className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">

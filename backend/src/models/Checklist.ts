@@ -5,6 +5,7 @@ import {
 } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 import { removeVersionKey } from "../common/types/safe-types";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 const ChecklistItemSchema = new Schema(
 	{
@@ -43,6 +44,7 @@ export interface IChecklistDocument extends Document {
 	completedAt?: Date;
 	signature?: string;
 	observations?: string;
+	fileAssets: FileAssetRef[];
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -63,6 +65,7 @@ const ChecklistSchema = new Schema<IChecklistDocument>(
 		completedAt: { type: Date },
 		signature: { type: String },
 		observations: { type: String, maxlength: 2000 },
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 	},
 	{ timestamps: true, versionKey: false },
 );

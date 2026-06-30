@@ -12,6 +12,7 @@
 import type { DomainBlocker } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 import { tenantIsolationPlugin } from "./plugins/tenant-isolation";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 const SERVICE_CASE_STAGES = [
 	"intake",
@@ -121,6 +122,7 @@ const serviceCaseSchema = new Schema(
 		timeline: { type: [timelineEntrySchema], default: [] },
 		financialSummary: { type: Schema.Types.Mixed },
 		operationalSummary: { type: Schema.Types.Mixed },
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 	},
 	{
 		timestamps: true,
@@ -155,6 +157,7 @@ export type ServiceCaseDocument = Document & {
 	}[];
 	financialSummary?: Record<string, string | number | boolean | object | Date | undefined>;
 	operationalSummary?: Record<string, string | number | boolean | object | Date | undefined>;
+	fileAssets: FileAssetRef[];
 	createdAt: Date;
 	updatedAt: Date;
 };

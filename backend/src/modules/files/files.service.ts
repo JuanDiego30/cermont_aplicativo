@@ -29,11 +29,18 @@ import { Types } from "mongoose";
 import { BadRequestError, NotFoundError, UnprocessableError } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
 import { env } from "../../config/env";
+import { Checklist } from "../../models/Checklist";
 import { DeliveryRecord } from "../../models/DeliveryRecord";
+import { Document } from "../../models/Document";
 import { Evidence } from "../../models/Evidence";
+import { ExecutionSession } from "../../models/ExecutionSession";
 import { FileAsset, type IFileAssetDocument } from "../../models/FileAsset";
 import { Kit } from "../../models/Kit";
+import { Order } from "../../models/Order";
+import { PlanningPacket } from "../../models/PlanningPacket";
+import { Report } from "../../models/Report";
 import { Resource } from "../../models/Resource";
+import { ServiceCase } from "../../models/ServiceCase";
 import { TechnicalReport } from "../../models/TechnicalReport";
 import { VehicleModel } from "../../models/Vehicle";
 import { createAuditLog } from "../audit/audit.service";
@@ -148,6 +155,78 @@ const PARENT_MODELS: Partial<Record<FileAssetEntityType, ParentModel>> = {
 			await TechnicalReport.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
 		},
 	),
+	planning: createParentModel(
+		async (id) => Boolean(await PlanningPacket.exists({ _id: id })),
+		async (id, ref) => {
+			await PlanningPacket.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await PlanningPacket.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
+	document: createParentModel(
+		async (id) => Boolean(await Document.exists({ _id: id })),
+		async (id, ref) => {
+			await Document.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await Document.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
+	work_order: createParentModel(
+		async (id) => Boolean(await Order.exists({ _id: id })),
+		async (id, ref) => {
+			await Order.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await Order.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
+	service_case: createParentModel(
+		async (id) => Boolean(await ServiceCase.exists({ _id: id })),
+		async (id, ref) => {
+			await ServiceCase.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await ServiceCase.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
+	execution_session: createParentModel(
+		async (id) => Boolean(await ExecutionSession.exists({ _id: id })),
+		async (id, ref) => {
+			await ExecutionSession.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await ExecutionSession.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
+	checklist_execution: createParentModel(
+		async (id) => Boolean(await Checklist.exists({ _id: id })),
+		async (id, ref) => {
+			await Checklist.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await Checklist.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
+	checklist_item: createParentModel(
+		async (id) => Boolean(await Checklist.exists({ _id: id })),
+		async (id, ref) => {
+			await Checklist.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await Checklist.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
+	report: createParentModel(
+		async (id) => Boolean(await Report.exists({ _id: id })),
+		async (id, ref) => {
+			await Report.updateOne({ _id: id }, { $push: { fileAssets: ref } });
+		},
+		async (id, fileAssetId) => {
+			await Report.updateOne({ _id: id }, { $pull: { fileAssets: { id: fileAssetId } } });
+		},
+	),
 };
 
 function getParentModel(entityType: FileAssetEntityType): ParentModel {
@@ -165,6 +244,12 @@ function getParentModel(entityType: FileAssetEntityType): ParentModel {
 
 function isAllowedMime(mime: string): boolean {
 	return (ALLOWED_FILE_MIME_TYPES as readonly string[]).includes(mime);
+}
+
+function normalizeMetadata(
+	metadata: Map<string, string | number | boolean> | Record<string, string | number | boolean>,
+): Record<string, string | number | boolean> {
+	return metadata instanceof Map ? Object.fromEntries(metadata) : metadata;
 }
 
 function toFileAssetRef(doc: IFileAssetDocument): FileAssetRef {
@@ -189,6 +274,11 @@ function toFileAssetRef(doc: IFileAssetDocument): FileAssetRef {
 		tags: doc.tags,
 		offlineLocalId: doc.offlineLocalId,
 		syncStatus: doc.syncStatus,
+		kind: doc.kind,
+		source: doc.source,
+		status: doc.status,
+		isPrimary: doc.isPrimary,
+		metadata: normalizeMetadata(doc.metadata ?? {}),
 	};
 }
 
@@ -222,14 +312,19 @@ function validateFileAssetRef(ref: FileAssetRef, context: string): FileAssetRef 
 }
 
 async function findExistingOfflineUpload(
-	offlineLocalId?: string,
+	input: CreateFileAssetInput,
+	parentId: Types.ObjectId,
+	uploaderId: Types.ObjectId,
 ): Promise<CreateFileAssetOutcome | false> {
-	if (!offlineLocalId) {
+	if (!input.offlineLocalId) {
 		return false;
 	}
 
 	const existing = await FileAsset.findOne({
-		offlineLocalId,
+		offlineLocalId: input.offlineLocalId,
+		entityType: input.entityType,
+		entityId: parentId,
+		uploadedBy: uploaderId,
 		deletedAt: null,
 	});
 	if (!existing) {
@@ -307,12 +402,12 @@ export async function createFileAssetFromUpload(
 ): Promise<CreateFileAssetOutcome> {
 	validateUploadedFile(file);
 
-	const existingUpload = await findExistingOfflineUpload(input.offlineLocalId);
+	const { parentModel, parentId } = await resolveParentDocument(input);
+	const uploaderId = new Types.ObjectId(userId);
+	const existingUpload = await findExistingOfflineUpload(input, parentId, uploaderId);
 	if (existingUpload) {
 		return existingUpload;
 	}
-
-	const { parentModel, parentId } = await resolveParentDocument(input);
 
 	const id = crypto.randomUUID();
 	const storedName = file.filename ?? path.basename(file.path ?? "");
@@ -334,7 +429,7 @@ export async function createFileAssetFromUpload(
 		checksum,
 		width,
 		height,
-		uploadedBy: new Types.ObjectId(userId),
+		uploadedBy: uploaderId,
 		uploadedByName: userName,
 		uploadedAt: new Date(),
 		entityType: input.entityType,
@@ -344,6 +439,11 @@ export async function createFileAssetFromUpload(
 		tags: input.tags,
 		offlineLocalId: input.offlineLocalId,
 		syncStatus: "synced",
+		kind: input.kind ?? (file.mimetype.startsWith("image/") ? "image" : "document"),
+		source: input.source ?? (input.offlineLocalId ? "offline_sync" : "upload"),
+		status: "active",
+		isPrimary: input.isPrimary ?? false,
+		metadata: input.metadata ?? {},
 	});
 
 	// Append a denormalized ref to the parent document
@@ -390,7 +490,10 @@ export interface FileAssetContent {
 	downloadName: string;
 }
 
-export async function resolveFileAssetContent(id: string): Promise<FileAssetContent> {
+export async function resolveFileAssetContent(
+	id: string,
+	userId: string,
+): Promise<FileAssetContent> {
 	const doc = await FileAsset.findOne({ id, deletedAt: null });
 	if (!doc) {
 		throw new NotFoundError("FileAsset", id);
@@ -398,6 +501,18 @@ export async function resolveFileAssetContent(id: string): Promise<FileAssetCont
 
 	const storageName = path.basename(doc.storageKey || doc.storedName);
 	const absolutePath = path.resolve(env.UPLOAD_DIR, storageName);
+
+	await createAuditLog({
+		action: "FILE_ASSET_DOWNLOADED",
+		entity: "FileAsset",
+		userId,
+		entityId: id,
+		metadata: {
+			entityType: doc.entityType,
+			parentId: String(doc.entityId),
+			category: doc.category,
+		},
+	});
 
 	return {
 		absolutePath,

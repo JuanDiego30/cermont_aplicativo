@@ -49,6 +49,21 @@ export type FileAssetCategory = z.infer<typeof FileAssetCategory>;
 export const FileAssetSyncStatus = z.enum(["synced", "pending", "failed"]);
 export type FileAssetSyncStatus = z.infer<typeof FileAssetSyncStatus>;
 
+export const FileAssetKind = z.enum(["image", "document"]);
+export type FileAssetKind = z.infer<typeof FileAssetKind>;
+
+export const FileAssetSource = z.enum(["upload", "offline_sync", "generated", "import"]);
+export type FileAssetSource = z.infer<typeof FileAssetSource>;
+
+export const FileAssetStatus = z.enum(["active", "quarantined", "failed"]);
+export type FileAssetStatus = z.infer<typeof FileAssetStatus>;
+
+export const FileAssetMetadataSchema = z.record(
+	z.string().min(1).max(80),
+	z.union([z.string().max(500), z.number(), z.boolean()]),
+);
+export type FileAssetMetadata = z.infer<typeof FileAssetMetadataSchema>;
+
 /**
  * Entity types that can own a FileAsset. Mirrors the Mongoose model
  * names in the backend. Keep in sync with backend/src/models/.
@@ -64,9 +79,13 @@ export const FileAssetEntityType = z.enum([
 	"delivery_record",
 	"technical_report",
 	"planning",
+	"document",
 	"checklist_item",
+	"checklist_execution",
 	"work_order",
+	"service_case",
 	"execution_session",
+	"report",
 ]);
 export type FileAssetEntityType = z.infer<typeof FileAssetEntityType>;
 
@@ -99,6 +118,11 @@ export const FileAssetRefSchema = z.object({
 	tags: z.array(z.string().min(1).max(50)).max(20).optional(),
 	offlineLocalId: z.string().min(1).optional(),
 	syncStatus: FileAssetSyncStatus.optional(),
+	kind: FileAssetKind.optional(),
+	source: FileAssetSource.optional(),
+	status: FileAssetStatus.optional(),
+	isPrimary: z.boolean().optional(),
+	metadata: FileAssetMetadataSchema.optional(),
 });
 export type FileAssetRef = z.infer<typeof FileAssetRefSchema>;
 
@@ -114,6 +138,10 @@ export const FileAssetUploadInputSchema = z.object({
 	description: z.string().max(500).optional(),
 	tags: z.array(z.string().min(1).max(50)).max(20).optional(),
 	offlineLocalId: z.string().min(1).optional(),
+	kind: FileAssetKind.optional(),
+	source: FileAssetSource.optional(),
+	isPrimary: z.boolean().optional(),
+	metadata: FileAssetMetadataSchema.optional(),
 });
 export type FileAssetUploadInput = z.infer<typeof FileAssetUploadInputSchema>;
 
@@ -158,8 +186,42 @@ export const FileAssetUploadInputFormSchema = z.object({
 	description: z.string().max(500).optional(),
 	tags: FileAssetTagsFormFieldSchema,
 	offlineLocalId: z.string().min(1).optional(),
+	kind: FileAssetKind.optional(),
+	source: FileAssetSource.optional(),
+	isPrimary: z
+		.union([z.boolean(), z.enum(["true", "false"])])
+		.optional()
+		.transform((value) => value === true || value === "true"),
+	metadata: z
+		.string()
+		.optional()
+		.transform((value, context) => {
+			if (!value) {
+				return {};
+			}
+			try {
+				return FileAssetMetadataSchema.parse(JSON.parse(value));
+			} catch {
+				context.addIssue({
+					code: "custom",
+					message: "metadata must be a valid scalar JSON object",
+				});
+				return z.NEVER;
+			}
+		}),
 });
 export type FileAssetUploadInputForm = z.infer<typeof FileAssetUploadInputFormSchema>;
+
+export const FileAssetListQuerySchema = z.object({
+	entityType: FileAssetEntityType,
+	entityId: z.string().min(1),
+	category: FileAssetCategory.optional(),
+	includeDeleted: z
+		.enum(["true", "false"])
+		.default("false")
+		.transform((value) => value === "true"),
+});
+export type FileAssetListQuery = z.infer<typeof FileAssetListQuerySchema>;
 
 /**
  * Internal service-layer result returned by the backend's `createFileAssetFromUpload`.

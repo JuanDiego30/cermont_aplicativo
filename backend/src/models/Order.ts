@@ -7,6 +7,7 @@ import {
 } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 import { tenantIsolationPlugin } from "./plugins/tenant-isolation";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Order Model — Per DOC-09 §7 (Diccionario de Datos)
@@ -63,6 +64,7 @@ export type OrderDocumentFields = Omit<
 	updatedAt: Date;
 	startedAt?: Date;
 	completedAt?: Date;
+	fileAssets: FileAssetRef[];
 };
 
 // Interfaz del documento Orden
@@ -118,6 +120,7 @@ const OrderSchema = new Schema<IOrderDocument>(
 		proposalId: { type: Types.ObjectId, ref: "Proposal" },
 		clientId: { type: Types.ObjectId, ref: "User", index: true },
 		createdBy: { type: Types.ObjectId, ref: "User", required: true },
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 
 		// Custom fields for "other" values and extensions
 		customFields: {

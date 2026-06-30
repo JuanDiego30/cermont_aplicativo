@@ -216,6 +216,7 @@
                 "FILE_UPLOADED",
                 "FILE_SCANNED",
                 "FILE_ASSET_UPLOADED",
+                "FILE_ASSET_DOWNLOADED",
                 "FILE_ASSET_DELETED",
                 "DOCUMENT_ARCHIVED",
                 "DOCUMENT_DELETED",
@@ -440,6 +441,7 @@
                 "FILE_UPLOADED",
                 "FILE_SCANNED",
                 "FILE_ASSET_UPLOADED",
+                "FILE_ASSET_DOWNLOADED",
                 "FILE_ASSET_DELETED",
                 "DOCUMENT_ARCHIVED",
                 "DOCUMENT_DELETED",
@@ -677,6 +679,7 @@
                   "FILE_UPLOADED",
                   "FILE_SCANNED",
                   "FILE_ASSET_UPLOADED",
+                  "FILE_ASSET_DOWNLOADED",
                   "FILE_ASSET_DELETED",
                   "DOCUMENT_ARCHIVED",
                   "DOCUMENT_DELETED",
@@ -4248,9 +4251,13 @@
                       "delivery_record",
                       "technical_report",
                       "planning",
+                      "document",
                       "checklist_item",
+                      "checklist_execution",
                       "work_order",
-                      "execution_session"
+                      "service_case",
+                      "execution_session",
+                      "report"
                     ],
                     "type": "string"
                   },
@@ -4262,6 +4269,38 @@
                   "id": {
                     "minLength": 1,
                     "type": "string"
+                  },
+                  "isPrimary": {
+                    "type": "boolean"
+                  },
+                  "kind": {
+                    "enum": [
+                      "image",
+                      "document"
+                    ],
+                    "type": "string"
+                  },
+                  "metadata": {
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "maxLength": 500,
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        }
+                      ]
+                    },
+                    "propertyNames": {
+                      "maxLength": 80,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": "object"
                   },
                   "mimeType": {
                     "maxLength": 127,
@@ -4281,6 +4320,23 @@
                     "maximum": 9007199254740991,
                     "minimum": 0,
                     "type": "integer"
+                  },
+                  "source": {
+                    "enum": [
+                      "upload",
+                      "offline_sync",
+                      "generated",
+                      "import"
+                    ],
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "active",
+                      "quarantined",
+                      "failed"
+                    ],
+                    "type": "string"
                   },
                   "storageKey": {
                     "minLength": 1,
@@ -4661,9 +4717,13 @@
                       "delivery_record",
                       "technical_report",
                       "planning",
+                      "document",
                       "checklist_item",
+                      "checklist_execution",
                       "work_order",
-                      "execution_session"
+                      "service_case",
+                      "execution_session",
+                      "report"
                     ],
                     "type": "string"
                   },
@@ -4675,6 +4735,38 @@
                   "id": {
                     "minLength": 1,
                     "type": "string"
+                  },
+                  "isPrimary": {
+                    "type": "boolean"
+                  },
+                  "kind": {
+                    "enum": [
+                      "image",
+                      "document"
+                    ],
+                    "type": "string"
+                  },
+                  "metadata": {
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "maxLength": 500,
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        }
+                      ]
+                    },
+                    "propertyNames": {
+                      "maxLength": 80,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": "object"
                   },
                   "mimeType": {
                     "maxLength": 127,
@@ -4694,6 +4786,23 @@
                     "maximum": 9007199254740991,
                     "minimum": 0,
                     "type": "integer"
+                  },
+                  "source": {
+                    "enum": [
+                      "upload",
+                      "offline_sync",
+                      "generated",
+                      "import"
+                    ],
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "active",
+                      "quarantined",
+                      "failed"
+                    ],
+                    "type": "string"
                   },
                   "storageKey": {
                     "minLength": 1,
@@ -11305,9 +11414,13 @@
                 "delivery_record",
                 "technical_report",
                 "planning",
+                "document",
                 "checklist_item",
+                "checklist_execution",
                 "work_order",
-                "execution_session"
+                "service_case",
+                "execution_session",
+                "report"
               ],
               "type": "string"
             },
@@ -11319,6 +11432,38 @@
             "id": {
               "minLength": 1,
               "type": "string"
+            },
+            "isPrimary": {
+              "type": "boolean"
+            },
+            "kind": {
+              "enum": [
+                "image",
+                "document"
+              ],
+              "type": "string"
+            },
+            "metadata": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "propertyNames": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "object"
             },
             "mimeType": {
               "maxLength": 127,
@@ -11338,6 +11483,23 @@
               "maximum": 9007199254740991,
               "minimum": 0,
               "type": "integer"
+            },
+            "source": {
+              "enum": [
+                "upload",
+                "offline_sync",
+                "generated",
+                "import"
+              ],
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "active",
+                "quarantined",
+                "failed"
+              ],
+              "type": "string"
             },
             "storageKey": {
               "minLength": 1,
@@ -11591,6 +11753,7 @@
             "FILE_UPLOADED",
             "FILE_SCANNED",
             "FILE_ASSET_UPLOADED",
+            "FILE_ASSET_DOWNLOADED",
             "FILE_ASSET_DELETED",
             "DOCUMENT_ARCHIVED",
             "DOCUMENT_DELETED",
@@ -11813,6 +11976,7 @@
             "FILE_UPLOADED",
             "FILE_SCANNED",
             "FILE_ASSET_UPLOADED",
+            "FILE_ASSET_DOWNLOADED",
             "FILE_ASSET_DELETED",
             "DOCUMENT_ARCHIVED",
             "DOCUMENT_DELETED",
@@ -20888,9 +21052,13 @@
                 "delivery_record",
                 "technical_report",
                 "planning",
+                "document",
                 "checklist_item",
+                "checklist_execution",
                 "work_order",
-                "execution_session"
+                "service_case",
+                "execution_session",
+                "report"
               ],
               "type": "string"
             },
@@ -20902,6 +21070,38 @@
             "id": {
               "minLength": 1,
               "type": "string"
+            },
+            "isPrimary": {
+              "type": "boolean"
+            },
+            "kind": {
+              "enum": [
+                "image",
+                "document"
+              ],
+              "type": "string"
+            },
+            "metadata": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "propertyNames": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "object"
             },
             "mimeType": {
               "maxLength": 127,
@@ -20921,6 +21121,23 @@
               "maximum": 9007199254740991,
               "minimum": 0,
               "type": "integer"
+            },
+            "source": {
+              "enum": [
+                "upload",
+                "offline_sync",
+                "generated",
+                "import"
+              ],
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "active",
+                "quarantined",
+                "failed"
+              ],
+              "type": "string"
             },
             "storageKey": {
               "minLength": 1,
@@ -25310,9 +25527,13 @@
                   "delivery_record",
                   "technical_report",
                   "planning",
+                  "document",
                   "checklist_item",
+                  "checklist_execution",
                   "work_order",
-                  "execution_session"
+                  "service_case",
+                  "execution_session",
+                  "report"
                 ],
                 "type": "string"
               },
@@ -25324,6 +25545,38 @@
               "id": {
                 "minLength": 1,
                 "type": "string"
+              },
+              "isPrimary": {
+                "type": "boolean"
+              },
+              "kind": {
+                "enum": [
+                  "image",
+                  "document"
+                ],
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "propertyNames": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
               },
               "mimeType": {
                 "maxLength": 127,
@@ -25343,6 +25596,23 @@
                 "maximum": 9007199254740991,
                 "minimum": 0,
                 "type": "integer"
+              },
+              "source": {
+                "enum": [
+                  "upload",
+                  "offline_sync",
+                  "generated",
+                  "import"
+                ],
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "quarantined",
+                  "failed"
+                ],
+                "type": "string"
               },
               "storageKey": {
                 "minLength": 1,
@@ -46095,6 +46365,91 @@
       ],
       "type": "object"
     },
+    "FileAssetListQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "kit_image",
+            "tool_image",
+            "vehicle_image",
+            "equipment_image",
+            "material_image",
+            "safety_item_image",
+            "evidence_photo",
+            "before_photo",
+            "after_photo",
+            "signature_image",
+            "signed_document",
+            "delivery_record_attachment",
+            "technical_report_attachment",
+            "cctv_photo",
+            "life_line_photo",
+            "planning_attachment",
+            "checklist_evidence",
+            "report_cover"
+          ],
+          "type": "string"
+        },
+        "entityId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "entityType": {
+          "enum": [
+            "kit",
+            "tool",
+            "vehicle",
+            "equipment",
+            "material",
+            "safety_item",
+            "evidence",
+            "delivery_record",
+            "technical_report",
+            "planning",
+            "document",
+            "checklist_item",
+            "checklist_execution",
+            "work_order",
+            "service_case",
+            "execution_session",
+            "report"
+          ],
+          "type": "string"
+        },
+        "includeDeleted": {}
+      },
+      "required": [
+        "entityType",
+        "entityId",
+        "includeDeleted"
+      ],
+      "type": "object"
+    },
+    "FileAssetMetadataSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "maxLength": 500,
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "propertyNames": {
+        "maxLength": 80,
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "object"
+    },
     "FileAssetRefSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -46146,9 +46501,13 @@
             "delivery_record",
             "technical_report",
             "planning",
+            "document",
             "checklist_item",
+            "checklist_execution",
             "work_order",
-            "execution_session"
+            "service_case",
+            "execution_session",
+            "report"
           ],
           "type": "string"
         },
@@ -46160,6 +46519,38 @@
         "id": {
           "minLength": 1,
           "type": "string"
+        },
+        "isPrimary": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "image",
+            "document"
+          ],
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "propertyNames": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "object"
         },
         "mimeType": {
           "maxLength": 127,
@@ -46179,6 +46570,23 @@
           "maximum": 9007199254740991,
           "minimum": 0,
           "type": "integer"
+        },
+        "source": {
+          "enum": [
+            "upload",
+            "offline_sync",
+            "generated",
+            "import"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "quarantined",
+            "failed"
+          ],
+          "type": "string"
         },
         "storageKey": {
           "minLength": 1,
@@ -46292,14 +46700,36 @@
             "delivery_record",
             "technical_report",
             "planning",
+            "document",
             "checklist_item",
+            "checklist_execution",
             "work_order",
-            "execution_session"
+            "service_case",
+            "execution_session",
+            "report"
           ],
           "type": "string"
         },
+        "isPrimary": {},
+        "kind": {
+          "enum": [
+            "image",
+            "document"
+          ],
+          "type": "string"
+        },
+        "metadata": {},
         "offlineLocalId": {
           "minLength": 1,
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "upload",
+            "offline_sync",
+            "generated",
+            "import"
+          ],
           "type": "string"
         },
         "tags": {
@@ -46315,7 +46745,9 @@
       "required": [
         "category",
         "entityType",
-        "entityId"
+        "entityId",
+        "isPrimary",
+        "metadata"
       ],
       "type": "object"
     },
@@ -46366,14 +46798,59 @@
             "delivery_record",
             "technical_report",
             "planning",
+            "document",
             "checklist_item",
+            "checklist_execution",
             "work_order",
-            "execution_session"
+            "service_case",
+            "execution_session",
+            "report"
           ],
           "type": "string"
         },
+        "isPrimary": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "image",
+            "document"
+          ],
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "propertyNames": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "object"
+        },
         "offlineLocalId": {
           "minLength": 1,
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "upload",
+            "offline_sync",
+            "generated",
+            "import"
+          ],
           "type": "string"
         },
         "tags": {
@@ -46447,9 +46924,13 @@
                 "delivery_record",
                 "technical_report",
                 "planning",
+                "document",
                 "checklist_item",
+                "checklist_execution",
                 "work_order",
-                "execution_session"
+                "service_case",
+                "execution_session",
+                "report"
               ],
               "type": "string"
             },
@@ -46461,6 +46942,38 @@
             "id": {
               "minLength": 1,
               "type": "string"
+            },
+            "isPrimary": {
+              "type": "boolean"
+            },
+            "kind": {
+              "enum": [
+                "image",
+                "document"
+              ],
+              "type": "string"
+            },
+            "metadata": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "propertyNames": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "object"
             },
             "mimeType": {
               "maxLength": 127,
@@ -46480,6 +46993,23 @@
               "maximum": 9007199254740991,
               "minimum": 0,
               "type": "integer"
+            },
+            "source": {
+              "enum": [
+                "upload",
+                "offline_sync",
+                "generated",
+                "import"
+              ],
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "active",
+                "quarantined",
+                "failed"
+              ],
+              "type": "string"
             },
             "storageKey": {
               "minLength": 1,
@@ -54940,9 +55470,13 @@
                   "delivery_record",
                   "technical_report",
                   "planning",
+                  "document",
                   "checklist_item",
+                  "checklist_execution",
                   "work_order",
-                  "execution_session"
+                  "service_case",
+                  "execution_session",
+                  "report"
                 ],
                 "type": "string"
               },
@@ -54954,6 +55488,38 @@
               "id": {
                 "minLength": 1,
                 "type": "string"
+              },
+              "isPrimary": {
+                "type": "boolean"
+              },
+              "kind": {
+                "enum": [
+                  "image",
+                  "document"
+                ],
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "propertyNames": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
               },
               "mimeType": {
                 "maxLength": 127,
@@ -54973,6 +55539,23 @@
                 "maximum": 9007199254740991,
                 "minimum": 0,
                 "type": "integer"
+              },
+              "source": {
+                "enum": [
+                  "upload",
+                  "offline_sync",
+                  "generated",
+                  "import"
+                ],
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "quarantined",
+                  "failed"
+                ],
+                "type": "string"
               },
               "storageKey": {
                 "minLength": 1,
@@ -55091,9 +55674,13 @@
                 "delivery_record",
                 "technical_report",
                 "planning",
+                "document",
                 "checklist_item",
+                "checklist_execution",
                 "work_order",
-                "execution_session"
+                "service_case",
+                "execution_session",
+                "report"
               ],
               "type": "string"
             },
@@ -55105,6 +55692,38 @@
             "id": {
               "minLength": 1,
               "type": "string"
+            },
+            "isPrimary": {
+              "type": "boolean"
+            },
+            "kind": {
+              "enum": [
+                "image",
+                "document"
+              ],
+              "type": "string"
+            },
+            "metadata": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "propertyNames": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "object"
             },
             "mimeType": {
               "maxLength": 127,
@@ -55124,6 +55743,23 @@
               "maximum": 9007199254740991,
               "minimum": 0,
               "type": "integer"
+            },
+            "source": {
+              "enum": [
+                "upload",
+                "offline_sync",
+                "generated",
+                "import"
+              ],
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "active",
+                "quarantined",
+                "failed"
+              ],
+              "type": "string"
             },
             "storageKey": {
               "minLength": 1,
@@ -67145,9 +67781,13 @@
                   "delivery_record",
                   "technical_report",
                   "planning",
+                  "document",
                   "checklist_item",
+                  "checklist_execution",
                   "work_order",
-                  "execution_session"
+                  "service_case",
+                  "execution_session",
+                  "report"
                 ],
                 "type": "string"
               },
@@ -67159,6 +67799,38 @@
               "id": {
                 "minLength": 1,
                 "type": "string"
+              },
+              "isPrimary": {
+                "type": "boolean"
+              },
+              "kind": {
+                "enum": [
+                  "image",
+                  "document"
+                ],
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "propertyNames": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
               },
               "mimeType": {
                 "maxLength": 127,
@@ -67178,6 +67850,23 @@
                 "maximum": 9007199254740991,
                 "minimum": 0,
                 "type": "integer"
+              },
+              "source": {
+                "enum": [
+                  "upload",
+                  "offline_sync",
+                  "generated",
+                  "import"
+                ],
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "quarantined",
+                  "failed"
+                ],
+                "type": "string"
               },
               "storageKey": {
                 "minLength": 1,
@@ -67596,9 +68285,13 @@
                   "delivery_record",
                   "technical_report",
                   "planning",
+                  "document",
                   "checklist_item",
+                  "checklist_execution",
                   "work_order",
-                  "execution_session"
+                  "service_case",
+                  "execution_session",
+                  "report"
                 ],
                 "type": "string"
               },
@@ -67610,6 +68303,38 @@
               "id": {
                 "minLength": 1,
                 "type": "string"
+              },
+              "isPrimary": {
+                "type": "boolean"
+              },
+              "kind": {
+                "enum": [
+                  "image",
+                  "document"
+                ],
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "propertyNames": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
               },
               "mimeType": {
                 "maxLength": 127,
@@ -67629,6 +68354,23 @@
                 "maximum": 9007199254740991,
                 "minimum": 0,
                 "type": "integer"
+              },
+              "source": {
+                "enum": [
+                  "upload",
+                  "offline_sync",
+                  "generated",
+                  "import"
+                ],
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "quarantined",
+                  "failed"
+                ],
+                "type": "string"
               },
               "storageKey": {
                 "minLength": 1,
@@ -93891,9 +94633,13 @@
                   "delivery_record",
                   "technical_report",
                   "planning",
+                  "document",
                   "checklist_item",
+                  "checklist_execution",
                   "work_order",
-                  "execution_session"
+                  "service_case",
+                  "execution_session",
+                  "report"
                 ],
                 "type": "string"
               },
@@ -93905,6 +94651,38 @@
               "id": {
                 "minLength": 1,
                 "type": "string"
+              },
+              "isPrimary": {
+                "type": "boolean"
+              },
+              "kind": {
+                "enum": [
+                  "image",
+                  "document"
+                ],
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "propertyNames": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
               },
               "mimeType": {
                 "maxLength": 127,
@@ -93924,6 +94702,23 @@
                 "maximum": 9007199254740991,
                 "minimum": 0,
                 "type": "integer"
+              },
+              "source": {
+                "enum": [
+                  "upload",
+                  "offline_sync",
+                  "generated",
+                  "import"
+                ],
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "quarantined",
+                  "failed"
+                ],
+                "type": "string"
               },
               "storageKey": {
                 "minLength": 1,
@@ -97895,6 +98690,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
       "properties": {
+        "daysUntilExpiry": {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
         "documentType": {
           "enum": [
             "soat",
@@ -97924,6 +98724,7 @@
         "plate",
         "documentType",
         "expiresAt",
+        "daysUntilExpiry",
         "expired"
       ],
       "type": "object"
@@ -98130,9 +98931,13 @@
                   "delivery_record",
                   "technical_report",
                   "planning",
+                  "document",
                   "checklist_item",
+                  "checklist_execution",
                   "work_order",
-                  "execution_session"
+                  "service_case",
+                  "execution_session",
+                  "report"
                 ],
                 "type": "string"
               },
@@ -98144,6 +98949,38 @@
               "id": {
                 "minLength": 1,
                 "type": "string"
+              },
+              "isPrimary": {
+                "type": "boolean"
+              },
+              "kind": {
+                "enum": [
+                  "image",
+                  "document"
+                ],
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "propertyNames": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "object"
               },
               "mimeType": {
                 "maxLength": 127,
@@ -98163,6 +99000,23 @@
                 "maximum": 9007199254740991,
                 "minimum": 0,
                 "type": "integer"
+              },
+              "source": {
+                "enum": [
+                  "upload",
+                  "offline_sync",
+                  "generated",
+                  "import"
+                ],
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "quarantined",
+                  "failed"
+                ],
+                "type": "string"
               },
               "storageKey": {
                 "minLength": 1,

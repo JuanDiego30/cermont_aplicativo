@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:c2cd5b00201976c53ab97502d236b3d3a3b5c88fe3cf06a76f32c39da83328c0",
+	"currentSnapshotHash": "sha256:451daecd5e54a0cefe649c5ee8378d6c9896b42b0e3b404089dc0453c571922b",
 	"migrations": [
 		{
 			"id": "050-business-document-erp-connector-schemas",
@@ -392,6 +392,13 @@
 			"type": "non-breaking",
 			"description": "Regenerate contract snapshot after Spec 007 schema changes (Vehicle, FileAsset, Fleet extensions).",
 			"toHash": "sha256:c2cd5b00201976c53ab97502d236b3d3a3b5c88fe3cf06a76f32c39da83328c0"
+		},
+		{
+			"id": "055-spec-009-fileasset-ssot",
+			"date": "2026-06-29",
+			"type": "non-breaking",
+			"description": "Extend FileAsset ownership, lifecycle metadata, audited downloads, and canonical list query contracts while retiring the duplicate media API.",
+			"toHash": "sha256:451daecd5e54a0cefe649c5ee8378d6c9896b42b0e3b404089dc0453c571922b"
 		}
 	]
 }

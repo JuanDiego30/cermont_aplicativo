@@ -136,8 +136,16 @@ describe("FleetService", () => {
 			const alerts = await FleetService.getExpiringDocuments(30);
 
 			expect(alerts).toHaveLength(2);
-			expect(alerts[0]).toMatchObject({ documentType: "tecnomecanica", expired: true });
-			expect(alerts[1]).toMatchObject({ documentType: "soat", expired: false });
+			expect(alerts[0]).toMatchObject({
+				documentType: "tecnomecanica",
+				daysUntilExpiry: -1,
+				expired: true,
+			});
+			expect(alerts[1]).toMatchObject({
+				documentType: "soat",
+				daysUntilExpiry: 5,
+				expired: false,
+			});
 		});
 	});
 

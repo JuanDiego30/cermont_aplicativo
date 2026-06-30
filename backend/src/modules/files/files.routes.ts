@@ -11,14 +11,14 @@
  */
 
 import { INTERNAL_ROLES } from "@cermont/domain";
-import { FileAssetUploadInputFormSchema } from "@cermont/shared-types";
+import { FileAssetListQuerySchema, FileAssetUploadInputFormSchema } from "@cermont/shared-types";
 import { Router } from "express";
 
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { uploadLimiter } from "../../middlewares/rate-limiter";
 import { handleUploadError, processUploadedFile, upload } from "../../middlewares/uploadMiddleware";
-import { validateBody } from "../../middlewares/validate";
+import { validateBody, validateQuery } from "../../middlewares/validate";
 import * as FilesController from "./files.controller";
 
 const router = Router();
@@ -49,7 +49,12 @@ router.post(
 );
 
 // GET /api/files?entityType=...&entityId=...&category=...&includeDeleted=...
-router.get("/", authorize(...INTERNAL_ROLES), FilesController.listByEntity);
+router.get(
+	"/",
+	authorize(...INTERNAL_ROLES),
+	validateQuery(FileAssetListQuerySchema),
+	FilesController.listByEntity,
+);
 
 // GET /api/files/:id/content
 router.get("/:id/content", authorize(...INTERNAL_ROLES), FilesController.getContent);

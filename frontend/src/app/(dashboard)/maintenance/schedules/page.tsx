@@ -7,7 +7,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { Skeleton } from "@/core/ui/Skeleton";
@@ -37,13 +37,36 @@ const STATUS_STYLES: Record<string, string> = {
 	cancelled: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
 };
 
+type FormState = {
+	title: string;
+	frequency: string;
+	assetId: string;
+	startDate: string;
+};
+
+type FormAction =
+	| { key: "title"; value: string }
+	| { key: "frequency"; value: string }
+	| { key: "assetId"; value: string }
+	| { key: "startDate"; value: string }
+	| { type: "reset" };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+	if ("type" in action && action.type === "reset") {
+		return { title: "", frequency: "monthly", assetId: "", startDate: "" };
+	}
+	if ("key" in action) {
+		return { ...state, [action.key]: action.value };
+	}
+	return state;
+}
+
+const INITIAL_FORM: FormState = { title: "", frequency: "monthly", assetId: "", startDate: "" };
+
 export default function MaintenanceSchedulesPage() {
 	const queryClient = useQueryClient();
 	const [showForm, setShowForm] = useState(false);
-	const [title, setTitle] = useState("");
-	const [frequency, setFrequency] = useState("monthly");
-	const [assetId, setAssetId] = useState("");
-	const [startDate, setStartDate] = useState("");
+	const [form, dispatch] = useReducer(formReducer, INITIAL_FORM);
 
 	const { data, isLoading, error, refetch } = useQuery<Schedule[]>({
 		queryKey: ["maintenance-schedules"],
@@ -57,15 +80,17 @@ export default function MaintenanceSchedulesPage() {
 
 	const createMutation = useMutation({
 		mutationFn: async () => {
-			await apiClient.post("/maintenance/schedules", { title, frequency, assetId, startDate });
+			await apiClient.post("/maintenance/schedules", {
+				title: form.title,
+				frequency: form.frequency,
+				assetId: form.assetId,
+				startDate: form.startDate,
+			});
 		},
 		onSuccess: () => {
 			toast.success("Programación creada");
 			setShowForm(false);
-			setTitle("");
-			setFrequency("monthly");
-			setAssetId("");
-			setStartDate("");
+			dispatch({ type: "reset" });
 			queryClient.invalidateQueries({ queryKey: ["maintenance-schedules"] });
 		},
 		onError: (err: Error) => toast.error(err.message),
@@ -102,8 +127,8 @@ export default function MaintenanceSchedulesPage() {
 						</label>
 						<input
 							id="sched-title"
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
+							value={form.title}
+							onChange={(e) => dispatch({ key: "title", value: e.target.value })}
 							className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm"
 						/>
 					</div>
@@ -117,8 +142,8 @@ export default function MaintenanceSchedulesPage() {
 							</label>
 							<select
 								id="sched-freq"
-								value={frequency}
-								onChange={(e) => setFrequency(e.target.value)}
+								value={form.frequency}
+								onChange={(e) => dispatch({ key: "frequency", value: e.target.value })}
 								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm"
 							>
 								{Object.entries(FREQ_LABELS).map(([k, v]) => (
@@ -137,8 +162,8 @@ export default function MaintenanceSchedulesPage() {
 							</label>
 							<input
 								id="sched-asset"
-								value={assetId}
-								onChange={(e) => setAssetId(e.target.value)}
+								value={form.assetId}
+								onChange={(e) => dispatch({ key: "assetId", value: e.target.value })}
 								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm"
 							/>
 						</div>
@@ -152,15 +177,15 @@ export default function MaintenanceSchedulesPage() {
 							<input
 								id="sched-start"
 								type="date"
-								value={startDate}
-								onChange={(e) => setStartDate(e.target.value)}
+								value={form.startDate}
+								onChange={(e) => dispatch({ key: "startDate", value: e.target.value })}
 								className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-2 text-sm"
 							/>
 						</div>
 					</div>
 					<button
 						type="button"
-						disabled={createMutation.isPending || !title || !assetId || !startDate}
+						disabled={createMutation.isPending || !form.title || !form.assetId || !form.startDate}
 						onClick={() => createMutation.mutate()}
 						className="rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
 					>

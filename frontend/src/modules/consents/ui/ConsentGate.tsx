@@ -42,9 +42,8 @@ export function ConsentGate() {
 	}
 
 	return (
-		<div
+		<aside
 			className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-3)]"
-			role="dialog"
 			aria-label="Aviso de privacidad"
 		>
 			<div className="mx-auto flex max-w-5xl flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -82,6 +81,6 @@ export function ConsentGate() {
 					Aceptar
 				</button>
 			</div>
-		</div>
+		</aside>
 	);
 }

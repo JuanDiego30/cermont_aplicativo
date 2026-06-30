@@ -3,6 +3,9 @@ import { type Document, model, Schema, type Types } from "mongoose";
 import {
 	FILE_ASSET_CATEGORIES,
 	FILE_ASSET_ENTITY_TYPES,
+	FILE_ASSET_KINDS,
+	FILE_ASSET_SOURCES,
+	FILE_ASSET_STATUSES,
 	FILE_ASSET_SYNC_STATUSES,
 } from "./sub-schemas/FileAssetRefSchema";
 
@@ -49,6 +52,11 @@ export interface IFileAssetDocument extends Document {
 	tags?: string[];
 	offlineLocalId?: string;
 	syncStatus: (typeof FILE_ASSET_SYNC_STATUSES)[number];
+	kind: (typeof FILE_ASSET_KINDS)[number];
+	source: (typeof FILE_ASSET_SOURCES)[number];
+	status: (typeof FILE_ASSET_STATUSES)[number];
+	isPrimary: boolean;
+	metadata: Map<string, string | number | boolean> | Record<string, string | number | boolean>;
 	deletedAt?: Date;
 	createdAt: Date;
 	updatedAt: Date;
@@ -96,6 +104,11 @@ const FileAssetSchema = new Schema<IFileAssetDocument>(
 			default: "synced",
 			index: true,
 		},
+		kind: { type: String, enum: FILE_ASSET_KINDS, required: true },
+		source: { type: String, enum: FILE_ASSET_SOURCES, required: true },
+		status: { type: String, enum: FILE_ASSET_STATUSES, default: "active", required: true },
+		isPrimary: { type: Boolean, default: false, required: true },
+		metadata: { type: Map, of: Schema.Types.Mixed, default: {} },
 		deletedAt: { type: Date, index: true },
 	},
 	{ timestamps: true, versionKey: false },

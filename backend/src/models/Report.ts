@@ -1,4 +1,5 @@
 import mongoose, { type Document, Schema } from "mongoose";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Report Model — Per DOC-09 §7 (Diccionario de Datos)
@@ -38,6 +39,7 @@ export interface IReport extends Document {
 	updated_at: Date;
 	created_by?: mongoose.Types.ObjectId;
 	updated_by?: mongoose.Types.ObjectId;
+	fileAssets: FileAssetRef[];
 }
 
 const ReportSchema = new Schema<IReport>(
@@ -85,6 +87,7 @@ const ReportSchema = new Schema<IReport>(
 			type: Schema.Types.ObjectId,
 			ref: "User",
 		},
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 	},
 	{
 		timestamps: { createdAt: "created_at", updatedAt: "updated_at" },

@@ -10,7 +10,7 @@
 
 import { AlertOctagon, AlertTriangle, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useExpiringVehicleDocuments } from "@/modules/fleet/queries";
 
 const DOCUMENT_LABELS: Record<string, string> = {
@@ -22,26 +22,13 @@ const DOCUMENT_LABELS: Record<string, string> = {
 export function FleetAlertsBanner() {
 	const { data: alerts, isLoading } = useExpiringVehicleDocuments();
 	const [isVisible, setIsVisible] = useState(true);
-	const [mounted, setMounted] = useState(false);
 
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	if (!mounted || isLoading || !alerts || alerts.length === 0 || !isVisible) {
+	if (isLoading || !alerts || alerts.length === 0 || !isVisible) {
 		return null;
 	}
 
 	// Filter critical ones (already expired or expiring in <= 7 days)
-	const criticalAlerts = alerts.filter((alert) => {
-		if (alert.expired) {
-			return true;
-		}
-		const daysLeft = Math.ceil(
-			(new Date(alert.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-		);
-		return daysLeft <= 7;
-	});
+	const criticalAlerts = alerts.filter((alert) => alert.expired || alert.daysUntilExpiry <= 7);
 
 	if (criticalAlerts.length === 0) {
 		return null;
@@ -94,9 +81,6 @@ export function FleetAlertsBanner() {
 					{/* List of critical alerts */}
 					<ul className="mt-2.5 space-y-1">
 						{criticalAlerts.slice(0, 3).map((alert) => {
-							const days = Math.ceil(
-								(new Date(alert.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-							);
 							return (
 								<li
 									key={`${alert.vehicleId}-${alert.documentType}`}
@@ -111,7 +95,8 @@ export function FleetAlertsBanner() {
 										</span>
 									) : (
 										<span className="text-[var(--color-warning)] font-medium">
-											(vence en {days} día{days !== 1 ? "s" : ""})
+											(vence en {alert.daysUntilExpiry} día
+											{alert.daysUntilExpiry !== 1 ? "s" : ""})
 										</span>
 									)}
 								</li>

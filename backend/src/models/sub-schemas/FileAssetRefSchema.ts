@@ -30,9 +30,13 @@ export const FILE_ASSET_ENTITY_TYPES = [
 	"delivery_record",
 	"technical_report",
 	"planning",
+	"document",
 	"checklist_item",
+	"checklist_execution",
 	"work_order",
+	"service_case",
 	"execution_session",
+	"report",
 ] as const;
 
 export const FILE_ASSET_CATEGORIES = [
@@ -57,6 +61,9 @@ export const FILE_ASSET_CATEGORIES = [
 ] as const;
 
 export const FILE_ASSET_SYNC_STATUSES = ["synced", "pending", "failed"] as const;
+export const FILE_ASSET_KINDS = ["image", "document"] as const;
+export const FILE_ASSET_SOURCES = ["upload", "offline_sync", "generated", "import"] as const;
+export const FILE_ASSET_STATUSES = ["active", "quarantined", "failed"] as const;
 
 export interface FileAssetRef {
 	id: string;
@@ -79,6 +86,11 @@ export interface FileAssetRef {
 	tags?: string[];
 	offlineLocalId?: string;
 	syncStatus?: (typeof FILE_ASSET_SYNC_STATUSES)[number];
+	kind?: (typeof FILE_ASSET_KINDS)[number];
+	source?: (typeof FILE_ASSET_SOURCES)[number];
+	status?: (typeof FILE_ASSET_STATUSES)[number];
+	isPrimary?: boolean;
+	metadata?: Record<string, string | number | boolean>;
 }
 
 export const FileAssetRefSchema = new Schema<FileAssetRef>(
@@ -114,6 +126,11 @@ export const FileAssetRefSchema = new Schema<FileAssetRef>(
 			type: String,
 			enum: FILE_ASSET_SYNC_STATUSES,
 		},
+		kind: { type: String, enum: FILE_ASSET_KINDS },
+		source: { type: String, enum: FILE_ASSET_SOURCES },
+		status: { type: String, enum: FILE_ASSET_STATUSES },
+		isPrimary: { type: Boolean },
+		metadata: { type: Map, of: Schema.Types.Mixed },
 	},
 	{ _id: false },
 );

@@ -8,8 +8,8 @@
  */
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { useEffect, useRef } from "react";
 import { type Resolver, type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useCreateVehicle } from "../queries";
@@ -62,7 +62,6 @@ interface NewVehicleDrawerProps {
 
 export function NewVehicleDrawer({ open, onClose }: NewVehicleDrawerProps) {
 	const createMutation = useCreateVehicle();
-	const firstInputRef = useRef<HTMLInputElement>(null);
 
 	const {
 		register,
@@ -84,29 +83,6 @@ export function NewVehicleDrawer({ open, onClose }: NewVehicleDrawerProps) {
 		},
 	});
 
-	// Focus first input when drawer opens
-	useEffect(() => {
-		if (open) {
-			setTimeout(() => firstInputRef.current?.focus(), 50);
-		}
-	}, [open]);
-
-	// Close on Escape
-	const onCloseRef = useRef(onClose);
-	useEffect(() => {
-		onCloseRef.current = onClose;
-	}, [onClose]);
-
-	useEffect(() => {
-		function handleKeyDown(e: KeyboardEvent) {
-			if (e.key === "Escape" && open) {
-				onCloseRef.current();
-			}
-		}
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [open]);
-
 	const onSubmit: SubmitHandler<DrawerForm & Record<string, unknown>> = async (data) => {
 		await createMutation.mutateAsync({
 			...data,
@@ -123,184 +99,180 @@ export function NewVehicleDrawer({ open, onClose }: NewVehicleDrawerProps) {
 	};
 
 	return (
-		<>
-			{/* Backdrop */}
-			{open && (
-				<div
-					className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-					onClick={onClose}
-					aria-hidden="true"
-				/>
-			)}
-
-			{/* Drawer */}
-			<div
-				role="dialog"
-				aria-modal="true"
-				aria-label="Registrar nuevo vehículo"
-				className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-[var(--surface-primary)] shadow-[var(--shadow-3)] transition-transform duration-300 ease-in-out ${
-					open ? "translate-x-0" : "translate-x-full"
-				}`}
-			>
-				{/* Header */}
-				<div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-4">
-					<div>
-						<h2 className="text-base font-semibold text-[var(--text-primary)]">
-							Registrar vehículo
-						</h2>
-						<p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-							Completa los datos del parque automotor
-						</p>
-					</div>
-					<button
-						type="button"
-						onClick={onClose}
-						className="rounded-[var(--radius-lg)] p-2 text-[var(--text-tertiary)] hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)]"
-						aria-label="Cerrar formulario"
-					>
-						<X className="size-5" aria-hidden="true" />
-					</button>
-				</div>
-
-				{/* Body */}
-				<form
-					onSubmit={handleSubmit(onSubmit)}
-					className="flex flex-1 flex-col overflow-y-auto"
-					noValidate
+		<Dialog.Root
+			open={open}
+			onOpenChange={(nextOpen) => {
+				if (!nextOpen) {
+					onClose();
+				}
+			}}
+		>
+			<Dialog.Portal>
+				<Dialog.Overlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
+				<Dialog.Content
+					aria-describedby="new-vehicle-description"
+					className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
 				>
-					<div className="space-y-4 px-6 py-6">
-						{/* Placa */}
-						<label className={labelCls}>
-							Placa <span className="text-[var(--color-danger)]">*</span>
-							<input
-								{...register("plate")}
-								ref={(el) => {
-									register("plate").ref(el);
-									firstInputRef.current = el;
-								}}
-								placeholder="ABC-123"
-								className={inputCls}
-								autoComplete="off"
-							/>
-							{errors.plate && <span className={errorCls}>{errors.plate.message}</span>}
-						</label>
-
-						{/* Marca / Modelo / Año */}
-						<div className="grid grid-cols-2 gap-3">
-							<label className={labelCls}>
-								Marca <span className="text-[var(--color-danger)]">*</span>
-								<input {...register("brand")} placeholder="Toyota" className={inputCls} />
-								{errors.brand && <span className={errorCls}>{errors.brand.message}</span>}
-							</label>
-							<label className={labelCls}>
-								Modelo <span className="text-[var(--color-danger)]">*</span>
-								<input {...register("model")} placeholder="Hilux" className={inputCls} />
-								{errors.model && <span className={errorCls}>{errors.model.message}</span>}
-							</label>
+					{/* Header */}
+					<div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-4">
+						<div>
+							<Dialog.Title className="text-base font-semibold text-[var(--text-primary)]">
+								Registrar vehículo
+							</Dialog.Title>
+							<Dialog.Description
+								id="new-vehicle-description"
+								className="mt-0.5 text-xs text-[var(--text-secondary)]"
+							>
+								Completa los datos del parque automotor
+							</Dialog.Description>
 						</div>
+						<Dialog.Close asChild>
+							<button
+								type="button"
+								className="rounded-[var(--radius-lg)] p-2 text-[var(--text-tertiary)] hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)]"
+								aria-label="Cerrar formulario"
+							>
+								<X className="size-5" aria-hidden="true" />
+							</button>
+						</Dialog.Close>
+					</div>
 
-						<div className="grid grid-cols-2 gap-3">
+					{/* Body */}
+					<form
+						onSubmit={handleSubmit(onSubmit)}
+						className="flex flex-1 flex-col overflow-y-auto"
+						noValidate
+					>
+						<div className="space-y-4 px-6 py-6">
+							{/* Placa */}
 							<label className={labelCls}>
-								Año <span className="text-[var(--color-danger)]">*</span>
+								Placa <span className="text-[var(--color-danger)]">*</span>
 								<input
-									{...register("year", { valueAsNumber: true })}
+									{...register("plate")}
+									placeholder="ABC-123"
+									className={inputCls}
+									autoComplete="off"
+								/>
+								{errors.plate && <span className={errorCls}>{errors.plate.message}</span>}
+							</label>
+
+							{/* Marca / Modelo / Año */}
+							<div className="grid grid-cols-2 gap-3">
+								<label className={labelCls}>
+									Marca <span className="text-[var(--color-danger)]">*</span>
+									<input {...register("brand")} placeholder="Toyota" className={inputCls} />
+									{errors.brand && <span className={errorCls}>{errors.brand.message}</span>}
+								</label>
+								<label className={labelCls}>
+									Modelo <span className="text-[var(--color-danger)]">*</span>
+									<input {...register("model")} placeholder="Hilux" className={inputCls} />
+									{errors.model && <span className={errorCls}>{errors.model.message}</span>}
+								</label>
+							</div>
+
+							<div className="grid grid-cols-2 gap-3">
+								<label className={labelCls}>
+									Año <span className="text-[var(--color-danger)]">*</span>
+									<input
+										{...register("year", { valueAsNumber: true })}
+										type="number"
+										inputMode="numeric"
+										min={1980}
+										max={2100}
+										className={inputCls}
+									/>
+									{errors.year && <span className={errorCls}>{errors.year.message}</span>}
+								</label>
+								<label className={labelCls}>
+									Tipo <span className="text-[var(--color-danger)]">*</span>
+									<select {...register("type")} className={inputCls}>
+										{VEHICLE_TYPES.map((vt) => (
+											<option key={vt.value} value={vt.value}>
+												{vt.label}
+											</option>
+										))}
+									</select>
+									{errors.type && <span className={errorCls}>{errors.type.message}</span>}
+								</label>
+							</div>
+
+							{/* Kilometraje */}
+							<label className={labelCls}>
+								Kilometraje actual
+								<input
+									{...register("kilometers", { valueAsNumber: true })}
 									type="number"
 									inputMode="numeric"
-									min={1980}
-									max={2100}
+									min={0}
+									placeholder="0"
 									className={inputCls}
 								/>
-								{errors.year && <span className={errorCls}>{errors.year.message}</span>}
+								{errors.kilometers && <span className={errorCls}>{errors.kilometers.message}</span>}
 							</label>
+
+							{/* Conductor */}
 							<label className={labelCls}>
-								Tipo <span className="text-[var(--color-danger)]">*</span>
-								<select {...register("type")} className={inputCls}>
-									{VEHICLE_TYPES.map((vt) => (
-										<option key={vt.value} value={vt.value}>
-											{vt.label}
-										</option>
-									))}
-								</select>
-								{errors.type && <span className={errorCls}>{errors.type.message}</span>}
+								Conductor (nombre)
+								<input {...register("driverName")} placeholder="Juan Pérez" className={inputCls} />
 							</label>
+
+							<hr className="border-[var(--border-subtle)]" />
+							<p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+								Documentos obligatorios
+							</p>
+
+							{/* SOAT */}
+							<label className={labelCls}>
+								Vencimiento SOAT
+								<input {...register("soatExpiry")} type="date" className={inputCls} />
+								{errors.soatExpiry && <span className={errorCls}>{errors.soatExpiry.message}</span>}
+							</label>
+
+							{/* Tecnomecánica */}
+							<label className={labelCls}>
+								Vencimiento Tecnomecánica
+								<input {...register("technoMechanicalExpiry")} type="date" className={inputCls} />
+							</label>
+
+							{/* Póliza */}
+							<label className={labelCls}>
+								Vencimiento Póliza
+								<input {...register("insuranceExpiry")} type="date" className={inputCls} />
+							</label>
+
+							{/* Global error */}
+							{createMutation.error && (
+								<div
+									className="rounded-[var(--radius-lg)] bg-[var(--color-danger-bg)]/60 p-3 text-sm text-[var(--color-danger)]"
+									role="alert"
+								>
+									{createMutation.error instanceof Error
+										? createMutation.error.message
+										: "No se pudo registrar el vehículo."}
+								</div>
+							)}
 						</div>
 
-						{/* Kilometraje */}
-						<label className={labelCls}>
-							Kilometraje actual
-							<input
-								{...register("kilometers", { valueAsNumber: true })}
-								type="number"
-								inputMode="numeric"
-								min={0}
-								placeholder="0"
-								className={inputCls}
-							/>
-							{errors.kilometers && <span className={errorCls}>{errors.kilometers.message}</span>}
-						</label>
-
-						{/* Conductor */}
-						<label className={labelCls}>
-							Conductor (nombre)
-							<input {...register("driverName")} placeholder="Juan Pérez" className={inputCls} />
-						</label>
-
-						<hr className="border-[var(--border-subtle)]" />
-						<p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
-							Documentos obligatorios
-						</p>
-
-						{/* SOAT */}
-						<label className={labelCls}>
-							Vencimiento SOAT
-							<input {...register("soatExpiry")} type="date" className={inputCls} />
-							{errors.soatExpiry && <span className={errorCls}>{errors.soatExpiry.message}</span>}
-						</label>
-
-						{/* Tecnomecánica */}
-						<label className={labelCls}>
-							Vencimiento Tecnomecánica
-							<input {...register("technoMechanicalExpiry")} type="date" className={inputCls} />
-						</label>
-
-						{/* Póliza */}
-						<label className={labelCls}>
-							Vencimiento Póliza
-							<input {...register("insuranceExpiry")} type="date" className={inputCls} />
-						</label>
-
-						{/* Global error */}
-						{createMutation.error && (
-							<div
-								className="rounded-[var(--radius-lg)] bg-[var(--color-danger-bg)]/60 p-3 text-sm text-[var(--color-danger)]"
-								role="alert"
+						{/* Footer actions */}
+						<div className="mt-auto flex justify-end gap-3 border-t border-[var(--border-subtle)] px-6 py-4">
+							<button
+								type="button"
+								onClick={onClose}
+								className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 							>
-								{createMutation.error instanceof Error
-									? createMutation.error.message
-									: "No se pudo registrar el vehículo."}
-							</div>
-						)}
-					</div>
-
-					{/* Footer actions */}
-					<div className="mt-auto flex justify-end gap-3 border-t border-[var(--border-subtle)] px-6 py-4">
-						<button
-							type="button"
-							onClick={onClose}
-							className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
-						>
-							Cancelar
-						</button>
-						<button
-							type="submit"
-							disabled={isSubmitting || createMutation.isPending}
-							className="rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							{isSubmitting || createMutation.isPending ? "Guardando…" : "Registrar vehículo"}
-						</button>
-					</div>
-				</form>
-			</div>
-		</>
+								Cancelar
+							</button>
+							<button
+								type="submit"
+								disabled={isSubmitting || createMutation.isPending}
+								className="rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+							>
+								{isSubmitting || createMutation.isPending ? "Guardando…" : "Registrar vehículo"}
+							</button>
+						</div>
+					</form>
+				</Dialog.Content>
+			</Dialog.Portal>
+		</Dialog.Root>
 	);
 }

@@ -3,6 +3,13 @@
  * Server component
  */
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Consentimiento de datos",
+	description: "Finalidades y alcance del consentimiento para el tratamiento de datos en Cermont.",
+};
+
 const LAST_UPDATED_LABEL = "27 de junio de 2026";
 
 export default function ConsentPage() {

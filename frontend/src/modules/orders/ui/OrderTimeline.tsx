@@ -288,14 +288,17 @@ export function OrderTimeline({ status, createdAt }: OrderTimelineProps) {
 
 			{/* Progress bar */}
 			{!isCancelled && (
-				<div
-					className="mb-5"
-					role="progressbar"
-					aria-valuenow={completedCount}
-					aria-valuemin={0}
-					aria-valuemax={14}
-				>
-					<div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-secondary)]">
+				<div className="mb-5">
+					<progress
+						className="sr-only"
+						value={completedCount}
+						max={14}
+						aria-label="Order completion progress"
+					/>
+					<div
+						className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-secondary)]"
+						aria-hidden="true"
+					>
 						<div
 							className="h-full rounded-full bg-[var(--color-brand-blue)] transition-all duration-500"
 							style={{ width: `${Math.max(5, (completedCount / 14) * 100)}%` }}

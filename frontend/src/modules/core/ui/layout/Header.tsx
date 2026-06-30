@@ -75,22 +75,18 @@ export default function Header({
 	const { data: notificationsData } = useQuery({
 		queryKey: ["notifications"],
 		queryFn: async () => {
-			try {
-				const payload = await apiClient.get<{
-					success?: boolean;
-					data?: {
-						notifications?: NotificationItem[];
-						unreadCount?: number;
-					};
-				}>("/analytics/notifications?limit=20");
-
-				return {
-					notifications: payload?.data?.notifications ?? [],
-					unreadCount: payload?.data?.unreadCount ?? 0,
+			const payload = await apiClient.get<{
+				success?: boolean;
+				data?: {
+					notifications?: NotificationItem[];
+					unreadCount?: number;
 				};
-			} catch {
-				return { notifications: [] as NotificationItem[], unreadCount: 0 };
-			}
+			}>("/notifications?limit=20");
+
+			return {
+				notifications: payload?.data?.notifications ?? [],
+				unreadCount: payload?.data?.unreadCount ?? 0,
+			};
 		},
 		// Notifications are intentionally polled at a low frequency for operational alerts.
 		// Stop polling on auth errors to avoid 401 storms through Serwist.
@@ -121,7 +117,7 @@ export default function Header({
 
 	const markAsReadMutation = useMutation({
 		mutationFn: async (notificationId: string) => {
-			await apiClient.patch(`/analytics/notifications/${notificationId}`);
+			await apiClient.patch(`/notifications/${notificationId}`);
 		},
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -130,7 +126,7 @@ export default function Header({
 
 	const markAllReadMutation = useMutation({
 		mutationFn: async () => {
-			await apiClient.post("/analytics/notifications/mark-all-read");
+			await apiClient.post("/notifications/mark-all-read");
 		},
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: ["notifications"] });

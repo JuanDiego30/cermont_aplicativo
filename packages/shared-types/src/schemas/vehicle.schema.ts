@@ -106,6 +106,7 @@ export const VehicleDocumentAlertSchema = z
 		plate: z.string(),
 		documentType: z.enum(["soat", "tecnomecanica", "poliza"]),
 		expiresAt: z.string().datetime(),
+		daysUntilExpiry: z.number().int(),
 		expired: z.boolean(),
 	})
 	.strict();

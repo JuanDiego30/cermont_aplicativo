@@ -7,7 +7,7 @@
  * request fields and delegates to the service.
  */
 
-import type { FileAssetUploadInput } from "@cermont/shared-types";
+import { FileAssetListQuerySchema, FileAssetUploadInputSchema } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import {
 	sendCreated,
@@ -43,11 +43,10 @@ export const upload = async (req: Request, res: Response): Promise<void> => {
 
 	const user = requireUser(req);
 	const headerIdempotencyKey = req.get("Idempotency-Key");
-	const bodyInput = req.body as FileAssetUploadInput;
-	const input: FileAssetUploadInput = {
-		...bodyInput,
-		offlineLocalId: bodyInput.offlineLocalId ?? headerIdempotencyKey,
-	};
+	const input = FileAssetUploadInputSchema.parse({
+		...req.body,
+		offlineLocalId: req.body.offlineLocalId ?? headerIdempotencyKey,
+	});
 
 	const result = await createFileAssetFromUpload(input, req.file, String(user._id), user.email);
 
@@ -90,6 +89,11 @@ export const getById = async (req: Request, res: Response): Promise<void> => {
 		tags: doc.tags,
 		offlineLocalId: doc.offlineLocalId,
 		syncStatus: doc.syncStatus,
+		kind: doc.kind,
+		source: doc.source,
+		status: doc.status,
+		isPrimary: doc.isPrimary,
+		metadata: doc.metadata instanceof Map ? Object.fromEntries(doc.metadata) : (doc.metadata ?? {}),
 	});
 };
 
@@ -108,7 +112,8 @@ export const getContent = async (req: Request, res: Response): Promise<void> => 
 		return;
 	}
 
-	const content = await resolveFileAssetContent(id);
+	const user = requireUser(req);
+	const content = await resolveFileAssetContent(id, String(user._id));
 	const safeDownloadName = content.downloadName.replace(/["\r\n]/g, "");
 	res.type(content.mimeType);
 	res.setHeader("Content-Disposition", `inline; filename="${safeDownloadName}"`);
@@ -129,28 +134,8 @@ export const getContent = async (req: Request, res: Response): Promise<void> => 
  * List FileAssets owned by a specific entity.
  */
 export const listByEntity = async (req: Request, res: Response): Promise<void> => {
-	const entityType = String(req.query.entityType ?? "");
-	const entityId = String(req.query.entityId ?? "");
-	const category = req.query.category ? String(req.query.category) : undefined;
-	const includeDeleted = req.query.includeDeleted === "true";
-
-	if (!entityType || !entityId) {
-		res.status(400).json({
-			success: false,
-			error: {
-				code: "BAD_REQUEST",
-				message: "Both 'entityType' and 'entityId' query parameters are required",
-			},
-		});
-		return;
-	}
-
-	const docs = await listFileAssetsByEntity({
-		entityType,
-		entityId,
-		category,
-		includeDeleted,
-	} as Parameters<typeof listFileAssetsByEntity>[0]);
+	const query = FileAssetListQuerySchema.parse(req.query);
+	const docs = await listFileAssetsByEntity(query);
 	return sendSuccess(
 		res,
 		docs.map((doc) => ({
@@ -172,6 +157,12 @@ export const listByEntity = async (req: Request, res: Response): Promise<void> =
 			tags: doc.tags,
 			offlineLocalId: doc.offlineLocalId,
 			syncStatus: doc.syncStatus,
+			kind: doc.kind,
+			source: doc.source,
+			status: doc.status,
+			isPrimary: doc.isPrimary,
+			metadata:
+				doc.metadata instanceof Map ? Object.fromEntries(doc.metadata) : (doc.metadata ?? {}),
 		})),
 	);
 };

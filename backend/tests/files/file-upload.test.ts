@@ -12,6 +12,10 @@ const mocks = vi.hoisted(() => ({
 	resourceUpdateOne: vi.fn(),
 	vehicleExists: vi.fn(),
 	vehicleUpdateOne: vi.fn(),
+	orderExists: vi.fn(),
+	orderUpdateOne: vi.fn(),
+	checklistExists: vi.fn(),
+	checklistUpdateOne: vi.fn(),
 }));
 
 vi.mock("../../src/models/FileAsset", () => ({
@@ -33,6 +37,20 @@ vi.mock("../../src/models/Vehicle", () => ({
 	VehicleModel: {
 		exists: mocks.vehicleExists,
 		updateOne: mocks.vehicleUpdateOne,
+	},
+}));
+
+vi.mock("../../src/models/Order", () => ({
+	Order: {
+		exists: mocks.orderExists,
+		updateOne: mocks.orderUpdateOne,
+	},
+}));
+
+vi.mock("../../src/models/Checklist", () => ({
+	Checklist: {
+		exists: mocks.checklistExists,
+		updateOne: mocks.checklistUpdateOne,
 	},
 }));
 
@@ -182,6 +200,97 @@ describe("files.service", () => {
 		);
 	});
 
+	it("rejects a MIME type outside the canonical allowlist", async () => {
+		const file = { ...makeUploadedFile(), mimetype: "text/html" };
+
+		await expect(
+			createFileAssetFromUpload(
+				{
+					category: "evidence_photo",
+					entityType: "evidence",
+					entityId: new Types.ObjectId().toString(),
+				},
+				file,
+				new Types.ObjectId().toString(),
+			),
+		).rejects.toMatchObject({ code: "INVALID_FILE_TYPE" });
+	});
+
+	it("supports work-order and checklist-execution parent adapters", async () => {
+		const userId = new Types.ObjectId();
+		mocks.fileAssetFindOne.mockResolvedValue(false);
+		mocks.fileAssetCreate.mockImplementation(async (input) => ({
+			...input,
+			_id: new Types.ObjectId(),
+			uploadedAt: new Date("2026-06-29T12:00:00.000Z"),
+		}));
+		mocks.auditCreate.mockResolvedValue({ id: "audit-parent-adapter" });
+		mocks.orderExists.mockResolvedValue(true);
+		mocks.checklistExists.mockResolvedValue(true);
+
+		const workOrderId = new Types.ObjectId();
+		await createFileAssetFromUpload(
+			{
+				category: "signed_document",
+				entityType: "work_order",
+				entityId: workOrderId.toString(),
+			},
+			{ ...makeUploadedFile(), mimetype: "application/pdf", originalname: "permit.pdf" },
+			userId.toString(),
+		);
+		expect(mocks.orderUpdateOne).toHaveBeenCalledWith(
+			{ _id: workOrderId },
+			{ $push: { fileAssets: expect.objectContaining({ entityType: "work_order" }) } },
+		);
+
+		const checklistId = new Types.ObjectId();
+		await createFileAssetFromUpload(
+			{
+				category: "checklist_evidence",
+				entityType: "checklist_execution",
+				entityId: checklistId.toString(),
+			},
+			makeUploadedFile(),
+			userId.toString(),
+		);
+		expect(mocks.checklistUpdateOne).toHaveBeenCalledWith(
+			{ _id: checklistId },
+			{ $push: { fileAssets: expect.objectContaining({ entityType: "checklist_execution" }) } },
+		);
+	});
+
+	it("scopes offline idempotency to owner, entity and uploader", async () => {
+		const entityId = new Types.ObjectId();
+		const userId = new Types.ObjectId();
+		mocks.vehicleExists.mockResolvedValue(true);
+		mocks.fileAssetFindOne.mockResolvedValue(false);
+		mocks.fileAssetCreate.mockImplementation(async (input) => ({
+			...input,
+			_id: new Types.ObjectId(),
+			uploadedAt: new Date("2026-06-29T12:00:00.000Z"),
+		}));
+
+		await createFileAssetFromUpload(
+			{
+				category: "vehicle_image",
+				entityType: "vehicle",
+				entityId: entityId.toString(),
+				offlineLocalId: "offline-shared-name",
+			},
+			makeUploadedFile(),
+			userId.toString(),
+		);
+
+		expect(mocks.fileAssetFindOne).toHaveBeenCalledWith(
+			expect.objectContaining({
+				offlineLocalId: "offline-shared-name",
+				entityType: "vehicle",
+				entityId,
+				uploadedBy: userId,
+			}),
+		);
+	});
+
 	it("resolves authorized content from private storage metadata", async () => {
 		const { resolveFileAssetContent } = await import("../../src/modules/files/files.service");
 		const entityId = new Types.ObjectId();
@@ -197,7 +306,9 @@ describe("files.service", () => {
 			deletedAt: null,
 		});
 
-		const content = await resolveFileAssetContent("file-content-1");
+		mocks.auditCreate.mockResolvedValue({ id: "audit-download" });
+		const userId = new Types.ObjectId().toString();
+		const content = await resolveFileAssetContent("file-content-1", userId);
 
 		expect(content.absolutePath.endsWith(storedName)).toBe(true);
 		expect(content.mimeType).toBe("image/jpeg");
@@ -206,5 +317,13 @@ describe("files.service", () => {
 			id: "file-content-1",
 			deletedAt: null,
 		});
+		expect(mocks.auditCreate).toHaveBeenCalledWith(
+			expect.objectContaining({
+				action: "FILE_ASSET_DOWNLOADED",
+				entity: "FileAsset",
+				userId,
+				entityId: "file-content-1",
+			}),
+		);
 	});
 });

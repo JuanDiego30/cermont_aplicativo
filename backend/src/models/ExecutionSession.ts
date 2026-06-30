@@ -3,6 +3,7 @@ import {
 	ExecutionSessionStatusSchema,
 } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 const gpsPointSchema = new Schema(
 	{
@@ -224,6 +225,7 @@ export interface ExecutionSessionDocument extends Document {
 	evidenceIds: Types.ObjectId[];
 	evidences: ExecutionRecord[];
 	documentImportIds: Types.ObjectId[];
+	fileAssets: FileAssetRef[];
 	gpsPoints: ExecutionRecord[];
 	offlineSyncStatus: string;
 	lastSyncedAt?: Date;
@@ -268,6 +270,7 @@ const executionSessionSchema = new Schema<ExecutionSessionDocument>(
 		evidenceIds: [{ type: Types.ObjectId, ref: "Evidence" }],
 		evidences: { type: [evidenceReferenceSchema], default: [] },
 		documentImportIds: [{ type: Types.ObjectId, ref: "DocumentImport" }],
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 		gpsPoints: { type: [gpsPointSchema], default: [] },
 		offlineSyncStatus: {
 			type: String,

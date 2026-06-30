@@ -3,6 +3,13 @@
  * Server component — sin interactividad
  */
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Política de privacidad",
+	description: "Tratamiento, retención y protección de datos personales y operativos en Cermont.",
+};
+
 const LAST_UPDATED_LABEL = "27 de junio de 2026";
 
 export default function PrivacyPage() {

@@ -55,6 +55,7 @@ describe("DocumentGallery", () => {
 	});
 
 	test("marks protected closeout documents and turns delete into retention-aware removal", () => {
+		const consoleError = vi.spyOn(console, "error").mockImplementation(() => void 0);
 		render(
 			<DocumentGallery
 				documents={[
@@ -87,6 +88,8 @@ describe("DocumentGallery", () => {
 			{ id: "doc-1", reason: "depurado por version final" },
 			expect.objectContaining({ onSettled: expect.any(Function) }),
 		);
+		expect(consoleError).not.toHaveBeenCalled();
+		consoleError.mockRestore();
 	});
 
 	test("shows archived retention metadata and hides destructive controls", () => {

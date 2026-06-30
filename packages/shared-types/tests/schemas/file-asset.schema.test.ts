@@ -14,6 +14,7 @@ import {
 	FileAssetEntityType,
 	FileAssetRefSchema,
 	FileAssetSyncStatus,
+	FileAssetUploadInputFormSchema,
 	FileAssetUploadInputSchema,
 	FileAssetUploadResponseSchema,
 } from "../../src/schemas/file-asset.schema";
@@ -39,6 +40,11 @@ const validRef = {
 	tags: ["mantenimiento", "electrico"],
 	offlineLocalId: "local_abc123",
 	syncStatus: "synced",
+	kind: "image",
+	source: "upload",
+	status: "active",
+	isPrimary: true,
+	metadata: { workflowPhase: "planning", sequence: 1 },
 };
 
 describe("FileAsset contract", () => {
@@ -126,6 +132,21 @@ describe("FileAsset contract", () => {
 		});
 	});
 
+	describe("FileAssetUploadInputFormSchema", () => {
+		it("parses false primary flags and scalar metadata from multipart strings", () => {
+			const parsed = FileAssetUploadInputFormSchema.parse({
+				category: "vehicle_image",
+				entityType: "vehicle",
+				entityId: "507f1f77bcf86cd799439011",
+				isPrimary: "false",
+				metadata: '{"angle":"front","sequence":1}',
+			});
+
+			expect(parsed.isPrimary).toBe(false);
+			expect(parsed.metadata).toEqual({ angle: "front", sequence: 1 });
+		});
+	});
+
 	describe("FileAssetUploadResponseSchema", () => {
 		it("wraps a FileAssetRef in the standard success envelope", () => {
 			const response = {
@@ -186,6 +207,20 @@ describe("FileAsset contract", () => {
 			expect(values).toContain("evidence");
 			expect(values).toContain("delivery_record");
 			expect(values).toContain("technical_report");
+			expect(values).toEqual(
+				expect.arrayContaining([
+					"vehicle",
+					"tool",
+					"evidence",
+					"document",
+					"work_order",
+					"service_case",
+					"execution_session",
+					"checklist_execution",
+					"checklist_item",
+					"report",
+				]),
+			);
 		});
 	});
 

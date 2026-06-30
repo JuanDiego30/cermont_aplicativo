@@ -1,5 +1,6 @@
 import { type Document as MongooseDocument, model, Schema, type Types } from "mongoose";
 import { softDeletePlugin } from "./plugins/soft-delete";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Document Model — Per DOC-09 §7 (Diccionario de Datos)
@@ -84,6 +85,7 @@ export interface IDocument extends MongooseDocument {
 		createdBy: Types.ObjectId;
 		createdAt: Date;
 	}>;
+	fileAssets: FileAssetRef[];
 }
 
 const documentAssociationSchema = new Schema(
@@ -206,6 +208,7 @@ const documentSchema = new Schema<IDocument>(
 			type: [documentAssociationSchema],
 			default: [],
 		},
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 	},
 	{
 		timestamps: true,

@@ -109,4 +109,12 @@ describe("HTTP security hardening", () => {
 		expect(response.headers["x-frame-options"]).toBe("DENY");
 		expect(response.headers["referrer-policy"]).toBe("no-referrer");
 	});
+
+	it("accepts a profile-sized JSON payload without returning 413", async () => {
+		const response = await request(app)
+			.post("/api/health")
+			.send({ avatarUrl: `data:image/png;base64,${"a".repeat(128 * 1024)}` });
+
+		expect(response.status).toBe(404);
+	});
 });

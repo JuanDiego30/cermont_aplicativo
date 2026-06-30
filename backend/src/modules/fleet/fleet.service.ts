@@ -195,11 +195,15 @@ export async function getExpiringDocuments(daysAhead = 30): Promise<VehicleDocum
 		];
 		for (const doc of documents) {
 			if (doc.expiresAt && doc.expiresAt <= limitDate) {
+				const daysUntilExpiry = Math.ceil(
+					(doc.expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000),
+				);
 				alerts.push({
 					vehicleId: vehicle._id.toString(),
 					plate: vehicle.plate,
 					documentType: doc.documentType,
 					expiresAt: doc.expiresAt.toISOString(),
+					daysUntilExpiry,
 					expired: doc.expiresAt < now,
 				});
 			}

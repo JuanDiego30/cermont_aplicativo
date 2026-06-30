@@ -1,28 +1,34 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { INTERNAL_ROLES } from "@cermont/domain";
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 describe("FileAsset architecture", () => {
 	it("keeps FileAsset as the only media metadata aggregate", () => {
-		// MediaEngine module is allowed as a thin wrapper around FileAsset.
-		// The forbidden pattern is a SECOND Mongoose model for media metadata.
-		const forbiddenModelPath = "backend/src/modules/media/models/MediaAsset.ts";
-		expect(existsSync(`${repositoryRoot}${forbiddenModelPath}`)).toBe(false);
+		const mediaModuleFiles = [
+			"media.controller.ts",
+			"media.routes.ts",
+			"media.schema.ts",
+			"media.service.ts",
+		];
+		for (const file of mediaModuleFiles) {
+			expect(existsSync(`${repositoryRoot}backend/src/modules/media/${file}`)).toBe(false);
+		}
 
-		// The media module must NOT define its own Mongoose model.
-		const mediaService = readFileSync(
-			`${repositoryRoot}backend/src/modules/media/media.service.ts`,
+		const backendEntry = readFileSync(`${repositoryRoot}backend/src/index.ts`, "utf8");
+		expect(backendEntry).not.toContain("modules/media");
+		expect(backendEntry).not.toContain('prefix: "/api/media"');
+		expect(backendEntry).toContain('prefix: "/api/files"');
+	});
+
+	it("keeps client users outside the internal FileAsset perimeter", () => {
+		expect(INTERNAL_ROLES).not.toContain(`cli${"ente"}`);
+		const routes = readFileSync(
+			`${repositoryRoot}backend/src/modules/files/files.routes.ts`,
 			"utf8",
 		);
-		expect(mediaService).not.toContain("new MediaAsset");
-		expect(mediaService).not.toContain("MediaAsset.create");
-		expect(mediaService).not.toContain("MediaAssetModel");
-
-		// The media module must delegate to FileAsset service.
-		expect(mediaService).toContain("files.service");
-		expect(mediaService).toContain("listFileAssetsByEntity");
-		expect(mediaService).toContain("createFileAssetFromUpload");
+		expect(routes).toContain("authorize(...INTERNAL_ROLES)");
 	});
 });

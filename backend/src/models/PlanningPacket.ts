@@ -1,5 +1,6 @@
 import { PlanningPacketStatusSchema } from "@cermont/shared-types";
 import mongoose from "mongoose";
+import { FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 const PlanningResourceLineSchema = new mongoose.Schema(
 	{
@@ -336,6 +337,7 @@ const PlanningPacketSchema = new mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 	},
 	{
 		timestamps: true,
