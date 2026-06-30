@@ -49,13 +49,20 @@ const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
 	step_04_purchase_order: "purchase_order",
 	step_05_planning: "planning",
 	step_06_execution: "execution",
+	step_08_technical_report: "technical_report",
+	step_09_delivery_record: "delivery_record",
+	step_10_client_signature: "client_signature",
+	step_11_ses: "ses",
+	step_12_invoice: "invoice",
+	step_13_invoice_approval: "invoice_approval",
+	step_14_payment: "payment",
+	// Legacy aliases for backward compatibility
 	step_07_technical_report: "technical_report",
 	step_08_delivery_record: "delivery_record",
 	step_09_client_signature: "client_signature",
 	step_10_ses_submission: "ses",
-	step_11_ses_approval: "ses_approved",
+	step_11_ses_approval: "ses",
 	step_12_invoice_submission: "invoice",
-	step_13_invoice_approval: "invoice_approval",
 	step_14_payment_closure: "payment",
 };
 

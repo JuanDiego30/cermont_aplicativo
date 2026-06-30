@@ -180,7 +180,13 @@ function resolveTemplateFlags(draft: ITemplateDraftDocument) {
 
 function buildDefaultPermissions(targetStepCode: string | undefined): TemplatePermission[] {
 	const step = CERMONT_OPERATIONAL_STEPS.find((current) => current.code === targetStepCode);
-	const allowedRoles = step?.allowedRoles || ["gerente", "residente", "administrativo"];
+	const allowedRoles: TemplatePermission["role"][] = (
+		step?.allowedRoles || ["gerente", "residente", "administrativo"]
+	).filter((r): r is TemplatePermission["role"] =>
+		(["gerente", "residente", "hes", "supervisor", "operador", "tecnico", "administrativo", "cliente"] as const).includes(
+			r as TemplatePermission["role"],
+		),
+	);
 
 	return allowedRoles.map((role) => ({
 		role,

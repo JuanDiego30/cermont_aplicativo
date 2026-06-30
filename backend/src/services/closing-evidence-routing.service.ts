@@ -76,19 +76,19 @@ export function mapClassificationToStepCode(
 ): CermontOperationalStepCode | undefined {
 	switch (classification) {
 		case "acta_delivery":
-			return "step_08_delivery_record";
+			return "step_09_delivery_record";
 		case "client_signature":
-			return "step_09_client_signature";
+			return "step_10_client_signature";
 		case "ses_filing":
-			return "step_10_ses_submission";
+			return "step_11_ses";
 		case "ses_approval":
-			return "step_11_ses_approval";
+			return "step_11_ses";
 		case "invoice_sent":
-			return "step_12_invoice_submission";
+			return "step_12_invoice";
 		case "invoice_approval":
 			return "step_13_invoice_approval";
 		case "payment_support":
-			return "step_14_payment_closure";
+			return "step_14_payment";
 		default:
 			return undefined;
 	}
@@ -98,19 +98,17 @@ function mapStepCodeToClassification(
 	stepCode: CermontOperationalStepCode,
 ): ClosingEvidenceClassification | undefined {
 	switch (stepCode) {
-		case "step_08_delivery_record":
+		case "step_09_delivery_record":
 			return "acta_delivery";
-		case "step_09_client_signature":
+		case "step_10_client_signature":
 			return "client_signature";
-		case "step_10_ses_submission":
+		case "step_11_ses":
 			return "ses_filing";
-		case "step_11_ses_approval":
-			return "ses_approval";
-		case "step_12_invoice_submission":
+		case "step_12_invoice":
 			return "invoice_sent";
 		case "step_13_invoice_approval":
 			return "invoice_approval";
-		case "step_14_payment_closure":
+		case "step_14_payment":
 			return "payment_support";
 		default:
 			return undefined;

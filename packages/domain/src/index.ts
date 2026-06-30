@@ -22,6 +22,14 @@ export {
 	BILLING_STEP_LABELS,
 	getNextBillingAction,
 } from "./billing.rules";
+export type {
+	ChecklistBlockerCode,
+	ChecklistItemResult,
+	ChecklistReadiness,
+	ChecklistReadinessBlocker,
+	ChecklistReadinessItem,
+} from "./checklist.rules";
+export { evaluateChecklistReadiness } from "./checklist.rules";
 export type { ClosureBlocker, ServiceCaseClosureContext } from "./closure.rules";
 // ─── Closure Rules ──────────────────────────────────────────────────────────
 export {
@@ -31,12 +39,20 @@ export {
 	canDeleteServiceCase,
 	canRegisterPayment,
 } from "./closure.rules";
-export type { CostEntry } from "./cost.rules";
+export type {
+	CostBudgetAssessment,
+	CostBudgetRisk,
+	CostBudgetValue,
+	CostEntry,
+	CostProfitability,
+} from "./cost.rules";
 // ─── Cost Rules ─────────────────────────────────────────────────────────────
 export {
 	COST_REQUIRED_FIELDS,
+	calculateGrossMargin,
 	calculateMargin,
 	calculateVariance,
+	evaluateCostBudgetRisk,
 	formatCostValue,
 	isCostMissing,
 } from "./cost.rules";
@@ -94,14 +110,20 @@ export {
 } from "./kit.rules";
 // ─── Operational Steps ──────────────────────────────────────────────────────
 export type {
+	CanonicalOperationalStepCode,
+	LegacyOperationalStepCode,
 	OperationalStep,
+	OperationalStepCodeNormalization,
 	OperationalStepKey,
 	OperationalStepStatus,
 } from "./operational-steps";
 export {
 	CANONICAL_CODES,
 	getNextStep,
+	getOperationalStepCodeAliases,
 	isValidStepKey,
+	LEGACY_OPERATIONAL_STEP_CODES,
+	normalizeOperationalStepCode,
 	OPERATIONAL_STEPS,
 	STEP_BY_KEY,
 	STEP_KEYS,

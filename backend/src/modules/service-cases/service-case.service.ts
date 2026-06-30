@@ -430,26 +430,25 @@ function buildSmartNextActionRoute(
 			: a.workOrderId
 				? `/execution/new?${sc}&workOrderId=${a.workOrderId}`
 				: `/execution/new?${sc}`,
-		step_07_technical_report: a.technicalReportId
+		step_08_technical_report: a.technicalReportId
 			? `/reports/${a.technicalReportId}`
 			: a.executionSessionId
 				? `/reports/new?executionSessionId=${a.executionSessionId}&${sc}`
 				: `/reports/new?${sc}`,
-		step_08_delivery_record: a.deliveryRecordId
+		step_09_delivery_record: a.deliveryRecordId
 			? `/delivery-records/${a.deliveryRecordId}`
 			: a.technicalReportId
 				? `/delivery-records/new?technicalReportId=${a.technicalReportId}&${sc}`
 				: `/delivery-records/new?${sc}`,
-		step_09_client_signature: a.deliveryRecordId
+		step_10_client_signature: a.deliveryRecordId
 			? `/delivery-records/${a.deliveryRecordId}`
 			: `/delivery-records?${sc}`,
-		step_10_ses_submission: a.sesId
+		step_11_ses: a.sesId
 			? `/billing/ses/${a.sesId}`
 			: a.deliveryRecordId
 				? `/billing/ses/new?deliveryRecordId=${a.deliveryRecordId}&${sc}`
 				: `/billing/ses/new?${sc}`,
-		step_11_ses_approval: a.sesId ? `/billing/ses/${a.sesId}/approve` : `/billing/ses?${sc}`,
-		step_12_invoice_submission: a.invoiceId
+		step_12_invoice: a.invoiceId
 			? `/billing/invoices/${a.invoiceId}`
 			: a.sesId
 				? `/billing/invoices/new?sesId=${a.sesId}&${sc}`
@@ -457,7 +456,7 @@ function buildSmartNextActionRoute(
 		step_13_invoice_approval: a.invoiceId
 			? `/billing/invoices/${a.invoiceId}/approve`
 			: `/billing/invoices?${sc}`,
-		step_14_payment_closure: a.paymentId
+		step_14_payment: a.paymentId
 			? `/payments/${a.paymentId}`
 			: a.invoiceId
 				? `/payments/new?invoiceId=${a.invoiceId}&${sc}`
@@ -1400,13 +1399,20 @@ const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
 	step_04_purchase_order: "purchase_order",
 	step_05_planning: "planning",
 	step_06_execution: "execution",
+	step_08_technical_report: "technical_report",
+	step_09_delivery_record: "delivery_record",
+	step_10_client_signature: "client_signature",
+	step_11_ses: "ses",
+	step_12_invoice: "invoice",
+	step_13_invoice_approval: "invoice_approval",
+	step_14_payment: "payment",
+	// Legacy aliases for backward compatibility
 	step_07_technical_report: "technical_report",
 	step_08_delivery_record: "delivery_record",
 	step_09_client_signature: "client_signature",
 	step_10_ses_submission: "ses",
-	step_11_ses_approval: "ses_approved",
+	step_11_ses_approval: "ses",
 	step_12_invoice_submission: "invoice",
-	step_13_invoice_approval: "invoice_approval",
 	step_14_payment_closure: "payment",
 };
 
@@ -1417,15 +1423,15 @@ const DOMAIN_STATE_TO_DB_STEP: Record<string, string> = {
 	purchase_order: "step_04_purchase_order",
 	planning: "step_05_planning",
 	execution: "step_06_execution",
-	technical_report: "step_07_technical_report",
-	delivery_record: "step_08_delivery_record",
-	client_signature: "step_09_client_signature",
-	ses: "step_10_ses_submission",
-	ses_approved: "step_11_ses_approval",
-	invoice: "step_12_invoice_submission",
+	technical_report: "step_08_technical_report",
+	delivery_record: "step_09_delivery_record",
+	client_signature: "step_10_client_signature",
+	ses: "step_11_ses",
+	ses_approved: "step_11_ses",
+	invoice: "step_12_invoice",
 	invoice_approval: "step_13_invoice_approval",
-	payment: "step_14_payment_closure",
-	closed: "step_14_payment_closure",
+	payment: "step_14_payment",
+	closed: "step_14_payment",
 };
 
 function dbStepToDomainState(dbStep: string): ServiceCaseState {

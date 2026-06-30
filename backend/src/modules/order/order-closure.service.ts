@@ -24,20 +24,20 @@ const CLOSURE_REQUIREMENT_DEFINITIONS: Array<{
 	label: string;
 	stepCode: ClosureRequirement["stepCode"];
 }> = [
-	{ kind: "acta_delivery", label: "Acta de entrega", stepCode: "step_08_delivery_record" },
-	{ kind: "client_signature", label: "Firma del cliente", stepCode: "step_09_client_signature" },
-	{ kind: "ses_filing", label: "Radicación SES", stepCode: "step_10_ses_submission" },
-	{ kind: "ses_approval", label: "Aprobación SES", stepCode: "step_11_ses_approval" },
+	{ kind: "acta_delivery", label: "Acta de entrega", stepCode: "step_09_delivery_record" },
+	{ kind: "client_signature", label: "Firma del cliente", stepCode: "step_10_client_signature" },
+	{ kind: "ses_filing", label: "Radicación SES", stepCode: "step_11_ses" },
+	{ kind: "ses_approval", label: "Aprobación SES", stepCode: "step_11_ses" },
 	{
 		kind: "invoice_sent",
 		label: "Factura emitida / enviada",
-		stepCode: "step_12_invoice_submission",
+		stepCode: "step_12_invoice",
 	},
 	{ kind: "invoice_approval", label: "Factura aprobada", stepCode: "step_13_invoice_approval" },
 	{
 		kind: "payment_support",
 		label: "Soporte de pago y conciliación",
-		stepCode: "step_14_payment_closure",
+		stepCode: "step_14_payment",
 	},
 ];
 
@@ -219,13 +219,13 @@ async function loadClosureEntities(
 				linkedEntityId: { $in: linkedEntityIds },
 				targetStepCode: {
 					$in: [
-						"step_08_delivery_record",
-						"step_09_client_signature",
-						"step_10_ses_submission",
-						"step_11_ses_approval",
-						"step_12_invoice_submission",
+						"step_09_delivery_record",
+						"step_10_client_signature",
+						"step_11_ses",
+						"step_11_ses",
+						"step_12_invoice",
 						"step_13_invoice_approval",
-						"step_14_payment_closure",
+						"step_14_payment",
 					],
 				},
 			}),
@@ -287,7 +287,7 @@ export async function getConsolidatedReport(
 					signatureType: normalizeSignatureType(deliveryRecord.signatureMethod),
 					signatureDocumentUrl:
 						deliveryRecord.signedDocumentRef ||
-						closingDocs.find((d) => d.targetStepCode === "step_09_client_signature")?.file_url,
+						closingDocs.find((d) => d.targetStepCode === "step_10_client_signature")?.file_url,
 				}
 			: undefined,
 
@@ -301,7 +301,7 @@ export async function getConsolidatedReport(
 					sesApprovedBy: ses.approvedBy?.toString(),
 					sesStatus: normalizeSesStatus(ses.status),
 					sesNotes: ses.description,
-					supportDocumentUrl: closingDocs.find((d) => d.targetStepCode === "step_10_ses_submission")
+					supportDocumentUrl: closingDocs.find((d) => d.targetStepCode === "step_11_ses")
 						?.file_url,
 				}
 			: undefined,
@@ -318,7 +318,7 @@ export async function getConsolidatedReport(
 					invoiceApprovedBy: invoice.acceptedBy?.toString(),
 					invoiceDocumentUrl:
 						invoice.attachments?.[0]?.url ||
-						closingDocs.find((d) => d.targetStepCode === "step_12_invoice_submission")?.file_url,
+						closingDocs.find((d) => d.targetStepCode === "step_12_invoice")?.file_url,
 				}
 			: undefined,
 
@@ -331,7 +331,7 @@ export async function getConsolidatedReport(
 					paymentConfirmedBy: payment.recordedBy.toString(),
 					paymentSupportUrl:
 						payment.supportingDocumentUrl ||
-						closingDocs.find((d) => d.targetStepCode === "step_14_payment_closure")?.file_url,
+						closingDocs.find((d) => d.targetStepCode === "step_14_payment")?.file_url,
 				}
 			: undefined,
 		requirements,

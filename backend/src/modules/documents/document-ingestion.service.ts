@@ -253,14 +253,14 @@ function mapStepCodeToTargetStage(stepCode: CermontOperationalStepCode | undefin
 		step_04_purchase_order: "purchase_order",
 		step_05_planning: "planning",
 		step_06_execution: "execution",
-		step_07_technical_report: "technical_report",
-		step_08_delivery_record: "delivery_record",
-		step_09_client_signature: "delivery_record",
-		step_10_ses_submission: "service_entry_sheet",
-		step_11_ses_approval: "service_entry_sheet",
-		step_12_invoice_submission: "invoice",
+		step_07_evidence: "evidence",
+		step_08_technical_report: "technical_report",
+		step_09_delivery_record: "delivery_record",
+		step_10_client_signature: "delivery_record",
+		step_11_ses: "service_entry_sheet",
+		step_12_invoice: "invoice",
 		step_13_invoice_approval: "invoice",
-		step_14_payment_closure: "payment",
+		step_14_payment: "payment",
 	};
 
 	return [stageMap[stepCode]];
@@ -361,8 +361,8 @@ function buildDraftSections(
 	}
 
 	if (
-		targetStepCode === "step_08_delivery_record" ||
-		targetStepCode === "step_09_client_signature"
+		targetStepCode === "step_09_delivery_record" ||
+		targetStepCode === "step_10_client_signature"
 	) {
 		return [
 			{
@@ -605,7 +605,7 @@ function detectBasicFields(title: string, targetStepCode?: CermontOperationalSte
 			"firma_tecnico",
 			"firma_supervisor",
 		],
-		step_07_technical_report: [
+		step_08_technical_report: [
 			"objetivo",
 			"alcance",
 			"hallazgos",
@@ -613,22 +613,23 @@ function detectBasicFields(title: string, targetStepCode?: CermontOperationalSte
 			"observaciones",
 			"firma_residente",
 		],
-		step_08_delivery_record: [
+		step_09_delivery_record: [
 			"cliente",
 			"descripcion_entrega",
 			"fecha_entrega",
 			"observaciones_cliente",
 			"firma_tecnico",
 		],
-		step_09_client_signature: ["cliente", "fecha_firma", "aceptacion_cliente", "firma_cliente"],
-		step_10_ses_submission: [
+		step_10_client_signature: ["cliente", "fecha_firma", "aceptacion_cliente", "firma_cliente"],
+		step_11_ses: [
 			"ses_numero",
 			"fecha_radicacion",
 			"responsable_radicacion",
+			"fecha_aprobacion",
+			"aprobado_por",
 			"observaciones",
 		],
-		step_11_ses_approval: ["ses_numero", "fecha_aprobacion", "aprobado_por", "observaciones"],
-		step_12_invoice_submission: [
+		step_12_invoice: [
 			"numero_factura",
 			"fecha_emision",
 			"valor_factura",
@@ -641,7 +642,7 @@ function detectBasicFields(title: string, targetStepCode?: CermontOperationalSte
 			"aprobado_por",
 			"observaciones",
 		],
-		step_14_payment_closure: [
+		step_14_payment: [
 			"referencia_pago",
 			"fecha_pago",
 			"valor_pago",
