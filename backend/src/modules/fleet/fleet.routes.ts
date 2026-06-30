@@ -102,4 +102,28 @@ router.patch(
 	FleetController.updateVehicle,
 );
 
+// POST /api/fleet/:id/checkin — assign driver to vehicle
+router.post(
+	"/:id/checkin",
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	FleetController.checkinVehicle,
+);
+
+// POST /api/fleet/:id/checkout — unassign driver from vehicle
+router.post(
+	"/:id/checkout",
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	FleetController.checkoutVehicle,
+);
+
+// GET /api/fleet/:id/assignments — vehicle assignment history
+router.get(
+	"/:id/assignments",
+	authorize(...INTERNAL_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	FleetController.getAssignmentHistory,
+);
+
 export default router;
