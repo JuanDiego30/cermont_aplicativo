@@ -3,7 +3,7 @@
  * DOC-10 §5: Evidencias
  */
 
-import { INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+import { EVIDENCE_ACCESS_ROLES, INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
 import {
 	CreateEvidenceSchema,
 	EvidenceIdSchema,
@@ -112,6 +112,30 @@ router.post(
 	authorize(...INTERNAL_ROLES),
 	validateParams(EvidenceIdSchema),
 	EvidenceController.viewEvidence,
+);
+
+// GET /api/evidences/order/:orderId/gallery — evidence gallery grouped by status
+// Roles: Todos
+router.get(
+	"/order/:orderId/gallery",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(EvidenceOrderIdParamsSchema),
+	EvidenceController.getEvidenceGallery,
+);
+
+// POST /api/evidences/:id/replace — replace rejected evidence
+// Roles: OPE, TEC, SUP
+router.post(
+	"/:id/replace",
+	authenticate,
+	authorize(...EVIDENCE_ACCESS_ROLES),
+	uploadLimiter,
+	evidenceUpload.single("file"),
+	handleUploadError,
+	validateUploadedFileHeaders,
+	validateParams(EvidenceIdSchema),
+	EvidenceController.replaceEvidence,
 );
 
 export default router;

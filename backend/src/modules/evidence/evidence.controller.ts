@@ -3,6 +3,7 @@
  * NO try/catch — Express 5 native
  */
 
+import type { EvidencePhase } from "@cermont/shared-types";
 import {
 	CreateEvidenceSchema,
 	EvidenceIdSchema,
@@ -117,6 +118,11 @@ export async function uploadEvidence(req: Request, res: Response): Promise<void>
 		{
 			title,
 			description,
+			phase: (type === "defect" || type === "safety" || type === "signature"
+				? "during"
+				: type) as EvidencePhase,
+			source: "upload",
+			relationType: "order",
 			gpsLocation: normalizedGpsLocation,
 			capturedAt: new Date(capturedAt),
 		},
@@ -178,6 +184,28 @@ export async function viewEvidence(req: Request, res: Response): Promise<void> {
 	const user = requireUser(req);
 
 	const result = await EvidenceService.trackView(id, user);
+
+	res.status(200).json({ success: true, data: result });
+}
+
+export async function getEvidenceGallery(req: Request, res: Response): Promise<void> {
+	const { orderId } = req.params as { orderId: string };
+	const user = requireUser(req);
+
+	const gallery = await EvidenceService.getEvidenceGallery(orderId, user);
+
+	res.status(200).json({ success: true, data: gallery });
+}
+
+export async function replaceEvidence(req: Request, res: Response): Promise<void> {
+	if (!req.file) {
+		throw new BadRequestError("No file uploaded");
+	}
+	const { id } = EvidenceIdSchema.parse(req.params);
+	const user = requireUser(req);
+	const comment = typeof req.body.comment === "string" ? req.body.comment : undefined;
+
+	const result = await EvidenceService.replaceEvidence(id, req.file.buffer, user._id, comment);
 
 	res.status(200).json({ success: true, data: result });
 }
