@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:451daecd5e54a0cefe649c5ee8378d6c9896b42b0e3b404089dc0453c571922b",
+	"currentSnapshotHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c",
 	"migrations": [
 		{
 			"id": "050-business-document-erp-connector-schemas",
@@ -399,6 +399,27 @@
 			"type": "non-breaking",
 			"description": "Extend FileAsset ownership, lifecycle metadata, audited downloads, and canonical list query contracts while retiring the duplicate media API.",
 			"toHash": "sha256:451daecd5e54a0cefe649c5ee8378d6c9896b42b0e3b404089dc0453c571922b"
+		},
+		{
+			"id": "056-checklist-blocking-fsm-fields",
+			"date": "2026-06-29",
+			"type": "non-breaking",
+			"description": "Add isBlocking, requiresPhoto, requiresSignature fields to ChecklistItemSchema. Add fsmStatus, rejectionReason, replacedBy, replaces fields to EvidenceSchema for evidence FSM workflow (captured→uploaded→verification_pending→verified|rejected→replaced).",
+			"toHash": "sha256:d0812032793d0fc1d2bc0ae2704c51ad939b7709ca8b952d11ad730a786d8faa"
+		},
+		{
+			"id": "057-spec-009-snapshot-format-fix",
+			"date": "2026-06-29",
+			"type": "non-breaking",
+			"description": "Regenerate contract snapshot after Biome lint formatting fix and Fleet/Tool/Evidence/Checklist schema extensions.",
+			"toHash": "sha256:5a303f4bdafc96f8064cdb9d29b30ace92c6b82f15134fb3d13350621a09ab67"
+		},
+		{
+			"id": "058-tool-calibration-usage-schemas",
+			"date": "2026-06-29",
+			"type": "non-breaking",
+			"description": "Add RecordCalibrationSchema, ToolUsageSchema, and CalibrationsDueQuerySchema for tool calibration and usage tracking endpoints.",
+			"toHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c"
 		}
 	]
 }

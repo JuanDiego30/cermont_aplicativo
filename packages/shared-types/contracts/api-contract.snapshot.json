@@ -160,6 +160,7 @@
                 "EVIDENCE_DELETED",
                 "EVIDENCE_VERIFIED",
                 "EVIDENCE_REJECTED",
+                "EVIDENCE_REPLACED",
                 "EVIDENCE_PDF_DOWNLOADED",
                 "EVIDENCE_FILE_VIEWED",
                 "EVIDENCE_COLLECTION_CREATED",
@@ -226,6 +227,10 @@
                 "ASSET_PHOTO_UPLOADED",
                 "ASSET_PRIMARY_PHOTO_CHANGED",
                 "ASSET_DOCUMENT_UPLOADED",
+                "VEHICLE_CHECKED_IN",
+                "VEHICLE_CHECKED_OUT",
+                "VEHICLE_ASSIGNED",
+                "VEHICLE_DOCUMENT_EXPIRED",
                 "CERTIFICATE_ADDED",
                 "MAINTENANCE_RESOLVED",
                 "TOOL_CREATED",
@@ -385,6 +390,7 @@
                 "EVIDENCE_DELETED",
                 "EVIDENCE_VERIFIED",
                 "EVIDENCE_REJECTED",
+                "EVIDENCE_REPLACED",
                 "EVIDENCE_PDF_DOWNLOADED",
                 "EVIDENCE_FILE_VIEWED",
                 "EVIDENCE_COLLECTION_CREATED",
@@ -451,6 +457,10 @@
                 "ASSET_PHOTO_UPLOADED",
                 "ASSET_PRIMARY_PHOTO_CHANGED",
                 "ASSET_DOCUMENT_UPLOADED",
+                "VEHICLE_CHECKED_IN",
+                "VEHICLE_CHECKED_OUT",
+                "VEHICLE_ASSIGNED",
+                "VEHICLE_DOCUMENT_EXPIRED",
                 "CERTIFICATE_ADDED",
                 "MAINTENANCE_RESOLVED",
                 "TOOL_CREATED",
@@ -623,6 +633,7 @@
                   "EVIDENCE_DELETED",
                   "EVIDENCE_VERIFIED",
                   "EVIDENCE_REJECTED",
+                  "EVIDENCE_REPLACED",
                   "EVIDENCE_PDF_DOWNLOADED",
                   "EVIDENCE_FILE_VIEWED",
                   "EVIDENCE_COLLECTION_CREATED",
@@ -689,6 +700,10 @@
                   "ASSET_PHOTO_UPLOADED",
                   "ASSET_PRIMARY_PHOTO_CHANGED",
                   "ASSET_DOCUMENT_UPLOADED",
+                  "VEHICLE_CHECKED_IN",
+                  "VEHICLE_CHECKED_OUT",
+                  "VEHICLE_ASSIGNED",
+                  "VEHICLE_DOCUMENT_EXPIRED",
                   "CERTIFICATE_ADDED",
                   "MAINTENANCE_RESOLVED",
                   "TOOL_CREATED",
@@ -947,11 +962,23 @@
                     "minLength": 1,
                     "type": "string"
                   },
+                  "isBlocking": {
+                    "default": false,
+                    "type": "boolean"
+                  },
                   "observation": {
                     "maxLength": 500,
                     "type": "string"
                   },
                   "required": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "requiresPhoto": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "requiresSignature": {
                     "default": false,
                     "type": "boolean"
                   }
@@ -961,7 +988,10 @@
                   "category",
                   "description",
                   "required",
-                  "completed"
+                  "isBlocking",
+                  "completed",
+                  "requiresPhoto",
+                  "requiresSignature"
                 ],
                 "type": "object"
               },
@@ -1743,6 +1773,19 @@
             "filename": {
               "type": "string"
             },
+            "fsmStatus": {
+              "default": "uploaded",
+              "enum": [
+                "captured",
+                "uploaded",
+                "pending_review",
+                "approved",
+                "rejected",
+                "locked",
+                "archived"
+              ],
+              "type": "string"
+            },
             "gpsLocation": {
               "additionalProperties": false,
               "properties": {
@@ -1765,6 +1808,60 @@
               ],
               "type": "object"
             },
+            "lock": {
+              "default": {
+                "status": "absent"
+              },
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "const": "absent",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "const": "present",
+                      "type": "string"
+                    },
+                    "value": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "lockedAt": {
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                          "type": "string"
+                        },
+                        "reason": {
+                          "maxLength": 500,
+                          "minLength": 3,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "reason",
+                        "lockedAt"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
             "mimeType": {
               "type": "string"
             },
@@ -1772,10 +1869,160 @@
               "pattern": "^[0-9a-fA-F]{24}$",
               "type": "string"
             },
+            "phase": {
+              "default": "during",
+              "enum": [
+                "before",
+                "during",
+                "after",
+                "correction",
+                "hse"
+              ],
+              "type": "string"
+            },
+            "rejection": {
+              "default": {
+                "status": "absent"
+              },
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "const": "absent",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "const": "present",
+                      "type": "string"
+                    },
+                    "value": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "reason": {
+                          "maxLength": 500,
+                          "minLength": 3,
+                          "type": "string"
+                        },
+                        "rejectedAt": {
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "reason",
+                        "rejectedAt"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "relation": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "type": {
+                  "enum": [
+                    "order",
+                    "execution",
+                    "checklist",
+                    "tool",
+                    "vehicle"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id"
+              ],
+              "type": "object"
+            },
+            "replacement": {
+              "default": {
+                "status": "absent"
+              },
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "const": "absent",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "const": "present",
+                      "type": "string"
+                    },
+                    "value": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "evidenceId": {
+                          "pattern": "^[0-9a-fA-F]{24}$",
+                          "type": "string"
+                        },
+                        "fileAssetId": {
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "evidenceId",
+                        "fileAssetId"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
             "sizeBytes": {
               "exclusiveMinimum": 0,
               "maximum": 9007199254740991,
               "type": "integer"
+            },
+            "source": {
+              "default": "upload",
+              "enum": [
+                "camera",
+                "gallery",
+                "upload"
+              ],
+              "type": "string"
             },
             "title": {
               "maxLength": 120,
@@ -1822,6 +2069,13 @@
             "capturedAt",
             "uploadedAt",
             "uploadedBy",
+            "phase",
+            "fsmStatus",
+            "source",
+            "relation",
+            "rejection",
+            "replacement",
+            "lock",
             "createdAt",
             "updatedAt"
           ],
@@ -1883,6 +2137,41 @@
               "pattern": "^[0-9a-fA-F]{24}$",
               "type": "string"
             },
+            "phase": {
+              "default": "during",
+              "enum": [
+                "before",
+                "during",
+                "after",
+                "correction",
+                "hse"
+              ],
+              "type": "string"
+            },
+            "relationId": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "relationType": {
+              "default": "order",
+              "enum": [
+                "order",
+                "execution",
+                "checklist",
+                "tool",
+                "vehicle"
+              ],
+              "type": "string"
+            },
+            "source": {
+              "default": "upload",
+              "enum": [
+                "camera",
+                "gallery",
+                "upload"
+              ],
+              "type": "string"
+            },
             "title": {
               "maxLength": 120,
               "minLength": 1,
@@ -1903,6 +2192,9 @@
           "required": [
             "orderId",
             "type",
+            "phase",
+            "source",
+            "relationType",
             "capturedAt"
           ],
           "type": "object"
@@ -6259,7 +6551,8 @@
                                   "before",
                                   "during",
                                   "after",
-                                  "closure"
+                                  "correction",
+                                  "hse"
                                 ],
                                 "type": "string"
                               },
@@ -11697,6 +11990,7 @@
             "EVIDENCE_DELETED",
             "EVIDENCE_VERIFIED",
             "EVIDENCE_REJECTED",
+            "EVIDENCE_REPLACED",
             "EVIDENCE_PDF_DOWNLOADED",
             "EVIDENCE_FILE_VIEWED",
             "EVIDENCE_COLLECTION_CREATED",
@@ -11763,6 +12057,10 @@
             "ASSET_PHOTO_UPLOADED",
             "ASSET_PRIMARY_PHOTO_CHANGED",
             "ASSET_DOCUMENT_UPLOADED",
+            "VEHICLE_CHECKED_IN",
+            "VEHICLE_CHECKED_OUT",
+            "VEHICLE_ASSIGNED",
+            "VEHICLE_DOCUMENT_EXPIRED",
             "CERTIFICATE_ADDED",
             "MAINTENANCE_RESOLVED",
             "TOOL_CREATED",
@@ -11920,6 +12218,7 @@
             "EVIDENCE_DELETED",
             "EVIDENCE_VERIFIED",
             "EVIDENCE_REJECTED",
+            "EVIDENCE_REPLACED",
             "EVIDENCE_PDF_DOWNLOADED",
             "EVIDENCE_FILE_VIEWED",
             "EVIDENCE_COLLECTION_CREATED",
@@ -11986,6 +12285,10 @@
             "ASSET_PHOTO_UPLOADED",
             "ASSET_PRIMARY_PHOTO_CHANGED",
             "ASSET_DOCUMENT_UPLOADED",
+            "VEHICLE_CHECKED_IN",
+            "VEHICLE_CHECKED_OUT",
+            "VEHICLE_ASSIGNED",
+            "VEHICLE_DOCUMENT_EXPIRED",
             "CERTIFICATE_ADDED",
             "MAINTENANCE_RESOLVED",
             "TOOL_CREATED",
@@ -13612,6 +13915,22 @@
       ],
       "type": "object"
     },
+    "CalibrationsDueQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "daysAhead": {
+          "default": 30,
+          "maximum": 365,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "daysAhead"
+      ],
+      "type": "object"
+    },
     "CancelDeliveryRecordSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -14084,6 +14403,49 @@
       ],
       "type": "object"
     },
+    "CheckinVehicleAssignmentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "checkin": {
+          "additionalProperties": false,
+          "properties": {
+            "fuelLevel": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "mileage": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "notes": {
+              "maxLength": 500,
+              "type": "string"
+            },
+            "photos": {
+              "items": {
+                "maxLength": 64,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "mileage",
+            "fuelLevel",
+            "photos"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "checkin"
+      ],
+      "type": "object"
+    },
     "ChecklistEntrySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -14234,11 +14596,23 @@
           "minLength": 1,
           "type": "string"
         },
+        "isBlocking": {
+          "default": false,
+          "type": "boolean"
+        },
         "observation": {
           "maxLength": 500,
           "type": "string"
         },
         "required": {
+          "default": false,
+          "type": "boolean"
+        },
+        "requiresPhoto": {
+          "default": false,
+          "type": "boolean"
+        },
+        "requiresSignature": {
           "default": false,
           "type": "boolean"
         }
@@ -14248,7 +14622,10 @@
         "category",
         "description",
         "required",
-        "completed"
+        "isBlocking",
+        "completed",
+        "requiresPhoto",
+        "requiresSignature"
       ],
       "type": "object"
     },
@@ -14323,11 +14700,23 @@
                 "minLength": 1,
                 "type": "string"
               },
+              "isBlocking": {
+                "default": false,
+                "type": "boolean"
+              },
               "observation": {
                 "maxLength": 500,
                 "type": "string"
               },
               "required": {
+                "default": false,
+                "type": "boolean"
+              },
+              "requiresPhoto": {
+                "default": false,
+                "type": "boolean"
+              },
+              "requiresSignature": {
                 "default": false,
                 "type": "boolean"
               }
@@ -14337,7 +14726,10 @@
               "category",
               "description",
               "required",
-              "completed"
+              "isBlocking",
+              "completed",
+              "requiresPhoto",
+              "requiresSignature"
             ],
             "type": "object"
           },
@@ -14440,11 +14832,23 @@
                 "minLength": 1,
                 "type": "string"
               },
+              "isBlocking": {
+                "default": false,
+                "type": "boolean"
+              },
               "observation": {
                 "maxLength": 500,
                 "type": "string"
               },
               "required": {
+                "default": false,
+                "type": "boolean"
+              },
+              "requiresPhoto": {
+                "default": false,
+                "type": "boolean"
+              },
+              "requiresSignature": {
                 "default": false,
                 "type": "boolean"
               }
@@ -14454,7 +14858,10 @@
               "category",
               "description",
               "required",
-              "completed"
+              "isBlocking",
+              "completed",
+              "requiresPhoto",
+              "requiresSignature"
             ],
             "type": "object"
           },
@@ -14509,6 +14916,49 @@
         "cancelled"
       ],
       "type": "string"
+    },
+    "CheckoutVehicleAssignmentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "checkout": {
+          "additionalProperties": false,
+          "properties": {
+            "fuelLevel": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "mileage": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "notes": {
+              "maxLength": 500,
+              "type": "string"
+            },
+            "photos": {
+              "items": {
+                "maxLength": 64,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "mileage",
+            "fuelLevel",
+            "photos"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "checkout"
+      ],
+      "type": "object"
     },
     "ClientContractSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -20933,6 +21383,41 @@
           "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
+        "phase": {
+          "default": "during",
+          "enum": [
+            "before",
+            "during",
+            "after",
+            "correction",
+            "hse"
+          ],
+          "type": "string"
+        },
+        "relationId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "relationType": {
+          "default": "order",
+          "enum": [
+            "order",
+            "execution",
+            "checklist",
+            "tool",
+            "vehicle"
+          ],
+          "type": "string"
+        },
+        "source": {
+          "default": "upload",
+          "enum": [
+            "camera",
+            "gallery",
+            "upload"
+          ],
+          "type": "string"
+        },
         "title": {
           "maxLength": 120,
           "minLength": 1,
@@ -20953,6 +21438,9 @@
       "required": [
         "orderId",
         "type",
+        "phase",
+        "source",
+        "relationType",
         "capturedAt"
       ],
       "type": "object"
@@ -27099,6 +27587,25 @@
         "email",
         "password",
         "role"
+      ],
+      "type": "object"
+    },
+    "CreateVehicleAssignmentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "driverId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "vehicleId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vehicleId",
+        "driverId"
       ],
       "type": "object"
     },
@@ -37130,7 +37637,8 @@
             "before",
             "during",
             "after",
-            "closure"
+            "correction",
+            "hse"
           ],
           "type": "string"
         },
@@ -37257,6 +37765,19 @@
                 "pattern": "^[0-9a-fA-F]{24}$",
                 "type": "string"
               },
+              "fsmStatus": {
+                "default": "uploaded",
+                "enum": [
+                  "captured",
+                  "uploaded",
+                  "pending_review",
+                  "approved",
+                  "rejected",
+                  "locked",
+                  "archived"
+                ],
+                "type": "string"
+              },
               "gpsLocation": {
                 "additionalProperties": false,
                 "properties": {
@@ -37294,6 +37815,60 @@
                 "maxLength": 300,
                 "type": "string"
               },
+              "lock": {
+                "default": {
+                  "status": "absent"
+                },
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "const": "absent",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "status"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "const": "present",
+                        "type": "string"
+                      },
+                      "value": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "lockedAt": {
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                            "type": "string"
+                          },
+                          "reason": {
+                            "maxLength": 500,
+                            "minLength": 3,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "reason",
+                          "lockedAt"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "value"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
               "mimeType": {
                 "maxLength": 120,
                 "minLength": 1,
@@ -37304,13 +37879,144 @@
                   "before",
                   "during",
                   "after",
-                  "closure"
+                  "correction",
+                  "hse"
                 ],
                 "type": "string"
               },
               "photoLabel": {
                 "maxLength": 200,
                 "type": "string"
+              },
+              "rejection": {
+                "default": {
+                  "status": "absent"
+                },
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "const": "absent",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "status"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "const": "present",
+                        "type": "string"
+                      },
+                      "value": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "reason": {
+                            "maxLength": 500,
+                            "minLength": 3,
+                            "type": "string"
+                          },
+                          "rejectedAt": {
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "reason",
+                          "rejectedAt"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "value"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "relation": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "order",
+                      "execution",
+                      "checklist",
+                      "tool",
+                      "vehicle"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "replacement": {
+                "default": {
+                  "status": "absent"
+                },
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "const": "absent",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "status"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "status": {
+                        "const": "present",
+                        "type": "string"
+                      },
+                      "value": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "evidenceId": {
+                            "pattern": "^[0-9a-fA-F]{24}$",
+                            "type": "string"
+                          },
+                          "fileAssetId": {
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "evidenceId",
+                          "fileAssetId"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "value"
+                    ],
+                    "type": "object"
+                  }
+                ]
               },
               "serviceCaseId": {
                 "pattern": "^[0-9a-fA-F]{24}$",
@@ -37320,6 +38026,15 @@
                 "exclusiveMinimum": 0,
                 "maximum": 9007199254740991,
                 "type": "integer"
+              },
+              "source": {
+                "default": "upload",
+                "enum": [
+                  "camera",
+                  "gallery",
+                  "upload"
+                ],
+                "type": "string"
               },
               "technicalCategory": {
                 "enum": [
@@ -37430,6 +38145,12 @@
               "variants",
               "uploadedBy",
               "uploadedAt",
+              "fsmStatus",
+              "source",
+              "relation",
+              "rejection",
+              "replacement",
+              "lock",
               "createdAt",
               "updatedAt"
             ],
@@ -37501,7 +38222,19 @@
         "before",
         "during",
         "after",
-        "closure"
+        "correction",
+        "hse"
+      ],
+      "type": "string"
+    },
+    "EvidenceRelationTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "order",
+        "execution",
+        "checklist",
+        "tool",
+        "vehicle"
       ],
       "type": "string"
     },
@@ -37566,6 +38299,19 @@
         "filename": {
           "type": "string"
         },
+        "fsmStatus": {
+          "default": "uploaded",
+          "enum": [
+            "captured",
+            "uploaded",
+            "pending_review",
+            "approved",
+            "rejected",
+            "locked",
+            "archived"
+          ],
+          "type": "string"
+        },
         "gpsLocation": {
           "additionalProperties": false,
           "properties": {
@@ -37588,6 +38334,60 @@
           ],
           "type": "object"
         },
+        "lock": {
+          "default": {
+            "status": "absent"
+          },
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "lockedAt": {
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                      "type": "string"
+                    },
+                    "reason": {
+                      "maxLength": 500,
+                      "minLength": 3,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reason",
+                    "lockedAt"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        },
         "mimeType": {
           "type": "string"
         },
@@ -37595,10 +38395,160 @@
           "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
+        "phase": {
+          "default": "during",
+          "enum": [
+            "before",
+            "during",
+            "after",
+            "correction",
+            "hse"
+          ],
+          "type": "string"
+        },
+        "rejection": {
+          "default": {
+            "status": "absent"
+          },
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "reason": {
+                      "maxLength": 500,
+                      "minLength": 3,
+                      "type": "string"
+                    },
+                    "rejectedAt": {
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "reason",
+                    "rejectedAt"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "relation": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "order",
+                "execution",
+                "checklist",
+                "tool",
+                "vehicle"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "id"
+          ],
+          "type": "object"
+        },
+        "replacement": {
+          "default": {
+            "status": "absent"
+          },
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "evidenceId": {
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "fileAssetId": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "evidenceId",
+                    "fileAssetId"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        },
         "sizeBytes": {
           "exclusiveMinimum": 0,
           "maximum": 9007199254740991,
           "type": "integer"
+        },
+        "source": {
+          "default": "upload",
+          "enum": [
+            "camera",
+            "gallery",
+            "upload"
+          ],
+          "type": "string"
         },
         "title": {
           "maxLength": 120,
@@ -37645,10 +38595,26 @@
         "capturedAt",
         "uploadedAt",
         "uploadedBy",
+        "phase",
+        "fsmStatus",
+        "source",
+        "relation",
+        "rejection",
+        "replacement",
+        "lock",
         "createdAt",
         "updatedAt"
       ],
       "type": "object"
+    },
+    "EvidenceSourceSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "camera",
+        "gallery",
+        "upload"
+      ],
+      "type": "string"
     },
     "EvidenceTypeSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -37659,6 +38625,19 @@
         "defect",
         "safety",
         "signature"
+      ],
+      "type": "string"
+    },
+    "EvidenceWorkflowStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "captured",
+        "uploaded",
+        "pending_review",
+        "approved",
+        "rejected",
+        "locked",
+        "archived"
       ],
       "type": "string"
     },
@@ -52808,7 +53787,8 @@
                     "before",
                     "during",
                     "after",
-                    "closure"
+                    "correction",
+                    "hse"
                   ],
                   "type": "string"
                 },
@@ -56917,7 +57897,8 @@
             "before",
             "during",
             "after",
-            "closure"
+            "correction",
+            "hse"
           ],
           "type": "string"
         },
@@ -58687,7 +59668,8 @@
                         "before",
                         "during",
                         "after",
-                        "closure"
+                        "correction",
+                        "hse"
                       ],
                       "type": "string"
                     },
@@ -65325,6 +66307,39 @@
       },
       "type": "object"
     },
+    "RecordCalibrationSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "calibratedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "certificateId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "issuer": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "nextCalibrationAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        }
+      },
+      "required": [
+        "calibratedAt",
+        "nextCalibrationAt"
+      ],
+      "type": "object"
+    },
     "RecordEquipmentUsageSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -66265,6 +67280,27 @@
           "type": "string"
         }
       },
+      "type": "object"
+    },
+    "ReplaceEvidenceSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "comment": {
+          "default": "",
+          "maxLength": 500,
+          "type": "string"
+        },
+        "fileAssetId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileAssetId",
+        "comment"
+      ],
       "type": "object"
     },
     "ReportBillingVsCostSchema": {
@@ -77726,7 +78762,8 @@
                               "before",
                               "during",
                               "after",
-                              "closure"
+                              "correction",
+                              "hse"
                             ],
                             "type": "string"
                           },
@@ -89834,6 +90871,28 @@
       ],
       "type": "object"
     },
+    "ToolUsageSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "orderCode": {
+          "maxLength": 100,
+          "type": "string"
+        },
+        "orderId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "usedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderId"
+      ],
+      "type": "object"
+    },
     "TransitionOrderStatusSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema"
     },
@@ -98683,6 +99742,217 @@
       },
       "required": [
         "ruleType"
+      ],
+      "type": "object"
+    },
+    "VehicleAssignmentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "assignedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "assignedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "checkin": {
+          "additionalProperties": false,
+          "properties": {
+            "fuelLevel": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "mileage": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "notes": {
+              "maxLength": 500,
+              "type": "string"
+            },
+            "photos": {
+              "items": {
+                "maxLength": 64,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "mileage",
+            "fuelLevel",
+            "photos"
+          ],
+          "type": "object"
+        },
+        "checkout": {
+          "additionalProperties": false,
+          "properties": {
+            "fuelLevel": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "mileage": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "notes": {
+              "maxLength": 500,
+              "type": "string"
+            },
+            "photos": {
+              "items": {
+                "maxLength": 64,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "mileage",
+            "fuelLevel",
+            "photos"
+          ],
+          "type": "object"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "driverId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "driverName": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "endedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "startedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "status": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "active",
+            "completed"
+          ],
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "vehicleId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vehicleId",
+        "driverId",
+        "assignedBy",
+        "assignedAt",
+        "status"
+      ],
+      "type": "object"
+    },
+    "VehicleAssignmentStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "pending",
+        "active",
+        "completed"
+      ],
+      "type": "string"
+    },
+    "VehicleCheckinSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "fuelLevel": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mileage": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "photos": {
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "mileage",
+        "fuelLevel",
+        "photos"
+      ],
+      "type": "object"
+    },
+    "VehicleCheckoutSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "fuelLevel": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mileage": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "photos": {
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "mileage",
+        "fuelLevel",
+        "photos"
       ],
       "type": "object"
     },

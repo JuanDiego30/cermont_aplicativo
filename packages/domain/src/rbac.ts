@@ -194,6 +194,9 @@ export const PUBLIC_PATHS = [
 	"/forgot-password",
 	"/reset-password",
 	"/unauthorized",
+	"/privacy",
+	"/consent",
+	"/terms",
 	"/_next", // Next.js static assets
 	"/api/auth", // Auth callbacks
 	"/favicon.ico",
