@@ -22,6 +22,7 @@ import {
 	useCost,
 	useCostSummary,
 	useCosts,
+	useCostCatalog,
 	useCreateCost,
 	useDeleteCost,
 	useUpdateCost,
@@ -138,6 +139,29 @@ describe("Costs Queries", () => {
 			expect(result.current.isLoading).toBe(false);
 			expect(result.current.data).toBeUndefined();
 			expect(apiClient.get).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("useCostCatalog", () => {
+		it("fetches the active catalog with category and pagination", async () => {
+			vi.mocked(apiClient.get).mockResolvedValue({
+				success: true,
+				data: {
+					items: [],
+					pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+				},
+			});
+
+			const { result } = renderHook(
+				() => useCostCatalog({ category: "materials", page: 1, limit: 20 }),
+				{ wrapper: createWrapper() },
+			);
+
+			await waitFor(() => expect(result.current.isSuccess).toBe(true));
+			expect(apiClient.get).toHaveBeenCalledWith(
+				"/costs/catalog?category=materials&page=1&limit=20",
+			);
+			expect(result.current.data?.pagination.total).toBe(0);
 		});
 	});
 

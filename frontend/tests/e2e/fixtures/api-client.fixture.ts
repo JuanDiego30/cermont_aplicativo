@@ -234,8 +234,30 @@ export async function createE2EApiClient(): Promise<E2EApiClient> {
 		},
 
 		async updateChecklistItem(checklistId, itemId, completed, observation) {
+			if (completed) {
+				const uploadResponse = await requestContext.post("files/upload", {
+					headers: authHeaders,
+					multipart: {
+						file: {
+							name: `checklist-${itemId}.png`,
+							mimeType: "image/png",
+							buffer: Buffer.from(
+								"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4////fwAJ+wP+q6jT3QAAAABJRU5ErkJggg==",
+								"base64",
+							),
+						},
+						category: "checklist_evidence",
+						entityType: "checklist_item",
+						entityId: checklistId,
+						metadata: JSON.stringify({ checklistItemId: itemId }),
+					},
+				});
+				if (!uploadResponse.ok()) {
+					throw new Error(`Failed to attach checklist evidence for ${itemId}`);
+				}
+			}
 			return send<Checklist>("patch", `checklists/${checklistId}/items/${itemId}`, {
-				completed,
+				result: completed ? "passed" : "pending",
 				observation,
 			});
 		},

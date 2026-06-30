@@ -61,7 +61,7 @@ describe("DocumentGallery", () => {
 				documents={[
 					buildDocument({
 						purpose: "closing_evidence",
-						targetStepCode: "step_09_client_signature",
+						targetStepCode: "step_10_client_signature",
 					}),
 				]}
 			/>,
