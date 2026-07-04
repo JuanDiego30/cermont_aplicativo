@@ -7,9 +7,14 @@ import type {
 import { FileText, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
+import { AdministrativeClosurePipeline } from "./AdministrativeClosurePipeline";
+import { CockpitTabs } from "./CockpitTabs";
 import { CostComparisonPanel } from "./CostComparisonPanel";
+import { EvidenceGallerySection } from "./EvidenceGallerySection";
+import { LinkedDocumentsSection } from "./LinkedDocumentsSection";
 import { NextActionPanel } from "./NextActionPanel";
 import { OperationalStepProgress } from "./OperationalStepProgress";
+import { SlaDeadlineBadge } from "./SlaDeadlineBadge";
 import { StepRequirementPanel } from "./StepRequirementPanel";
 import { WorkflowBlockerList } from "./WorkflowBlockerList";
 
@@ -111,6 +116,7 @@ export function ServiceCaseWorkflowCockpit({
 				currentStepNumber={currentStep?.stepNumber}
 				currentStepCode={currentStepCode}
 				daysInCurrentStep={operationalSummary?.daysInCurrentStep}
+				deadline={serviceCase.deadline}
 				orderId={orderId}
 				serviceCaseId={serviceCase.serviceCaseId}
 				updatedAt={serviceCase.updatedAt}
@@ -141,17 +147,55 @@ export function ServiceCaseWorkflowCockpit({
 						operationalSummary={operationalSummary}
 					/>
 
-					{/* Cost comparison panel — shown when there is at least some cost data */}
-					{(serviceCase.costs.estimated.estimatedTotalCost > 0 ||
-						serviceCase.costs.actual.actualTotalCost > 0 ||
-						serviceCase.costs.billing.invoiceValue > 0) && (
-						<CostComparisonPanel
-							costs={serviceCase.costs}
-							serviceCaseId={serviceCase.serviceCaseId}
-						/>
-					)}
-
-					<ArtifactsSection artifacts={serviceCase.artifacts ?? {}} />
+					<CockpitTabs
+						ariaLabel="Contenido del caso por categoría"
+						tabs={[
+							{
+								id: "documents",
+								label: "Documentos",
+								badge: (serviceCase.documents ?? []).length,
+								content: (
+									<div className="space-y-5">
+										<ArtifactsSection artifacts={serviceCase.artifacts ?? {}} />
+										<LinkedDocumentsSection documents={serviceCase.documents ?? []} />
+									</div>
+								),
+							},
+							{
+								id: "evidences",
+								label: "Evidencias",
+								badge: (serviceCase.evidences ?? []).length,
+								content: <EvidenceGallerySection evidences={serviceCase.evidences ?? []} />,
+							},
+							{
+								id: "costs",
+								label: "Costos",
+								content:
+									serviceCase.costs.estimated.estimatedTotalCost > 0 ||
+									serviceCase.costs.actual.actualTotalCost > 0 ||
+									serviceCase.costs.billing.invoiceValue > 0 ? (
+										<CostComparisonPanel
+											costs={serviceCase.costs}
+											serviceCaseId={serviceCase.serviceCaseId}
+										/>
+									) : (
+										<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
+											Sin datos de costos registrados para este caso todavía.
+										</div>
+									),
+							},
+							{
+								id: "closure",
+								label: "Cierre admin",
+								content: (
+									<AdministrativeClosurePipeline
+										closure={serviceCase.closure}
+										billing={serviceCase.costs.billing}
+									/>
+								),
+							},
+						]}
+					/>
 				</div>
 
 				<div className="space-y-6">
@@ -176,6 +220,7 @@ function WorkflowHeader({
 	currentStepCode,
 	currentStepNumber,
 	daysInCurrentStep,
+	deadline,
 	orderId,
 	serviceCaseId,
 	updatedAt,
@@ -186,6 +231,7 @@ function WorkflowHeader({
 	currentStepCode: CermontOperationalStepCode;
 	currentStepNumber?: number;
 	daysInCurrentStep?: number;
+	deadline?: string;
 	orderId?: string;
 	serviceCaseId: string;
 	updatedAt: string;
@@ -233,6 +279,7 @@ function WorkflowHeader({
 							<span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-1">
 								Actualizado: {formatDate(updatedAt)}
 							</span>
+							{deadline && <SlaDeadlineBadge deadline={deadline} />}
 						</div>
 					</div>
 				</div>
