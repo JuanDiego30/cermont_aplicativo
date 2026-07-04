@@ -16,7 +16,12 @@ const summary: DashboardSummary = {
 	},
 	blockers: { totalBlockers: 4, criticalBlockers: 2, blockedCases: 2 },
 	nextActions: [
-		{ command: "review_request", label: "Revisar solicitudes", requiredRole: "residente", count: 3 },
+		{
+			command: "review_request",
+			label: "Revisar solicitudes",
+			requiredRole: "residente",
+			count: 3,
+		},
 	],
 	administrativeClosure: {
 		pendingDeliveryRecords: 2,
@@ -70,6 +75,7 @@ const summary: DashboardSummary = {
 		expiringCertificates: 7,
 		overdueMaintenance: 1,
 	},
+	slaRiskOrders: [],
 	offlineSync: { pendingSyncItems: 3, syncErrors: 1 },
 	recentActivity: { items: [] },
 	charts: { ordersByStatus: [], ordersByMonth: [], costByCategory: [] },

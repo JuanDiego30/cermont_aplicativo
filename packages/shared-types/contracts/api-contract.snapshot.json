@@ -248,6 +248,7 @@
                 "KIT_DELETED",
                 "KIT_DUPLICATED",
                 "KIT_APPLIED_TO_PLANNING",
+                "COST_CATALOG_ITEM_CREATED",
                 "TEMPLATE_DRAFT_CREATED",
                 "TEMPLATE_DRAFT_UPDATED",
                 "TEMPLATE_DRAFT_APPROVED",
@@ -481,6 +482,7 @@
                 "KIT_DELETED",
                 "KIT_DUPLICATED",
                 "KIT_APPLIED_TO_PLANNING",
+                "COST_CATALOG_ITEM_CREATED",
                 "TEMPLATE_DRAFT_CREATED",
                 "TEMPLATE_DRAFT_UPDATED",
                 "TEMPLATE_DRAFT_APPROVED",
@@ -727,6 +729,7 @@
                   "KIT_DELETED",
                   "KIT_DUPLICATED",
                   "KIT_APPLIED_TO_PLANNING",
+                  "COST_CATALOG_ITEM_CREATED",
                   "TEMPLATE_DRAFT_CREATED",
                   "TEMPLATE_DRAFT_UPDATED",
                   "TEMPLATE_DRAFT_APPROVED",
@@ -11938,6 +11941,7 @@
             "KIT_DELETED",
             "KIT_DUPLICATED",
             "KIT_APPLIED_TO_PLANNING",
+            "COST_CATALOG_ITEM_CREATED",
             "TEMPLATE_DRAFT_CREATED",
             "TEMPLATE_DRAFT_UPDATED",
             "TEMPLATE_DRAFT_APPROVED",
@@ -12169,6 +12173,7 @@
             "KIT_DELETED",
             "KIT_DUPLICATED",
             "KIT_APPLIED_TO_PLANNING",
+            "COST_CATALOG_ITEM_CREATED",
             "TEMPLATE_DRAFT_CREATED",
             "TEMPLATE_DRAFT_UPDATED",
             "TEMPLATE_DRAFT_APPROVED",
@@ -20809,6 +20814,69 @@
       ],
       "type": "object"
     },
+    "CreateCostCatalogItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "labor",
+            "materials",
+            "equipment",
+            "transport",
+            "subcontract",
+            "overhead",
+            "tax",
+            "other"
+          ],
+          "type": "string"
+        },
+        "code": {
+          "maxLength": 40,
+          "minLength": 1,
+          "type": "string"
+        },
+        "currency": {
+          "default": "COP",
+          "maxLength": 3,
+          "minLength": 3,
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        },
+        "isActive": {
+          "default": true,
+          "type": "boolean"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "unit": {
+          "maxLength": 50,
+          "minLength": 1,
+          "type": "string"
+        },
+        "unitPrice": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "category",
+        "unit",
+        "unitPrice",
+        "currency",
+        "isActive"
+      ],
+      "type": "object"
+    },
     "CreateCostControlSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -23273,6 +23341,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -23306,6 +23377,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23330,6 +23404,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23410,6 +23487,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -23443,6 +23523,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23467,6 +23550,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23506,6 +23592,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -23539,6 +23628,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23563,6 +23655,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23606,6 +23701,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -23639,6 +23737,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23663,6 +23764,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23702,6 +23806,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -23735,6 +23842,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23759,6 +23869,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23801,6 +23914,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -23834,6 +23950,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23858,6 +23977,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23897,6 +24019,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -23930,6 +24055,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23954,6 +24082,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -24109,6 +24240,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -24142,6 +24276,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -24166,6 +24303,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -24208,6 +24348,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -24241,6 +24384,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -24265,6 +24411,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -29638,6 +29787,48 @@
       ],
       "type": "object"
     },
+    "DashboardMaintenanceEfficiencySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "activeWorkOrders": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maintenanceCompletionRate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "mtbfDays": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "mttrHours": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "overdueWorkOrders": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "technicianUtilizationPct": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "mttrHours",
+        "mtbfDays",
+        "maintenanceCompletionRate",
+        "activeWorkOrders",
+        "overdueWorkOrders"
+      ],
+      "type": "object"
+    },
     "DashboardNextActionSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -29884,6 +30075,50 @@
         "periodDays",
         "totalRequests",
         "items"
+      ],
+      "type": "object"
+    },
+    "DashboardSlaRiskOrderSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "clientName": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "currentStep": {
+          "maximum": 14,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "hoursRemaining": {
+          "type": "number"
+        },
+        "riskLevel": {
+          "enum": [
+            "warning",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "type": "string"
+        },
+        "slaDeadline": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "serviceCaseId",
+        "code",
+        "slaDeadline",
+        "hoursRemaining",
+        "currentStep",
+        "riskLevel"
       ],
       "type": "object"
     },
@@ -30294,6 +30529,47 @@
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
           "type": "string"
         },
+        "maintenanceEfficiency": {
+          "additionalProperties": false,
+          "properties": {
+            "activeWorkOrders": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maintenanceCompletionRate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "mtbfDays": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "mttrHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "overdueWorkOrders": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "technicianUtilizationPct": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "mttrHours",
+            "mtbfDays",
+            "maintenanceCompletionRate",
+            "activeWorkOrders",
+            "overdueWorkOrders"
+          ],
+          "type": "object"
+        },
         "nextActions": {
           "items": {
             "additionalProperties": false,
@@ -30487,6 +30763,53 @@
           ],
           "type": "object"
         },
+        "slaRiskOrders": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "clientName": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "currentStep": {
+                "maximum": 14,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "hoursRemaining": {
+                "type": "number"
+              },
+              "riskLevel": {
+                "enum": [
+                  "warning",
+                  "critical"
+                ],
+                "type": "string"
+              },
+              "serviceCaseId": {
+                "type": "string"
+              },
+              "slaDeadline": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "serviceCaseId",
+              "code",
+              "slaDeadline",
+              "hoursRemaining",
+              "currentStep",
+              "riskLevel"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
         "systemHealth": {
           "additionalProperties": false,
           "properties": {
@@ -30526,6 +30849,7 @@
         "costVariance",
         "documentWorkload",
         "assetMaintenance",
+        "slaRiskOrders",
         "offlineSync",
         "recentActivity",
         "charts"
@@ -52234,6 +52558,9 @@
           "maximum": 9007199254740991,
           "type": "integer"
         },
+        "catalogItemId": {
+          "type": "string"
+        },
         "category": {
           "enum": [
             "tool",
@@ -52267,6 +52594,9 @@
         "inventoryItemId": {
           "type": "string"
         },
+        "isBillable": {
+          "type": "boolean"
+        },
         "isCritical": {
           "default": false,
           "type": "boolean"
@@ -52291,6 +52621,9 @@
         },
         "requiresCertification": {
           "default": false,
+          "type": "boolean"
+        },
+        "returnRequired": {
           "type": "boolean"
         },
         "unit": {
@@ -52584,6 +52917,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -52617,6 +52953,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -52641,6 +52980,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -52726,6 +53068,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -52759,6 +53104,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -52783,6 +53131,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -52822,6 +53173,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -52855,6 +53209,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -52879,6 +53236,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -52922,6 +53282,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -52955,6 +53318,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -52979,6 +53345,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53018,6 +53387,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -53051,6 +53423,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53075,6 +53450,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53123,6 +53501,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -53156,6 +53537,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53180,6 +53564,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53335,6 +53722,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -53368,6 +53758,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53392,6 +53785,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53485,6 +53881,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -53518,6 +53917,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53542,6 +53944,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -58238,6 +58643,18 @@
       ],
       "type": "object"
     },
+    "NotificationPrefTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "state_transition",
+        "approval_required",
+        "document_upload",
+        "deadline_warning",
+        "payment",
+        "system_alert"
+      ],
+      "type": "string"
+    },
     "NotificationPrioritySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -58548,6 +58965,45 @@
       "propertyNames": {
         "type": "string"
       },
+      "type": "object"
+    },
+    "NotificationTypePreferenceSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "channels": {
+          "items": {
+            "enum": [
+              "in_app",
+              "email",
+              "sms"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "type": {
+          "enum": [
+            "state_transition",
+            "approval_required",
+            "document_upload",
+            "deadline_warning",
+            "payment",
+            "system_alert"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "enabled",
+        "channels"
+      ],
       "type": "object"
     },
     "NotificationTypeSchema": {
@@ -66657,6 +67113,100 @@
       ],
       "type": "string"
     },
+    "PlanningReadinessCheckSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "passed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "passed"
+      ],
+      "type": "object"
+    },
+    "PlanningReadinessReportSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "blockingReasons": {
+          "items": {
+            "maxLength": 300,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "canExecute": {
+          "type": "boolean"
+        },
+        "checks": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "passed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "key",
+              "label",
+              "passed"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "generatedAt": {
+          "type": "string"
+        },
+        "planningPacketId": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "incomplete",
+            "ready",
+            "blocked",
+            "approved"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "planningPacketId",
+        "status",
+        "canExecute",
+        "blockingReasons",
+        "checks",
+        "generatedAt"
+      ],
+      "type": "object"
+    },
     "PlanningResourceLineSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -66737,6 +67287,15 @@
         "status"
       ],
       "type": "object"
+    },
+    "PrefChannelSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "in_app",
+        "email",
+        "sms"
+      ],
+      "type": "string"
     },
     "PreviousStepEntitySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -93659,6 +94218,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -93692,6 +94254,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -93716,6 +94281,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -93796,6 +94364,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -93829,6 +94400,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -93853,6 +94427,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -93892,6 +94469,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -93925,6 +94505,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -93949,6 +94532,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -93992,6 +94578,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -94025,6 +94614,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94049,6 +94641,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94088,6 +94683,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -94121,6 +94719,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94145,6 +94746,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94187,6 +94791,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -94220,6 +94827,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94244,6 +94854,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94283,6 +94896,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -94316,6 +94932,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94340,6 +94959,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94495,6 +95117,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -94528,6 +95153,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94552,6 +95180,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94594,6 +95225,9 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
+              "catalogItemId": {
+                "type": "string"
+              },
               "category": {
                 "enum": [
                   "tool",
@@ -94627,6 +95261,9 @@
               "inventoryItemId": {
                 "type": "string"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94651,6 +95288,9 @@
               },
               "requiresCertification": {
                 "default": false,
+                "type": "boolean"
+              },
+              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94833,6 +95473,75 @@
         "title": {
           "minLength": 1,
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UpdateNotificationPreferencesSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "emailDigest": {
+          "enum": [
+            "instant",
+            "daily",
+            "weekly",
+            "never"
+          ],
+          "type": "string"
+        },
+        "pushEnabled": {
+          "type": "boolean"
+        },
+        "quietHoursEnabled": {
+          "type": "boolean"
+        },
+        "quietHoursEnd": {
+          "type": "string"
+        },
+        "quietHoursStart": {
+          "type": "string"
+        },
+        "typePreferences": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "channels": {
+                "items": {
+                  "enum": [
+                    "in_app",
+                    "email",
+                    "sms"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
+              "type": {
+                "enum": [
+                  "state_transition",
+                  "approval_required",
+                  "document_upload",
+                  "deadline_warning",
+                  "payment",
+                  "system_alert"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "enabled",
+              "channels"
+            ],
+            "type": "object"
+          },
+          "type": "array"
         }
       },
       "type": "object"
@@ -100316,6 +101025,96 @@
       },
       "required": [
         "id"
+      ],
+      "type": "object"
+    },
+    "UserNotificationPreferencesSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "emailDigest": {
+          "default": "instant",
+          "enum": [
+            "instant",
+            "daily",
+            "weekly",
+            "never"
+          ],
+          "type": "string"
+        },
+        "pushEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "quietHoursEnabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "quietHoursEnd": {
+          "type": "string"
+        },
+        "quietHoursStart": {
+          "type": "string"
+        },
+        "typePreferences": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "channels": {
+                "items": {
+                  "enum": [
+                    "in_app",
+                    "email",
+                    "sms"
+                  ],
+                  "type": "string"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
+              "type": {
+                "enum": [
+                  "state_transition",
+                  "approval_required",
+                  "document_upload",
+                  "deadline_warning",
+                  "payment",
+                  "system_alert"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "enabled",
+              "channels"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "userId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "userId",
+        "quietHoursEnabled",
+        "pushEnabled",
+        "emailDigest",
+        "typePreferences",
+        "updatedAt"
       ],
       "type": "object"
     },

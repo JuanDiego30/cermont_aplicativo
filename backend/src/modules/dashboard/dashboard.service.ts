@@ -14,14 +14,25 @@ import { Asset } from "../../models/Asset";
 import { Cost } from "../../models/Cost";
 import { DeliveryRecord } from "../../models/DeliveryRecord";
 import { Document } from "../../models/Document";
+import { DocumentExtractionJob } from "../../models/DocumentExtractionJob";
+import { DocumentTemplate } from "../../models/DocumentTemplate";
 import { Invoice } from "../../models/Invoice";
-import { MaintenanceKit } from "../../models/MaintenanceKit";
 import { Order } from "../../models/Order";
 import { Payment } from "../../models/Payment";
 import { Proposal } from "../../models/Proposal";
 import { ServiceCase } from "../../models/ServiceCase";
 import { ServiceEntrySheet } from "../../models/ServiceEntrySheet";
+import { TemplateResponse } from "../../models/TemplateResponse";
+import { Tool } from "../../models/Tool";
+import { VehicleModel } from "../../models/Vehicle";
 import { WorkRequest } from "../../models/WorkRequest";
+import { buildServiceDemand, buildServiceDemandSummary } from "./dashboard-demand.service";
+import { buildMaintenanceEfficiency } from "./dashboard-efficiency.service";
+import { buildFinancialAging, buildFinancialAgingSummary } from "./dashboard-financial.service";
+import { buildFieldReadiness } from "./dashboard-readiness.service";
+import { buildSlaRiskOrders } from "./dashboard-sla.service";
+
+export { buildFinancialAgingSummary, buildServiceDemandSummary };
 
 const log = createLogger("dashboard-service");
 
@@ -55,10 +66,16 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 	let nextActions: DashboardSummary["nextActions"];
 	let administrativeClosure: DashboardSummary["administrativeClosure"];
 	let financialAging: DashboardSummary["financialAging"];
+	let fieldReadiness: DashboardSummary["fieldReadiness"];
+	let serviceDemand: DashboardSummary["serviceDemand"];
 	let costVariance: DashboardSummary["costVariance"];
 	let documentWorkload: DashboardSummary["documentWorkload"];
-	let assetMaintenance: DashboardSummary["assetMaintenance"];
-	let offlineSync: DashboardSummary["offlineSync"];
+	let assetMaintenanceBase: Pick<
+		DashboardSummary["assetMaintenance"],
+		"totalAssets" | "activeMaintenance"
+	>;
+	let maintenanceEfficiency: DashboardSummary["maintenanceEfficiency"];
+	let slaRiskOrders: DashboardSummary["slaRiskOrders"];
 	let recentActivity: DashboardSummary["recentActivity"];
 	let orderStatuses: DashboardSummary["charts"]["ordersByStatus"];
 	let monthlyOrders: DashboardSummary["charts"]["ordersByMonth"];
@@ -71,11 +88,14 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 			nextActions,
 			administrativeClosure,
 			financialAging,
+			fieldReadiness,
+			serviceDemand,
 			costVariance,
 			documentWorkload,
-			assetMaintenance,
-			offlineSync,
+			assetMaintenanceBase,
 			recentActivity,
+			maintenanceEfficiency,
+			slaRiskOrders,
 			orderStatuses,
 			monthlyOrders,
 			costByCategory,
@@ -85,11 +105,14 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 			buildNextActions(),
 			buildAdministrativeClosure(),
 			buildFinancialAging(),
+			buildFieldReadiness(),
+			buildServiceDemand(),
 			buildCostVariance(),
 			buildDocumentWorkload(),
 			buildAssetMaintenance(),
-			buildOfflineSync(),
 			buildRecentActivity(),
+			buildMaintenanceEfficiency(),
+			buildSlaRiskOrders(),
 			getOrdersByStatus(),
 			getMonthlyOrders(),
 			getCostByCategory(),
@@ -108,10 +131,23 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 		nextActions,
 		administrativeClosure,
 		financialAging,
+		fieldReadiness,
+		serviceDemand,
 		costVariance,
 		documentWorkload,
-		assetMaintenance,
-		offlineSync,
+		assetMaintenance: {
+			...assetMaintenanceBase,
+			expiringCertificates:
+				fieldReadiness.vehicleDocumentsExpiring + fieldReadiness.toolCertificationsExpiring,
+			overdueMaintenance:
+				fieldReadiness.vehicleDocumentsExpired + fieldReadiness.toolCertificationsExpired,
+		},
+		maintenanceEfficiency,
+		slaRiskOrders,
+		offlineSync: {
+			pendingSyncItems: fieldReadiness.offlineSyncPending,
+			syncErrors: fieldReadiness.offlineSyncFailed,
+		},
 		recentActivity,
 		charts: {
 			ordersByStatus: orderStatuses,
@@ -246,79 +282,6 @@ async function buildAdministrativeClosure() {
 	};
 }
 
-// ── Financial Aging ───────────────────────────────────────────────────
-
-async function buildFinancialAging() {
-	const now = new Date();
-	const buckets = [
-		{ minDays: 0, maxDays: 30, label: "0-30 días" },
-		{ minDays: 31, maxDays: 60, label: "31-60 días" },
-		{ minDays: 61, maxDays: 90, label: "61-90 días" },
-		{ minDays: 91, maxDays: null, label: "90+ días" },
-	];
-
-	const results: Array<{
-		bucket: string;
-		count: number;
-		amount: number;
-		currency: string;
-		minDays?: number;
-		maxDays?: number;
-	}> = [];
-
-	const bucketResults = await Promise.all(
-		buckets.map(async (bucket) => {
-			const dateFilter =
-				bucket.maxDays !== null
-					? {
-							$lte: new Date(now.getTime() - bucket.minDays * 24 * 60 * 60 * 1000),
-							$gte: new Date(now.getTime() - bucket.maxDays * 24 * 60 * 60 * 1000),
-						}
-					: {
-							$lt: new Date(now.getTime() - bucket.minDays * 24 * 60 * 60 * 1000),
-						};
-
-			const [aged] = await Invoice.aggregate<{ count: number; amount: number }>([
-				{
-					$match: {
-						status: { $nin: ["paid", "cancelled", "rejected"] },
-						dueDate: dateFilter,
-					},
-				},
-				{
-					$group: {
-						_id: null,
-						count: { $sum: 1 },
-						amount: { $sum: "$totalAmount" },
-					},
-				},
-			]);
-
-			return {
-				bucket: bucket.label,
-				count: aged?.count ?? 0,
-				amount: aged?.amount ?? 0,
-				currency: "COP",
-				minDays: bucket.minDays,
-				maxDays: bucket.maxDays ?? undefined,
-			};
-		}),
-	);
-
-	results.push(...bucketResults);
-
-	const overdueInvoices = await Invoice.countDocuments({
-		status: { $nin: ["paid", "cancelled", "rejected"] },
-		dueDate: { $lt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) },
-	});
-
-	return {
-		buckets: results,
-		totalOutstanding: results.reduce((sum, b) => sum + b.count, 0),
-		totalOverdue: overdueInvoices,
-	};
-}
-
 // ── Cost Variance ─────────────────────────────────────────────────────
 
 async function buildCostVariance() {
@@ -347,12 +310,19 @@ async function buildCostVariance() {
 // ── Document Workload ─────────────────────────────────────────────────
 
 async function buildDocumentWorkload() {
-	const totalDocuments = await Document.countDocuments();
+	const [totalDocuments, pendingImports, pendingTemplates, pendingResponses] = await Promise.all([
+		Document.countDocuments(),
+		DocumentExtractionJob.countDocuments({ status: { $in: ["queued", "processing"] } }),
+		DocumentTemplate.countDocuments({ status: { $in: ["draft", "classified"] } }),
+		TemplateResponse.countDocuments({
+			status: { $in: ["submitted", "rejected", "conflict"] },
+		}),
+	]);
 
 	return {
-		pendingImports: 0,
-		pendingTemplates: 0,
-		pendingResponses: 0,
+		pendingImports,
+		pendingTemplates,
+		pendingResponses,
 		totalDocuments,
 	};
 }
@@ -360,25 +330,15 @@ async function buildDocumentWorkload() {
 // ── Assets / Maintenance ──────────────────────────────────────────────
 
 async function buildAssetMaintenance() {
-	const [totalAssets, activeKits] = await Promise.all([
+	const [totalAssets, toolsInMaintenance, vehiclesInMaintenance] = await Promise.all([
 		Asset.countDocuments(),
-		MaintenanceKit.countDocuments({ is_active: true }),
+		Tool.countDocuments({ status: "maintenance" }),
+		VehicleModel.countDocuments({ status: "maintenance" }),
 	]);
 
 	return {
 		totalAssets,
-		activeMaintenance: activeKits,
-		expiringCertificates: 0,
-		overdueMaintenance: 0,
-	};
-}
-
-// ── Offline Sync ──────────────────────────────────────────────────────
-
-async function buildOfflineSync() {
-	return {
-		pendingSyncItems: 0,
-		syncErrors: 0,
+		activeMaintenance: toolsInMaintenance + vehiclesInMaintenance,
 	};
 }
 

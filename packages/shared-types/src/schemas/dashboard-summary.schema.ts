@@ -151,6 +151,37 @@ export const DashboardAssetMaintenanceSchema = z
 	})
 	.strict();
 
+// ── Maintenance Efficiency (MTTR / MTBF) ───────────────────────────────
+// MTTR: Mean Time To Repair — average hours to complete a work order
+// MTBF: Mean Time Between Failures — average days between maintenance events
+
+export const DashboardMaintenanceEfficiencySchema = z
+	.object({
+		mttrHours: z.number().nonnegative(),
+		mtbfDays: z.number().nonnegative(),
+		maintenanceCompletionRate: z.number().min(0).max(100),
+		activeWorkOrders: z.number().int().nonnegative(),
+		overdueWorkOrders: z.number().int().nonnegative(),
+		technicianUtilizationPct: z.number().min(0).max(100).optional(),
+	})
+	.strict();
+
+// ── SLA Risk Orders ────────────────────────────────────────────────────
+// Active cases whose target completion date is overdue or expiring soon.
+// riskLevel: critical = overdue or under 24h, warning = under 72h.
+
+export const DashboardSlaRiskOrderSchema = z
+	.object({
+		serviceCaseId: z.string(),
+		code: z.string(),
+		clientName: z.string().optional(),
+		slaDeadline: z.string().datetime(),
+		hoursRemaining: z.number(),
+		currentStep: z.number().int().min(1).max(14),
+		riskLevel: z.enum(["warning", "critical"]),
+	})
+	.strict();
+
 // ── Offline Sync ───────────────────────────────────────────────────────
 
 export const DashboardOfflineSyncSchema = z
@@ -224,6 +255,8 @@ export const DashboardSummarySchema = z
 		costVariance: DashboardCostVarianceSchema,
 		documentWorkload: DashboardDocumentWorkloadSchema,
 		assetMaintenance: DashboardAssetMaintenanceSchema,
+		maintenanceEfficiency: DashboardMaintenanceEfficiencySchema.optional(),
+		slaRiskOrders: z.array(DashboardSlaRiskOrderSchema).default([]),
 		offlineSync: DashboardOfflineSyncSchema,
 		recentActivity: DashboardRecentActivitySchema,
 		charts: DashboardChartsSchema,
@@ -245,6 +278,8 @@ export type DashboardServiceDemandItem = z.infer<typeof DashboardServiceDemandIt
 export type DashboardCostVariance = z.infer<typeof DashboardCostVarianceSchema>;
 export type DashboardDocumentWorkload = z.infer<typeof DashboardDocumentWorkloadSchema>;
 export type DashboardAssetMaintenance = z.infer<typeof DashboardAssetMaintenanceSchema>;
+export type DashboardMaintenanceEfficiency = z.infer<typeof DashboardMaintenanceEfficiencySchema>;
+export type DashboardSlaRiskOrder = z.infer<typeof DashboardSlaRiskOrderSchema>;
 export type DashboardOfflineSync = z.infer<typeof DashboardOfflineSyncSchema>;
 export type DashboardRecentActivity = z.infer<typeof DashboardRecentActivitySchema>;
 export type DashboardCharts = z.infer<typeof DashboardChartsSchema>;
