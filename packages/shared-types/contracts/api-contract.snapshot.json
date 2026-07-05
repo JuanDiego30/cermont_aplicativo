@@ -248,7 +248,6 @@
                 "KIT_DELETED",
                 "KIT_DUPLICATED",
                 "KIT_APPLIED_TO_PLANNING",
-                "COST_CATALOG_ITEM_CREATED",
                 "TEMPLATE_DRAFT_CREATED",
                 "TEMPLATE_DRAFT_UPDATED",
                 "TEMPLATE_DRAFT_APPROVED",
@@ -268,7 +267,10 @@
                 "PASSKEY_REGISTERED",
                 "AUTOMATION_RULE_CREATED",
                 "AUTOMATION_RULE_UPDATED",
-                "AUTOMATION_ACTION_RESOLVED"
+                "AUTOMATION_ACTION_RESOLVED",
+                "COST_CATALOG_ITEM_CREATED",
+                "COST_CATALOG_ITEM_UPDATED",
+                "PREFLIGHT_SUBMITTED"
               ],
               "type": "string"
             },
@@ -482,7 +484,6 @@
                 "KIT_DELETED",
                 "KIT_DUPLICATED",
                 "KIT_APPLIED_TO_PLANNING",
-                "COST_CATALOG_ITEM_CREATED",
                 "TEMPLATE_DRAFT_CREATED",
                 "TEMPLATE_DRAFT_UPDATED",
                 "TEMPLATE_DRAFT_APPROVED",
@@ -502,7 +503,10 @@
                 "PASSKEY_REGISTERED",
                 "AUTOMATION_RULE_CREATED",
                 "AUTOMATION_RULE_UPDATED",
-                "AUTOMATION_ACTION_RESOLVED"
+                "AUTOMATION_ACTION_RESOLVED",
+                "COST_CATALOG_ITEM_CREATED",
+                "COST_CATALOG_ITEM_UPDATED",
+                "PREFLIGHT_SUBMITTED"
               ],
               "type": "string"
             },
@@ -729,7 +733,6 @@
                   "KIT_DELETED",
                   "KIT_DUPLICATED",
                   "KIT_APPLIED_TO_PLANNING",
-                  "COST_CATALOG_ITEM_CREATED",
                   "TEMPLATE_DRAFT_CREATED",
                   "TEMPLATE_DRAFT_UPDATED",
                   "TEMPLATE_DRAFT_APPROVED",
@@ -749,7 +752,10 @@
                   "PASSKEY_REGISTERED",
                   "AUTOMATION_RULE_CREATED",
                   "AUTOMATION_RULE_UPDATED",
-                  "AUTOMATION_ACTION_RESOLVED"
+                  "AUTOMATION_ACTION_RESOLVED",
+                  "COST_CATALOG_ITEM_CREATED",
+                  "COST_CATALOG_ITEM_UPDATED",
+                  "PREFLIGHT_SUBMITTED"
                 ],
                 "type": "string"
               },
@@ -1734,6 +1740,7 @@
                 "pending_review",
                 "approved",
                 "rejected",
+                "replacement_requested",
                 "locked",
                 "archived"
               ],
@@ -11735,6 +11742,34 @@
       "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
       "type": "string"
     },
+    "AuditEventSummarySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "actorName": {
+          "type": "string"
+        },
+        "entityType": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "event": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "occurredAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event",
+        "entityType",
+        "occurredAt"
+      ],
+      "type": "object"
+    },
     "AuditJsonValueSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "anyOf": [
@@ -11941,7 +11976,6 @@
             "KIT_DELETED",
             "KIT_DUPLICATED",
             "KIT_APPLIED_TO_PLANNING",
-            "COST_CATALOG_ITEM_CREATED",
             "TEMPLATE_DRAFT_CREATED",
             "TEMPLATE_DRAFT_UPDATED",
             "TEMPLATE_DRAFT_APPROVED",
@@ -11961,7 +11995,10 @@
             "PASSKEY_REGISTERED",
             "AUTOMATION_RULE_CREATED",
             "AUTOMATION_RULE_UPDATED",
-            "AUTOMATION_ACTION_RESOLVED"
+            "AUTOMATION_ACTION_RESOLVED",
+            "COST_CATALOG_ITEM_CREATED",
+            "COST_CATALOG_ITEM_UPDATED",
+            "PREFLIGHT_SUBMITTED"
           ],
           "type": "string"
         },
@@ -12173,7 +12210,6 @@
             "KIT_DELETED",
             "KIT_DUPLICATED",
             "KIT_APPLIED_TO_PLANNING",
-            "COST_CATALOG_ITEM_CREATED",
             "TEMPLATE_DRAFT_CREATED",
             "TEMPLATE_DRAFT_UPDATED",
             "TEMPLATE_DRAFT_APPROVED",
@@ -12193,7 +12229,10 @@
             "PASSKEY_REGISTERED",
             "AUTOMATION_RULE_CREATED",
             "AUTOMATION_RULE_UPDATED",
-            "AUTOMATION_ACTION_RESOLVED"
+            "AUTOMATION_ACTION_RESOLVED",
+            "COST_CATALOG_ITEM_CREATED",
+            "COST_CATALOG_ITEM_UPDATED",
+            "PREFLIGHT_SUBMITTED"
           ],
           "type": "string"
         },
@@ -12887,6 +12926,72 @@
         "updatedBy",
         "createdAt",
         "updatedAt"
+      ],
+      "type": "object"
+    },
+    "BaselineCostSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "byCategory": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "enum": [
+                  "labor",
+                  "materials",
+                  "equipment",
+                  "transport",
+                  "subcontract",
+                  "overhead",
+                  "tax",
+                  "other"
+                ],
+                "type": "string"
+              },
+              "estimatedCOP": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "category",
+              "estimatedCOP"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "frozenAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "proposalCode": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "proposalId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "totalEstimatedCOP": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalTaxCOP": {
+          "default": 0,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "proposalId",
+        "frozenAt",
+        "totalEstimatedCOP",
+        "totalTaxCOP",
+        "byCategory"
       ],
       "type": "object"
     },
@@ -16344,6 +16449,41 @@
       ],
       "type": "object"
     },
+    "CockpitBlockerSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        },
+        "severity": {
+          "default": "blocking",
+          "enum": [
+            "warning",
+            "blocking",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "step": {
+          "maximum": 14,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "severity"
+      ],
+      "type": "object"
+    },
     "CompleteChecklistSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -17232,6 +17372,9 @@
           "default": true,
           "type": "boolean"
         },
+        "isBillable": {
+          "type": "boolean"
+        },
         "name": {
           "minLength": 1,
           "type": "string"
@@ -17239,6 +17382,10 @@
         "unit": {
           "minLength": 1,
           "type": "string"
+        },
+        "unitCostCOP": {
+          "minimum": 0,
+          "type": "number"
         },
         "unitPrice": {
           "minimum": 0,
@@ -17262,6 +17409,40 @@
         "isActive",
         "createdAt",
         "updatedAt"
+      ],
+      "type": "object"
+    },
+    "CostCatalogListQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "maxLength": 50,
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 20,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "page": {
+          "default": 1,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "search": {
+          "maxLength": 100,
+          "type": "string"
+        }
+      },
+      "required": [
+        "page",
+        "limit"
       ],
       "type": "object"
     },
@@ -17343,6 +17524,9 @@
                 "default": true,
                 "type": "boolean"
               },
+              "isBillable": {
+                "type": "boolean"
+              },
               "name": {
                 "minLength": 1,
                 "type": "string"
@@ -17350,6 +17534,10 @@
               "unit": {
                 "minLength": 1,
                 "type": "string"
+              },
+              "unitCostCOP": {
+                "minimum": 0,
+                "type": "number"
               },
               "unitPrice": {
                 "minimum": 0,
@@ -17728,6 +17916,205 @@
       ],
       "type": "object"
     },
+    "CostIntelligenceSummarySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "baselineCost": {
+          "additionalProperties": false,
+          "properties": {
+            "byCategory": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "category": {
+                    "enum": [
+                      "labor",
+                      "materials",
+                      "equipment",
+                      "transport",
+                      "subcontract",
+                      "overhead",
+                      "tax",
+                      "other"
+                    ],
+                    "type": "string"
+                  },
+                  "estimatedCOP": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "category",
+                  "estimatedCOP"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "frozenAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "proposalCode": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "proposalId": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "totalEstimatedCOP": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalTaxCOP": {
+              "default": 0,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "proposalId",
+            "frozenAt",
+            "totalEstimatedCOP",
+            "totalTaxCOP",
+            "byCategory"
+          ],
+          "type": "object"
+        },
+        "budgetConsumedPercent": {
+          "type": "number"
+        },
+        "deviationByCategory": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actual": {
+                "type": "number"
+              },
+              "category": {
+                "enum": [
+                  "labor",
+                  "materials",
+                  "equipment",
+                  "transport",
+                  "subcontract",
+                  "overhead",
+                  "tax",
+                  "other"
+                ],
+                "type": "string"
+              },
+              "deviationPercent": {
+                "type": "number"
+              },
+              "estimated": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "category",
+              "estimated",
+              "actual",
+              "deviationPercent"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "isAtRisk": {
+          "type": "boolean"
+        },
+        "isCritical": {
+          "type": "boolean"
+        },
+        "lastUpdatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "marginPercent": {
+          "type": "number"
+        },
+        "orderCode": {
+          "type": "string"
+        },
+        "orderId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "totalActual": {
+          "type": "number"
+        },
+        "totalEstimated": {
+          "type": "number"
+        },
+        "totalMargin": {
+          "type": "number"
+        },
+        "totalTaxCOP": {
+          "default": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "orderId",
+        "totalEstimated",
+        "totalActual",
+        "totalTaxCOP",
+        "totalMargin",
+        "marginPercent",
+        "budgetConsumedPercent",
+        "isAtRisk",
+        "isCritical",
+        "deviationByCategory",
+        "lastUpdatedAt"
+      ],
+      "type": "object"
+    },
+    "CostLaborRateSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "hourlyRate": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "nightPremiumPercent": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "role": {
+          "enum": [
+            "field_technician",
+            "certified_height_technician",
+            "supervisor",
+            "engineer"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "hourlyRate",
+        "nightPremiumPercent"
+      ],
+      "type": "object"
+    },
+    "CostLaborRoleSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "field_technician",
+        "certified_height_technician",
+        "supervisor",
+        "engineer"
+      ],
+      "type": "string"
+    },
     "CostLineDeltaStatusSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -17792,6 +18179,62 @@
       ],
       "type": "object"
     },
+    "CostMaterialInputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "estimatedPrice": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "quantity": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "unit": {
+          "maxLength": 50,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "quantity",
+        "unit"
+      ],
+      "type": "object"
+    },
+    "CostMeasurementSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "unit": {
+          "maxLength": 50,
+          "minLength": 1,
+          "type": "string"
+        },
+        "value": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "description",
+        "value",
+        "unit"
+      ],
+      "type": "object"
+    },
     "CostOrderIdSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -17803,6 +18246,602 @@
       },
       "required": [
         "orderId"
+      ],
+      "type": "object"
+    },
+    "CostProposalActivityTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "lifeline_horizontal",
+        "lifeline_vertical",
+        "cctv_installation",
+        "cctv_maintenance",
+        "anchor_installation",
+        "anchor_inspection",
+        "structural_inspection",
+        "safety_inspection",
+        "electrical",
+        "refrigeration",
+        "civil_works",
+        "general_maintenance",
+        "other"
+      ],
+      "type": "string"
+    },
+    "CostProposalBudgetComparisonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "clientBudget": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "difference": {
+          "type": "number"
+        },
+        "differencePercent": {
+          "type": "number"
+        },
+        "isWithinBudget": {
+          "type": "boolean"
+        },
+        "proposedTotal": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "clientBudget",
+        "proposedTotal",
+        "difference",
+        "differencePercent",
+        "isWithinBudget"
+      ],
+      "type": "object"
+    },
+    "CostProposalInputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "activityType": {
+          "enum": [
+            "lifeline_horizontal",
+            "lifeline_vertical",
+            "cctv_installation",
+            "cctv_maintenance",
+            "anchor_installation",
+            "anchor_inspection",
+            "structural_inspection",
+            "safety_inspection",
+            "electrical",
+            "refrigeration",
+            "civil_works",
+            "general_maintenance",
+            "other"
+          ],
+          "type": "string"
+        },
+        "adverseWeather": {
+          "default": false,
+          "type": "boolean"
+        },
+        "clientBudget": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "clientName": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "engineer": {
+          "default": false,
+          "type": "boolean"
+        },
+        "estimatedDuration": {
+          "additionalProperties": false,
+          "properties": {
+            "days": {
+              "maximum": 365,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "hoursPerDay": {
+              "default": 8,
+              "maximum": 24,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "days",
+            "hoursPerDay"
+          ],
+          "type": "object"
+        },
+        "location": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        },
+        "locationType": {
+          "enum": [
+            "urban",
+            "rural",
+            "remote"
+          ],
+          "type": "string"
+        },
+        "materials": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "estimatedPrice": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "quantity": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "unit": {
+                "maxLength": 50,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "quantity",
+              "unit"
+            ],
+            "type": "object"
+          },
+          "maxItems": 100,
+          "type": "array"
+        },
+        "measurements": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "unit": {
+                "maxLength": 50,
+                "minLength": 1,
+                "type": "string"
+              },
+              "value": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "description",
+              "value",
+              "unit"
+            ],
+            "type": "object"
+          },
+          "maxItems": 50,
+          "type": "array"
+        },
+        "nightWork": {
+          "default": false,
+          "type": "boolean"
+        },
+        "requiresFinalCertification": {
+          "default": false,
+          "type": "boolean"
+        },
+        "requiresHeightWork": {
+          "default": false,
+          "type": "boolean"
+        },
+        "requiresHotWork": {
+          "default": false,
+          "type": "boolean"
+        },
+        "requiresLockoutTagout": {
+          "default": false,
+          "type": "boolean"
+        },
+        "scopeDescription": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "supervisor": {
+          "type": "boolean"
+        },
+        "technicians": {
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "activityType",
+        "location",
+        "locationType",
+        "technicians",
+        "supervisor",
+        "engineer",
+        "estimatedDuration",
+        "scopeDescription",
+        "requiresFinalCertification",
+        "nightWork",
+        "adverseWeather",
+        "requiresHeightWork",
+        "requiresHotWork",
+        "requiresLockoutTagout"
+      ],
+      "type": "object"
+    },
+    "CostProposalLineItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "catalogItemId": {
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "labor",
+            "materials",
+            "equipment",
+            "transport",
+            "subcontract",
+            "overhead",
+            "tax",
+            "other"
+          ],
+          "type": "string"
+        },
+        "item": {
+          "maxLength": 300,
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 300,
+          "type": "string"
+        },
+        "quantity": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "source": {
+          "enum": [
+            "catalog",
+            "calculated",
+            "user_provided",
+            "estimated"
+          ],
+          "type": "string"
+        },
+        "total": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "unit": {
+          "maxLength": 50,
+          "minLength": 1,
+          "type": "string"
+        },
+        "unitPrice": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "category",
+        "item",
+        "quantity",
+        "unit",
+        "unitPrice",
+        "total",
+        "source"
+      ],
+      "type": "object"
+    },
+    "CostProposalLineSourceSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "catalog",
+        "calculated",
+        "user_provided",
+        "estimated"
+      ],
+      "type": "string"
+    },
+    "CostProposalResultSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "activityDescription": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "clientBudgetComparison": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "clientBudget": {
+                      "minimum": 0,
+                      "type": "number"
+                    },
+                    "difference": {
+                      "type": "number"
+                    },
+                    "differencePercent": {
+                      "type": "number"
+                    },
+                    "isWithinBudget": {
+                      "type": "boolean"
+                    },
+                    "proposedTotal": {
+                      "minimum": 0,
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "clientBudget",
+                    "proposedTotal",
+                    "difference",
+                    "differencePercent",
+                    "isWithinBudget"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "directCost": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "lineItems": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "catalogItemId": {
+                "type": "string"
+              },
+              "category": {
+                "enum": [
+                  "labor",
+                  "materials",
+                  "equipment",
+                  "transport",
+                  "subcontract",
+                  "overhead",
+                  "tax",
+                  "other"
+                ],
+                "type": "string"
+              },
+              "item": {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              "notes": {
+                "maxLength": 300,
+                "type": "string"
+              },
+              "quantity": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "source": {
+                "enum": [
+                  "catalog",
+                  "calculated",
+                  "user_provided",
+                  "estimated"
+                ],
+                "type": "string"
+              },
+              "total": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "unit": {
+                "maxLength": 50,
+                "minLength": 1,
+                "type": "string"
+              },
+              "unitPrice": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "category",
+              "item",
+              "quantity",
+              "unit",
+              "unitPrice",
+              "total",
+              "source"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "observations": {
+          "items": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "subtotal": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "subtotals": {
+          "additionalProperties": false,
+          "properties": {
+            "equipment": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "labor": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "materials": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "other": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "transport": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "materials",
+            "labor",
+            "equipment",
+            "transport",
+            "other"
+          ],
+          "type": "object"
+        },
+        "suggestedActions": {
+          "items": {
+            "maxLength": 300,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "suggestedMarginAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "suggestedMarginPercent": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxBase": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "total": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalRounded": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "activityDescription",
+        "generatedAt",
+        "lineItems",
+        "subtotals",
+        "directCost",
+        "suggestedMarginPercent",
+        "suggestedMarginAmount",
+        "subtotal",
+        "taxBase",
+        "taxAmount",
+        "taxRate",
+        "total",
+        "totalRounded",
+        "observations",
+        "suggestedActions",
+        "clientBudgetComparison"
+      ],
+      "type": "object"
+    },
+    "CostProposalSubtotalsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "equipment": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "labor": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "materials": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "other": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "transport": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "materials",
+        "labor",
+        "equipment",
+        "transport",
+        "other"
       ],
       "type": "object"
     },
@@ -18094,6 +19133,643 @@
         "recordedAt",
         "createdAt",
         "updatedAt"
+      ],
+      "type": "object"
+    },
+    "CostSuggestionResponseSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "additionalProperties": false,
+          "properties": {
+            "activityDescription": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "clientBudgetComparison": {
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "const": "absent",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "status": {
+                      "const": "present",
+                      "type": "string"
+                    },
+                    "value": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "clientBudget": {
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        "difference": {
+                          "type": "number"
+                        },
+                        "differencePercent": {
+                          "type": "number"
+                        },
+                        "isWithinBudget": {
+                          "type": "boolean"
+                        },
+                        "proposedTotal": {
+                          "minimum": 0,
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "clientBudget",
+                        "proposedTotal",
+                        "difference",
+                        "differencePercent",
+                        "isWithinBudget"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "directCost": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "generatedAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "lineItems": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "catalogItemId": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "enum": [
+                      "labor",
+                      "materials",
+                      "equipment",
+                      "transport",
+                      "subcontract",
+                      "overhead",
+                      "tax",
+                      "other"
+                    ],
+                    "type": "string"
+                  },
+                  "item": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "notes": {
+                    "maxLength": 300,
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "exclusiveMinimum": 0,
+                    "type": "number"
+                  },
+                  "source": {
+                    "enum": [
+                      "catalog",
+                      "calculated",
+                      "user_provided",
+                      "estimated"
+                    ],
+                    "type": "string"
+                  },
+                  "total": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "unit": {
+                    "maxLength": 50,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "unitPrice": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "category",
+                  "item",
+                  "quantity",
+                  "unit",
+                  "unitPrice",
+                  "total",
+                  "source"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "observations": {
+              "items": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "subtotal": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "subtotals": {
+              "additionalProperties": false,
+              "properties": {
+                "equipment": {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "labor": {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "materials": {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "other": {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "transport": {
+                  "minimum": 0,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "materials",
+                "labor",
+                "equipment",
+                "transport",
+                "other"
+              ],
+              "type": "object"
+            },
+            "suggestedActions": {
+              "items": {
+                "maxLength": 300,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "suggestedMarginAmount": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "suggestedMarginPercent": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "taxAmount": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "taxBase": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "taxRate": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "total": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalRounded": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "activityDescription",
+            "generatedAt",
+            "lineItems",
+            "subtotals",
+            "directCost",
+            "suggestedMarginPercent",
+            "suggestedMarginAmount",
+            "subtotal",
+            "taxBase",
+            "taxAmount",
+            "taxRate",
+            "total",
+            "totalRounded",
+            "observations",
+            "suggestedActions",
+            "clientBudgetComparison"
+          ],
+          "type": "object"
+        },
+        "success": {
+          "const": true,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "success",
+        "data"
+      ],
+      "type": "object"
+    },
+    "CostSummaryEnrichedSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "actualCostWithTax": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "approvedBudget": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "minimum": 0,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "baselineCost": {
+          "additionalProperties": false,
+          "properties": {
+            "byCategory": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "category": {
+                    "enum": [
+                      "labor",
+                      "materials",
+                      "equipment",
+                      "transport",
+                      "subcontract",
+                      "overhead",
+                      "tax",
+                      "other"
+                    ],
+                    "type": "string"
+                  },
+                  "estimatedCOP": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "category",
+                  "estimatedCOP"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "frozenAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "proposalCode": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "proposalId": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "totalEstimatedCOP": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalTaxCOP": {
+              "default": 0,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "proposalId",
+            "frozenAt",
+            "totalEstimatedCOP",
+            "totalTaxCOP",
+            "byCategory"
+          ],
+          "type": "object"
+        },
+        "budgetAlertThreshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "budgetConsumedPercent": {
+          "type": "number"
+        },
+        "budgetConsumptionPercent": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "minimum": 0,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "budgetRisk": {
+          "enum": [
+            "not_available",
+            "within_budget",
+            "threshold_reached",
+            "over_budget"
+          ],
+          "type": "string"
+        },
+        "byCategory": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actual": {
+                "type": "number"
+              },
+              "category": {
+                "enum": [
+                  "labor",
+                  "materials",
+                  "equipment",
+                  "transport",
+                  "subcontract",
+                  "overhead",
+                  "tax",
+                  "other"
+                ],
+                "type": "string"
+              },
+              "dataState": {
+                "enum": [
+                  "NO_DATA",
+                  "ESTIMATED_ONLY",
+                  "ACTUAL_ONLY",
+                  "ESTIMATED_AND_ACTUAL",
+                  "INVOICED",
+                  "PAID"
+                ],
+                "type": "string"
+              },
+              "estimated": {
+                "type": "number"
+              },
+              "tax": {
+                "type": "number"
+              },
+              "variance": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "category",
+              "estimated",
+              "actual",
+              "tax",
+              "variance",
+              "dataState"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "dataState": {
+          "enum": [
+            "NO_DATA",
+            "ESTIMATED_ONLY",
+            "ACTUAL_ONLY",
+            "ESTIMATED_AND_ACTUAL",
+            "INVOICED",
+            "PAID"
+          ],
+          "type": "string"
+        },
+        "grossMarginPercent": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "grossProfit": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "hasCosts": {
+          "type": "boolean"
+        },
+        "isAtRisk": {
+          "type": "boolean"
+        },
+        "isCritical": {
+          "type": "boolean"
+        },
+        "marginPercent": {
+          "type": "number"
+        },
+        "orderId": {
+          "type": "string"
+        },
+        "totalActual": {
+          "type": "number"
+        },
+        "totalEstimated": {
+          "type": "number"
+        },
+        "totalTax": {
+          "type": "number"
+        },
+        "variance": {
+          "type": "number"
+        },
+        "variancePercent": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "absent",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "const": "present",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "orderId",
+        "totalEstimated",
+        "totalActual",
+        "totalTax",
+        "variance",
+        "variancePercent",
+        "approvedBudget",
+        "budgetConsumptionPercent",
+        "budgetRisk",
+        "budgetAlertThreshold",
+        "actualCostWithTax",
+        "grossProfit",
+        "grossMarginPercent",
+        "hasCosts",
+        "dataState",
+        "byCategory"
       ],
       "type": "object"
     },
@@ -20838,17 +22514,17 @@
         },
         "currency": {
           "default": "COP",
-          "maxLength": 3,
-          "minLength": 3,
           "type": "string"
         },
         "description": {
           "maxLength": 500,
-          "minLength": 1,
           "type": "string"
         },
         "isActive": {
           "default": true,
+          "type": "boolean"
+        },
+        "isBillable": {
           "type": "boolean"
         },
         "name": {
@@ -20860,6 +22536,10 @@
           "maxLength": 50,
           "minLength": 1,
           "type": "string"
+        },
+        "unitCostCOP": {
+          "minimum": 0,
+          "type": "number"
         },
         "unitPrice": {
           "minimum": 0,
@@ -23341,9 +25021,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -23377,9 +25054,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23404,9 +25078,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23487,9 +25158,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -23523,9 +25191,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23550,9 +25215,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23592,9 +25254,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -23628,9 +25287,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23655,9 +25311,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23701,9 +25354,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -23737,9 +25387,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23764,9 +25411,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23806,9 +25450,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -23842,9 +25483,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23869,9 +25507,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -23914,9 +25549,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -23950,9 +25582,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -23977,9 +25606,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -24019,9 +25645,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -24055,9 +25678,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -24082,9 +25702,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -24192,6 +25809,72 @@
           ],
           "type": "string"
         },
+        "safetyRequirements": {
+          "additionalProperties": false,
+          "properties": {
+            "eppList": {
+              "default": [],
+              "items": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "heightsWorkLevel": {
+              "default": "none",
+              "enum": [
+                "none",
+                "basic",
+                "advanced",
+                "rescue"
+              ],
+              "type": "string"
+            },
+            "medevacRequired": {
+              "default": false,
+              "type": "boolean"
+            },
+            "minimumTechnicianCertifications": {
+              "default": [],
+              "items": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "ptwTypes": {
+              "default": [],
+              "items": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "requiresAST": {
+              "default": false,
+              "type": "boolean"
+            },
+            "requiresPTW": {
+              "default": false,
+              "type": "boolean"
+            },
+            "riskAssessmentRequired": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "eppList",
+            "requiresAST",
+            "requiresPTW",
+            "ptwTypes",
+            "heightsWorkLevel",
+            "riskAssessmentRequired",
+            "minimumTechnicianCertifications",
+            "medevacRequired"
+          ],
+          "type": "object"
+        },
         "serviceCategory": {
           "enum": [
             "mantenimiento",
@@ -24240,9 +25923,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -24276,9 +25956,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -24303,9 +25980,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -24348,9 +26022,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -24384,9 +26055,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -24411,9 +26079,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -29882,6 +31547,80 @@
       ],
       "type": "object"
     },
+    "DashboardOperationalKPISchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "averageResponseTimeHours": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "currency": {
+          "default": "COP",
+          "type": "string"
+        },
+        "firstTimeFixRate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "mtbfDays": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "mttrMinutes": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "onTimeCompletionRate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "overdueInvoicesCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pendingInvoicesCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pendingReportsCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "periodFrom": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "periodTo": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "technicianUtilizationRate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "mttrMinutes",
+        "mtbfDays",
+        "firstTimeFixRate",
+        "pendingInvoicesCount",
+        "overdueInvoicesCount",
+        "pendingReportsCount",
+        "currency",
+        "periodFrom",
+        "periodTo"
+      ],
+      "type": "object"
+    },
     "DashboardPipelineSummarySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -30082,6 +31821,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
       "properties": {
+        "assignedTechnicianName": {
+          "type": "string"
+        },
         "clientName": {
           "type": "string"
         },
@@ -30093,8 +31835,14 @@
           "minimum": 1,
           "type": "integer"
         },
+        "currentStepLabel": {
+          "type": "string"
+        },
         "hoursRemaining": {
           "type": "number"
+        },
+        "pendingAction": {
+          "type": "string"
         },
         "riskLevel": {
           "enum": [
@@ -30148,6 +31896,793 @@
         "label",
         "count",
         "order"
+      ],
+      "type": "object"
+    },
+    "DashboardSummaryEnrichedSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "administrativeClosure": {
+          "additionalProperties": false,
+          "properties": {
+            "pendingDeliveryRecords": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pendingInvoices": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pendingPayments": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pendingSES": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "pendingDeliveryRecords",
+            "pendingSES",
+            "pendingInvoices",
+            "pendingPayments"
+          ],
+          "type": "object"
+        },
+        "assetMaintenance": {
+          "additionalProperties": false,
+          "properties": {
+            "activeMaintenance": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "expiringCertificates": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "overdueMaintenance": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "totalAssets": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "totalAssets",
+            "activeMaintenance",
+            "expiringCertificates",
+            "overdueMaintenance"
+          ],
+          "type": "object"
+        },
+        "blockers": {
+          "additionalProperties": false,
+          "properties": {
+            "blockedCases": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "criticalBlockers": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "totalBlockers": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "totalBlockers",
+            "criticalBlockers",
+            "blockedCases"
+          ],
+          "type": "object"
+        },
+        "charts": {
+          "additionalProperties": false,
+          "properties": {
+            "costByCategory": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "ordersByMonth": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "completed": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "created": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "month": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "month",
+                  "created",
+                  "completed"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "ordersByStatus": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "ordersByStatus",
+            "ordersByMonth",
+            "costByCategory"
+          ],
+          "type": "object"
+        },
+        "costVariance": {
+          "additionalProperties": false,
+          "properties": {
+            "actualCost": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "currency": {
+              "default": "COP",
+              "type": "string"
+            },
+            "estimatedCost": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "variance": {
+              "type": "number"
+            },
+            "variancePct": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "estimatedCost",
+            "actualCost",
+            "variance",
+            "variancePct",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "documentWorkload": {
+          "additionalProperties": false,
+          "properties": {
+            "pendingImports": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pendingResponses": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pendingTemplates": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "totalDocuments": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "pendingImports",
+            "pendingTemplates",
+            "pendingResponses",
+            "totalDocuments"
+          ],
+          "type": "object"
+        },
+        "fieldReadiness": {
+          "additionalProperties": false,
+          "properties": {
+            "blockingChecklistsFailed": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "blockingChecklistsPending": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "evidenceGpsCoveragePct": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "evidencePendingReview": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "evidenceRejected": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "offlineSyncFailed": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "offlineSyncPending": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "toolCertificationsExpired": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "toolCertificationsExpiring": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "vehicleDocumentsExpired": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "vehicleDocumentsExpiring": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "blockingChecklistsPending",
+            "blockingChecklistsFailed",
+            "evidencePendingReview",
+            "evidenceRejected",
+            "evidenceGpsCoveragePct",
+            "vehicleDocumentsExpiring",
+            "vehicleDocumentsExpired",
+            "toolCertificationsExpiring",
+            "toolCertificationsExpired",
+            "offlineSyncPending",
+            "offlineSyncFailed"
+          ],
+          "type": "object"
+        },
+        "financialAging": {
+          "additionalProperties": false,
+          "properties": {
+            "buckets": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "amount": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "bucket": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "currency": {
+                    "default": "COP",
+                    "type": "string"
+                  },
+                  "maxDays": {
+                    "maximum": 9007199254740991,
+                    "minimum": -9007199254740991,
+                    "type": "integer"
+                  },
+                  "minDays": {
+                    "maximum": 9007199254740991,
+                    "minimum": -9007199254740991,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "bucket",
+                  "count",
+                  "amount",
+                  "currency"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "overdueInvoiceCount": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "totalOutstandingAmount": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalOverdueAmount": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "buckets",
+            "totalOutstandingAmount",
+            "totalOverdueAmount",
+            "overdueInvoiceCount"
+          ],
+          "type": "object"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "maintenanceEfficiency": {
+          "additionalProperties": false,
+          "properties": {
+            "activeWorkOrders": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maintenanceCompletionRate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "mtbfDays": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "mttrHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "overdueWorkOrders": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "technicianUtilizationPct": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "mttrHours",
+            "mtbfDays",
+            "maintenanceCompletionRate",
+            "activeWorkOrders",
+            "overdueWorkOrders"
+          ],
+          "type": "object"
+        },
+        "nextActions": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "command": {
+                "type": "string"
+              },
+              "count": {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "label": {
+                "type": "string"
+              },
+              "requiredRole": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "command",
+              "label",
+              "requiredRole",
+              "count"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "offlineSync": {
+          "additionalProperties": false,
+          "properties": {
+            "lastSyncAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "pendingSyncItems": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "syncErrors": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "pendingSyncItems",
+            "syncErrors"
+          ],
+          "type": "object"
+        },
+        "operationalKPIs": {
+          "additionalProperties": false,
+          "properties": {
+            "averageResponseTimeHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "currency": {
+              "default": "COP",
+              "type": "string"
+            },
+            "firstTimeFixRate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "mtbfDays": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "mttrMinutes": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "onTimeCompletionRate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "overdueInvoicesCount": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pendingInvoicesCount": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "pendingReportsCount": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "periodFrom": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "periodTo": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "technicianUtilizationRate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "mttrMinutes",
+            "mtbfDays",
+            "firstTimeFixRate",
+            "pendingInvoicesCount",
+            "overdueInvoicesCount",
+            "pendingReportsCount",
+            "currency",
+            "periodFrom",
+            "periodTo"
+          ],
+          "type": "object"
+        },
+        "operationalPipeline": {
+          "additionalProperties": false,
+          "properties": {
+            "completionRate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "stages": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "count": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "order": {
+                    "maximum": 9007199254740991,
+                    "minimum": -9007199254740991,
+                    "type": "integer"
+                  },
+                  "stage": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "stage",
+                  "label",
+                  "count",
+                  "order"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "totalActive": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "totalClosed": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "stages",
+            "totalActive",
+            "totalClosed",
+            "completionRate"
+          ],
+          "type": "object"
+        },
+        "recentActivity": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "entityCode": {
+                    "type": "string"
+                  },
+                  "entityType": {
+                    "type": "string"
+                  },
+                  "event": {
+                    "type": "string"
+                  },
+                  "occurredAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "event",
+                  "entityType",
+                  "occurredAt"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "type": "object"
+        },
+        "serviceDemand": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "requests": {
+                    "maximum": 9007199254740991,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "serviceType": {
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "serviceType",
+                  "requests"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "periodDays": {
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "totalRequests": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "periodDays",
+            "totalRequests",
+            "items"
+          ],
+          "type": "object"
+        },
+        "slaRiskOrders": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "assignedTechnicianName": {
+                "type": "string"
+              },
+              "clientName": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "currentStep": {
+                "maximum": 14,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "currentStepLabel": {
+                "type": "string"
+              },
+              "hoursRemaining": {
+                "type": "number"
+              },
+              "pendingAction": {
+                "type": "string"
+              },
+              "riskLevel": {
+                "enum": [
+                  "warning",
+                  "critical"
+                ],
+                "type": "string"
+              },
+              "serviceCaseId": {
+                "type": "string"
+              },
+              "slaDeadline": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "serviceCaseId",
+              "code",
+              "slaDeadline",
+              "hoursRemaining",
+              "currentStep",
+              "riskLevel"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "systemHealth": {
+          "additionalProperties": false,
+          "properties": {
+            "dbState": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "healthy",
+                "degraded",
+                "unhealthy"
+              ],
+              "type": "string"
+            },
+            "uptimeSeconds": {
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "status",
+            "dbState",
+            "uptimeSeconds"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "generatedAt",
+        "operationalPipeline",
+        "blockers",
+        "nextActions",
+        "administrativeClosure",
+        "financialAging",
+        "fieldReadiness",
+        "serviceDemand",
+        "costVariance",
+        "documentWorkload",
+        "assetMaintenance",
+        "slaRiskOrders",
+        "offlineSync",
+        "recentActivity",
+        "charts"
       ],
       "type": "object"
     },
@@ -30768,6 +33303,9 @@
           "items": {
             "additionalProperties": false,
             "properties": {
+              "assignedTechnicianName": {
+                "type": "string"
+              },
               "clientName": {
                 "type": "string"
               },
@@ -30779,8 +33317,14 @@
                 "minimum": 1,
                 "type": "integer"
               },
+              "currentStepLabel": {
+                "type": "string"
+              },
               "hoursRemaining": {
                 "type": "number"
+              },
+              "pendingAction": {
+                "type": "string"
               },
               "riskLevel": {
                 "enum": [
@@ -33754,6 +36298,49 @@
         "support_document"
       ],
       "type": "string"
+    },
+    "DocumentRequirementStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentType": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "fileAssetId": {
+          "type": "string"
+        },
+        "isRequired": {
+          "default": true,
+          "type": "boolean"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "uploaded",
+            "approved",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "step": {
+          "maximum": 14,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "documentType",
+        "label",
+        "step",
+        "status",
+        "isRequired"
+      ],
+      "type": "object"
     },
     "DocumentScanStatusSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -38491,6 +41078,28 @@
       ],
       "type": "object"
     },
+    "EstimatedDurationSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "days": {
+          "maximum": 365,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "hoursPerDay": {
+          "default": 8,
+          "maximum": 24,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "days",
+        "hoursPerDay"
+      ],
+      "type": "object"
+    },
     "EvidenceCategorySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -39167,6 +41776,7 @@
                   "pending_review",
                   "approved",
                   "rejected",
+                  "replacement_requested",
                   "locked",
                   "archived"
                 ],
@@ -39204,6 +41814,9 @@
               "inspectionType": {
                 "maxLength": 100,
                 "type": "string"
+              },
+              "isRequired": {
+                "type": "boolean"
               },
               "location": {
                 "maxLength": 300,
@@ -39281,6 +41894,11 @@
               "photoLabel": {
                 "maxLength": 200,
                 "type": "string"
+              },
+              "qualityScore": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number"
               },
               "rejection": {
                 "default": {
@@ -39360,6 +41978,10 @@
                 ],
                 "type": "object"
               },
+              "replacedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
               "replacement": {
                 "default": {
                   "status": "absent"
@@ -39412,6 +42034,19 @@
                   }
                 ]
               },
+              "reviewedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "reviewedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "reviewNote": {
+                "maxLength": 1000,
+                "type": "string"
+              },
               "serviceCaseId": {
                 "pattern": "^[0-9a-fA-F]{24}$",
                 "type": "string"
@@ -39420,6 +42055,10 @@
                 "exclusiveMinimum": 0,
                 "maximum": 9007199254740991,
                 "type": "integer"
+              },
+              "slotId": {
+                "maxLength": 80,
+                "type": "string"
               },
               "source": {
                 "default": "upload",
@@ -39701,6 +42340,7 @@
             "pending_review",
             "approved",
             "rejected",
+            "replacement_requested",
             "locked",
             "archived"
           ],
@@ -40001,6 +42641,192 @@
       ],
       "type": "object"
     },
+    "EvidenceSlotSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "installation",
+            "deinstallation",
+            "test",
+            "calibration",
+            "quality",
+            "safety",
+            "incident",
+            "defect",
+            "progress",
+            "lifeline",
+            "cctv",
+            "measurement",
+            "other"
+          ],
+          "type": "string"
+        },
+        "evidenceId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "fulfilledAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "isBlocking": {
+          "default": false,
+          "type": "boolean"
+        },
+        "isRequired": {
+          "default": true,
+          "type": "boolean"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "phase": {
+          "enum": [
+            "before",
+            "during",
+            "after",
+            "correction",
+            "hse"
+          ],
+          "type": "string"
+        },
+        "slotId": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "slotId",
+        "phase",
+        "label",
+        "category",
+        "isRequired",
+        "isBlocking"
+      ],
+      "type": "object"
+    },
+    "EvidenceSlotsRequirementsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "blockingPendingCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "canClosePhase": {
+          "type": "boolean"
+        },
+        "fulfilledCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pendingCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "requiredCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "serviceCaseId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "slots": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "enum": [
+                  "installation",
+                  "deinstallation",
+                  "test",
+                  "calibration",
+                  "quality",
+                  "safety",
+                  "incident",
+                  "defect",
+                  "progress",
+                  "lifeline",
+                  "cctv",
+                  "measurement",
+                  "other"
+                ],
+                "type": "string"
+              },
+              "evidenceId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "fulfilledAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "isBlocking": {
+                "default": false,
+                "type": "boolean"
+              },
+              "isRequired": {
+                "default": true,
+                "type": "boolean"
+              },
+              "label": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "phase": {
+                "enum": [
+                  "before",
+                  "during",
+                  "after",
+                  "correction",
+                  "hse"
+                ],
+                "type": "string"
+              },
+              "slotId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "slotId",
+              "phase",
+              "label",
+              "category",
+              "isRequired",
+              "isBlocking"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "serviceCaseId",
+        "slots",
+        "requiredCount",
+        "fulfilledCount",
+        "pendingCount",
+        "blockingPendingCount",
+        "canClosePhase"
+      ],
+      "type": "object"
+    },
     "EvidenceSourceSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -40030,6 +42856,7 @@
         "pending_review",
         "approved",
         "rejected",
+        "replacement_requested",
         "locked",
         "archived"
       ],
@@ -42088,7 +44915,9 @@
         "open_incident",
         "sync_pending",
         "cancelled",
-        "already_completed"
+        "already_completed",
+        "preflight_not_completed",
+        "sla_deadline_exceeded"
       ],
       "type": "string"
     },
@@ -42110,7 +44939,9 @@
             "open_incident",
             "sync_pending",
             "cancelled",
-            "already_completed"
+            "already_completed",
+            "preflight_not_completed",
+            "sla_deadline_exceeded"
           ],
           "type": "string"
         },
@@ -42174,7 +45005,9 @@
                       "open_incident",
                       "sync_pending",
                       "cancelled",
-                      "already_completed"
+                      "already_completed",
+                      "preflight_not_completed",
+                      "sla_deadline_exceeded"
                     ],
                     "type": "string"
                   },
@@ -43167,7 +46000,9 @@
                   "open_incident",
                   "sync_pending",
                   "cancelled",
-                  "already_completed"
+                  "already_completed",
+                  "preflight_not_completed",
+                  "sla_deadline_exceeded"
                 ],
                 "type": "string"
               },
@@ -44114,6 +46949,1151 @@
       ],
       "type": "object"
     },
+    "ExecutionSessionEnrichedSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "assignedCrew": {
+          "default": [],
+          "items": {
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "blockers": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "enum": [
+                  "planning_not_approved",
+                  "work_order_not_ready",
+                  "execution_already_started",
+                  "execution_not_started",
+                  "missing_required_checklist",
+                  "missing_required_evidence",
+                  "missing_required_signature",
+                  "missing_labor_entries",
+                  "missing_material_usage",
+                  "open_incident",
+                  "sync_pending",
+                  "cancelled",
+                  "already_completed",
+                  "preflight_not_completed",
+                  "sla_deadline_exceeded"
+                ],
+                "type": "string"
+              },
+              "message": {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              "severity": {
+                "default": "blocking",
+                "enum": [
+                  "warning",
+                  "blocking",
+                  "critical"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "severity"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "cancellationReason": {
+          "maxLength": 800,
+          "type": "string"
+        },
+        "cancelledAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "checklistResponses": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "answeredAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "answeredBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "checklistId": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              "evidenceIds": {
+                "default": [],
+                "items": {
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "itemId": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              },
+              "required": {
+                "default": false,
+                "type": "boolean"
+              },
+              "responseId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "responseId",
+              "checklistId",
+              "itemId",
+              "label",
+              "value",
+              "required",
+              "evidenceIds",
+              "answeredAt",
+              "answeredBy"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "clientMutationIds": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "code": {
+          "maxLength": 40,
+          "minLength": 1,
+          "type": "string"
+        },
+        "completedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "completedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "createdBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "documentImportIds": {
+          "default": [],
+          "items": {
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "dynamicFormResponses": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "answeredAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "answeredBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "evidenceIds": {
+                "default": [],
+                "items": {
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "fieldKey": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              },
+              "required": {
+                "default": false,
+                "type": "boolean"
+              },
+              "responseId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "templateId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "templateResponseId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "responseId",
+              "fieldKey",
+              "label",
+              "value",
+              "required",
+              "evidenceIds",
+              "answeredAt",
+              "answeredBy"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "equipmentUsed": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "condition": {
+                "default": "ok",
+                "enum": [
+                  "ok",
+                  "damaged",
+                  "returned"
+                ],
+                "type": "string"
+              },
+              "endedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "equipmentId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "hoursUsed": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "notes": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "recordedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "recordedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "startedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "usageId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "usageId",
+              "name",
+              "startedAt",
+              "condition",
+              "recordedAt",
+              "recordedBy"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "estimatedDurationMinutes": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "evidenceIds": {
+          "default": [],
+          "items": {
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "evidences": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "documentId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "evidenceId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "fieldRef": {
+                "maxLength": 120,
+                "type": "string"
+              },
+              "gpsPoint": {
+                "additionalProperties": false,
+                "properties": {
+                  "accuracy": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "capturedAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                    "type": "string"
+                  },
+                  "lat": {
+                    "maximum": 90,
+                    "minimum": -90,
+                    "type": "number"
+                  },
+                  "lng": {
+                    "maximum": 180,
+                    "minimum": -180,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lng",
+                  "capturedAt"
+                ],
+                "type": "object"
+              },
+              "incidentId": {
+                "maxLength": 80,
+                "type": "string"
+              },
+              "materialUsageId": {
+                "maxLength": 80,
+                "type": "string"
+              },
+              "phase": {
+                "default": "during",
+                "enum": [
+                  "before",
+                  "during",
+                  "after",
+                  "incident",
+                  "checklist"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "image",
+                  "video",
+                  "document"
+                ],
+                "type": "string"
+              },
+              "uploadedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "uploadedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "evidenceId",
+              "type",
+              "phase",
+              "uploadedBy",
+              "uploadedAt"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "fieldNovelties": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "evidenceIds": {
+                "default": [],
+                "items": {
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "generatesWorkRequest": {
+                "default": false,
+                "type": "boolean"
+              },
+              "noveltyId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "reportedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "reportedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "severity": {
+                "default": "medium",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "critical"
+                ],
+                "type": "string"
+              },
+              "workRequestId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "noveltyId",
+              "description",
+              "severity",
+              "evidenceIds",
+              "generatesWorkRequest",
+              "reportedAt",
+              "reportedBy"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "gpsPoints": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "accuracy": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "capturedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "lat": {
+                "maximum": 90,
+                "minimum": -90,
+                "type": "number"
+              },
+              "lng": {
+                "maximum": 180,
+                "minimum": -180,
+                "type": "number"
+              }
+            },
+            "required": [
+              "lat",
+              "lng",
+              "capturedAt"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "incidents": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actionTaken": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "description": {
+                "maxLength": 2000,
+                "minLength": 5,
+                "type": "string"
+              },
+              "evidenceIds": {
+                "default": [],
+                "items": {
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "incidentId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "occurredAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "reportedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "resolved": {
+                "default": false,
+                "type": "boolean"
+              },
+              "resolvedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "resolvedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "severity": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "critical"
+                ],
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "safety",
+                  "quality",
+                  "environmental",
+                  "technical",
+                  "client",
+                  "other"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "incidentId",
+              "type",
+              "severity",
+              "description",
+              "occurredAt",
+              "reportedBy",
+              "evidenceIds",
+              "resolved"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "laborEntries": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              },
+              "durationMinutes": {
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991,
+                "type": "integer"
+              },
+              "endedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "laborEntryId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "notes": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "role": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "startedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "userId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "laborEntryId",
+              "userId",
+              "role",
+              "startedAt",
+              "endedAt",
+              "durationMinutes",
+              "description"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "lastSyncedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "materialsUsed": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "materialId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "notes": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "quantityPlanned": {
+                "default": 0,
+                "minimum": 0,
+                "type": "number"
+              },
+              "quantityUsed": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "recordedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "recordedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "unit": {
+                "maxLength": 50,
+                "minLength": 1,
+                "type": "string"
+              },
+              "usageId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "usageId",
+              "name",
+              "quantityPlanned",
+              "quantityUsed",
+              "unit",
+              "recordedAt",
+              "recordedBy"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "nextActions": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "enum": [
+                  "start_execution",
+                  "complete_required_checklist",
+                  "capture_required_evidence",
+                  "record_material_usage",
+                  "record_labor_time",
+                  "resolve_incident",
+                  "collect_signature",
+                  "finish_execution",
+                  "sync_pending_commands",
+                  "generate_technical_report"
+                ],
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "route": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "label"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "observations": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "createdAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "createdBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "description": {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "observationId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "observationId",
+              "description",
+              "createdAt",
+              "createdBy"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "offlineSyncStatus": {
+          "default": "synced",
+          "enum": [
+            "pending",
+            "syncing",
+            "synced",
+            "failed"
+          ],
+          "type": "string"
+        },
+        "pausedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "planningPacketId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "preflightChecklist": {
+          "additionalProperties": false,
+          "properties": {
+            "astSigned": {
+              "default": false,
+              "type": "boolean"
+            },
+            "certificationsCurrent": {
+              "default": false,
+              "type": "boolean"
+            },
+            "completedAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "completedBy": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "eppComplete": {
+              "default": false,
+              "type": "boolean"
+            },
+            "items": {
+              "default": [],
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "checkedAt": {
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                    "type": "string"
+                  },
+                  "checkedBy": {
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "isBlocking": {
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "isChecked": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "key": {
+                    "maxLength": 80,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "label": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key",
+                  "label",
+                  "isBlocking",
+                  "isChecked"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "ptwObtained": {
+              "default": false,
+              "type": "boolean"
+            },
+            "toolsValidated": {
+              "default": false,
+              "type": "boolean"
+            },
+            "vehicleDocumentsOk": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "eppComplete",
+            "astSigned",
+            "ptwObtained",
+            "toolsValidated",
+            "vehicleDocumentsOk",
+            "certificationsCurrent",
+            "items"
+          ],
+          "type": "object"
+        },
+        "resumedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "signatures": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "confirmed": {
+                "default": false,
+                "type": "boolean"
+              },
+              "imageDocumentId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "role": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "signatureId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "signatureType": {
+                "enum": [
+                  "technician",
+                  "supervisor",
+                  "client",
+                  "hes"
+                ],
+                "type": "string"
+              },
+              "signatureUrl": {
+                "format": "uri",
+                "type": "string"
+              },
+              "signedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "signedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "signedByName": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "signatureId",
+              "signedBy",
+              "signedByName",
+              "role",
+              "signatureType",
+              "signedAt",
+              "confirmed"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "startedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "startedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "ready",
+            "in_progress",
+            "paused",
+            "completed",
+            "cancelled",
+            "sync_pending",
+            "sync_failed"
+          ],
+          "type": "string"
+        },
+        "toolsUsed": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "condition": {
+                "default": "ok",
+                "enum": [
+                  "ok",
+                  "damaged",
+                  "lost",
+                  "returned"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "notes": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "quantityPlanned": {
+                "default": 0,
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "quantityUsed": {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "recordedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "recordedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "toolId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "usageId": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "usageId",
+              "name",
+              "quantityPlanned",
+              "quantityUsed",
+              "condition",
+              "recordedAt",
+              "recordedBy"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "workOrderId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "workOrderId",
+        "status",
+        "assignedCrew",
+        "checklistResponses",
+        "dynamicFormResponses",
+        "materialsUsed",
+        "toolsUsed",
+        "equipmentUsed",
+        "laborEntries",
+        "incidents",
+        "observations",
+        "signatures",
+        "evidenceIds",
+        "evidences",
+        "documentImportIds",
+        "gpsPoints",
+        "offlineSyncStatus",
+        "clientMutationIds",
+        "blockers",
+        "nextActions",
+        "createdBy",
+        "createdAt",
+        "updatedAt",
+        "fieldNovelties"
+      ],
+      "type": "object"
+    },
     "ExecutionSessionIdParamsSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -44168,7 +48148,9 @@
                   "open_incident",
                   "sync_pending",
                   "cancelled",
-                  "already_completed"
+                  "already_completed",
+                  "preflight_not_completed",
+                  "sla_deadline_exceeded"
                 ],
                 "type": "string"
               },
@@ -44622,7 +48604,9 @@
                         "open_incident",
                         "sync_pending",
                         "cancelled",
-                        "already_completed"
+                        "already_completed",
+                        "preflight_not_completed",
+                        "sla_deadline_exceeded"
                       ],
                       "type": "string"
                     },
@@ -45113,7 +49097,9 @@
                   "open_incident",
                   "sync_pending",
                   "cancelled",
-                  "already_completed"
+                  "already_completed",
+                  "preflight_not_completed",
+                  "sla_deadline_exceeded"
                 ],
                 "type": "string"
               },
@@ -48624,6 +52610,67 @@
         "description",
         "enabled",
         "category"
+      ],
+      "type": "object"
+    },
+    "FieldNoveltySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "evidenceIds": {
+          "default": [],
+          "items": {
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "generatesWorkRequest": {
+          "default": false,
+          "type": "boolean"
+        },
+        "noveltyId": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        "reportedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "reportedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "severity": {
+          "default": "medium",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "workRequestId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "noveltyId",
+        "description",
+        "severity",
+        "evidenceIds",
+        "generatesWorkRequest",
+        "reportedAt",
+        "reportedBy"
       ],
       "type": "object"
     },
@@ -52542,7 +56589,7 @@
       ],
       "type": "object"
     },
-    "KitItemSchema": {
+    "KitItemEnrichedSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
       "properties": {
@@ -52623,7 +56670,101 @@
           "default": false,
           "type": "boolean"
         },
-        "returnRequired": {
+        "unit": {
+          "maxLength": 50,
+          "minLength": 1,
+          "type": "string"
+        },
+        "unitCostCOP": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "category",
+        "name",
+        "quantity",
+        "unit",
+        "isCritical",
+        "isOptional",
+        "requiresCertification",
+        "calibrationRequired"
+      ],
+      "type": "object"
+    },
+    "KitItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "assetId": {
+          "type": "string"
+        },
+        "calibrationRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "calibrationValidityDays": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "category": {
+          "enum": [
+            "tool",
+            "electrical_tool",
+            "construction_equipment",
+            "height_safety",
+            "material",
+            "epp",
+            "instrument",
+            "vehicle",
+            "document",
+            "checklist"
+          ],
+          "type": "string"
+        },
+        "certificationType": {
+          "maxLength": 100,
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "estimatedUnitCost": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "inventoryItemId": {
+          "type": "string"
+        },
+        "isCritical": {
+          "default": false,
+          "type": "boolean"
+        },
+        "isOptional": {
+          "default": false,
+          "type": "boolean"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 1000,
+          "type": "string"
+        },
+        "quantity": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "requiresCertification": {
+          "default": false,
           "type": "boolean"
         },
         "unit": {
@@ -52755,6 +56896,73 @@
         "message",
         "severity",
         "active"
+      ],
+      "type": "object"
+    },
+    "KitSafetyRequirementsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "eppList": {
+          "default": [],
+          "items": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "heightsWorkLevel": {
+          "default": "none",
+          "enum": [
+            "none",
+            "basic",
+            "advanced",
+            "rescue"
+          ],
+          "type": "string"
+        },
+        "medevacRequired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "minimumTechnicianCertifications": {
+          "default": [],
+          "items": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "ptwTypes": {
+          "default": [],
+          "items": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "requiresAST": {
+          "default": false,
+          "type": "boolean"
+        },
+        "requiresPTW": {
+          "default": false,
+          "type": "boolean"
+        },
+        "riskAssessmentRequired": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "eppList",
+        "requiresAST",
+        "requiresPTW",
+        "ptwTypes",
+        "heightsWorkLevel",
+        "riskAssessmentRequired",
+        "minimumTechnicianCertifications",
+        "medevacRequired"
       ],
       "type": "object"
     },
@@ -52917,9 +57125,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -52953,9 +57158,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -52980,9 +57182,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53068,9 +57267,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -53104,9 +57300,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53131,9 +57324,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53173,9 +57363,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -53209,9 +57396,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53236,9 +57420,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53282,9 +57463,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -53318,9 +57496,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53345,9 +57520,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53387,9 +57559,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -53423,9 +57592,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53450,9 +57616,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53501,9 +57664,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -53537,9 +57697,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53564,9 +57721,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53674,6 +57828,72 @@
           ],
           "type": "string"
         },
+        "safetyRequirements": {
+          "additionalProperties": false,
+          "properties": {
+            "eppList": {
+              "default": [],
+              "items": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "heightsWorkLevel": {
+              "default": "none",
+              "enum": [
+                "none",
+                "basic",
+                "advanced",
+                "rescue"
+              ],
+              "type": "string"
+            },
+            "medevacRequired": {
+              "default": false,
+              "type": "boolean"
+            },
+            "minimumTechnicianCertifications": {
+              "default": [],
+              "items": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "ptwTypes": {
+              "default": [],
+              "items": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "requiresAST": {
+              "default": false,
+              "type": "boolean"
+            },
+            "requiresPTW": {
+              "default": false,
+              "type": "boolean"
+            },
+            "riskAssessmentRequired": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "eppList",
+            "requiresAST",
+            "requiresPTW",
+            "ptwTypes",
+            "heightsWorkLevel",
+            "riskAssessmentRequired",
+            "minimumTechnicianCertifications",
+            "medevacRequired"
+          ],
+          "type": "object"
+        },
         "serviceCategory": {
           "enum": [
             "mantenimiento",
@@ -53722,9 +57942,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -53758,9 +57975,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53785,9 +57999,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -53881,9 +58092,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -53917,9 +58125,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -53944,9 +58149,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -56192,6 +60394,11 @@
           "maximum": 9007199254740991,
           "minimum": 1,
           "type": "integer"
+        },
+        "search": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
         }
       },
       "required": [
@@ -57007,6 +61214,15 @@
         "limit"
       ],
       "type": "object"
+    },
+    "LocationTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "urban",
+        "rural",
+        "remote"
+      ],
+      "type": "string"
     },
     "LoginSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -58532,6 +62748,54 @@
         "command",
         "label",
         "requiredRole"
+      ],
+      "type": "object"
+    },
+    "NextExpectedActionSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "assignedRoles": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "deepLink": {
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        },
+        "dueDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "stepNumber": {
+          "maximum": 14,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "urgency": {
+          "default": "medium",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "stepNumber",
+        "description",
+        "assignedRoles",
+        "urgency"
       ],
       "type": "object"
     },
@@ -67118,12 +71382,10 @@
       "additionalProperties": false,
       "properties": {
         "key": {
-          "maxLength": 80,
           "minLength": 1,
           "type": "string"
         },
         "label": {
-          "maxLength": 200,
           "minLength": 1,
           "type": "string"
         },
@@ -67144,8 +71406,6 @@
       "properties": {
         "blockingReasons": {
           "items": {
-            "maxLength": 300,
-            "minLength": 1,
             "type": "string"
           },
           "type": "array"
@@ -67158,12 +71418,10 @@
             "additionalProperties": false,
             "properties": {
               "key": {
-                "maxLength": 80,
                 "minLength": 1,
                 "type": "string"
               },
               "label": {
-                "maxLength": 200,
                 "minLength": 1,
                 "type": "string"
               },
@@ -67181,9 +71439,12 @@
           "type": "array"
         },
         "generatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
           "type": "string"
         },
         "planningPacketId": {
+          "minLength": 1,
           "type": "string"
         },
         "status": {
@@ -67296,6 +71557,138 @@
         "sms"
       ],
       "type": "string"
+    },
+    "PreflightChecklistSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "astSigned": {
+          "default": false,
+          "type": "boolean"
+        },
+        "certificationsCurrent": {
+          "default": false,
+          "type": "boolean"
+        },
+        "completedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "completedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "eppComplete": {
+          "default": false,
+          "type": "boolean"
+        },
+        "items": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "checkedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "checkedBy": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "isBlocking": {
+                "default": true,
+                "type": "boolean"
+              },
+              "isChecked": {
+                "default": false,
+                "type": "boolean"
+              },
+              "key": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "key",
+              "label",
+              "isBlocking",
+              "isChecked"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "ptwObtained": {
+          "default": false,
+          "type": "boolean"
+        },
+        "toolsValidated": {
+          "default": false,
+          "type": "boolean"
+        },
+        "vehicleDocumentsOk": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "eppComplete",
+        "astSigned",
+        "ptwObtained",
+        "toolsValidated",
+        "vehicleDocumentsOk",
+        "certificationsCurrent",
+        "items"
+      ],
+      "type": "object"
+    },
+    "PreflightGateItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "checkedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "checkedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "isBlocking": {
+          "default": true,
+          "type": "boolean"
+        },
+        "isChecked": {
+          "default": false,
+          "type": "boolean"
+        },
+        "key": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 300,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "isBlocking",
+        "isChecked"
+      ],
+      "type": "object"
     },
     "PreviousStepEntitySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -71723,6 +76116,298 @@
           "type": "object"
         }
       },
+      "type": "object"
+    },
+    "ServiceCaseCockpitSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "activityType": {
+          "type": "string"
+        },
+        "blockers": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "message": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              },
+              "severity": {
+                "default": "blocking",
+                "enum": [
+                  "warning",
+                  "blocking",
+                  "critical"
+                ],
+                "type": "string"
+              },
+              "step": {
+                "maximum": 14,
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "severity"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "clientName": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "completedSteps": {
+          "maximum": 14,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "currentStep": {
+          "maximum": 14,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "documentRequirements": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "documentType": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "fileAssetId": {
+                "type": "string"
+              },
+              "isRequired": {
+                "default": true,
+                "type": "boolean"
+              },
+              "label": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "pending",
+                  "uploaded",
+                  "approved",
+                  "rejected"
+                ],
+                "type": "string"
+              },
+              "step": {
+                "maximum": 14,
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "documentType",
+              "label",
+              "step",
+              "status",
+              "isRequired"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "lastAuditEvents": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actorName": {
+                "type": "string"
+              },
+              "entityType": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "event": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "occurredAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event",
+              "entityType",
+              "occurredAt"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "nextExpectedAction": {
+          "additionalProperties": false,
+          "properties": {
+            "assignedRoles": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "deepLink": {
+              "type": "string"
+            },
+            "description": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            "dueDate": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "stepNumber": {
+              "maximum": 14,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "urgency": {
+              "default": "medium",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "stepNumber",
+            "description",
+            "assignedRoles",
+            "urgency"
+          ],
+          "type": "object"
+        },
+        "riskLevel": {
+          "default": "low",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "serviceCaseCode": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "slaDeadline": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "slaStatus": {
+          "enum": [
+            "on_track",
+            "at_risk",
+            "overdue"
+          ],
+          "type": "string"
+        },
+        "stepProgress": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "blockerReason": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "completedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "completedBy": {
+                "type": "string"
+              },
+              "deepLink": {
+                "type": "string"
+              },
+              "label": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "moduleKey": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "pending",
+                  "in_progress",
+                  "completed",
+                  "blocked",
+                  "skipped"
+                ],
+                "type": "string"
+              },
+              "step": {
+                "maximum": 14,
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "step",
+              "label",
+              "moduleKey",
+              "status"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "workDescription": {
+          "maxLength": 2000,
+          "type": "string"
+        }
+      },
+      "required": [
+        "serviceCaseId",
+        "serviceCaseCode",
+        "clientName",
+        "stepProgress",
+        "currentStep",
+        "completedSteps",
+        "blockers",
+        "documentRequirements",
+        "riskLevel",
+        "lastAuditEvents",
+        "generatedAt"
+      ],
       "type": "object"
     },
     "ServiceCaseFinancialSummarySchema": {
@@ -78063,6 +82748,57 @@
       },
       "type": "object"
     },
+    "StepProgressSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "blockerReason": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "completedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "completedBy": {
+          "type": "string"
+        },
+        "deepLink": {
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "moduleKey": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "in_progress",
+            "completed",
+            "blocked",
+            "skipped"
+          ],
+          "type": "string"
+        },
+        "step": {
+          "maximum": 14,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "step",
+        "label",
+        "moduleKey",
+        "status"
+      ],
+      "type": "object"
+    },
     "StepRequiredFieldSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -80630,7 +85366,9 @@
                       "open_incident",
                       "sync_pending",
                       "cancelled",
-                      "already_completed"
+                      "already_completed",
+                      "preflight_not_completed",
+                      "sla_deadline_exceeded"
                     ],
                     "type": "string"
                   },
@@ -94218,9 +98956,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -94254,9 +98989,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94281,9 +99013,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94364,9 +99093,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -94400,9 +99126,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94427,9 +99150,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94469,9 +99189,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -94505,9 +99222,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94532,9 +99246,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94578,9 +99289,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -94614,9 +99322,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94641,9 +99346,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94683,9 +99385,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -94719,9 +99418,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94746,9 +99442,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94791,9 +99484,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -94827,9 +99517,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94854,9 +99541,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -94896,9 +99580,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -94932,9 +99613,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -94959,9 +99637,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -95069,6 +99744,72 @@
           ],
           "type": "string"
         },
+        "safetyRequirements": {
+          "additionalProperties": false,
+          "properties": {
+            "eppList": {
+              "default": [],
+              "items": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "heightsWorkLevel": {
+              "default": "none",
+              "enum": [
+                "none",
+                "basic",
+                "advanced",
+                "rescue"
+              ],
+              "type": "string"
+            },
+            "medevacRequired": {
+              "default": false,
+              "type": "boolean"
+            },
+            "minimumTechnicianCertifications": {
+              "default": [],
+              "items": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "ptwTypes": {
+              "default": [],
+              "items": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "requiresAST": {
+              "default": false,
+              "type": "boolean"
+            },
+            "requiresPTW": {
+              "default": false,
+              "type": "boolean"
+            },
+            "riskAssessmentRequired": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "eppList",
+            "requiresAST",
+            "requiresPTW",
+            "ptwTypes",
+            "heightsWorkLevel",
+            "riskAssessmentRequired",
+            "minimumTechnicianCertifications",
+            "medevacRequired"
+          ],
+          "type": "object"
+        },
         "serviceCategory": {
           "enum": [
             "mantenimiento",
@@ -95117,9 +99858,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -95153,9 +99891,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -95180,9 +99915,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {
@@ -95225,9 +99957,6 @@
                 "maximum": 9007199254740991,
                 "type": "integer"
               },
-              "catalogItemId": {
-                "type": "string"
-              },
               "category": {
                 "enum": [
                   "tool",
@@ -95261,9 +99990,6 @@
               "inventoryItemId": {
                 "type": "string"
               },
-              "isBillable": {
-                "type": "boolean"
-              },
               "isCritical": {
                 "default": false,
                 "type": "boolean"
@@ -95288,9 +100014,6 @@
               },
               "requiresCertification": {
                 "default": false,
-                "type": "boolean"
-              },
-              "returnRequired": {
                 "type": "boolean"
               },
               "unit": {

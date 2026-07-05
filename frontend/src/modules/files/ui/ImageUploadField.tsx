@@ -35,6 +35,8 @@ export interface ImageUploadFieldProps {
 	maxOutputSizeBytes?: number;
 	stripExif?: boolean;
 	disabled?: boolean;
+	/** Extra key:value context persisted as file tags (e.g. checklistItemId). */
+	metadata?: Record<string, string>;
 	onSuccess?: (ref: FileAssetRef) => void;
 	onError?: (error: Error) => void;
 	label?: string;
@@ -131,6 +133,7 @@ export function ImageUploadField({
 	maxOutputSizeBytes = DEFAULT_MAX_OUTPUT,
 	stripExif = true,
 	disabled = false,
+	metadata,
 	onSuccess,
 	onError,
 	label = "Subir foto",
@@ -187,6 +190,9 @@ export function ImageUploadField({
 					category,
 					entityType,
 					entityId,
+					...(metadata
+						? { tags: Object.entries(metadata).map(([key, value]) => `${key}:${value}`) }
+						: {}),
 				});
 				setUploadedPreview(ref);
 				onSuccess?.(ref);
@@ -204,6 +210,7 @@ export function ImageUploadField({
 			category,
 			entityType,
 			entityId,
+			metadata,
 			onSuccess,
 			onError,
 		],

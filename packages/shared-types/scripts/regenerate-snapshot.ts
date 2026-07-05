@@ -18,6 +18,10 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as {
 	migrations: Array<{ toHash: string }>;
 };
 manifest.currentSnapshotHash = hash;
-manifest.migrations[manifest.migrations.length - 1]!.toHash = hash;
+const latestMigration = manifest.migrations.at(-1);
+if (!latestMigration) {
+	throw new Error("Contract migration manifest must contain at least one migration");
+}
+latestMigration.toHash = hash;
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log("Updated manifest hash:", hash);

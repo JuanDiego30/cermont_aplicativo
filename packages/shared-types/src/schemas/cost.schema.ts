@@ -155,3 +155,81 @@ export const CostResponseSchema = CostSchema.extend({
 	dataState: CostDataStateSchema,
 });
 export type CostResponse = z.infer<typeof CostResponseSchema>;
+
+// ─────────────────────────────────────────────────────────────────────────
+// Spec-015 — Cost catalog, baseline and intelligence contracts
+// ─────────────────────────────────────────────────────────────────────────
+
+// CostCatalogItemSchema lives in cost-cart.schema.ts (SSOT) — enriched there
+// with unitCostCOP / isBillable. Here only the create/list contracts.
+
+export const CreateCostCatalogItemSchema = z.object({
+	code: z.string().min(1).max(40),
+	name: z.string().min(1).max(200),
+	description: z.string().max(500).optional(),
+	category: CostCategorySchema,
+	unit: z.string().min(1).max(50),
+	unitPrice: z.number().min(0),
+	currency: z.string().default("COP"),
+	isActive: z.boolean().default(true),
+	unitCostCOP: z.number().min(0).optional(),
+	isBillable: z.boolean().optional(),
+});
+export type CreateCostCatalogItemInput = z.infer<typeof CreateCostCatalogItemSchema>;
+
+export const CostCatalogListQuerySchema = z.object({
+	category: z.string().max(50).optional(),
+	search: z.string().max(100).optional(),
+	isActive: z.coerce.boolean().optional(),
+	page: z.coerce.number().int().min(1).default(1),
+	limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export type CostCatalogListQuery = z.infer<typeof CostCatalogListQuerySchema>;
+
+export const BaselineCostSchema = z.object({
+	proposalId: z.string().min(1),
+	proposalCode: z.string().min(1).optional(),
+	frozenAt: z.string().datetime(),
+	totalEstimatedCOP: z.number().min(0),
+	totalTaxCOP: z.number().min(0).default(0),
+	byCategory: z.array(
+		z.object({
+			category: CostCategorySchema,
+			estimatedCOP: z.number().min(0),
+		}),
+	),
+});
+export type BaselineCost = z.infer<typeof BaselineCostSchema>;
+
+export const CostIntelligenceSummarySchema = z.object({
+	orderId: z.string().min(1),
+	orderCode: z.string().optional(),
+	baselineCost: BaselineCostSchema.optional(),
+	totalEstimated: z.number(),
+	totalActual: z.number(),
+	totalTaxCOP: z.number().default(0),
+	totalMargin: z.number(),
+	marginPercent: z.number(),
+	budgetConsumedPercent: z.number(),
+	isAtRisk: z.boolean(),
+	isCritical: z.boolean(),
+	deviationByCategory: z.array(
+		z.object({
+			category: CostCategorySchema,
+			estimated: z.number(),
+			actual: z.number(),
+			deviationPercent: z.number(),
+		}),
+	),
+	lastUpdatedAt: z.string().datetime(),
+});
+export type CostIntelligenceSummary = z.infer<typeof CostIntelligenceSummarySchema>;
+
+export const CostSummaryEnrichedSchema = CostSummarySchema.extend({
+	baselineCost: BaselineCostSchema.optional(),
+	budgetConsumedPercent: z.number().optional(),
+	marginPercent: z.number().optional(),
+	isAtRisk: z.boolean().optional(),
+	isCritical: z.boolean().optional(),
+});
+export type CostSummaryEnriched = z.infer<typeof CostSummaryEnrichedSchema>;

@@ -1,3 +1,4 @@
+import { normalizeOperationalStepCode } from "@cermont/domain";
 import {
 	CERMONT_OPERATIONAL_STEPS,
 	CERMONT_STEP_STAGE_MAP,
@@ -34,9 +35,13 @@ type BlockerResolver = (
 ) => DomainBlocker[] | Promise<DomainBlocker[]>;
 
 function resolveCurrentStepCode(serviceCase: ServiceCaseDocument): CermontOperationalStepCode {
-	return serviceCase.currentStepCode
-		? (serviceCase.currentStepCode as CermontOperationalStepCode)
-		: mapLegacyServiceCaseStageToStep(serviceCase.currentStage);
+	if (!serviceCase.currentStepCode) {
+		return mapLegacyServiceCaseStageToStep(serviceCase.currentStage);
+	}
+	const normalized = normalizeOperationalStepCode(serviceCase.currentStepCode);
+	return normalized.status === "invalid"
+		? mapLegacyServiceCaseStageToStep(serviceCase.currentStage)
+		: (normalized.code as CermontOperationalStepCode);
 }
 
 function assertValidServiceCaseId(serviceCaseId: string): void {
@@ -549,7 +554,7 @@ async function resolveTechnicalReportBlockers({
 				recommendedAction: tr?.id
 					? "Aprobar el informe técnico final."
 					: "Cargar el informe técnico final.",
-				stepCode: "step_07_technical_report",
+				stepCode: "step_08_technical_report",
 			}),
 		);
 	}
@@ -562,7 +567,7 @@ async function resolveTechnicalReportBlockers({
 				message: "Faltan fotos de evidencia de los acabados finales (después).",
 				ownerRole: "residente",
 				recommendedAction: "Subir fotos de evidencia después del trabajo.",
-				stepCode: "step_07_technical_report",
+				stepCode: "step_08_technical_report",
 			}),
 		);
 	}
@@ -574,7 +579,7 @@ async function resolveDeliveryRecordBlockers({
 	orderId,
 	serviceCase,
 }: BlockerResolverContext): Promise<DomainBlocker[]> {
-	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_08_delivery_record");
+	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_09_delivery_record");
 	if (serviceCase.artifacts.deliveryRecord?.id || stepDocuments.length > 0) {
 		return [];
 	}
@@ -586,7 +591,7 @@ async function resolveDeliveryRecordBlockers({
 			message: "Falta generar el acta de entrega formal.",
 			ownerRole: "residente",
 			recommendedAction: "Generar el acta de entrega formal.",
-			stepCode: "step_08_delivery_record",
+			stepCode: "step_09_delivery_record",
 		}),
 	];
 }
@@ -602,7 +607,7 @@ async function resolveClientSignatureBlockers({
 	const signatureDocuments = await findStepDocuments(
 		serviceCase,
 		orderId,
-		"step_09_client_signature",
+		"step_10_client_signature",
 	);
 	if (signedRecord || signatureDocuments.length > 0) {
 		return [];
@@ -615,7 +620,7 @@ async function resolveClientSignatureBlockers({
 			message: "Falta el acta de entrega firmada formalmente por el cliente.",
 			ownerRole: "residente",
 			recommendedAction: "Cargar el acta de entrega firmada.",
-			stepCode: "step_09_client_signature",
+			stepCode: "step_10_client_signature",
 		}),
 	];
 }
@@ -629,7 +634,7 @@ async function resolveSesSubmissionBlockers({
 		$or: [{ workOrderId: orderId }, { serviceCaseId: serviceCase._id }],
 		status: { $ne: "cancelled" },
 	}).lean();
-	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_10_ses_submission");
+	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_11_ses");
 	const blockers: DomainBlocker[] = [];
 
 	const sesIsSubmitted =
@@ -646,7 +651,7 @@ async function resolveSesSubmissionBlockers({
 				message: "Falta crear o radicar la SES en Ariba.",
 				ownerRole: "administrativo",
 				recommendedAction: "Crear y radicar la SES asociada al caso.",
-				stepCode: "step_10_ses_submission",
+				stepCode: "step_11_ses",
 			}),
 		);
 	}
@@ -659,7 +664,7 @@ async function resolveSesSubmissionBlockers({
 				message: "Falta el soporte documental de radicación SES.",
 				ownerRole: "administrativo",
 				recommendedAction: "Cargar el comprobante o recibo de radicación SES.",
-				stepCode: "step_10_ses_submission",
+				stepCode: "step_11_ses",
 			}),
 		);
 	}
@@ -675,7 +680,7 @@ async function resolveSesApprovalBlockers({
 		$or: [{ workOrderId: orderId }, { serviceCaseId: serviceCase._id }],
 		status: { $ne: "cancelled" },
 	}).lean();
-	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_11_ses_approval");
+	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_11_ses");
 	const blockers: DomainBlocker[] = [];
 	const sesApproved =
 		(serviceCase.artifacts.serviceEntrySheet?.id &&
@@ -690,7 +695,7 @@ async function resolveSesApprovalBlockers({
 				message: "La hoja de entrada de servicio (SES) aún no ha sido aprobada por el cliente.",
 				ownerRole: "administrativo",
 				recommendedAction: "Verificar y aprobar la SES radicada.",
-				stepCode: "step_11_ses_approval",
+				stepCode: "step_11_ses",
 			}),
 		);
 	}
@@ -703,7 +708,7 @@ async function resolveSesApprovalBlockers({
 				message: "Falta el soporte documental de aprobación SES.",
 				ownerRole: "administrativo",
 				recommendedAction: "Cargar el documento o evidencia de aprobación SES.",
-				stepCode: "step_11_ses_approval",
+				stepCode: "step_11_ses",
 			}),
 		);
 	}
@@ -720,7 +725,7 @@ async function resolveInvoiceSubmissionBlockers({
 		$or: [{ workOrderId: orderId }, { serviceCaseId: serviceCase._id }],
 		status: { $ne: "cancelled" },
 	}).lean();
-	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_12_invoice_submission");
+	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_12_invoice");
 	const blockers: DomainBlocker[] = [];
 
 	const invoiceWasSent =
@@ -745,7 +750,7 @@ async function resolveInvoiceSubmissionBlockers({
 				message: "Falta emitir y enviar la factura de venta correspondiente.",
 				ownerRole: "administrativo",
 				recommendedAction: "Crear y enviar la factura de venta.",
-				stepCode: "step_12_invoice_submission",
+				stepCode: "step_12_invoice",
 			}),
 		);
 	}
@@ -758,7 +763,7 @@ async function resolveInvoiceSubmissionBlockers({
 				message: "Falta el soporte documental de envío o emisión de factura.",
 				ownerRole: "administrativo",
 				recommendedAction: "Cargar la factura enviada al cliente.",
-				stepCode: "step_12_invoice_submission",
+				stepCode: "step_12_invoice",
 			}),
 		);
 	}
@@ -823,7 +828,7 @@ async function resolvePaymentClosureBlockers({
 		$or: [{ workOrderId: orderId }, { serviceCaseId: serviceCase._id }],
 		status: { $ne: "rejected" },
 	}).lean();
-	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_14_payment_closure");
+	const stepDocuments = await findStepDocuments(serviceCase, orderId, "step_14_payment");
 	const blockers: DomainBlocker[] = [];
 
 	const paymentReconciled =
@@ -839,7 +844,7 @@ async function resolvePaymentClosureBlockers({
 				message: "El pago final del servicio no ha sido conciliado en cuentas bancarias.",
 				ownerRole: "administrativo",
 				recommendedAction: "Subir comprobante de pago y conciliar cuenta.",
-				stepCode: "step_14_payment_closure",
+				stepCode: "step_14_payment",
 			}),
 		);
 	}
@@ -852,12 +857,38 @@ async function resolvePaymentClosureBlockers({
 				message: "Falta el comprobante documental del pago recibido.",
 				ownerRole: "administrativo",
 				recommendedAction: "Cargar comprobante o soporte bancario del pago.",
-				stepCode: "step_14_payment_closure",
+				stepCode: "step_14_payment",
 			}),
 		);
 	}
 
 	return blockers;
+}
+
+async function resolveEvidenceStepBlockers({
+	orderId,
+}: BlockerResolverContext): Promise<DomainBlocker[]> {
+	if ((await countEvidenceByType(orderId, "during")) > 0) {
+		return [];
+	}
+	return [
+		createEvidenceBlocker({
+			artifactType: "ExecutionSession",
+			field: "during_photos",
+			message: "Faltan evidencias fotográficas del trabajo ejecutado (durante).",
+			ownerRole: "residente",
+			recommendedAction: "Subir fotos de evidencia durante la ejecución.",
+			stepCode: "step_07_evidence",
+		}),
+	];
+}
+
+async function resolveSesBlockers(context: BlockerResolverContext): Promise<DomainBlocker[]> {
+	const [submissionBlockers, approvalBlockers] = await Promise.all([
+		resolveSesSubmissionBlockers(context),
+		resolveSesApprovalBlockers(context),
+	]);
+	return [...submissionBlockers, ...approvalBlockers];
 }
 
 const STEP_BLOCKER_RESOLVERS: Record<CermontOperationalStepCode, BlockerResolver> = {
@@ -867,14 +898,14 @@ const STEP_BLOCKER_RESOLVERS: Record<CermontOperationalStepCode, BlockerResolver
 	step_04_purchase_order: resolvePurchaseOrderBlockers,
 	step_05_planning: resolvePlanningBlockers,
 	step_06_execution: resolveExecutionBlockers,
-	step_07_technical_report: resolveTechnicalReportBlockers,
-	step_08_delivery_record: resolveDeliveryRecordBlockers,
-	step_09_client_signature: resolveClientSignatureBlockers,
-	step_10_ses_submission: resolveSesSubmissionBlockers,
-	step_11_ses_approval: resolveSesApprovalBlockers,
-	step_12_invoice_submission: resolveInvoiceSubmissionBlockers,
+	step_07_evidence: resolveEvidenceStepBlockers,
+	step_08_technical_report: resolveTechnicalReportBlockers,
+	step_09_delivery_record: resolveDeliveryRecordBlockers,
+	step_10_client_signature: resolveClientSignatureBlockers,
+	step_11_ses: resolveSesBlockers,
+	step_12_invoice: resolveInvoiceSubmissionBlockers,
 	step_13_invoice_approval: resolveInvoiceApprovalBlockers,
-	step_14_payment_closure: resolvePaymentClosureBlockers,
+	step_14_payment: resolvePaymentClosureBlockers,
 };
 
 async function calculateBlockersForServiceCase(

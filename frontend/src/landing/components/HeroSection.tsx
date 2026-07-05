@@ -128,7 +128,7 @@ export function HeroSection() {
 
 						<div className="relative z-10 mt-6 grid gap-4 sm:grid-cols-3">
 							{LANDING_METRICS.map((metric) => (
-								<MetricCard key={metric.label} {...metric} />
+								<MetricCard {...metric} key={metric.label} />
 							))}
 						</div>
 

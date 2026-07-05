@@ -22,7 +22,7 @@ export function TrustSection({ shouldReduceMotion }: { shouldReduceMotion: boole
 
 						<div className="mt-10 grid gap-5 sm:grid-cols-3">
 							{LANDING_TRUST_POINTS.map((point) => (
-								<PrincipleCard key={point.title} {...point} />
+								<PrincipleCard {...point} key={point.title} />
 							))}
 						</div>
 					</article>

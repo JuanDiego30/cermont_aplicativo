@@ -158,7 +158,7 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 				checklistId: cd._id,
 				orderId,
 				itemId,
-				completed,
+				result: completed ? "passed" : "pending",
 				observation,
 			});
 		} catch (e) {

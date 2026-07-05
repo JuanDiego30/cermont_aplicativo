@@ -444,3 +444,10 @@ export async function rejectPayment(req: Request, res: Response): Promise<void> 
 	);
 	res.status(200).json({ success: true, data: payment });
 }
+
+export async function generateAutoDraftReport(req: Request, res: Response): Promise<void> {
+	const { serviceCaseId } = req.params as { serviceCaseId: string };
+	const actor = actorFromRequest(req);
+	const report = await WorkflowService.generateAutoDraftReport(serviceCaseId, actor);
+	res.status(200).json({ success: true, data: report });
+}

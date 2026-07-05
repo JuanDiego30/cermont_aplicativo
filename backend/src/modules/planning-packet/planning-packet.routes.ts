@@ -120,14 +120,6 @@ router.post(
 	validateBody(ApprovePlanningPacketSchema),
 	PlanningPacketController.approvePlanningPacket,
 );
-router.post(
-	"/:id/approve",
-	authenticate,
-	authorize(...MANAGEMENT_ROLES),
-	validateParams(PlanningPacketIdParamsSchema),
-	validateBody(ApprovePlanningPacketSchema),
-	PlanningPacketController.approvePlanningPacket,
-);
 
 /**
  * POST /api/planning-packets/:id/reopen

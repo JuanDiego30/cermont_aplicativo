@@ -1,8 +1,9 @@
 import type { ListCostsQuery } from "@cermont/shared-types";
-import { PaginationQuerySchema } from "@cermont/shared-types";
+import { ListCostCatalogQuerySchema, PaginationQuerySchema } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { requireUser } from "../../common/utils/request";
 import * as CostService from "./cost.service";
+import * as CostCatalogService from "./cost-catalog.service";
 
 export async function listCosts(req: Request, res: Response): Promise<void> {
 	const { page, limit } = PaginationQuerySchema.parse(req.query);
@@ -68,6 +69,23 @@ export async function getCostSummary(req: Request, res: Response): Promise<void>
 export async function getCostDashboard(_req: Request, res: Response): Promise<void> {
 	const dashboard = await CostService.getCostDashboard();
 	res.status(200).json({ success: true, data: dashboard });
+}
+
+export async function getCostCatalog(req: Request, res: Response): Promise<void> {
+	const query = ListCostCatalogQuerySchema.parse(req.query);
+	const result = await CostCatalogService.listCostCatalog(query);
+	res.status(200).json({ success: true, data: result });
+}
+
+export async function createCostCatalogItem(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const item = await CostCatalogService.createCostCatalogItem(req.body, String(user._id));
+	res.status(201).json({ success: true, data: item });
+}
+
+export async function getCostIntelligence(req: Request, res: Response): Promise<void> {
+	const intelligence = await CostService.getIntelligence(String(req.params.orderId));
+	res.status(200).json({ success: true, data: intelligence });
 }
 
 export async function createCost(req: Request, res: Response): Promise<void> {

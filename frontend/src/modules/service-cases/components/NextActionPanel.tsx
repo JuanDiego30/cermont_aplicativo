@@ -27,7 +27,7 @@ function resolveSupportPurpose(
 	stepCode: CermontOperationalStepCode,
 	blockers: DomainBlocker[],
 ): "closing_evidence" | "support_document" {
-	if (stepCode >= "step_08_delivery_record" || hasEvidenceGap(blockers)) {
+	if (stepCode >= "step_09_delivery_record" || hasEvidenceGap(blockers)) {
 		return "closing_evidence";
 	}
 
@@ -38,7 +38,7 @@ function resolveSupportLabel(
 	stepCode: CermontOperationalStepCode,
 	blockers: DomainBlocker[],
 ): string {
-	if (stepCode >= "step_08_delivery_record") {
+	if (stepCode >= "step_09_delivery_record") {
 		return "Adjuntar soporte de cierre";
 	}
 

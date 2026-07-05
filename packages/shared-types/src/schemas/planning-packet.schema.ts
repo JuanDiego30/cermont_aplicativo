@@ -364,3 +364,26 @@ export const ApplyPlanningKitSchema = z
 	.strict();
 
 export type ApplyPlanningKitInput = z.infer<typeof ApplyPlanningKitSchema>;
+
+// ─── Spec-015: Planning readiness report ─────────────────────────────────────
+
+export const PlanningReadinessCheckSchema = z
+	.object({
+		key: z.string().min(1),
+		label: z.string().min(1),
+		passed: z.boolean(),
+	})
+	.strict();
+export type PlanningReadinessCheck = z.infer<typeof PlanningReadinessCheckSchema>;
+
+export const PlanningReadinessReportSchema = z
+	.object({
+		planningPacketId: z.string().min(1),
+		status: PlanningPacketStatusSchema,
+		canExecute: z.boolean(),
+		blockingReasons: z.array(z.string()),
+		checks: z.array(PlanningReadinessCheckSchema),
+		generatedAt: z.string().datetime(),
+	})
+	.strict();
+export type PlanningReadinessReport = z.infer<typeof PlanningReadinessReportSchema>;

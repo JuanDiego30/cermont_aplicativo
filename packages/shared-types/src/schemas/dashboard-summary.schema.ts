@@ -179,6 +179,10 @@ export const DashboardSlaRiskOrderSchema = z
 		hoursRemaining: z.number(),
 		currentStep: z.number().int().min(1).max(14),
 		riskLevel: z.enum(["warning", "critical"]),
+		// Spec-015 — optional enrichment
+		currentStepLabel: z.string().optional(),
+		assignedTechnicianName: z.string().optional(),
+		pendingAction: z.string().optional(),
 	})
 	.strict();
 
@@ -263,6 +267,34 @@ export const DashboardSummarySchema = z
 		systemHealth: DashboardSystemHealthSchema.optional(),
 	})
 	.strict();
+
+// ── Spec-015: Operational KPIs (MTTR / MTBF / FTFR) ────────────────────
+
+export const DashboardOperationalKPISchema = z
+	.object({
+		mttrMinutes: z.number().nonnegative(),
+		mtbfDays: z.number().nonnegative(),
+		firstTimeFixRate: z.number().min(0).max(100),
+		technicianUtilizationRate: z.number().min(0).max(100).optional(),
+		averageResponseTimeHours: z.number().nonnegative().optional(),
+		onTimeCompletionRate: z.number().min(0).max(100).optional(),
+		pendingInvoicesCount: z.number().int().nonnegative(),
+		overdueInvoicesCount: z.number().int().nonnegative(),
+		pendingReportsCount: z.number().int().nonnegative(),
+		currency: z.string().default("COP"),
+		periodFrom: z.string().datetime(),
+		periodTo: z.string().datetime(),
+	})
+	.strict();
+export type DashboardOperationalKPI = z.infer<typeof DashboardOperationalKPISchema>;
+
+// SLA risk order contract lives above (DashboardSlaRiskOrderSchema, spec-014)
+// and was enriched with optional step label / technician / pending action.
+
+export const DashboardSummaryEnrichedSchema = DashboardSummarySchema.extend({
+	operationalKPIs: DashboardOperationalKPISchema.optional(),
+});
+export type DashboardSummaryEnriched = z.infer<typeof DashboardSummaryEnrichedSchema>;
 
 export type DashboardSummary = z.infer<typeof DashboardSummarySchema>;
 export type DashboardPipelineSummary = z.infer<typeof DashboardPipelineSummarySchema>;

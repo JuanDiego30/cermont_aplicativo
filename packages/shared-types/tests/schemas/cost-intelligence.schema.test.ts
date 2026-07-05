@@ -24,10 +24,15 @@ describe("cost intelligence contracts", () => {
 		expect(item.category).toBe("materials");
 	});
 
-	it("normalizes catalog pagination without accepting unsupported fields", () => {
-		const query = ListCostCatalogQuerySchema.parse({ category: "labor", page: "2", limit: "15" });
+	it("normalizes catalog pagination and preserves supported search", () => {
+		const query = ListCostCatalogQuerySchema.parse({
+			category: "labor",
+			page: "2",
+			limit: "15",
+			search: "cable",
+		});
 
-		expect(query).toEqual({ category: "labor", page: 2, limit: 15 });
+		expect(query).toEqual({ category: "labor", page: 2, limit: 15, search: "cable" });
 	});
 
 	it("requires an explicit approved-budget state in summaries", () => {

@@ -725,11 +725,16 @@ describe("workflow gate — steps 7-14 (technical closure through payment)", () 
 	});
 
 	describe("step_10_ses_submission", () => {
-		it("clears all blockers when SES is submitted and step documents exist", async () => {
+		it("keeps only the approval blocker when SES is submitted but not yet approved", async () => {
+			// Canonical step_11_ses covers submission AND approval: a submitted
+			// SES clears the creation blocker but still reports pending approval.
 			mocks.serviceCaseFindById.mockResolvedValue(buildSesSubmissionServiceCase());
 			mocks.serviceEntrySheetFindOne.mockReturnValue(leanResult(null));
 			const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
-			expect(blockers).toHaveLength(0);
+			const codes = blockers.map((b) => b.code);
+			expect(codes).not.toContain("SES_NOT_CREATED");
+			expect(codes).toContain("SES_NOT_APPROVED");
+			expect(blockers).toHaveLength(1);
 		});
 
 		it("blocks SES_NOT_CREATED when SES is not submitted", async () => {

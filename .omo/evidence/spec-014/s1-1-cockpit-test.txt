@@ -1,0 +1,9 @@
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  01:56:57
+   Duration  2.59s (transform 93ms, setup 222ms, import 280ms, tests 172ms, environment 1.67s)
+

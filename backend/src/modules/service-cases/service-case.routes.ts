@@ -10,6 +10,7 @@ import {
 	bulkClosingEvidenceForCase,
 	closeServiceCase,
 	getCaseClosingStatus,
+	getInvoicePipeline,
 	getServiceCase,
 	getServiceCaseStepContext,
 	getServiceCaseSummary,
@@ -112,6 +113,14 @@ router.post(
 	authorize("gerente"),
 	validateParams(ServiceCaseIdParamsSchema),
 	archiveServiceCase,
+);
+
+// GET /api/service-cases/:id/invoice-pipeline — SES→Invoice→Payment pipeline
+router.get(
+	"/:id/invoice-pipeline",
+	authorize(...INTERNAL_ROLES),
+	validateParams(ServiceCaseIdParamsSchema),
+	getInvoicePipeline,
 );
 
 export default router;

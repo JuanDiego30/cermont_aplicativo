@@ -1,0 +1,24 @@
+{
+	"permissions": {
+		"allow": [
+			"Read(//c/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/docs/pdf/**)",
+			"PowerShell(git status --porcelain=v1)",
+			"PowerShell(npx tsc --noEmit -p backend/tsconfig.json 2>&1 | Select-Object -First 40; \"EXIT: $LASTEXITCODE\")",
+			"PowerShell(npx tsc --noEmit -p frontend/tsconfig.json 2>&1 | Select-Object -First 40; \"EXIT: $LASTEXITCODE\")",
+			"PowerShell(git add -A)",
+			"PowerShell(git restore --staged .claude/settings.json; git commit -F .git/COMMIT_MSG_TMP.txt 2>&1 | Select-Object -Last 8; \"COMMIT EXIT: $LASTEXITCODE\"; Remove-Item .git/COMMIT_MSG_TMP.txt -Confirm:$false)",
+			"PowerShell(npx biome check --write \"frontend/src/app/\\(dashboard\\)/execution/new/page.tsx\" \"frontend/src/app/\\(dashboard\\)/site-visits/new/page.tsx\" 2>&1 | Select-Object -Last 4; git add \"frontend/src/app/\\(dashboard\\)/execution/new/page.tsx\" \"frontend/src/app/\\(dashboard\\)/site-visits/new/page.tsx\"; git commit -F .git/COMMIT_MSG_TMP.txt 2>&1 | Select-Object -Last 6; \"COMMIT EXIT: $LASTEXITCODE\")",
+			"PowerShell(git add \"frontend/src/app/\\(dashboard\\)/execution/new/page.tsx\" \"frontend/src/app/\\(dashboard\\)/site-visits/new/page.tsx\"; git commit -F .git/COMMIT_MSG_TMP.txt 2>&1 | Select-Object -Last 6; \"COMMIT EXIT: $LASTEXITCODE\")",
+			"PowerShell(git commit -F .git/COMMIT_MSG_TMP.txt 2>&1 | Select-Object -Last 6; \"COMMIT EXIT: $LASTEXITCODE\")",
+			"PowerShell(\"\")",
+			"PowerShell(git log --oneline --all -1 -- docs/deploy-checklist.md; \\(git show HEAD:docs/deploy-checklist.md | Measure-Object -Line\\).Lines; git diff -- \"frontend/src/app/\\(dashboard\\)/execution/new/page.tsx\" \"frontend/src/app/\\(dashboard\\)/site-visits/new/page.tsx\" | Select-Object -First 30)",
+			"PowerShell(npm run typecheck 2>&1 | Select-Object -Last 4; \"TC: $LASTEXITCODE\"; npm run lint 2>&1 | Select-Object -Last 4; \"LINT: $LASTEXITCODE\"; npm run contracts:check 2>&1 | Select-Object -Last 4; \"CONTRACTS: $LASTEXITCODE\")",
+			"PowerShell(git add frontend/src packages/shared-types; git commit -m \"refactor: zod v4 api migration + evidence helpers \\(freeze parallel WIP\\)\" 2>&1 | Select-Object -Last 4; \"EXIT: $LASTEXITCODE\")",
+			"PowerShell(npm run typecheck 2>&1 | Select-Object -Last 3; \"TC: $LASTEXITCODE\"; npm run quality:weak-tokens 2>&1 | Select-String \"within|above\" | Select-Object -First 5)",
+			"PowerShell(npm run verify 2>&1 | Select-Object -Last 12; \"VERIFY EXIT: $LASTEXITCODE\")",
+			"PowerShell(npm run verify 2>&1 | Select-Object -Last 10; \"VERIFY EXIT: $LASTEXITCODE\")",
+			"PowerShell(npm run test:e2e 2>&1 | Select-Object -Last 30; \"E2E EXIT: $LASTEXITCODE\")",
+			"PowerShell(docker ps --format \"table {{.Names}}\\\\t{{.Status}}\"; docker compose config --quiet 2>&1; \"CONFIG: $LASTEXITCODE\"; docker manifest inspect mongo:7.0-alpine 2>&1 | Select-Object -First 3)"
+		]
+	}
+}

@@ -27,7 +27,7 @@ export function MethodSection() {
 
 					<div className="relative grid gap-8 lg:grid-cols-4 lg:gap-6">
 						{LANDING_WORKFLOW.map((step) => (
-							<WorkflowCard key={step.step} {...step} />
+							<WorkflowCard {...step} key={step.step} />
 						))}
 					</div>
 				</div>

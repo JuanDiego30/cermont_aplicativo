@@ -1,10 +1,14 @@
 import type {
 	ApiEnvelope,
 	Cost,
+	CostCatalogItem,
+	CostCatalogList,
 	CostCategory,
 	CostResponse as CostSnapshot,
 	CostSummary,
+	CreateCostCatalogItemInput,
 	CreateCostInput,
+	ListCostCatalogQuery,
 	UpdateCostInput,
 } from "@cermont/shared-types";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -52,6 +56,8 @@ type CostSummaryApiEnvelope = ApiEnvelope<CostSummary>;
 type CostDetailApiEnvelope = ApiEnvelope<CostSnapshot>;
 
 type LegacySummaryEnvelope = ApiEnvelope<Array<Record<string, unknown>>>;
+type CostCatalogApiEnvelope = ApiEnvelope<CostCatalogList>;
+type CostCatalogItemApiEnvelope = ApiEnvelope<CostCatalogItem>;
 
 function getApiErrorMessage(body: unknown, fallback: string): string {
 	if (body && typeof body === "object") {
@@ -71,6 +77,8 @@ function getApiErrorMessage(body: unknown, fallback: string): string {
 
 export const COSTS_KEYS = {
 	all: ["costs"] as const,
+	catalogRoot: ["costs", "catalog"] as const,
+	catalog: (filters: Partial<ListCostCatalogQuery>) => ["costs", "catalog", filters] as const,
 	list: (filters?: CostListFilters) => [...COSTS_KEYS.all, "list", filters] as const,
 	orderList: (orderId: string, filters?: Omit<CostListFilters, "orderId">) =>
 		[...COSTS_KEYS.all, "order-list", orderId, filters] as const,
@@ -106,6 +114,23 @@ function buildQueryString(filters?: CostListFilters): string {
 	return params.toString();
 }
 
+function buildCatalogQueryString(filters: Partial<ListCostCatalogQuery>): string {
+	const params = new URLSearchParams();
+	if (filters.category) {
+		params.set("category", filters.category);
+	}
+	if (typeof filters.page === "number") {
+		params.set("page", String(filters.page));
+	}
+	if (typeof filters.limit === "number") {
+		params.set("limit", String(filters.limit));
+	}
+	if (filters.search?.trim()) {
+		params.set("search", filters.search.trim());
+	}
+	return params.toString();
+}
+
 function toCostListResult(body?: CostListApiEnvelope): CostListQuery {
 	const meta = body?.meta ?? {};
 	const costs = body?.data ?? [];
@@ -134,6 +159,37 @@ function mapLegacySummaryItems(rows?: Array<Record<string, unknown>>): CostLegac
 	});
 }
 
+export function useCostCatalog(filters: Partial<ListCostCatalogQuery> = {}) {
+	return useQuery({
+		queryKey: COSTS_KEYS.catalog(filters),
+		queryFn: async (): Promise<CostCatalogList> => {
+			const queryString = buildCatalogQueryString(filters);
+			const body = await apiClient.get<CostCatalogApiEnvelope>(
+				`/costs/catalog${queryString ? `?${queryString}` : ""}`,
+			);
+
+			if (body?.success === false || !body?.data) {
+				throw new Error(getApiErrorMessage(body, "No se pudo cargar el catálogo de costos"));
+			}
+			return body.data;
+		},
+		staleTime: CACHE_CONFIG.STATIC,
+	});
+}
+
+export function useCreateCostCatalogItem() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (input: CreateCostCatalogItemInput): Promise<CostCatalogItem> => {
+			const body = await apiClient.post<CostCatalogItemApiEnvelope>("/costs/catalog", input);
+			if (body?.success === false || !body?.data) {
+				throw new Error(getApiErrorMessage(body, "No se pudo crear el ítem del catálogo"));
+			}
+			return body.data;
+		},
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: COSTS_KEYS.catalogRoot }),
+	});
+}
 export function useOrderCosts(orderId: string, filters?: Omit<CostListFilters, "orderId">) {
 	const normalizedFilters = {
 		orderId: orderId.trim(),

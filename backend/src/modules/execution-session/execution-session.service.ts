@@ -10,6 +10,7 @@ import {
 	type ExecutionGateContext,
 	type ExecutionNextActionCode,
 	type ExecutionReadModel,
+	evaluatePreflightGates,
 	validateExecutionCommandIdempotency,
 } from "@cermont/domain";
 import type {
@@ -28,6 +29,7 @@ import type {
 	ExecutionOfflineCommand,
 	ExecutionSessionListQuery,
 	PauseExecutionSessionCommand,
+	PreflightChecklist,
 	ResolveExecutionIncidentCommand,
 	ResumeExecutionSessionCommand,
 	StartExecutionSessionCommand,
@@ -457,6 +459,46 @@ export async function startExecutionSession(
 	await session.save();
 
 	return session;
+}
+
+/**
+ * Spec-015: persists the field preflight checklist and, when every blocking
+ * gate passes, promotes a draft session to ready.
+ */
+export async function submitPreflightChecklist(
+	id: string,
+	preflight: PreflightChecklist,
+	actor: AuthClaims,
+) {
+	const session = await getSessionOrThrow(id);
+	if (session.status === "completed" || session.status === "cancelled") {
+		throw new ConflictError("Preflight cannot be submitted on a finished session");
+	}
+
+	const gateResult = evaluatePreflightGates(preflight.items, {
+		eppComplete: preflight.eppComplete,
+		astSigned: preflight.astSigned,
+		ptwObtained: preflight.ptwObtained,
+		toolsValidated: preflight.toolsValidated,
+		vehicleDocumentsOk: preflight.vehicleDocumentsOk,
+		certificationsCurrent: preflight.certificationsCurrent,
+	});
+
+	session.preflightChecklist = {
+		...preflight,
+		items: preflight.items.map((item) => ({ ...item })),
+		...(gateResult.passed
+			? { completedAt: new Date().toISOString(), completedBy: String(actor._id) }
+			: {}),
+	};
+	if (gateResult.passed && session.status === "draft") {
+		session.status = "ready";
+	}
+
+	await refreshExecutionState(session);
+	await session.save();
+
+	return { session, preflight: gateResult };
 }
 
 export async function pauseExecutionSession(

@@ -33,7 +33,7 @@ function NewTechnicalReportForm() {
 		workflow,
 		isLoading: isContextLoading,
 		inheritedFields,
-	} = useServiceCaseContext("step_07_technical_report", serviceCaseId);
+	} = useServiceCaseContext("step_08_technical_report", serviceCaseId);
 
 	const [executionSummary, setExecutionSummary] = useState("");
 	const [findingsRaw, setFindingsRaw] = useState("");

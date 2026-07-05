@@ -1,0 +1,48 @@
+SPEC-005 FASE 0 — correlación SSH PM2/Nginx
+Fecha de lectura: 2026-06-28
+Host: 13.140.161.225
+Branch: release/production-deploy-cermont-20260627
+Commit: 7b5f41514e12bd73bc244a40b4f27221244d4a54
+
+Procesos:
+- cermont-backend 5.2.1 online, 0 restarts, cwd /home/diego/cermont_aplicativo/backend
+- cermont-frontend Next 16.2.9 online, 4 restarts
+- MongoDB readiness: connected
+
+Correlaciones:
+
+1. Notificaciones
+- Nginx: GET /api/backend/analytics/notifications -> 401 y, en la misma navegación,
+  una repetición -> 200.
+- PM2: el 401 tiene code TOKEN_EXPIRED.
+- El mismo instante contiene TOKEN_EXPIRED en work-requests, orders, auth/me y
+  otros endpoints. No es un fallo exclusivo de notifications.
+- Causa: refresh reactivo; el cliente espera el primer 401 para renovar token.
+
+2. Usuario/perfil
+- Nginx: GET /api/backend/users/6a32adb0ffecdac02881d6db -> 200.
+- Nginx: PUT al mismo recurso -> 500 en tres intentos.
+- PM2: PayloadTooLargeError: request entity too large en body-parser/jsonParser.
+- Backend desplegado limita JSON a 10kb. ProfileForm serializa avatar data URL
+  dentro de JSON. El error de body-parser no se clasifica y cae como 500.
+
+3. Work requests
+- Tres POST desde /work-requests/new -> 400, respuesta 619 bytes.
+- PM2: VALIDATION_FAILED.
+- El contrato exige shortDescription >=5 y description >=10; la UI desplegada
+  sólo usa required y permite enviar texto más corto. El payload de reproducción
+  prescrito también falla por description="Test".
+
+4. Documents
+- POST desde /work-requests/new -> 400, PM2 code BAD_REQUEST.
+- El endpoint conserva auth y validación multipart. La prueba prescrita usa un
+  contrato incorrecto (ownerType/ownerId/category); el contrato canónico usa
+  title/purpose/linkedEntityType/linkedEntityId.
+- La UI desplegada permite identificadores libres; el WIP local ya usa ObjectId
+  y elimina la entrada libre. Se requiere prueba de FormData y error de archivo.
+
+5. Assets/PWA
+- El VPS ejecuta exactamente el commit que no contiene los PNG ignorados.
+- El worktree del VPS sólo tiene backups .env no versionados; no hay hotfix manual.
+
+No se imprimieron secretos, tokens, cookies ni valores de entorno.

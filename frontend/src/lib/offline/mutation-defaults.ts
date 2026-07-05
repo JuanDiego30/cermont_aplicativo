@@ -101,7 +101,7 @@ export function registerOfflineMutationDefaults(queryClient: QueryClient): void 
 			const body = await apiClient.patch<ApiEnvelope<Checklist>>(
 				`/checklists/${variables.checklistId}/items/${variables.itemId}`,
 				{
-					completed: variables.completed,
+					result: variables.result,
 					observation: variables.observation,
 				},
 			);

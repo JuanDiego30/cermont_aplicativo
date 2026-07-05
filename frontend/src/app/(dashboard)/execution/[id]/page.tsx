@@ -31,6 +31,7 @@ import {
 	useStartExecutionSession,
 	useSubmitExecutionDynamicForm,
 } from "@/modules/execution/queries";
+import { ExecutionTimer } from "@/modules/field-execution/ui/ExecutionTimer";
 import { useAuthStore } from "@/store/auth.store";
 
 type ExecutionDetailPageProps = {
@@ -47,6 +48,8 @@ const STATUS_LABELS: Record<ExecutionSessionStatus, string> = {
 	sync_pending: "Sync pendiente",
 	sync_failed: "Sync fallida",
 };
+
+const DEFAULT_EXECUTION_TARGET_MINUTES = 8 * 60;
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
@@ -190,6 +193,19 @@ function ExecutionDetailWorkspace({
 						completeLoading={completeMutation.isPending}
 					/>
 				</div>
+				{session.startedAt ? (
+					<div className="mt-4 max-w-md">
+						<ExecutionTimer
+							startedAt={session.startedAt}
+							targetMinutes={DEFAULT_EXECUTION_TARGET_MINUTES}
+							end={
+								session.completedAt
+									? { status: "stopped", at: session.completedAt }
+									: { status: "running" }
+							}
+						/>
+					</div>
+				) : null}
 			</header>
 
 			{currentError ? (

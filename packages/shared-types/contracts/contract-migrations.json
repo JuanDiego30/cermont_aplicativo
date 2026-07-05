@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:374c0919a75d7536d0ef1cff4b45875f590ac93044f5a4c860e5eaf5677566a5",
+	"currentSnapshotHash": "sha256:ac444ddf32f5a5c0e76e6f0173a8fa67291b4d22297174d70670305609991bc1",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -434,6 +434,27 @@
 			"type": "non-breaking",
 			"description": "Add DashboardSlaRiskOrderSchema and slaRiskOrders (default []) to DashboardSummarySchema so the dashboard lists active cases that are overdue or within 72h of their promised completion date.",
 			"toHash": "sha256:374c0919a75d7536d0ef1cff4b45875f590ac93044f5a4c860e5eaf5677566a5"
+		},
+		{
+			"id": "062-spec-015-cockpit-cost-preflight-kpi-schemas",
+			"date": "2026-07-05",
+			"type": "non-breaking",
+			"description": "Spec-015 SSOT enrichment: add ServiceCaseCockpit (14-step progress), cost catalog create/list DTOs, BaselineCost, CostIntelligenceSummary, PreflightChecklist, FieldNovelty, EvidenceSlot(s), KitSafetyRequirements and DashboardOperationalKPI schemas; add replacement_requested evidence status, preflight/SLA execution blockers, and optional SLA-risk-order enrichment fields.",
+			"toHash": "sha256:8803624b53347acc4160601bc0098d4dd76b865688e3638426477ebf5b324cbb"
+		},
+		{
+			"id": "063-spec-015-cost-catalog-search",
+			"date": "2026-07-05",
+			"type": "non-breaking",
+			"description": "Add optional literal search by cost catalog item name or code to GET /costs/catalog.",
+			"toHash": "sha256:8803624b53347acc4160601bc0098d4dd76b865688e3638426477ebf5b324cbb"
+		},
+		{
+			"id": "064-spec-016-snapshot-refresh",
+			"date": "2026-07-05",
+			"type": "non-breaking",
+			"description": "Spec-016 Sprint 0: refresh API contract snapshot after Spec-014/015 accumulated changes.",
+			"toHash": "sha256:ac444ddf32f5a5c0e76e6f0173a8fa67291b4d22297174d70670305609991bc1"
 		}
 	]
 }

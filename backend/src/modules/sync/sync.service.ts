@@ -706,7 +706,7 @@ async function applyChecklistOperation(
 			await ChecklistSvc.updateChecklistItem(
 				checklistId,
 				itemId,
-				{ completed, observation },
+				{ result: completed ? "passed" : "pending", observation },
 				actorId,
 			);
 			break;

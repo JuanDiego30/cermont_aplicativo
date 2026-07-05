@@ -1,0 +1,29 @@
+SPEC-005 FASE 0 — curl de producción
+Fecha: 2026-06-27
+Base: https://cermontsas.shop
+
+/                                      200 text/html
+/login                                 200 text/html
+/reports/analytics                     307 -> /login
+/favicon.png                           404
+/icons/logo-cermont.png                404
+/icons/icon-192.png                    404
+/icons/icon-512.png                    404
+/icons/maskable-icon-192.png           404
+/icons/maskable-icon-512.png           404
+/manifest.webmanifest                  404
+/manifest.json                         200 application/json
+/api/health                            200 application/json
+/api/backend/health/live               200 application/json
+/api/backend/health/ready              200 application/json; db=connected; version=5.2.1
+/api/backend/analytics/notifications   401 anonymous
+/api/backend/notifications             401 anonymous
+/api/backend/users/6a32adb0ffecdac02881d6db 401 anonymous
+
+Manifest link observado en HTML: /manifest.json
+Icon links observados en HTML: /icons/logo-cermont.png, /icons/logo-cermont.svg,
+/favicon.png, /favicon.ico.
+
+Conclusión: los health checks están sanos; los seis PNG y el alias webmanifest
+fallan en el artefacto público; los endpoints protegidos no se pueden clasificar
+con curl anónimo más allá de confirmar que el perímetro JWT funciona.

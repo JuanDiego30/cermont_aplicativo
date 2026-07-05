@@ -1,0 +1,22 @@
+SPEC-005 FASE 0 — autenticación y logs
+Fecha: 2026-06-27
+
+SSH:
+- Host verificado: 13.140.161.225 (known_hosts existente).
+- Clave probada: ~/.ssh/cermont_deploy.
+- Usuarios probados: diego, ubuntu, ec2-user, admin, root, cermont.
+- Resultado en todos: Permission denied (publickey,password).
+
+API:
+- Se probó la contraseña seed local sin imprimirla ni persistirla.
+- Cuentas probadas: gerencia, gerente, administrativo y cliente.
+- Resultado en todos: POST /api/auth/login -> 401.
+- No se obtuvo token, cookie ni sesión.
+
+Decisión de seguridad:
+- No se forjaron JWT.
+- No se creó una cuenta temporal en producción.
+- No se modificó el VPS ni known_hosts.
+
+Pendiente para evidencia autenticada: una cuenta de prueba gerente/residente y/o
+autorización SSH de solo lectura para correlacionar los requestId con PM2/Nginx.

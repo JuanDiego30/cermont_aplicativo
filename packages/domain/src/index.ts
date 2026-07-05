@@ -196,6 +196,33 @@ export {
 	SUPERVISORY_ROLES,
 	TECHNICAL_EXECUTION_ROLES,
 } from "./roles";
+// ─── Spec-015 Rules ─────────────────────────────────────────────────────────
+export type {
+	CompletedOrderWindow,
+	CompletedSessionWindow,
+	CostRiskLevel,
+	EvidenceCompletenessResult,
+	EvidenceSlotInput,
+	FirstTimeFixOrderInput,
+	PreflightBooleanChecks,
+	PreflightGateItemInput,
+	PreflightResult,
+	SLARiskLevel,
+	TechnicianUtilizationSessionInput,
+} from "./spec-015-rules";
+export {
+	COST_AT_RISK_THRESHOLD_PERCENT,
+	COST_ON_BUDGET_THRESHOLD_PERCENT,
+	computeFirstTimeFixRate,
+	computeMTBF,
+	computeMTTR,
+	computeTechnicianUtilization,
+	evaluateCostRisk,
+	evaluateEvidenceCompleteness,
+	evaluatePreflightGates,
+	evaluateSLARisk,
+	SLA_AT_RISK_THRESHOLD_HOURS,
+} from "./spec-015-rules";
 export type {
 	CermontOperationalStep,
 	CermontOperationalStepKey,

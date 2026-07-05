@@ -19,6 +19,9 @@ export const CostCatalogItemSchema = z.object({
 	unitPrice: z.number().nonnegative(),
 	currency: z.string().default("COP"),
 	isActive: z.boolean().default(true),
+	// Spec-015 — billing enrichment (optional, additive)
+	unitCostCOP: z.number().nonnegative().optional(),
+	isBillable: z.boolean().optional(),
 	createdAt: z.string().datetime(),
 	updatedAt: z.string().datetime(),
 });
@@ -28,6 +31,7 @@ export type CostCatalogItem = z.infer<typeof CostCatalogItemSchema>;
 export const ListCostCatalogQuerySchema = z
 	.object({
 		category: CostCatalogItemCategoryEnum.optional(),
+		search: z.string().trim().min(1).max(100).optional(),
 		page: z.coerce.number().int().min(1).default(1),
 		limit: z.coerce.number().int().min(1).max(100).default(20),
 	})

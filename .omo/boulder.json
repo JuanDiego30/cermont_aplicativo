@@ -1,0 +1,22 @@
+{
+	"schema_version": 2,
+	"active_work_id": "spec-012-escalamiento-profesional",
+	"works": {
+		"007-codebase-memory-innovation-improved": {
+			"work_id": "007-codebase-memory-innovation-improved",
+			"active_plan": ".sisyphus/plans/007-codebase-memory-innovation-improved.md",
+			"plan_name": "007-codebase-memory-innovation-improved",
+			"session_ids": ["ses_0ebfdc896ffeHqQma0xtUoA5fY"],
+			"status": "paused",
+			"worktree_path": null
+		},
+		"spec-012-escalamiento-profesional": {
+			"work_id": "spec-012-escalamiento-profesional",
+			"active_plan": ".omo/plans/spec-012-escalamiento-profesional.md",
+			"plan_name": "spec-012-escalamiento-profesional",
+			"session_ids": ["codex:current"],
+			"status": "active",
+			"worktree_path": "C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\.codex\\worktrees\\spec-012-escalamiento-profesional"
+		}
+	}
+}

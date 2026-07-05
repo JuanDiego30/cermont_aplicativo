@@ -112,4 +112,14 @@ router.post(
 	WorkflowController.attachTechnicalReportDocument,
 );
 
+const AutoDraftServiceCaseIdSchema = z.object({ serviceCaseId: ObjectIdSchema }).strict();
+
+// GET /api/reports/auto-draft/:serviceCaseId — Auto-generate report draft from service case data
+router.get(
+	"/auto-draft/:serviceCaseId",
+	authorize(...TECHNICAL_EXECUTION_ROLES),
+	validateParams(AutoDraftServiceCaseIdSchema),
+	WorkflowController.generateAutoDraftReport,
+);
+
 export default router;

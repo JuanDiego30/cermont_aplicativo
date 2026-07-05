@@ -130,7 +130,10 @@ export default function FleetDetailPage() {
 			fallback={
 				<section className="space-y-4" aria-label="Cargando vehículo">
 					<div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
-						<Loader2 className="size-4 animate-spin text-[var(--color-brand-blue)]" aria-hidden="true" />
+						<Loader2
+							className="size-4 animate-spin text-[var(--color-brand-blue)]"
+							aria-hidden="true"
+						/>
 						<span>Cargando…</span>
 					</div>
 				</section>

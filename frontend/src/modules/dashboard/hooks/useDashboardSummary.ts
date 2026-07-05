@@ -15,8 +15,10 @@ import type {
 	DashboardFinancialAging,
 	DashboardNextAction,
 	DashboardOfflineSync,
+	DashboardOperationalKPI,
 	DashboardPipelineSummary,
 	DashboardRecentActivity,
+	DashboardSlaRiskOrder,
 	DashboardSummary,
 	DashboardSystemHealth,
 } from "@cermont/shared-types";
@@ -28,9 +30,21 @@ interface DashboardSummaryContract {
 	data?: DashboardSummary;
 }
 
+interface DashboardOperationalKpiContract {
+	success?: boolean;
+	data?: DashboardOperationalKPI;
+}
+
+interface DashboardSlaRiskContract {
+	success?: boolean;
+	data?: DashboardSlaRiskOrder[];
+}
+
 const DASHBOARD_KEYS = {
 	all: ["dashboard"] as const,
 	summary: ["dashboard", "summary"] as const,
+	operationalKpis: ["dashboard", "operational-kpis"] as const,
+	slaRisk: ["dashboard", "sla-risk"] as const,
 } as const;
 
 function mapDashboardSummary(data: DashboardSummary) {
@@ -80,5 +94,35 @@ export function useDashboardSummary() {
 			return mapDashboardSummary(body.data);
 		},
 		staleTime: 15_000,
+	});
+}
+
+export function useDashboardOperationalKpis() {
+	return useQuery({
+		queryKey: DASHBOARD_KEYS.operationalKpis,
+		queryFn: async (): Promise<DashboardOperationalKPI> => {
+			const body = await apiClient.get<DashboardOperationalKpiContract>(
+				"/dashboard/operational-kpis",
+			);
+			if (!body?.success || !body.data) {
+				throw new Error("Error al cargar los KPI operativos");
+			}
+			return body.data;
+		},
+		staleTime: 30_000,
+	});
+}
+
+export function useDashboardSlaRisk() {
+	return useQuery({
+		queryKey: DASHBOARD_KEYS.slaRisk,
+		queryFn: async (): Promise<DashboardSlaRiskOrder[]> => {
+			const body = await apiClient.get<DashboardSlaRiskContract>("/dashboard/sla-risk");
+			if (!body?.success || !body.data) {
+				throw new Error("Error al cargar el riesgo SLA");
+			}
+			return body.data;
+		},
+		staleTime: 30_000,
 	});
 }

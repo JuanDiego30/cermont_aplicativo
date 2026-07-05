@@ -153,6 +153,27 @@ export const KitUsageRecordSchema = z.object({
 });
 export type KitUsageRecord = z.infer<typeof KitUsageRecordSchema>;
 
+// ─── Spec-015: Safety requirements & enriched items ────────────────────────
+
+export const KitSafetyRequirementsSchema = z.object({
+	eppList: z.array(z.string().max(200)).default([]),
+	requiresAST: z.boolean().default(false),
+	requiresPTW: z.boolean().default(false),
+	ptwTypes: z.array(z.string().max(100)).default([]),
+	heightsWorkLevel: z.enum(["none", "basic", "advanced", "rescue"]).default("none"),
+	riskAssessmentRequired: z.boolean().default(false),
+	minimumTechnicianCertifications: z.array(z.string().max(200)).default([]),
+	medevacRequired: z.boolean().default(false),
+});
+export type KitSafetyRequirements = z.infer<typeof KitSafetyRequirementsSchema>;
+
+export const KitItemEnrichedSchema = KitItemSchema.extend({
+	isBillable: z.boolean().optional(),
+	unitCostCOP: z.number().min(0).optional(),
+	catalogItemId: z.string().optional(),
+});
+export type KitItemEnriched = z.infer<typeof KitItemEnrichedSchema>;
+
 // ─── Main Kit Template ─────────────────────────────────────────────────────
 
 export const KitTemplateSchema = z.object({
@@ -169,6 +190,7 @@ export const KitTemplateSchema = z.object({
 	tags: z.array(z.string().max(50)).default([]),
 	estimatedDurationHours: z.number().nonnegative().optional(),
 	riskLevel: KitRiskLevelEnum.default("low"),
+	safetyRequirements: KitSafetyRequirementsSchema.optional(),
 
 	// Categorized items
 	tools: z.array(KitItemSchema).default([]),

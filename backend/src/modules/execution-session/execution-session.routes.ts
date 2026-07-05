@@ -54,6 +54,14 @@ router.get(
 );
 
 router.post(
+	"/:id/preflight",
+	authenticate,
+	authorize(...FIELD_EXECUTION_ACCESS_ROLES),
+	validateParams(ExecutionSessionIdParamsSchema),
+	ExecutionSessionController.submitPreflightChecklist,
+);
+
+router.post(
 	"/:id/start",
 	authenticate,
 	authorize(...FIELD_EXECUTION_ACCESS_ROLES),

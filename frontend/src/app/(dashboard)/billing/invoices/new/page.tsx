@@ -47,7 +47,7 @@ function NewInvoiceForm() {
 		workflow,
 		isLoading: isContextLoading,
 		inheritedFields,
-	} = useServiceCaseContext("step_12_invoice_submission", serviceCaseId);
+	} = useServiceCaseContext("step_12_invoice", serviceCaseId);
 
 	// Derive SES ID: prefer URL param → artifacts
 	const derivedSesId = prefilledSesId || workflow?.artifacts?.serviceEntrySheet?.id || "";

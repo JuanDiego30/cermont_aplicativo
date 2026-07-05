@@ -20,8 +20,12 @@
 // Backend-only models (not exported to frontend)
 // @see DOC-09 Section Colecciones Solo-Backend
 export { AuditLog } from "./AuditLog";
+export { AutomationExecution } from "./AutomationExecution";
+export { AutomationOperationalAction } from "./AutomationOperationalAction";
+export { AutomationRule } from "./AutomationRule";
 export { Checklist } from "./Checklist";
 export { Cost } from "./Cost";
+export { CostCatalogItem } from "./CostCatalogItem";
 // Optional: Legacy models (kept for compatibility but may be deprecated)
 export { CostControl } from "./CostControl";
 export { Counter } from "./Counter";

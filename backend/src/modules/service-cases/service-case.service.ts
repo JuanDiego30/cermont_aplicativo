@@ -37,7 +37,9 @@ import {
 	Cost,
 	DeliveryRecord,
 	ExecutionSession,
+	Invoice,
 	Order,
+	Payment,
 	PlanningPacket,
 	Proposal,
 	User,
@@ -1613,5 +1615,108 @@ export async function advanceServiceCaseState(
 	return {
 		success: true,
 		serviceCase: updatedCase,
+	};
+}
+
+// ── Invoice Pipeline ──────────────────────────────────────────
+
+interface PipelineStage {
+	status:
+		| "not_created"
+		| "draft"
+		| "pending"
+		| "submitted"
+		| "approved"
+		| "rejected"
+		| "paid"
+		| "cancelled";
+	amount: number;
+	currency: string;
+	createdAt?: string;
+	updatedAt?: string;
+	code?: string;
+	agingDays?: number;
+}
+
+interface InvoicePipelineView {
+	serviceCaseId: string;
+	pipeline: {
+		ses: PipelineStage;
+		invoice: PipelineStage;
+		payment: PipelineStage;
+	};
+}
+
+export async function getInvoicePipeline(serviceCaseId: string): Promise<InvoicePipelineView> {
+	const { ServiceEntrySheet } = await import("../../models/index.js");
+
+	const serviceCase = await ServiceCase.findById(serviceCaseId).lean();
+	if (!serviceCase) {
+		throw new NotFoundError("ServiceCase", serviceCaseId);
+	}
+
+	const [ses, invoice, payment] = await Promise.all([
+		ServiceEntrySheet.findOne({}).sort({ createdAt: -1 }).lean() as Promise<Record<
+			string,
+			unknown
+		> | null>,
+		Invoice.findOne({}).sort({ createdAt: -1 }).lean() as Promise<Record<string, unknown> | null>,
+		Payment.findOne({ serviceCaseId: serviceCase._id })
+			.sort({ paidAt: -1, createdAt: -1 })
+			.lean() as Promise<Record<string, unknown> | null>,
+	]);
+
+	const toStatus = (
+		doc: Record<string, unknown> | null,
+		statusField: string,
+	): PipelineStage["status"] => {
+		if (!doc) {
+			return "not_created";
+		}
+		return String(doc[statusField] ?? "not_created") as PipelineStage["status"];
+	};
+
+	const calcAgingDays = (createdAt?: unknown): number | undefined => {
+		if (!createdAt) {
+			return undefined;
+		}
+		const created = new Date(createdAt as string);
+		if (Number.isNaN(created.getTime())) {
+			return undefined;
+		}
+		return Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
+	};
+
+	return {
+		serviceCaseId,
+		pipeline: {
+			ses: {
+				status: toStatus(ses, "status"),
+				amount: Number(ses?.total ?? ses?.subtotal ?? 0),
+				currency: String(ses?.currency ?? "COP"),
+				createdAt: ses?.createdAt ? new Date(ses.createdAt as string).toISOString() : undefined,
+				code: ses?.code ? String(ses.code) : undefined,
+			},
+			invoice: {
+				status: toStatus(invoice, "status"),
+				amount: Number(invoice?.total ?? invoice?.subtotal ?? 0),
+				currency: String(invoice?.currency ?? "COP"),
+				createdAt: invoice?.createdAt
+					? new Date(invoice.createdAt as string).toISOString()
+					: undefined,
+				code: invoice?.code ? String(invoice.code) : undefined,
+				agingDays: calcAgingDays(invoice?.createdAt),
+			},
+			payment: {
+				status: toStatus(payment, "status"),
+				amount: Number(payment?.amount ?? 0),
+				currency: String(payment?.currency ?? "COP"),
+				createdAt: payment?.paidAt
+					? new Date(payment.paidAt as string).toISOString()
+					: payment?.createdAt
+						? new Date(payment.createdAt as string).toISOString()
+						: undefined,
+			},
+		},
 	};
 }

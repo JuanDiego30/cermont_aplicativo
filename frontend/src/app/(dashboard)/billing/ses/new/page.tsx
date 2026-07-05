@@ -33,7 +33,7 @@ function NewSESForm() {
 		workflow,
 		isLoading: isContextLoading,
 		inheritedFields,
-	} = useServiceCaseContext("step_10_ses_submission", serviceCaseId);
+	} = useServiceCaseContext("step_11_ses", serviceCaseId);
 
 	// Derive delivery record ID: prefer URL param → artifacts
 	const derivedDeliveryId = prefilledDeliveryId || workflow?.artifacts?.deliveryRecord?.id || "";
