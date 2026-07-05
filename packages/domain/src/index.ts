@@ -223,6 +223,10 @@ export {
 	evaluateSLARisk,
 	SLA_AT_RISK_THRESHOLD_HOURS,
 } from "./spec-015-rules";
+// ─── Spec-013 Rules (compatibility shim — re-exports from Spec-015) ─────────
+// spec-013-rules.ts exists for direct imports per Spec-013 S1.6; symbols are
+// already re-exported above from spec-015-rules so no additional barrel export
+// is needed here (would cause duplicate identifier errors).
 export type {
 	CermontOperationalStep,
 	CermontOperationalStepKey,
