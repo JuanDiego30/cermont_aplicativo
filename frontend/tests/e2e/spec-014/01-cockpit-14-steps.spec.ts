@@ -19,8 +19,8 @@ test.describe("01 — Cockpit 14 Steps", () => {
 		await page.goto("/service-cases/test-id-001/cockpit");
 		// Should briefly show skeleton or error state gracefully
 		await page.waitForTimeout(1000);
-		const skeleton = page.locator(".animate-pulse");
-		const error = page.getByText("Error");
+		const skeleton = page.getByRole("status").or(page.locator("[aria-busy='true']"));
+		const error = page.getByRole("alert").or(page.getByText("Error"));
 		// Either loading or error state should be visible, not a blank page
 		await expect(skeleton.or(error)).toBeVisible();
 	});
