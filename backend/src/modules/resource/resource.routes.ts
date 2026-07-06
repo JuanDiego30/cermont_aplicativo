@@ -116,7 +116,13 @@ router.post(
 	attachDocumentToTool,
 );
 
-router.get("/:resourceId/documents", authorize(...INTERNAL_ROLES), listToolDocuments);
+router.get(
+	"/:resourceId/documents",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(ResourceDocumentParamsSchema),
+	listToolDocuments,
+);
 
 router.delete(
 	"/:resourceId/documents/:documentId",
