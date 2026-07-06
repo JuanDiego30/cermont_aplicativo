@@ -7,6 +7,7 @@ import { apiClient } from "@/lib/http/api-client";
 //import { Skeleton } from "@/components/ui/skeleton";
 
 import { ImageIcon, X } from "lucide-react";
+import { EvidenceStatusBadge } from "./EvidenceStatusBadge";
 
 interface EvidenceItem {
 	_id: string;
@@ -75,9 +76,7 @@ export function EvidenceGallery({ orderId, readOnly }: EvidenceGalleryProps) {
 					>
 						<div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 						<div className="absolute bottom-1 left-1 right-1">
-							<span className="text-[10px] text-white px-1 py-0.5 rounded bg-black/50">
-								{ev.fsmStatus}
-							</span>
+							<EvidenceStatusBadge status={ev.fsmStatus} />
 						</div>
 					</button>
 				))}
@@ -100,7 +99,9 @@ export function EvidenceGallery({ orderId, readOnly }: EvidenceGalleryProps) {
 								{selected.title || "Evidence"}
 							</Dialog.Title>
 							<div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-								<p>Status: {selected.fsmStatus}</p>
+								<p className="flex items-center gap-2">
+									<EvidenceStatusBadge status={selected.fsmStatus} />
+								</p>
 							</div>
 							{!readOnly && selected.fsmStatus === "rejected" && (
 								<div className="mt-4">
