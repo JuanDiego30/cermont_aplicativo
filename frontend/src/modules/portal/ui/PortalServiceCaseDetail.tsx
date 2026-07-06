@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PortalDocumentDownload } from "./PortalDocumentDownload";
 
 interface Props {
 	code: string;
@@ -23,24 +23,9 @@ export function PortalServiceCaseDetail({ code, status, description, documents }
 				<h2 className="text-sm font-semibold text-[var(--text-secondary)]">
 					Documentos disponibles
 				</h2>
-				{documents.length === 0 ? (
-					<p className="mt-2 text-sm text-[var(--text-tertiary)]">No hay documentos disponibles</p>
-				) : (
-					<ul className="mt-2 space-y-1">
-						{documents.map((doc) => (
-							<li key={doc.name}>
-								<Link
-									href={doc.url}
-									className="text-sm text-[var(--color-brand-blue)] hover:underline"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									{doc.name}
-								</Link>
-							</li>
-						))}
-					</ul>
-				)}
+				<div className="mt-2">
+					<PortalDocumentDownload documents={documents} />
+				</div>
 			</div>
 		</div>
 	);

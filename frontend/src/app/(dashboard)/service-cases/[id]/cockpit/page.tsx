@@ -1,7 +1,9 @@
 "use client";
 
+import { ChevronsRight } from "lucide-react";
 import { use } from "react";
 import { useCockpit } from "@/modules/cockpit/hooks/useCockpit";
+import { useCockpitMutations } from "@/modules/cockpit/hooks/useCockpitMutations";
 import { AuditTimeline } from "@/modules/cockpit/ui/AuditTimeline";
 import { BlockersPanelCollapsible } from "@/modules/cockpit/ui/BlockersPanelCollapsible";
 import { CockpitHeaderCard } from "@/modules/cockpit/ui/CockpitHeaderCard";
@@ -17,6 +19,7 @@ interface Props {
 export default function CockpitPage({ params }: Props) {
 	const { id } = use(params);
 	const { data, isLoading, isError, error } = useCockpit(id);
+	const { advanceMutation } = useCockpitMutations(id);
 
 	if (isLoading) {
 		return (
@@ -68,8 +71,28 @@ export default function CockpitPage({ params }: Props) {
 			</section>
 
 			{data.nextAction && (
-				<section aria-label="Próxima acción">
+				<section aria-label="Próxima acción" className="space-y-3">
 					<NextActionCard action={data.nextAction} />
+					{data.blockers.every((blocker) => blocker.severity !== "error") && (
+						<div className="flex items-center gap-3">
+							<button
+								type="button"
+								onClick={() => advanceMutation.mutate("advance_step")}
+								disabled={advanceMutation.isPending}
+								className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-brand-blue)] px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+							>
+								<ChevronsRight className="size-4" aria-hidden="true" />
+								{advanceMutation.isPending ? "Avanzando…" : "Avanzar paso"}
+							</button>
+							{advanceMutation.isError ? (
+								<p role="alert" className="text-xs text-[var(--color-danger)]">
+									{advanceMutation.error instanceof Error
+										? advanceMutation.error.message
+										: "No se pudo avanzar el paso"}
+								</p>
+							) : null}
+						</div>
+					)}
 				</section>
 			)}
 

@@ -37,10 +37,10 @@ export function ExecutionTimer({ startedAt, targetMinutes, end }: ExecutionTimer
 	const isOverdue = consumedPercent > 100;
 	const isCritical = consumedPercent > 110;
 	const tone = isOverdue
-		? "bg-[var(--color-danger)]"
+		? "[&::-webkit-progress-value]:bg-[var(--color-danger)] [&::-moz-progress-bar]:bg-[var(--color-danger)]"
 		: consumedPercent >= 80
-			? "bg-[var(--color-warning)]"
-			: "bg-[var(--color-success)]";
+			? "[&::-webkit-progress-value]:bg-[var(--color-warning)] [&::-moz-progress-bar]:bg-[var(--color-warning)]"
+			: "[&::-webkit-progress-value]:bg-[var(--color-success)] [&::-moz-progress-bar]:bg-[var(--color-success)]";
 
 	return (
 		<section
@@ -62,22 +62,15 @@ export function ExecutionTimer({ startedAt, targetMinutes, end }: ExecutionTimer
 					{formatElapsed(elapsedSeconds)}
 				</output>
 			</div>
-			<div
-				className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--surface-secondary)]"
-				role="progressbar"
+			<progress
+				value={Math.round(progressScale * 100)}
+				max={100}
 				aria-label="Consumo del tiempo estimado"
-				aria-valuemin={0}
-				aria-valuemax={100}
-				aria-valuenow={Math.round(consumedPercent)}
-			>
-				<span
-					className={
-						"block h-full origin-left rounded-full transition-transform motion-reduce:transition-none " +
-						tone
-					}
-					style={{ transform: `scaleX(${progressScale})` }}
-				/>
-			</div>
+				className={
+					"mt-3 block h-2 w-full appearance-none overflow-hidden rounded-full bg-[var(--surface-secondary)] [&::-moz-progress-bar]:rounded-full [&::-webkit-progress-bar]:bg-[var(--surface-secondary)] [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:transition-all motion-reduce:[&::-webkit-progress-value]:transition-none " +
+					tone
+				}
+			/>
 			<p className="mt-2 text-xs text-[var(--text-secondary)]">
 				{Math.round(consumedPercent)}% de {targetMinutes} minutos estimados
 			</p>

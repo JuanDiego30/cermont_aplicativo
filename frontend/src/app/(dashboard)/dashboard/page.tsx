@@ -41,6 +41,10 @@ import { FirstTimeFixRateGauge } from "@/modules/dashboard/ui/FirstTimeFixRateGa
 import { FleetAlertsBanner } from "@/modules/dashboard/ui/FleetAlertsBanner";
 import { KPICard } from "@/modules/dashboard/ui/KPICard";
 import { MTTRMTBFCards } from "@/modules/dashboard/ui/MTTRMTBFCards";
+import {
+	type ActionItem,
+	NextActionsByRolePanel,
+} from "@/modules/dashboard/ui/NextActionsByRolePanel";
 import { PendingInvoicesAlert } from "@/modules/dashboard/ui/PendingInvoicesAlert";
 import { PendingReportsAlert } from "@/modules/dashboard/ui/PendingReportsAlert";
 import { RecentOrdersTable } from "@/modules/dashboard/ui/RecentOrdersTable";
@@ -217,6 +221,28 @@ function buildDashboardKpiSnapshot(
 				serviceCaseSummary?.revenue ?? dashboardSummary.costVariance?.estimatedCost ?? 0,
 		},
 	};
+}
+
+const NEXT_ACTION_ROUTES: Record<string, string> = {
+	review_request: "/work-requests",
+	create_proposal: "/proposals/new",
+	start_execution: "/execution",
+	approve_planning: "/planning",
+};
+
+function buildNextActionItems(
+	nextActions: Array<{ command: string; label: string; requiredRole: string; count: number }>,
+): ActionItem[] {
+	return nextActions
+		.filter((action) => action.count > 0)
+		.map((action) => ({
+			id: action.command,
+			description: action.label,
+			orderCode: `${action.count} pendiente${action.count === 1 ? "" : "s"}`,
+			deepLink: NEXT_ACTION_ROUTES[action.command] ?? "/service-cases",
+			urgency: "normal" as const,
+			requiredRole: action.requiredRole,
+		}));
 }
 
 function subscribeToTodayLabel(onStoreChange: () => void): () => void {
@@ -406,6 +432,10 @@ export default function DashboardPage() {
 				readyToBill={serviceCaseSummary?.readyToBill ?? 0}
 				readyToClose={serviceCaseSummary?.readyToClose ?? 0}
 				inPlanning={serviceCaseSummary?.inPlanning ?? 0}
+			/>
+
+			<NextActionsByRolePanel
+				actions={buildNextActionItems(dashboardSummary?.nextActions ?? [])}
 			/>
 
 			<OperationalKpiSection

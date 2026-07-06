@@ -11,6 +11,8 @@ export interface ActionItem {
 	deadline?: string;
 	deepLink: string;
 	urgency: ActionUrgency;
+	/** Role the backend assigned to this action; used for role-based filtering. */
+	requiredRole?: string;
 }
 
 interface Props {
@@ -30,6 +32,10 @@ const URGENCY_LABEL: Record<ActionUrgency, string> = {
 };
 
 function shouldShowAction(role: string, action: ActionItem): boolean {
+	if (action.requiredRole) {
+		// Gerente supervises the whole pipeline; everyone else sees their own actions.
+		return role === "gerente" || action.requiredRole === role;
+	}
 	const description = action.description.toLowerCase();
 	if (role === "gerente") {
 		return description.includes("aprobar") || description.includes("pago");
@@ -90,7 +96,7 @@ export function NextActionsByRolePanel({ actions }: Props) {
 						<a
 							href={action.deepLink}
 							className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] p-3 transition hover:border-[var(--color-brand-blue)]/30 hover:bg-[var(--surface-secondary)]"
-							aria-label={`${action.description} — Orden ${action.orderCode} — ${URGENCY_LABEL[action.urgency]}`}
+							aria-label={`${action.description} — ${action.orderCode} — ${URGENCY_LABEL[action.urgency]}`}
 						>
 							<span
 								className={`mt-1 size-2 shrink-0 rounded-full ${URGENCY_ICON_CLASS[
@@ -102,7 +108,7 @@ export function NextActionsByRolePanel({ actions }: Props) {
 								<p className="text-sm font-medium text-[var(--text-primary)]">
 									{action.description}
 								</p>
-								<p className="text-xs text-[var(--text-secondary)]">Orden: {action.orderCode}</p>
+								<p className="text-xs text-[var(--text-secondary)]">{action.orderCode}</p>
 								{action.deadline && (
 									<p className="text-xs text-[var(--text-tertiary)]">
 										{URGENCY_LABEL[action.urgency]} · {action.deadline}

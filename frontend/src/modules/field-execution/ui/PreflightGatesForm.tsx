@@ -12,9 +12,14 @@ interface GateItem {
 interface Props {
 	gates: GateItem[];
 	onComplete: (passedItems: string[]) => void;
+	submitLabel?: string;
 }
 
-export function PreflightGatesForm({ gates, onComplete }: Props) {
+export function PreflightGatesForm({
+	gates,
+	onComplete,
+	submitLabel = "Iniciar ejecución",
+}: Props) {
 	const [checked, setChecked] = useState<Set<string>>(new Set());
 
 	const toggle = (id: string) => {
@@ -68,7 +73,7 @@ export function PreflightGatesForm({ gates, onComplete }: Props) {
 				onClick={() => onComplete(Array.from(checked))}
 				className="w-full rounded-full bg-[var(--color-brand-blue)] px-6 py-3 text-sm font-semibold text-white disabled:opacity-50 transition"
 			>
-				Iniciar ejecución
+				{submitLabel}
 			</button>
 		</div>
 	);

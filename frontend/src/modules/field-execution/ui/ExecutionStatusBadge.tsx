@@ -1,7 +1,15 @@
 "use client";
 
 interface Props {
-	status: "draft" | "ready" | "in_progress" | "paused" | "completed" | "cancelled";
+	status:
+		| "draft"
+		| "ready"
+		| "in_progress"
+		| "paused"
+		| "completed"
+		| "cancelled"
+		| "sync_pending"
+		| "sync_failed";
 }
 
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
@@ -11,6 +19,8 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
 	paused: { label: "Pausado", className: "bg-orange-100 text-orange-700" },
 	completed: { label: "Completado", className: "bg-[#4CAF50]/20 text-green-700" },
 	cancelled: { label: "Cancelado", className: "bg-[#F44336]/20 text-red-700" },
+	sync_pending: { label: "Sync pendiente", className: "bg-purple-100 text-purple-700" },
+	sync_failed: { label: "Sync fallida", className: "bg-[#F44336]/20 text-red-700" },
 };
 
 export function ExecutionStatusBadge({ status }: Props) {

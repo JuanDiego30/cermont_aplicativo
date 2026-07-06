@@ -33,6 +33,7 @@ import { apiClient } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { FleetPhotoGallery } from "@/modules/fleet/ui/FleetPhotoGallery";
 import { FleetReadinessBadge } from "@/modules/fleet/ui/FleetReadinessBadge";
+import { VehicleAssignmentPanel } from "@/modules/fleet/ui/VehicleAssignmentPanel";
 import { VehicleDocumentsTab } from "@/modules/fleet/ui/VehicleDocumentsTab";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -90,12 +91,13 @@ function useMounted(): boolean {
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
-type TabId = "info" | "documents" | "photos";
+type TabId = "info" | "documents" | "photos" | "assignment";
 
 const TABS: { id: TabId; label: string; icon: typeof Info }[] = [
 	{ id: "info", label: "Información", icon: Info },
 	{ id: "documents", label: "Documentos", icon: FileText },
 	{ id: "photos", label: "Fotos", icon: Camera },
+	{ id: "assignment", label: "Asignación", icon: User },
 ];
 
 // ─── InfoRow ─────────────────────────────────────────────────────────────────
@@ -381,6 +383,9 @@ function FleetDetailPageInner() {
 					{activeTab === "photos" && (
 						<FleetPhotoGallery vehicleId={data._id} canManage={canManage} />
 					)}
+
+					{/* ── Assignment tab ── */}
+					{activeTab === "assignment" && <VehicleAssignmentPanel vehicleId={data._id} />}
 				</div>
 			</div>
 		</section>

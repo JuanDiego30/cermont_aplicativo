@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
 	onReport: (data: {
@@ -12,10 +12,23 @@ interface Props {
 }
 
 export function FieldNoveltyButton({ onReport }: Props) {
+	const dialogRef = useRef<HTMLDialogElement>(null);
 	const [isOpen, setIsOpen] = useState(false);
 	const [description, setDescription] = useState("");
 	const [severity, setSeverity] = useState("medium");
 	const [generatesWR, setGeneratesWR] = useState(false);
+
+	useEffect(() => {
+		const dialog = dialogRef.current;
+		if (!dialog) {
+			return;
+		}
+		if (isOpen && !dialog.open) {
+			dialog.showModal();
+		} else if (!isOpen && dialog.open) {
+			dialog.close();
+		}
+	}, [isOpen]);
 
 	const handleSubmit = () => {
 		if (description.trim().length < 5) {
@@ -41,18 +54,20 @@ export function FieldNoveltyButton({ onReport }: Props) {
 				<span className="sr-only">Reportar novedad</span>
 			</button>
 
-			{isOpen && (
-				<div
-					className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
-					role="dialog"
-					aria-modal="true"
-				>
-					<div className="w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--surface-primary)] p-6 shadow-xl">
+			<dialog
+				ref={dialogRef}
+				aria-label="Reportar novedad de campo"
+				onClose={() => setIsOpen(false)}
+				className="z-50 m-auto w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--surface-primary)] p-0 shadow-xl backdrop:bg-black/50"
+			>
+				{isOpen && (
+					<div className="p-6">
 						<div className="flex items-center justify-between">
 							<h2 className="text-lg font-semibold text-[var(--text-primary)]">Reportar novedad</h2>
 							<button
 								type="button"
 								onClick={() => setIsOpen(false)}
+								aria-label="Cerrar"
 								className="text-[var(--text-secondary)]"
 							>
 								<X className="size-5" aria-hidden="true" />
@@ -113,8 +128,8 @@ export function FieldNoveltyButton({ onReport }: Props) {
 							</button>
 						</div>
 					</div>
-				</div>
-			)}
+				)}
+			</dialog>
 		</>
 	);
 }

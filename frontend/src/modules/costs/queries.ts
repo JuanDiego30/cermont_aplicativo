@@ -4,6 +4,7 @@ import type {
 	CostCatalogItem,
 	CostCatalogList,
 	CostCategory,
+	CostIntelligenceSummary,
 	CostResponse as CostSnapshot,
 	CostSummary,
 	CreateCostCatalogItemInput,
@@ -292,6 +293,29 @@ export function useOrderCostSummary(orderId: string) {
 
 			if (!body?.data) {
 				throw new Error("No se pudo cargar el resumen de costos");
+			}
+
+			return body.data;
+		},
+		enabled: !!normalizedOrderId,
+		staleTime: CACHE_CONFIG.REALTIME,
+	});
+}
+
+export function useCostIntelligence(orderId: string) {
+	const normalizedOrderId = orderId.trim();
+
+	return useQuery({
+		queryKey: [...COSTS_KEYS.all, "intelligence", normalizedOrderId] as const,
+		queryFn: async (): Promise<CostIntelligenceSummary> => {
+			const body = await apiClient.get<ApiEnvelope<CostIntelligenceSummary>>(
+				`/costs/${encodeURIComponent(normalizedOrderId)}/intelligence`,
+			);
+
+			if (body?.success === false || !body?.data) {
+				throw new Error(
+					getApiErrorMessage(body, "No se pudo cargar la inteligencia de costos"),
+				);
 			}
 
 			return body.data;

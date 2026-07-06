@@ -26,7 +26,7 @@ type ExecutionDetailEnvelope = {
 	queued?: boolean;
 };
 
-const EXECUTION_KEYS = {
+export const EXECUTION_KEYS = {
 	all: ["execution-sessions"] as const,
 	list: (filters?: Partial<ExecutionSessionListQuery>) =>
 		[...EXECUTION_KEYS.all, "list", filters] as const,
