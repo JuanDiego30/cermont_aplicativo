@@ -13,10 +13,10 @@ export function transformWorkflowToCockpitData(
 ): CockpitData {
 	const steps = workflow.steps.map((step) => {
 		const isCurrent = step.code === workflow.currentStepCode;
-		// Compare by stepNumber since artifactType and step.code use different naming
-		const isBlocked = workflow.blockers.some(
-			(b) => b.severity === "blocking" && !!(b.artifactType || b.field?.includes(step.code)),
-		);
+		// A step is blocked only if there are blockers with "blocking" severity
+		// AND the blocker targets the current workflow state
+		const hasActiveBlockers = workflow.blockers.some((b) => b.severity === "blocking");
+		const isBlocked = isCurrent && hasActiveBlockers;
 		let status: "completed" | "in_progress" | "blocked" | "pending";
 		if (step.status === "completed") {
 			status = "completed";
