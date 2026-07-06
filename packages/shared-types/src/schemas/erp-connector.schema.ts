@@ -62,3 +62,23 @@ export type CreateErpConnectorInput = z.infer<typeof CreateErpConnectorSchema>;
 export const UpdateErpConnectorSchema = CreateErpConnectorSchema.partial();
 
 export type UpdateErpConnectorInput = z.infer<typeof UpdateErpConnectorSchema>;
+
+export const SyncErpConnectorParamsSchema = z
+	.object({
+		provider: ErpProviderTypeEnum,
+	})
+	.strict();
+
+export type SyncErpConnectorParams = z.infer<typeof SyncErpConnectorParamsSchema>;
+
+export const SyncErpConnectorRequestSchema = z.object({}).strict().default({});
+
+export type SyncErpConnectorRequest = z.infer<typeof SyncErpConnectorRequestSchema>;
+
+export const ValidateErpMappingSchema = z
+	.object({
+		fieldMappings: z.record(z.string(), z.string()),
+	})
+	.strict();
+
+export type ValidateErpMappingInput = z.infer<typeof ValidateErpMappingSchema>;

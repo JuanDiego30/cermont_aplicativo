@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
+	"currentSnapshotHash": "sha256:d1753655489277cd50485f49409320f206df55dec0ccb06de0d7e7027126045c",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -476,6 +476,13 @@
 			"toHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
 			"id": "067-spec-019-sprint-11-work-request-slahours",
 			"date": "2026-07-06"
+		},
+		{
+			"id": "068-spec-020-wave-1-route-request-contracts",
+			"date": "2026-07-06",
+			"type": "non-breaking",
+			"description": "Add form submission, ERP sync, jobs action, ERP mapping, and bulk QR request schemas for route-boundary validation.",
+			"toHash": "sha256:d1753655489277cd50485f49409320f206df55dec0ccb06de0d7e7027126045c"
 		}
 	]
 }

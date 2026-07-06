@@ -1,3 +1,4 @@
+import { CreateFormSubmissionSchema } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { createLogger } from "../../common/utils/logger";
@@ -10,26 +11,6 @@ import {
 
 const log = createLogger("form-submissions");
 
-const CreateFormSubmissionBodySchema = z.object({
-	templateId: z.string().min(1).max(100),
-	stepCode: z.string().min(1).max(80),
-	serviceCaseId: z.string().length(24).optional(),
-	executionSessionId: z.string().length(24).optional(),
-	values: z.object({}).catchall(z.string().or(z.number()).or(z.boolean())),
-	photoAttachments: z
-		.array(
-			z.object({
-				fieldKey: z.string().min(1),
-				fileId: z.string().min(1),
-				fileName: z.string().min(1),
-				mimeType: z.string().min(1),
-				sizeBytes: z.number().int().nonnegative(),
-			}),
-		)
-		.optional(),
-	status: z.enum(["draft", "submitted"]).optional(),
-});
-
 const ListQuerySchema = z.object({
 	serviceCaseId: z.string().length(24).optional(),
 	templateId: z.string().optional(),
@@ -40,7 +21,7 @@ const ListQuerySchema = z.object({
 });
 
 export async function createSubmission(req: Request, res: Response): Promise<void> {
-	const parsed = CreateFormSubmissionBodySchema.safeParse(req.body);
+	const parsed = CreateFormSubmissionSchema.safeParse(req.body);
 	if (!parsed.success) {
 		res.status(422).json({ error: "Validation error", details: parsed.error.flatten() });
 		return;

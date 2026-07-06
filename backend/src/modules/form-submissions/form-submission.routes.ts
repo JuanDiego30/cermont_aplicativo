@@ -1,7 +1,9 @@
 import { INTERNAL_ROLES } from "@cermont/domain";
+import { CreateFormSubmissionSchema, FormSubmissionIdParamsSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import { validateBody, validateParams } from "../../middlewares/validate";
 import * as FormSubmissionController from "./form-submission.controller";
 
 const router = Router();
@@ -14,6 +16,7 @@ router.post(
 	"/",
 	authenticate,
 	authorize(...INTERNAL_ROLES),
+	validateBody(CreateFormSubmissionSchema),
 	FormSubmissionController.createSubmission,
 );
 
@@ -47,6 +50,7 @@ router.patch(
 	"/:id/archive",
 	authenticate,
 	authorize(...INTERNAL_ROLES),
+	validateParams(FormSubmissionIdParamsSchema),
 	FormSubmissionController.archiveSubmission,
 );
 

@@ -5,18 +5,16 @@
 import {
 	CreateErpConnectorSchema,
 	ObjectIdSchema,
+	SyncErpConnectorParamsSchema,
+	SyncErpConnectorRequestSchema,
 	UpdateErpConnectorSchema,
+	ValidateErpMappingSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import { z } from "zod";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams } from "../../middlewares/validate";
 import { erpConnectorController } from "./erp-connector.controller";
-
-const ValidateErpMappingSchema = z.object({
-	fieldMappings: z.record(z.string(), z.string()),
-});
 
 const router = Router();
 
@@ -73,6 +71,8 @@ router.post(
 	"/:provider/sync",
 	authenticate,
 	authorize("gerente", "residente"),
+	validateParams(SyncErpConnectorParamsSchema),
+	validateBody(SyncErpConnectorRequestSchema),
 	erpConnectorController.sync,
 );
 

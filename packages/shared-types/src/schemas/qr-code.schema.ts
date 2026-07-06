@@ -22,6 +22,14 @@ export const GenerateQrCodeSchema = z
 
 export type GenerateQrCodeInput = z.infer<typeof GenerateQrCodeSchema>;
 
+export const GenerateBulkQrCodesSchema = z
+	.object({
+		items: z.array(GenerateQrCodeSchema).min(1),
+	})
+	.strict();
+
+export type GenerateBulkQrCodesInput = z.infer<typeof GenerateBulkQrCodesSchema>;
+
 export const QrCodeSchema = z
 	.object({
 		_id: ObjectIdSchema,

@@ -24465,6 +24465,99 @@
       ],
       "type": "object"
     },
+    "CreateFormSubmissionSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "executionSessionId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "photoAttachments": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "fieldKey": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "fileId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "fileName": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "mimeType": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "sizeBytes": {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "fieldKey",
+              "fileId",
+              "fileName",
+              "mimeType",
+              "sizeBytes"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "serviceCaseId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "submitted"
+          ],
+          "type": "string"
+        },
+        "stepCode": {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        "templateId": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        "values": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "templateId",
+        "stepCode",
+        "values"
+      ],
+      "type": "object"
+    },
     "CreateInspectionSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -53953,6 +54046,112 @@
       ],
       "type": "string"
     },
+    "FormSubmissionIdParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "FormSubmissionPhotoAttachmentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "fieldKey": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "fileId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "fileName": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mimeType": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sizeBytes": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "fieldKey",
+        "fileId",
+        "fileName",
+        "mimeType",
+        "sizeBytes"
+      ],
+      "type": "object"
+    },
+    "FormSubmissionValueSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
+    "GenerateBulkQrCodesSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "entityId": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "entityType": {
+                "enum": [
+                  "order",
+                  "service_case",
+                  "execution_session",
+                  "equipment",
+                  "tool",
+                  "vehicle"
+                ],
+                "type": "string"
+              },
+              "label": {
+                "maxLength": 100,
+                "type": "string"
+              }
+            },
+            "required": [
+              "entityType",
+              "entityId"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    },
     "GeneratedDocumentSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -76190,6 +76389,13 @@
       ],
       "type": "object"
     },
+    "RunJobsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {},
+      "type": "object"
+    },
     "ScheduleVisitSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -85757,6 +85963,34 @@
       "required": [
         "operations"
       ],
+      "type": "object"
+    },
+    "SyncErpConnectorParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "enum": [
+            "fssm",
+            "gmao_csm",
+            "sap",
+            "ariba",
+            "dian",
+            "custom"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider"
+      ],
+      "type": "object"
+    },
+    "SyncErpConnectorRequestSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "default": {},
+      "properties": {},
       "type": "object"
     },
     "SyncErrorSchema": {
@@ -106500,6 +106734,25 @@
         "skills",
         "createdAt",
         "updatedAt"
+      ],
+      "type": "object"
+    },
+    "ValidateErpMappingSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "fieldMappings": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "fieldMappings"
       ],
       "type": "object"
     },
