@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsRight } from "lucide-react";
+import Image from "next/image";
 import { use } from "react";
 import { useCockpit } from "@/modules/cockpit/hooks/useCockpit";
 import { useCockpitMutations } from "@/modules/cockpit/hooks/useCockpitMutations";
@@ -141,10 +142,11 @@ export default function CockpitPage({ params }: Props) {
 												className="group relative aspect-video overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]"
 											>
 												{ev.url ? (
-													<img
+													<Image
 														src={ev.url}
 														alt={ev.caption ?? "Evidencia"}
-														className="h-full w-full object-cover transition group-hover:scale-105"
+														fill
+														className="object-cover transition group-hover:scale-105"
 													/>
 												) : (
 													<div className="flex h-full items-center justify-center text-xs text-[var(--text-muted)]">
