@@ -40,15 +40,92 @@ function priorityCardClass(span: string, tone: "brand" | "danger" | "neutral") {
 	return `${span} rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] p-5 ${border}`;
 }
 
-export function DashboardCommandCenter({ summary }: { summary: DashboardSummary }) {
-	const readiness = summary.fieldReadiness;
-	const closure = summary.administrativeClosure;
+function PriorityCards({ readiness, closure, summary }: {
+	readiness: DashboardSummary["fieldReadiness"];
+	closure: DashboardSummary["administrativeClosure"];
+	summary: DashboardSummary;
+}) {
 	const criticalControls = readiness.blockingChecklistsPending + readiness.blockingChecklistsFailed;
 	const closureBacklog =
 		closure.pendingDeliveryRecords +
 		closure.pendingSES +
 		closure.pendingInvoices +
 		closure.pendingPayments;
+
+	return (
+		<div className="grid gap-4 lg:grid-cols-12">
+			<Link
+				href={APP_ROUTES.checklists}
+				className={priorityCardClass("lg:col-span-5", "danger")}
+			>
+				<div className="flex items-start justify-between gap-5">
+					<div className="space-y-3">
+						<span className="flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]">
+							<ShieldAlert className="size-5" aria-hidden="true" />
+						</span>
+						<div>
+							<p className="text-sm font-medium text-[var(--text-secondary)]">
+								Controles críticos por resolver
+							</p>
+							<p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-[var(--text-primary)]">
+								{criticalControls}
+							</p>
+						</div>
+						<p className="text-sm text-[var(--text-secondary)]">
+							{readiness.blockingChecklistsFailed} fallidos ·{" "}
+							{readiness.blockingChecklistsPending} pendientes
+						</p>
+					</div>
+					<ArrowRight className="size-5 text-[var(--text-tertiary)]" aria-hidden="true" />
+				</div>
+			</Link>
+
+			<Link href={APP_ROUTES.evidences} className={priorityCardClass("lg:col-span-3", "brand")}>
+				<FileCheck2 className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
+				<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
+					Evidencias por validar
+				</p>
+				<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
+					{readiness.evidencePendingReview}
+				</p>
+				<p className="mt-2 text-xs text-[var(--text-tertiary)]">
+					{readiness.evidenceRejected} rechazadas requieren reemplazo
+				</p>
+			</Link>
+
+			<Link
+				href={APP_ROUTES.deliveryRecords}
+				className={priorityCardClass("lg:col-span-2", "neutral")}
+			>
+				<FileClock className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
+				<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
+					Expedientes por cerrar
+				</p>
+				<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
+					{closureBacklog}
+				</p>
+			</Link>
+
+			<Link
+				href={APP_ROUTES.payments}
+				className={priorityCardClass("lg:col-span-2", "neutral")}
+			>
+				<WalletCards className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
+				<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">Cartera vencida</p>
+				<p className="mt-1 font-mono text-xl font-semibold tabular-nums text-[var(--text-primary)]">
+					{formatCop(summary.financialAging.totalOverdueAmount)}
+				</p>
+				<p className="mt-2 text-xs text-[var(--text-tertiary)]">
+					{summary.financialAging.overdueInvoiceCount} facturas
+				</p>
+			</Link>
+		</div>
+	);
+}
+
+export function DashboardCommandCenter({ summary }: { summary: DashboardSummary }) {
+	const readiness = summary.fieldReadiness;
+	const closure = summary.administrativeClosure;
 	const maximumDemand = Math.max(...summary.serviceDemand.items.map((item) => item.requests), 1);
 
 	return (
@@ -69,73 +146,7 @@ export function DashboardCommandCenter({ summary }: { summary: DashboardSummary 
 					</time>
 				</div>
 
-				<div className="grid gap-4 lg:grid-cols-12">
-					<Link
-						href={APP_ROUTES.checklists}
-						className={priorityCardClass("lg:col-span-5", "danger")}
-					>
-						<div className="flex items-start justify-between gap-5">
-							<div className="space-y-3">
-								<span className="flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]">
-									<ShieldAlert className="size-5" aria-hidden="true" />
-								</span>
-								<div>
-									<p className="text-sm font-medium text-[var(--text-secondary)]">
-										Controles críticos por resolver
-									</p>
-									<p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-[var(--text-primary)]">
-										{criticalControls}
-									</p>
-								</div>
-								<p className="text-sm text-[var(--text-secondary)]">
-									{readiness.blockingChecklistsFailed} fallidos ·{" "}
-									{readiness.blockingChecklistsPending} pendientes
-								</p>
-							</div>
-							<ArrowRight className="size-5 text-[var(--text-tertiary)]" aria-hidden="true" />
-						</div>
-					</Link>
-
-					<Link href={APP_ROUTES.evidences} className={priorityCardClass("lg:col-span-3", "brand")}>
-						<FileCheck2 className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
-						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
-							Evidencias por validar
-						</p>
-						<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
-							{readiness.evidencePendingReview}
-						</p>
-						<p className="mt-2 text-xs text-[var(--text-tertiary)]">
-							{readiness.evidenceRejected} rechazadas requieren reemplazo
-						</p>
-					</Link>
-
-					<Link
-						href={APP_ROUTES.deliveryRecords}
-						className={priorityCardClass("lg:col-span-2", "neutral")}
-					>
-						<FileClock className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
-						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
-							Expedientes por cerrar
-						</p>
-						<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
-							{closureBacklog}
-						</p>
-					</Link>
-
-					<Link
-						href={APP_ROUTES.payments}
-						className={priorityCardClass("lg:col-span-2", "neutral")}
-					>
-						<WalletCards className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
-						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">Cartera vencida</p>
-						<p className="mt-1 font-mono text-xl font-semibold tabular-nums text-[var(--text-primary)]">
-							{formatCop(summary.financialAging.totalOverdueAmount)}
-						</p>
-						<p className="mt-2 text-xs text-[var(--text-tertiary)]">
-							{summary.financialAging.overdueInvoiceCount} facturas
-						</p>
-					</Link>
-				</div>
+				<PriorityCards readiness={readiness} closure={closure} summary={summary} />
 			</section>
 
 			<SlaRiskOrdersTable orders={summary.slaRiskOrders ?? []} />

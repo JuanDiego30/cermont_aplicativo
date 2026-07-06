@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 interface Props {
 	onReport: (data: {
@@ -18,18 +18,6 @@ export function FieldNoveltyButton({ onReport }: Props) {
 	const [severity, setSeverity] = useState("medium");
 	const [generatesWR, setGeneratesWR] = useState(false);
 
-	useEffect(() => {
-		const dialog = dialogRef.current;
-		if (!dialog) {
-			return;
-		}
-		if (isOpen && !dialog.open) {
-			dialog.showModal();
-		} else if (!isOpen && dialog.open) {
-			dialog.close();
-		}
-	}, [isOpen]);
-
 	const handleSubmit = () => {
 		if (description.trim().length < 5) {
 			return;
@@ -38,14 +26,30 @@ export function FieldNoveltyButton({ onReport }: Props) {
 		setDescription("");
 		setSeverity("medium");
 		setGeneratesWR(false);
+		closeDialog();
+	};
+
+	const openDialog = () => {
+		setIsOpen(true);
+		const dialog = dialogRef.current;
+		if (dialog && !dialog.open) {
+			dialog.showModal();
+		}
+	};
+
+	const closeDialog = () => {
 		setIsOpen(false);
+		const dialog = dialogRef.current;
+		if (dialog && dialog.open) {
+			dialog.close();
+		}
 	};
 
 	return (
 		<>
 			<button
 				type="button"
-				onClick={() => setIsOpen(true)}
+				onClick={openDialog}
 				className="fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-[#F44336] text-white shadow-lg hover:bg-red-700 transition"
 				title="Reportar novedad encontrada en campo"
 				style={{ minWidth: 56, minHeight: 56 }}
@@ -57,7 +61,7 @@ export function FieldNoveltyButton({ onReport }: Props) {
 			<dialog
 				ref={dialogRef}
 				aria-label="Reportar novedad de campo"
-				onClose={() => setIsOpen(false)}
+				onClose={closeDialog}
 				className="z-50 m-auto w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--surface-primary)] p-0 shadow-xl backdrop:bg-black/50"
 			>
 				{isOpen && (
@@ -66,7 +70,7 @@ export function FieldNoveltyButton({ onReport }: Props) {
 							<h2 className="text-lg font-semibold text-[var(--text-primary)]">Reportar novedad</h2>
 							<button
 								type="button"
-								onClick={() => setIsOpen(false)}
+								onClick={closeDialog}
 								aria-label="Cerrar"
 								className="text-[var(--text-secondary)]"
 							>
@@ -113,7 +117,7 @@ export function FieldNoveltyButton({ onReport }: Props) {
 						<div className="mt-6 flex justify-end gap-3">
 							<button
 								type="button"
-								onClick={() => setIsOpen(false)}
+								onClick={closeDialog}
 								className="rounded-full border px-4 py-2 text-sm"
 							>
 								Cancelar
