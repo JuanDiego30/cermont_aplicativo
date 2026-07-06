@@ -60,6 +60,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateBody(CreateWorkRequestSchema),
 	WorkRequestController.createWorkRequest,
 );
@@ -73,6 +74,7 @@ router.post(
 router.patch(
 	"/:id",
 	authenticate,
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateParams(WorkRequestIdParamsSchema),
 	validateBody(CreateWorkRequestSchema.partial()),
 	WorkRequestController.updateWorkRequest,
