@@ -3783,6 +3783,10 @@
               "maxLength": 2000,
               "type": "string"
             },
+            "serviceCaseId": {
+              "pattern": "^[a-f\\d]{24}$",
+              "type": "string"
+            },
             "title": {
               "maxLength": 200,
               "minLength": 5,
@@ -3862,7 +3866,8 @@
                 "sent",
                 "approved",
                 "rejected",
-                "expired"
+                "expired",
+                "converted"
               ],
               "type": "string"
             }
@@ -3965,13 +3970,17 @@
               "maxLength": 2000,
               "type": "string"
             },
+            "serviceCaseId": {
+              "type": "string"
+            },
             "status": {
               "enum": [
                 "draft",
                 "sent",
                 "approved",
                 "rejected",
-                "expired"
+                "expired",
+                "converted"
               ],
               "type": "string"
             },
@@ -4029,6 +4038,15 @@
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "additionalProperties": false,
           "properties": {
+            "approvedAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "notes": {
+              "maxLength": 500,
+              "type": "string"
+            },
             "poNumber": {
               "type": "string"
             },
@@ -28611,6 +28629,10 @@
         },
         "orderId": {
           "type": "string"
+        },
+        "serviceCaseId": {
+          "pattern": "^[a-f\\d]{24}$",
+          "type": "string"
         }
       },
       "required": [
@@ -28670,6 +28692,10 @@
         },
         "notes": {
           "maxLength": 2000,
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "pattern": "^[a-f\\d]{24}$",
           "type": "string"
         },
         "title": {
@@ -61367,7 +61393,8 @@
             "sent",
             "approved",
             "rejected",
-            "expired"
+            "expired",
+            "converted"
           ],
           "type": "string"
         }
@@ -72602,13 +72629,17 @@
           "maxLength": 2000,
           "type": "string"
         },
+        "serviceCaseId": {
+          "type": "string"
+        },
         "status": {
           "enum": [
             "draft",
             "sent",
             "approved",
             "rejected",
-            "expired"
+            "expired",
+            "converted"
           ],
           "type": "string"
         },
@@ -72751,13 +72782,17 @@
           "maxLength": 2000,
           "type": "string"
         },
+        "serviceCaseId": {
+          "type": "string"
+        },
         "status": {
           "enum": [
             "draft",
             "sent",
             "approved",
             "rejected",
-            "expired"
+            "expired",
+            "converted"
           ],
           "type": "string"
         },
@@ -72816,7 +72851,8 @@
         "sent",
         "approved",
         "rejected",
-        "expired"
+        "expired",
+        "converted"
       ],
       "type": "string"
     },
@@ -102520,6 +102556,15 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
       "properties": {
+        "approvedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
         "poNumber": {
           "type": "string"
         },

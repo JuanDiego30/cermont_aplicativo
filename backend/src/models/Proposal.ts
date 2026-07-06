@@ -25,7 +25,7 @@ export interface IProposalDocument extends Document {
 	title: string;
 	clientName: string;
 	clientEmail?: string;
-	status: "draft" | "sent" | "approved" | "rejected" | "expired";
+	status: "draft" | "sent" | "approved" | "rejected" | "expired" | "converted";
 	validUntil: Date;
 	items: Array<{
 		description: string;
@@ -38,6 +38,8 @@ export interface IProposalDocument extends Document {
 	taxRate: number;
 	total: number;
 	notes?: string;
+	statusNotes?: string;
+	serviceCaseId?: string;
 	createdBy: Types.ObjectId;
 	approvedBy?: Types.ObjectId;
 	approvedAt?: Date;
@@ -60,7 +62,7 @@ const ProposalSchema = new Schema<IProposalDocument>(
 		clientEmail: { type: String },
 		status: {
 			type: String,
-			enum: ["draft", "sent", "approved", "rejected", "expired"],
+			enum: ["draft", "sent", "approved", "rejected", "expired", "converted"],
 			default: "draft",
 			index: true,
 		},
@@ -70,6 +72,8 @@ const ProposalSchema = new Schema<IProposalDocument>(
 		taxRate: { type: Number, default: 0.19, min: 0, max: 1 },
 		total: { type: Number, required: true, min: 0 },
 		notes: { type: String, maxlength: 2000 },
+		statusNotes: { type: String, maxlength: 500 },
+		serviceCaseId: { type: String, index: true },
 		createdBy: { type: Types.ObjectId, ref: "User", required: true },
 		approvedBy: { type: Types.ObjectId, ref: "User" },
 		approvedAt: { type: Date },

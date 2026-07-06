@@ -118,6 +118,7 @@ export async function createProposal(data: CreateProposalInput, userId: string) 
 		notes: data.notes,
 		status: "draft",
 		createdBy: userId,
+		...(data.serviceCaseId ? { serviceCaseId: data.serviceCaseId } : {}),
 	});
 
 	await proposal.save();
@@ -207,28 +208,52 @@ export async function findProposalById(id: string, viewer: ProposalViewer) {
 	return proposal;
 }
 
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+	draft: ["sent"],
+	sent: ["approved", "rejected"],
+	approved: ["converted"],
+	rejected: [],
+	expired: [],
+	converted: [],
+};
+
 /**
- * Update proposal status
+ * Update proposal status with transition validation
  */
 export async function updateProposalStatus(
 	id: string,
 	status: ProposalStatus,
 	userId: string,
 	_poNumber?: string,
+	notes?: string,
+	approvedAt?: string,
 ) {
 	const proposal = await Proposal.findById(id);
 	if (!proposal) {
 		throw new AppError("Propuesta no encontrada", 404, "PROPOSAL_NOT_FOUND");
 	}
 
+	const allowed = ALLOWED_TRANSITIONS[proposal.status];
+	if (!allowed?.includes(status)) {
+		throw new AppError(
+			`No se puede cambiar de ${proposal.status} a ${status}`,
+			400,
+			"INVALID_TRANSITION",
+		);
+	}
+
 	proposal.status = status;
+	if (notes) {
+		proposal.statusNotes = notes;
+	}
+
 	if (status === "approved") {
 		const recalculated = calculateProposalTotals(proposal.items, proposal.taxRate);
 		proposal.items = recalculated.items;
 		proposal.subtotal = recalculated.subtotal;
 		proposal.total = recalculated.total;
 		proposal.approvedBy = userId as unknown as mongoose.Types.ObjectId;
-		proposal.approvedAt = new Date();
+		proposal.approvedAt = approvedAt ? new Date(approvedAt) : new Date();
 	} else {
 		proposal.approvedBy = undefined;
 		proposal.approvedAt = undefined;

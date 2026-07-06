@@ -1,4 +1,3 @@
-// @ts-expect-error - Mock for transformer, not a full ServiceCaseWorkflowViewModel
 import type { ServiceCaseWorkflowViewModel } from "@cermont/shared-types";
 import { describe, expect, it } from "vitest";
 import { transformWorkflowToCockpitData } from "../cockpitTransformer";

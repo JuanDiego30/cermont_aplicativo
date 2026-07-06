@@ -1720,3 +1720,14 @@ export async function getInvoicePipeline(serviceCaseId: string): Promise<Invoice
 		},
 	};
 }
+
+/**
+ * Get the proposal linked to a service case
+ */
+export async function getLinkedProposal(serviceCaseId: string) {
+	const proposal = await Proposal.findOne({ serviceCaseId })
+		.populate("createdBy", "name email")
+		.populate("approvedBy", "name email")
+		.lean();
+	return proposal;
+}

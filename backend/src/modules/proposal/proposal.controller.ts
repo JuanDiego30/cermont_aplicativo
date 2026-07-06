@@ -49,6 +49,7 @@ interface ProposalRecord {
 	taxRate: number;
 	total: number;
 	notes?: string;
+	serviceCaseId?: string;
 	createdBy: unknown;
 	approvedBy?: unknown;
 	approvedAt?: Date | string;
@@ -71,6 +72,7 @@ function serializeProposal(proposal: ProposalRecord): ProposalResponse {
 		taxRate: proposal.taxRate,
 		total: proposal.total,
 		...(proposal.notes ? { notes: proposal.notes } : {}),
+		...(proposal.serviceCaseId ? { serviceCaseId: proposal.serviceCaseId } : {}),
 		createdBy: String(proposal.createdBy),
 		...(proposal.approvedBy ? { approvedBy: String(proposal.approvedBy) } : {}),
 		...(proposal.approvedAt ? { approvedAt: toIsoString(proposal.approvedAt) } : {}),
@@ -125,8 +127,15 @@ export const getProposalById = async (req: Request, res: Response) => {
 export const updateProposalStatus = async (req: Request, res: Response) => {
 	const user = requireUser(req);
 	const { id } = ProposalIdSchema.parse(req.params);
-	const { status, poNumber } = UpdateProposalStatusSchema.parse(req.body);
-	const proposal = await updateProposalStatusService(id, status, user._id, poNumber);
+	const { status, poNumber, notes, approvedAt } = UpdateProposalStatusSchema.parse(req.body);
+	const proposal = await updateProposalStatusService(
+		id,
+		status,
+		user._id,
+		poNumber,
+		notes,
+		approvedAt,
+	);
 	return sendSuccess(res, serializeProposal(proposal as ProposalRecord));
 };
 

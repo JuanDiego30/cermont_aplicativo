@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:cb5c2fdd5f1bcd27eb38bb8a7e031598ff874790a81b0e0b91829d1476bf26b5",
+	"currentSnapshotHash": "sha256:070967b5d97032447a922d8d4518b9475732dc3ce66b20a66f5b0db9f069cb6a",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -503,7 +503,7 @@
 			"date": "2026-07-06",
 			"type": "breaking",
 			"description": "Require Mongo ObjectId values for template and version identifiers when creating template responses.",
-			"toHash": "sha256:cb5c2fdd5f1bcd27eb38bb8a7e031598ff874790a81b0e0b91829d1476bf26b5"
+			"toHash": "sha256:070967b5d97032447a922d8d4518b9475732dc3ce66b20a66f5b0db9f069cb6a"
 		}
 	]
 }

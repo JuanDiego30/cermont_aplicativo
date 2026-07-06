@@ -15,7 +15,14 @@ const normalizeOptionalStringQueryValue = (value: unknown): unknown => {
 	return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const ProposalStatusSchema = z.enum(["draft", "sent", "approved", "rejected", "expired"]);
+export const ProposalStatusSchema = z.enum([
+	"draft",
+	"sent",
+	"approved",
+	"rejected",
+	"expired",
+	"converted",
+]);
 export type ProposalStatus = z.infer<typeof ProposalStatusSchema>;
 
 export const ProposalItemInputSchema = z
@@ -53,6 +60,7 @@ export const ProposalOutputDtoSchema = z
 		approvedBy: ObjectIdSchema.optional(),
 		approvedAt: z.string().datetime().optional(),
 		generatedOrders: z.array(ObjectIdSchema).default([]),
+		serviceCaseId: z.string().optional(),
 		createdAt: z.string().datetime(),
 		updatedAt: z.string().datetime(),
 	})
@@ -69,6 +77,10 @@ export const CreateProposalSchema = z
 		items: z.array(ProposalItemInputSchema).min(1),
 		validUntil: z.string().datetime(),
 		notes: z.string().max(2000).optional(),
+		serviceCaseId: z
+			.string()
+			.regex(/^[a-f\d]{24}$/i)
+			.optional(),
 	})
 	.strict();
 
@@ -77,6 +89,8 @@ export type CreateProposalInput = z.infer<typeof CreateProposalSchema>;
 export const UpdateProposalStatusSchema = z
 	.object({
 		status: z.enum(["sent", "approved", "rejected"]),
+		notes: z.string().max(500).optional(),
+		approvedAt: z.string().datetime().optional(),
 		poNumber: z.string().trim().optional(),
 	})
 	.strict();
@@ -137,6 +151,10 @@ export const CreateProposalInputSchema = z
 		description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
 		estimatedValue: z.number().min(1, "El valor estimado debe ser mayor a 0"),
 		orderId: z.string().optional(),
+		serviceCaseId: z
+			.string()
+			.regex(/^[a-f\d]{24}$/i)
+			.optional(),
 	})
 	.strict();
 

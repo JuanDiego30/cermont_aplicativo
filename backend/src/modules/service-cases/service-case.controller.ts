@@ -181,6 +181,12 @@ export async function archiveServiceCase(req: Request, res: Response): Promise<v
  * GET /api/service-cases/:id/invoice-pipeline
  * Returns SES→Invoice→Payment pipeline status for a service case
  */
+export async function getLinkedProposal(req: Request, res: Response): Promise<void> {
+	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
+	const proposal = await ServiceCaseService.getLinkedProposal(id);
+	sendSuccess(res, proposal);
+}
+
 export async function getInvoicePipeline(req: Request, res: Response): Promise<void> {
 	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
 	const pipeline = await ServiceCaseService.getInvoicePipeline(id);

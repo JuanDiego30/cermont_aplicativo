@@ -16,6 +16,7 @@ import {
 	closeServiceCase,
 	getCaseClosingStatus,
 	getInvoicePipeline,
+	getLinkedProposal,
 	getServiceCase,
 	getServiceCaseStepContext,
 	getServiceCaseSummary,
@@ -118,6 +119,14 @@ router.post(
 	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(ServiceCaseIdParamsSchema),
 	archiveServiceCase,
+);
+
+// GET /api/service-cases/:id/proposal — Get linked proposal
+router.get(
+	"/:id/proposal",
+	authorize(...INTERNAL_ROLES),
+	validateParams(ServiceCaseIdParamsSchema),
+	getLinkedProposal,
 );
 
 // GET /api/service-cases/:id/invoice-pipeline — SES→Invoice→Payment pipeline

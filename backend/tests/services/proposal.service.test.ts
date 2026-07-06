@@ -231,7 +231,7 @@ describe("ProposalService", () => {
 	describe("updateStatus()", () => {
 		it("recalculates stale totals before approval", async () => {
 			const proposal = buildProposalDoc({
-				status: "draft",
+				status: "sent",
 				items: [
 					{
 						description: "Filtro",
@@ -263,7 +263,7 @@ describe("ProposalService", () => {
 
 		it("aprueba una propuesta y asigna aprobado por", async () => {
 			const proposal = buildProposalDoc({
-				status: "draft",
+				status: "sent",
 				approvedBy: undefined,
 				approvedAt: undefined,
 			});
