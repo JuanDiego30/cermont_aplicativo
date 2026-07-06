@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	AttachEntityDocumentSchema,
 	CreateFormSubmissionSchema,
+	CreatePrivacyRequestSchema,
 	GenerateBulkQrCodesSchema,
 	RunJobsSchema,
 	SyncErpConnectorParamsSchema,
@@ -63,5 +64,17 @@ describe("route request schemas", () => {
 			}).success,
 		).toBe(true);
 		expect(AttachEntityDocumentSchema.safeParse({ documentId: OBJECT_ID }).success).toBe(false);
+	});
+
+	it("validates privacy request type and description", () => {
+		expect(
+			CreatePrivacyRequestSchema.safeParse({
+				type: "access",
+				description: "Solicito una copia de mis datos personales.",
+			}).success,
+		).toBe(true);
+		expect(
+			CreatePrivacyRequestSchema.safeParse({ type: "invalid", description: "Solicitud" }).success,
+		).toBe(false);
 	});
 });

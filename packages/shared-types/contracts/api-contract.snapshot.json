@@ -28567,6 +28567,32 @@
       ],
       "type": "object"
     },
+    "CreatePrivacyRequestSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "access",
+            "rectification",
+            "erasure",
+            "restriction",
+            "portability"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "description"
+      ],
+      "type": "object"
+    },
     "CreateProposalInputSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -72364,6 +72390,31 @@
         "status"
       ],
       "type": "object"
+    },
+    "PrivacyRequestIdParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "PrivacyRequestTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "access",
+        "rectification",
+        "erasure",
+        "restriction",
+        "portability"
+      ],
+      "type": "string"
     },
     "ProposalIdSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",

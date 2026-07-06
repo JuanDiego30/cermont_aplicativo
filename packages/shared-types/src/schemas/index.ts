@@ -116,6 +116,7 @@ export {
 	WorkerRequirementsSchema,
 } from "./planning-packet.schema";
 export * from "./planning-reference-document.schema";
+export * from "./privacy-request.schema";
 export * from "./proposal.schema";
 export * from "./purchase-order-authorization.schema";
 export * from "./qr-code.schema";

@@ -21,6 +21,7 @@ import {
 } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
+import { authorizeAllAuthenticated } from "../../middlewares/authorize.middleware";
 import { authLimiter, refreshLimiter } from "../../middlewares/rate-limiter";
 import { validateBody } from "../../middlewares/validate";
 import * as AuthController from "./auth.controller";
@@ -51,13 +52,13 @@ router.post("/refresh", refreshLimiter, AuthController.refresh);
  * Also reads refreshToken from cookie
  * No body validation needed — logout uses cookie, not body
  */
-router.post("/logout", authenticate, AuthController.logout);
+router.post("/logout", authenticate, authorizeAllAuthenticated(), AuthController.logout);
 
 /**
  * GET /api/auth/me
  * Protected endpoint — returns authenticated user's profile
  */
-router.get("/me", authenticate, AuthController.getMe);
+router.get("/me", authenticate, authorizeAllAuthenticated(), AuthController.getMe);
 
 /**
  * PATCH /api/auth/change-password
@@ -66,6 +67,7 @@ router.get("/me", authenticate, AuthController.getMe);
 router.patch(
 	"/change-password",
 	authenticate,
+	authorizeAllAuthenticated(),
 	validateBody(ChangePasswordSchema),
 	AuthController.changePassword,
 );

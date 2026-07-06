@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:3a643f53303fbc06eead26734aa12c32fe9942515050c6e902defd4f37e3e5f1",
+	"currentSnapshotHash": "sha256:a187abe2bc57840c7dd766683820035b66e7cae017cecd127c9a1c842c91404f",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -490,6 +490,13 @@
 			"type": "non-breaking",
 			"description": "Add route-boundary body and parameter schemas for kit and resource document attachments.",
 			"toHash": "sha256:3a643f53303fbc06eead26734aa12c32fe9942515050c6e902defd4f37e3e5f1"
+		},
+		{
+			"id": "070-spec-020-wave-1-privacy-request-validation",
+			"date": "2026-07-06",
+			"type": "non-breaking",
+			"description": "Add privacy request creation and identifier schemas for authenticated administrative route handling.",
+			"toHash": "sha256:a187abe2bc57840c7dd766683820035b66e7cae017cecd127c9a1c842c91404f"
 		}
 	]
 }

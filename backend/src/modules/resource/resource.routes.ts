@@ -116,7 +116,7 @@ router.post(
 	attachDocumentToTool,
 );
 
-router.get("/:resourceId/documents", listToolDocuments);
+router.get("/:resourceId/documents", authorize(...INTERNAL_ROLES), listToolDocuments);
 
 router.delete(
 	"/:resourceId/documents/:documentId",
