@@ -26,3 +26,18 @@ export async function getSlaRisk(_req: Request, res: Response): Promise<void> {
 	const orders = await buildSlaRiskOrders();
 	sendSuccess(res, orders);
 }
+
+export async function getNextActions(_req: Request, res: Response): Promise<void> {
+	const summary = await getDashboardSummary();
+	sendSuccess(res, summary.nextActions);
+}
+
+export async function getBlockers(_req: Request, res: Response): Promise<void> {
+	const summary = await getDashboardSummary();
+	sendSuccess(res, summary.blockers);
+}
+
+export async function getRecentActivity(_req: Request, res: Response): Promise<void> {
+	const summary = await getDashboardSummary();
+	sendSuccess(res, summary.recentActivity);
+}
