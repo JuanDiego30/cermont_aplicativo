@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
+	"currentSnapshotHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -469,6 +469,13 @@
 			"date": "2026-07-06",
 			"toHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
 			"id": "066-spec-019-sprint-5-qr-code-schema"
+		},
+		{
+			"description": "Add slaHours field to WorkRequest schema for SLA tracking.",
+			"type": "non-breaking",
+			"toHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
+			"id": "067-spec-019-sprint-11-work-request-slahours",
+			"date": "2026-07-06"
 		}
 	]
 }

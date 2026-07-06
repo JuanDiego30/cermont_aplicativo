@@ -108268,6 +108268,11 @@
                 "minLength": 5,
                 "type": "string"
               },
+              "slaHours": {
+                "exclusiveMinimum": 0,
+                "maximum": 720,
+                "type": "number"
+              },
               "sourceChannel": {
                 "enum": [
                   "email",
@@ -108753,6 +108758,11 @@
           "maxLength": 200,
           "minLength": 5,
           "type": "string"
+        },
+        "slaHours": {
+          "exclusiveMinimum": 0,
+          "maximum": 720,
+          "type": "number"
         },
         "sourceChannel": {
           "enum": [
