@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:ac444ddf32f5a5c0e76e6f0173a8fa67291b4d22297174d70670305609991bc1",
+	"currentSnapshotHash": "sha256:1033a719e3bbf3d26b09a52033f23da334429da40b8a2c790855f15fcc26782d",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -455,6 +455,13 @@
 			"type": "non-breaking",
 			"description": "Spec-016 Sprint 0: refresh API contract snapshot after Spec-014/015 accumulated changes.",
 			"toHash": "sha256:ac444ddf32f5a5c0e76e6f0173a8fa67291b4d22297174d70670305609991bc1"
+		},
+		{
+			"toHash": "sha256:1033a719e3bbf3d26b09a52033f23da334429da40b8a2c790855f15fcc26782d",
+			"id": "065-spec-019-sprint-2",
+			"date": "2026-07-06",
+			"type": "non-breaking",
+			"description": "Add KPI schemas, automation-rule schemas, DashboardKpiWidget."
 		}
 	]
 }

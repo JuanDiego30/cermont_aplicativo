@@ -5,6 +5,9 @@ export * from "./ai.schema";
 export * from "./analytics.schema";
 export * from "./asset.schema";
 export * from "./audit.schema";
+// NOTE: automation-rule.schema excluded from barrel to avoid naming conflict with automation.schema
+// Use: import { RuleAction } from '@cermont/shared-types' → from automation.schema
+// Use: import { ConditionOperator } from './automation-rule.schema' (direct import)
 export * from "./auth.schema";
 export * from "./automation.schema";
 export * from "./business-document.schema";
@@ -55,6 +58,7 @@ export * from "./inventory-item.schema";
 export * from "./invoice.schema";
 export * from "./invoice-approval.schema";
 export * from "./kit.schema";
+export * from "./kpi.schema";
 export * from "./maintenance-plan.schema";
 export * from "./maintenanceKit.schema";
 export * from "./notification.schema";

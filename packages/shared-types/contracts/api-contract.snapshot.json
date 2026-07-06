@@ -31452,6 +31452,236 @@
       ],
       "type": "object"
     },
+    "DashboardKpiSummarySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "calculatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "firstTimeFixRate": {
+          "additionalProperties": false,
+          "properties": {
+            "firstTimeFixes": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "period": {
+              "enum": [
+                "7d",
+                "30d",
+                "90d",
+                "12m"
+              ],
+              "type": "string"
+            },
+            "rate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalJobs": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "trend": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "period",
+            "totalJobs",
+            "firstTimeFixes",
+            "rate",
+            "trend"
+          ],
+          "type": "object"
+        },
+        "mtbf": {
+          "additionalProperties": false,
+          "properties": {
+            "mtbfHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "period": {
+              "enum": [
+                "7d",
+                "30d",
+                "90d",
+                "12m"
+              ],
+              "type": "string"
+            },
+            "totalFailures": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "totalOperationalHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "trend": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "period",
+            "totalOperationalHours",
+            "totalFailures",
+            "mtbfHours",
+            "trend"
+          ],
+          "type": "object"
+        },
+        "mttr": {
+          "additionalProperties": false,
+          "properties": {
+            "mttrHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "period": {
+              "enum": [
+                "7d",
+                "30d",
+                "90d",
+                "12m"
+              ],
+              "type": "string"
+            },
+            "totalRepairEvents": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "totalRepairHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "trend": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "period",
+            "totalRepairHours",
+            "totalRepairEvents",
+            "mttrHours",
+            "trend"
+          ],
+          "type": "object"
+        },
+        "period": {
+          "enum": [
+            "7d",
+            "30d",
+            "90d",
+            "12m"
+          ],
+          "type": "string"
+        },
+        "technicianUtilization": {
+          "additionalProperties": false,
+          "properties": {
+            "period": {
+              "enum": [
+                "7d",
+                "30d",
+                "90d",
+                "12m"
+              ],
+              "type": "string"
+            },
+            "totalAvailableHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalBilledHours": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "trend": {
+              "type": "number"
+            },
+            "utilizationRate": {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "period",
+            "totalAvailableHours",
+            "totalBilledHours",
+            "utilizationRate",
+            "trend"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "mttr",
+        "mtbf",
+        "firstTimeFixRate",
+        "technicianUtilization",
+        "period",
+        "calculatedAt"
+      ],
+      "type": "object"
+    },
+    "DashboardKpiWidgetSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "firstTimeFixRate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "mtbf": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "mttr": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "pendingCertifications": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "periodLabel": {
+          "type": "string"
+        },
+        "slaCompliance": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "technicianUtilizationRate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "mttr",
+        "mtbf",
+        "firstTimeFixRate",
+        "technicianUtilizationRate",
+        "slaCompliance",
+        "pendingCertifications",
+        "periodLabel"
+      ],
+      "type": "object"
+    },
     "DashboardMaintenanceEfficiencySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -53568,6 +53798,47 @@
       ],
       "type": "object"
     },
+    "FirstTimeFixRateKpiSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "firstTimeFixes": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "period": {
+          "enum": [
+            "7d",
+            "30d",
+            "90d",
+            "12m"
+          ],
+          "type": "string"
+        },
+        "rate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalJobs": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "trend": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "period",
+        "totalJobs",
+        "firstTimeFixes",
+        "rate",
+        "trend"
+      ],
+      "type": "object"
+    },
     "ForgotPasswordSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -58247,6 +58518,16 @@
       ],
       "type": "object"
     },
+    "KpiTimeRangeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "7d",
+        "30d",
+        "90d",
+        "12m"
+      ],
+      "type": "string"
+    },
     "LaborTimeEntrySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -62692,6 +62973,84 @@
         "unit",
         "recordedAt",
         "recordedBy"
+      ],
+      "type": "object"
+    },
+    "MtbfKpiSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "mtbfHours": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "period": {
+          "enum": [
+            "7d",
+            "30d",
+            "90d",
+            "12m"
+          ],
+          "type": "string"
+        },
+        "totalFailures": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "totalOperationalHours": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "trend": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "period",
+        "totalOperationalHours",
+        "totalFailures",
+        "mtbfHours",
+        "trend"
+      ],
+      "type": "object"
+    },
+    "MttrKpiSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "mttrHours": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "period": {
+          "enum": [
+            "7d",
+            "30d",
+            "90d",
+            "12m"
+          ],
+          "type": "string"
+        },
+        "totalRepairEvents": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "totalRepairHours": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "trend": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "period",
+        "totalRepairHours",
+        "totalRepairEvents",
+        "mttrHours",
+        "trend"
       ],
       "type": "object"
     },
@@ -88801,6 +89160,45 @@
         "userId",
         "points",
         "startedAt"
+      ],
+      "type": "object"
+    },
+    "TechnicianUtilizationKpiSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "period": {
+          "enum": [
+            "7d",
+            "30d",
+            "90d",
+            "12m"
+          ],
+          "type": "string"
+        },
+        "totalAvailableHours": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalBilledHours": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "trend": {
+          "type": "number"
+        },
+        "utilizationRate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "period",
+        "totalAvailableHours",
+        "totalBilledHours",
+        "utilizationRate",
+        "trend"
       ],
       "type": "object"
     },

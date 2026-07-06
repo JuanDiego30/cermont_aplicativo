@@ -317,3 +317,18 @@ export type DashboardRecentActivity = z.infer<typeof DashboardRecentActivitySche
 export type DashboardCharts = z.infer<typeof DashboardChartsSchema>;
 export type DashboardChartPoint = z.infer<typeof DashboardChartPointSchema>;
 export type DashboardSystemHealth = z.infer<typeof DashboardSystemHealthSchema>;
+
+// Sprint 2 — KPI Widget extension
+export const DashboardKpiWidgetSchema = z
+	.object({
+		mttr: z.number().nonnegative(),
+		mtbf: z.number().nonnegative(),
+		firstTimeFixRate: z.number().min(0).max(100),
+		technicianUtilizationRate: z.number().min(0).max(100),
+		slaCompliance: z.number().min(0).max(100),
+		pendingCertifications: z.number().int().nonnegative(),
+		periodLabel: z.string(),
+	})
+	.strict();
+
+export type DashboardKpiWidget = z.infer<typeof DashboardKpiWidgetSchema>;

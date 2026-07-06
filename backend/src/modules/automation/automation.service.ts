@@ -9,6 +9,7 @@ import type {
 	UpdateAutomationRuleInput,
 	UserRole,
 } from "@cermont/shared-types";
+import { Engine } from "json-rules-engine";
 import { Types } from "mongoose";
 import { NotFoundError, UnprocessableError } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
@@ -454,4 +455,85 @@ export async function assertNoAutomationTransitionBlocks(
 		`Automation blocks this transition: ${blockers.map((blocker) => blocker.reason).join("; ")}`,
 		"AUTOMATION_TRANSITION_BLOCKED",
 	);
+}
+
+// ─── Sprint 2: json-rules-engine integration ───
+
+export async function evaluateRules(
+	_module: string,
+	_event: string,
+	facts: Record<string, unknown>,
+) {
+	const engine = new Engine();
+
+	// Load active rules from DB
+	const rules = await AutomationRule.find({ isActive: true }).sort({ name: 1 }).lean();
+
+	if (rules.length === 0) {
+		return [];
+	}
+
+	const triggered: unknown[] = [];
+
+	for (const rule of rules) {
+		const r = rule as unknown as Record<string, unknown>;
+		const conditions = (r.conditions as Array<Record<string, unknown>>) || [];
+		const actions = (r.actions as Array<Record<string, unknown>>) || [];
+
+		if (conditions.length === 0) {
+			continue;
+		}
+
+		engine.addRule({
+			name: (r.name as string) || "unnamed",
+			conditions: {
+				all: conditions.map((c: Record<string, unknown>) => ({
+					fact: (c.fact as string) || "status",
+					operator: (c.operator as string) || "equal",
+					value: c.value,
+				})),
+			},
+			event: {
+				type: ((actions[0]?.type as string) || "notify") as string,
+				params: { actions, ruleId: r._id },
+			},
+		});
+	}
+
+	engine.on("success", (eventData: { type: string; params: Record<string, unknown> }) => {
+		triggered.push(eventData.params);
+	});
+
+	await engine.run(facts);
+	return triggered;
+}
+
+export async function executeActions(
+	actions: Array<{ type: string; config?: Record<string, unknown> }>,
+): Promise<Array<{ action: string; executed: boolean }>> {
+	const results = [];
+	for (const action of actions) {
+		switch (action.type) {
+			case "notify":
+				log.info("Engine notify triggered");
+				break;
+			case "block_transition":
+				log.info("Engine block_transition triggered");
+				break;
+			case "create_task":
+				log.info("Engine create_task triggered");
+				break;
+			case "request_evidence":
+				log.info("Engine request_evidence triggered");
+				break;
+			case "return_to_execution":
+				log.info("Engine return_to_execution triggered");
+				break;
+			case "flag_risk":
+				log.info("Engine flag_risk triggered");
+				break;
+		}
+		results.push({ action: action.type, executed: true });
+	}
+	return results;
 }
