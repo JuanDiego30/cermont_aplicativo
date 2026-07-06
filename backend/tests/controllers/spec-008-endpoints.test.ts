@@ -12,6 +12,8 @@ const mockTrackView = vi.fn();
 const mockGetWorkOrderStatus = vi.fn();
 const mockGetSyncSummary = vi.fn();
 const mockCreateCost = vi.fn();
+const mockListCostCatalog = vi.fn();
+const mockCreateCostCatalogItem = vi.fn();
 const mockUploadPhoto = vi.fn();
 const mockGetPhotos = vi.fn();
 const mockSetPrimaryPhoto = vi.fn();
@@ -72,6 +74,11 @@ vi.mock("../../src/modules/cost/cost.service", () => ({
 	getCostById: vi.fn(),
 	getOrderSummary: vi.fn(),
 	getCostDashboard: vi.fn(),
+}));
+
+vi.mock("../../src/modules/cost/cost-catalog.service", () => ({
+	listCostCatalog: mockListCostCatalog,
+	createCostCatalogItem: mockCreateCostCatalogItem,
 }));
 
 vi.mock("../../src/modules/asset/asset.service", () => ({

@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { apiClient, ApiError } from "@/lib/http/api-client";
+import { ApiError, apiClient } from "@/lib/http/api-client";
 import Header from "@/modules/core/ui/layout/Header";
 
 vi.mock("@gsap/react", () => ({ useGSAP: vi.fn() }));
@@ -16,7 +16,17 @@ vi.mock("@/modules/auth/hooks/useAuth", () => ({
 vi.mock("@/components/sync/NetworkStatusChip", () => ({ NetworkStatusChip: () => <span /> }));
 vi.mock("@/core/ui/ThemeToggle", () => ({ ThemeToggle: () => <span /> }));
 vi.mock("@/modules/core/ui/layout/HeaderNotifications", () => ({
-	HeaderNotifications: () => <span />,
+	HeaderNotifications: ({
+		notifications,
+		unreadCount,
+	}: {
+		notifications: readonly { id: string; mensaje: string }[];
+		unreadCount: number;
+	}) => (
+		<span data-testid="notifications-summary">
+			{notifications.map((notification) => notification.mensaje).join(",")}:{unreadCount}
+		</span>
+	),
 }));
 vi.mock("@/modules/core/ui/layout/HeaderUserMenu", () => ({ HeaderUserMenu: () => <span /> }));
 
@@ -55,17 +65,35 @@ describe("Header notifications", () => {
 		vi.restoreAllMocks();
 	});
 
-	it("uses the canonical notifications endpoint", async () => {
-		// The current implementation fetches notifications and unread count separately.
-		// useNotifications() → GET /notifications (returns Notification[])
-		// useUnreadCount()  → GET /notifications/unread-count (returns number)
-		vi.mocked(apiClient.get).mockResolvedValue({ success: true, data: [] });
+	it("renders the canonical notification envelope with one request", async () => {
+		vi.mocked(apiClient.get).mockImplementation((path: string) => {
+			if (path === "/notifications/unread-count") {
+				return Promise.resolve({ success: true, data: { count: 1 } });
+			}
+			return Promise.resolve({
+				success: true,
+				data: [
+					{
+						_id: "507f1f77bcf86cd799439011",
+						type: "SYSTEM_ALERT",
+						title: "Alerta operativa",
+						message: "Revisa el cierre documental.",
+						isRead: false,
+						createdAt: "2026-07-06T12:00:00.000Z",
+					},
+				],
+			});
+		});
 		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
 		renderHeader(queryClient);
 
 		await waitFor(() => {
+			expect(vi.mocked(apiClient.get)).toHaveBeenCalledTimes(2);
 			expect(vi.mocked(apiClient.get)).toHaveBeenCalledWith("/notifications");
+			expect(document.querySelector("[data-testid='notifications-summary']")?.textContent).toBe(
+				"Revisa el cierre documental.:1",
+			);
 		});
 	});
 
@@ -75,8 +103,6 @@ describe("Header notifications", () => {
 
 		renderHeader(queryClient);
 
-		// The notifications list query key is ["notifications", "list"]
-		// The unread count query key is ["notifications", "unread-count"]
 		await waitFor(() => {
 			const state = queryClient.getQueryState(["notifications", "list"]);
 			expect(state?.status).toBe("error");

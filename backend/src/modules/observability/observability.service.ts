@@ -15,23 +15,17 @@ import { createLogger } from "../../common/utils/logger";
 
 const log = createLogger("observability-service");
 
-const START_TIME = Date.now();
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface HealthStatus {
-	status: "operational" | "degraded" | "down";
-	mongodb: {
-		status: "connected" | "disconnected" | "connecting";
-		host: string | null;
-		name: string | null;
+	readonly status: "healthy" | "degraded" | "unhealthy";
+	readonly mongo: {
+		readonly connected: boolean;
+		readonly readyState: number;
+		readonly responseTimeMs: number;
 	};
-	system: {
-		uptime_seconds: number;
-		memory_usage_mb: number;
-		node_version: string;
-	};
-	generated_at: string;
+	readonly uptime: number;
+	readonly timestamp: string;
 }
 
 export interface ErrorDashboardEntry {
@@ -46,61 +40,75 @@ export interface ErrorDashboardEntry {
 	generated_at: string;
 }
 
-// ─── MongoDB Helpers ─────────────────────────────────────────────────────────
-
-function getMongoStatus(): {
-	status: "connected" | "disconnected" | "connecting";
-	host: string | null;
-	name: string | null;
-} {
-	const readyState = mongoose.connection.readyState;
-	switch (readyState) {
-		case 1:
-			return {
-				status: "connected",
-				host: mongoose.connection.host ?? null,
-				name: mongoose.connection.name ?? null,
-			};
-		case 2:
-			return { status: "connecting", host: null, name: null };
-		default:
-			return { status: "disconnected", host: null, name: null };
-	}
-}
-
-function getMemoryUsageMb(): number {
-	try {
-		const usage = process.memoryUsage();
-		return Math.round(usage.heapUsed / 1024 / 1024);
-	} catch {
-		return -1;
-	}
-}
-
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
  * Returns the current system health status, including MongoDB connectivity
  * and Node.js process metrics.
  */
-export function getSystemHealth(): HealthStatus {
-	const mongo = getMongoStatus();
-	const overallStatus: HealthStatus["status"] =
-		mongo.status === "connected" ? "operational" : mongo.status === "connecting" ? "degraded" : "down";
+export async function getSystemHealth(): Promise<HealthStatus> {
+	const startedAt = Date.now();
+	const readyState = mongoose.connection.readyState;
+	const baseHealth = {
+		uptime: process.uptime(),
+		timestamp: new Date().toISOString(),
+	} as const;
 
-	log.debug("Health check", { status: overallStatus, mongodb: mongo.status });
+	if (readyState !== 1) {
+		return {
+			status: readyState === 2 ? "degraded" : "unhealthy",
+			mongo: {
+				connected: false,
+				readyState,
+				responseTimeMs: Date.now() - startedAt,
+			},
+			...baseHealth,
+		};
+	}
+
+	const database = mongoose.connection.db;
+	if (!database) {
+		return {
+			status: "degraded",
+			mongo: {
+				connected: false,
+				readyState,
+				responseTimeMs: Date.now() - startedAt,
+			},
+			...baseHealth,
+		};
+	}
+
+	try {
+		await database.admin().ping();
+	} catch (error) {
+		if (!(error instanceof Error)) {
+			throw error;
+		}
+		log.warn("MongoDB health ping failed", { message: error.message });
+		return {
+			status: "degraded",
+			mongo: {
+				connected: false,
+				readyState,
+				responseTimeMs: Date.now() - startedAt,
+			},
+			...baseHealth,
+		};
+	}
 
 	return {
-		status: overallStatus,
-		mongodb: mongo,
-		system: {
-			uptime_seconds: Math.floor((Date.now() - START_TIME) / 1000),
-			memory_usage_mb: getMemoryUsageMb(),
-			node_version: process.version,
+		status: "healthy",
+		mongo: {
+			connected: true,
+			readyState,
+			responseTimeMs: Date.now() - startedAt,
 		},
-		generated_at: new Date().toISOString(),
+		...baseHealth,
 	};
 }
+
+export const getHealthStatus = getSystemHealth;
 
 /**
  * Returns the error dashboard snapshot from in-memory error metrics.
