@@ -1,8 +1,10 @@
 import { INTERNAL_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
+	AttachEntityDocumentSchema,
 	CreateMaintenanceKitSchema,
 	CreateMaintenanceLogSchema,
 	CreateMaintenanceScheduleSchema,
+	KitDocumentParamsSchema,
 	PaginationQuerySchema,
 	ResourceIdSchema,
 	UpdateMaintenanceKitSchema,
@@ -91,8 +93,13 @@ router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), de
 
 // ─── Kit Document Attachments ─────────────────────────────────────
 // POST /api/maintenance/kits/:kitId/documents — Attach document to kit
-// No body validation needed — multipart form data handled by multer middleware
-router.post("/kits/:kitId/documents", authorize(...MANAGEMENT_ROLES), attachDocumentToKit);
+router.post(
+	"/kits/:kitId/documents",
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(KitDocumentParamsSchema),
+	validateBody(AttachEntityDocumentSchema),
+	attachDocumentToKit,
+);
 
 // GET /api/maintenance/kits/:kitId/documents — List kit documents
 router.get("/kits/:kitId/documents", authorize(...INTERNAL_ROLES), listKitDocuments);

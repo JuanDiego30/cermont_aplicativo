@@ -5,11 +5,13 @@ import {
 	SUPERVISORY_ROLES,
 } from "@cermont/domain";
 import {
+	AttachEntityDocumentSchema,
 	AttachResourceImageSchema,
 	CreateMaintenanceKitSchema,
 	CreateResourceSchema,
 	DetachResourceImageSchema,
 	PaginationQuerySchema,
+	ResourceDocumentParamsSchema,
 	ResourceIdSchema,
 	UpdateMaintenanceKitSchema,
 	UpdateResourceSchema,
@@ -106,7 +108,13 @@ router.patch(
 router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteResource);
 
 // ─── Resource/Tool Document Attachments ────────────────────────────
-router.post("/:resourceId/documents", authorize(...SUPERVISORY_ROLES), attachDocumentToTool);
+router.post(
+	"/:resourceId/documents",
+	authorize(...SUPERVISORY_ROLES),
+	validateParams(ResourceDocumentParamsSchema),
+	validateBody(AttachEntityDocumentSchema),
+	attachDocumentToTool,
+);
 
 router.get("/:resourceId/documents", listToolDocuments);
 

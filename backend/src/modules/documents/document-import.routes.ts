@@ -1,7 +1,9 @@
 import { INTERNAL_ROLES } from "@cermont/domain";
+import { DocumentExtractionJobIdSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import { validateParams } from "../../middlewares/validate";
 import { analyzeImport, createImport, getImport, listImports } from "./document-import.controller";
 
 const router = Router();
@@ -9,8 +11,12 @@ const router = Router();
 router.use(authenticate);
 
 // POST /api/documents/imports — Create a document import job
-// No body validation needed — import job creation uses file upload, not JSON body
-router.post("/imports", authorize(...INTERNAL_ROLES), createImport);
+router.post(
+	"/imports",
+	authorize(...INTERNAL_ROLES),
+	/* No body validation needed — compatibility endpoint always returns 410 */
+	createImport,
+);
 
 // GET /api/documents/imports — List all import jobs
 router.get("/imports", authorize(...INTERNAL_ROLES), listImports);
@@ -19,7 +25,12 @@ router.get("/imports", authorize(...INTERNAL_ROLES), listImports);
 router.get("/imports/:id", authorize(...INTERNAL_ROLES), getImport);
 
 // POST /api/documents/imports/:id/analyze — Run rule-based field extraction
-// No body validation needed — analyze uses import ID from params only
-router.post("/imports/:id/analyze", authorize(...INTERNAL_ROLES), analyzeImport);
+router.post(
+	"/imports/:id/analyze",
+	authorize(...INTERNAL_ROLES),
+	validateParams(DocumentExtractionJobIdSchema),
+	/* No body validation needed — action endpoint uses route params */
+	analyzeImport,
+);
 
 export default router;

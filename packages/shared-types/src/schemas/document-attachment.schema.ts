@@ -72,6 +72,13 @@ export const CreateDocumentAttachmentSchema = z
 
 export type CreateDocumentAttachment = z.infer<typeof CreateDocumentAttachmentSchema>;
 
+export const AttachEntityDocumentSchema = CreateDocumentAttachmentSchema.omit({
+	entityType: true,
+	entityId: true,
+});
+
+export type AttachEntityDocumentInput = z.infer<typeof AttachEntityDocumentSchema>;
+
 /**
  * Params for entity document operations
  */
@@ -83,3 +90,15 @@ export const EntityDocumentParamsSchema = z
 	.strict();
 
 export type EntityDocumentParams = z.infer<typeof EntityDocumentParamsSchema>;
+
+export const KitDocumentParamsSchema = z
+	.object({
+		kitId: ObjectIdSchema,
+	})
+	.strict();
+
+export const ResourceDocumentParamsSchema = z
+	.object({
+		resourceId: ObjectIdSchema,
+	})
+	.strict();

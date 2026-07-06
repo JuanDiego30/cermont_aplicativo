@@ -11523,6 +11523,51 @@
       ],
       "type": "object"
     },
+    "AttachEntityDocumentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 1000,
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "type": "boolean"
+        },
+        "type": {
+          "enum": [
+            "manual",
+            "datasheet",
+            "certificate",
+            "procedure",
+            "checklist",
+            "format",
+            "safety",
+            "technical_sheet",
+            "calibration_certificate",
+            "other"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "documentId",
+        "label",
+        "type",
+        "required"
+      ],
+      "type": "object"
+    },
     "AttachResourceImageSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -57044,6 +57089,20 @@
       ],
       "type": "object"
     },
+    "KitDocumentParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "kitId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kitId"
+      ],
+      "type": "object"
+    },
     "KitDocumentRequirementSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -75044,6 +75103,20 @@
       },
       "required": [
         "resolution"
+      ],
+      "type": "object"
+    },
+    "ResourceDocumentParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "resourceId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceId"
       ],
       "type": "object"
     },

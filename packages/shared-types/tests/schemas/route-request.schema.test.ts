@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	AttachEntityDocumentSchema,
 	CreateFormSubmissionSchema,
 	GenerateBulkQrCodesSchema,
 	RunJobsSchema,
@@ -50,5 +51,17 @@ describe("route request schemas", () => {
 				items: [{ entityType: "tool", entityId: OBJECT_ID, label: "Taladro" }],
 			}).success,
 		).toBe(true);
+	});
+
+	it("validates document attachment bodies without duplicating route params", () => {
+		expect(
+			AttachEntityDocumentSchema.safeParse({
+				documentId: OBJECT_ID,
+				label: "Manual técnico",
+				type: "manual",
+				required: true,
+			}).success,
+		).toBe(true);
+		expect(AttachEntityDocumentSchema.safeParse({ documentId: OBJECT_ID }).success).toBe(false);
 	});
 });

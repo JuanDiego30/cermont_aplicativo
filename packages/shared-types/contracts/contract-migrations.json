@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:d1753655489277cd50485f49409320f206df55dec0ccb06de0d7e7027126045c",
+	"currentSnapshotHash": "sha256:3a643f53303fbc06eead26734aa12c32fe9942515050c6e902defd4f37e3e5f1",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -483,6 +483,13 @@
 			"type": "non-breaking",
 			"description": "Add form submission, ERP sync, jobs action, ERP mapping, and bulk QR request schemas for route-boundary validation.",
 			"toHash": "sha256:d1753655489277cd50485f49409320f206df55dec0ccb06de0d7e7027126045c"
+		},
+		{
+			"id": "069-spec-020-wave-1-document-attachment-validation",
+			"date": "2026-07-06",
+			"type": "non-breaking",
+			"description": "Add route-boundary body and parameter schemas for kit and resource document attachments.",
+			"toHash": "sha256:3a643f53303fbc06eead26734aa12c32fe9942515050c6e902defd4f37e3e5f1"
 		}
 	]
 }
