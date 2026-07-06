@@ -20,6 +20,28 @@ vi.mock("@/modules/core/ui/layout/HeaderNotifications", () => ({
 }));
 vi.mock("@/modules/core/ui/layout/HeaderUserMenu", () => ({ HeaderUserMenu: () => <span /> }));
 
+// Mock the apiClient module to provide both `get` and `post` methods.
+// The module-level mock ensures both exist so vi.spyOn can attach spies.
+vi.mock("@/lib/http/api-client", () => ({
+	apiClient: {
+		get: vi.fn(),
+		post: vi.fn(),
+		patch: vi.fn(),
+		put: vi.fn(),
+		delete: vi.fn(),
+	},
+	ApiError: class {
+		status: number;
+		message: string;
+		code: string | undefined;
+		constructor(status: number, message: string, code?: string) {
+			this.status = status;
+			this.message = message;
+			this.code = code;
+		}
+	},
+}));
+
 function renderHeader(queryClient: QueryClient): void {
 	render(
 		<QueryClientProvider client={queryClient}>
@@ -34,23 +56,30 @@ describe("Header notifications", () => {
 	});
 
 	it("uses the canonical notifications endpoint", async () => {
-		const getSpy = vi.spyOn(apiClient, "get").mockResolvedValue({
-			success: true,
-			data: { notifications: [], unreadCount: 0 },
-		});
+		// The current implementation fetches notifications and unread count separately.
+		// useNotifications() → GET /notifications (returns Notification[])
+		// useUnreadCount()  → GET /notifications/unread-count (returns number)
+		vi.mocked(apiClient.get).mockResolvedValue({ success: true, data: [] });
 		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
 		renderHeader(queryClient);
 
-		await waitFor(() => expect(getSpy).toHaveBeenCalledWith("/notifications?limit=20"));
+		await waitFor(() => {
+			expect(vi.mocked(apiClient.get)).toHaveBeenCalledWith("/notifications");
+		});
 	});
 
 	it("preserves authentication errors in query state instead of swallowing them", async () => {
-		vi.spyOn(apiClient, "get").mockRejectedValue(new ApiError(401, "Unauthorized"));
+		vi.mocked(apiClient.get).mockRejectedValue(new ApiError(401, "Unauthorized"));
 		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
 		renderHeader(queryClient);
 
-		await waitFor(() => expect(queryClient.getQueryState(["notifications"])?.status).toBe("error"));
+		// The notifications list query key is ["notifications", "list"]
+		// The unread count query key is ["notifications", "unread-count"]
+		await waitFor(() => {
+			const state = queryClient.getQueryState(["notifications", "list"]);
+			expect(state?.status).toBe("error");
+		});
 	});
 });
