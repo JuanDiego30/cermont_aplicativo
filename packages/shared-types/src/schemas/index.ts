@@ -116,6 +116,7 @@ export {
 export * from "./planning-reference-document.schema";
 export * from "./proposal.schema";
 export * from "./purchase-order-authorization.schema";
+export * from "./qr-code.schema";
 export type {
 	CreateReport,
 	CreateWorkReportInput,

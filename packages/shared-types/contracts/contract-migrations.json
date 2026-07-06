@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:1033a719e3bbf3d26b09a52033f23da334429da40b8a2c790855f15fcc26782d",
+	"currentSnapshotHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -462,6 +462,13 @@
 			"date": "2026-07-06",
 			"type": "non-breaking",
 			"description": "Add KPI schemas, automation-rule schemas, DashboardKpiWidget."
+		},
+		{
+			"type": "non-breaking",
+			"description": "Add QR code schema for generating scannable QR codes by entity type (order, service_case, equipment, tool, vehicle).",
+			"date": "2026-07-06",
+			"toHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
+			"id": "066-spec-019-sprint-5-qr-code-schema"
 		}
 	]
 }

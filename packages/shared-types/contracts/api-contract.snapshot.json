@@ -54053,6 +54053,36 @@
       ],
       "type": "object"
     },
+    "GenerateQrCodeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "entityId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "entityType": {
+          "enum": [
+            "order",
+            "service_case",
+            "execution_session",
+            "equipment",
+            "tool",
+            "vehicle"
+          ],
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 100,
+          "type": "string"
+        }
+      },
+      "required": [
+        "entityType",
+        "entityId"
+      ],
+      "type": "object"
+    },
     "GenerateTechnicalReportSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -72667,6 +72697,72 @@
         "pending",
         "approved",
         "rejected"
+      ],
+      "type": "string"
+    },
+    "QrCodeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "code": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "entityId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "entityType": {
+          "enum": [
+            "order",
+            "service_case",
+            "execution_session",
+            "equipment",
+            "tool",
+            "vehicle"
+          ],
+          "type": "string"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "generatedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "imageDataUrl": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "_id",
+        "entityType",
+        "entityId",
+        "code",
+        "imageDataUrl",
+        "generatedAt",
+        "generatedBy"
+      ],
+      "type": "object"
+    },
+    "QrCodeTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "order",
+        "service_case",
+        "execution_session",
+        "equipment",
+        "tool",
+        "vehicle"
       ],
       "type": "string"
     },
