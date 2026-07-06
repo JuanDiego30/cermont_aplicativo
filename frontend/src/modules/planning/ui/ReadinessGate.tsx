@@ -16,12 +16,12 @@ interface ReadinessGateProps {
 }
 
 const CHECK_LABELS: Record<string, string> = {
-	approvedProposalExists: "Approved proposal",
-	allTechsHaveValidCerts: "Technician certifications",
-	allVehiclesDocumentsOk: "Vehicle documents",
-	allToolsCalibrated: "Tool calibration",
-	safetyChecklistComplete: "Safety checklist",
-	evidenceSlotsComplete: "Evidence slots",
+	approvedProposalExists: "Propuesta aprobada",
+	allTechsHaveValidCerts: "Certificaciones técnicas",
+	allVehiclesDocumentsOk: "Documentos vehículos",
+	allToolsCalibrated: "Calibración herramientas",
+	safetyChecklistComplete: "Checklist de seguridad",
+	evidenceSlotsComplete: "Slots de evidencia",
 };
 
 export function ReadinessGate({ checks, canExecute, loading }: ReadinessGateProps) {
