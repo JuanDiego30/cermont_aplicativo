@@ -80,9 +80,6 @@ describe("ChecklistItemControl", () => {
 		});
 		fireEvent.click(saveButton);
 
-		expect(onResult).toHaveBeenCalledWith(
-			"failed",
-			"Permiso vencido; detener la actividad.",
-		);
+		expect(onResult).toHaveBeenCalledWith("failed", "Permiso vencido; detener la actividad.");
 	});
 });

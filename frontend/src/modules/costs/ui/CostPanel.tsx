@@ -65,9 +65,7 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
 							<p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
 								Desviación por categoría
 							</p>
-							<h3 className="text-lg font-semibold text-[var(--text-primary)]">
-								Estimado vs real
-							</h3>
+							<h3 className="text-lg font-semibold text-[var(--text-primary)]">Estimado vs real</h3>
 						</div>
 						<CostExportButton summary={summary} costs={costs} />
 					</header>

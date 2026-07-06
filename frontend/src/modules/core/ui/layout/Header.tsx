@@ -15,7 +15,13 @@ import {
 	type NotificationItem,
 } from "@/modules/core/ui/layout/HeaderNotifications";
 import { HeaderUserMenu } from "@/modules/core/ui/layout/HeaderUserMenu";
-import { markAllAsRead, markAsRead, notificationKeys, useNotifications, useUnreadCount } from "@/modules/notifications";
+import {
+	markAllAsRead,
+	markAsRead,
+	notificationKeys,
+	useNotifications,
+	useUnreadCount,
+} from "@/modules/notifications";
 
 gsap.registerPlugin(useGSAP);
 

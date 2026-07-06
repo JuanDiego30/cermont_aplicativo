@@ -10,7 +10,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
-import * as WorkflowController from "../order/administrative-workflow.controller";
+import * as InvoiceController from "./invoice.controller";
 
 const router = Router();
 
@@ -20,7 +20,7 @@ router.get(
 	"/",
 	authorize(...INTERNAL_ROLES),
 	validateQuery(ListInvoicesQuerySchema),
-	WorkflowController.listInvoices,
+	InvoiceController.listInvoices,
 );
 
 router.post(
@@ -28,28 +28,28 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(CreateOrderInvoiceSchema),
-	WorkflowController.createInvoiceFromServiceEntrySheet,
+	InvoiceController.createInvoiceFromServiceEntrySheet,
 );
 
 router.get(
 	"/:id",
 	authorize(...INTERNAL_ROLES),
 	validateParams(InvoiceIdParamsSchema),
-	WorkflowController.getInvoice,
+	InvoiceController.getInvoice,
 );
 
 router.post(
 	"/:id/submit",
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(InvoiceIdParamsSchema),
-	WorkflowController.submitInvoice,
+	InvoiceController.submitInvoice,
 );
 
 router.post(
 	"/:id/approve",
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(InvoiceIdParamsSchema),
-	WorkflowController.approveInvoice,
+	InvoiceController.approveInvoice,
 );
 
 router.post(
@@ -57,14 +57,14 @@ router.post(
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(InvoiceIdParamsSchema),
 	validateBody(RejectServiceEntrySheetSchema),
-	WorkflowController.rejectInvoice,
+	InvoiceController.rejectInvoice,
 );
 
 router.post(
 	"/:id/cancel",
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(InvoiceIdParamsSchema),
-	WorkflowController.cancelInvoice,
+	InvoiceController.cancelInvoice,
 );
 
 export default router;

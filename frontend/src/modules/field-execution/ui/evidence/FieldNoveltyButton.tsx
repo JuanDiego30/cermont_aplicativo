@@ -40,7 +40,7 @@ export function FieldNoveltyButton({ onReport }: Props) {
 	const closeDialog = () => {
 		setIsOpen(false);
 		const dialog = dialogRef.current;
-		if (dialog && dialog.open) {
+		if (dialog?.open) {
 			dialog.close();
 		}
 	};

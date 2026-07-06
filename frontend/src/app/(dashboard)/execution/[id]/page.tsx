@@ -37,8 +37,8 @@ import { submitPreflight } from "@/modules/field-execution/api/field-execution.a
 import { ExecutionStatusBadge } from "@/modules/field-execution/ui/ExecutionStatusBadge";
 import { ExecutionTimer } from "@/modules/field-execution/ui/ExecutionTimer";
 import { FieldNoveltyButton } from "@/modules/field-execution/ui/evidence/FieldNoveltyButton";
-import { PreflightGatesForm } from "@/modules/field-execution/ui/PreflightGatesForm";
 import { StructuredEvidenceCapture } from "@/modules/field-execution/ui/evidence/StructuredEvidenceCapture";
+import { PreflightGatesForm } from "@/modules/field-execution/ui/PreflightGatesForm";
 import { useAuthStore } from "@/store/auth.store";
 
 type ExecutionDetailPageProps = {

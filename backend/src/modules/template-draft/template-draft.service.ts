@@ -183,9 +183,18 @@ function buildDefaultPermissions(targetStepCode: string | undefined): TemplatePe
 	const allowedRoles: TemplatePermission["role"][] = (
 		step?.allowedRoles || ["gerente", "residente", "administrativo"]
 	).filter((r): r is TemplatePermission["role"] =>
-		(["gerente", "residente", "hes", "supervisor", "operador", "tecnico", "administrativo", "cliente"] as const).includes(
-			r as TemplatePermission["role"],
-		),
+		(
+			[
+				"gerente",
+				"residente",
+				"hes",
+				"supervisor",
+				"operador",
+				"tecnico",
+				"administrativo",
+				"cliente",
+			] as const
+		).includes(r as TemplatePermission["role"]),
 	);
 
 	return allowedRoles.map((role) => ({

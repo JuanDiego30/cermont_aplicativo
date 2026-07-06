@@ -12,7 +12,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
-import * as WorkflowController from "../order/administrative-workflow.controller";
+import * as DeliveryRecordController from "./delivery-record.controller";
 
 const router = Router();
 
@@ -22,7 +22,7 @@ router.get(
 	"/",
 	authorize(...INTERNAL_ROLES),
 	validateQuery(ListDeliveryRecordsQuerySchema),
-	WorkflowController.listDeliveryRecords,
+	DeliveryRecordController.listDeliveryRecords,
 );
 
 router.post(
@@ -30,14 +30,14 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(CreateDeliveryRecordV2Schema),
-	WorkflowController.createDeliveryRecordFromTechnicalReport,
+	DeliveryRecordController.createDeliveryRecordFromTechnicalReport,
 );
 
 router.get(
 	"/:id",
 	authorize(...INTERNAL_ROLES),
 	validateParams(DeliveryRecordIdParamsSchema),
-	WorkflowController.getDeliveryRecord,
+	DeliveryRecordController.getDeliveryRecord,
 );
 
 router.post(
@@ -45,7 +45,7 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(SendDeliveryRecordSchema),
-	WorkflowController.sendDeliveryRecord,
+	DeliveryRecordController.sendDeliveryRecord,
 );
 
 router.post(
@@ -53,7 +53,7 @@ router.post(
 	authorize("gerente", "residente", "administrativo", "cliente"),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(SignDeliveryRecordSchema),
-	WorkflowController.signDeliveryRecord,
+	DeliveryRecordController.signDeliveryRecord,
 );
 
 router.post(
@@ -61,21 +61,21 @@ router.post(
 	authorize("gerente", "residente", "cliente"),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(RejectDeliveryRecordSchema),
-	WorkflowController.rejectDeliveryRecord,
+	DeliveryRecordController.rejectDeliveryRecord,
 );
 
 router.post(
 	"/:id/cancel",
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(DeliveryRecordIdParamsSchema),
-	WorkflowController.cancelDeliveryRecord,
+	DeliveryRecordController.cancelDeliveryRecord,
 );
 
 router.post(
 	"/:id/archive",
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(DeliveryRecordIdParamsSchema),
-	WorkflowController.cancelDeliveryRecord,
+	DeliveryRecordController.cancelDeliveryRecord,
 );
 
 export default router;

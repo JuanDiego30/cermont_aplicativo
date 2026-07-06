@@ -313,9 +313,7 @@ export function useCostIntelligence(orderId: string) {
 			);
 
 			if (body?.success === false || !body?.data) {
-				throw new Error(
-					getApiErrorMessage(body, "No se pudo cargar la inteligencia de costos"),
-				);
+				throw new Error(getApiErrorMessage(body, "No se pudo cargar la inteligencia de costos"));
 			}
 
 			return body.data;

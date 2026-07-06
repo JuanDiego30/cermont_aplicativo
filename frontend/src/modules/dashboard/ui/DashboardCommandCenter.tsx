@@ -40,7 +40,11 @@ function priorityCardClass(span: string, tone: "brand" | "danger" | "neutral") {
 	return `${span} rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] p-5 ${border}`;
 }
 
-function PriorityCards({ readiness, closure, summary }: {
+function PriorityCards({
+	readiness,
+	closure,
+	summary,
+}: {
 	readiness: DashboardSummary["fieldReadiness"];
 	closure: DashboardSummary["administrativeClosure"];
 	summary: DashboardSummary;
@@ -54,10 +58,7 @@ function PriorityCards({ readiness, closure, summary }: {
 
 	return (
 		<div className="grid gap-4 lg:grid-cols-12">
-			<Link
-				href={APP_ROUTES.checklists}
-				className={priorityCardClass("lg:col-span-5", "danger")}
-			>
+			<Link href={APP_ROUTES.checklists} className={priorityCardClass("lg:col-span-5", "danger")}>
 				<div className="flex items-start justify-between gap-5">
 					<div className="space-y-3">
 						<span className="flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]">
@@ -72,8 +73,8 @@ function PriorityCards({ readiness, closure, summary }: {
 							</p>
 						</div>
 						<p className="text-sm text-[var(--text-secondary)]">
-							{readiness.blockingChecklistsFailed} fallidos ·{" "}
-							{readiness.blockingChecklistsPending} pendientes
+							{readiness.blockingChecklistsFailed} fallidos · {readiness.blockingChecklistsPending}{" "}
+							pendientes
 						</p>
 					</div>
 					<ArrowRight className="size-5 text-[var(--text-tertiary)]" aria-hidden="true" />
@@ -106,10 +107,7 @@ function PriorityCards({ readiness, closure, summary }: {
 				</p>
 			</Link>
 
-			<Link
-				href={APP_ROUTES.payments}
-				className={priorityCardClass("lg:col-span-2", "neutral")}
-			>
+			<Link href={APP_ROUTES.payments} className={priorityCardClass("lg:col-span-2", "neutral")}>
 				<WalletCards className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
 				<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">Cartera vencida</p>
 				<p className="mt-1 font-mono text-xl font-semibold tabular-nums text-[var(--text-primary)]">

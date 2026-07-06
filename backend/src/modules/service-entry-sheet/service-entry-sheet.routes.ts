@@ -13,7 +13,7 @@ import { z } from "zod";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
-import * as WorkflowController from "../order/administrative-workflow.controller";
+import * as SesController from "./service-entry-sheet.controller";
 
 const router = Router();
 const DeliveryRecordIdParamsSchema = z.object({ id: ObjectIdSchema }).strict();
@@ -24,7 +24,7 @@ router.get(
 	"/",
 	authorize(...INTERNAL_ROLES),
 	validateQuery(ListServiceEntrySheetsQuerySchema),
-	WorkflowController.listServiceEntrySheets,
+	SesController.listServiceEntrySheets,
 );
 
 router.post(
@@ -32,14 +32,14 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(CreateOrderServiceEntrySheetSchema),
-	WorkflowController.createServiceEntrySheetFromDeliveryRecord,
+	SesController.createServiceEntrySheetFromDeliveryRecord,
 );
 
 router.get(
 	"/:id",
 	authorize(...INTERNAL_ROLES),
 	validateParams(ServiceEntrySheetIdParamsSchema),
-	WorkflowController.getServiceEntrySheet,
+	SesController.getServiceEntrySheet,
 );
 
 router.post(
@@ -47,7 +47,7 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(SubmitServiceEntrySheetSchema),
-	WorkflowController.submitServiceEntrySheet,
+	SesController.submitServiceEntrySheet,
 );
 
 router.post(
@@ -55,7 +55,7 @@ router.post(
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(ApproveServiceEntrySheetSchema),
-	WorkflowController.approveServiceEntrySheet,
+	SesController.approveServiceEntrySheet,
 );
 
 router.post(
@@ -63,21 +63,21 @@ router.post(
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(RejectServiceEntrySheetSchema),
-	WorkflowController.rejectServiceEntrySheet,
+	SesController.rejectServiceEntrySheet,
 );
 
 router.post(
 	"/:id/cancel",
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
-	WorkflowController.cancelServiceEntrySheet,
+	SesController.cancelServiceEntrySheet,
 );
 
 router.post(
 	"/:id/archive",
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
-	WorkflowController.cancelServiceEntrySheet,
+	SesController.cancelServiceEntrySheet,
 );
 
 router.post(
@@ -85,7 +85,7 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(SubmitServiceEntrySheetSchema),
-	WorkflowController.submitServiceEntrySheet,
+	SesController.submitServiceEntrySheet,
 );
 
 router.post(
@@ -93,7 +93,7 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(ServiceEntrySheetIdParamsSchema),
 	validateBody(SubmitServiceEntrySheetSchema),
-	WorkflowController.submitServiceEntrySheet,
+	SesController.submitServiceEntrySheet,
 );
 
 export default router;

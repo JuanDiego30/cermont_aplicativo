@@ -301,8 +301,7 @@ export async function getConsolidatedReport(
 					sesApprovedBy: ses.approvedBy?.toString(),
 					sesStatus: normalizeSesStatus(ses.status),
 					sesNotes: ses.description,
-					supportDocumentUrl: closingDocs.find((d) => d.targetStepCode === "step_11_ses")
-						?.file_url,
+					supportDocumentUrl: closingDocs.find((d) => d.targetStepCode === "step_11_ses")?.file_url,
 				}
 			: undefined,
 

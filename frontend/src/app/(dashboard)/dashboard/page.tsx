@@ -434,9 +434,7 @@ export default function DashboardPage() {
 				inPlanning={serviceCaseSummary?.inPlanning ?? 0}
 			/>
 
-			<NextActionsByRolePanel
-				actions={buildNextActionItems(dashboardSummary?.nextActions ?? [])}
-			/>
+			<NextActionsByRolePanel actions={buildNextActionItems(dashboardSummary?.nextActions ?? [])} />
 
 			<OperationalKpiSection
 				dashboardSummary={dashboardSummary}

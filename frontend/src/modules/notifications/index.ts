@@ -6,13 +6,13 @@
  * `@/modules/notifications` instead of deep paths.
  */
 
-export type { Notification, NotificationType } from "./api/types";
 export {
 	fetchNotifications,
 	fetchUnreadCount,
 	markAllAsRead,
 	markAsRead,
 } from "./api/notification.api";
+export type { Notification, NotificationType } from "./api/types";
 export {
 	notificationKeys,
 	useNotifications,

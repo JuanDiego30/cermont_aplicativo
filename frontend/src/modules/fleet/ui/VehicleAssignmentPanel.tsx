@@ -118,9 +118,7 @@ function MileageFuelForm({
 
 function AssignmentHistory({ history }: { history: VehicleAssignment[] }) {
 	if (history.length === 0) {
-		return (
-			<p className="text-sm text-[var(--text-secondary)]">Sin asignaciones registradas.</p>
-		);
+		return <p className="text-sm text-[var(--text-secondary)]">Sin asignaciones registradas.</p>;
 	}
 
 	return (
@@ -158,8 +156,7 @@ export function VehicleAssignmentPanel({ vehicleId }: { vehicleId: string }) {
 	const checkinMutation = useCheckinVehicle();
 
 	const active = activeQuery.data;
-	const mutationError =
-		assignMutation.error ?? checkoutMutation.error ?? checkinMutation.error;
+	const mutationError = assignMutation.error ?? checkoutMutation.error ?? checkinMutation.error;
 
 	return (
 		<div className="space-y-6">
