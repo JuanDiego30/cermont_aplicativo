@@ -3,6 +3,7 @@ import {
 	AttachEntityDocumentSchema,
 	CreateFormSubmissionSchema,
 	CreatePrivacyRequestSchema,
+	CreateTemplateResponseSchema,
 	GenerateBulkQrCodesSchema,
 	RunJobsSchema,
 	SyncErpConnectorParamsSchema,
@@ -35,8 +36,8 @@ describe("route request schemas", () => {
 	});
 
 	it("accepts bodyless action requests without accepting extra fields", () => {
-		expect(RunJobsSchema.safeParse(undefined).success).toBe(true);
-		expect(SyncErpConnectorRequestSchema.safeParse(undefined).success).toBe(true);
+		expect(RunJobsSchema.safeParse({}).success).toBe(true);
+		expect(SyncErpConnectorRequestSchema.safeParse({}).success).toBe(true);
 		expect(RunJobsSchema.safeParse({ unexpected: true }).success).toBe(false);
 	});
 
@@ -75,6 +76,21 @@ describe("route request schemas", () => {
 		).toBe(true);
 		expect(
 			CreatePrivacyRequestSchema.safeParse({ type: "invalid", description: "Solicitud" }).success,
+		).toBe(false);
+	});
+
+	it("requires valid template and version ids for template responses", () => {
+		expect(
+			CreateTemplateResponseSchema.safeParse({
+				documentTemplateId: OBJECT_ID,
+				documentTemplateVersionId: "507f1f77bcf86cd799439012",
+			}).success,
+		).toBe(true);
+		expect(
+			CreateTemplateResponseSchema.safeParse({
+				documentTemplateId: "invalid",
+				documentTemplateVersionId: OBJECT_ID,
+			}).success,
 		).toBe(false);
 	});
 });

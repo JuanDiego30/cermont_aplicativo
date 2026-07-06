@@ -3,6 +3,8 @@ import { ObjectIdSchema } from "./common.schema";
 
 export const FormSubmissionValueSchema = z.union([z.string(), z.number(), z.boolean()]);
 
+export type FormSubmissionValue = z.infer<typeof FormSubmissionValueSchema>;
+
 export const FormSubmissionPhotoAttachmentSchema = z
 	.object({
 		fieldKey: z.string().min(1),

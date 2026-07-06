@@ -7,6 +7,7 @@
 
 import { z } from "zod";
 import { CermontOperationalStepCodeSchema } from "./cermont-operational-step.schema";
+import { ObjectIdSchema } from "./common.schema";
 import {
 	DocumentLinkedEntityTypeSchema,
 	TemplateResponseOfflineStateSchema,
@@ -305,8 +306,8 @@ export type TemplateResponse = z.infer<typeof TemplateResponseSchema>;
 
 export const CreateTemplateResponseSchema = z
 	.object({
-		documentTemplateId: z.string().min(1),
-		documentTemplateVersionId: z.string().min(1),
+		documentTemplateId: ObjectIdSchema,
+		documentTemplateVersionId: ObjectIdSchema,
 		associations: z.array(TemplateResponseAssociationSchema).optional().default([]),
 		deviceInfo: z
 			.object({

@@ -30147,11 +30147,11 @@
           "type": "object"
         },
         "documentTemplateId": {
-          "minLength": 1,
+          "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
         "documentTemplateVersionId": {
-          "minLength": 1,
+          "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         }
       },
