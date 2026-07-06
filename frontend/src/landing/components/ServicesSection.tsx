@@ -19,7 +19,7 @@ export function ServicesSection() {
 
 				<div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 					{LANDING_SERVICES.map((service) => (
-						<ServiceCard {...service} key={service.title} />
+						<ServiceCard key={service.title} {...service} />
 					))}
 				</div>
 			</div>

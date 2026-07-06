@@ -97,12 +97,12 @@ export default function AdminCustomFieldsPage() {
 
 			{editing && (
 				<CustomFieldEditor
+					key={editing === "new" ? "new" : editing._id}
 					entityType={entityType}
 					{...(editing !== "new" ? { initial: editing } : {})}
 					isSaving={isSaving}
 					onSave={handleSave}
 					onCancel={() => setEditing("")}
-					key={editing === "new" ? "new" : editing._id}
 				/>
 			)}
 

@@ -1,4 +1,4 @@
-import { REPORTING_ACCESS_ROLES } from "@cermont/domain";
+import { CERMONT_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
 import {
 	CreateInspectionSchema,
 	InspectionIdSchema,
@@ -25,7 +25,14 @@ router.use(authenticate);
 router.get("/", authorize(...REPORTING_ACCESS_ROLES), getAllInspections);
 router.get(
 	"/order/:order_id",
-	authorize("gerente", "residente", "supervisor", "tecnico", "operador", "hes"),
+	authorize(
+		CERMONT_ROLES.GERENTE,
+		CERMONT_ROLES.RESIDENTE,
+		CERMONT_ROLES.SUPERVISOR,
+		CERMONT_ROLES.TECNICO,
+		CERMONT_ROLES.OPERADOR,
+		CERMONT_ROLES.HES,
+	),
 	validateParams(InspectionOrderIdParamsSchema),
 	getInspectionsByOrder,
 );
@@ -37,7 +44,14 @@ router.get(
 );
 router.post(
 	"/",
-	authorize("gerente", "residente", "supervisor", "tecnico", "operador", "hes"),
+	authorize(
+		CERMONT_ROLES.GERENTE,
+		CERMONT_ROLES.RESIDENTE,
+		CERMONT_ROLES.SUPERVISOR,
+		CERMONT_ROLES.TECNICO,
+		CERMONT_ROLES.OPERADOR,
+		CERMONT_ROLES.HES,
+	),
 	validateBody(CreateInspectionSchema),
 	createInspection,
 );
@@ -48,6 +62,11 @@ router.patch(
 	validateBody(UpdateInspectionStatusSchema),
 	updateInspectionStatus,
 );
-router.delete("/:id", authorize("gerente"), validateParams(InspectionIdSchema), deleteInspection);
+router.delete(
+	"/:id",
+	authorize(CERMONT_ROLES.GERENTE),
+	validateParams(InspectionIdSchema),
+	deleteInspection,
+);
 
 export default router;

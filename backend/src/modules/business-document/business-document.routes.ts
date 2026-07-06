@@ -2,6 +2,7 @@
  * BusinessDocument Routes — Endpoint wiring for business document CRUD
  */
 
+import { CERMONT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	CreateBusinessDocumentSchema,
 	ObjectIdSchema,
@@ -18,14 +19,20 @@ const router = Router();
 router.get(
 	"/",
 	authenticate,
-	authorize("gerente", "residente", "hes", "supervisor", "administrativo"),
+	authorize(
+		CERMONT_ROLES.GERENTE,
+		CERMONT_ROLES.RESIDENTE,
+		CERMONT_ROLES.HES,
+		CERMONT_ROLES.SUPERVISOR,
+		CERMONT_ROLES.ADMINISTRATIVO,
+	),
 	businessDocumentController.list,
 );
 
 router.post(
 	"/",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateBody(CreateBusinessDocumentSchema),
 	businessDocumentController.create,
 );
@@ -33,7 +40,13 @@ router.post(
 router.get(
 	"/:id",
 	authenticate,
-	authorize("gerente", "residente", "hes", "supervisor", "administrativo"),
+	authorize(
+		CERMONT_ROLES.GERENTE,
+		CERMONT_ROLES.RESIDENTE,
+		CERMONT_ROLES.HES,
+		CERMONT_ROLES.SUPERVISOR,
+		CERMONT_ROLES.ADMINISTRATIVO,
+	),
 	validateParams(ObjectIdSchema),
 	businessDocumentController.getById,
 );
@@ -41,7 +54,7 @@ router.get(
 router.put(
 	"/:id",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(ObjectIdSchema),
 	validateBody(UpdateBusinessDocumentSchema),
 	businessDocumentController.update,
@@ -50,7 +63,7 @@ router.put(
 router.delete(
 	"/:id",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(ObjectIdSchema),
 	businessDocumentController.delete,
 );

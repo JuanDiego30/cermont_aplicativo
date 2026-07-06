@@ -1,4 +1,9 @@
-import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import {
+	ADMIN_PLUS_RESIDENTE,
+	CERMONT_ROLES,
+	INTERNAL_ROLES,
+	MANAGEMENT_ROLES,
+} from "@cermont/domain";
 import {
 	CreateDeliveryRecordV2Schema,
 	DeliveryRecordIdParamsSchema,
@@ -50,7 +55,12 @@ router.post(
 
 router.post(
 	"/:id/sign",
-	authorize("gerente", "residente", "administrativo", "cliente"),
+	authorize(
+		CERMONT_ROLES.GERENTE,
+		CERMONT_ROLES.RESIDENTE,
+		CERMONT_ROLES.ADMINISTRATIVO,
+		CERMONT_ROLES.CLIENTE,
+	),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(SignDeliveryRecordSchema),
 	DeliveryRecordController.signDeliveryRecord,
@@ -58,7 +68,7 @@ router.post(
 
 router.post(
 	"/:id/reject",
-	authorize("gerente", "residente", "cliente"),
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.RESIDENTE, CERMONT_ROLES.CLIENTE),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(RejectDeliveryRecordSchema),
 	DeliveryRecordController.rejectDeliveryRecord,

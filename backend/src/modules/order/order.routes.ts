@@ -11,7 +11,12 @@
  * The service layer enforces finer domain rules.
  */
 
-import { FIELD_MANAGEMENT_ROLES, INTERNAL_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
+import {
+	CERMONT_ROLES,
+	FIELD_MANAGEMENT_ROLES,
+	INTERNAL_ROLES,
+	REPORTING_ACCESS_ROLES,
+} from "@cermont/domain";
 import {
 	AssignOrderSchema,
 	CreateOrderSchema,
@@ -159,7 +164,7 @@ router.patch(
 router.delete(
 	"/:id",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(OrderIdSchema),
 	OrderController.deleteOrder,
 );

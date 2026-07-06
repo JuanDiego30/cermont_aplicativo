@@ -4,6 +4,7 @@
  * Solo gerencia. Exportación de colecciones para respaldo y auditoría.
  */
 
+import { CERMONT_ROLES } from "@cermont/domain";
 import type { Request, Response } from "express";
 import { Router } from "express";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
@@ -15,7 +16,7 @@ import * as AdminBackupService from "./admin-backup.service";
 const router = Router();
 
 router.use(authenticate);
-router.use(authorize("gerente"));
+router.use(authorize(CERMONT_ROLES.GERENTE));
 
 // GET /api/admin/backups/collections — collections with document counts
 router.get("/collections", async (req: Request, res: Response): Promise<void> => {

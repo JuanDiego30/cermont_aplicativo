@@ -257,7 +257,7 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 					</div>
 					<div className="space-y-1.5">
 						{categories.map((cat) => (
-							<CategoryRow {...cat} key={cat.label} />
+							<CategoryRow key={cat.label} {...cat} />
 						))}
 					</div>
 				</div>

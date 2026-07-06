@@ -1,4 +1,9 @@
-import { INTERNAL_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import {
+	CERMONT_ROLES,
+	INTERNAL_ROLES,
+	MAINTENANCE_MANAGEMENT_ROLES,
+	MANAGEMENT_ROLES,
+} from "@cermont/domain";
 import {
 	AttachEntityDocumentSchema,
 	CreateMaintenanceKitSchema,
@@ -63,7 +68,12 @@ router.patch(
 );
 
 // DELETE /api/maintenance/kits/:id — Deactivate kit (gerente only)
-router.delete("/kits/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteKit);
+router.delete(
+	"/kits/:id",
+	authorize(CERMONT_ROLES.GERENTE),
+	validateParams(ResourceIdSchema),
+	deleteKit,
+);
 
 // GET /api/maintenance/kits — List kits (all authenticated users)
 router.get("/", authorize(...INTERNAL_ROLES), getAllKits);
@@ -89,7 +99,12 @@ router.patch(
 );
 
 // DELETE /api/maintenance/kits/:id — Deactivate kit (gerente only)
-router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteKit);
+router.delete(
+	"/:id",
+	authorize(CERMONT_ROLES.GERENTE),
+	validateParams(ResourceIdSchema),
+	deleteKit,
+);
 
 // ─── Kit Document Attachments ─────────────────────────────────────
 // POST /api/maintenance/kits/:kitId/documents — Attach document to kit

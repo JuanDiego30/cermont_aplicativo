@@ -3,7 +3,12 @@
  * DOC-10 §5: Evidencias
  */
 
-import { EVIDENCE_ACCESS_ROLES, INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+import {
+	CERMONT_ROLES,
+	EVIDENCE_ACCESS_ROLES,
+	INTERNAL_ROLES,
+	SUPERVISORY_ROLES,
+} from "@cermont/domain";
 import {
 	CreateEvidenceSchema,
 	EvidenceIdSchema,
@@ -56,7 +61,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize("operador", "tecnico", "supervisor"),
+	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
 	uploadLimiter,
 	evidenceUpload.single("file"),
 	handleUploadError,

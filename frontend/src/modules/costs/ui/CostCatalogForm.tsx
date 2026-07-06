@@ -2,7 +2,7 @@
 
 import { hasRole, MANAGEMENT_ROLES } from "@cermont/domain";
 import type { CostCategory } from "@cermont/shared-types";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useReducer } from "react";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 
 interface Props {
@@ -17,6 +17,42 @@ interface Props {
 	error?: string;
 }
 
+interface CostCatalogFormState {
+	code: string;
+	name: string;
+	category: CostCategory;
+	unit: string;
+	unitPrice: string;
+}
+
+type CostCatalogFormAction =
+	| { type: "SET_CODE"; value: string }
+	| { type: "SET_NAME"; value: string }
+	| { type: "SET_CATEGORY"; value: CostCategory }
+	| { type: "SET_UNIT"; value: string }
+	| { type: "SET_UNIT_PRICE"; value: string }
+	| { type: "RESET" };
+
+function costCatalogFormReducer(
+	state: CostCatalogFormState,
+	action: CostCatalogFormAction,
+): CostCatalogFormState {
+	switch (action.type) {
+		case "SET_CODE":
+			return { ...state, code: action.value };
+		case "SET_NAME":
+			return { ...state, name: action.value };
+		case "SET_CATEGORY":
+			return { ...state, category: action.value };
+		case "SET_UNIT":
+			return { ...state, unit: action.value };
+		case "SET_UNIT_PRICE":
+			return { ...state, unitPrice: action.value };
+		case "RESET":
+			return { code: "", name: "", category: "materials", unit: "", unitPrice: "" };
+	}
+}
+
 const CATEGORY_OPTIONS: { value: CostCategory; label: string }[] = [
 	{ value: "labor", label: "Mano de obra" },
 	{ value: "materials", label: "Materiales" },
@@ -26,14 +62,18 @@ const CATEGORY_OPTIONS: { value: CostCategory; label: string }[] = [
 	{ value: "other", label: "Otros" },
 ];
 
+const INITIAL_STATE: CostCatalogFormState = {
+	code: "",
+	name: "",
+	category: "materials",
+	unit: "",
+	unitPrice: "",
+};
+
 export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
 	const { user } = useAuth();
 	const canManage = user ? hasRole(user.role, MANAGEMENT_ROLES) : false;
-	const [code, setCode] = useState("");
-	const [name, setName] = useState("");
-	const [category, setCategory] = useState<CostCategory>("materials");
-	const [unit, setUnit] = useState("");
-	const [unitPrice, setUnitPrice] = useState("");
+	const [state, dispatch] = useReducer(costCatalogFormReducer, INITIAL_STATE);
 
 	if (!canManage) {
 		return null;
@@ -41,21 +81,24 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
 
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
-		const price = Number(unitPrice);
-		if (!code.trim() || !name.trim() || !unit.trim() || Number.isNaN(price) || price <= 0) {
+		const price = Number(state.unitPrice);
+		if (
+			!state.code.trim() ||
+			!state.name.trim() ||
+			!state.unit.trim() ||
+			Number.isNaN(price) ||
+			price <= 0
+		) {
 			return;
 		}
 		onSubmit({
-			code: code.trim(),
-			name: name.trim(),
-			category,
-			unit: unit.trim(),
+			code: state.code.trim(),
+			name: state.name.trim(),
+			category: state.category,
+			unit: state.unit.trim(),
 			unitPrice: price,
 		});
-		setCode("");
-		setName("");
-		setUnit("");
-		setUnitPrice("");
+		dispatch({ type: "RESET" });
 	};
 
 	return (
@@ -67,8 +110,8 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Código
 				<input
-					value={code}
-					onChange={(e) => setCode(e.target.value)}
+					value={state.code}
+					onChange={(e) => dispatch({ type: "SET_CODE", value: e.target.value })}
 					required
 					maxLength={40}
 					className="min-h-11 rounded-md border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm"
@@ -78,8 +121,8 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Referencia
 				<input
-					value={name}
-					onChange={(e) => setName(e.target.value)}
+					value={state.name}
+					onChange={(e) => dispatch({ type: "SET_NAME", value: e.target.value })}
 					required
 					maxLength={200}
 					className="min-h-11 rounded-md border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm"
@@ -89,8 +132,10 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Categoría
 				<select
-					value={category}
-					onChange={(e) => setCategory(e.target.value as CostCategory)}
+					value={state.category}
+					onChange={(e) =>
+						dispatch({ type: "SET_CATEGORY", value: e.target.value as CostCategory })
+					}
 					className="min-h-11 rounded-md border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm"
 				>
 					{CATEGORY_OPTIONS.map((opt) => (
@@ -103,8 +148,8 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Unidad
 				<input
-					value={unit}
-					onChange={(e) => setUnit(e.target.value)}
+					value={state.unit}
+					onChange={(e) => dispatch({ type: "SET_UNIT", value: e.target.value })}
 					required
 					maxLength={50}
 					className="min-h-11 rounded-md border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm"
@@ -114,8 +159,8 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
 				Valor unitario (COP)
 				<input
-					value={unitPrice}
-					onChange={(e) => setUnitPrice(e.target.value)}
+					value={state.unitPrice}
+					onChange={(e) => dispatch({ type: "SET_UNIT_PRICE", value: e.target.value })}
 					required
 					type="number"
 					min={0}

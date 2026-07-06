@@ -2,6 +2,7 @@
  * Jobs Routes — Admin endpoints for managing the reminder worker
  */
 
+import { CERMONT_ROLES } from "@cermont/domain";
 import { RunJobsSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -15,12 +16,12 @@ const router = Router();
 router.post(
 	"/run",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateBody(RunJobsSchema),
 	JobsController.runJobs,
 );
 
 // GET /api/jobs/status — Check if worker is running
-router.get("/status", authenticate, authorize("gerente"), JobsController.getStatus);
+router.get("/status", authenticate, authorize(CERMONT_ROLES.GERENTE), JobsController.getStatus);
 
 export default router;

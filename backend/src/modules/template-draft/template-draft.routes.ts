@@ -1,4 +1,4 @@
-import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES } from "@cermont/domain";
+import { ADMIN_PLUS_RESIDENTE, CERMONT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
@@ -24,13 +24,13 @@ router.patch(
 );
 router.post(
 	"/:id/approve",
-	authorize("gerente", "administrativo"),
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
 	// No body validation needed — approve is an action endpoint with no body
 	TemplateDraftController.approve,
 );
 router.post(
 	"/:id/reject",
-	authorize("gerente", "administrativo"),
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
 	// No body validation needed — reject is an action endpoint with no body
 	TemplateDraftController.reject,
 );
@@ -42,10 +42,14 @@ router.post(
 );
 router.post(
 	"/:id/convert-to-template",
-	authorize("gerente", "administrativo"),
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
 	// No body validation needed — convert is an action endpoint with no body
 	TemplateDraftController.convert,
 );
-router.delete("/:id", authorize("gerente", "administrativo"), TemplateDraftController.remove);
+router.delete(
+	"/:id",
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
+	TemplateDraftController.remove,
+);
 
 export default router;

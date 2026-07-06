@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { CERMONT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
 import {
 	CreateCustomFieldDefinitionDtoSchema,
 	UpdateCustomFieldDefinitionDtoSchema,
@@ -17,16 +17,16 @@ router.get("/", authorize(...INTERNAL_ROLES), controller.list);
 router.get("/:id", authorize(...INTERNAL_ROLES), controller.getById);
 router.post(
 	"/",
-	authorize("gerente", "administrativo"),
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
 	validateBody(CreateCustomFieldDefinitionDtoSchema),
 	controller.create,
 );
 router.put(
 	"/:id",
-	authorize("gerente", "administrativo"),
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
 	validateBody(UpdateCustomFieldDefinitionDtoSchema),
 	controller.update,
 );
-router.delete("/:id", authorize("gerente"), controller.remove);
+router.delete("/:id", authorize(CERMONT_ROLES.GERENTE), controller.remove);
 
 export default router;
