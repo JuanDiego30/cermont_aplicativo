@@ -29,10 +29,12 @@ for (const filePath of listTextFiles(["backend/src"])) {
 	}
 
 	const text = readText(filePath);
-	const usesRouterAuth = /router\.use\s*\(\s*authenticate\s*\)/.test(text);
-	const usesRouterAuthz = /router\.use\s*\(\s*authorize\s*\(/.test(text);
+	const usesRouterAuth = /router\.use\s*\([^)]*authenticate\s*[,)]/.test(text);
+	const usesRouterAuthz = /router\.use\s*\([^)]*authorize\s*\(/.test(text);
 	for (const match of text.matchAll(ROUTE_PATTERN)) {
 		const routeBlock = match[0];
+		const precedingLines = text.slice(0, match.index).split(/\r?\n/).slice(-3).join("\n");
+		const hasPrecedingNoValidationComment = /No body validation needed/.test(precedingLines);
 		const routePath = getRoutePath(routeBlock);
 		const location = lineColumnAt(text, match.index);
 		const isOpen = routePath !== "" && OPEN_AUTH_ROUTES.includes(routePath);
@@ -46,7 +48,8 @@ for (const filePath of listTextFiles(["backend/src"])) {
 		const needsBodyValidation = /router\.(post|patch|put)\s*\(/.test(routeBlock) && !isOpen;
 		const hasValidation =
 			/\bvalidate(Body|Query|Params)?\s*\(/.test(routeBlock) ||
-			/No body validation needed/.test(routeBlock);
+			/No body validation needed/.test(routeBlock) ||
+			hasPrecedingNoValidationComment;
 
 		if (!isOpen && !hasAuth) {
 			findings.push({
