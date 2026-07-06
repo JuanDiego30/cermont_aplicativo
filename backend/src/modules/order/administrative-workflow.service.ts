@@ -52,6 +52,7 @@ import {
 	type TechnicalReportDocument,
 } from "../../models";
 import { assertInvoiceMatchesServiceEntrySheet } from "../../services/invoice-integrity.service";
+import { createNotification } from "../notifications/notification.service";
 
 type ListEnvelope<T> = {
 	data: T[];
@@ -912,6 +913,10 @@ export async function signDeliveryRecord(
 			},
 		],
 	);
+	const scId = record.serviceCaseId;
+	if (scId) {
+		await notifyInvoicePending(scId.toString());
+	}
 	return formatDeliveryRecord(record);
 }
 
@@ -1561,5 +1566,40 @@ function collectObservationDeviations(
 		deviations.push(
 			String(obs.text ?? obs.description ?? obs.observation ?? "Desviación registrada"),
 		);
+	}
+}
+
+async function notifyInvoicePending(serviceCaseId: string): Promise<void> {
+	const ADMIN_ROLE = "administrativo";
+	const adminUsers = await Order.db
+		.collection("users")
+		.find({ role: ADMIN_ROLE, isActive: true })
+		.project({ _id: 1 })
+		.toArray();
+	const adminUserIds = adminUsers
+		.map((doc) => String(doc._id))
+		.filter((id): id is string => Boolean(id));
+	if (adminUserIds.length === 0) {
+		return;
+	}
+	const serviceCase = await ServiceCase.findById(serviceCaseId)
+		.select("code")
+		.lean<{ _id: Types.ObjectId; code?: string }>();
+	const serviceCaseCode = serviceCase?.code ?? serviceCaseId;
+	for (const recipientUserId of adminUserIds) {
+		await createNotification({
+			recipientUserId,
+			type: "invoice_pending",
+			priority: "high",
+			title: "Acta firmada — Pendiente facturación",
+			body: `La orden ${serviceCaseCode} tiene acta firmada. Continuar con SES → Factura → Pago`,
+			relatedEntity: { entityType: "ServiceCase", entityId: serviceCaseId },
+			channels: ["in_app"],
+			metadata: { serviceCaseId },
+		}).catch((error: unknown) => {
+			if (error instanceof Error && isTransientDatabaseError(error)) {
+				throw new ServiceUnavailableError("Notification service unavailable");
+			}
+		});
 	}
 }

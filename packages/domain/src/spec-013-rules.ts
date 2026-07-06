@@ -5,27 +5,26 @@
  * Las implementaciones canónicas viven en `./spec-015-rules.ts`.
  */
 
-export {
-	evaluatePreflightGates,
-	evaluateSLARisk,
-	evaluateCostRisk,
-	evaluateEvidenceCompleteness,
-	computeMTTR,
-	computeMTBF,
-	computeFirstTimeFixRate,
-	computeTechnicianUtilization,
-} from "./spec-015-rules";
-
 export type {
-	PreflightGateItemInput,
+	CompletedOrderWindow,
+	CompletedSessionWindow,
+	CostRiskLevel,
+	EvidenceCompletenessResult,
+	EvidenceSlotInput,
+	FirstTimeFixOrderInput,
 	PreflightBooleanChecks,
+	PreflightGateItemInput,
 	PreflightResult,
 	SLARiskLevel,
-	CostRiskLevel,
-	EvidenceSlotInput,
-	EvidenceCompletenessResult,
-	CompletedSessionWindow,
-	CompletedOrderWindow,
-	FirstTimeFixOrderInput,
 	TechnicianUtilizationSessionInput,
+} from "./spec-015-rules";
+export {
+	computeFirstTimeFixRate,
+	computeMTBF,
+	computeMTTR,
+	computeTechnicianUtilization,
+	evaluateCostRisk,
+	evaluateEvidenceCompleteness,
+	evaluatePreflightGates,
+	evaluateSLARisk,
 } from "./spec-015-rules";
