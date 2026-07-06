@@ -98,6 +98,7 @@
 | 21 | `/execution` | Execution session list | field-execution | Session list | useExecutions | GET /api/execution | supervisor, operador, tecnico | Loading, Error, Empty, Offline | IMPLEMENTED |
 | 21A | `/execution/new` | Create execution session | field-execution | Form data | useCreateExecution | POST /api/execution | supervisor, operador, tecnico | Error, Offline | IMPLEMENTED |
 | 21B | `/execution/[id]` | Execution session detail | field-execution | Session data | useExecution | GET /api/execution/:id | supervisor, operador, tecnico | Error, Empty | IMPLEMENTED |
+| 21C | `/execution-sessions/[id]` | Field execution session (preflight, FSM, evidencias) | field-execution | Session data, checklists, evidence | useExecutionSession | GET /api/execution-sessions/:id | supervisor, operador, tecnico | Loading, Error, Empty, Offline | IMPLEMENTED |
 | 22 | `/evidences` | All evidence gallery | evidences | Evidence list | useAllEvidences | GET /api/evidences | All auth | Loading, Error, Empty, Offline | IMPLEMENTED |
 
 ---
@@ -108,6 +109,8 @@
 |---|-------|-------------|--------|---------------|------------|-------------|------|--------|--------|
 | 23 | `/reports` | Technical reports list | reports | Report list | useReports | GET /api/reports | All auth | Loading, Error, Empty | IMPLEMENTED |
 | 24 | `/reports/[id]` | Report detail + PDF | reports | Report detail | useReport | GET /api/reports/:id | All auth | Loading, Error | IMPLEMENTED |
+| 24A | `/reports/[id]/draft` | Technical report draft (auto-generado) | reports | Report draft data | useReportDraft | GET /api/reports/auto-draft/:serviceCaseId | supervisor, tecnico, operador | Loading, Error, Empty | IMPLEMENTED |
+| 24B | `/reports/[id]/sign` | Digital signature for reports | reports | Signature data | useReportSignature | POST /api/reports/:id/sign | gerente, residente, supervisor | Loading, Error | IMPLEMENTED |
 | 25 | `/delivery-records` | Delivery records list | delivery-records | DR list | useDeliveryRecords | GET /api/delivery-records | All auth | Loading, Error, Empty | IMPLEMENTED |
 | 25A | `/delivery-records/new` | Create delivery record | delivery-records | Form data | useCreateDR | POST /api/delivery-records | gerente, residente, supervisor | Error, Offline | IMPLEMENTED |
 | 25B | `/delivery-records/[id]/signature` | Sign delivery record | delivery-records | Signature data | useSignDR | POST /api/delivery-records/:id/sign | gerente, residente | Error, Empty | IMPLEMENTED |
@@ -127,6 +130,7 @@
 | 29A | `/billing/invoices/new` | Create invoice | invoices | Form data | useCreateInvoice | POST /api/invoices | gerente, administrativo | Error, Offline | IMPLEMENTED |
 | 29B | `/billing/invoices/[id]/approve` | Approve invoice | invoices | Approval data | useApproveInvoice | POST /api/invoices/:id/approve | gerente | Error, Empty | IMPLEMENTED |
 | 30 | `/billing/invoices/[id]` | Invoice detail + approval | invoices | Invoice detail | useInvoice | GET /api/invoices/:id | All auth | Loading, Error | IMPLEMENTED |
+| 30A | `/invoices/[id]/pipeline` | Invoice pipeline (SES→Invoice→Payment) | invoices | Pipeline tracking | useInvoicePipeline | GET /api/service-cases/:id/invoice-pipeline | Internal roles | Loading, Error, Empty | IMPLEMENTED |
 | 31 | `/payments` | Payments list | payments | Payment list | usePayments | GET /api/payments | gerente, residente, HES, administrativo, cliente | Loading, Error, Empty | IMPLEMENTED |
 | 31A | `/payments/new` | Record payment | payments | Form data | useCreatePayment | POST /api/payments | gerente, administrativo | Error, Offline | IMPLEMENTED |
 | 32 | `/payments/[id]` | Payment detail | payments | Payment detail | usePayment | GET /api/payments/:id | All auth | Loading, Error | IMPLEMENTED |
@@ -151,7 +155,7 @@
 | # | Route | Page Purpose | Module | Required Data | Query Hook | API Endpoint | RBAC | States | Status |
 |---|-------|-------------|--------|---------------|------------|-------------|------|--------|--------|
 | 39 | `/costs` | Cost overview dashboard | costs | Summary, comparison | useCostDashboard | GET /api/costs/dashboard | gerente, residente, HES | Loading, Error, Empty | REQUIRED_NOT_IMPLEMENTED |
-| 40 | `/costs/catalog` | Cost catalog (materials, labor, tools) | costs | Catalog items | useCostCatalog | GET /api/costs/catalog | gerente, residente | Loading, Error, Empty | REQUIRED_NOT_IMPLEMENTED |
+| 40 | `/costs/catalog` | Cost catalog (materials, labor, tools) | costs | Catalog items | useCostCatalog | GET /api/costs/catalog | gerente, residente, HES, supervisor, tecnico | Loading, Error, Empty | IMPLEMENTED |
 
 ---
 
@@ -196,6 +200,7 @@
 |---|-------|-------------|--------|---------------|------------|-------------|------|--------|--------|
 | 50 | `/service-cases` | Service case list | service-cases | Case list | useServiceCases | GET /api/service-cases | All auth | Loading, Error, Empty | IMPLEMENTED |
 | 50A | `/service-cases/[id]` | Service case detail + 14-step pipeline | service-cases | Case detail, step context | useServiceCase | GET /api/service-cases/:id | All auth | Error, Empty | IMPLEMENTED |
+| 50B | `/service-cases/[id]/cockpit` | Cockpit 14 pasos con workflow, blockers y cierre | service-cases | Workflow, blockers, docs, evidences | useServiceCaseCockpit | GET /api/service-cases/:id/cockpit | gerente, residente, HES, supervisor, administrativo, tecnico, operador | Loading, Error, Empty | IMPLEMENTED |
 
 ## Planning
 
@@ -230,6 +235,8 @@
 | 54B | `/portal/orders` | Client orders | portal | Order list | usePortalOrders | GET /api/portal/orders | cliente | Error, Empty | IMPLEMENTED |
 | 54C | `/portal/orders/[id]` | Client order detail | portal | Order detail | usePortalOrder | GET /api/portal/orders/:id | cliente | Error, Empty | IMPLEMENTED |
 | 54D | `/portal/proposals` | Client proposals | portal | Proposal list | usePortalProposals | GET /api/portal/proposals | cliente | Error, Empty | IMPLEMENTED |
+| 54E | `/portal/service-cases` | Client portal: service case list | portal | Service case list | usePortalServiceCases | GET /api/portal/service-cases | cliente | Loading, Error, Empty | IMPLEMENTED |
+| 54F | `/portal/service-cases/[id]` | Client portal: service case detail | portal | Service case detail | usePortalServiceCaseDetail | GET /api/portal/service-cases/:id | cliente | Loading, Error, Empty | IMPLEMENTED |
 
 ## Tools & Inventory
 
@@ -283,9 +290,11 @@
 
 | Status | Count | Percentage |
 |--------|-------|------------|
-| IMPLEMENTED | 83 | 97% |
+| IMPLEMENTED | 91 | 97% |
 | REQUIRED_NOT_IMPLEMENTED | 0 | 0% |
-| OPTIONAL | 3 | 4% |
-| **TOTAL** | **86** | **100%** |
+| OPTIONAL | 3 | 3% |
+| **TOTAL** | **94** | **100%** |
 
-**Nota:** Casi todas las rutas documentadas están implementadas (83/86). Las 3 OPTIONAL son /forgot-password, /reset-password y /customers. Las filas históricas marcadas REQUIRED_NOT_IMPLEMENTED deben reconciliarse con el código antes de confiar en el resumen. Algunas rutas carecen de error.tsx y/o loading.tsx — ver `.kilo/evidence/task-f1.2-route-data.txt` para el detalle histórico.
+**Nota:** Casi todas las rutas documentadas están implementadas (91/94). Las 3 OPTIONAL son /forgot-password, /reset-password y /customers. Las filas históricas marcadas REQUIRED_NOT_IMPLEMENTED deben reconciliarse con el código antes de confiar en el resumen. Algunas rutas carecen de error.tsx y/o loading.tsx — ver `.kilo/evidence/task-f1.2-route-data.txt` para el detalle histórico.
+
+**Spec-014/016 (2026-07-05):** Se agregaron 7 rutas nuevas verificadas contra `frontend/src/app` (50B cockpit, 21C execution-sessions, 24A/24B report draft/sign, 30A invoice pipeline, 54E/54F portal service-cases) y se actualizó `/costs/catalog` (fila 40) a IMPLEMENTED. `/notifications` (fila 61) ya estaba documentada. Total: 9 rutas Spec-016 documentadas.

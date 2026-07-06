@@ -253,7 +253,7 @@
 | Method | Endpoint | Purpose | Request Schema | Response Schema | RBAC | Audit | Used By | Status |
 |--------|----------|---------|----------------|-----------------|------|-------|---------|--------|
 | GET | `/api/costs/dashboard` | Cost dashboard | Query: `{ period? }` | `{ generatedAt, totals, variance, byCategory[] }` | gerente, residente, HES, supervisor, tecnico | No | /costs | IMPLEMENTED |
-| GET | `/api/costs/catalog` | Cost catalog | Query: `{ category?, page, limit }` | `{ items[], pagination }` | All auth | No | /costs/catalog | REQUIRED |
+| GET | `/api/costs/catalog` | Cost catalog | Query: `{ category?, page, limit }` | `{ items[], pagination }` | gerente, residente, HES, supervisor, tecnico | No | /costs/catalog | IMPLEMENTED |
 | GET | `/api/proposals/:id/costs` | Proposal cost estimates | Params: `{ id }` | `{ costEstimate }` | All auth | No | /proposals/[id]/costs | REQUIRED |
 | POST | `/api/proposals/:id/costs` | Set cost estimate | `{ items[], taxConfig }` | `{ costEstimate }` | gerente, residente, HES | Yes | /proposals/[id]/costs | REQUIRED |
 | GET | `/api/orders/:id/costs` | Actual costs for order | Params: `{ id }` | `{ actualCosts[] }` | All auth | No | /orders/[id]/costs | REQUIRED |
@@ -308,7 +308,7 @@
 | Method | Endpoint | Purpose | Request Schema | Response Schema | RBAC | Audit | Used By | Status |
 |--------|----------|---------|----------------|-----------------|------|-------|---------|--------|
 | GET | `/api/dashboard` | Dashboard summary | None | `{ kpis, activeOrders, costs, alerts }` | gerente, residente, HES, supervisor, administrativo | No | /dashboard | IMPLEMENTED |
-| GET | `/api/notifications` | User notifications | None | `{ notifications[] }` | All auth | No | Header bell | REQUIRED |
+| GET | `/api/notifications` | User notifications | Query: `{ page?, limit?, read? }` | `{ notifications[] }` | Internal roles | No | /notifications + Header bell | IMPLEMENTED |
 
 ---
 
@@ -345,6 +345,25 @@
 | Dashboard | 1 | 1 | 0 | 2 |
 | Audit | 0 | 1 | 0 | 1 |
 | **TOTAL (DOCUMENTED)** | **40** | **58** | **2** | **100** |
+
+---
+
+## Spec-014/016 Additions (Verified 2026-07-05)
+
+Endpoints agregados por Spec-014/015/016 y verificados contra los archivos `*.routes.ts` del backend. `GET /api/service-cases/:id/cockpit` ya estaba documentado en la sección Service Cases / Cockpit; `GET /api/costs/catalog` y `GET /api/notifications` se actualizaron a IMPLEMENTED en sus secciones originales.
+
+| Method | Endpoint | Purpose | Request Schema | Response Schema | RBAC | Audit | Used By | Status |
+|--------|----------|---------|----------------|-----------------|------|-------|---------|--------|
+| GET | `/api/service-cases/:id/invoice-pipeline` | SES→Invoice→Payment tracking pipeline | Params: `{ id }` | `{ pipeline }` | Internal roles | No | /invoices/[id]/pipeline | IMPLEMENTED |
+| POST | `/api/planning-packets/:id/validate-readiness` | Validate planning packet readiness checks | Params: `{ id }` | `{ readinessResult }` | gerente, residente, supervisor, HES | No | /planning/[id] | IMPLEMENTED |
+| POST | `/api/planning-packets/:id/approve` | Approve planning packet with readiness check + kit reminder notification | Params: `{ id }` + `ApprovePlanningPacketSchema` | `{ planningPacket }` | gerente, residente | Yes | /planning/[id] | IMPLEMENTED |
+| POST | `/api/execution-sessions/:id/preflight` | Submit preflight checklist for execution session | Params: `{ id }` | `{ preflightResult }` | supervisor, operador, tecnico | Yes | /execution-sessions/[id] | IMPLEMENTED |
+| GET | `/api/costs/:orderId/intelligence` | Cost intelligence (baseline vs actual, KPI metrics) | Params: `{ orderId }` | `{ costIntelligence }` | gerente, residente, HES, supervisor, tecnico | No | /costs/[orderId] | IMPLEMENTED |
+| POST | `/api/costs/catalog` | Create cost catalog item | Body: `CreateCostCatalogItemSchema` | `{ item }` | gerente, residente | Yes | /costs/catalog | IMPLEMENTED |
+| GET | `/api/dashboard/operational-kpis` | Operational KPIs (MTTR / MTBF / FTFR) | Query: `{ dateFrom?, dateTo? }` | `{ kpis }` | All auth | No | /dashboard | IMPLEMENTED |
+| GET | `/api/dashboard/sla-risk` | SLA risk analysis for current orders | None | `{ slaRiskAnalysis }` | All auth | No | /dashboard | IMPLEMENTED |
+| GET | `/api/reports/auto-draft/:serviceCaseId` | Auto-generated technical report draft | Params: `{ serviceCaseId }` | `{ reportDraft }` | supervisor, tecnico, operador | No | /reports/[id]/draft | IMPLEMENTED |
+| POST | `/api/evidences/:id/review` | Review and approve/reject evidence | Params: `{ id }` + `ReviewEvidenceSchema` | `{ evidence }` | gerente, residente, supervisor | Yes | /evidences/[id] | IMPLEMENTED |
 
 ---
 
