@@ -45,6 +45,17 @@ export interface CockpitClosureStatus {
 	paymentStatus: "pending" | "registered" | "confirmed";
 }
 
+export interface CockpitDocument {
+	name: string;
+	step: number;
+	status: "ready" | "pending" | "rejected";
+	fileUrl?: string;
+}
+
+export function toDocStatus(fileUrl?: string): CockpitDocument["status"] {
+	return fileUrl ? "ready" : "pending";
+}
+
 export interface CockpitData {
 	serviceCaseId: string;
 	code: string;
@@ -56,6 +67,7 @@ export interface CockpitData {
 	currentStep: number;
 	nextAction: NextExpectedAction | null;
 	blockers: Blocker[];
+	documents: CockpitDocument[];
 	evidences: CockpitEvidence[];
 	costSummary: CockpitCostSummary | null;
 	closureStatus: CockpitClosureStatus | null;

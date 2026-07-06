@@ -4,7 +4,6 @@ import { ChevronsRight } from "lucide-react";
 import { use } from "react";
 import { useCockpit } from "@/modules/cockpit/hooks/useCockpit";
 import { useCockpitMutations } from "@/modules/cockpit/hooks/useCockpitMutations";
-import { AuditTimeline } from "@/modules/cockpit/ui/AuditTimeline";
 import { BlockersPanelCollapsible } from "@/modules/cockpit/ui/BlockersPanelCollapsible";
 import { CockpitHeaderCard } from "@/modules/cockpit/ui/CockpitHeaderCard";
 import { CockpitTabs } from "@/modules/cockpit/ui/CockpitTabs";
@@ -14,6 +13,14 @@ import { NextActionCard } from "@/modules/cockpit/ui/NextActionCard";
 
 interface Props {
 	params: Promise<{ id: string }>;
+}
+
+function formatCurrency(value: number): string {
+	return new Intl.NumberFormat("es-CO", {
+		style: "currency",
+		currency: "COP",
+		maximumFractionDigits: 0,
+	}).format(value);
 }
 
 export default function CockpitPage({ params }: Props) {
@@ -105,56 +112,191 @@ export default function CockpitPage({ params }: Props) {
 					tabs={[
 						{
 							id: "documents",
-							label: "Documentos",
-							content: (
-								<DocumentRequirementsTable
-									documents={[
-										{ name: "ATS Firmado", step: 5, status: "ready", fileUrl: "#" },
-										{ name: "PTW Aprobado", step: 5, status: "pending" },
-										{ name: "Certificado vehículo", step: 5, status: "pending" },
-										{ name: "Informe técnico", step: 7, status: "pending" },
-										{ name: "Acta de entrega", step: 8, status: "pending" },
-										{ name: "SES Emitida", step: 10, status: "pending" },
-										{ name: "Factura", step: 12, status: "pending" },
-									]}
-								/>
-							),
+							label: `Documentos${data.documents.length > 0 ? ` (${data.documents.length})` : ""}`,
+							content:
+								data.documents.length > 0 ? (
+									<DocumentRequirementsTable
+										documents={data.documents.map((d) => ({
+											name: d.name,
+											step: d.step,
+											status: d.status,
+											fileUrl: d.fileUrl,
+										}))}
+									/>
+								) : (
+									<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
+										Sin documentos registrados para este caso.
+									</div>
+								),
 						},
 						{
 							id: "evidence",
-							label: "Evidencias",
-							content: (
-								<p className="py-8 text-center text-sm text-[var(--text-secondary)]">
-									Galería de evidencias agrupadas por fase (BEFORE / DURING / AFTER)
-								</p>
-							),
+							label: `Evidencias${data.evidences.length > 0 ? ` (${data.evidences.length})` : ""}`,
+							content:
+								data.evidences.length > 0 ? (
+									<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+										{data.evidences.map((ev) => (
+											<div
+												key={ev.id}
+												className="group relative aspect-video overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]"
+											>
+												{ev.url ? (
+													<img
+														src={ev.url}
+														alt={ev.caption ?? "Evidencia"}
+														className="h-full w-full object-cover transition group-hover:scale-105"
+													/>
+												) : (
+													<div className="flex h-full items-center justify-center text-xs text-[var(--text-muted)]">
+														{ev.caption ?? "Sin vista previa"}
+													</div>
+												)}
+												<div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+													<p className="text-[10px] font-medium text-white">{ev.caption}</p>
+												</div>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
+										No hay evidencias registradas para este caso.
+									</div>
+								),
 						},
 						{
 							id: "costs",
 							label: "Costos",
-							content: (
-								<p className="py-8 text-center text-sm text-[var(--text-secondary)]">
-									Resumen de costos estimados vs reales
-								</p>
+							content: data.costSummary ? (
+								<div className="space-y-4">
+									<div className="grid gap-4 sm:grid-cols-3">
+										<CostCard
+											label="Estimado"
+											value={formatCurrency(data.costSummary.estimatedTotal)}
+											color="text-[var(--color-brand)]"
+										/>
+										<CostCard
+											label="Real"
+											value={formatCurrency(data.costSummary.actualTotal)}
+											color="text-[var(--text-primary)]"
+										/>
+										<CostCard
+											label="Variación"
+											value={`${data.costSummary.variance > 0 ? "+" : ""}${formatCurrency(data.costSummary.variance)}`}
+											color={
+												data.costSummary.riskLevel === "high"
+													? "text-[var(--color-danger)]"
+													: data.costSummary.riskLevel === "medium"
+														? "text-[var(--color-warning)]"
+														: "text-[var(--color-success)]"
+											}
+										/>
+									</div>
+									<div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3">
+										<p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+											Margen
+										</p>
+										<p
+											className={`mt-1 text-lg font-bold ${
+												data.costSummary.marginPercent >= 0
+													? "text-[var(--color-success)]"
+													: "text-[var(--color-danger)]"
+											}`}
+										>
+											{data.costSummary.marginPercent >= 0 ? "+" : ""}
+											{data.costSummary.marginPercent.toFixed(1)}%
+										</p>
+									</div>
+								</div>
+							) : (
+								<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
+									Sin datos de costos registrados para este caso.
+								</div>
 							),
 						},
 						{
 							id: "timeline",
-							label: "Timeline",
-							content: <AuditTimeline events={[]} />,
+							label: `Timeline (${data.steps.filter((s) => s.status === "completed").length}/14)`,
+							content: (
+								<div className="space-y-3">
+									{data.steps
+										.filter((s) => s.status !== "pending")
+										.reverse()
+										.map((s) => (
+											<div
+												key={s.step}
+												className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3"
+											>
+												<div
+													className={`size-2 shrink-0 rounded-full ${
+														s.status === "completed"
+															? "bg-[var(--color-success)]"
+															: s.status === "blocked"
+																? "bg-[var(--color-danger)]"
+																: "bg-[var(--color-warning)]"
+													}`}
+												/>
+												<div>
+													<p className="text-xs font-semibold text-[var(--text-primary)]">
+														Paso {s.step}: {s.label}
+													</p>
+													<p className="text-[10px] text-[var(--text-muted)]">{s.status}</p>
+												</div>
+											</div>
+										))}
+								</div>
+							),
 						},
 						{
 							id: "admin",
 							label: "Admin",
-							content: (
-								<p className="py-8 text-center text-sm text-[var(--text-secondary)]">
-									Pipeline SES → Factura → Pago
-								</p>
+							content: data.closureStatus ? (
+								<div className="space-y-3">
+									<StatusRow label="SES / Ariba" status={data.closureStatus.sesStatus} />
+									<StatusRow label="Factura" status={data.closureStatus.invoiceStatus} />
+									<StatusRow label="Pago" status={data.closureStatus.paymentStatus} />
+								</div>
+							) : (
+								<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
+									Sin información de cierre administrativo.
+								</div>
 							),
 						},
 					]}
 				/>
 			</section>
+		</div>
+	);
+}
+
+function CostCard({ label, value, color }: { label: string; value: string; color: string }) {
+	return (
+		<div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
+			<p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+				{label}
+			</p>
+			<p className={`mt-2 text-sm font-bold ${color}`}>{value}</p>
+		</div>
+	);
+}
+
+function StatusRow({ label, status }: { label: string; status: string }) {
+	const colorMap: Record<string, string> = {
+		pending: "text-[var(--color-warning)]",
+		approved: "text-[var(--color-success)]",
+		rejected: "text-[var(--color-danger)]",
+		issued: "text-[var(--color-brand)]",
+		paid: "text-[var(--color-success)]",
+		registered: "text-[var(--color-brand)]",
+		confirmed: "text-[var(--color-success)]",
+	};
+	return (
+		<div className="flex items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3">
+			<p className="text-xs font-semibold text-[var(--text-primary)]">{label}</p>
+			<span
+				className={`rounded-full border border-current px-2 py-0.5 text-[9px] font-bold uppercase ${colorMap[status] ?? "text-[var(--text-muted)]"}`}
+			>
+				{status}
+			</span>
 		</div>
 	);
 }
