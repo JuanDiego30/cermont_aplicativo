@@ -400,7 +400,7 @@ app.head("/health/ready", (_req, res) => {
 });
 
 // Global error handler — MUST be registered LAST
-// Processes AppError, ZodError, Mongoose errors, and unknown errors
+// Processes AppError, ZodError, Mongoose errors, and unhandled errors
 app.use(errorHandler);
 
 export default app;

@@ -6,7 +6,7 @@
  */
 
 import type { ServiceCaseWorkflowViewModel } from "@cermont/shared-types";
-import type { CockpitData } from "../model/cockpit.types";
+import { type CockpitData, toDocStatus } from "../model/cockpit.types";
 
 export function transformWorkflowToCockpitData(
 	workflow: ServiceCaseWorkflowViewModel,
@@ -112,7 +112,7 @@ export function transformWorkflowToCockpitData(
 		return {
 			name: doc.title,
 			step: step?.stepNumber ?? 0,
-			status: (doc.fileUrl ? "ready" : "pending") as "ready" | "pending" | "rejected",
+			status: toDocStatus(doc.fileUrl),
 			fileUrl: doc.fileUrl,
 		};
 	});

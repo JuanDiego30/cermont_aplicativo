@@ -75,7 +75,8 @@ export function auditLog(
 						String(req.params.id || "") || ((body?.data as Record<string, unknown>)?._id as string),
 					actorId: (user?._id as string) || "system",
 					actorRole: (user?.role as string) || "system",
-					requestId: ((req as unknown as Record<string, unknown>).requestId as string) || "unknown",
+					requestId:
+						((req as unknown as Record<string, unknown>).requestId as string) || "not_provided",
 					metadata: { ...metadata, method: req.method, path: req.path, statusCode: res.statusCode },
 					ip: String(req.ip ?? "") || "unknown",
 					userAgent: req.get("User-Agent") || "unknown",

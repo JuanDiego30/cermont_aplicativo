@@ -57,7 +57,7 @@ export function AboutSection() {
 
 					<div className="grid gap-4">
 						{LANDING_TRUST_POINTS.map((point) => (
-							<PrincipleCard key={point.title} {...point} />
+							<PrincipleCard {...point} key={point.title} />
 						))}
 					</div>
 				</div>

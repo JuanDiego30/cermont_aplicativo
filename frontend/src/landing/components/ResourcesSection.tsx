@@ -26,13 +26,13 @@ export function ResourcesSection() {
 
 				<div className="mt-10 grid gap-6 lg:grid-cols-2">
 					{LANDING_RESOURCES.map((resource) => (
-						<ResourceCard key={resource.title} {...resource} />
+						<ResourceCard {...resource} key={resource.title} />
 					))}
 				</div>
 
 				<div className="mt-10 grid gap-4 sm:grid-cols-3">
 					{LANDING_CERTIFICATIONS.map((certification) => (
-						<CertificationCard key={certification.title} {...certification} />
+						<CertificationCard {...certification} key={certification.title} />
 					))}
 				</div>
 			</div>
