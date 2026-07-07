@@ -1,5 +1,6 @@
 "use client";
 
+import type { FormSubmissionValue } from "@cermont/shared-types";
 import { ArrowLeft, CheckCircle2, ClipboardList, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -7,7 +8,7 @@ import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { useCreateFormSubmission } from "@/modules/forms/queries/form-submissions";
 import { CERMONT_FORM_TEMPLATES } from "@/modules/forms/templates/cermont-form-templates";
-import { SectionedFormRenderer } from "@/modules/forms/ui/SectionedFormRenderer";
+import { type FormValues, SectionedFormRenderer } from "@/modules/forms/ui/SectionedFormRenderer";
 
 export default function FormTemplatePage() {
 	return (
@@ -61,11 +62,11 @@ function FormTemplateContent() {
 			? `/service-cases/${serviceCaseId}`
 			: "/execution";
 
-	async function handleSubmit(values: Record<string, unknown>) {
+	async function handleSubmit(values: FormValues) {
 		// Separate photo File objects from serialisable values
-		const jsonValues: Record<string, unknown> = {};
+		const jsonValues: Record<string, FormSubmissionValue> = {};
 		for (const [key, val] of Object.entries(values)) {
-			if (!(val instanceof File)) {
+			if (typeof val === "string" || typeof val === "boolean") {
 				jsonValues[key] = val;
 			}
 		}

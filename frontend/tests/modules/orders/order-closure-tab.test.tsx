@@ -93,21 +93,21 @@ const mocks = vi.hoisted(() => {
 			requirements: [
 				{
 					kind: "acta_delivery",
-					stepCode: "step_08_delivery_record",
+					stepCode: "step_09_delivery_record",
 					label: "Delivery record",
 					status: "missing",
 					message: "Generate or attach the delivery record.",
 				},
 				{
 					kind: "client_signature",
-					stepCode: "step_09_client_signature",
+					stepCode: "step_10_client_signature",
 					label: "Client signature",
 					status: "missing",
 					message: "Client signature or approval is still missing.",
 				},
 				{
 					kind: "ses_filing",
-					stepCode: "step_10_ses_submission",
+					stepCode: "step_11_ses",
 					label: "SES filing",
 					status: "missing",
 					message: "SES has not been filed yet.",

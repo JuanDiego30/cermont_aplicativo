@@ -176,3 +176,13 @@ export async function archiveServiceCase(req: Request, res: Response): Promise<v
 	const result = await ServiceCaseService.archiveServiceCase(id, String(user._id));
 	sendSuccess(res, result);
 }
+
+/**
+ * GET /api/service-cases/:id/invoice-pipeline
+ * Returns SES→Invoice→Payment pipeline status for a service case
+ */
+export async function getInvoicePipeline(req: Request, res: Response): Promise<void> {
+	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
+	const pipeline = await ServiceCaseService.getInvoicePipeline(id);
+	sendSuccess(res, pipeline);
+}

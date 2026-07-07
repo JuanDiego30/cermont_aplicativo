@@ -12,7 +12,7 @@ import { z } from "zod";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
-import * as WorkflowController from "../order/administrative-workflow.controller";
+import * as TechnicalReportController from "./technical-report.controller";
 
 const router = Router();
 const AttachEvidenceSchema = z.object({ evidenceId: ObjectIdSchema }).strict();
@@ -24,14 +24,14 @@ router.get(
 	"/",
 	authorize(...INTERNAL_ROLES),
 	validateQuery(ListTechnicalReportsQuerySchema),
-	WorkflowController.listTechnicalReports,
+	TechnicalReportController.listTechnicalReports,
 );
 
 router.get(
 	"/:id",
 	authorize(...INTERNAL_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
-	WorkflowController.getTechnicalReport,
+	TechnicalReportController.getTechnicalReport,
 );
 
 router.post(
@@ -39,7 +39,7 @@ router.post(
 	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(GenerateTechnicalReportSchema),
-	WorkflowController.generateTechnicalReport,
+	TechnicalReportController.generateTechnicalReport,
 );
 
 router.patch(
@@ -47,7 +47,7 @@ router.patch(
 	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(GenerateTechnicalReportSchema),
-	WorkflowController.updateTechnicalReport,
+	TechnicalReportController.updateTechnicalReport,
 );
 
 router.post(
@@ -55,7 +55,7 @@ router.post(
 	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(ApproveTechnicalReportSchema),
-	WorkflowController.submitTechnicalReport,
+	TechnicalReportController.submitTechnicalReport,
 );
 
 router.post(
@@ -63,7 +63,7 @@ router.post(
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(ApproveTechnicalReportSchema),
-	WorkflowController.approveTechnicalReport,
+	TechnicalReportController.approveTechnicalReport,
 );
 
 router.post(
@@ -71,21 +71,21 @@ router.post(
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(RejectTechnicalReportSchema),
-	WorkflowController.rejectTechnicalReport,
+	TechnicalReportController.rejectTechnicalReport,
 );
 
 router.post(
 	"/:id/cancel",
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
-	WorkflowController.cancelTechnicalReport,
+	TechnicalReportController.cancelTechnicalReport,
 );
 
 router.post(
 	"/:id/archive",
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
-	WorkflowController.cancelTechnicalReport,
+	TechnicalReportController.cancelTechnicalReport,
 );
 
 router.post(
@@ -93,7 +93,7 @@ router.post(
 	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(AttachEvidenceSchema),
-	WorkflowController.attachTechnicalReportEvidence,
+	TechnicalReportController.attachTechnicalReportEvidence,
 );
 
 router.post(
@@ -101,7 +101,7 @@ router.post(
 	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(AttachDocumentSchema),
-	WorkflowController.attachTechnicalReportDocument,
+	TechnicalReportController.attachTechnicalReportDocument,
 );
 
 router.post(
@@ -109,7 +109,17 @@ router.post(
 	authorize(...TECHNICAL_EXECUTION_ROLES),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(AttachDocumentSchema),
-	WorkflowController.attachTechnicalReportDocument,
+	TechnicalReportController.attachTechnicalReportDocument,
+);
+
+const AutoDraftServiceCaseIdSchema = z.object({ serviceCaseId: ObjectIdSchema }).strict();
+
+// GET /api/reports/auto-draft/:serviceCaseId — Auto-generate report draft from service case data
+router.get(
+	"/auto-draft/:serviceCaseId",
+	authorize(...TECHNICAL_EXECUTION_ROLES),
+	validateParams(AutoDraftServiceCaseIdSchema),
+	TechnicalReportController.generateAutoDraftReport,
 );
 
 export default router;

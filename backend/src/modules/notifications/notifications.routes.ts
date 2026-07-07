@@ -35,7 +35,12 @@ router.patch(
 );
 
 // POST /api/notifications/mark-all-read
-router.post("/mark-all-read", authorize(...INTERNAL_ROLES), markAllNotificationsAsRead);
+router.post(
+	"/mark-all-read",
+	authorize(...INTERNAL_ROLES),
+	/* No body validation needed — action endpoint */
+	markAllNotificationsAsRead,
+);
 
 // GET /api/notifications/outbox/failed — admin: view failed outbox entries
 router.get("/outbox/failed", authorize(...ADMIN_ROLES), getFailedOutboxEntries);

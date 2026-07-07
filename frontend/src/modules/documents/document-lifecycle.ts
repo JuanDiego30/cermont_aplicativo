@@ -8,14 +8,13 @@ import {
 } from "@cermont/shared-types";
 
 const CRITICAL_DOCUMENT_STEPS = new Set<CermontOperationalStepCode>([
-	"step_07_technical_report",
-	"step_08_delivery_record",
-	"step_09_client_signature",
-	"step_10_ses_submission",
-	"step_11_ses_approval",
-	"step_12_invoice_submission",
+	"step_08_technical_report",
+	"step_09_delivery_record",
+	"step_10_client_signature",
+	"step_11_ses",
+	"step_12_invoice",
 	"step_13_invoice_approval",
-	"step_14_payment_closure",
+	"step_14_payment",
 ]);
 
 const CRITICAL_DOCUMENT_ENTITIES = new Set<DocumentLinkedEntityType>([

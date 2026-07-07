@@ -106,8 +106,8 @@ export function CostComparisonChart({
 								: "text-[var(--color-warning)]"
 					}
 				>
-					{isOverBudget ? "+" : ""}
-					{variancePercent}% ({isOverBudget ? "sobre" : "bajo"} presupuesto)
+					{isOverBudget ? "+" : isOnBudget ? "" : "-"}
+					{Math.abs(variancePercent)}% ({isOverBudget ? "sobre" : "bajo"} presupuesto)
 				</span>
 			</div>
 		</div>

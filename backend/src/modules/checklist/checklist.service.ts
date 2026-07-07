@@ -86,10 +86,15 @@ function formatChecklistItem(item: IChecklistDocument["items"][number]): Checkli
 		category: item.category,
 		description: item.description,
 		required: item.required,
+		isBlocking: item.isBlocking,
+		result: item.result ?? (item.completed ? "passed" : "pending"),
 		completed: item.completed,
 		completedBy: item.completedBy?.toString(),
 		completedAt: item.completedAt?.toISOString(),
 		observation: item.observation,
+		requiresPhoto: item.requiresPhoto,
+		requiresSignature: item.requiresSignature,
+		evidenceAssetIds: item.evidenceAssetIds ?? [],
 	};
 }
 
@@ -98,6 +103,7 @@ function formatChecklistResponse(doc: IChecklistDocument): ChecklistResponse {
 		_id: doc._id.toString(),
 		orderId: doc.orderId.toString(),
 		templateName: doc.templateName,
+		templateVersion: doc.templateVersion ?? 1,
 		status: doc.status,
 		items: doc.items.map(formatChecklistItem),
 		completedBy: doc.completedBy?.toString(),
@@ -108,6 +114,15 @@ function formatChecklistResponse(doc: IChecklistDocument): ChecklistResponse {
 		updatedAt: doc.updatedAt.toISOString(),
 	};
 }
+
+const DEFAULT_ITEM_STATE = {
+	isBlocking: false,
+	result: "pending" as const,
+	completed: false,
+	requiresPhoto: false,
+	requiresSignature: false,
+	evidenceAssetIds: [] as string[],
+};
 
 function buildChecklistItems(order: ChecklistTemplateOrder): ChecklistResponse["items"] {
 	const kit = getDefaultKitForOrderType(
@@ -122,7 +137,7 @@ function buildChecklistItems(order: ChecklistTemplateOrder): ChecklistResponse["
 			category: "tool" as const,
 			description: `${material.name} (${material.quantity} ${material.unit})`,
 			required: true,
-			completed: false,
+			...DEFAULT_ITEM_STATE,
 		}),
 	);
 
@@ -130,7 +145,7 @@ function buildChecklistItems(order: ChecklistTemplateOrder): ChecklistResponse["
 		...kitItems,
 		...STANDARD_CHECKLIST_ITEMS.map((item) => ({
 			...item,
-			completed: false,
+			...DEFAULT_ITEM_STATE,
 		})),
 	];
 }
@@ -141,7 +156,7 @@ function buildMaintenanceKitItems(kit: MaintenanceKitTemplate): ChecklistRespons
 		category: "tool" as const,
 		description: `${tool.name} (${tool.quantity})${tool.specifications ? ` - ${tool.specifications}` : ""}`,
 		required: true,
-		completed: false,
+		...DEFAULT_ITEM_STATE,
 	}));
 
 	const equipmentItems = kit.equipment.map((item, index) => ({
@@ -149,7 +164,7 @@ function buildMaintenanceKitItems(kit: MaintenanceKitTemplate): ChecklistRespons
 		category: "equipment" as const,
 		description: `${item.name} (${item.quantity})${item.certificate_required ? " - certificación requerida" : ""}`,
 		required: true,
-		completed: false,
+		...DEFAULT_ITEM_STATE,
 	}));
 
 	return [
@@ -157,7 +172,7 @@ function buildMaintenanceKitItems(kit: MaintenanceKitTemplate): ChecklistRespons
 		...equipmentItems,
 		...STANDARD_CHECKLIST_ITEMS.map((item) => ({
 			...item,
-			completed: false,
+			...DEFAULT_ITEM_STATE,
 		})),
 	];
 }
@@ -349,10 +364,11 @@ export async function updateChecklistItem(
 		throw new NotFoundError("Checklist item", itemId);
 	}
 
-	item.completed = payload.completed;
+	item.result = payload.result;
+	item.completed = payload.result !== "pending";
 	item.observation = normalizeText(payload.observation);
 
-	if (payload.completed) {
+	if (item.completed) {
 		item.completedBy = toObjectId(userId, "user");
 		item.completedAt = new Date();
 	} else {

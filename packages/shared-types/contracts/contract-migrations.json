@@ -1,13 +1,6 @@
 {
-	"currentSnapshotHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c",
+	"currentSnapshotHash": "sha256:cb5c2fdd5f1bcd27eb38bb8a7e031598ff874790a81b0e0b91829d1476bf26b5",
 	"migrations": [
-		{
-			"id": "050-business-document-erp-connector-schemas",
-			"date": "2026-06-14",
-			"type": "non-breaking",
-			"description": "Add BusinessDocument and ErpConnector schemas for multi-ERP abstraction and document-driven template engine.",
-			"toHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64"
-		},
 		{
 			"id": "000-initial-baseline",
 			"date": "2026-04-06",
@@ -419,7 +412,98 @@
 			"date": "2026-06-29",
 			"type": "non-breaking",
 			"description": "Add RecordCalibrationSchema, ToolUsageSchema, and CalibrationsDueQuerySchema for tool calibration and usage tracking endpoints.",
-			"toHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c"
+			"toHash": "sha256:203d499ad6d4b79147cac3c37292ae12389cc4bbf49661c4f665abd109bdb9fe"
+		},
+		{
+			"id": "059-spec-012-maintenance-efficiency-notification-preferences",
+			"date": "2026-07-03",
+			"type": "non-breaking",
+			"description": "Add DashboardMaintenanceEfficiencySchema (MTTR/MTBF/completion rate) as optional dashboard summary section and NotificationPreference schemas for per-user notification channel settings.",
+			"toHash": "sha256:d3eeaaaeeb80e86ee34476ec8aca2b537edcb5bbef0a813b454bf82eacd3b5bf"
+		},
+		{
+			"id": "060-spec-013-cost-catalog-create-planning-readiness-report",
+			"date": "2026-07-03",
+			"type": "non-breaking",
+			"description": "Add CreateCostCatalogItemSchema for POST /costs/catalog, PlanningReadinessReportSchema (canExecute + blockingReasons) for GET /planning-packets/:id/readiness, and optional KitItem fields isBillable/catalogItemId/returnRequired linking kits to the cost catalog.",
+			"toHash": "sha256:9af5a04c64d2bf65303dd04ec73d8bb8b972caad3e6efea001df88dd89827c28"
+		},
+		{
+			"id": "061-spec-014-dashboard-sla-risk-orders",
+			"date": "2026-07-04",
+			"type": "non-breaking",
+			"description": "Add DashboardSlaRiskOrderSchema and slaRiskOrders (default []) to DashboardSummarySchema so the dashboard lists active cases that are overdue or within 72h of their promised completion date.",
+			"toHash": "sha256:374c0919a75d7536d0ef1cff4b45875f590ac93044f5a4c860e5eaf5677566a5"
+		},
+		{
+			"id": "062-spec-015-cockpit-cost-preflight-kpi-schemas",
+			"date": "2026-07-05",
+			"type": "non-breaking",
+			"description": "Spec-015 SSOT enrichment: add ServiceCaseCockpit (14-step progress), cost catalog create/list DTOs, BaselineCost, CostIntelligenceSummary, PreflightChecklist, FieldNovelty, EvidenceSlot(s), KitSafetyRequirements and DashboardOperationalKPI schemas; add replacement_requested evidence status, preflight/SLA execution blockers, and optional SLA-risk-order enrichment fields.",
+			"toHash": "sha256:8803624b53347acc4160601bc0098d4dd76b865688e3638426477ebf5b324cbb"
+		},
+		{
+			"id": "063-spec-015-cost-catalog-search",
+			"date": "2026-07-05",
+			"type": "non-breaking",
+			"description": "Add optional literal search by cost catalog item name or code to GET /costs/catalog.",
+			"toHash": "sha256:8803624b53347acc4160601bc0098d4dd76b865688e3638426477ebf5b324cbb"
+		},
+		{
+			"id": "064-spec-016-snapshot-refresh",
+			"date": "2026-07-05",
+			"type": "non-breaking",
+			"description": "Spec-016 Sprint 0: refresh API contract snapshot after Spec-014/015 accumulated changes.",
+			"toHash": "sha256:ac444ddf32f5a5c0e76e6f0173a8fa67291b4d22297174d70670305609991bc1"
+		},
+		{
+			"toHash": "sha256:1033a719e3bbf3d26b09a52033f23da334429da40b8a2c790855f15fcc26782d",
+			"id": "065-spec-019-sprint-2",
+			"date": "2026-07-06",
+			"type": "non-breaking",
+			"description": "Add KPI schemas, automation-rule schemas, DashboardKpiWidget."
+		},
+		{
+			"type": "non-breaking",
+			"description": "Add QR code schema for generating scannable QR codes by entity type (order, service_case, equipment, tool, vehicle).",
+			"date": "2026-07-06",
+			"toHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
+			"id": "066-spec-019-sprint-5-qr-code-schema"
+		},
+		{
+			"description": "Add slaHours field to WorkRequest schema for SLA tracking.",
+			"type": "non-breaking",
+			"toHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
+			"id": "067-spec-019-sprint-11-work-request-slahours",
+			"date": "2026-07-06"
+		},
+		{
+			"id": "068-spec-020-wave-1-route-request-contracts",
+			"date": "2026-07-06",
+			"type": "non-breaking",
+			"description": "Add form submission, ERP sync, jobs action, ERP mapping, and bulk QR request schemas for route-boundary validation.",
+			"toHash": "sha256:d1753655489277cd50485f49409320f206df55dec0ccb06de0d7e7027126045c"
+		},
+		{
+			"id": "069-spec-020-wave-1-document-attachment-validation",
+			"date": "2026-07-06",
+			"type": "non-breaking",
+			"description": "Add route-boundary body and parameter schemas for kit and resource document attachments.",
+			"toHash": "sha256:3a643f53303fbc06eead26734aa12c32fe9942515050c6e902defd4f37e3e5f1"
+		},
+		{
+			"id": "070-spec-020-wave-1-privacy-request-validation",
+			"date": "2026-07-06",
+			"type": "non-breaking",
+			"description": "Add privacy request creation and identifier schemas for authenticated administrative route handling.",
+			"toHash": "sha256:a187abe2bc57840c7dd766683820035b66e7cae017cecd127c9a1c842c91404f"
+		},
+		{
+			"id": "071-spec-020-wave-1-template-response-object-ids",
+			"date": "2026-07-06",
+			"type": "breaking",
+			"description": "Require Mongo ObjectId values for template and version identifiers when creating template responses.",
+			"toHash": "sha256:cb5c2fdd5f1bcd27eb38bb8a7e031598ff874790a81b0e0b91829d1476bf26b5"
 		}
 	]
 }

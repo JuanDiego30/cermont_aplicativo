@@ -25,16 +25,31 @@ import { LazyMonthlyTrendChart } from "@/lib/utils/lazy-monthly-trend-chart";
 import { LazyOrdersByStatusChart } from "@/lib/utils/lazy-orders-by-status-chart";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
-import { useDashboardSummary } from "@/modules/dashboard/hooks/useDashboardSummary";
+import {
+	useDashboardOperationalKpis,
+	useDashboardSlaRisk,
+	useDashboardSummary,
+} from "@/modules/dashboard/hooks/useDashboardSummary";
 import { ActivityTimeline } from "@/modules/dashboard/ui/ActivityTimeline";
+import { CashFlowFunnel } from "@/modules/dashboard/ui/CashFlowFunnel";
 import { ChartCard } from "@/modules/dashboard/ui/ChartCard";
 import { DashboardFilters } from "@/modules/dashboard/ui/DashboardFilters";
 import { DashboardHero } from "@/modules/dashboard/ui/DashboardHero";
+import { DashboardKPIWidgets } from "@/modules/dashboard/ui/DashboardKPIWidgets";
 import { DashboardSlaWidget } from "@/modules/dashboard/ui/DashboardSlaWidget";
+import { FirstTimeFixRateGauge } from "@/modules/dashboard/ui/FirstTimeFixRateGauge";
 import { FleetAlertsBanner } from "@/modules/dashboard/ui/FleetAlertsBanner";
 import { KPICard } from "@/modules/dashboard/ui/KPICard";
+import { MTTRMTBFCards } from "@/modules/dashboard/ui/MTTRMTBFCards";
+import {
+	type ActionItem,
+	NextActionsByRolePanel,
+} from "@/modules/dashboard/ui/NextActionsByRolePanel";
+import { PendingInvoicesAlert } from "@/modules/dashboard/ui/PendingInvoicesAlert";
+import { PendingReportsAlert } from "@/modules/dashboard/ui/PendingReportsAlert";
 import { RecentOrdersTable } from "@/modules/dashboard/ui/RecentOrdersTable";
 import { ServiceCaseDashboardPanel } from "@/modules/dashboard/ui/ServiceCaseDashboardPanel";
+import { SlaRiskOrdersTable } from "@/modules/dashboard/ui/SlaRiskOrdersTable";
 import { StepTimeline } from "@/modules/dashboard/ui/StepTimeline";
 import { UpcomingMaintenanceList } from "@/modules/dashboard/ui/UpcomingMaintenanceList";
 import { useMaintenanceKits } from "@/modules/maintenance/hooks/useMaintenanceKits";
@@ -75,6 +90,8 @@ interface StatusSummaryItem {
 }
 
 type DashboardSummarySnapshot = ReturnType<typeof useDashboardSummary>["data"];
+type OperationalKpiQuery = ReturnType<typeof useDashboardOperationalKpis>;
+type SlaRiskQuery = ReturnType<typeof useDashboardSlaRisk>;
 type ServiceCaseSummarySnapshot = ReturnType<typeof useServiceCaseSummary>["data"];
 
 function buildOrdersByStatus(charts?: DashboardCharts | null) {
@@ -190,7 +207,7 @@ function buildDashboardKpiSnapshot(
 			active_orders: serviceCaseSummary?.activeCases ?? dashboardSummary.pipeline?.totalActive ?? 0,
 			closed_orders: dashboardSummary.pipeline?.totalClosed ?? 0,
 			overdue_orders:
-				dashboardSummary.financialAging?.totalOverdue ??
+				dashboardSummary.financialAging?.overdueInvoiceCount ??
 				dashboardSummary.blockers?.criticalBlockers ??
 				0,
 			maintenance_open_count:
@@ -204,6 +221,28 @@ function buildDashboardKpiSnapshot(
 				serviceCaseSummary?.revenue ?? dashboardSummary.costVariance?.estimatedCost ?? 0,
 		},
 	};
+}
+
+const NEXT_ACTION_ROUTES: Record<string, string> = {
+	review_request: "/work-requests",
+	create_proposal: "/proposals/new",
+	start_execution: "/execution",
+	approve_planning: "/planning",
+};
+
+function buildNextActionItems(
+	nextActions: Array<{ command: string; label: string; requiredRole: string; count: number }>,
+): ActionItem[] {
+	return nextActions
+		.filter((action) => action.count > 0)
+		.map((action) => ({
+			id: action.command,
+			description: action.label,
+			orderCode: `${action.count} pendiente${action.count === 1 ? "" : "s"}`,
+			deepLink: NEXT_ACTION_ROUTES[action.command] ?? "/service-cases",
+			urgency: "normal" as const,
+			requiredRole: action.requiredRole,
+		}));
 }
 
 function subscribeToTodayLabel(onStoreChange: () => void): () => void {
@@ -266,6 +305,8 @@ export default function DashboardPage() {
 		error: dashboardSummaryError,
 		refetch: refetchDashboardSummary,
 	} = useDashboardSummary();
+	const operationalKpisQuery = useDashboardOperationalKpis();
+	const slaRiskQuery = useDashboardSlaRisk();
 	const {
 		data: serviceCaseSummary,
 		isLoading: serviceCaseSummaryLoading,
@@ -393,6 +434,14 @@ export default function DashboardPage() {
 				inPlanning={serviceCaseSummary?.inPlanning ?? 0}
 			/>
 
+			<NextActionsByRolePanel actions={buildNextActionItems(dashboardSummary?.nextActions ?? [])} />
+
+			<OperationalKpiSection
+				dashboardSummary={dashboardSummary}
+				operationalKpisQuery={operationalKpisQuery}
+				slaRiskQuery={slaRiskQuery}
+			/>
+
 			{/* KPI cards , Figma style */}
 			<section data-dash="kpis" aria-label="Indicadores clave de rendimiento">
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -454,6 +503,102 @@ export default function DashboardPage() {
 			{/* Status summary row */}
 			<DashboardStatusSummary items={statusSummaryItems} />
 		</div>
+	);
+}
+function OperationalKpiSection({
+	dashboardSummary,
+	operationalKpisQuery,
+	slaRiskQuery,
+}: {
+	dashboardSummary: DashboardSummarySnapshot;
+	operationalKpisQuery: OperationalKpiQuery;
+	slaRiskQuery: SlaRiskQuery;
+}) {
+	if (operationalKpisQuery.isLoading) {
+		return (
+			<section aria-label="Cargando indicadores operativos">
+				<Skeleton variant="kpi-card" />
+			</section>
+		);
+	}
+
+	if (operationalKpisQuery.isError || !operationalKpisQuery.data) {
+		return (
+			<section
+				role="alert"
+				className="rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-5 text-sm text-[var(--color-danger)]"
+			>
+				No se pudieron cargar los indicadores operativos.
+			</section>
+		);
+	}
+
+	const kpis = operationalKpisQuery.data;
+	const closure = dashboardSummary?.administrativeClosure;
+	const aging = dashboardSummary?.financialAging;
+	const actualCost = dashboardSummary?.costVariance?.actualCost ?? 0;
+	const funnelStages = closure
+		? [
+				{
+					label: "Ejecutado",
+					count: dashboardSummary?.pipeline?.totalActive ?? 0,
+					amount: actualCost,
+				},
+				{ label: "SES", count: closure.pendingSES, amount: actualCost },
+				{
+					label: "Factura",
+					count: closure.pendingInvoices,
+					amount: aging?.totalOutstandingAmount ?? 0,
+				},
+				{
+					label: "Pago",
+					count: closure.pendingPayments,
+					amount: Math.max(
+						0,
+						(aging?.totalOutstandingAmount ?? 0) - (aging?.totalOverdueAmount ?? 0),
+					),
+				},
+			]
+		: [];
+
+	return (
+		<section className="space-y-5" aria-labelledby="operational-kpi-title">
+			<div>
+				<h2 id="operational-kpi-title" className="text-xl font-semibold text-[var(--text-primary)]">
+					Inteligencia operativa
+				</h2>
+				<p className="mt-1 text-sm text-[var(--text-secondary)]">
+					MTTR, MTBF, resolución inicial, utilización y riesgos financieros.
+				</p>
+			</div>
+			<DashboardKPIWidgets
+				mttr={kpis.mttrMinutes}
+				mtbf={kpis.mtbfDays}
+				ftr={kpis.firstTimeFixRate}
+				utilization={kpis.technicianUtilizationRate ?? 0}
+			/>
+			<div className="grid gap-4 xl:grid-cols-2">
+				<MTTRMTBFCards mttr={kpis.mttrMinutes} mtbf={kpis.mtbfDays} />
+				<FirstTimeFixRateGauge percentage={kpis.firstTimeFixRate} />
+			</div>
+			<div className="grid gap-3 md:grid-cols-2">
+				<PendingInvoicesAlert
+					count={kpis.overdueInvoicesCount}
+					totalAmount={aging?.totalOverdueAmount ?? 0}
+				/>
+				<PendingReportsAlert count={kpis.pendingReportsCount} />
+			</div>
+			<CashFlowFunnel stages={funnelStages} />
+			{slaRiskQuery.isError ? (
+				<p role="alert" className="text-sm text-[var(--color-danger)]">
+					No se pudieron cargar las órdenes en riesgo SLA.
+				</p>
+			) : slaRiskQuery.isLoading ? (
+				<Skeleton variant="table-row" rows={3} />
+			) : (
+				<SlaRiskOrdersTable orders={slaRiskQuery.data ?? []} />
+			)}
+		</section>
 	);
 }
 

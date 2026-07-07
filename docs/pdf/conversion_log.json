@@ -1,0 +1,82 @@
+[
+	{
+		"pdf": "main(10).pdf",
+		"markdown": "01_main10.md",
+		"pages": 203,
+		"bytes_pdf": 3264054,
+		"bytes_md": 468057,
+		"sha256_pdf": "75a51fe77c4b1c2bfad5e6a8a342d23702af32d35744df9ff743513e39cc7db2"
+	},
+	{
+		"pdf": "INDUCCIÓN SGSST(3).pdf",
+		"markdown": "02_INDUCCION_SGSST3.md",
+		"pages": 49,
+		"bytes_pdf": 4792183,
+		"bytes_md": 30181,
+		"sha256_pdf": "cb8b250fd27359dda6ae3458d693c040a193cb6fe0b7b93db475c4e3317ae279"
+	},
+	{
+		"pdf": "Jerarquia de controles_Cermont(2).pdf",
+		"markdown": "03_Jerarquia_de_controles_Cermont2.md",
+		"pages": 1,
+		"bytes_pdf": 202727,
+		"bytes_md": 1387,
+		"sha256_pdf": "2e02c52fa90d9e78eb3ec47a1aff836ca46fbd1dbe72e1de4a8920801ea8d857"
+	},
+	{
+		"pdf": "ATG JUAN DIEGO AREVALO-1(3).pdf",
+		"markdown": "04_ATG_JUAN_DIEGO_AREVALO-13.md",
+		"pages": 12,
+		"bytes_pdf": 1750954,
+		"bytes_md": 42173,
+		"sha256_pdf": "c61c1c55c6bbcc8d52237191a4dcc74509d5e1c505c000a9e24308194f04c415"
+	},
+	{
+		"pdf": "FOTOS ANCLAJE ESCALERA A ESTRUCTURA(3).pdf",
+		"markdown": "05_FOTOS_ANCLAJE_ESCALERA_A_ESTRUCTURA3.md",
+		"pages": 1,
+		"bytes_pdf": 197421,
+		"bytes_md": 1129,
+		"sha256_pdf": "32f477917d2c09952f696dbb681dac4a5dfa2fb82705f5250559dab14959e1c8"
+	},
+	{
+		"pdf": "FORMATO DE PLANEACION DE OBRA(3).pdf",
+		"markdown": "06_FORMATO_DE_PLANEACION_DE_OBRA3.md",
+		"pages": 1,
+		"bytes_pdf": 126981,
+		"bytes_md": 1487,
+		"sha256_pdf": "16cf1c0413128460c3a4107e0efeb4fd21660b3923443622f6fda8558ab92862"
+	},
+	{
+		"pdf": "DESARROLLO DE UN APLICATIVO WEB PARA APOYO EN LA EJECUCIÓN Y CIERRE ADMINISTRATIVO DE LOS TRABA(3).pdf",
+		"markdown": "07_DESARROLLO_DE_UN_APLICATIVO_WEB_PARA_APOYO_EN_LA_EJECUCION_Y_CIERRE_ADMINISTRATIVO_DE_LOS_TRABA3.md",
+		"pages": 2,
+		"bytes_pdf": 132046,
+		"bytes_md": 4638,
+		"sha256_pdf": "5bf84fec96e75e6c865cc3916f95dadbb332ef514dd67268505c275a5d0ac30d"
+	},
+	{
+		"pdf": "Formato Inspección líneas de vida Vertical(3).pdf",
+		"markdown": "08_Formato_Inspeccion_lineas_de_vida_Vertical3.md",
+		"pages": 3,
+		"bytes_pdf": 1197857,
+		"bytes_md": 4011,
+		"sha256_pdf": "32a5db009e982f145fb3acb7abac2ba505c33d511727b5ab08d56a7662730f7a"
+	},
+	{
+		"pdf": "Observaciones Anteproyecto Juan Diego(2).pdf",
+		"markdown": "09_Observaciones_Anteproyecto_Juan_Diego2.md",
+		"pages": 3,
+		"bytes_pdf": 98377,
+		"bytes_md": 5617,
+		"sha256_pdf": "ceadfc0d684883db33cbe5b393f6417ea88d2b47d2eb230ac39536e847caf613"
+	},
+	{
+		"pdf": "Formato Mantenimiento CCTV(3).pdf",
+		"markdown": "10_Formato_Mantenimiento_CCTV3.md",
+		"pages": 2,
+		"bytes_pdf": 60842,
+		"bytes_md": 1704,
+		"sha256_pdf": "cb6215aecf72f09f07748fd50053c8afe4bc5662a3723a0192956ed7689e18ac"
+	}
+]

@@ -1,23 +1,8 @@
+import type { CreateFormSubmissionInput } from "@cermont/shared-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 
 // ── Types ──────────────────────────────────────────────────────────────────
-
-export interface FormSubmissionPayload {
-	templateId: string;
-	stepCode: string;
-	serviceCaseId?: string;
-	executionSessionId?: string;
-	values: Record<string, unknown>;
-	photoAttachments?: Array<{
-		fieldKey: string;
-		fileId: string;
-		fileName: string;
-		mimeType: string;
-		sizeBytes: number;
-	}>;
-	status?: "draft" | "submitted";
-}
 
 export interface FormSubmission {
 	_id: string;
@@ -66,7 +51,7 @@ export function useCreateFormSubmission() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (payload: FormSubmissionPayload): Promise<FormSubmissionEnvelope> => {
+		mutationFn: async (payload: CreateFormSubmissionInput): Promise<FormSubmissionEnvelope> => {
 			return apiClient.post<FormSubmissionEnvelope>("/form-submissions", payload);
 		},
 		onSuccess: (_data, variables) => {

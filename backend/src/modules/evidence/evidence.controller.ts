@@ -209,3 +209,23 @@ export async function replaceEvidence(req: Request, res: Response): Promise<void
 
 	res.status(200).json({ success: true, data: result });
 }
+
+export async function reviewEvidence(req: Request, res: Response): Promise<void> {
+	const { id } = EvidenceIdSchema.parse(req.params);
+	const user = requireUser(req);
+	const { action, reason } = req.body as { action: "approve" | "reject"; reason?: string };
+
+	const verified = action === "approve";
+	const comment = action === "reject" ? (reason ?? "") : "";
+
+	const evidence = await EvidenceService.verifyEvidence(
+		id,
+		user._id,
+		user.role,
+		verified,
+		comment,
+		user,
+	);
+
+	res.status(200).json({ success: true, data: evidence });
+}

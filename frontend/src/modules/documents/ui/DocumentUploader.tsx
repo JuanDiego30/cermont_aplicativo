@@ -158,7 +158,7 @@ const CLOSING_STEP_RULES: Array<{
 }> = [
 	{
 		pattern: createClosingStepPattern(["pago", "payment"]),
-		step: "step_14_payment_closure",
+		step: "step_14_payment",
 	},
 	{
 		pattern: createClosingStepPattern(["factura", "invoice", "aprob", "acept"]),
@@ -166,23 +166,19 @@ const CLOSING_STEP_RULES: Array<{
 	},
 	{
 		pattern: createClosingStepPattern(["factura", "invoice"]),
-		step: "step_12_invoice_submission",
-	},
-	{
-		pattern: createClosingStepPattern(["ses", "ariba", "aprob", "accept"]),
-		step: "step_11_ses_approval",
+		step: "step_12_invoice",
 	},
 	{
 		pattern: createClosingStepPattern(["ses", "ariba"]),
-		step: "step_10_ses_submission",
+		step: "step_11_ses",
 	},
 	{
 		pattern: createClosingStepPattern(["firma", "signed"]),
-		step: "step_09_client_signature",
+		step: "step_10_client_signature",
 	},
 	{
 		pattern: createClosingStepPattern(["acta", "entrega"]),
-		step: "step_08_delivery_record",
+		step: "step_09_delivery_record",
 	},
 ];
 

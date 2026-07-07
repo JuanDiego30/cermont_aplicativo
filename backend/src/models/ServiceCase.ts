@@ -9,6 +9,7 @@
  * evidence, reports, delivery records, SES, invoices, and payments.
  */
 
+import { CANONICAL_CODES, normalizeOperationalStepCode } from "@cermont/domain";
 import type { DomainBlocker } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 import { tenantIsolationPlugin } from "./plugins/tenant-isolation";
@@ -97,25 +98,16 @@ const serviceCaseSchema = new Schema(
 		},
 		currentStepCode: {
 			type: String,
-			enum: [
-				"step_01_work_request",
-				"step_02_site_visit",
-				"step_03_proposal",
-				"step_04_purchase_order",
-				"step_05_planning",
-				"step_06_execution",
-				"step_07_technical_report",
-				"step_08_delivery_record",
-				"step_09_client_signature",
-				"step_10_ses_submission",
-				"step_11_ses_approval",
-				"step_12_invoice_submission",
-				"step_13_invoice_approval",
-				"step_14_payment_closure",
-			],
+			enum: CANONICAL_CODES,
 			default: "step_01_work_request",
 			index: true,
+			// Accept persisted v1 aliases and normalize to canonical v2 codes
+			set: (value: string): string => {
+				const normalized = normalizeOperationalStepCode(value);
+				return normalized.status === "invalid" ? value : normalized.code;
+			},
 		},
+		operationalStepSchemaVersion: { type: Number, default: 2 },
 		artifacts: { type: artifactsSchema, default: {} },
 		blockers: { type: [Schema.Types.Mixed], default: [] },
 		nextActions: { type: [nextActionSchema], default: [] },
@@ -143,6 +135,7 @@ export type ServiceCaseDocument = Document & {
 	clientName: string;
 	currentStage: (typeof SERVICE_CASE_STAGES)[number];
 	currentStepCode?: string;
+	operationalStepSchemaVersion?: number;
 	artifacts: Record<string, { id: Types.ObjectId; code?: string; status: string; updatedAt: Date }>;
 	blockers: DomainBlocker[];
 	nextActions: { command: string; label: string; requiredRole: string; route?: string }[];

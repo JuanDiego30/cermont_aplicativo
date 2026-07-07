@@ -1,12 +1,18 @@
 "use client";
 
 import type { Cost } from "@cermont/shared-types";
+import { isPresent } from "@cermont/shared-types";
 import { useState } from "react";
-import { useOrderCostSummary, useOrderCosts } from "../queries";
+import { useCostIntelligence, useOrderCostSummary, useOrderCosts } from "../queries";
+import { BaselineCostCard } from "./BaselineCostCard";
+import { BudgetConsumedGauge } from "./BudgetConsumedGauge";
 import { CostBreakdownTable } from "./CostBreakdownTable";
 import { CostComparisonChart } from "./CostComparisonChart";
+import { CostDeviationStackedBar } from "./CostDeviationStackedBar";
+import { CostExportButton } from "./CostExportButton";
 import { CostForm } from "./CostForm";
 import { CostSummaryCard } from "./CostSummaryCard";
+import { MarginSummaryCard } from "./MarginSummaryCard";
 
 interface CostPanelProps {
 	orderId: string;
@@ -18,8 +24,11 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
 	const [editingCost, setEditingCost] = useState<Cost | undefined>(undefined);
 	const summaryQuery = useOrderCostSummary(orderId);
 	const listQuery = useOrderCosts(orderId);
+	const intelligenceQuery = useCostIntelligence(orderId);
 
 	const costs = listQuery.data?.costs ?? [];
+	const summary = summaryQuery.data;
+	const baseline = intelligenceQuery.data?.baselineCost;
 
 	return (
 		<section className="space-y-6">
@@ -28,6 +37,47 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
 				isLoading={summaryQuery.isLoading}
 				error={summaryQuery.error instanceof Error ? summaryQuery.error : undefined}
 			/>
+			{summary?.hasCosts && (
+				<div className="grid gap-4 lg:grid-cols-3">
+					{isPresent(summary.budgetConsumptionPercent) && (
+						<BudgetConsumedGauge
+							percentage={Math.round(summary.budgetConsumptionPercent.value)}
+							estimatedBudget={summary.totalEstimated}
+							actualCost={summary.totalActual}
+						/>
+					)}
+					<MarginSummaryCard
+						totalRevenue={summary.totalEstimated}
+						totalCost={summary.totalActual}
+					/>
+					{baseline ? (
+						<BaselineCostCard
+							estimatedCost={baseline.totalEstimatedCOP}
+							baselineDate={baseline.frozenAt}
+						/>
+					) : null}
+				</div>
+			)}
+			{summary?.hasCosts && summary.byCategory.length > 0 && (
+				<section className="rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 shadow-sm sm:p-6">
+					<header className="mb-4 flex items-center justify-between gap-3">
+						<div>
+							<p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+								Desviación por categoría
+							</p>
+							<h3 className="text-lg font-semibold text-[var(--text-primary)]">Estimado vs real</h3>
+						</div>
+						<CostExportButton summary={summary} costs={costs} />
+					</header>
+					<CostDeviationStackedBar
+						data={summary.byCategory.map((category) => ({
+							category: category.category,
+							estimated: category.estimated,
+							actual: category.actual,
+						}))}
+					/>
+				</section>
+			)}
 			{summaryQuery.data?.hasCosts && (
 				<CostComparisonChart
 					estimated={summaryQuery.data.totalEstimated}

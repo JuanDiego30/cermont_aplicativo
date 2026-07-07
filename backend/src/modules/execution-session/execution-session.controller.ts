@@ -17,6 +17,7 @@ import {
 	ExecutionSyncBatchSchema,
 	OrderExecutionSessionParamsSchema,
 	PauseExecutionSessionCommandSchema,
+	PreflightChecklistSchema,
 	ResolveExecutionIncidentCommandSchema,
 	ResumeExecutionSessionCommandSchema,
 	StartExecutionSessionCommandSchema,
@@ -57,6 +58,19 @@ export async function createExecutionSession(req: Request, res: Response): Promi
 	const session = await ExecutionSessionService.createExecutionSession(data, actor);
 
 	res.status(201).json({ success: true, data: session });
+}
+
+export async function submitPreflightChecklist(req: Request, res: Response): Promise<void> {
+	const actor = requireUser(req);
+	const { id } = ExecutionSessionIdParamsSchema.parse(req.params);
+	const preflight = PreflightChecklistSchema.parse(req.body);
+	const result = await ExecutionSessionService.submitPreflightChecklist(id, preflight, actor);
+
+	res.status(200).json({
+		success: true,
+		data: result.session,
+		meta: { preflight: result.preflight },
+	});
 }
 
 export async function createExecutionSessionForOrder(req: Request, res: Response): Promise<void> {

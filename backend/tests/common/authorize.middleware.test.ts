@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { ForbiddenError, UnauthorizedError } from "../../src/common/errors";
 import {
 	authorize,
+	authorizeAllAuthenticated,
 	authorizeMinimum,
 	authorizeOwnerOrAdmin,
 } from "../../src/middlewares/authorize.middleware";
@@ -41,6 +42,19 @@ describe("authorize middleware", () => {
 
 		expect(next).toHaveBeenCalledTimes(1);
 		expect(next).toHaveBeenCalledWith();
+	});
+
+	it("allows every authenticated domain role through the shared auth policy", () => {
+		const next = vi.fn();
+		const guard = authorizeAllAuthenticated();
+
+		guard(
+			{ user: { _id: "user-id", email: "client@cermont.com", role: "cliente" } } as never,
+			{} as never,
+			next,
+		);
+
+		expect(next).toHaveBeenCalledTimes(1);
 	});
 
 	it("enforces the minimum role hierarchy", () => {

@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
 	CANONICAL_CODES,
 	getNextStep,
+	getOperationalStepCodeAliases,
 	getStep,
 	isValidStepKey,
+	normalizeOperationalStepCode,
 	OPERATIONAL_STEPS,
 	STEP_KEYS,
 } from "../operational-steps";
@@ -21,7 +23,7 @@ describe("OPERATIONAL_STEPS", () => {
 	it("each step should have required fields", () => {
 		for (const step of OPERATIONAL_STEPS) {
 			expect(step.key).toBeTruthy();
-			expect(step.canonicalCode).toMatch(/^STEP_\d{2}_[A-Z_]+$/);
+			expect(step.canonicalCode).toMatch(/^step_\d{2}_[a-z_]+$/);
 			expect(step.label).toBeTruthy();
 			expect(step.entityName).toBeTruthy();
 			expect(typeof step.requiresEvidence).toBe("boolean");
@@ -45,20 +47,20 @@ describe("OPERATIONAL_STEPS", () => {
 	it("CANONICAL_CODES should export all codes", () => {
 		expect(CANONICAL_CODES).toHaveLength(14);
 		expect(CANONICAL_CODES).toEqual([
-			"STEP_01_WORK_REQUEST",
-			"STEP_02_SITE_VISIT",
-			"STEP_03_PROPOSAL",
-			"STEP_04_PURCHASE_ORDER",
-			"STEP_05_PLANNING",
-			"STEP_06_EXECUTION",
-			"STEP_07_TECHNICAL_REPORT",
-			"STEP_08_DELIVERY_RECORD",
-			"STEP_09_CLIENT_SIGNATURE",
-			"STEP_10_SES",
-			"STEP_11_INVOICE",
-			"STEP_12_INVOICE_APPROVAL",
-			"STEP_13_PAYMENT",
-			"STEP_14_CLOSURE",
+			"step_01_work_request",
+			"step_02_site_visit",
+			"step_03_proposal",
+			"step_04_purchase_order",
+			"step_05_planning",
+			"step_06_execution",
+			"step_07_evidence",
+			"step_08_technical_report",
+			"step_09_delivery_record",
+			"step_10_client_signature",
+			"step_11_ses",
+			"step_12_invoice",
+			"step_13_invoice_approval",
+			"step_14_payment",
 		]);
 	});
 
@@ -71,6 +73,7 @@ describe("OPERATIONAL_STEPS", () => {
 			"purchase_order",
 			"planning",
 			"execution",
+			"evidence",
 			"technical_report",
 			"delivery_record",
 			"client_signature",
@@ -78,7 +81,6 @@ describe("OPERATIONAL_STEPS", () => {
 			"invoice",
 			"invoice_approval",
 			"payment",
-			"closure",
 		]);
 	});
 
@@ -98,10 +100,10 @@ describe("OPERATIONAL_STEPS", () => {
 		}
 	});
 
-	it("closure step should have no next actions", () => {
-		const closure = OPERATIONAL_STEPS[13];
-		expect(closure.key).toBe("closure");
-		expect(closure.nextActions).toEqual([]);
+	it("payment step should be last with no next actions", () => {
+		const last = OPERATIONAL_STEPS[13];
+		expect(last.key).toBe("payment");
+		expect(last.nextActions).toEqual([]);
 	});
 
 	it("work_request step should have no preconditions", () => {
@@ -116,7 +118,7 @@ describe("getStep", () => {
 		const step = getStep("site_visit");
 		expect(step).toBeDefined();
 		expect(step?.key).toBe("site_visit");
-		expect(step?.canonicalCode).toBe("STEP_02_SITE_VISIT");
+		expect(step?.canonicalCode).toBe("step_02_site_visit");
 	});
 
 	it("should return undefined for unknown key", () => {
@@ -131,7 +133,7 @@ describe("getNextStep", () => {
 	});
 
 	it("should return undefined for last step", () => {
-		const next = getNextStep("closure");
+		const next = getNextStep("payment");
 		expect(next).toBeUndefined();
 	});
 
@@ -149,11 +151,49 @@ describe("getNextStep", () => {
 describe("isValidStepKey", () => {
 	it("should return true for valid keys", () => {
 		expect(isValidStepKey("work_request")).toBe(true);
-		expect(isValidStepKey("closure")).toBe(true);
+		expect(isValidStepKey("payment")).toBe(true);
 	});
 
 	it("should return false for invalid keys", () => {
 		expect(isValidStepKey("invalid")).toBe(false);
 		expect(isValidStepKey("")).toBe(false);
+	});
+});
+
+describe("normalizeOperationalStepCode", () => {
+	it("passes canonical codes through", () => {
+		expect(normalizeOperationalStepCode("step_07_evidence")).toEqual({
+			status: "canonical",
+			code: "step_07_evidence",
+		});
+	});
+
+	it("maps legacy v1 aliases to canonical codes", () => {
+		expect(normalizeOperationalStepCode("step_07_technical_report")).toEqual({
+			status: "legacy_alias",
+			legacyCode: "step_07_technical_report",
+			code: "step_08_technical_report",
+		});
+		expect(normalizeOperationalStepCode("STEP_14_CLOSURE")).toEqual({
+			status: "legacy_alias",
+			legacyCode: "STEP_14_CLOSURE",
+			code: "step_14_payment",
+		});
+	});
+
+	it("flags unknown codes as invalid", () => {
+		expect(normalizeOperationalStepCode("step_99_unknown")).toEqual({
+			status: "invalid",
+			input: "step_99_unknown",
+		});
+	});
+});
+
+describe("getOperationalStepCodeAliases", () => {
+	it("returns every legacy code that maps to the canonical code", () => {
+		const aliases = getOperationalStepCodeAliases("step_14_payment");
+		expect(aliases).toContain("step_13_payment");
+		expect(aliases).toContain("step_14_closure");
+		expect(aliases).toContain("STEP_14_CLOSURE");
 	});
 });

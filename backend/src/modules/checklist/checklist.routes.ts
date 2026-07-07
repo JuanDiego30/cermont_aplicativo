@@ -1,4 +1,4 @@
-import { INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+import { CERMONT_ROLES, INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
 import {
 	ChecklistIdParamsSchema,
 	ChecklistItemParamsSchema,
@@ -51,7 +51,7 @@ router.post(
 router.patch(
 	"/:id/items/:itemId",
 	authenticate,
-	authorize("operador", "tecnico", "supervisor"),
+	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
 	validateParams(ChecklistItemParamsSchema),
 	validateBody(UpdateChecklistItemSchema),
 	ChecklistController.updateChecklistItem,
@@ -60,7 +60,7 @@ router.patch(
 router.patch(
 	"/:id/complete",
 	authenticate,
-	authorize("operador", "tecnico", "supervisor"),
+	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
 	validateParams(ChecklistIdParamsSchema),
 	validateBody(CompleteChecklistSchema),
 	ChecklistController.completeChecklist,
@@ -69,7 +69,7 @@ router.patch(
 router.post(
 	"/:id/validate",
 	authenticate,
-	authorize("operador", "tecnico", "supervisor"),
+	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
 	validateParams(ChecklistIdParamsSchema),
 	validateBody(CompleteChecklistSchema),
 	ChecklistController.completeChecklist,

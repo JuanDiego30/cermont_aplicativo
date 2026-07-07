@@ -15,6 +15,7 @@ export const EvidenceWorkflowStatusSchema = z.enum([
 	"pending_review",
 	"approved",
 	"rejected",
+	"replacement_requested",
 	"locked",
 	"archived",
 ]);
@@ -215,6 +216,14 @@ export const EvidenceSchemaV2 = z
 			})
 			.optional(),
 		...EvidenceWorkflowFields,
+		// Spec-015 — review/slot enrichment (all optional, additive)
+		qualityScore: z.number().min(0).max(100).optional(),
+		reviewedAt: z.string().datetime().optional(),
+		reviewedBy: ObjectIdSchema.optional(),
+		reviewNote: z.string().max(1000).optional(),
+		replacedBy: ObjectIdSchema.optional(),
+		isRequired: z.boolean().optional(),
+		slotId: z.string().max(80).optional(),
 		deletedAt: statusObjectOf(z.string().datetime()).optional(),
 		createdAt: z.string().datetime(),
 		updatedAt: z.string().datetime(),
@@ -332,6 +341,37 @@ export const ReplaceEvidenceSchema = z
 		comment: z.string().max(500).optional().default(""),
 	})
 	.strict();
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Spec-015 — Evidence slots (structured evidence requirements per phase)
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const EvidenceSlotSchema = z
+	.object({
+		slotId: z.string().min(1).max(80),
+		phase: EvidencePhaseSchema,
+		label: z.string().min(1).max(200),
+		category: EvidenceCategorySchema,
+		isRequired: z.boolean().default(true),
+		isBlocking: z.boolean().default(false),
+		evidenceId: ObjectIdSchema.optional(),
+		fulfilledAt: z.string().datetime().optional(),
+	})
+	.strict();
+export type EvidenceSlot = z.infer<typeof EvidenceSlotSchema>;
+
+export const EvidenceSlotsRequirementsSchema = z
+	.object({
+		serviceCaseId: ObjectIdSchema,
+		slots: z.array(EvidenceSlotSchema).default([]),
+		requiredCount: z.number().int().nonnegative(),
+		fulfilledCount: z.number().int().nonnegative(),
+		pendingCount: z.number().int().nonnegative(),
+		blockingPendingCount: z.number().int().nonnegative(),
+		canClosePhase: z.boolean(),
+	})
+	.strict();
+export type EvidenceSlotsRequirements = z.infer<typeof EvidenceSlotsRequirementsSchema>;
 
 export type EvidenceId = z.infer<typeof EvidenceIdSchema>;
 export type EvidenceOrderIdParams = z.infer<typeof EvidenceOrderIdParamsSchema>;

@@ -103,4 +103,31 @@ describe("useOfflineChecklist", () => {
 			observations: "observado",
 		});
 	});
+
+	it("queues a failed critical item with its finding description", async () => {
+		mocks.updateChecklistItemMutateAsync.mockRejectedValue(new TypeError("Failed to fetch"));
+
+		const { result } = renderHook(() => useOfflineChecklist(), { wrapper });
+
+		await expect(
+			result.current.updateChecklistItemMutation.mutateAsync({
+				checklistId: "checklist-1",
+				orderId: "order-1",
+				itemId: "ats-1",
+				result: "failed",
+				observation: "Permiso de trabajo vencido",
+			}),
+		).resolves.toBeNull();
+
+		expect(mocks.enqueueMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				endpoint: "/checklists/checklist-1/items/ats-1",
+				method: "PATCH",
+				payload: {
+					result: "failed",
+					observation: "Permiso de trabajo vencido",
+				},
+			}),
+		);
+	});
 });

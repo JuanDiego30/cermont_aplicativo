@@ -2,44 +2,43 @@
  * ErpConnector Routes — Endpoint wiring for ERP connector management
  */
 
+import { CERMONT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	CreateErpConnectorSchema,
 	ObjectIdSchema,
+	SyncErpConnectorParamsSchema,
+	SyncErpConnectorRequestSchema,
 	UpdateErpConnectorSchema,
+	ValidateErpMappingSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import { z } from "zod";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams } from "../../middlewares/validate";
 import { erpConnectorController } from "./erp-connector.controller";
 
-const ValidateErpMappingSchema = z.object({
-	fieldMappings: z.record(z.string(), z.string()),
-});
-
 const router = Router();
 
-router.get("/", authenticate, authorize("gerente", "residente"), erpConnectorController.list);
+router.get("/", authenticate, authorize(...MANAGEMENT_ROLES), erpConnectorController.list);
 
 router.get(
 	"/health",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	erpConnectorController.healthCheck,
 );
 
 router.get(
 	"/metrics",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	erpConnectorController.metrics,
 );
 
 router.post(
 	"/",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateBody(CreateErpConnectorSchema),
 	erpConnectorController.create,
 );
@@ -47,7 +46,7 @@ router.post(
 router.get(
 	"/:id",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(ObjectIdSchema),
 	erpConnectorController.getById,
 );
@@ -55,7 +54,7 @@ router.get(
 router.put(
 	"/:id",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(ObjectIdSchema),
 	validateBody(UpdateErpConnectorSchema),
 	erpConnectorController.update,
@@ -64,7 +63,7 @@ router.put(
 router.delete(
 	"/:id",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(ObjectIdSchema),
 	erpConnectorController.delete,
 );
@@ -72,7 +71,9 @@ router.delete(
 router.post(
 	"/:provider/sync",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(SyncErpConnectorParamsSchema),
+	validateBody(SyncErpConnectorRequestSchema),
 	erpConnectorController.sync,
 );
 
@@ -80,7 +81,7 @@ router.post(
 router.post(
 	"/:id/validate-mapping",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(ObjectIdSchema),
 	validateBody(ValidateErpMappingSchema),
 	erpConnectorController.validateMapping,
@@ -90,7 +91,7 @@ router.post(
 router.post(
 	"/:id/test-sync",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(ObjectIdSchema),
 	erpConnectorController.testSync,
 );

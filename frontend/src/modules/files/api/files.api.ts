@@ -28,6 +28,7 @@ export interface UploadFileInput {
 	description?: string;
 	tags?: string[];
 	offlineLocalId?: string;
+	metadata?: Record<string, string | number | boolean>;
 }
 
 /**
@@ -52,6 +53,9 @@ export async function uploadFile(input: UploadFileInput): Promise<FileAssetRef> 
 	formData.append("entityId", input.entityId);
 	if (input.description !== undefined) {
 		formData.append("description", input.description);
+	}
+	if (input.metadata) {
+		formData.append("metadata", JSON.stringify(input.metadata));
 	}
 	if (input.tags && input.tags.length > 0) {
 		for (const tag of input.tags) {

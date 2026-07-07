@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({
 	useRouter: () => ({ replace: replaceMock }),
 	useSearchParams: () =>
 		new URLSearchParams(
-			"q=acta&orderId=order-1&serviceCaseId=sc-1&purpose=closing_evidence&step=step_09_client_signature&includeArchived=true",
+			"q=acta&orderId=order-1&serviceCaseId=sc-1&purpose=closing_evidence&step=step_10_client_signature&includeArchived=true",
 		),
 }));
 
@@ -104,7 +104,7 @@ describe("Documents page", () => {
 		);
 		expect(screen.getByLabelText("Filtrar por paso operacional")).toHaveProperty(
 			"value",
-			"step_09_client_signature",
+			"step_10_client_signature",
 		);
 		expect(screen.getByLabelText("Mostrar archivados")).toHaveProperty("checked", true);
 
@@ -113,14 +113,14 @@ describe("Documents page", () => {
 			order_id: "order-1",
 			purpose: "closing_evidence",
 			serviceCaseId: "sc-1",
-			stepCode: "step_09_client_signature",
+			stepCode: "step_10_client_signature",
 		});
 
 		expect(documentUploaderMock.mock.lastCall?.[0]).toMatchObject({
 			defaultOrderId: "order-1",
 			defaultPurpose: "closing_evidence",
 			defaultServiceCaseId: "sc-1",
-			defaultStepCode: "step_09_client_signature",
+			defaultStepCode: "step_10_client_signature",
 		});
 	});
 
@@ -139,7 +139,7 @@ describe("Documents page", () => {
 		fireEvent.click(screen.getByRole("button", { name: "Filtrar" }));
 
 		expect(replaceMock).toHaveBeenCalledWith(
-			"/documents?q=factura&orderId=order-1&serviceCaseId=sc-1&purpose=support_document&step=step_09_client_signature",
+			"/documents?q=factura&orderId=order-1&serviceCaseId=sc-1&purpose=support_document&step=step_10_client_signature",
 		);
 	});
 });

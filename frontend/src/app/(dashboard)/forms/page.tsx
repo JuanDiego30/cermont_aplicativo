@@ -10,7 +10,7 @@ function stepLabel(stepCode: string): string {
 	const map: Record<string, string> = {
 		step_05_planning: "Paso 5 — Planeación",
 		step_06_execution: "Paso 6 — Ejecución",
-		step_07_technical_report: "Paso 7 — Informe técnico",
+		step_08_technical_report: "Paso 7 — Informe técnico",
 	};
 	return map[stepCode] ?? stepCode;
 }

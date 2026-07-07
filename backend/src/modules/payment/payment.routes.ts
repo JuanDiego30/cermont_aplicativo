@@ -11,7 +11,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
-import * as WorkflowController from "../order/administrative-workflow.controller";
+import * as PaymentController from "./payment.controller";
 
 const router = Router();
 
@@ -21,7 +21,7 @@ router.get(
 	"/",
 	authorize(...INTERNAL_ROLES),
 	validateQuery(ListPaymentsQuerySchema),
-	WorkflowController.listPayments,
+	PaymentController.listPayments,
 );
 
 router.post(
@@ -29,14 +29,14 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(InvoiceIdParamsSchema),
 	validateBody(RegisterInvoicePaymentSchema),
-	WorkflowController.registerPaymentForInvoice,
+	PaymentController.registerPaymentForInvoice,
 );
 
 router.get(
 	"/:id",
 	authorize(...INTERNAL_ROLES),
 	validateParams(PaymentIdParamsSchema),
-	WorkflowController.getPayment,
+	PaymentController.getPayment,
 );
 
 router.post(
@@ -44,7 +44,7 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(PaymentIdParamsSchema),
 	validateBody(ReconcilePaymentSchema),
-	WorkflowController.reconcilePayment,
+	PaymentController.reconcilePayment,
 );
 
 router.post(
@@ -52,7 +52,7 @@ router.post(
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(PaymentIdParamsSchema),
 	validateBody(RejectPaymentRecordSchema),
-	WorkflowController.rejectPayment,
+	PaymentController.rejectPayment,
 );
 
 export default router;

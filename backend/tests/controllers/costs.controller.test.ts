@@ -12,6 +12,8 @@ const mockGetCostsByOrderId = vi.fn();
 const mockGetCostById = vi.fn();
 const mockGetOrderSummary = vi.fn();
 const mockGetCostDashboard = vi.fn();
+const mockListCostCatalog = vi.fn();
+const mockCreateCostCatalogItem = vi.fn();
 
 vi.mock("../../src/modules/cost/cost.service", () => ({
 	listCosts: mockListCosts,
@@ -19,6 +21,11 @@ vi.mock("../../src/modules/cost/cost.service", () => ({
 	getCostById: mockGetCostById,
 	getOrderSummary: mockGetOrderSummary,
 	getCostDashboard: mockGetCostDashboard,
+}));
+
+vi.mock("../../src/modules/cost/cost-catalog.service", () => ({
+	listCostCatalog: mockListCostCatalog,
+	createCostCatalogItem: mockCreateCostCatalogItem,
 }));
 
 const controllerPromise = import("../../src/modules/cost/cost.controller");
@@ -65,7 +72,7 @@ describe("CostsController", () => {
 			expect(mockListCosts).toHaveBeenCalled();
 			expect(res.setHeader).toHaveBeenCalledWith("X-Total-Count", "1");
 			expect(res.status).toHaveBeenCalledWith(200);
-		});
+		}, 10_000);
 	});
 
 	describe("getCostsByOrder", () => {

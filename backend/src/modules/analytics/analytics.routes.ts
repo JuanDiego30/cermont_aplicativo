@@ -34,10 +34,10 @@ router.patch(
 	validateParams(NotificationIdSchema),
 	markNotificationAsRead,
 );
-// No body validation needed — mark-all-read is an action endpoint with no body
 router.post(
 	"/notifications/mark-all-read",
 	authorize(...INTERNAL_ROLES),
+	/* No body validation needed — action endpoint */
 	markAllNotificationsAsRead,
 );
 
@@ -49,7 +49,11 @@ router.patch(
 	validateParams(NotificationIdSchema),
 	markNotificationAsRead,
 );
-// No body validation needed — mark-all-read is an action endpoint with no body
-router.post("/mark-all-read", authorize(...INTERNAL_ROLES), markAllNotificationsAsRead);
+router.post(
+	"/mark-all-read",
+	authorize(...INTERNAL_ROLES),
+	/* No body validation needed — action endpoint */
+	markAllNotificationsAsRead,
+);
 
 export default router;

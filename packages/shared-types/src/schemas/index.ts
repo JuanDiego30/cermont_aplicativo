@@ -5,7 +5,11 @@ export * from "./ai.schema";
 export * from "./analytics.schema";
 export * from "./asset.schema";
 export * from "./audit.schema";
+// NOTE: automation-rule.schema excluded from barrel to avoid naming conflict with automation.schema
+// Use: import { RuleAction } from '@cermont/shared-types' → from automation.schema
+// Use: import { ConditionOperator } from './automation-rule.schema' (direct import)
 export * from "./auth.schema";
+export * from "./automation.schema";
 export * from "./business-document.schema";
 export * from "./cermont-operational-step.schema";
 export * from "./checklist.schema";
@@ -15,6 +19,7 @@ export * from "./closureReport.schema";
 export * from "./common.schema";
 export * from "./cost.schema";
 export * from "./cost-cart.schema";
+export * from "./cost-suggest.schema";
 export * from "./cost-traceability.schema";
 export * from "./costControl.schema";
 export * from "./custom-field.schema";
@@ -46,16 +51,20 @@ export * from "./execution-labor.schema";
 export * from "./execution-session.schema";
 export * from "./execution-signature.schema";
 export * from "./file-asset.schema";
+export * from "./form-submission.schema";
 export * from "./geolocation.schema";
 export * from "./history.schema";
 export * from "./inspection.schema";
 export * from "./inventory-item.schema";
 export * from "./invoice.schema";
 export * from "./invoice-approval.schema";
+export * from "./job.schema";
 export * from "./kit.schema";
+export * from "./kpi.schema";
 export * from "./maintenance-plan.schema";
 export * from "./maintenanceKit.schema";
 export * from "./notification.schema";
+export * from "./notification-preference.schema";
 export * from "./operational-step-requirement.schema";
 export * from "./order.schema";
 export * from "./payment.schema";
@@ -73,6 +82,8 @@ export type {
 	PlanningPacket,
 	PlanningPacketListQuery,
 	PlanningPacketStatus,
+	PlanningReadinessCheck,
+	PlanningReadinessReport,
 	PlanningResourceLine,
 	PlanningResponsible,
 	PlanningResponsibleRole,
@@ -94,6 +105,8 @@ export {
 	PlanningPacketListQuerySchema,
 	PlanningPacketSchema,
 	PlanningPacketStatusSchema,
+	PlanningReadinessCheckSchema,
+	PlanningReadinessReportSchema,
 	PlanningResourceLineSchema,
 	PlanningResponsibleRoleSchema,
 	PlanningResponsibleSchema,
@@ -103,8 +116,10 @@ export {
 	WorkerRequirementsSchema,
 } from "./planning-packet.schema";
 export * from "./planning-reference-document.schema";
+export * from "./privacy-request.schema";
 export * from "./proposal.schema";
 export * from "./purchase-order-authorization.schema";
+export * from "./qr-code.schema";
 export type {
 	CreateReport,
 	CreateWorkReportInput,
@@ -149,6 +164,7 @@ export {
 export * from "./resource.schema";
 export * from "./safety-analysis.schema";
 export * from "./service-case.schema";
+export * from "./service-case-cockpit.schema";
 export * from "./service-case-step-context.schema";
 export * from "./service-case-workflow.schema";
 export * from "./service-entry-sheet.schema";

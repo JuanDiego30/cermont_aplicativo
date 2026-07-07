@@ -1,14 +1,13 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import gsap from "gsap";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { NetworkStatusChip } from "@/components/sync/NetworkStatusChip";
 import { ThemeToggle } from "@/core/ui/ThemeToggle";
-import { apiClient } from "@/lib/http/api-client";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import {
@@ -16,6 +15,13 @@ import {
 	type NotificationItem,
 } from "@/modules/core/ui/layout/HeaderNotifications";
 import { HeaderUserMenu } from "@/modules/core/ui/layout/HeaderUserMenu";
+import {
+	markAllAsRead,
+	markAsRead,
+	notificationKeys,
+	useNotifications,
+	useUnreadCount,
+} from "@/modules/notifications";
 
 gsap.registerPlugin(useGSAP);
 
@@ -41,7 +47,7 @@ export default function Header({
 	sidebarOpen: boolean;
 	setSidebarOpen: (arg: boolean) => void;
 }) {
-	const { accessToken, user } = useAuth();
+	const { user } = useAuth();
 	const queryClient = useQueryClient();
 	const pathname = usePathname();
 	const headerRef = useRef<HTMLElement>(null);
@@ -72,64 +78,30 @@ export default function Header({
 		{ scope: headerRef, dependencies: [] },
 	);
 
-	const { data: notificationsData } = useQuery({
-		queryKey: ["notifications"],
-		queryFn: async () => {
-			const payload = await apiClient.get<{
-				success?: boolean;
-				data?: {
-					notifications?: NotificationItem[];
-					unreadCount?: number;
-				};
-			}>("/notifications?limit=20");
-
-			return {
-				notifications: payload?.data?.notifications ?? [],
-				unreadCount: payload?.data?.unreadCount ?? 0,
-			};
-		},
-		// Notifications are intentionally polled at a low frequency for operational alerts.
-		// Stop polling on auth errors to avoid 401 storms through Serwist.
-		refetchInterval: (query) => {
-			if (query.state.error) {
-				return false; // stop polling on errors
-			}
-			return 30_000;
-		},
-		enabled: Boolean(user && accessToken),
-		retry: (failureCount, error) => {
-			// Don't retry auth errors — they indicate expired sessions
-			if (
-				error &&
-				typeof error === "object" &&
-				"status" in error &&
-				(error as { status: number }).status === 401
-			) {
-				return false;
-			}
-			return failureCount < 1;
-		},
-		staleTime: 25_000,
-	});
-
-	const notifications = notificationsData?.notifications ?? [];
-	const unreadCount = notificationsData?.unreadCount ?? 0;
+	const { data: notificationList } = useNotifications();
+	const unreadCount = (useUnreadCount().data ?? 0) as number;
+	const notifications = (notificationList ?? []).map(
+		(n): NotificationItem => ({
+			id: n._id,
+			titulo: n.title,
+			mensaje: n.message,
+			leida: n.isRead,
+			enlace_url: n.deepLink ?? null,
+			created_at: n.createdAt,
+		}),
+	);
 
 	const markAsReadMutation = useMutation({
-		mutationFn: async (notificationId: string) => {
-			await apiClient.patch(`/notifications/${notificationId}`);
-		},
+		mutationFn: markAsRead,
 		onSuccess: () => {
-			void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+			void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
 		},
 	});
 
 	const markAllReadMutation = useMutation({
-		mutationFn: async () => {
-			await apiClient.post("/notifications/mark-all-read");
-		},
+		mutationFn: markAllAsRead,
 		onSuccess: () => {
-			void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+			void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
 		},
 	});
 

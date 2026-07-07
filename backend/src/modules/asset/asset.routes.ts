@@ -8,7 +8,7 @@
  * - Order: authenticate → authorize → validate → controller
  */
 
-import { ASSET_MANAGEMENT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
+import { ASSET_MANAGEMENT_ROLES, CERMONT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
 import {
 	AssetIdSchema,
 	CreateAssetSchema,
@@ -104,7 +104,7 @@ router.patch(
 router.delete(
 	"/:id",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(AssetIdSchema),
 	AssetController.deleteAsset,
 );

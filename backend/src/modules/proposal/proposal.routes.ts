@@ -1,4 +1,4 @@
-import { ALL_AUTHENTICATED_ROLES, FIELD_MANAGEMENT_ROLES } from "@cermont/domain";
+import { ALL_AUTHENTICATED_ROLES, CERMONT_ROLES, FIELD_MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	ApproveProposalSchema,
 	ConvertProposalToOrderSchema,
@@ -92,14 +92,19 @@ router.patch(
 // Approve proposal (convenience endpoint)
 router.patch(
 	"/:id/approve",
-	authorize("cliente"),
+	authorize(CERMONT_ROLES.CLIENTE),
 	validateParams(ProposalIdSchema),
 	validateBody(ApproveProposalSchema),
 	approveProposal,
 );
 
 // Reject proposal (convenience endpoint)
-router.patch("/:id/reject", authorize("cliente"), validateParams(ProposalIdSchema), rejectProposal);
+router.patch(
+	"/:id/reject",
+	authorize(CERMONT_ROLES.CLIENTE),
+	validateParams(ProposalIdSchema),
+	rejectProposal,
+);
 
 /**
  * POST /api/proposals/:id/convert

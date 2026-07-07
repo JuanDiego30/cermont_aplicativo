@@ -1,3 +1,8 @@
+import {
+	MANAGEMENT_ROLES,
+	REPORTING_ACCESS_ROLES,
+	TECHNICAL_EXECUTION_ROLES,
+} from "@cermont/domain";
 /**
  * Cost Routes
  * DOC-10 §8
@@ -6,7 +11,9 @@
 import {
 	CostIdSchema,
 	CostOrderIdSchema,
+	CreateCostCatalogItemSchema,
 	CreateCostSchema,
+	ListCostCatalogQuerySchema,
 	ListCostsQuerySchema,
 	UpdateCostSchema,
 } from "@cermont/shared-types";
@@ -18,25 +25,57 @@ import * as CostController from "./cost.controller";
 
 const router = Router();
 
-const allowedRoles = ["gerente", "hes", "supervisor", "tecnico"] as const;
+const costAccessRoles = [...new Set([...REPORTING_ACCESS_ROLES, ...TECHNICAL_EXECUTION_ROLES])];
 
 // GET /api/costs
 router.get(
 	"/",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateQuery(ListCostsQuerySchema),
 	CostController.listCosts,
 );
 
 // GET /api/costs/dashboard
-router.get("/dashboard", authenticate, authorize(...allowedRoles), CostController.getCostDashboard);
+router.get(
+	"/dashboard",
+	authenticate,
+	authorize(...costAccessRoles),
+	CostController.getCostDashboard,
+);
+
+// GET /api/costs/catalog — Spec-015 cost catalog listing
+router.get(
+	"/catalog",
+	authenticate,
+	authorize(...costAccessRoles),
+	validateQuery(ListCostCatalogQuerySchema),
+	CostController.getCostCatalog,
+);
+
+// POST /api/costs/catalog — Spec-015 create catalog item (management + residente)
+router.post(
+	"/catalog",
+	authenticate,
+	authorize(...MANAGEMENT_ROLES),
+	validateBody(CreateCostCatalogItemSchema),
+	CostController.createCostCatalogItem,
+);
+
+// GET /api/costs/:orderId/intelligence — Spec-015 baseline vs actual intelligence
+router.get(
+	"/:orderId/intelligence",
+	authenticate,
+	authorize(...costAccessRoles),
+	validateParams(CostOrderIdSchema),
+	CostController.getCostIntelligence,
+);
 
 // GET /api/costs/order/:orderId (canonical P0)
 router.get(
 	"/order/:orderId",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostOrderIdSchema),
 	validateQuery(ListCostsQuerySchema),
 	CostController.getCostsByOrder,
@@ -46,7 +85,7 @@ router.get(
 router.get(
 	"/order/:orderId/summary",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostOrderIdSchema),
 	CostController.getCostSummary,
 );
@@ -55,7 +94,7 @@ router.get(
 router.get(
 	"/summary/:orderId",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostOrderIdSchema),
 	CostController.getCostSummary,
 );
@@ -64,7 +103,7 @@ router.get(
 router.get(
 	"/:id",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostIdSchema),
 	CostController.getCostById,
 );
@@ -73,7 +112,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateBody(CreateCostSchema),
 	CostController.createCost,
 );
@@ -82,7 +121,7 @@ router.post(
 router.patch(
 	"/:id",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostIdSchema),
 	validateBody(UpdateCostSchema),
 	CostController.updateCost,
@@ -92,7 +131,7 @@ router.patch(
 router.delete(
 	"/:id",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostIdSchema),
 	CostController.deleteCost,
 );
@@ -101,7 +140,7 @@ router.delete(
 router.post(
 	"/order/:orderId/items",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostOrderIdSchema),
 	validateBody(CreateCostSchema),
 	CostController.createCostItemForOrder,
@@ -111,7 +150,7 @@ router.post(
 router.patch(
 	"/items/:id",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostIdSchema),
 	validateBody(UpdateCostSchema),
 	CostController.updateCost,
@@ -121,7 +160,7 @@ router.patch(
 router.delete(
 	"/items/:id",
 	authenticate,
-	authorize(...allowedRoles),
+	authorize(...costAccessRoles),
 	validateParams(CostIdSchema),
 	CostController.deleteCost,
 );

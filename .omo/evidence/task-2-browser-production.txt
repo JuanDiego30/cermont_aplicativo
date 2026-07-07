@@ -1,0 +1,21 @@
+SPEC-005 FASE 0 — navegador aislado
+Fecha: 2026-06-27
+
+Contexto A: Chrome aislado, /login y /reports/analytics
+- /reports/analytics redirige a /login sin sesión.
+- Errores de consola: 404 favicon.png y 404 icons/logo-cermont.png.
+- Requests de notificaciones antes de login: 0.
+- Error "listener indicated an asynchronous response": 0.
+
+Contexto B: Chrome aislado con serviceWorkers="block"
+- URL final: https://cermontsas.shop/login
+- Service workers: 0
+- Error "listener indicated an asynchronous response": 0
+- HTTP >= 400: favicon.png 404; icons/logo-cermont.png 404
+- Page errors: dos ocurrencias de
+  "Cannot read properties of undefined (reading 'waiting')".
+
+Clasificación:
+- El error async reportado no se reproduce sin extensiones.
+- Existe un defecto real de degradación: el proveedor Serwist no maneja que el
+  registro del service worker sea bloqueado o no esté disponible.

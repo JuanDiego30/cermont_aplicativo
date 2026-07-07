@@ -1,11 +1,9 @@
 /**
- * Operational Steps — 14-step CERMONT business pipeline
+ * Operational Steps — canonical 14-step CERMONT business pipeline.
  *
- * This is the Single Source of Truth for the operational step definitions.
- * Every step includes: number, key, label, entity, requirements, next actions.
- *
- * Import by:
- *   import { OPERATIONAL_STEPS, type OperationalStepKey } from '@cermont/domain';
+ * This file owns the ordered identities of the workflow. Contracts, persistence
+ * adapters and UI views must derive from this definition instead of maintaining
+ * a second numbered sequence.
  */
 
 export type OperationalStepStatus =
@@ -16,46 +14,39 @@ export type OperationalStepStatus =
 	| "blocked";
 
 export interface OperationalStep {
-	stepNumber: number;
-	key: string;
-	canonicalCode: string;
-	label: string;
-	entityName: string;
-	requiresEvidence: boolean;
-	requiresDocuments: boolean;
-	preconditions: string[];
-	nextActions: string[];
-	allowedRoles: string[];
+	readonly stepNumber: number;
+	readonly key: string;
+	readonly canonicalCode: string;
+	readonly label: string;
+	readonly entityName: string;
+	readonly requiresEvidence: boolean;
+	readonly requiresDocuments: boolean;
+	readonly preconditions: readonly string[];
+	readonly nextActions: readonly string[];
+	readonly allowedRoles: readonly string[];
 }
 
-/**
- * All 14 operational steps of the CERMONT business pipeline.
- * Steps 1-4: Pre-contract (solicitud → PO)
- * Steps 5-7: Execution (planeación → evidencias)
- * Steps 8-10: Delivery (informe → acta → firma)
- * Steps 11-14: Closure (SES → factura → pago → cierre)
- */
-export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
+export const OPERATIONAL_STEPS = [
 	{
 		stepNumber: 1,
 		key: "work_request",
-		canonicalCode: "STEP_01_WORK_REQUEST",
-		label: "Solicitud del Cliente",
+		canonicalCode: "step_01_work_request",
+		label: "Solicitud de servicio",
 		entityName: "WorkRequest",
 		requiresEvidence: false,
 		requiresDocuments: true,
 		preconditions: [],
-		nextActions: ["site_visit", "proposal"],
-		allowedRoles: ["gerente", "residente", "hes", "cliente"],
+		nextActions: ["site_visit"],
+		allowedRoles: ["gerente", "residente", "administrativo", "cliente"],
 	},
 	{
 		stepNumber: 2,
 		key: "site_visit",
-		canonicalCode: "STEP_02_SITE_VISIT",
-		label: "Visita Técnica",
+		canonicalCode: "step_02_site_visit",
+		label: "Visita técnica",
 		entityName: "SiteVisit",
 		requiresEvidence: true,
-		requiresDocuments: false,
+		requiresDocuments: true,
 		preconditions: ["work_request"],
 		nextActions: ["proposal"],
 		allowedRoles: ["gerente", "residente", "supervisor", "tecnico"],
@@ -63,32 +54,32 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 3,
 		key: "proposal",
-		canonicalCode: "STEP_03_PROPOSAL",
-		label: "Propuesta Económica",
+		canonicalCode: "step_03_proposal",
+		label: "Propuesta económica",
 		entityName: "Proposal",
 		requiresEvidence: false,
 		requiresDocuments: true,
-		preconditions: ["site_visit", "work_request"],
+		preconditions: ["site_visit"],
 		nextActions: ["purchase_order"],
-		allowedRoles: ["gerente", "residente", "hes"],
+		allowedRoles: ["gerente", "residente", "administrativo"],
 	},
 	{
 		stepNumber: 4,
 		key: "purchase_order",
-		canonicalCode: "STEP_04_PURCHASE_ORDER",
-		label: "Aprobación con PO",
+		canonicalCode: "step_04_purchase_order",
+		label: "Aprobación de orden de compra",
 		entityName: "PurchaseOrder",
 		requiresEvidence: false,
 		requiresDocuments: true,
 		preconditions: ["proposal"],
 		nextActions: ["planning"],
-		allowedRoles: ["gerente", "residente", "cliente"],
+		allowedRoles: ["gerente", "residente", "administrativo", "cliente"],
 	},
 	{
 		stepNumber: 5,
 		key: "planning",
-		canonicalCode: "STEP_05_PLANNING",
-		label: "Planeación de Obra",
+		canonicalCode: "step_05_planning",
+		label: "Planeación",
 		entityName: "PlanningPacket",
 		requiresEvidence: false,
 		requiresDocuments: true,
@@ -99,55 +90,67 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 	{
 		stepNumber: 6,
 		key: "execution",
-		canonicalCode: "STEP_06_EXECUTION",
-		label: "Ejecución en Campo",
+		canonicalCode: "step_06_execution",
+		label: "Ejecución",
 		entityName: "ExecutionSession",
-		requiresEvidence: true,
-		requiresDocuments: false,
+		requiresEvidence: false,
+		requiresDocuments: true,
 		preconditions: ["planning"],
-		nextActions: ["technical_report"],
+		nextActions: ["evidence"],
 		allowedRoles: ["gerente", "residente", "supervisor", "operador", "tecnico"],
 	},
 	{
 		stepNumber: 7,
+		key: "evidence",
+		canonicalCode: "step_07_evidence",
+		label: "Evidencia",
+		entityName: "Evidence",
+		requiresEvidence: true,
+		requiresDocuments: false,
+		preconditions: ["execution"],
+		nextActions: ["technical_report"],
+		allowedRoles: ["gerente", "residente", "supervisor", "operador", "tecnico"],
+	},
+	{
+		stepNumber: 8,
 		key: "technical_report",
-		canonicalCode: "STEP_07_TECHNICAL_REPORT",
-		label: "Informe Técnico",
+		canonicalCode: "step_08_technical_report",
+		label: "Informe técnico",
 		entityName: "TechnicalReport",
 		requiresEvidence: false,
 		requiresDocuments: true,
-		preconditions: ["execution"],
+		preconditions: ["evidence"],
 		nextActions: ["delivery_record"],
 		allowedRoles: ["gerente", "residente", "supervisor", "tecnico"],
 	},
 	{
-		stepNumber: 8,
+		stepNumber: 9,
 		key: "delivery_record",
-		canonicalCode: "STEP_08_DELIVERY_RECORD",
-		label: "Acta de Entrega",
+		canonicalCode: "step_09_delivery_record",
+		label: "Acta de entrega",
 		entityName: "DeliveryRecord",
 		requiresEvidence: false,
 		requiresDocuments: true,
 		preconditions: ["technical_report"],
 		nextActions: ["client_signature"],
-		allowedRoles: ["gerente", "residente", "supervisor"],
+		allowedRoles: ["gerente", "residente", "supervisor", "administrativo"],
 	},
 	{
-		stepNumber: 9,
+		stepNumber: 10,
 		key: "client_signature",
-		canonicalCode: "STEP_09_CLIENT_SIGNATURE",
-		label: "Firma del Cliente",
+		canonicalCode: "step_10_client_signature",
+		label: "Firma del cliente",
 		entityName: "ClientSignature",
 		requiresEvidence: true,
-		requiresDocuments: false,
+		requiresDocuments: true,
 		preconditions: ["delivery_record"],
 		nextActions: ["ses"],
 		allowedRoles: ["gerente", "residente", "cliente"],
 	},
 	{
-		stepNumber: 10,
+		stepNumber: 11,
 		key: "ses",
-		canonicalCode: "STEP_10_SES",
+		canonicalCode: "step_11_ses",
 		label: "SES / Ariba",
 		entityName: "ServiceEntrySheet",
 		requiresEvidence: false,
@@ -157,9 +160,9 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 		allowedRoles: ["gerente", "residente", "administrativo"],
 	},
 	{
-		stepNumber: 11,
+		stepNumber: 12,
 		key: "invoice",
-		canonicalCode: "STEP_11_INVOICE",
+		canonicalCode: "step_12_invoice",
 		label: "Factura",
 		entityName: "Invoice",
 		requiresEvidence: false,
@@ -169,72 +172,153 @@ export const OPERATIONAL_STEPS: readonly OperationalStep[] = [
 		allowedRoles: ["gerente", "residente", "administrativo"],
 	},
 	{
-		stepNumber: 12,
+		stepNumber: 13,
 		key: "invoice_approval",
-		canonicalCode: "STEP_12_INVOICE_APPROVAL",
-		label: "Aprobación de Factura",
+		canonicalCode: "step_13_invoice_approval",
+		label: "Aprobación de factura",
 		entityName: "InvoiceApproval",
 		requiresEvidence: false,
 		requiresDocuments: true,
 		preconditions: ["invoice"],
 		nextActions: ["payment"],
-		allowedRoles: ["gerente", "residente", "cliente"],
+		allowedRoles: ["gerente", "residente", "administrativo", "cliente"],
 	},
 	{
-		stepNumber: 13,
+		stepNumber: 14,
 		key: "payment",
-		canonicalCode: "STEP_13_PAYMENT",
+		canonicalCode: "step_14_payment",
 		label: "Pago",
 		entityName: "Payment",
 		requiresEvidence: false,
 		requiresDocuments: true,
 		preconditions: ["invoice_approval"],
-		nextActions: ["closure"],
-		allowedRoles: ["gerente", "residente", "administrativo"],
-	},
-	{
-		stepNumber: 14,
-		key: "closure",
-		canonicalCode: "STEP_14_CLOSURE",
-		label: "Cierre Administrativo",
-		entityName: "ServiceCase",
-		requiresEvidence: false,
-		requiresDocuments: true,
-		preconditions: ["payment"],
 		nextActions: [],
 		allowedRoles: ["gerente", "residente", "administrativo"],
 	},
+] as const satisfies readonly OperationalStep[];
+
+export type OperationalStepKey = (typeof OPERATIONAL_STEPS)[number]["key"];
+export type CanonicalOperationalStepCode = (typeof OPERATIONAL_STEPS)[number]["canonicalCode"];
+
+/** Canonical persisted/API codes derived from the ordered step definition. */
+export const CANONICAL_CODES = OPERATIONAL_STEPS.map((step) => step.canonicalCode) as [
+	CanonicalOperationalStepCode,
+	...CanonicalOperationalStepCode[],
 ];
 
-/** Canonical codes for all 14 steps */
-export const CANONICAL_CODES: readonly string[] = OPERATIONAL_STEPS.map((s) => s.canonicalCode);
+export const LEGACY_OPERATIONAL_STEP_CODES = [
+	"step_10_ses",
+	"step_11_invoice",
+	"step_12_invoice_approval",
+	"step_13_payment",
+	"step_14_closure",
+	"step_07_technical_report",
+	"step_08_delivery_record",
+	"step_09_client_signature",
+	"step_10_ses_submission",
+	"step_11_ses_approval",
+	"step_12_invoice_submission",
+	"step_14_payment_closure",
+	"STEP_01_WORK_REQUEST",
+	"STEP_02_SITE_VISIT",
+	"STEP_03_PROPOSAL",
+	"STEP_04_PURCHASE_ORDER",
+	"STEP_05_PLANNING",
+	"STEP_06_EXECUTION",
+	"STEP_07_TECHNICAL_REPORT",
+	"STEP_08_DELIVERY_RECORD",
+	"STEP_09_CLIENT_SIGNATURE",
+	"STEP_10_SES",
+	"STEP_11_INVOICE",
+	"STEP_12_INVOICE_APPROVAL",
+	"STEP_13_PAYMENT",
+	"STEP_14_CLOSURE",
+] as const;
 
-/** Step keys as a type for discriminated unions */
-export type OperationalStepKey = (typeof OPERATIONAL_STEPS)[number]["key"];
+export type LegacyOperationalStepCode = (typeof LEGACY_OPERATIONAL_STEP_CODES)[number];
 
-/** Ordered list of step keys for iteration */
-export const STEP_KEYS: readonly string[] = OPERATIONAL_STEPS.map((s) => s.key);
+const LEGACY_CODE_ALIASES: Readonly<
+	Record<LegacyOperationalStepCode, CanonicalOperationalStepCode>
+> = {
+	step_10_ses: "step_11_ses",
+	step_11_invoice: "step_12_invoice",
+	step_12_invoice_approval: "step_13_invoice_approval",
+	step_13_payment: "step_14_payment",
+	step_14_closure: "step_14_payment",
+	step_07_technical_report: "step_08_technical_report",
+	step_08_delivery_record: "step_09_delivery_record",
+	step_09_client_signature: "step_10_client_signature",
+	step_10_ses_submission: "step_11_ses",
+	step_11_ses_approval: "step_11_ses",
+	step_12_invoice_submission: "step_12_invoice",
+	step_14_payment_closure: "step_14_payment",
+	STEP_01_WORK_REQUEST: "step_01_work_request",
+	STEP_02_SITE_VISIT: "step_02_site_visit",
+	STEP_03_PROPOSAL: "step_03_proposal",
+	STEP_04_PURCHASE_ORDER: "step_04_purchase_order",
+	STEP_05_PLANNING: "step_05_planning",
+	STEP_06_EXECUTION: "step_06_execution",
+	STEP_07_TECHNICAL_REPORT: "step_08_technical_report",
+	STEP_08_DELIVERY_RECORD: "step_09_delivery_record",
+	STEP_09_CLIENT_SIGNATURE: "step_10_client_signature",
+	STEP_10_SES: "step_11_ses",
+	STEP_11_INVOICE: "step_12_invoice",
+	STEP_12_INVOICE_APPROVAL: "step_13_invoice_approval",
+	STEP_13_PAYMENT: "step_14_payment",
+	STEP_14_CLOSURE: "step_14_payment",
+};
 
-/** Map stepKey → OperationalStep for O(1) lookup */
-export const STEP_BY_KEY: ReadonlyMap<string, OperationalStep> = new Map(
-	OPERATIONAL_STEPS.map((s) => [s.key, s]),
-);
+export type OperationalStepCodeNormalization =
+	| { readonly status: "canonical"; readonly code: CanonicalOperationalStepCode }
+	| {
+			readonly status: "legacy_alias";
+			readonly legacyCode: LegacyOperationalStepCode;
+			readonly code: CanonicalOperationalStepCode;
+	  }
+	| { readonly status: "invalid"; readonly input: string };
 
-/** Get a step by its key */
-export function getStep(key: string): OperationalStep | undefined {
-	return STEP_BY_KEY.get(key);
+const CANONICAL_CODE_SET: ReadonlySet<string> = new Set(CANONICAL_CODES);
+const LEGACY_CODE_SET: ReadonlySet<string> = new Set(LEGACY_OPERATIONAL_STEP_CODES);
+
+export function normalizeOperationalStepCode(input: string): OperationalStepCodeNormalization {
+	if (CANONICAL_CODE_SET.has(input)) {
+		return { status: "canonical", code: input as CanonicalOperationalStepCode };
+	}
+	if (LEGACY_CODE_SET.has(input)) {
+		const legacyCode = input as LegacyOperationalStepCode;
+		return { status: "legacy_alias", legacyCode, code: LEGACY_CODE_ALIASES[legacyCode] };
+	}
+	return { status: "invalid", input };
 }
 
-/** Get the next step after a given step key */
+/** Historical codes that represent the same semantic step, for compatibility reads. */
+export function getOperationalStepCodeAliases(
+	canonicalCode: CanonicalOperationalStepCode,
+): readonly LegacyOperationalStepCode[] {
+	return LEGACY_OPERATIONAL_STEP_CODES.filter(
+		(legacyCode) => LEGACY_CODE_ALIASES[legacyCode] === canonicalCode,
+	);
+}
+
+/** Ordered list of step keys for iteration. */
+export const STEP_KEYS: readonly OperationalStepKey[] = OPERATIONAL_STEPS.map((step) => step.key);
+
+/** Map step key to its definition for constant-time lookup. */
+export const STEP_BY_KEY: ReadonlyMap<OperationalStepKey, (typeof OPERATIONAL_STEPS)[number]> =
+	new Map(OPERATIONAL_STEPS.map((step) => [step.key, step]));
+
+export function getStep(key: string): OperationalStep | undefined {
+	return STEP_BY_KEY.get(key as OperationalStepKey);
+}
+
 export function getNextStep(key: string): OperationalStep | undefined {
-	const index = STEP_KEYS.indexOf(key);
+	const index = STEP_KEYS.indexOf(key as OperationalStepKey);
 	if (index === -1 || index >= OPERATIONAL_STEPS.length - 1) {
 		return undefined;
 	}
 	return OPERATIONAL_STEPS[index + 1];
 }
 
-/** Check if a step key is valid */
-export function isValidStepKey(key: string): boolean {
-	return STEP_KEYS.includes(key);
+export function isValidStepKey(key: string): key is OperationalStepKey {
+	return STEP_KEYS.includes(key as OperationalStepKey);
 }

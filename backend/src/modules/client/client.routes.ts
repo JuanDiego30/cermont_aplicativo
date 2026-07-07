@@ -4,7 +4,7 @@
  * Order: authenticate → authorize → validate → controller
  */
 
-import { INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import { CERMONT_ROLES, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	ClientIdParamsSchema,
 	CreateClientSchema,
@@ -65,7 +65,7 @@ router.patch(
 // DELETE /api/clients/:id — deactivate (soft delete)
 router.delete(
 	"/:id",
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(ClientIdParamsSchema),
 	ClientController.deactivateClient,
 );

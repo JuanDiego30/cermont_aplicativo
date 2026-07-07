@@ -136,6 +136,8 @@ const EXECUTION_BLOCKER_VALUES = [
 	"sync_pending",
 	"cancelled",
 	"already_completed",
+	"preflight_not_completed",
+	"sla_deadline_exceeded",
 ] as const;
 
 export const ExecutionSessionBlockerCodeSchema = z.enum(EXECUTION_BLOCKER_VALUES);
@@ -552,3 +554,55 @@ export type SignExecutionTechnicianInput = AddExecutionSignatureCommand;
 
 export const SignExecutionSupervisorSchema = AddExecutionSignatureCommandSchema;
 export type SignExecutionSupervisorInput = AddExecutionSignatureCommand;
+
+// ─────────────────────────────────────────────────────────────────────────
+// Spec-015 — Preflight checklist, field novelties and enriched session
+// ─────────────────────────────────────────────────────────────────────────
+
+export const PreflightGateItemSchema = z
+	.object({
+		key: z.string().min(1).max(80),
+		label: z.string().min(1).max(300),
+		isBlocking: z.boolean().default(true),
+		isChecked: z.boolean().default(false),
+		checkedAt: z.string().datetime().optional(),
+		checkedBy: ObjectIdSchema.optional(),
+	})
+	.strict();
+export type PreflightGateItem = z.infer<typeof PreflightGateItemSchema>;
+
+export const PreflightChecklistSchema = z
+	.object({
+		eppComplete: z.boolean().default(false),
+		astSigned: z.boolean().default(false),
+		ptwObtained: z.boolean().default(false),
+		toolsValidated: z.boolean().default(false),
+		vehicleDocumentsOk: z.boolean().default(false),
+		certificationsCurrent: z.boolean().default(false),
+		items: z.array(PreflightGateItemSchema).default([]),
+		completedAt: z.string().datetime().optional(),
+		completedBy: ObjectIdSchema.optional(),
+	})
+	.strict();
+export type PreflightChecklist = z.infer<typeof PreflightChecklistSchema>;
+
+export const FieldNoveltySchema = z
+	.object({
+		noveltyId: z.string().min(1).max(80),
+		description: z.string().min(1).max(2000),
+		severity: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+		evidenceIds: z.array(ObjectIdSchema).default([]),
+		generatesWorkRequest: z.boolean().default(false),
+		workRequestId: ObjectIdSchema.optional(),
+		reportedAt: z.string().datetime(),
+		reportedBy: ObjectIdSchema,
+	})
+	.strict();
+export type FieldNovelty = z.infer<typeof FieldNoveltySchema>;
+
+export const ExecutionSessionEnrichedSchema = ExecutionSessionSchema.extend({
+	preflightChecklist: PreflightChecklistSchema.optional(),
+	fieldNovelties: z.array(FieldNoveltySchema).default([]),
+	estimatedDurationMinutes: z.number().int().positive().optional(),
+});
+export type ExecutionSessionEnriched = z.infer<typeof ExecutionSessionEnrichedSchema>;

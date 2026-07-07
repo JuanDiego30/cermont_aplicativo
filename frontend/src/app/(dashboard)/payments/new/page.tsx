@@ -94,7 +94,7 @@ function NewPaymentForm() {
 		workflow,
 		isLoading: isContextLoading,
 		inheritedFields,
-	} = useServiceCaseContext("step_14_payment_closure", serviceCaseId);
+	} = useServiceCaseContext("step_14_payment", serviceCaseId);
 
 	// Derive invoice ID: prefer URL param → artifacts
 	const derivedInvoiceId = prefilledInvoiceId || workflow?.artifacts?.invoice?.id || "";

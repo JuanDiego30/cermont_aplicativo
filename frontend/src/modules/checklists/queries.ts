@@ -83,13 +83,13 @@ export function useUpdateChecklistItem() {
 		mutationFn: async ({
 			checklistId,
 			itemId,
-			completed,
+			result,
 			observation,
 		}: UpdateChecklistItemVariables) => {
 			const body = await apiClient.patch<ApiEnvelope<Checklist>>(
 				`/checklists/${checklistId}/items/${itemId}`,
 				{
-					completed,
+					result,
 					observation,
 				},
 			);

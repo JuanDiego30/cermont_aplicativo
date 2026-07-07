@@ -2,6 +2,7 @@
 
 import type { ExecutionSession, ExecutionSessionStatus } from "@cermont/shared-types";
 import { isPresent, type StatusObject } from "@cermont/shared-types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
 	AlertTriangle,
 	ArrowLeft,
@@ -21,6 +22,7 @@ import { Button } from "@/core/ui/Button";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
 import {
+	EXECUTION_KEYS,
 	useAddExecutionIncident,
 	useAddExecutionLabor,
 	useAddExecutionMaterial,
@@ -31,22 +33,28 @@ import {
 	useStartExecutionSession,
 	useSubmitExecutionDynamicForm,
 } from "@/modules/execution/queries";
+import { submitPreflight } from "@/modules/field-execution/api/field-execution.api";
+import { ExecutionStatusBadge } from "@/modules/field-execution/ui/ExecutionStatusBadge";
+import { ExecutionTimer } from "@/modules/field-execution/ui/ExecutionTimer";
+import { FieldNoveltyButton } from "@/modules/field-execution/ui/evidence/FieldNoveltyButton";
+import { StructuredEvidenceCapture } from "@/modules/field-execution/ui/evidence/StructuredEvidenceCapture";
+import { PreflightGatesForm } from "@/modules/field-execution/ui/PreflightGatesForm";
 import { useAuthStore } from "@/store/auth.store";
 
 type ExecutionDetailPageProps = {
 	params: Promise<{ id: string }>;
 };
 
-const STATUS_LABELS: Record<ExecutionSessionStatus, string> = {
-	draft: "Borrador",
-	ready: "Lista",
-	in_progress: "En ejecucion",
-	paused: "Pausada",
-	completed: "Completada",
-	cancelled: "Cancelada",
-	sync_pending: "Sync pendiente",
-	sync_failed: "Sync fallida",
-};
+const DEFAULT_EXECUTION_TARGET_MINUTES = 8 * 60;
+
+const PREFLIGHT_GATES = [
+	{ id: "eppComplete", label: "EPP completo", isBlocking: true },
+	{ id: "astSigned", label: "AST firmado y socializado", isBlocking: true },
+	{ id: "ptwObtained", label: "Permiso de trabajo (PTW) obtenido", isBlocking: true },
+	{ id: "toolsValidated", label: "Herramientas y equipos validados", isBlocking: true },
+	{ id: "vehicleDocumentsOk", label: "Documentos del vehículo vigentes", isBlocking: true },
+	{ id: "certificationsCurrent", label: "Certificaciones del personal vigentes", isBlocking: true },
+] as const;
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
@@ -123,6 +131,7 @@ function ExecutionDetailWorkspace({
 	session: ExecutionSession;
 	user: { id: string; role: string } | null;
 }) {
+	const { push } = useRouter();
 	const commandState = useExecutionDetailCommands(id, user);
 	const {
 		addIncident,
@@ -154,6 +163,8 @@ function ExecutionDetailWorkspace({
 		submitDynamicForm,
 	} = commandState;
 
+	const canSubmitPreflight = session.status === "draft" || session.status === "ready";
+
 	return (
 		<section className="space-y-6" aria-labelledby="execution-detail-title">
 			<Link
@@ -174,8 +185,9 @@ function ExecutionDetailWorkspace({
 						>
 							Ejecucion de orden {session.workOrderId}
 						</h1>
-						<p className="mt-1 text-sm text-[var(--text-secondary)]">
-							Estado: {STATUS_LABELS[session.status]} · Inicio: {formatDate(session.startedAt)}
+						<p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--text-secondary)]">
+							<ExecutionStatusBadge status={session.status} />
+							<span>Inicio: {formatDate(session.startedAt)}</span>
 						</p>
 					</div>
 					<ExecutionStatusActions
@@ -190,6 +202,19 @@ function ExecutionDetailWorkspace({
 						completeLoading={completeMutation.isPending}
 					/>
 				</div>
+				{session.startedAt ? (
+					<div className="mt-4 max-w-md">
+						<ExecutionTimer
+							startedAt={session.startedAt}
+							targetMinutes={DEFAULT_EXECUTION_TARGET_MINUTES}
+							end={
+								session.completedAt
+									? { status: "stopped", at: session.completedAt }
+									: { status: "running" }
+							}
+						/>
+					</div>
+				) : null}
 			</header>
 
 			{currentError ? (
@@ -207,6 +232,29 @@ function ExecutionDetailWorkspace({
 
 			<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.75fr)]">
 				<div className="space-y-4">
+					{canSubmitPreflight ? <PreflightPanel sessionId={id} /> : null}
+
+					<Panel title="Evidencias estructuradas">
+						<StructuredEvidenceCapture
+							slots={(["before", "during", "after"] as const).map((phase) => ({
+								id: `slot-${phase}`,
+								phase,
+								label:
+									phase === "before"
+										? "Foto antes del trabajo"
+										: phase === "during"
+											? "Foto durante el trabajo"
+											: "Foto después del trabajo",
+								isRequired: true,
+								isBlocking: phase !== "during",
+								status: session.evidences.some((evidence) => evidence.phase === phase)
+									? "uploaded"
+									: "empty",
+								onCapture: () => push("/evidences"),
+							}))}
+						/>
+					</Panel>
+
 					<Panel title="Acciones de campo">
 						<div className="grid gap-3 sm:grid-cols-2">
 							<Button
@@ -348,7 +396,61 @@ function ExecutionDetailWorkspace({
 					</Panel>
 				</aside>
 			</div>
+
+			{canUseUserCommands ? <FieldNoveltyButton onReport={commandState.reportNovelty} /> : null}
 		</section>
+	);
+}
+
+function PreflightPanel({ sessionId }: { sessionId: string }) {
+	const queryClient = useQueryClient();
+	const preflightMutation = useMutation({
+		mutationFn: (passedItems: string[]) => {
+			const passed = new Set(passedItems);
+			return submitPreflight(sessionId, {
+				items: PREFLIGHT_GATES.map((gate) => ({
+					id: gate.id,
+					label: gate.label,
+					isBlocking: gate.isBlocking,
+					checked: passed.has(gate.id),
+				})),
+				eppComplete: passed.has("eppComplete"),
+				astSigned: passed.has("astSigned"),
+				ptwObtained: passed.has("ptwObtained"),
+				toolsValidated: passed.has("toolsValidated"),
+				vehicleDocumentsOk: passed.has("vehicleDocumentsOk"),
+				certificationsCurrent: passed.has("certificationsCurrent"),
+			});
+		},
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: EXECUTION_KEYS.detail(sessionId) });
+		},
+	});
+
+	return (
+		<Panel title="Preflight de seguridad">
+			<p className="mb-3 text-xs text-[var(--text-secondary)]">
+				Verifica los requisitos de seguridad antes de iniciar la ejecución en campo.
+			</p>
+			{preflightMutation.isError ? (
+				<p role="alert" className="mb-3 text-xs text-[var(--color-danger)]">
+					{preflightMutation.error instanceof Error
+						? preflightMutation.error.message
+						: "No se pudo registrar el preflight"}
+				</p>
+			) : null}
+			{preflightMutation.isSuccess ? (
+				<p className="mb-3 text-xs font-semibold text-[var(--color-success)]">
+					Preflight registrado. La sesión queda lista para iniciar.
+				</p>
+			) : (
+				<PreflightGatesForm
+					gates={PREFLIGHT_GATES.map((gate) => ({ ...gate }))}
+					onComplete={(passedItems) => preflightMutation.mutate(passedItems)}
+					submitLabel="Registrar preflight"
+				/>
+			)}
+		</Panel>
 	);
 }
 
@@ -483,6 +585,34 @@ function useExecutionDetailCommands(id: string, user: { id: string; role: string
 		setIncidentDescription("");
 	}
 
+	function reportNovelty(data: {
+		description: string;
+		severity: string;
+		generatesWorkRequest: boolean;
+	}) {
+		if (!user?.id) {
+			return;
+		}
+		const severity = ["low", "medium", "high", "critical"].includes(data.severity)
+			? (data.severity as "low" | "medium" | "high" | "critical")
+			: "medium";
+		incidentMutation.mutate({
+			clientMutationId: makeUuid(),
+			commandType: "add_incident",
+			incident: {
+				incidentId: makeUuid(),
+				type: "technical",
+				severity,
+				description: data.generatesWorkRequest
+					? `${data.description} [Novedad de campo — requiere solicitud de trabajo]`
+					: `${data.description} [Novedad de campo]`,
+				occurredAt: new Date().toISOString(),
+				reportedBy: user.id,
+				evidenceIds: [],
+			},
+		});
+	}
+
 	function submitDynamicForm() {
 		if (!user?.id || !dynamicValue.trim()) {
 			return;
@@ -523,6 +653,7 @@ function useExecutionDetailCommands(id: string, user: { id: string; role: string
 		materialQuantity,
 		pauseExecution,
 		pauseMutation,
+		reportNovelty,
 		resumeExecution,
 		resumeMutation,
 		setDynamicValue,

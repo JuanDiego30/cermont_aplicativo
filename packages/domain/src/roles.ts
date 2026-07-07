@@ -455,6 +455,39 @@ export function resolveUserRole(role: unknown, fallback: UserRole = DEFAULT_USER
 }
 
 /**
+ * Individual role constants for use with authorize() middleware.
+ * Prevents hardcoded role strings in route files.
+ *
+ * @example
+ * ```ts
+ * import { CERMONT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+ * // Single role
+ * authorize(CERMONT_ROLES.GERENTE)
+ * // Multi-role from group constant
+ * authorize(...MANAGEMENT_ROLES)
+ * ```
+ */
+export const CERMONT_ROLES = {
+	GERENTE: "gerente" as const,
+	RESIDENTE: "residente" as const,
+	HES: "hes" as const,
+	COORD_ADMINISTRATIVO: "coord_administrativo" as const,
+	AUXILIAR_CONTABLE: "auxiliar_contable" as const,
+	SUPERVISOR: "supervisor" as const,
+	AUXILIAR_HES: "auxiliar_hes" as const,
+	SUPERVISOR_ELECTRICISTA: "supervisor_electricista" as const,
+	TECNICO_ELECTRICISTA: "tecnico_electricista" as const,
+	OPERADOR: "operador" as const,
+	TECNICO: "tecnico" as const,
+	OFICIAL_CONSTRUCCION: "oficial_construccion" as const,
+	ADMINISTRATIVO: "administrativo" as const,
+	PASANTE: "pasante" as const,
+	CLIENTE: "cliente" as const,
+} as const satisfies Record<string, UserRole>;
+
+export { CERMONT_ROLES as ROLES };
+
+/**
  * Default initial role for new user creation forms.
  * "tecnico" is the most common starting role for new field workers.
  */

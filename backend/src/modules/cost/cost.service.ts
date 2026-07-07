@@ -1,5 +1,7 @@
+import { calculateGrossMargin, evaluateCostBudgetRisk } from "@cermont/domain";
 import type {
 	CostDataState,
+	CostIntelligenceSummary,
 	CostResponse as CostSnapshot,
 	CostSummary,
 	CreateCostInput,
@@ -14,7 +16,7 @@ import {
 	ServiceUnavailableError,
 } from "../../common/errors/AppError";
 import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
-import { Cost, Document, Evidence, Invoice, Order, Payment } from "../../models";
+import { Cost, Document, Evidence, Invoice, Order, Payment, Proposal } from "../../models";
 import type { ICostDocument } from "../../models/Cost";
 
 export type CostDashboard = {
@@ -487,6 +489,17 @@ export async function getOrderSummary(orderId: string): Promise<CostSummary> {
 	const amountDataState = resolveAmountDataState(totalEstimated, totalActual);
 	const dataState = await resolveBillingDataState(orderObjectId, amountDataState);
 
+	const approvedBudget = await resolveApprovedBudget(orderObjectId);
+	const actualCostWithTax = totalActual + totalTax;
+	const budgetAssessment = evaluateCostBudgetRisk({
+		actualAmount: actualCostWithTax,
+		approvedBudget,
+	});
+	const profitability = calculateGrossMargin({
+		revenue: approvedBudget,
+		actualCost: actualCostWithTax,
+	});
+
 	return {
 		orderId: orderObjectId.toString(),
 		totalEstimated,
@@ -497,10 +510,36 @@ export async function getOrderSummary(orderId: string): Promise<CostSummary> {
 			totalEstimated > 0
 				? { status: "present", value: variance / totalEstimated }
 				: { status: "absent" },
+		approvedBudget,
+		budgetConsumptionPercent: budgetAssessment.consumptionPercent,
+		budgetRisk: budgetAssessment.risk,
+		budgetAlertThreshold: budgetAssessment.threshold,
+		actualCostWithTax,
+		grossProfit: profitability.grossProfit,
+		grossMarginPercent: profitability.grossMarginPercent,
 		hasCosts: dataState !== "NO_DATA",
 		dataState,
 		byCategory,
 	};
+}
+
+async function resolveApprovedBudget(
+	orderObjectId: Types.ObjectId,
+): Promise<{ status: "present"; value: number } | { status: "absent" }> {
+	const order = await Order.findById(orderObjectId).lean<{
+		_id: Types.ObjectId;
+		proposalId?: Types.ObjectId;
+	}>();
+	if (!order?.proposalId) {
+		return { status: "absent" };
+	}
+	const proposal = await Proposal.findOne({ _id: order.proposalId, status: "approved" })
+		.select("total")
+		.lean<{ total?: number }>();
+	if (!proposal || typeof proposal.total !== "number" || proposal.total <= 0) {
+		return { status: "absent" };
+	}
+	return { status: "present", value: proposal.total };
 }
 
 /**
@@ -508,6 +547,104 @@ export async function getOrderSummary(orderId: string): Promise<CostSummary> {
  */
 export async function getCostSummary(orderId: string): Promise<CostSummary> {
 	return getOrderSummary(orderId);
+}
+
+/**
+ * Spec-015: baseline vs actual cost intelligence for one order.
+ */
+export async function getIntelligence(orderId: string): Promise<CostIntelligenceSummary> {
+	if (!Types.ObjectId.isValid(orderId)) {
+		throw new BadRequestError("Invalid order id");
+	}
+	const orderObjectId = new Types.ObjectId(orderId);
+	const order = await Order.findById(orderObjectId)
+		.select("code proposalId")
+		.lean<{ _id: Types.ObjectId; code?: string; proposalId?: Types.ObjectId }>();
+	if (!order) {
+		throw new NotFoundError("Order", orderId);
+	}
+
+	const summary = await getOrderSummary(orderId);
+	const baselineCost = await resolveBaselineCost(order, summary);
+	const totalMargin = computeMargin(summary);
+	const marginPercent = computeMarginPercent(summary, totalMargin);
+	const budgetConsumedPercent = computeBudgetConsumedPercent(summary);
+
+	return {
+		orderId,
+		orderCode: order.code,
+		baselineCost,
+		totalEstimated: summary.totalEstimated,
+		totalActual: summary.totalActual,
+		totalTaxCOP: summary.totalTax,
+		totalMargin,
+		marginPercent,
+		budgetConsumedPercent,
+		isAtRisk: summary.budgetRisk === "threshold_reached" || summary.budgetRisk === "over_budget",
+		isCritical: summary.budgetRisk === "over_budget",
+		deviationByCategory: summary.byCategory.map((entry) => ({
+			category: entry.category,
+			estimated: entry.estimated,
+			actual: entry.actual,
+			deviationPercent:
+				entry.estimated > 0 ? ((entry.actual - entry.estimated) / entry.estimated) * 100 : 0,
+		})),
+		lastUpdatedAt: new Date().toISOString(),
+	};
+}
+
+async function resolveBaselineCost(
+	order: { _id: Types.ObjectId; code?: string; proposalId?: Types.ObjectId },
+	summary: CostSummary,
+): Promise<CostIntelligenceSummary["baselineCost"]> {
+	if (!order.proposalId) {
+		return undefined;
+	}
+	const proposal = await Proposal.findOne({ _id: order.proposalId, status: "approved" })
+		.select("code total taxTotal updatedAt")
+		.lean<{
+			_id: Types.ObjectId;
+			code?: string;
+			total?: number;
+			taxTotal?: number;
+			updatedAt?: Date;
+		}>();
+	if (!proposal || typeof proposal.total !== "number" || proposal.total <= 0) {
+		return undefined;
+	}
+	return {
+		proposalId: proposal._id.toString(),
+		proposalCode: proposal.code,
+		frozenAt: (proposal.updatedAt ?? new Date()).toISOString(),
+		totalEstimatedCOP: proposal.total,
+		totalTaxCOP: Number(proposal.taxTotal ?? 0),
+		byCategory: summary.byCategory.map((entry) => ({
+			category: entry.category,
+			estimatedCOP: entry.estimated,
+		})),
+	};
+}
+
+function computeMargin(summary: CostSummary): number {
+	return summary.grossProfit.status === "present"
+		? summary.grossProfit.value
+		: summary.totalEstimated - summary.actualCostWithTax;
+}
+
+function computeMarginPercent(summary: CostSummary, totalMargin: number): number {
+	if (summary.grossMarginPercent.status === "present") {
+		return summary.grossMarginPercent.value * 100;
+	}
+	return summary.totalEstimated > 0 ? (totalMargin / summary.totalEstimated) * 100 : 0;
+}
+
+function computeBudgetConsumedPercent(summary: CostSummary): number {
+	if (summary.budgetConsumptionPercent.status === "present") {
+		return summary.budgetConsumptionPercent.value * 100;
+	}
+	return summary.totalEstimated > 0
+		? (summary.actualCostWithTax / summary.totalEstimated) * 100
+		: 0;
 }
 
 export async function getCostDashboard(): Promise<CostDashboard> {

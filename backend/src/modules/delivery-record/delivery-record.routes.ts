@@ -1,4 +1,9 @@
-import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import {
+	ADMIN_PLUS_RESIDENTE,
+	CERMONT_ROLES,
+	INTERNAL_ROLES,
+	MANAGEMENT_ROLES,
+} from "@cermont/domain";
 import {
 	CreateDeliveryRecordV2Schema,
 	DeliveryRecordIdParamsSchema,
@@ -12,7 +17,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
-import * as WorkflowController from "../order/administrative-workflow.controller";
+import * as DeliveryRecordController from "./delivery-record.controller";
 
 const router = Router();
 
@@ -22,7 +27,7 @@ router.get(
 	"/",
 	authorize(...INTERNAL_ROLES),
 	validateQuery(ListDeliveryRecordsQuerySchema),
-	WorkflowController.listDeliveryRecords,
+	DeliveryRecordController.listDeliveryRecords,
 );
 
 router.post(
@@ -30,14 +35,14 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(TechnicalReportIdParamsSchema),
 	validateBody(CreateDeliveryRecordV2Schema),
-	WorkflowController.createDeliveryRecordFromTechnicalReport,
+	DeliveryRecordController.createDeliveryRecordFromTechnicalReport,
 );
 
 router.get(
 	"/:id",
 	authorize(...INTERNAL_ROLES),
 	validateParams(DeliveryRecordIdParamsSchema),
-	WorkflowController.getDeliveryRecord,
+	DeliveryRecordController.getDeliveryRecord,
 );
 
 router.post(
@@ -45,37 +50,42 @@ router.post(
 	authorize(...ADMIN_PLUS_RESIDENTE),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(SendDeliveryRecordSchema),
-	WorkflowController.sendDeliveryRecord,
+	DeliveryRecordController.sendDeliveryRecord,
 );
 
 router.post(
 	"/:id/sign",
-	authorize("gerente", "residente", "administrativo", "cliente"),
+	authorize(
+		CERMONT_ROLES.GERENTE,
+		CERMONT_ROLES.RESIDENTE,
+		CERMONT_ROLES.ADMINISTRATIVO,
+		CERMONT_ROLES.CLIENTE,
+	),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(SignDeliveryRecordSchema),
-	WorkflowController.signDeliveryRecord,
+	DeliveryRecordController.signDeliveryRecord,
 );
 
 router.post(
 	"/:id/reject",
-	authorize("gerente", "residente", "cliente"),
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.RESIDENTE, CERMONT_ROLES.CLIENTE),
 	validateParams(DeliveryRecordIdParamsSchema),
 	validateBody(RejectDeliveryRecordSchema),
-	WorkflowController.rejectDeliveryRecord,
+	DeliveryRecordController.rejectDeliveryRecord,
 );
 
 router.post(
 	"/:id/cancel",
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(DeliveryRecordIdParamsSchema),
-	WorkflowController.cancelDeliveryRecord,
+	DeliveryRecordController.cancelDeliveryRecord,
 );
 
 router.post(
 	"/:id/archive",
 	authorize(...MANAGEMENT_ROLES),
 	validateParams(DeliveryRecordIdParamsSchema),
-	WorkflowController.cancelDeliveryRecord,
+	DeliveryRecordController.cancelDeliveryRecord,
 );
 
 export default router;

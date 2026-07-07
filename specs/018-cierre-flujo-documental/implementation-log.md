@@ -1,0 +1,340 @@
+
+> cermont-monorepo@1.0.0 typecheck
+> turbo run typecheck
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running typecheck in 5 packages
+   • Remote caching disabled
+
+@cermont/config:typecheck: cache hit, replaying logs e45e8e5071f45561
+@cermont/config:typecheck: 
+@cermont/config:typecheck: > @cermont/config@1.0.0 typecheck
+@cermont/config:typecheck: > tsc --noEmit
+@cermont/config:typecheck: 
+@cermont/domain:typecheck: cache hit, replaying logs 53ac4c9f45aaf0a9
+@cermont/domain:typecheck: 
+@cermont/domain:typecheck: > @cermont/domain@1.0.0 typecheck
+@cermont/domain:typecheck: > tsc --noEmit
+@cermont/domain:typecheck: 
+@cermont/domain:build: cache hit, replaying logs 09c895226777ea1a
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:typecheck: cache hit, replaying logs c605a06ada4d91fd
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:typecheck: > @cermont/shared-types@1.0.0 typecheck
+@cermont/shared-types:typecheck: > tsc --noEmit
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:build: cache hit, replaying logs 1259a3e9f130b1ef
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/frontend:typecheck: cache hit, replaying logs cd48033a7bdaa628
+@cermont/frontend:typecheck: 
+@cermont/frontend:typecheck: > @cermont/frontend@1.2.0 typecheck
+@cermont/frontend:typecheck: > tsc --noEmit
+@cermont/frontend:typecheck: 
+@cermont/backend:typecheck: cache hit, replaying logs 66b6832cb8449bd0
+@cermont/backend:typecheck: 
+@cermont/backend:typecheck: > @cermont/backend@5.2.1 typecheck
+@cermont/backend:typecheck: > tsc --noEmit
+@cermont/backend:typecheck: 
+
+ Tasks:    7 successful, 7 total
+Cached:    7 cached, 7 total
+  Time:    106ms >>> FULL TURBO
+
+
+> cermont-monorepo@1.0.0 lint
+> turbo run lint
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running lint in 5 packages
+   • Remote caching disabled
+
+@cermont/domain:lint: cache hit, replaying logs 1c767b4109fbc827
+@cermont/domain:lint: 
+@cermont/domain:lint: > @cermont/domain@1.0.0 lint
+@cermont/domain:lint: > biome check .
+@cermont/domain:lint: 
+@cermont/domain:lint: Checked 28 files in 45ms. No fixes applied.
+@cermont/config:lint: cache hit, replaying logs 9fb82aa5bd04b75c
+@cermont/config:lint: 
+@cermont/config:lint: > @cermont/config@1.0.0 lint
+@cermont/config:lint: > biome check .
+@cermont/config:lint: 
+@cermont/config:lint: Checked 4 files in 16ms. No fixes applied.
+@cermont/domain:build: cache hit, replaying logs 09c895226777ea1a
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:lint: cache hit, replaying logs 0450f2a481080cf1
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: > @cermont/shared-types@1.0.0 lint
+@cermont/shared-types:lint: > biome check .
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: Checked 165 files in 204ms. No fixes applied.
+@cermont/shared-types:build: cache hit, replaying logs 1259a3e9f130b1ef
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/frontend:lint: cache hit, replaying logs b93b2946e13846b2
+@cermont/frontend:lint: 
+@cermont/frontend:lint: > @cermont/frontend@1.2.0 lint
+@cermont/frontend:lint: > biome lint .
+@cermont/frontend:lint: 
+@cermont/frontend:lint: src\modules\field-execution\ui\evidence\FieldNoveltyButton.tsx:43:7 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━
+@cermont/frontend:lint: 
+@cermont/frontend:lint:   ! Change to an optional chain.
+@cermont/frontend:lint:   
+@cermont/frontend:lint:     41 │ 		setIsOpen(false);
+@cermont/frontend:lint:     42 │ 		const dialog = dialogRef.current;
+@cermont/frontend:lint:   > 43 │ 		if (dialog && dialog.open) {
+@cermont/frontend:lint:        │ 		    ^^^^^^^^^^^^^^^^^^^^^
+@cermont/frontend:lint:     44 │ 			dialog.close();
+@cermont/frontend:lint:     45 │ 		}
+@cermont/frontend:lint:   
+@cermont/frontend:lint:   i Unsafe fix: Change to an optional chain.
+@cermont/frontend:lint:   
+@cermont/frontend:lint:      41  41 │       setIsOpen(false);
+@cermont/frontend:lint:      42  42 │       const dialog = dialogRef.current;
+@cermont/frontend:lint:      43     │ - → → if·(dialog·&&·dialog.open)·{
+@cermont/frontend:lint:          43 │ + → → if·(dialog?.open)·{
+@cermont/frontend:lint:      44  44 │         dialog.close();
+@cermont/frontend:lint:      45  45 │       }
+@cermont/frontend:lint:   
+@cermont/frontend:lint: 
+@cermont/frontend:lint: Checked 846 files in 574ms. No fixes applied.
+@cermont/frontend:lint: Found 1 warning.
+@cermont/backend:lint: cache hit, replaying logs d28472689d93fe07
+@cermont/backend:lint: 
+@cermont/backend:lint: > @cermont/backend@5.2.1 lint
+@cermont/backend:lint: > biome lint .
+@cermont/backend:lint: 
+@cermont/backend:lint: Checked 452 files in 616ms. No fixes applied.
+
+ Tasks:    7 successful, 7 total
+Cached:    7 cached, 7 total
+  Time:    100ms >>> FULL TURBO
+
+
+> cermont-monorepo@1.0.0 build
+> turbo run build
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running build in 5 packages
+   • Remote caching disabled
+
+@cermont/config:build: cache hit, replaying logs a4ac5469493506e5
+@cermont/config:build: 
+@cermont/config:build: > @cermont/config@1.0.0 build
+@cermont/config:build: > tsc --project tsconfig.json
+@cermont/config:build: 
+@cermont/domain:build: cache hit, replaying logs 09c895226777ea1a
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:build: cache hit, replaying logs 1259a3e9f130b1ef
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/frontend:build: cache miss, executing 18b33a7f6a7a4c4d
+@cermont/backend:build: cache hit, replaying logs 447170bb2382755c
+@cermont/backend:build: 
+@cermont/backend:build: > @cermont/backend@5.2.1 build
+@cermont/backend:build: > tsc
+@cermont/backend:build: 
+@cermont/frontend:build: 
+@cermont/frontend:build: > @cermont/frontend@1.2.0 build
+@cermont/frontend:build: > next build --turbopack
+@cermont/frontend:build: 
+@cermont/frontend:build: ▲ Next.js 16.2.9 (Turbopack)
+@cermont/frontend:build: - Environments: .env.local, .env.production
+@cermont/frontend:build: - Experiments (use with caution):
+@cermont/frontend:build:   · optimizePackageImports
+@cermont/frontend:build:   · serverActions
+@cermont/frontend:build: 
+@cermont/frontend:build:   Creating an optimized production build ...
+@cermont/frontend:build: ✓ Compiled successfully in 11.4s
+@cermont/frontend:build:   Running TypeScript ...
+@cermont/frontend:build:   Finished TypeScript in 18.1s ...
+@cermont/frontend:build:   Collecting page data using 15 workers ...
+@cermont/frontend:build:   Generating static pages using 15 workers (0/95) ...
+@cermont/frontend:build:   Generating static pages using 15 workers (23/95) 
+@cermont/frontend:build:   Generating static pages using 15 workers (47/95) 
+@cermont/frontend:build:   Generating static pages using 15 workers (71/95) 
+@cermont/frontend:build: ○ (serwist) Using esbuild to bundle the service worker.
+@cermont/frontend:build: ✓ (serwist) 242 precache entries (6633.30 KiB)
+@cermont/frontend:build: ✓ Generating static pages using 15 workers (95/95) in 1856ms
+@cermont/frontend:build:   Finalizing page optimization ...
+@cermont/frontend:build: 
+@cermont/frontend:build: Route (app)
+@cermont/frontend:build: ┌ ○ /
+@cermont/frontend:build: ├ ○ /_not-found
+@cermont/frontend:build: ├ ○ /~offline
+@cermont/frontend:build: ├ ƒ /admin
+@cermont/frontend:build: ├ ƒ /admin/audit
+@cermont/frontend:build: ├ ƒ /admin/backups
+@cermont/frontend:build: ├ ƒ /admin/custom-fields
+@cermont/frontend:build: ├ ƒ /admin/erp-connectors
+@cermont/frontend:build: ├ ƒ /admin/personnel
+@cermont/frontend:build: ├ ƒ /admin/settings
+@cermont/frontend:build: ├ ƒ /admin/users
+@cermont/frontend:build: ├ ƒ /admin/users/[id]
+@cermont/frontend:build: ├ ƒ /admin/users/[id]/edit
+@cermont/frontend:build: ├ ƒ /admin/users/new
+@cermont/frontend:build: ├ ƒ /api/auth/forgot-password
+@cermont/frontend:build: ├ ƒ /api/auth/login
+@cermont/frontend:build: ├ ƒ /api/auth/refresh
+@cermont/frontend:build: ├ ƒ /api/auth/register-client
+@cermont/frontend:build: ├ ƒ /api/backend/[...path]
+@cermont/frontend:build: ├ ƒ /api/files/[id]/content
+@cermont/frontend:build: ├ ƒ /api/health
+@cermont/frontend:build: ├ ƒ /assets
+@cermont/frontend:build: ├ ƒ /assets/[id]
+@cermont/frontend:build: ├ ƒ /billing
+@cermont/frontend:build: ├ ƒ /billing/invoices
+@cermont/frontend:build: ├ ƒ /billing/invoices/[id]
+@cermont/frontend:build: ├ ƒ /billing/invoices/[id]/approve
+@cermont/frontend:build: ├ ƒ /billing/invoices/new
+@cermont/frontend:build: ├ ƒ /billing/ses
+@cermont/frontend:build: ├ ƒ /billing/ses/[id]
+@cermont/frontend:build: ├ ƒ /billing/ses/[id]/approve
+@cermont/frontend:build: ├ ƒ /billing/ses/new
+@cermont/frontend:build: ├ ƒ /business-documents
+@cermont/frontend:build: ├ ƒ /business-documents/[id]
+@cermont/frontend:build: ├ ƒ /checklists
+@cermont/frontend:build: ├ ○ /consent
+@cermont/frontend:build: ├ ƒ /costs
+@cermont/frontend:build: ├ ƒ /costs/[orderId]
+@cermont/frontend:build: ├ ƒ /costs/[orderId]/ejecucion
+@cermont/frontend:build: ├ ƒ /costs/catalog
+@cermont/frontend:build: ├ ƒ /customers
+@cermont/frontend:build: ├ ƒ /customers/[id]
+@cermont/frontend:build: ├ ƒ /customers/new
+@cermont/frontend:build: ├ ƒ /dashboard
+@cermont/frontend:build: ├ ƒ /delivery-records
+@cermont/frontend:build: ├ ƒ /delivery-records/[id]
+@cermont/frontend:build: ├ ƒ /delivery-records/[id]/signature
+@cermont/frontend:build: ├ ƒ /delivery-records/new
+@cermont/frontend:build: ├ ƒ /dispatch
+@cermont/frontend:build: ├ ƒ /documents
+@cermont/frontend:build: ├ ƒ /documents/ingestion/[id]
+@cermont/frontend:build: ├ ƒ /documents/templates
+@cermont/frontend:build: ├ ƒ /documents/templates/new
+@cermont/frontend:build: ├ ƒ /erp-connector
+@cermont/frontend:build: ├ ƒ /evidences
+@cermont/frontend:build: ├ ƒ /evidences/[id]
+@cermont/frontend:build: ├ ƒ /execution
+@cermont/frontend:build: ├ ƒ /execution-sessions/[id]
+@cermont/frontend:build: ├ ƒ /execution/[id]
+@cermont/frontend:build: ├ ƒ /execution/new
+@cermont/frontend:build: ├ ƒ /fleet
+@cermont/frontend:build: ├ ƒ /fleet/[id]
+@cermont/frontend:build: ├ ○ /forgot-password
+@cermont/frontend:build: ├ ƒ /forms
+@cermont/frontend:build: ├ ƒ /forms/[templateId]
+@cermont/frontend:build: ├ ƒ /inventory
+@cermont/frontend:build: ├ ƒ /inventory/scan
+@cermont/frontend:build: ├ ƒ /invoices/[id]/pipeline
+@cermont/frontend:build: ├ ○ /login
+@cermont/frontend:build: ├ ƒ /maintenance
+@cermont/frontend:build: ├ ƒ /maintenance/[id]
+@cermont/frontend:build: ├ ƒ /maintenance/[id]/edit
+@cermont/frontend:build: ├ ƒ /maintenance/new
+@cermont/frontend:build: ├ ƒ /maintenance/schedules
+@cermont/frontend:build: ├ ƒ /notifications
+@cermont/frontend:build: ├ ƒ /offline-sync
+@cermont/frontend:build: ├ ƒ /orders
+@cermont/frontend:build: ├ ƒ /orders/[id]
+@cermont/frontend:build: ├ ƒ /orders/[id]/asts
+@cermont/frontend:build: ├ ƒ /orders/[id]/costs
+@cermont/frontend:build: ├ ƒ /orders/[id]/edit
+@cermont/frontend:build: ├ ƒ /orders/[id]/execution
+@cermont/frontend:build: ├ ƒ /orders/[id]/inspections/[inspectionId]
+@cermont/frontend:build: ├ ƒ /orders/[id]/invoice
+@cermont/frontend:build: ├ ƒ /orders/[id]/planning
+@cermont/frontend:build: ├ ƒ /orders/kanban
+@cermont/frontend:build: ├ ƒ /orders/new
+@cermont/frontend:build: ├ ƒ /payments
+@cermont/frontend:build: ├ ƒ /payments/[id]
+@cermont/frontend:build: ├ ƒ /payments/new
+@cermont/frontend:build: ├ ƒ /planning
+@cermont/frontend:build: ├ ƒ /planning-packet/new
+@cermont/frontend:build: ├ ƒ /planning/[id]
+@cermont/frontend:build: ├ ○ /portal
+@cermont/frontend:build: ├ ○ /portal/invoices
+@cermont/frontend:build: ├ ○ /portal/orders
+@cermont/frontend:build: ├ ƒ /portal/orders/[id]
+@cermont/frontend:build: ├ ○ /portal/proposals
+@cermont/frontend:build: ├ ○ /portal/service-cases
+@cermont/frontend:build: ├ ƒ /portal/service-cases/[id]
+@cermont/frontend:build: ├ ƒ /portal/signatures/[id]
+@cermont/frontend:build: ├ ○ /privacy
+@cermont/frontend:build: ├ ƒ /profile
+@cermont/frontend:build: ├ ƒ /profile/privacy
+@cermont/frontend:build: ├ ƒ /proposals
+@cermont/frontend:build: ├ ƒ /proposals/[id]
+@cermont/frontend:build: ├ ƒ /proposals/new
+@cermont/frontend:build: ├ ƒ /purchase-orders
+@cermont/frontend:build: ├ ƒ /purchase-orders/[id]
+@cermont/frontend:build: ├ ƒ /purchase-orders/new
+@cermont/frontend:build: ├ ƒ /register
+@cermont/frontend:build: ├ ƒ /reports
+@cermont/frontend:build: ├ ƒ /reports/[id]
+@cermont/frontend:build: ├ ƒ /reports/[id]/draft
+@cermont/frontend:build: ├ ƒ /reports/[id]/sign
+@cermont/frontend:build: ├ ƒ /reports/analytics
+@cermont/frontend:build: ├ ƒ /reports/archive
+@cermont/frontend:build: ├ ƒ /reports/new
+@cermont/frontend:build: ├ ○ /reset-password
+@cermont/frontend:build: ├ ƒ /resources
+@cermont/frontend:build: ├ ƒ /resources/[id]
+@cermont/frontend:build: ├ ƒ /resources/kits
+@cermont/frontend:build: ├ ƒ /resources/kits/new
+@cermont/frontend:build: ├ ○ /robots.txt
+@cermont/frontend:build: ├ ƒ /service-cases
+@cermont/frontend:build: ├ ƒ /service-cases/[id]
+@cermont/frontend:build: ├ ƒ /service-cases/[id]/cockpit
+@cermont/frontend:build: ├ ƒ /serwist
+@cermont/frontend:build: ├ ● /serwist/[path]
+@cermont/frontend:build: │ ├ /serwist/sw.js.map
+@cermont/frontend:build: │ └ /serwist/sw.js
+@cermont/frontend:build: ├ ƒ /settings/notifications
+@cermont/frontend:build: ├ ƒ /site-visits
+@cermont/frontend:build: ├ ƒ /site-visits/[id]
+@cermont/frontend:build: ├ ƒ /site-visits/new
+@cermont/frontend:build: ├ ○ /sitemap.xml
+@cermont/frontend:build: ├ ƒ /sla
+@cermont/frontend:build: ├ ƒ /templates
+@cermont/frontend:build: ├ ƒ /templates/[id]
+@cermont/frontend:build: ├ ○ /terms
+@cermont/frontend:build: ├ ƒ /tools
+@cermont/frontend:build: ├ ○ /unauthorized
+@cermont/frontend:build: ├ ƒ /work-requests
+@cermont/frontend:build: ├ ƒ /work-requests/[id]
+@cermont/frontend:build: └ ƒ /work-requests/new
+@cermont/frontend:build: 
+@cermont/frontend:build: 
+@cermont/frontend:build: ○  (Static)   prerendered as static content
+@cermont/frontend:build: ●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+@cermont/frontend:build: ƒ  (Dynamic)  server-rendered on demand
+@cermont/frontend:build: 
+
+ Tasks:    5 successful, 5 total
+Cached:    4 cached, 5 total
+  Time:    40.852s 
+
+ WARNING  IO error: Espacio en disco insuficiente. (os error 112)

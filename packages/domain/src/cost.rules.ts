@@ -52,3 +52,79 @@ export function calculateVariance(estimated: number | null, real: number | null)
 	}
 	return real - estimated;
 }
+
+// ─── Budget risk & profitability (Spec-014/015) ─────────────────────────────
+
+/** Present/absent value — no $0 false values */
+export type CostBudgetValue = { status: "present"; value: number } | { status: "absent" };
+
+export type CostBudgetRisk =
+	| "not_available"
+	| "within_budget"
+	| "threshold_reached"
+	| "over_budget";
+
+export const COST_BUDGET_ALERT_THRESHOLD = 0.8;
+
+export interface CostBudgetAssessment {
+	risk: CostBudgetRisk;
+	consumptionPercent: CostBudgetValue;
+	threshold: number;
+}
+
+/**
+ * Classifies actual spend against the approved budget:
+ * below threshold = within_budget, threshold..100% = threshold_reached,
+ * above 100% = over_budget. Without an approved budget the risk is
+ * not_available (never a false $0 baseline).
+ */
+export function evaluateCostBudgetRisk(input: {
+	actualAmount: number;
+	approvedBudget: CostBudgetValue;
+}): CostBudgetAssessment {
+	if (input.approvedBudget.status === "absent" || input.approvedBudget.value <= 0) {
+		return {
+			risk: "not_available",
+			consumptionPercent: { status: "absent" },
+			threshold: COST_BUDGET_ALERT_THRESHOLD,
+		};
+	}
+	const consumption = input.actualAmount / input.approvedBudget.value;
+	let risk: CostBudgetRisk = "within_budget";
+	if (consumption > 1) {
+		risk = "over_budget";
+	} else if (consumption >= COST_BUDGET_ALERT_THRESHOLD) {
+		risk = "threshold_reached";
+	}
+	return {
+		risk,
+		consumptionPercent: { status: "present", value: consumption },
+		threshold: COST_BUDGET_ALERT_THRESHOLD,
+	};
+}
+
+export interface CostProfitability {
+	grossProfit: CostBudgetValue;
+	grossMarginPercent: CostBudgetValue;
+}
+
+/**
+ * Gross profit and margin from approved revenue and supported actual cost.
+ * Both stay absent until revenue is approved.
+ */
+export function calculateGrossMargin(input: {
+	revenue: CostBudgetValue;
+	actualCost: number;
+}): CostProfitability {
+	if (input.revenue.status === "absent" || input.revenue.value === 0) {
+		return {
+			grossProfit: { status: "absent" },
+			grossMarginPercent: { status: "absent" },
+		};
+	}
+	const grossProfit = input.revenue.value - input.actualCost;
+	return {
+		grossProfit: { status: "present", value: grossProfit },
+		grossMarginPercent: { status: "present", value: grossProfit / input.revenue.value },
+	};
+}

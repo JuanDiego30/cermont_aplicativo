@@ -1,4 +1,5 @@
 import { DOCUMENT_MANAGEMENT_ROLES, TECHNICAL_EXECUTION_ROLES } from "@cermont/domain";
+import { CreateTemplateResponseSchema, UpdateTemplateResponseSchema } from "@cermont/shared-types";
 /**
  * Template Response Routes — PROMPT 18/19
  *
@@ -9,20 +10,25 @@ import { DOCUMENT_MANAGEMENT_ROLES, TECHNICAL_EXECUTION_ROLES } from "@cermont/d
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import { validateBody } from "../../middlewares/validate";
 import { create, getById, list, submit, update } from "./template-response.controller";
 
 const router = Router();
 
 router.use(authenticate);
 
-// No body validation needed — template response creation handled by controller
-router.post("/", authorize(...TECHNICAL_EXECUTION_ROLES, "operador"), create);
+router.post(
+	"/",
+	authorize(...TECHNICAL_EXECUTION_ROLES, "operador"),
+	validateBody(CreateTemplateResponseSchema),
+	create,
+);
 router.get("/", authorize(...DOCUMENT_MANAGEMENT_ROLES), list);
 router.get("/:id", authorize(...TECHNICAL_EXECUTION_ROLES, "operador"), getById);
 router.patch(
 	"/:id",
 	authorize(...TECHNICAL_EXECUTION_ROLES, "operador"),
-	// No body validation needed — template response update handled by controller
+	validateBody(UpdateTemplateResponseSchema),
 	update,
 );
 router.post(

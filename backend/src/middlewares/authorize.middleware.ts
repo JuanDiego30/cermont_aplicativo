@@ -11,7 +11,12 @@
  * DOC REFERENCE: DOC-04 §6 (RBAC), DOC-11 (Reglas del agente)
  */
 
-import { ADMIN_ROLES, ROLE_HIERARCHY, type UserRole } from "@cermont/domain";
+import {
+	ADMIN_ROLES,
+	ALL_AUTHENTICATED_ROLES,
+	ROLE_HIERARCHY,
+	type UserRole,
+} from "@cermont/domain";
 import type { NextFunction, Request, Response } from "express";
 import { ForbiddenError } from "../common/errors/AppError";
 import { requireUser } from "../common/utils/request";
@@ -39,6 +44,10 @@ export function authorize(...requiredRoles: UserRole[]) {
 
 		next();
 	};
+}
+
+export function authorizeAllAuthenticated() {
+	return authorize(...ALL_AUTHENTICATED_ROLES);
 }
 
 /**

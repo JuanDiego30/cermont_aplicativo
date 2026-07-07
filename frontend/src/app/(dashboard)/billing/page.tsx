@@ -59,7 +59,7 @@ export default function BillingPage() {
 					</Link>
 					<ContextualDocumentUploadModal
 						defaultPurpose="closing_evidence"
-						defaultStepCode="step_10_ses_submission"
+						defaultStepCode="step_11_ses"
 						title="Adjuntar soporte de cierre administrativo"
 						description="Radica soportes de acta, SES, factura o pago y asócialos al paso correcto del cierre."
 					>

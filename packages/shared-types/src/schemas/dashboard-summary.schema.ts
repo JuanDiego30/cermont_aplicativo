@@ -76,8 +76,44 @@ export const DashboardAgingBucketSchema = z
 export const DashboardFinancialAgingSchema = z
 	.object({
 		buckets: z.array(DashboardAgingBucketSchema),
-		totalOutstanding: z.number().nonnegative(),
-		totalOverdue: z.number().nonnegative(),
+		totalOutstandingAmount: z.number().nonnegative(),
+		totalOverdueAmount: z.number().nonnegative(),
+		overdueInvoiceCount: z.number().int().nonnegative(),
+	})
+	.strict();
+
+// ── Field readiness ──────────────────────────────────────────────────
+
+export const DashboardFieldReadinessSchema = z
+	.object({
+		blockingChecklistsPending: z.number().int().nonnegative(),
+		blockingChecklistsFailed: z.number().int().nonnegative(),
+		evidencePendingReview: z.number().int().nonnegative(),
+		evidenceRejected: z.number().int().nonnegative(),
+		evidenceGpsCoveragePct: z.number().min(0).max(100),
+		vehicleDocumentsExpiring: z.number().int().nonnegative(),
+		vehicleDocumentsExpired: z.number().int().nonnegative(),
+		toolCertificationsExpiring: z.number().int().nonnegative(),
+		toolCertificationsExpired: z.number().int().nonnegative(),
+		offlineSyncPending: z.number().int().nonnegative(),
+		offlineSyncFailed: z.number().int().nonnegative(),
+	})
+	.strict();
+
+// ── Multi-service demand ─────────────────────────────────────────────
+
+export const DashboardServiceDemandItemSchema = z
+	.object({
+		serviceType: z.string().trim().min(1).max(120),
+		requests: z.number().int().nonnegative(),
+	})
+	.strict();
+
+export const DashboardServiceDemandSchema = z
+	.object({
+		periodDays: z.number().int().positive(),
+		totalRequests: z.number().int().nonnegative(),
+		items: z.array(DashboardServiceDemandItemSchema),
 	})
 	.strict();
 
@@ -112,6 +148,41 @@ export const DashboardAssetMaintenanceSchema = z
 		activeMaintenance: z.number().int().nonnegative(),
 		expiringCertificates: z.number().int().nonnegative(),
 		overdueMaintenance: z.number().int().nonnegative(),
+	})
+	.strict();
+
+// ── Maintenance Efficiency (MTTR / MTBF) ───────────────────────────────
+// MTTR: Mean Time To Repair — average hours to complete a work order
+// MTBF: Mean Time Between Failures — average days between maintenance events
+
+export const DashboardMaintenanceEfficiencySchema = z
+	.object({
+		mttrHours: z.number().nonnegative(),
+		mtbfDays: z.number().nonnegative(),
+		maintenanceCompletionRate: z.number().min(0).max(100),
+		activeWorkOrders: z.number().int().nonnegative(),
+		overdueWorkOrders: z.number().int().nonnegative(),
+		technicianUtilizationPct: z.number().min(0).max(100).optional(),
+	})
+	.strict();
+
+// ── SLA Risk Orders ────────────────────────────────────────────────────
+// Active cases whose target completion date is overdue or expiring soon.
+// riskLevel: critical = overdue or under 24h, warning = under 72h.
+
+export const DashboardSlaRiskOrderSchema = z
+	.object({
+		serviceCaseId: z.string(),
+		code: z.string(),
+		clientName: z.string().optional(),
+		slaDeadline: z.string().datetime(),
+		hoursRemaining: z.number(),
+		currentStep: z.number().int().min(1).max(14),
+		riskLevel: z.enum(["warning", "critical"]),
+		// Spec-015 — optional enrichment
+		currentStepLabel: z.string().optional(),
+		assignedTechnicianName: z.string().optional(),
+		pendingAction: z.string().optional(),
 	})
 	.strict();
 
@@ -183,15 +254,47 @@ export const DashboardSummarySchema = z
 		nextActions: z.array(DashboardNextActionSchema),
 		administrativeClosure: DashboardAdministrativeClosureSchema,
 		financialAging: DashboardFinancialAgingSchema,
+		fieldReadiness: DashboardFieldReadinessSchema,
+		serviceDemand: DashboardServiceDemandSchema,
 		costVariance: DashboardCostVarianceSchema,
 		documentWorkload: DashboardDocumentWorkloadSchema,
 		assetMaintenance: DashboardAssetMaintenanceSchema,
+		maintenanceEfficiency: DashboardMaintenanceEfficiencySchema.optional(),
+		slaRiskOrders: z.array(DashboardSlaRiskOrderSchema).default([]),
 		offlineSync: DashboardOfflineSyncSchema,
 		recentActivity: DashboardRecentActivitySchema,
 		charts: DashboardChartsSchema,
 		systemHealth: DashboardSystemHealthSchema.optional(),
 	})
 	.strict();
+
+// ── Spec-015: Operational KPIs (MTTR / MTBF / FTFR) ────────────────────
+
+export const DashboardOperationalKPISchema = z
+	.object({
+		mttrMinutes: z.number().nonnegative(),
+		mtbfDays: z.number().nonnegative(),
+		firstTimeFixRate: z.number().min(0).max(100),
+		technicianUtilizationRate: z.number().min(0).max(100).optional(),
+		averageResponseTimeHours: z.number().nonnegative().optional(),
+		onTimeCompletionRate: z.number().min(0).max(100).optional(),
+		pendingInvoicesCount: z.number().int().nonnegative(),
+		overdueInvoicesCount: z.number().int().nonnegative(),
+		pendingReportsCount: z.number().int().nonnegative(),
+		currency: z.string().default("COP"),
+		periodFrom: z.string().datetime(),
+		periodTo: z.string().datetime(),
+	})
+	.strict();
+export type DashboardOperationalKPI = z.infer<typeof DashboardOperationalKPISchema>;
+
+// SLA risk order contract lives above (DashboardSlaRiskOrderSchema, spec-014)
+// and was enriched with optional step label / technician / pending action.
+
+export const DashboardSummaryEnrichedSchema = DashboardSummarySchema.extend({
+	operationalKPIs: DashboardOperationalKPISchema.optional(),
+});
+export type DashboardSummaryEnriched = z.infer<typeof DashboardSummaryEnrichedSchema>;
 
 export type DashboardSummary = z.infer<typeof DashboardSummarySchema>;
 export type DashboardPipelineSummary = z.infer<typeof DashboardPipelineSummarySchema>;
@@ -201,11 +304,31 @@ export type DashboardNextAction = z.infer<typeof DashboardNextActionSchema>;
 export type DashboardAdministrativeClosure = z.infer<typeof DashboardAdministrativeClosureSchema>;
 export type DashboardFinancialAging = z.infer<typeof DashboardFinancialAgingSchema>;
 export type DashboardAgingBucket = z.infer<typeof DashboardAgingBucketSchema>;
+export type DashboardFieldReadiness = z.infer<typeof DashboardFieldReadinessSchema>;
+export type DashboardServiceDemand = z.infer<typeof DashboardServiceDemandSchema>;
+export type DashboardServiceDemandItem = z.infer<typeof DashboardServiceDemandItemSchema>;
 export type DashboardCostVariance = z.infer<typeof DashboardCostVarianceSchema>;
 export type DashboardDocumentWorkload = z.infer<typeof DashboardDocumentWorkloadSchema>;
 export type DashboardAssetMaintenance = z.infer<typeof DashboardAssetMaintenanceSchema>;
+export type DashboardMaintenanceEfficiency = z.infer<typeof DashboardMaintenanceEfficiencySchema>;
+export type DashboardSlaRiskOrder = z.infer<typeof DashboardSlaRiskOrderSchema>;
 export type DashboardOfflineSync = z.infer<typeof DashboardOfflineSyncSchema>;
 export type DashboardRecentActivity = z.infer<typeof DashboardRecentActivitySchema>;
 export type DashboardCharts = z.infer<typeof DashboardChartsSchema>;
 export type DashboardChartPoint = z.infer<typeof DashboardChartPointSchema>;
 export type DashboardSystemHealth = z.infer<typeof DashboardSystemHealthSchema>;
+
+// Sprint 2 — KPI Widget extension
+export const DashboardKpiWidgetSchema = z
+	.object({
+		mttr: z.number().nonnegative(),
+		mtbf: z.number().nonnegative(),
+		firstTimeFixRate: z.number().min(0).max(100),
+		technicianUtilizationRate: z.number().min(0).max(100),
+		slaCompliance: z.number().min(0).max(100),
+		pendingCertifications: z.number().int().nonnegative(),
+		periodLabel: z.string(),
+	})
+	.strict();
+
+export type DashboardKpiWidget = z.infer<typeof DashboardKpiWidgetSchema>;

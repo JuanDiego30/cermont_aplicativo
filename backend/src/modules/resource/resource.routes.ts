@@ -1,15 +1,18 @@
 import {
+	CERMONT_ROLES,
 	INTERNAL_ROLES,
 	MAINTENANCE_MANAGEMENT_ROLES,
 	MANAGEMENT_ROLES,
 	SUPERVISORY_ROLES,
 } from "@cermont/domain";
 import {
+	AttachEntityDocumentSchema,
 	AttachResourceImageSchema,
 	CreateMaintenanceKitSchema,
 	CreateResourceSchema,
 	DetachResourceImageSchema,
 	PaginationQuerySchema,
+	ResourceDocumentParamsSchema,
 	ResourceIdSchema,
 	UpdateMaintenanceKitSchema,
 	UpdateResourceSchema,
@@ -63,7 +66,12 @@ router.patch(
 	validateBody(UpdateMaintenanceKitSchema),
 	updateKit,
 );
-router.delete("/kits/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteKit);
+router.delete(
+	"/kits/:id",
+	authorize(CERMONT_ROLES.GERENTE),
+	validateParams(ResourceIdSchema),
+	deleteKit,
+);
 
 // Create resource - gerente, residente, supervisor
 router.post(
@@ -103,12 +111,29 @@ router.patch(
 );
 
 // Delete resource - only gerente
-router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteResource);
+router.delete(
+	"/:id",
+	authorize(CERMONT_ROLES.GERENTE),
+	validateParams(ResourceIdSchema),
+	deleteResource,
+);
 
 // ─── Resource/Tool Document Attachments ────────────────────────────
-router.post("/:resourceId/documents", authorize(...SUPERVISORY_ROLES), attachDocumentToTool);
+router.post(
+	"/:resourceId/documents",
+	authorize(...SUPERVISORY_ROLES),
+	validateParams(ResourceDocumentParamsSchema),
+	validateBody(AttachEntityDocumentSchema),
+	attachDocumentToTool,
+);
 
-router.get("/:resourceId/documents", listToolDocuments);
+router.get(
+	"/:resourceId/documents",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(ResourceDocumentParamsSchema),
+	listToolDocuments,
+);
 
 router.delete(
 	"/:resourceId/documents/:documentId",

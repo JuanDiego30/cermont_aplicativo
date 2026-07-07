@@ -1,4 +1,9 @@
-import { INTERNAL_ROLES, MANAGEMENT_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+import {
+	CERMONT_ROLES,
+	INTERNAL_ROLES,
+	MANAGEMENT_ROLES,
+	SUPERVISORY_ROLES,
+} from "@cermont/domain";
 import { ListServiceCasesQuerySchema, ServiceCaseIdParamsSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -10,6 +15,7 @@ import {
 	bulkClosingEvidenceForCase,
 	closeServiceCase,
 	getCaseClosingStatus,
+	getInvoicePipeline,
 	getServiceCase,
 	getServiceCaseStepContext,
 	getServiceCaseSummary,
@@ -109,9 +115,17 @@ router.post(
 router.post(
 	"/:id/archive",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(ServiceCaseIdParamsSchema),
 	archiveServiceCase,
+);
+
+// GET /api/service-cases/:id/invoice-pipeline — SES→Invoice→Payment pipeline
+router.get(
+	"/:id/invoice-pipeline",
+	authorize(...INTERNAL_ROLES),
+	validateParams(ServiceCaseIdParamsSchema),
+	getInvoicePipeline,
 );
 
 export default router;

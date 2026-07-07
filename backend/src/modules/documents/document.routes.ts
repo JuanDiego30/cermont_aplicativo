@@ -1,4 +1,4 @@
-import { DOCUMENT_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import { CERMONT_ROLES, DOCUMENT_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	ArchiveDocumentSchema,
 	AssociateDocumentSchema,
@@ -108,7 +108,12 @@ router.patch(
 // PATCH /api/documents/:id/sign - Sign document
 router.patch(
 	"/:id/sign",
-	authorize("tecnico", "operador", "supervisor", "residente"),
+	authorize(
+		CERMONT_ROLES.TECNICO,
+		CERMONT_ROLES.OPERADOR,
+		CERMONT_ROLES.SUPERVISOR,
+		CERMONT_ROLES.RESIDENTE,
+	),
 	validateParams(DocumentIdSchema),
 	signDocument,
 );

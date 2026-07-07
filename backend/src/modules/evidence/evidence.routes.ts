@@ -3,7 +3,12 @@
  * DOC-10 §5: Evidencias
  */
 
-import { EVIDENCE_ACCESS_ROLES, INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+import {
+	CERMONT_ROLES,
+	EVIDENCE_ACCESS_ROLES,
+	INTERNAL_ROLES,
+	SUPERVISORY_ROLES,
+} from "@cermont/domain";
 import {
 	CreateEvidenceSchema,
 	EvidenceIdSchema,
@@ -12,6 +17,7 @@ import {
 	VerifyEvidenceSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
+import { z } from "zod";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { uploadLimiter } from "../../middlewares/rate-limiter";
@@ -55,7 +61,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize("operador", "tecnico", "supervisor"),
+	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
 	uploadLimiter,
 	evidenceUpload.single("file"),
 	handleUploadError,
@@ -136,6 +142,33 @@ router.post(
 	validateUploadedFileHeaders,
 	validateParams(EvidenceIdSchema),
 	EvidenceController.replaceEvidence,
+);
+
+const ReviewEvidenceSchema = z
+	.object({
+		action: z.enum(["approve", "reject"]),
+		reason: z.string().max(1000).optional(),
+	})
+	.strict()
+	.superRefine((value, context) => {
+		if (value.action === "reject" && (!value.reason || value.reason.trim().length < 3)) {
+			context.addIssue({
+				code: "custom",
+				path: ["reason"],
+				message: "A rejection reason of at least 3 characters is required",
+			});
+		}
+	});
+
+// POST /api/evidences/:id/review — approve or reject evidence review
+// Roles: GER, RES, SUP
+router.post(
+	"/:id/review",
+	authenticate,
+	authorize(...SUPERVISORY_ROLES),
+	validateParams(EvidenceIdSchema),
+	validateBody(ReviewEvidenceSchema),
+	EvidenceController.reviewEvidence,
 );
 
 export default router;

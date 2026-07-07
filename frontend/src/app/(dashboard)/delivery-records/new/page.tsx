@@ -37,7 +37,7 @@ function NewDeliveryRecordForm() {
 		workflow,
 		isLoading: isContextLoading,
 		inheritedFields,
-	} = useServiceCaseContext("step_08_delivery_record", serviceCaseId);
+	} = useServiceCaseContext("step_09_delivery_record", serviceCaseId);
 
 	// Derive report ID: prefer URL param → artifacts
 	const derivedReportId = prefilledReportId || workflow?.artifacts?.technicalReport?.id || "";

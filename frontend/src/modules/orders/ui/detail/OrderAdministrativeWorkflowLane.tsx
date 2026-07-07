@@ -193,8 +193,8 @@ export function OrderAdministrativeWorkflowLane({
 					supportDescription="Attach the signed record, client approval, or closeout observations."
 					supportStepCode={
 						deliveryRecord?.status === "signed"
-							? "step_09_client_signature"
-							: "step_08_delivery_record"
+							? "step_10_client_signature"
+							: "step_09_delivery_record"
 					}
 					supportTitle="Attach delivery or signature support"
 					title="Delivery record and client sign-off"
@@ -226,9 +226,7 @@ export function OrderAdministrativeWorkflowLane({
 					status={resolveGroupedRequirementStatus(closureReport, ["ses_filing", "ses_approval"])}
 					supportDescription="Attach Ariba filing evidence, approval proof, and contract attachments."
 					supportStepCode={
-						latestServiceEntrySheet?.status === "approved"
-							? "step_11_ses_approval"
-							: "step_10_ses_submission"
+						latestServiceEntrySheet?.status === "approved" ? "step_11_ses" : "step_11_ses"
 					}
 					supportTitle="Attach SES support"
 					title="SES / Ariba"
@@ -268,7 +266,7 @@ export function OrderAdministrativeWorkflowLane({
 							latestInvoice.status === "accepted" ||
 							latestInvoice.status === "paid")
 							? "step_13_invoice_approval"
-							: "step_12_invoice_submission"
+							: "step_12_invoice"
 					}
 					supportTitle="Attach invoice support"
 					title="Factura"
@@ -296,7 +294,7 @@ export function OrderAdministrativeWorkflowLane({
 					}
 					status={resolveGroupedRequirementStatus(closureReport, ["payment_support"])}
 					supportDescription="Attach bank support, payment proof, and reconciliation evidence."
-					supportStepCode="step_14_payment_closure"
+					supportStepCode="step_14_payment"
 					supportTitle="Attach payment support"
 					title="Payment and reconciliation"
 					value={latestPayment?.paymentReference ?? "No reconciled payment"}

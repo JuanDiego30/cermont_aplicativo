@@ -1,9 +1,16 @@
 import { spawnSync } from "node:child_process";
 
 const commands = [
+	// Type safety
 	["npm", ["run", "typecheck"]],
+	// Linting
 	["npm", ["run", "lint"]],
+	// Quick quality checks (routes and hardcoded roles)
+	["npm", ["run", "quality:routes"]],
+	["npm", ["run", "quality:hardcoded-roles"]],
+	// Tests
 	["npm", ["run", "test"]],
+	// Staged file formatting
 	["node", ["./node_modules/lint-staged/bin/lint-staged.js"]],
 ];
 

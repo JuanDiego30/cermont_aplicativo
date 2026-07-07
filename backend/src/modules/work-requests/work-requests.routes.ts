@@ -8,7 +8,12 @@
  * - Order: authenticate → authorize → validate → controller
  */
 
-import { FIELD_MANAGEMENT_ROLES, INTERNAL_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
+import {
+	CERMONT_ROLES,
+	FIELD_MANAGEMENT_ROLES,
+	INTERNAL_ROLES,
+	REPORTING_ACCESS_ROLES,
+} from "@cermont/domain";
 import {
 	CreateWorkRequestSchema,
 	ListWorkRequestsQuerySchema,
@@ -60,6 +65,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateBody(CreateWorkRequestSchema),
 	WorkRequestController.createWorkRequest,
 );
@@ -73,6 +79,7 @@ router.post(
 router.patch(
 	"/:id",
 	authenticate,
+	authorize(...FIELD_MANAGEMENT_ROLES),
 	validateParams(WorkRequestIdParamsSchema),
 	validateBody(CreateWorkRequestSchema.partial()),
 	WorkRequestController.updateWorkRequest,
@@ -113,7 +120,7 @@ router.post(
 router.delete(
 	"/:id",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(WorkRequestIdParamsSchema),
 	WorkRequestController.deleteWorkRequest,
 );

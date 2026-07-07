@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	CERMONT_OPERATIONAL_STEPS,
 	CermontOperationalStepCodeSchema,
+	normalizeCermontOperationalStepCode,
 } from "../../src/schemas/cermont-operational-step.schema";
 import { ClosureReportSchema } from "../../src/schemas/closureReport.schema";
 
@@ -40,44 +41,49 @@ describe("Cermont Operational Step Schema", () => {
 		}
 	});
 
-	it("should have independent steps for delivery record and client signature (8 and 9)", () => {
+	it("uses evidence as step 7 and keeps technical delivery artifacts in steps 8 to 10", () => {
+		const step7 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 7);
 		const step8 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 8);
 		const step9 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 9);
+		const step10 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 10);
 
-		expect(step8?.code).toBe("step_08_delivery_record");
-		expect(step9?.code).toBe("step_09_client_signature");
-		expect(step8?.code).not.toBe(step9?.code);
+		expect(step7?.code).toBe("step_07_evidence");
+		expect(step8?.code).toBe("step_08_technical_report");
+		expect(step9?.code).toBe("step_09_delivery_record");
+		expect(step10?.code).toBe("step_10_client_signature");
 	});
 
-	it("should have independent steps for SES submission and approval (10 and 11)", () => {
-		const step10 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 10);
+	it("represents SES / Ariba as one operational step", () => {
 		const step11 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 11);
 
-		expect(step10?.code).toBe("step_10_ses_submission");
-		expect(step11?.code).toBe("step_11_ses_approval");
+		expect(step11?.code).toBe("step_11_ses");
+		expect(step11?.label).toBe("SES / Ariba");
 	});
 
 	it("should have independent steps for invoice submission and approval (12 and 13)", () => {
 		const step12 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 12);
 		const step13 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 13);
 
-		expect(step12?.code).toBe("step_12_invoice_submission");
+		expect(step12?.code).toBe("step_12_invoice");
 		expect(step13?.code).toBe("step_13_invoice_approval");
 	});
 
-	it("should require execution evidence and signatures on step 6", () => {
+	it("should keep execution controls on step 6 and evidence capture on step 7", () => {
 		const step6 = CERMONT_OPERATIONAL_STEPS.find((s) => s.code === "step_06_execution");
+		const step7 = CERMONT_OPERATIONAL_STEPS.find((s) => s.code === "step_07_evidence");
 		expect(step6?.blocksTransition).toBe(true);
-		expect(step6?.requiredEvidences).toContain("during_photos");
 		expect(step6?.requiredSignatures).toEqual(
 			expect.arrayContaining(["firma_tecnico", "firma_supervisor"]),
 		);
 		expect(step6?.requiredForms).toContain("execution_dynamic_form");
+		expect(step7?.requiredEvidences).toEqual(
+			expect.arrayContaining(["during_photos", "after_photos"]),
+		);
 	});
 
-	it("should have step 14 as the terminal step (payment closure)", () => {
+	it("should have step 14 as the terminal payment step", () => {
 		const step14 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 14);
-		expect(step14?.code).toBe("step_14_payment_closure");
+		expect(step14?.code).toBe("step_14_payment");
 		expect(step14?.phase).toBe("administrative");
 	});
 
@@ -98,6 +104,22 @@ describe("Cermont Operational Step Schema", () => {
 	it("should validate a valid step code", () => {
 		const result = CermontOperationalStepCodeSchema.safeParse("step_01_work_request");
 		expect(result.success).toBe(true);
+	});
+
+	it("normalizes a legacy persisted code at the contract boundary", () => {
+		expect(CermontOperationalStepCodeSchema.parse("step_08_delivery_record")).toBe(
+			"step_09_delivery_record",
+		);
+		expect(normalizeCermontOperationalStepCode("step_11_ses_approval")).toEqual({
+			status: "legacy_alias",
+			legacyCode: "step_11_ses_approval",
+			code: "step_11_ses",
+		});
+	});
+
+	it("normalizes codes emitted by the former domain SSOT", () => {
+		expect(CermontOperationalStepCodeSchema.parse("step_10_ses")).toBe("step_11_ses");
+		expect(CermontOperationalStepCodeSchema.parse("STEP_14_CLOSURE")).toBe("step_14_payment");
 	});
 
 	it("should reject an invalid step code", () => {

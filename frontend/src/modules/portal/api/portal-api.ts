@@ -1,6 +1,8 @@
-import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
+import type { SignDeliveryRecordInput } from "@cermont/shared-types";
+import type { UseMutationResult, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
+import { uploadFile } from "@/modules/files/api/files.api";
 
 export interface PortalDashboard {
 	clientName: string;
@@ -96,5 +98,73 @@ export function usePortalProposals(): UseQueryResult<PortalProposalSummary[]> {
 		queryKey: portalKeys.proposals,
 		queryFn: () => apiClient.get<PortalProposalSummary[]>("/portal/proposals"),
 		refetchInterval: 60_000,
+	});
+}
+
+export interface SignDeliveryRecordVariables {
+	deliveryRecordId: string;
+	clientName: string;
+	clientDocumentType?: "CC" | "CE" | "NIT" | "PASAPORTE";
+	clientDocumentNumber?: string;
+	captureMethod: "canvas_touch" | "canvas_mouse";
+	/** PNG signature image, base64 without the data-url prefix. */
+	imageData: string;
+}
+
+function base64ToPngFile(base64: string, fileName: string): File {
+	const binary = atob(base64);
+	const bytes = new Uint8Array(binary.length);
+	for (let index = 0; index < binary.length; index += 1) {
+		bytes[index] = binary.charCodeAt(index);
+	}
+	return new File([bytes], fileName, { type: "image/png" });
+}
+
+/**
+ * Signs a delivery record from the client portal: uploads the captured
+ * signature as a FileAsset and then executes the sign transition with the
+ * uploaded asset as the signed document reference.
+ */
+export function useSignDeliveryRecord(options?: {
+	onSuccess?: () => void;
+	onError?: (error: Error) => void;
+}): UseMutationResult<unknown, Error, SignDeliveryRecordVariables> {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (variables: SignDeliveryRecordVariables) => {
+			const signatureFile = base64ToPngFile(
+				variables.imageData,
+				`portal-signature-${variables.deliveryRecordId}.png`,
+			);
+			const uploaded = await uploadFile({
+				file: signatureFile,
+				category: "signature_image",
+				entityType: "delivery_record",
+				entityId: variables.deliveryRecordId,
+				description: `Firma de ${variables.clientName}`,
+				tags: variables.clientDocumentNumber
+					? [`doc:${variables.clientDocumentType ?? "CC"}:${variables.clientDocumentNumber}`]
+					: [],
+			});
+
+			const payload: SignDeliveryRecordInput = {
+				signedDocumentRef: uploaded.id,
+				signatureMethod: "digital",
+				signedAt: new Date().toISOString(),
+				signedBy: variables.clientName,
+			};
+			return apiClient.post(
+				`/delivery-records/${encodeURIComponent(variables.deliveryRecordId)}/sign`,
+				payload,
+			);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: portalKeys.orders });
+			options?.onSuccess?.();
+		},
+		onError: (error: Error) => {
+			options?.onError?.(error);
+		},
 	});
 }

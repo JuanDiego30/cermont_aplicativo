@@ -16,7 +16,7 @@
  * - GET /api/users/role/:role → GER, RES, SUP
  */
 
-import { MANAGEMENT_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+import { CERMONT_ROLES, MANAGEMENT_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
 import {
 	AddUserCertificationSchema,
 	CreateUserSchema,
@@ -124,7 +124,7 @@ router.put(
 router.patch(
 	"/:id/deactivate",
 	authenticate,
-	authorize("gerente"),
+	authorize(CERMONT_ROLES.GERENTE),
 	validateParams(UserIdParamsSchema),
 	UserController.deactivateUser,
 );

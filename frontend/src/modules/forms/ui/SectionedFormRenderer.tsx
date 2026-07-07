@@ -24,7 +24,7 @@ import type {
 // ── Types ──────────────────────────────────────────────────────────────────
 
 type FieldValue = string | boolean | File | null;
-type FormValues = Record<string, FieldValue>;
+export type FormValues = Record<string, FieldValue>;
 
 // ── ConformityInput ────────────────────────────────────────────────────────
 

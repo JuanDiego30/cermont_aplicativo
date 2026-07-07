@@ -22,6 +22,14 @@ export {
 	BILLING_STEP_LABELS,
 	getNextBillingAction,
 } from "./billing.rules";
+export type {
+	ChecklistBlockerCode,
+	ChecklistItemResult,
+	ChecklistReadiness,
+	ChecklistReadinessBlocker,
+	ChecklistReadinessItem,
+} from "./checklist.rules";
+export { evaluateChecklistReadiness } from "./checklist.rules";
 export type { ClosureBlocker, ServiceCaseClosureContext } from "./closure.rules";
 // ─── Closure Rules ──────────────────────────────────────────────────────────
 export {
@@ -31,12 +39,20 @@ export {
 	canDeleteServiceCase,
 	canRegisterPayment,
 } from "./closure.rules";
-export type { CostEntry } from "./cost.rules";
+export type {
+	CostBudgetAssessment,
+	CostBudgetRisk,
+	CostBudgetValue,
+	CostEntry,
+	CostProfitability,
+} from "./cost.rules";
 // ─── Cost Rules ─────────────────────────────────────────────────────────────
 export {
 	COST_REQUIRED_FIELDS,
+	calculateGrossMargin,
 	calculateMargin,
 	calculateVariance,
+	evaluateCostBudgetRisk,
 	formatCostValue,
 	isCostMissing,
 } from "./cost.rules";
@@ -94,14 +110,20 @@ export {
 } from "./kit.rules";
 // ─── Operational Steps ──────────────────────────────────────────────────────
 export type {
+	CanonicalOperationalStepCode,
+	LegacyOperationalStepCode,
 	OperationalStep,
+	OperationalStepCodeNormalization,
 	OperationalStepKey,
 	OperationalStepStatus,
 } from "./operational-steps";
 export {
 	CANONICAL_CODES,
 	getNextStep,
+	getOperationalStepCodeAliases,
 	isValidStepKey,
+	LEGACY_OPERATIONAL_STEP_CODES,
+	normalizeOperationalStepCode,
 	OPERATIONAL_STEPS,
 	STEP_BY_KEY,
 	STEP_KEYS,
@@ -144,6 +166,7 @@ export {
 	ASSET_MANAGEMENT_ROLES,
 	AUDIT_ACCESS_ROLES,
 	BILLING_ACCESS_ROLES,
+	CERMONT_ROLES,
 	DASHBOARD_ACCESS_ROLES,
 	DEFAULT_NEW_USER_ROLE,
 	DEFAULT_USER_ROLE,
@@ -167,6 +190,7 @@ export {
 	RESOURCE_ROLES,
 	ROLE_HIERARCHY,
 	ROLE_LABELS,
+	ROLES,
 	resolveUserRole,
 	SITE_VISIT_CANCEL_ROLES,
 	SITE_VISIT_EXECUTION_ROLES,
@@ -174,6 +198,37 @@ export {
 	SUPERVISORY_ROLES,
 	TECHNICAL_EXECUTION_ROLES,
 } from "./roles";
+// ─── Spec-015 Rules ─────────────────────────────────────────────────────────
+export type {
+	CompletedOrderWindow,
+	CompletedSessionWindow,
+	CostRiskLevel,
+	EvidenceCompletenessResult,
+	EvidenceSlotInput,
+	FirstTimeFixOrderInput,
+	PreflightBooleanChecks,
+	PreflightGateItemInput,
+	PreflightResult,
+	SLARiskLevel,
+	TechnicianUtilizationSessionInput,
+} from "./spec-015-rules";
+export {
+	COST_AT_RISK_THRESHOLD_PERCENT,
+	COST_ON_BUDGET_THRESHOLD_PERCENT,
+	computeFirstTimeFixRate,
+	computeMTBF,
+	computeMTTR,
+	computeTechnicianUtilization,
+	evaluateCostRisk,
+	evaluateEvidenceCompleteness,
+	evaluatePreflightGates,
+	evaluateSLARisk,
+	SLA_AT_RISK_THRESHOLD_HOURS,
+} from "./spec-015-rules";
+// ─── Spec-013 Rules (compatibility shim — re-exports from Spec-015) ─────────
+// spec-013-rules.ts exists for direct imports per Spec-013 S1.6; symbols are
+// already re-exported above from spec-015-rules so no additional barrel export
+// is needed here (would cause duplicate identifier errors).
 export type {
 	CermontOperationalStep,
 	CermontOperationalStepKey,

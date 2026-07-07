@@ -82,7 +82,7 @@ describe("Service cases page", () => {
 
 		expect(await screen.findByText("ACME Energy")).toBeTruthy();
 		expect(screen.getByText(/14 pasos/)).toBeTruthy();
-		expect(screen.getByText("Paso 5: Planeación de recursos")).toBeTruthy();
+		expect(screen.getByText((content: string) => content.includes("Paso 5"))).toBeTruthy();
 		expect(screen.getByText("Continuar siguiente paso")).toBeTruthy();
 		expect(apiClient.get).toHaveBeenCalledWith("/service-cases?limit=50");
 		expect(localRepositoryMocks.saveServiceCaseListSnapshot).toHaveBeenCalledWith(

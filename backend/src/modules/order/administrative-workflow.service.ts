@@ -44,6 +44,7 @@ import {
 	Order,
 	Payment,
 	type PaymentDocument,
+	PlanningPacket,
 	ServiceCase,
 	ServiceEntrySheet,
 	type ServiceEntrySheetDocument,
@@ -51,6 +52,7 @@ import {
 	type TechnicalReportDocument,
 } from "../../models";
 import { assertInvoiceMatchesServiceEntrySheet } from "../../services/invoice-integrity.service";
+import { createNotification } from "../notifications/notification.service";
 
 type ListEnvelope<T> = {
 	data: T[];
@@ -911,6 +913,10 @@ export async function signDeliveryRecord(
 			},
 		],
 	);
+	const scId = record.serviceCaseId;
+	if (scId) {
+		await notifyInvoicePending(scId.toString());
+	}
 	return formatDeliveryRecord(record);
 }
 
@@ -1428,4 +1434,172 @@ export async function rejectPayment(
 	payment.commandHistory.push(...commandEntry(input.clientMutationId, "reject_payment"));
 	await payment.save();
 	return formatPayment(payment);
+}
+
+export async function generateAutoDraftReport(
+	serviceCaseId: string,
+	actor: WorkflowActor,
+): Promise<TechnicalReportResponse> {
+	const sc = await ServiceCase.findById(serviceCaseId)
+		.populate<{ clientId?: { name: string } }>("clientId", "name")
+		.lean();
+	if (!sc) {
+		throw new NotFoundError("ServiceCase", serviceCaseId);
+	}
+
+	const sessions = await ExecutionSession.find({ serviceCaseId: sc._id })
+		.sort({ createdAt: 1 })
+		.lean();
+	if (sessions.length === 0) {
+		throw new BadRequestError("No execution sessions found for this service case");
+	}
+
+	const firstSession = sessions[0] as unknown as Record<string, unknown>;
+	const workOrderIdStr: string =
+		firstSession.workOrderId != null ? String(firstSession.workOrderId) : String(firstSession._id);
+	const workOrderId = parseObjectId(workOrderIdStr, "workOrderId");
+
+	const planning = await PlanningPacket.findOne({ workOrderId }).sort({ updatedAt: -1 }).lean();
+
+	const now = new Date();
+	const code = `TR-AUTO-${Date.now().toString(36).toUpperCase()}`;
+
+	const sessionsRaw = sessions as unknown as Array<Record<string, unknown>>;
+
+	const executionSummary = buildAutoDraftSummary(
+		sc as Record<string, unknown>,
+		sessionsRaw,
+		planning as Record<string, unknown> | null,
+	);
+	const activities = extractAutoDraftActivities(sessionsRaw);
+	const [findings, deviations] = extractAutoDraftFindings(sessionsRaw);
+
+	const report = await TechnicalReport.create({
+		code,
+		workOrderId,
+		executionSessionId: parseObjectId(String(firstSession._id), "executionSessionId"),
+		serviceCaseId: sc._id,
+		executionSummary,
+		activitiesPerformed: activities,
+		findings,
+		deviations,
+		evidenceIds: sessionsRaw.flatMap((s) =>
+			Array.isArray(s.evidenceIds) ? (s.evidenceIds as Types.ObjectId[]) : [],
+		),
+		generatedBy: parseObjectId(actor._id, "userId"),
+		generatedAt: now,
+		status: "draft",
+	});
+
+	return formatTechnicalReport(report);
+}
+
+function buildAutoDraftSummary(
+	sc: Record<string, unknown>,
+	sessions: Array<Record<string, unknown>>,
+	_planning: Record<string, unknown> | null,
+): string {
+	const clientName = (sc as { clientId?: { name: string } }).clientId?.name ?? "Cliente";
+	const desc = String(sc.description ?? "Sin descripción");
+	const sessionCount = sessions.length;
+	const dates = sessions
+		.map((s) => s.startedAt)
+		.filter(Boolean)
+		.sort() as string[];
+	const startDate = dates.length > 0 ? new Date(dates[0]).toLocaleDateString("es-CO") : "N/A";
+	const endDate =
+		dates.length > 0 ? new Date(dates[dates.length - 1]).toLocaleDateString("es-CO") : "N/A";
+
+	return [
+		`Cliente: ${clientName}`,
+		`Descripción: ${desc}`,
+		`Sesiones de ejecución: ${sessionCount}`,
+		`Período: ${startDate} - ${endDate}`,
+	].join("\n");
+}
+
+function extractAutoDraftActivities(sessions: Array<Record<string, unknown>>): string[] {
+	return sessions
+		.filter(
+			(s: Record<string, unknown>) =>
+				Array.isArray(s.checklistResponses) && s.checklistResponses.length > 0,
+		)
+		.slice(0, 10)
+		.map((_s: Record<string, unknown>, i: number) => `Sesión ${i + 1}: checklist completado`);
+}
+
+function extractAutoDraftFindings(sessions: Array<Record<string, unknown>>): [string[], string[]] {
+	const findings: string[] = [];
+	const deviations: string[] = [];
+
+	for (const s of sessions) {
+		collectIncidentFindings(s, findings);
+		collectObservationDeviations(s, deviations);
+	}
+
+	return [findings.length > 0 ? findings : ["Sin hallazgos críticos"], deviations];
+}
+
+function isCriticalIncident(inc: Record<string, unknown>): boolean {
+	return inc.severity === "critical" || inc.severity === "high";
+}
+
+function collectIncidentFindings(session: Record<string, unknown>, findings: string[]): void {
+	const incidents = (Array.isArray(session.incidents) ? session.incidents : []) as Array<
+		Record<string, unknown>
+	>;
+	for (const inc of incidents) {
+		if (isCriticalIncident(inc)) {
+			findings.push(String(inc.description ?? inc.observation ?? "Incidente registrado"));
+		}
+	}
+}
+
+function collectObservationDeviations(
+	session: Record<string, unknown>,
+	deviations: string[],
+): void {
+	const observations = (Array.isArray(session.observations) ? session.observations : []) as Array<
+		Record<string, unknown>
+	>;
+	for (const obs of observations) {
+		deviations.push(
+			String(obs.text ?? obs.description ?? obs.observation ?? "Desviación registrada"),
+		);
+	}
+}
+
+async function notifyInvoicePending(serviceCaseId: string): Promise<void> {
+	const ADMIN_ROLE = "administrativo";
+	const adminUsers = await Order.db
+		.collection("users")
+		.find({ role: ADMIN_ROLE, isActive: true })
+		.project({ _id: 1 })
+		.toArray();
+	const adminUserIds = adminUsers
+		.map((doc) => String(doc._id))
+		.filter((id): id is string => Boolean(id));
+	if (adminUserIds.length === 0) {
+		return;
+	}
+	const serviceCase = await ServiceCase.findById(serviceCaseId)
+		.select("code")
+		.lean<{ _id: Types.ObjectId; code?: string }>();
+	const serviceCaseCode = serviceCase?.code ?? serviceCaseId;
+	for (const recipientUserId of adminUserIds) {
+		await createNotification({
+			recipientUserId,
+			type: "invoice_pending",
+			priority: "high",
+			title: "Acta firmada — Pendiente facturación",
+			body: `La orden ${serviceCaseCode} tiene acta firmada. Continuar con SES → Factura → Pago`,
+			relatedEntity: { entityType: "ServiceCase", entityId: serviceCaseId },
+			channels: ["in_app"],
+			metadata: { serviceCaseId },
+		}).catch((error: unknown) => {
+			if (error instanceof Error && isTransientDatabaseError(error)) {
+				throw new ServiceUnavailableError("Notification service unavailable");
+			}
+		});
+	}
 }

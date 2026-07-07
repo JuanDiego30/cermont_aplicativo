@@ -135,6 +135,9 @@ export const WorkRequestSchema = z
 		// Location
 		gpsLocation: GpsLocationSchema.optional(),
 
+		// SLA
+		slaHours: z.number().positive().max(720).optional(),
+
 		// Classification
 		tags: z.array(z.string().trim().max(50)).default([]),
 		classifications: z.array(z.string().trim().max(100)).default([]),

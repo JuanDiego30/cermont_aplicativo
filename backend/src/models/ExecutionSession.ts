@@ -232,10 +232,38 @@ export interface ExecutionSessionDocument extends Document {
 	clientMutationIds: string[];
 	blockers: ExecutionRecord[];
 	nextActions: ExecutionRecord[];
+	preflightChecklist?: ExecutionRecord;
 	createdBy: Types.ObjectId;
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+const preflightGateItemSchema = new Schema(
+	{
+		key: { type: String, required: true, maxlength: 80 },
+		label: { type: String, required: true, maxlength: 300 },
+		isBlocking: { type: Boolean, default: true },
+		isChecked: { type: Boolean, default: false },
+		checkedAt: { type: Date },
+		checkedBy: { type: Types.ObjectId, ref: "User" },
+	},
+	{ _id: false },
+);
+
+const preflightChecklistSchema = new Schema(
+	{
+		eppComplete: { type: Boolean, default: false },
+		astSigned: { type: Boolean, default: false },
+		ptwObtained: { type: Boolean, default: false },
+		toolsValidated: { type: Boolean, default: false },
+		vehicleDocumentsOk: { type: Boolean, default: false },
+		certificationsCurrent: { type: Boolean, default: false },
+		items: { type: [preflightGateItemSchema], default: [] },
+		completedAt: { type: Date },
+		completedBy: { type: Types.ObjectId, ref: "User" },
+	},
+	{ _id: false },
+);
 
 const executionSessionSchema = new Schema<ExecutionSessionDocument>(
 	{
@@ -282,6 +310,7 @@ const executionSessionSchema = new Schema<ExecutionSessionDocument>(
 		clientMutationIds: { type: [String], default: [], index: true },
 		blockers: { type: [blockerSchema], default: [] },
 		nextActions: { type: [nextActionSchema], default: [] },
+		preflightChecklist: { type: preflightChecklistSchema },
 		createdBy: { type: Types.ObjectId, ref: "User", required: true },
 	},
 	{ timestamps: true, versionKey: false },

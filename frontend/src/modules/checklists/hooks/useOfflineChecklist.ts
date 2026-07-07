@@ -121,7 +121,7 @@ export function useOfflineChecklist() {
 		updateChecklistItemMutation,
 		async (variables: UpdateChecklistItemVariables) => {
 			const payload = {
-				completed: variables.completed,
+				result: variables.result,
 				...(variables.observation ? { observation: variables.observation } : {}),
 			};
 			const entry: SyncQueueEntry = {
@@ -132,7 +132,7 @@ export function useOfflineChecklist() {
 				createdAt: Date.now(),
 				retryCount: 0,
 				idempotencyKey: createUuid(),
-				dedupeKey: `checklists:update:${variables.checklistId}:${variables.itemId}:${variables.completed}:${variables.observation ?? ""}`,
+				dedupeKey: `checklists:update:${variables.checklistId}:${variables.itemId}:${variables.result}:${variables.observation ?? ""}`,
 			};
 
 			logger.info("Queued checklist item update for offline sync", {
@@ -151,7 +151,12 @@ export function useOfflineChecklist() {
 					}
 					const updatedItems = old.items.map((item: ChecklistItem) =>
 						item.id === variables.itemId
-							? { ...item, completed: variables.completed, observation: variables.observation }
+							? {
+									...item,
+									result: variables.result,
+									completed: variables.result !== "pending",
+									observation: variables.observation,
+								}
 							: item,
 					);
 					const hasCompleted = updatedItems.some((item: ChecklistItem) => item.completed);

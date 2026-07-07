@@ -15,6 +15,7 @@ import { Kit } from "../../models/Kit";
 import { MaintenanceKit } from "../../models/MaintenanceKit";
 import { PlanningPacket } from "../../models/PlanningPacket";
 import { createAuditLog } from "../audit/audit.service";
+import { createNotification } from "../notifications/notification.service";
 
 const PLANNING_READINESS_ROLES = [...PLANNING_ACCESS_ROLES, "hes"] as const;
 const REQUIRED_PLANNING_RESPONSIBLE_ROLES = [
@@ -542,7 +543,87 @@ export async function approvePlanningPacket(
 		},
 	});
 
+	await scheduleKitReminder(updatedPlanningPacket, id);
+
 	return updatedPlanningPacket;
+}
+
+async function scheduleKitReminder(
+	packet: {
+		_id: unknown;
+		kitTemplateId?: unknown;
+		scheduledStartDate?: Date | null;
+		serviceCaseCode?: string;
+		crew: ReadonlyArray<{ userId?: unknown }>;
+	} | null,
+	fallbackId: string,
+): Promise<void> {
+	if (!packet) {
+		return;
+	}
+	const crewUserIds = extractCrewUserIds(packet.crew);
+	if (crewUserIds.length === 0) {
+		return;
+	}
+
+	const startDate = parseScheduledStartDate(packet.scheduledStartDate);
+	if (!startDate || Number.isNaN(startDate.getTime())) {
+		return;
+	}
+
+	const reminderDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
+	const packetId = String(packet._id ?? fallbackId);
+
+	const kitItemSummary = resolveKitItemSummary(packet.kitTemplateId);
+	const serviceCaseCode = packet.serviceCaseCode ?? packetId;
+
+	for (const recipientUserId of crewUserIds) {
+		await createNotification({
+			recipientUserId,
+			type: "kit_reminder",
+			priority: "high",
+			title: "Recordatorio: Kit de herramientas",
+			body: `Recuerda verificar el kit para la orden ${serviceCaseCode}: ${kitItemSummary}`,
+			relatedEntity: { entityType: "PlanningPacket", entityId: packetId },
+			channels: ["in_app"],
+			metadata: { scheduledFor: reminderDate.toISOString(), packetId },
+		}).catch((error: unknown) => {
+			if (error instanceof Error && isTransientDatabaseError(error)) {
+				throw new ServiceUnavailableError("Notification service unavailable");
+			}
+		});
+	}
+}
+
+function extractCrewUserIds(crew: ReadonlyArray<{ userId?: unknown }> | undefined): string[] {
+	const crewUserIds: string[] = [];
+	for (const member of crew ?? []) {
+		const raw = member?.userId;
+		if (typeof raw === "string") {
+			crewUserIds.push(raw);
+		} else if (raw && typeof raw === "object" && "_id" in raw && raw._id) {
+			crewUserIds.push(String(raw._id));
+		}
+	}
+	return crewUserIds;
+}
+
+function parseScheduledStartDate(value: Date | null | undefined): Date | null {
+	if (value instanceof Date) {
+		return value;
+	}
+	return value ? new Date(String(value)) : null;
+}
+
+function resolveKitItemSummary(kitTemplateId: unknown): string {
+	if (!kitTemplateId) {
+		return "herramientas asignadas";
+	}
+	const template = getKitTemplate(String(kitTemplateId));
+	if (template && "materials" in template && Array.isArray(template.materials)) {
+		return template.materials.map((item) => item.name).join(", ");
+	}
+	return "herramientas asignadas";
 }
 
 /**
