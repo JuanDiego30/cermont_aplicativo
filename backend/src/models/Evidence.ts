@@ -244,10 +244,10 @@ const EvidenceSchema = new Schema<IEvidenceDocument>(
 // ÍNDICES COMPUESTOS — Optimización para queries frecuentes (per DOC-09 §9)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// V1: Evidencias de una orden por tipo
+// V1: order evidence by type
 EvidenceSchema.index({ orderId: 1, type: 1 });
 
-// V2: Evidencias de un service case por fase y categoria
+// V2: service case evidence by phase and category
 EvidenceSchema.index({ serviceCaseId: 1, phase: 1, category: 1 });
 EvidenceSchema.index({ workOrderId: 1, phase: 1 });
 EvidenceSchema.index({ executionSessionId: 1, phase: 1 });

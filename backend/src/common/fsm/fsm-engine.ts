@@ -1,7 +1,7 @@
 /**
  * FSM Engine — Finite State Machine centralizado
  *
- * Maneja validación de transiciones de estado para todas las entidades del sistema.
+ * Handles state-transition validation for every entity in the system.
  * Cada entidad define sus propias reglas de transición.
  * El engine valida, registra en audit log y retorna errores tipados.
  */

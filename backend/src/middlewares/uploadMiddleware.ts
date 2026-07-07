@@ -3,7 +3,7 @@
  *
  * Pipeline:
  * 1. Multer (memoryStorage) - Recibe archivo en RAM
- * 2. Validación MIME & tamaño - Rechazo rápido
+ * 2. MIME & size validation - fast rejection
  * 3. ClamAV scan - Detección de malware
  * 4. Sharp processing - Compresión y redimensionamiento
  * 5. Almacenamiento privado - Fuera del web root
@@ -28,7 +28,7 @@ import { env } from "../config/env";
 const log = createLogger("upload-middleware");
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CONFIGURACIÓN BÁSICA
+// BASIC SETUP
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ALLOWED_MIMES = [
