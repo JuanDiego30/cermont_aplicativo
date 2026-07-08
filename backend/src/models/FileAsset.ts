@@ -122,8 +122,7 @@ FileAssetSchema.index({ offlineLocalId: 1 }, { sparse: true });
 
 FileAssetSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
+		const { __v, ...obj } = ret;
 		return obj;
 	},
 });

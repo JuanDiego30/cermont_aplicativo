@@ -1,3 +1,4 @@
+import React from "react";
 import { LANDING_CERTIFICATIONS, LANDING_RESOURCES } from "../landing-data";
 import { CertificationCard } from "./cards/CertificationCard";
 import { ResourceCard } from "./cards/ResourceCard";
@@ -26,13 +27,17 @@ export function ResourcesSection() {
 
 				<div className="mt-10 grid gap-6 lg:grid-cols-2">
 					{LANDING_RESOURCES.map((resource) => (
-						<ResourceCard key={resource.title} {...resource} />
+						<React.Fragment key={resource.title}>
+							<ResourceCard {...resource} />
+						</React.Fragment>
 					))}
 				</div>
 
 				<div className="mt-10 grid gap-4 sm:grid-cols-3">
 					{LANDING_CERTIFICATIONS.map((certification) => (
-						<CertificationCard key={certification.title} {...certification} />
+						<React.Fragment key={certification.title}>
+							<CertificationCard {...certification} />
+						</React.Fragment>
 					))}
 				</div>
 			</div>

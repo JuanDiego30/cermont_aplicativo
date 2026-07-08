@@ -82,9 +82,9 @@ export function buildOpenApiDocument(mounts: ApiMount[], version: string) {
 		info: {
 			title: "CERMONT API",
 			description:
-				"API del aplicativo CERMONT S.A.S. — gestión de órdenes de trabajo, " +
-				"trazabilidad y cierre administrativo. Todas las rutas usan el envelope " +
-				"{ success, data | error } y requieren JWT salvo /api/auth y /api/health.",
+				"CERMONT S.A.S. application API — work order management, " +
+				"traceability and administrative closure. All routes use the " +
+				"{ success, data | error } envelope and require JWT except /api/auth and /api/health.",
 			version,
 		},
 		servers: [{ url: "/", description: "Servidor actual" }],
@@ -123,7 +123,7 @@ main{padding:16px 32px 48px}
 <h1>CERMONT API</h1>
 <p>Documentación generada desde los routers reales. JSON: <a style="color:#7dd3fc" href="/api/docs/openapi.json">/api/docs/openapi.json</a></p>
 </header>
-<main id="routes">Cargando…</main>
+<main id="routes">Loading…</main>
 <script>
 fetch("/api/docs/openapi.json").then(function(r){return r.json()}).then(function(doc){
 	var byTag = {};

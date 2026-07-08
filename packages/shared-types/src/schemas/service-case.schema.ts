@@ -250,6 +250,28 @@ export function mapLegacyServiceCaseStageToStep(
 	return map[stage];
 }
 
+export const SERVICE_CASE_SUMMARY_STAGE_GROUPS = {
+	active: [
+		"intake",
+		"assessment",
+		"proposal",
+		"authorization",
+		"planning",
+		"ready_to_execute",
+		"in_execution",
+		"technical_closure",
+		"administrative_closure",
+		"ses_pending",
+		"billing_pending",
+		"receivable_open",
+	],
+	inPlanning: ["planning", "ready_to_execute"],
+	inProgress: ["in_execution"],
+	pendingApproval: ["authorization"],
+	readyToBill: ["ses_pending", "billing_pending"],
+	readyToClose: ["receivable_open"],
+} as const satisfies Readonly<Record<string, readonly ServiceCaseStage[]>>;
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Query / params schemas
 // ──────────────────────────────────────────────────────────────────────────────

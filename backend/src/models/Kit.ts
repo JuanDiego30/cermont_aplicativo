@@ -383,8 +383,7 @@ KitSchema.index({ createdBy: 1, createdAt: -1 });
 
 KitSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const result = ret as unknown as Record<string, unknown>;
-		delete result.__v;
+		const { __v, ...result } = ret;
 		return result;
 	},
 });

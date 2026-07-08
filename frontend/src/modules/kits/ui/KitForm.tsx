@@ -2,6 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Dialog from "@radix-ui/react-dialog";
+import type { CreateKitInput, KitItem } from "@cermont/shared-types";
+import { KitActivityTypeEnum } from "@cermont/shared-types";
 import { X } from "lucide-react";
 import { useCallback } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -13,6 +15,7 @@ import { KIT_ACTIVITY_OPTIONS } from "@/modules/kits/constants";
 import { KitItemSection } from "@/modules/kits/ui/KitItemSection";
 import { useCreateKit } from "../hooks/useKits";
 
+/** Form-specific item interface (UI layer uses strings/dates, not schema objects). */
 interface KitFormItem {
 	type: string;
 	name: string;
@@ -23,14 +26,8 @@ interface KitFormItem {
 	description?: string;
 }
 
-interface KitFormValues {
-	name: string;
-	description?: string;
-	activityType: string;
-	tools: KitFormItem[];
-	materials: KitFormItem[];
-	epp: KitFormItem[];
-}
+/** Form values — output type (defaults applied, all fields required). */
+type KitFormValues = z.output<typeof kitFormSchema>;
 
 interface KitFormProps {
 	open: boolean;
@@ -47,10 +44,11 @@ const DEFAULT_ITEM: KitFormItem = {
 	isOptional: false,
 };
 
+/** UI-level schema — uses shared enums for consistency, not a replacement for CreateKitSchema. */
 const kitFormSchema = z.object({
 	name: z.string().min(1, "El nombre es requerido").max(200),
 	description: z.string().max(2000).optional(),
-	activityType: z.string().min(1, "La actividad es requerida"),
+	activityType: KitActivityTypeEnum,
 	tools: z
 		.array(
 			z.object({
@@ -92,9 +90,56 @@ const kitFormSchema = z.object({
 		.default([]),
 });
 
+type KitFormSchemaOutput = z.output<typeof kitFormSchema>;
+
+/** Adapter: form values (UI strings/dates) → CreateKitInput (shared contract). */
+function toCreateKitInput(values: KitFormSchemaOutput): CreateKitInput {
+	function toKitItem(
+		item: KitFormItem,
+		category: KitItem["category"],
+	): KitItem {
+		return {
+			category,
+			name: item.name,
+			quantity: item.quantity,
+			unit: item.unit,
+			isCritical: item.isCritical,
+			isOptional: item.isOptional,
+			description: item.description || undefined,
+			requiresCertification: false,
+			calibrationRequired: false,
+		};
+	}
+	return {
+		name: values.name,
+		description: values.description || undefined,
+		activityType: values.activityType,
+		status: "draft",
+		isDefault: false,
+		tags: [],
+		riskLevel: "low",
+		tools: values.tools.map((t) => toKitItem(t, "tool")),
+		electricalTools: [],
+		constructionEquipment: [],
+		heightSafetyKit: [],
+		materials: values.materials.map((m) => toKitItem(m, "material")),
+		epp: values.epp.map((e) => toKitItem(e, "epp")),
+		instruments: [],
+		vehicles: [],
+		documents: [],
+		attachments: [],
+		checklists: [],
+		readinessRules: [],
+		requiredCertifications: [],
+		requiredPermits: [],
+		requiredAst: false,
+		requiredEvidenceTypes: [],
+	};
+}
+
 export function KitForm({ open, onOpenChange, onSuccess }: KitFormProps) {
-	const formInstance = useForm<KitFormValues>({
-		resolver: zodResolver(kitFormSchema) as never,
+	const formInstance = useForm({
+		resolver: zodResolver(kitFormSchema),
 		defaultValues: {
 			name: "",
 			description: "",
@@ -112,9 +157,9 @@ export function KitForm({ open, onOpenChange, onSuccess }: KitFormProps) {
 		control,
 		formState: { errors },
 	} = formInstance;
-	const toolFields = useFieldArray({ control, name: "tools" as const });
-	const materialFields = useFieldArray({ control, name: "materials" as const });
-	const eppFields = useFieldArray({ control, name: "epp" as const });
+	const toolFields = useFieldArray({ control, name: "tools" });
+	const materialFields = useFieldArray({ control, name: "materials" });
+	const eppFields = useFieldArray({ control, name: "epp" });
 
 	const createMutation = useCreateKit();
 
@@ -138,9 +183,8 @@ export function KitForm({ open, onOpenChange, onSuccess }: KitFormProps) {
 	const onSubmit = useCallback(
 		async (raw: KitFormValues) => {
 			try {
-				await createMutation.mutateAsync(
-					raw as unknown as Parameters<typeof createMutation.mutateAsync>[0],
-				);
+				const input = toCreateKitInput(raw as KitFormSchemaOutput);
+				await createMutation.mutateAsync(input);
 				onSuccess?.();
 				onOpenChange(false);
 			} catch {

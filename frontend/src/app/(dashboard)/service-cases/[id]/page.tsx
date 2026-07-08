@@ -119,7 +119,7 @@ function ServiceCaseDetailInner() {
 								Array.isArray(apiError.details) &&
 								apiError.details.length > 0 && (
 									<ul className="mt-3.5 space-y-2">
-										{(apiError.details as unknown as DomainBlocker[]).map((blocker, idx) => (
+										{(apiError.details as DomainBlocker[]).map((blocker, idx) => (
 											<li
 												key={`${blocker.code}-${blocker.field || blocker.artifactType || idx}`}
 												className="rounded-[var(--radius-md)] border border-rose-200 bg-white/90 p-3 shadow-sm text-xs dark:border-rose-900/40 dark:bg-zinc-950/80"

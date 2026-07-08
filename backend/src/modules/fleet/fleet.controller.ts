@@ -130,3 +130,10 @@ export async function getAssignmentHistory(req: Request, res: Response): Promise
 	const result = await FleetService.getVehicleAssignmentHistory(id);
 	sendSuccess(res, result);
 }
+
+export async function getActiveAssignment(req: Request, res: Response): Promise<void> {
+	requireUser(req);
+	const { id } = VehicleIdParamsSchema.parse(req.params);
+	const result = await FleetService.getActiveAssignment(id);
+	sendSuccess(res, result);
+}

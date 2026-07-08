@@ -773,3 +773,29 @@ export const CERMONT_FORM_TEMPLATES: Record<string, CermontFormTemplate> = {
 };
 
 export const ALL_TEMPLATES = Object.values(CERMONT_FORM_TEMPLATES);
+
+/**
+ * Find a form template by its ID.
+ * Returns undefined if not found.
+ */
+export function getFormTemplateById(templateId: string): CermontFormTemplate | undefined {
+	return CERMONT_FORM_TEMPLATES[templateId];
+}
+
+/**
+ * Find all templates matching a step code (e.g. "step_05_planning", "step_06_execution").
+ */
+export function getFormTemplatesByStepCode(stepCode: string): CermontFormTemplate[] {
+	return ALL_TEMPLATES.filter((t) => t.stepCode === stepCode);
+}
+
+/**
+ * Find templates that match a work type hint (e.g. "cctv", "telecomunicaciones").
+ * Matches if the comma-separated workTypeHint includes the query.
+ */
+export function getFormTemplatesByWorkType(workType: string): CermontFormTemplate[] {
+	const lower = workType.toLowerCase();
+	return ALL_TEMPLATES.filter((t) =>
+		t.workTypeHint.split(",").some((hint) => hint.trim().toLowerCase() === lower),
+	);
+}

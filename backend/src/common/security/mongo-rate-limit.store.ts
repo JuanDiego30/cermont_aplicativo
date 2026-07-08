@@ -38,7 +38,7 @@ export class MongoRateLimitStore implements Store {
 			.exec();
 
 		if (!bucket) {
-			return undefined;
+			return;
 		}
 
 		return {

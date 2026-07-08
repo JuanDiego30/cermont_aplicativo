@@ -13,6 +13,7 @@
  *   - The `OfflineUploadQueueStatus` "Reintentar" button
  */
 
+import type { FileAssetCategory, FileAssetEntityType } from "@cermont/shared-types";
 import { createLogger } from "@/lib/monitoring/logger";
 import { uploadFile } from "@/modules/files/api/files.api";
 import { useOfflineStore } from "@/store/offline.store";
@@ -44,8 +45,8 @@ export async function processBlobOutboxEntry(entry: BlobOutboxEntry): Promise<bo
 		const file = new File([entry.blob], entry.originalName, { type: entry.mimeType });
 		await uploadFile({
 			file,
-			category: entry.category as never,
-			entityType: entry.entityType as never,
+			category: entry.category as FileAssetCategory,
+			entityType: entry.entityType as FileAssetEntityType,
 			entityId: entry.entityId,
 			description: entry.description,
 			tags: entry.tags,

@@ -1,3 +1,4 @@
+import React from "react";
 import { Building2, Sparkles } from "lucide-react";
 import { LANDING_TRUST_POINTS } from "../landing-data";
 import { PrincipleCard } from "./cards/PrincipleCard";
@@ -57,7 +58,9 @@ export function AboutSection() {
 
 					<div className="grid gap-4">
 						{LANDING_TRUST_POINTS.map((point) => (
-							<PrincipleCard key={point.title} {...point} />
+							<React.Fragment key={point.title}>
+							<PrincipleCard {...point} />
+						</React.Fragment>
 						))}
 					</div>
 				</div>

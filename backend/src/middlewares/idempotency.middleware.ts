@@ -44,8 +44,8 @@ const IDEMPOTENT_METHODS = new Set(["POST", "PATCH", "PUT", "DELETE"]);
  */
 function extractIdempotencyKey(req: Request, fallbackRequestId?: string): string | undefined {
 	return (
-		(req.headers["idempotency-key"] as string | undefined) ??
-		(req.headers["x-idempotency-key"] as string | undefined) ??
+		(req.headers["idempotency-key"] as string) ??
+		(req.headers["x-idempotency-key"] as string) ??
 		fallbackRequestId ??
 		(req as { id?: string }).id
 	);
@@ -162,8 +162,8 @@ export function idempotency(options: IdempotencyOptions = {}) {
  */
 export function requireIdempotencyKey(req: Request, _res: Response, next: NextFunction): void {
 	const key =
-		(req.headers["idempotency-key"] as string | undefined) ??
-		(req.headers["x-idempotency-key"] as string | undefined);
+		(req.headers["idempotency-key"] as string) ??
+		(req.headers["x-idempotency-key"] as string);
 
 	if (!key) {
 		const err = new Error("Idempotency-Key header is required for this endpoint") as Error & {

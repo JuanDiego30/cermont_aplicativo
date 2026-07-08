@@ -21,6 +21,7 @@ gsap.registerPlugin(useGSAP);
 
 const ROUTE_TITLES: Record<string, string> = {
 	"/dashboard": "Panel de Control",
+	"/fleet": "Parque Automotor",
 	"/orders": "Órdenes de Trabajo",
 	"/maintenance": "Mantenimientos",
 	"/resources": "Recursos & Kits",
@@ -156,11 +157,11 @@ export default function Header({
 
 				<div className="flex flex-col">
 					<div className="flex items-center gap-2">
-						<p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand font-mono">
+						<p className="text-xs font-bold uppercase tracking-[0.15em] text-brand font-mono">
 							{moduleTitle}
 						</p>
-						<span className="text-border-medium">•</span>
-						<p className="text-[10px] font-medium text-muted-foreground font-mono uppercase">
+						<span className="text-border-medium" aria-hidden="true">•</span>
+						<p className="text-[11px] font-medium text-foreground font-mono uppercase">
 							Arauca
 						</p>
 					</div>
@@ -183,18 +184,20 @@ export default function Header({
 				<div className="h-6 w-px bg-border-default mx-1" />
 
 				{/* Notifications */}
-				<HeaderNotifications
-					notifications={notifications}
-					unreadCount={unreadCount}
-					showNotifications={showNotifications}
-					onToggle={() => setShowNotifications((v) => !v)}
-					onMarkAsRead={async (id) => {
-						await markAsReadMutation.mutateAsync(id);
-					}}
-					onMarkAllRead={async () => {
-						await markAllReadMutation.mutateAsync();
-					}}
-				/>
+				<ul className="contents">
+					<HeaderNotifications
+						notifications={notifications}
+						unreadCount={unreadCount}
+						showNotifications={showNotifications}
+						onToggle={() => setShowNotifications((v) => !v)}
+						onMarkAsRead={async (id) => {
+							await markAsReadMutation.mutateAsync(id);
+						}}
+						onMarkAllRead={async () => {
+							await markAllReadMutation.mutateAsync();
+						}}
+					/>
+				</ul>
 
 				{/* User Menu */}
 				<HeaderUserMenu

@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 /**
  * Admin — Campos personalizados por tipo de entidad.
  */
@@ -96,15 +98,15 @@ export default function AdminCustomFieldsPage() {
 			</nav>
 
 			{editing && (
+				<React.Fragment key={editing === "new" ? "new" : editing._id}>
 				<CustomFieldEditor
-					key={editing === "new" ? "new" : editing._id}
 					entityType={entityType}
 					{...(editing !== "new" ? { initial: editing } : {})}
 					isSaving={isSaving}
 					onSave={handleSave}
 					onCancel={() => setEditing("")}
 				/>
-			)}
+			</React.Fragment>)}
 
 			{isLoading && (
 				<div className="space-y-2">

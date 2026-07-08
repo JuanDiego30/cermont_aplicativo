@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import type { CostTraceabilitySummary } from "@cermont/shared-types";
 import { AlertTriangle, CheckCircle2, TrendingDown, TrendingUp } from "lucide-react";
 import Link from "next/link";
@@ -257,7 +258,9 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
 					</div>
 					<div className="space-y-1.5">
 						{categories.map((cat) => (
-							<CategoryRow key={cat.label} {...cat} />
+							<React.Fragment key={cat.label}>
+								<CategoryRow {...cat} />
+							</React.Fragment>
 						))}
 					</div>
 				</div>

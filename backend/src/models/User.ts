@@ -127,9 +127,7 @@ UserSchema.methods.comparePassword = async function (plain: string): Promise<boo
 // SEGURIDAD: toJSON limpia __v y password de cualquier respuesta JSON
 UserSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
-		delete obj.password;
+		const { __v, password: _password, ...obj } = ret;
 		return obj;
 	},
 });

@@ -35,8 +35,7 @@ TokenBlacklistSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 // toJSON: limpiar __v de respuestas
 TokenBlacklistSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
+		const { __v, ...obj } = ret;
 		return obj;
 	},
 });

@@ -400,6 +400,13 @@ export async function getNotificationsForUserPaginated(
 	};
 }
 
+export async function getUnreadCount(userId: string): Promise<number> {
+	return NotificationModel.countDocuments({
+		recipientUserId: new Types.ObjectId(userId),
+		isRead: false,
+	});
+}
+
 export async function markAsRead(notificationId: string, userId: string) {
 	const id = notificationId.length === 24 ? new Types.ObjectId(notificationId) : notificationId;
 	const filter =

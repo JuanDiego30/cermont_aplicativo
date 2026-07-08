@@ -90,7 +90,7 @@ export function mapClassificationToStepCode(
 		case "payment_support":
 			return "step_14_payment_closure";
 		default:
-			return undefined;
+			return;
 	}
 }
 
@@ -113,7 +113,7 @@ function mapStepCodeToClassification(
 		case "step_14_payment_closure":
 			return "payment_support";
 		default:
-			return undefined;
+			return;
 	}
 }
 

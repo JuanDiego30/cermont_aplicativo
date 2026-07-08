@@ -13,7 +13,7 @@ const BackendRequiredEnvSchema = z
 type BackendRequiredEnv = z.infer<typeof BackendRequiredEnvSchema>;
 
 export function validateBackendEnv(
-	input: Record<string, string | undefined> = process.env,
+	input: Partial<Record<string, string>> = process.env,
 ): SharedEnv & BackendRequiredEnv {
 	const sharedEnv = validateSharedEnv(input);
 	const requiredEnv = BackendRequiredEnvSchema.parse({

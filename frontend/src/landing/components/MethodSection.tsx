@@ -1,5 +1,6 @@
 import { LANDING_WORKFLOW } from "../landing-data";
 import { WorkflowCard } from "./cards/WorkflowCard";
+import React from "react";
 import { SectionHeading } from "./SectionHeading";
 
 export function MethodSection() {
@@ -27,7 +28,9 @@ export function MethodSection() {
 
 					<div className="relative grid gap-8 lg:grid-cols-4 lg:gap-6">
 						{LANDING_WORKFLOW.map((step) => (
-							<WorkflowCard key={step.step} {...step} />
+							<React.Fragment key={step.step}>
+								<WorkflowCard {...step} />
+							</React.Fragment>
 						))}
 					</div>
 				</div>

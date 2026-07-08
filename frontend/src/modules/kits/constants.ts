@@ -1,5 +1,11 @@
 import { MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
-import type { KitActivityType, KitRiskLevel, KitStatus, KitTemplate } from "@cermont/shared-types";
+import type {
+	KitActivityType,
+	KitRiskLevel,
+	KitServiceCategory,
+	KitStatus,
+	KitTemplate,
+} from "@cermont/shared-types";
 
 // ─── RBAC ──────────────────────────────────────────────────────────────────
 
@@ -50,6 +56,37 @@ export const KIT_STATUS_LABELS: Record<KitStatus, string> = {
 
 export function formatKitStatusLabel(status: KitStatus | string): string {
 	return KIT_STATUS_LABELS[status as KitStatus] ?? status;
+}
+
+// ─── Service Category Options ─────────────────────────────────────────────
+
+export const KIT_SERVICE_CATEGORY_OPTIONS: ReadonlyArray<{
+	value: KitServiceCategory;
+	label: string;
+}> = [
+	{ value: "mantenimiento", label: "Mantenimiento" },
+	{ value: "instalacion", label: "Instalación" },
+	{ value: "inspeccion", label: "Inspección" },
+	{ value: "reparacion", label: "Reparación" },
+	{ value: "construccion", label: "Construcción" },
+	{ value: "montaje", label: "Montaje" },
+	{ value: "limpieza", label: "Limpieza" },
+	{ value: "otro", label: "Otro" },
+];
+
+export const KIT_SERVICE_CATEGORY_LABELS: Record<KitServiceCategory, string> = {
+	mantenimiento: "Mantenimiento",
+	instalacion: "Instalación",
+	inspeccion: "Inspección",
+	reparacion: "Reparación",
+	construccion: "Construcción",
+	montaje: "Montaje",
+	limpieza: "Limpieza",
+	otro: "Otro",
+};
+
+export function formatKitServiceCategory(category: KitServiceCategory | string): string {
+	return KIT_SERVICE_CATEGORY_LABELS[category as KitServiceCategory] ?? category;
 }
 
 // ─── Risk Options ──────────────────────────────────────────────────────────

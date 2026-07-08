@@ -20,7 +20,7 @@ import {
 } from "../../../src/config/kit-templates";
 
 describe("KIT_REGISTRY — completeness", () => {
-	it("contains all 7 kit templates (5 generic + 2 domain-specific)", () => {
+	it("contains all 9 kit templates (5 generic + 4 domain-specific)", () => {
 		const ids = Object.keys(KIT_REGISTRY);
 		expect(ids).toContain("kit-maintenance-001");
 		expect(ids).toContain("kit-inspection-001");
@@ -29,7 +29,9 @@ describe("KIT_REGISTRY — completeness", () => {
 		expect(ids).toContain("kit-decommission-001");
 		expect(ids).toContain("kit-cctv-001");
 		expect(ids).toContain("kit-lifeline-001");
-		expect(ids).toHaveLength(7);
+		expect(ids).toContain("kit-safety-001");
+		expect(ids).toContain("kit-electrical-001");
+		expect(ids).toHaveLength(9);
 	});
 
 	it("all kits have required fields", () => {
@@ -233,7 +235,7 @@ describe("getKitsByType", () => {
 });
 
 describe("listAllKits", () => {
-	it("returns all 7 kits", () => {
-		expect(listAllKits()).toHaveLength(7);
+	it("returns all 9 kits", () => {
+		expect(listAllKits()).toHaveLength(9);
 	});
 });

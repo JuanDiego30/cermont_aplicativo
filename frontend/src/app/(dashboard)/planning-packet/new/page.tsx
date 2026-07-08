@@ -5,6 +5,7 @@ import type {
 	PlanningBusinessUnit,
 	PlanningEquipment,
 	PlanningResourceLine,
+	PlanningResponsible,
 	PlanningTool,
 	WorkerRequirements,
 } from "@cermont/shared-types";
@@ -15,6 +16,7 @@ import { type FormEvent, Suspense, useReducer, useState } from "react";
 import { useCreatePlanningPacket } from "@/modules/planning/queries";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
+import { PlanningReadinessGate } from "@/modules/planning/ui/PlanningReadinessGate";
 import { CaseSelector } from "./CaseSelector";
 import { detectKitFromWorkType, KIT_SUGGESTIONS } from "./constants";
 import type { InheritedFieldDef } from "./PlanningPacketBasicInfo";
@@ -22,6 +24,7 @@ import { PlanningPacketBasicInfo } from "./PlanningPacketBasicInfo";
 import { PlanningPacketResources } from "./PlanningPacketResources";
 import { PlanningPacketSafety } from "./PlanningPacketSafety";
 import { PlanningPacketSchedule } from "./PlanningPacketSchedule";
+import { getDefaultResponsibles, PlanningPacketSignatures } from "./PlanningPacketSignatures";
 
 // ── Resource state reducer ─────────────────────────────────────────────
 
@@ -194,7 +197,13 @@ function PlanningPacketNewPageContent() {
 		safety: true,
 		crew: true,
 		docs: false,
+		signatures: true,
 	});
+
+	// Signatures state
+	const [responsibles, setResponsibles] = useState<PlanningResponsible[]>(
+		getDefaultResponsibles(),
+	);
 
 	const createMutation = useCreatePlanningPacket();
 
@@ -276,22 +285,24 @@ function PlanningPacketNewPageContent() {
 			equipment: equipment.filter((e) => e.name.trim()),
 			safetyElements: safetyElements.filter((s) => s.description.trim()),
 			workerRequirements: workerReqs,
+			responsibles: responsibles.filter((r) => r.name?.trim()),
 			astRequired,
 			ptwRequired,
 			planningNotes: planningNotes.trim() || undefined,
 		};
 
 		createMutation.mutate(payload, {
-			onSuccess: (response) => {
-				const id = (response as { data?: { _id?: string } }).data?._id;
+			onSuccess: (response: unknown) => {
+				const resp = response as { data?: { _id?: string } };
+				const id = resp.data?._id;
 				if (id) {
 					router.push(`/planning-packet/${id}?serviceCaseId=${selectedCaseId}`);
 				} else {
 					router.push(`/service-cases/${selectedCaseId}`);
 				}
 			},
-			onError: (err) => {
-				setFormError((err as Error).message || "Error al crear la planeación.");
+			onError: (err: Error) => {
+				setFormError(err.message || "Error al crear la planeación.");
 			},
 		});
 	}
@@ -363,7 +374,7 @@ function PlanningPacketNewPageContent() {
 				autoSuggestedKey={autoSuggestedKey}
 				kitSuggestionKey={kitSuggestionKey}
 				onApplyKitSuggestion={applyKitSuggestion}
-				inheritedFields={inheritedFields as unknown as InheritedFieldDef[]}
+				inheritedFields={inheritedFields as InheritedFieldDef[]}
 			/>
 
 			{/* Errors */}
@@ -373,6 +384,28 @@ function PlanningPacketNewPageContent() {
 					<p>{formError || "No se pudo crear la planeación."}</p>
 				</div>
 			)}
+
+			<PlanningReadinessGate
+				place={place}
+				plannedDate={plannedDate}
+				scope={scope}
+				materials={materials}
+				tools={tools}
+				equipment={equipment}
+				safetyElements={safetyElements}
+				workerReqs={workerReqs}
+				responsibles={responsibles}
+				astRequired={astRequired}
+				ptwRequired={ptwRequired}
+				isLoading={isContextLoading}
+			/>
+
+			<PlanningPacketSignatures
+					responsibles={responsibles}
+					onResponsiblesChange={setResponsibles}
+					expandedSections={expandedSections}
+					onToggleSection={toggleSection}
+				/>
 
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<PlanningPacketResources

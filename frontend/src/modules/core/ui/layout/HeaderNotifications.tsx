@@ -51,7 +51,7 @@ export function HeaderNotifications({
 	}, [showNotifications]);
 
 	return (
-		<li className="relative" id="header-notifications">
+		<li className="relative list-none" id="header-notifications">
 			<button
 				type="button"
 				onClick={onToggle}

@@ -42,3 +42,9 @@ export async function getFailedOutboxEntries(_req: Request, res: Response): Prom
 	const data = await NotificationService.getFailedOutboxNotifications();
 	sendSuccess(res, data);
 }
+
+export async function getUnreadCount(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const count = await NotificationService.getUnreadCount(String(user._id));
+	sendSuccess(res, { count });
+}

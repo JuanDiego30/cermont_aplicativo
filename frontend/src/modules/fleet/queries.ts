@@ -9,6 +9,7 @@ import type {
 	CheckoutVehicleAssignmentInput,
 	CreateVehicleAssignmentInput,
 	CreateVehicleInput,
+	UpdateVehicleInput,
 } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -21,11 +22,13 @@ import {
 	getExpiringVehicleDocuments,
 	getVehicleHistory,
 	listVehicles,
+	updateVehicle,
 } from "./api/fleet-api";
 
-const FLEET_KEYS = {
+export const FLEET_KEYS = {
 	all: ["fleet"] as const,
 	list: (filters: FleetListFilters) => [...FLEET_KEYS.all, "list", filters] as const,
+	detail: (id: string) => [...FLEET_KEYS.all, "detail", id] as const,
 	expiring: () => [...FLEET_KEYS.all, "expiring-documents"] as const,
 	history: (vehicleId: string) => [...FLEET_KEYS.all, "history", vehicleId] as const,
 	activeAssignment: (vehicleId: string) =>
@@ -43,6 +46,18 @@ export function useExpiringVehicleDocuments() {
 	return useQuery({
 		queryKey: FLEET_KEYS.expiring(),
 		queryFn: () => getExpiringVehicleDocuments(),
+	});
+}
+
+export function useUpdateVehicle() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, input }: { id: string; input: UpdateVehicleInput }) =>
+			updateVehicle(id, input),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({ queryKey: FLEET_KEYS.all });
+			queryClient.invalidateQueries({ queryKey: FLEET_KEYS.detail(variables.id) });
+		},
 	});
 }
 
@@ -100,8 +115,14 @@ export function useCheckoutVehicle() {
 			assignmentId: string;
 			input: CheckoutVehicleAssignmentInput;
 		}) => checkoutVehicle(assignmentId, input),
-		onSuccess: () => {
+		onSuccess: (data) => {
 			queryClient.invalidateQueries({ queryKey: FLEET_KEYS.all });
+			const vehicleId = data?.vehicleId;
+			if (vehicleId) {
+				queryClient.invalidateQueries({ queryKey: FLEET_KEYS.detail(vehicleId) });
+				queryClient.invalidateQueries({ queryKey: FLEET_KEYS.activeAssignment(vehicleId) });
+				queryClient.invalidateQueries({ queryKey: FLEET_KEYS.history(vehicleId) });
+			}
 		},
 	});
 }
@@ -116,8 +137,14 @@ export function useCheckinVehicle() {
 			assignmentId: string;
 			input: CheckinVehicleAssignmentInput;
 		}) => checkinVehicle(assignmentId, input),
-		onSuccess: () => {
+		onSuccess: (data) => {
 			queryClient.invalidateQueries({ queryKey: FLEET_KEYS.all });
+			const vehicleId = data?.vehicleId;
+			if (vehicleId) {
+				queryClient.invalidateQueries({ queryKey: FLEET_KEYS.detail(vehicleId) });
+				queryClient.invalidateQueries({ queryKey: FLEET_KEYS.activeAssignment(vehicleId) });
+				queryClient.invalidateQueries({ queryKey: FLEET_KEYS.history(vehicleId) });
+			}
 		},
 	});
 }

@@ -18,6 +18,9 @@ import {
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
 import { enqueue, type SyncQueueEntry } from "@/lib/offline/sync-queue";
 import { useOfflineStore } from "@/store/offline.store";
+import { SERVICE_CASE_KEYS } from "./model/queryKeys";
+
+export { SERVICE_CASE_KEYS };
 
 type ListEnvelope<T> = ApiEnvelope<T[]> & {
 	pagination?: { total?: number; page?: number; limit?: number; totalPages?: number };
@@ -45,13 +48,6 @@ export interface ServiceCaseListResult {
 	pages: number;
 	source: ServiceCaseListSource;
 }
-
-export const SERVICE_CASE_KEYS = {
-	all: ["service-cases"] as const,
-	list: () => [...SERVICE_CASE_KEYS.all, "list"] as const,
-	detail: (id: string) => [...SERVICE_CASE_KEYS.all, "detail", id] as const,
-	summary: ["service-cases", "summary"] as const,
-};
 
 function createUuid(): string {
 	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {

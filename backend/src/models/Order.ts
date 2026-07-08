@@ -148,8 +148,7 @@ OrderSchema.plugin(tenantIsolationPlugin);
 // toJSON: limpiar __v de respuestas
 OrderSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
+		const { __v, ...obj } = ret;
 		return obj;
 	},
 });

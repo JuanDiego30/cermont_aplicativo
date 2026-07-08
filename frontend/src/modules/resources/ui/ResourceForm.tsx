@@ -9,13 +9,13 @@
  * @see CreateResourceSchema in @cermont/shared-types
  */
 
-import type { CreateResource, Resource, UpdateResource } from "@cermont/shared-types";
+import type { Resource, UpdateResource } from "@cermont/shared-types";
 import { CreateResourceSchema } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Loader2, X } from "lucide-react";
 import { useCallback, useMemo } from "react";
-import { type Resolver, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import {
 	RESOURCE_TYPE_LABELS,
@@ -35,7 +35,7 @@ interface ResourceFormProps {
 	onSuccess?: () => void;
 }
 
-const resourceFormResolver = zodResolver(CreateResourceSchema) as Resolver<ResourceFormValues>;
+const resourceFormResolver = zodResolver(CreateResourceSchema);
 
 export function ResourceForm({ resource, open, onOpenChange, onSuccess }: ResourceFormProps) {
 	const isEdit = Boolean(resource);
@@ -84,9 +84,11 @@ export function ResourceForm({ resource, open, onOpenChange, onSuccess }: Resour
 		async (raw: ResourceFormValues) => {
 			try {
 				if (isEdit && resource) {
-					await updateMutation.mutateAsync({ id: resource._id, input: raw as UpdateResource });
+					const parsed = CreateResourceSchema.partial().parse(raw);
+					await updateMutation.mutateAsync({ id: resource._id, input: parsed as UpdateResource });
 				} else {
-					await createMutation.mutateAsync(raw as CreateResource);
+					const parsed = CreateResourceSchema.parse(raw);
+					await createMutation.mutateAsync(parsed);
 				}
 				onSuccess?.();
 				onOpenChange(false);

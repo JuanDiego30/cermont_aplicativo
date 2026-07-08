@@ -1,6 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { CreateKitInput, KitItem } from "@cermont/shared-types";
+import { KitActivityTypeEnum, KitRiskLevelEnum } from "@cermont/shared-types";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,8 +14,8 @@ import { KitItemSection } from "@/modules/kits/ui/KitItemSection";
 const kitWizardSchema = z.object({
 	name: z.string().min(3, "El nombre debe tener al menos 3 caracteres").max(200),
 	description: z.string().max(2000).optional(),
-	activityType: z.string().min(1, "Selecciona una actividad"),
-	riskLevel: z.string().optional(),
+	activityType: KitActivityTypeEnum,
+	riskLevel: KitRiskLevelEnum.optional(),
 	estimatedDurationHours: z.coerce.number().min(0).optional(),
 
 	tools: z
@@ -51,14 +53,14 @@ const kitWizardSchema = z.object({
 		.default([]),
 });
 
-type KitWizardValues = z.infer<typeof kitWizardSchema>;
+type KitWizardValues = z.output<typeof kitWizardSchema>;
 
 const DEFAULT_TOOL = { name: "", quantity: 1, unit: "unidad", isCritical: false, description: "" };
 const DEFAULT_MATERIAL = { name: "", quantity: 1, unit: "unidad", isCritical: false };
 const DEFAULT_EPP = { name: "", quantity: 1, unit: "unidad", isCritical: true };
 
 interface KitWizardFormProps {
-	onSubmit: (payload: Record<string, unknown>) => Promise<void>;
+	onSubmit: (payload: CreateKitInput) => Promise<void>;
 	errorMessage?: string | null;
 	activityOptions: ReadonlyArray<{ value: string; label: string }>;
 }
@@ -80,8 +82,8 @@ const KIT_WIZARD_SECTIONS = [
 export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWizardFormProps) {
 	const [activeSection, setActiveSection] = useState<string>("general");
 
-	const form = useForm<KitWizardValues>({
-		resolver: zodResolver(kitWizardSchema) as never,
+	const form = useForm({
+		resolver: zodResolver(kitWizardSchema),
 		defaultValues: {
 			name: "",
 			description: "",
@@ -104,8 +106,51 @@ export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWi
 	const materialFields = useFieldArray({ control, name: "materials" });
 	const eppFields = useFieldArray({ control, name: "epp" });
 
+	/** Adapter: form values → CreateKitInput. */
+	function toCreateKitInput(values: KitWizardValues): CreateKitInput {
+		function toKitItem(item: { name: string; quantity: number; unit: string; isCritical?: boolean; description?: string }, category: KitItem["category"]): KitItem {
+			return {
+				category,
+				name: item.name,
+				quantity: item.quantity,
+				unit: item.unit,
+				isCritical: item.isCritical ?? false,
+				isOptional: false,
+				description: item.description || undefined,
+				requiresCertification: false,
+				calibrationRequired: false,
+			};
+		}
+		return {
+			name: values.name,
+			description: values.description || undefined,
+			activityType: values.activityType,
+			riskLevel: values.riskLevel ?? "low",
+			estimatedDurationHours: values.estimatedDurationHours ?? undefined,
+			status: "draft",
+			isDefault: false,
+			tags: [],
+			tools: values.tools.map((t) => toKitItem(t, "tool")),
+			electricalTools: [],
+			constructionEquipment: [],
+			heightSafetyKit: [],
+			materials: values.materials.map((m) => toKitItem(m, "material")),
+			epp: values.epp.map((e) => toKitItem(e, "epp")),
+			instruments: [],
+			vehicles: [],
+			documents: [],
+			attachments: [],
+			checklists: [],
+			readinessRules: [],
+			requiredCertifications: [],
+			requiredPermits: [],
+			requiredAst: false,
+			requiredEvidenceTypes: [],
+		};
+	}
+
 	const submitHandler: SubmitHandler<KitWizardValues> = async (values) => {
-		await onSubmit(values as unknown as Record<string, unknown>);
+		await onSubmit(toCreateKitInput(values));
 	};
 
 	return (
@@ -263,7 +308,7 @@ export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWi
 			{/* Footer */}
 			<footer className="flex flex-col-reverse gap-3 border-t border-[var(--border-subtle)] pt-6 sm:flex-row sm:items-center sm:justify-between">
 				<Link
-					href="/maintenance"
+					href="/resources/kits"
 					className="inline-flex items-center justify-center rounded-[var(--radius-full)] border border-[var(--border-medium)] px-5 py-3 text-sm font-semibold text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar

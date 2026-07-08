@@ -1,3 +1,4 @@
+import React from "react";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { BadgePill } from "@/core/ui/BadgePill";
 import { Button } from "@/core/ui/Button";
@@ -128,7 +129,9 @@ export function HeroSection() {
 
 						<div className="relative z-10 mt-6 grid gap-4 sm:grid-cols-3">
 							{LANDING_METRICS.map((metric) => (
-								<MetricCard key={metric.label} {...metric} />
+								<React.Fragment key={metric.label}>
+									<MetricCard {...metric} />
+								</React.Fragment>
 							))}
 						</div>
 

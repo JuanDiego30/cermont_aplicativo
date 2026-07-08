@@ -92,7 +92,7 @@ export function HeaderUserMenu({
 				onClick={onToggleDropdown}
 				aria-expanded={dropdownOpen}
 				aria-controls="header-user-menu"
-				aria-label={user?.name ? `Menú de usuario de ${user.name}` : "Menú de usuario"}
+				aria-label={`${getInitials(user?.name)} - Menú de usuario`}
 				className="flex items-center gap-3 rounded-full border border-transparent p-1 pr-3 transition-all hover:border-[var(--border-subtle)] hover:bg-[var(--surface-secondary)]"
 			>
 				<span className="hidden text-right lg:block">

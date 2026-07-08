@@ -303,7 +303,7 @@ export function useCreateCost() {
 				throw new Error(getApiErrorMessage(body, "Failed to create cost"));
 			}
 
-			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostSnapshot);
+			return parseCostResponse(body);
 		},
 		networkMode: "offlineFirst",
 		retry: 0,
@@ -314,6 +314,17 @@ export function useCreateCost() {
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.summary(createdCost.orderId) });
 		},
 	});
+}
+
+function parseCostResponse(body: unknown): CostSnapshot {
+	if (body && typeof body === "object" && "success" in body && "data" in body) {
+		const envelope = body as CostDetailApiEnvelope;
+		if (envelope.data) {
+			return envelope.data;
+		}
+	}
+	// Fallback: body is already the snapshot
+	return body as CostSnapshot;
 }
 
 export function useUpdateCost(costId: string) {
@@ -332,7 +343,7 @@ export function useUpdateCost(costId: string) {
 				throw new Error(getApiErrorMessage(body, "Failed to update cost"));
 			}
 
-			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostSnapshot);
+			return parseCostResponse(body);
 		},
 		networkMode: "offlineFirst",
 		retry: 0,
@@ -360,7 +371,7 @@ export function useDeleteCost() {
 				throw new Error(getApiErrorMessage(body, "Failed to delete cost"));
 			}
 
-			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostSnapshot);
+			return parseCostResponse(body);
 		},
 		networkMode: "offlineFirst",
 		retry: 0,

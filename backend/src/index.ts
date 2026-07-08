@@ -131,7 +131,7 @@ app.use(
 		origin: (origin, callback) => {
 			// Allow requests without an origin header (Postman, curl, server-side)
 			if (!origin || allowedOrigins.includes(origin)) {
-				callback(null, true);
+				callback(void 0 as never, true);
 				return;
 			}
 			log.warn(`CORS blocked for origin: ${origin}`);
@@ -400,7 +400,7 @@ app.head("/health/ready", (_req, res) => {
 });
 
 // Global error handler — MUST be registered LAST
-// Processes AppError, ZodError, Mongoose errors, and unknown errors
+// Processes AppError, ZodError, Mongoose errors, and unhandled errors
 app.use(errorHandler);
 
 export default app;

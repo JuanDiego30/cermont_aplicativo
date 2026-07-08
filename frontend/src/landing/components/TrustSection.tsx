@@ -2,6 +2,7 @@ import { BadgePill } from "@/core/ui/BadgePill";
 import { LANDING_METRICS, LANDING_TRUST_POINTS } from "../landing-data";
 import { PrincipleCard } from "./cards/PrincipleCard";
 import { TrustMarquee } from "./cards/TrustMarquee";
+import React from "react";
 import { SectionHeading } from "./SectionHeading";
 
 export function TrustSection({ shouldReduceMotion }: { shouldReduceMotion: boolean }) {
@@ -22,7 +23,9 @@ export function TrustSection({ shouldReduceMotion }: { shouldReduceMotion: boole
 
 						<div className="mt-10 grid gap-5 sm:grid-cols-3">
 							{LANDING_TRUST_POINTS.map((point) => (
-								<PrincipleCard key={point.title} {...point} />
+								<React.Fragment key={point.title}>
+									<PrincipleCard {...point} />
+								</React.Fragment>
 							))}
 						</div>
 					</article>

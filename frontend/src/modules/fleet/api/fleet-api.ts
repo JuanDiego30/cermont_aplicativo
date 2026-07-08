@@ -9,6 +9,7 @@ import type {
 	CheckoutVehicleAssignmentInput,
 	CreateVehicleAssignmentInput,
 	CreateVehicleInput,
+	UpdateVehicleInput,
 	Vehicle,
 	VehicleAssignment,
 	VehicleDocumentAlert,
@@ -130,6 +131,14 @@ export async function checkinVehicle(
 		`/fleet/assignments/${assignmentId}/checkin`,
 		input,
 	);
+	return envelope.data;
+}
+
+export async function updateVehicle(
+	id: string,
+	input: UpdateVehicleInput,
+): Promise<Vehicle> {
+	const envelope = await apiClient.patch<{ success: true; data: Vehicle }>(`/fleet/${id}`, input);
 	return envelope.data;
 }
 

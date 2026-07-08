@@ -122,8 +122,7 @@ EvidenceCollectionSchema.index({ createdBy: 1, createdAt: -1 });
 
 EvidenceCollectionSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const serialized = ret as unknown as Record<string, unknown>;
-		delete serialized.__v;
+		const { __v, ...serialized } = ret;
 		return serialized;
 	},
 });

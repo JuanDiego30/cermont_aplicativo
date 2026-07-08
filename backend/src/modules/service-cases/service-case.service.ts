@@ -24,6 +24,7 @@ import {
 	type LinkedDocumentSummary,
 	type LinkedEvidenceSummary,
 	mapLegacyServiceCaseStageToStep,
+	SERVICE_CASE_SUMMARY_STAGE_GROUPS,
 	type OperationalStepProgressItem,
 	type ResolvedStepRequirement,
 	ServiceCaseSchema,
@@ -669,30 +670,24 @@ export async function getServiceCaseSummary(): Promise<{
 		stageMap[entry._id] = entry.count;
 	}
 
+	function sumStageGroup(stages: readonly string[]): number {
+		let total = 0;
+		for (const stage of stages) {
+			total += stageMap[stage] ?? 0;
+		}
+		return total;
+	}
+
 	const stepDistribution = stepCounts
 		.filter((e: { _id: string | null }) => e._id)
 		.map((e: { _id: string; count: number }) => ({ stepCode: e._id, count: e.count }));
 
-	const activeStages = [
-		"intake",
-		"assessment",
-		"proposal",
-		"authorization",
-		"planning",
-		"ready_to_execute",
-		"in_execution",
-		"technical_closure",
-		"administrative_closure",
-		"ses_pending",
-		"billing_pending",
-		"receivable_open",
-	];
-	const activeCases = activeStages.reduce((sum, stage) => sum + (stageMap[stage] ?? 0), 0);
-	const pendingApproval = stageMap.authorization ?? 0;
-	const inProgress = stageMap.in_execution ?? 0;
-	const inPlanning = (stageMap.planning ?? 0) + (stageMap.ready_to_execute ?? 0);
-	const readyToBill = (stageMap.ses_pending ?? 0) + (stageMap.billing_pending ?? 0);
-	const readyToClose = stageMap.receivable_open ?? 0;
+	const activeCases = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.active);
+	const pendingApproval = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.pendingApproval);
+	const inProgress = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.inProgress);
+	const inPlanning = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.inPlanning);
+	const readyToBill = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.readyToBill);
+	const readyToClose = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.readyToClose);
 
 	return {
 		totalCases,

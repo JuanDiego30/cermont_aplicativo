@@ -46,8 +46,7 @@ WorkReportSchema.pre("save", function syncApprovalTimestamp(this: IWorkReportDoc
 
 WorkReportSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
+		const { __v, ...obj } = ret;
 		return obj;
 	},
 });

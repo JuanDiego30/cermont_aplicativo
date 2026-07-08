@@ -6,6 +6,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
+import { SERVICE_CASE_KEYS } from "../model/queryKeys";
 
 interface ServiceCaseSummary {
 	totalCases: number;
@@ -28,14 +29,9 @@ interface SummaryContract {
 	data?: ServiceCaseSummary;
 }
 
-const SERVICE_CASE_KEYS = {
-	all: ["service-cases"] as const,
-	summary: ["service-cases", "summary"] as const,
-} as const;
-
 export function useServiceCaseSummary() {
 	return useQuery({
-		queryKey: SERVICE_CASE_KEYS.summary,
+		queryKey: SERVICE_CASE_KEYS.summary(),
 		queryFn: async () => {
 			const body = await apiClient.get<SummaryContract>("/service-cases/summary");
 			return body?.data ?? null;

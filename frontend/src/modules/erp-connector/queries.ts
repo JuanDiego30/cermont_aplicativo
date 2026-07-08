@@ -2,7 +2,7 @@
  * ERP Connector — TanStack Query hooks
  */
 
-import type { IErpConnectorConfig } from "@cermont/shared-types";
+import type { CreateErpConnectorInput, IErpConnectorConfig } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 
@@ -21,6 +21,15 @@ export function useErpConnectors() {
 			);
 			return res.data;
 		},
+	});
+}
+
+export function useCreateErpConnector() {
+	const qc = useQueryClient();
+	return useMutation({
+		mutationFn: (input: CreateErpConnectorInput) =>
+			apiClient.post<{ success: boolean; data: IErpConnectorConfig }>("/erp-connectors", input),
+		onSuccess: () => qc.invalidateQueries({ queryKey: erpConnectorKeys.all }),
 	});
 }
 

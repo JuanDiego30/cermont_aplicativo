@@ -1,5 +1,6 @@
 import { LANDING_SERVICES } from "../landing-data";
 import { ServiceCard } from "./cards/ServiceCard";
+import React from "react";
 import { SectionHeading } from "./SectionHeading";
 
 export function ServicesSection() {
@@ -19,7 +20,9 @@ export function ServicesSection() {
 
 				<div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 					{LANDING_SERVICES.map((service) => (
-						<ServiceCard key={service.title} {...service} />
+						<React.Fragment key={service.title}>
+							<ServiceCard {...service} />
+						</React.Fragment>
 					))}
 				</div>
 			</div>

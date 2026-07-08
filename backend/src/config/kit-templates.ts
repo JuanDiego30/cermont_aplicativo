@@ -28,8 +28,18 @@ export interface KitTemplate {
 		| "decommission"
 		| "cctv"
 		| "lifeline"
+		| "safety"
+		| "electrico"
 		| "other";
 	materials: MaterialItem[];
+	/** Tools required for this kit type */
+	tools?: MaterialItem[];
+	/** Equipment required for this kit type */
+	equipment?: MaterialItem[];
+	/** Safety elements / EPP */
+	safetyElements?: MaterialItem[];
+	/** Associated form template IDs to auto-attach */
+	requiredForms?: string[];
 }
 
 /**
@@ -218,6 +228,71 @@ const KIT_LIFELINE: KitTemplate = {
 };
 
 /**
+ * Safety/EPP focused kit — Elementos de protección y seguridad industrial
+ * Source: 02_INDUCCION_SGSST3, 03_Jerarquia_de_controles_Cermont2 (CERMONT safety docs)
+ */
+const KIT_SAFETY: KitTemplate = {
+	id: "kit-safety-001",
+	name: "Kit Seguridad Industrial / EPP",
+	description: "Elementos de protección personal y seguridad industrial para trabajos en campo CERMONT",
+	type: "safety",
+	materials: [
+		{ name: "Casco dieléctrico clase E", quantity: 4, unit: "unidad" },
+		{ name: "Guantes dieléctricos clase 00", quantity: 4, unit: "par" },
+		{ name: "Guantes de vaqueta (protección mecánica)", quantity: 4, unit: "par" },
+		{ name: "Botas dieléctricas", quantity: 4, unit: "par" },
+		{ name: "Arnés de seguridad certificado EN 361", quantity: 2, unit: "juego" },
+		{ name: "Línea de vida retráctil 10m", quantity: 2, unit: "unidad" },
+		{ name: "Gafas de seguridad antiempaño", quantity: 4, unit: "unidad" },
+		{ name: "Protector auditivo tipo copa", quantity: 4, unit: "unidad" },
+		{ name: "Chaleco reflectivo alta visibilidad", quantity: 4, unit: "unidad" },
+		{ name: "Barbiquejo para casco", quantity: 4, unit: "unidad" },
+		{ name: "Careta antiarco eléctrico", quantity: 2, unit: "unidad" },
+		{ name: "Respirador media cara + filtros", quantity: 4, unit: "juego" },
+		// Formatos/documentos
+		{ name: "Formato AST (Análisis Seguro de Trabajo)", quantity: 4, unit: "unidad" },
+		{ name: "Formato permiso trabajo en alturas", quantity: 2, unit: "unidad" },
+		{ name: "Matriz de EPP por actividad", quantity: 1, unit: "unidad" },
+	],
+};
+
+/**
+ * Electrical installation kit — Trabajos eléctricos BT/MT
+ * Source: 05_FOTOS_ANCLAJE_ESCALERA_A_ESTRUCTURA3, operating procedures
+ */
+const KIT_ELECTRICAL: KitTemplate = {
+	id: "kit-electrical-001",
+	name: "Kit Trabajos Eléctricos BT/MT",
+	description: "Herramientas y materiales para instalaciones y mantenimiento eléctrico en baja y media tensión",
+	type: "electrico",
+	materials: [
+		{ name: "Cable THHN/THWN calibre 12 AWG", quantity: 50, unit: "metro" },
+		{ name: "Cable THHN/THWN calibre 10 AWG", quantity: 30, unit: "metro" },
+		{ name: "Breaker termomagnético 2x20A", quantity: 2, unit: "unidad" },
+		{ name: "Breaker termomagnético 3x50A", quantity: 1, unit: "unidad" },
+		{ name: "Contacto industrial doble polarizado", quantity: 4, unit: "unidad" },
+		{ name: "Tubería EMT 3/4\" + conectores", quantity: 10, unit: "metro" },
+		{ name: "Cinta aislante 3M Súper 33+", quantity: 3, unit: "rollo" },
+		{ name: "Conector de compresión", quantity: 10, unit: "unidad" },
+	],
+	tools: [
+		{ name: "Multímetro digital Fluke 117", quantity: 1, unit: "unidad" },
+		{ name: "Pinza amperimétrica 400A", quantity: 1, unit: "unidad" },
+		{ name: "Juego de desarmadores aislados 1000V", quantity: 1, unit: "juego" },
+		{ name: "Pinza pelacables automática", quantity: 1, unit: "unidad" },
+		{ name: "Cortafrío aislado 8\"", quantity: 1, unit: "unidad" },
+		{ name: "Taladro percutor 1/2\" + brocas", quantity: 1, unit: "unidad" },
+	],
+	safetyElements: [
+		{ name: "Guantes dieléctricos clase 0 (certificados)", quantity: 1, unit: "par" },
+		{ name: "Tapete dieléctrico", quantity: 1, unit: "unidad" },
+		{ name: "Pértiga de salvamento 5kV", quantity: 1, unit: "unidad" },
+		{ name: "Cerradura/bloqueo LOTO", quantity: 2, unit: "unidad" },
+	],
+	requiredForms: ["cermont_planeacion_obra_v1"],
+};
+
+/**
  * Registry of all available kit templates
  * Indexed by type and id for easy lookup
  */
@@ -229,6 +304,8 @@ export const KIT_REGISTRY: Record<string, KitTemplate> = {
 	[KIT_DECOMMISSION.id]: KIT_DECOMMISSION,
 	[KIT_CCTV.id]: KIT_CCTV,
 	[KIT_LIFELINE.id]: KIT_LIFELINE,
+	[KIT_SAFETY.id]: KIT_SAFETY,
+	[KIT_ELECTRICAL.id]: KIT_ELECTRICAL,
 };
 
 /**
@@ -242,6 +319,21 @@ export function getKitTemplate(kitId: string): KitTemplate | { status: "not_foun
 	}
 	return kit;
 }
+
+export type OrderKitType =
+	| "maintenance"
+	| "inspection"
+	| "installation"
+	| "repair"
+	| "decommission"
+	| "cctv"
+	| "lifeline"
+	| "safety"
+	| "electrico"
+	| "other";
+
+type NotFoundResult = { status: "not_found"; type: string };
+type KitOrNotFound = KitTemplate | NotFoundResult;
 
 /**
  * Get all kits of a specific type
@@ -263,16 +355,8 @@ export function listAllKits(): KitTemplate[] {
  * Returns not-found status object for unmatched types
  */
 export function getDefaultKitForOrderType(
-	orderType:
-		| "maintenance"
-		| "inspection"
-		| "installation"
-		| "repair"
-		| "decommission"
-		| "cctv"
-		| "lifeline"
-		| "other",
-): KitTemplate | { status: "not_found"; type: string } {
+	orderType: OrderKitType,
+): KitOrNotFound {
 	switch (orderType) {
 		case "maintenance":
 			return KIT_MAINTENANCE;
@@ -288,9 +372,15 @@ export function getDefaultKitForOrderType(
 			return KIT_CCTV;
 		case "lifeline":
 			return KIT_LIFELINE;
+		case "safety":
+			return KIT_SAFETY;
+		case "electrico":
+			return KIT_ELECTRICAL;
 		case "other":
-			return { status: "not_found" as const, type: "other" };
-		default:
-			return { status: "not_found" as const, type: String(orderType) as unknown as string };
+			return { status: "not_found" as const, type: orderType };
+		default: {
+			const _exhaustive: never = orderType;
+			return _exhaustive;
+		}
 	}
 }
