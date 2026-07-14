@@ -7,7 +7,6 @@ import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiClient } from "@/lib/http/api-client";
-import { normalizeProposalStatus } from "@/modules/proposals/proposal-status";
 import { ProposalActions } from "@/modules/proposals/ui/ProposalActions";
 import { ProposalStatusBadge } from "@/modules/proposals/ui/ProposalStatusBadge";
 
@@ -134,8 +133,6 @@ export default function ProposalDetailPage() {
 		);
 	}
 
-	const normalizedStatus = normalizeProposalStatus(proposal.status);
-
 	return (
 		<section className="mx-auto max-w-3xl space-y-6" aria-labelledby="proposal-detail-title">
 			{/* Header */}
@@ -166,10 +163,8 @@ export default function ProposalDetailPage() {
 					</div>
 				</div>
 
-				{/* Approve / Reject actions (only when sent) */}
-				{normalizedStatus === "sent" && (
-					<ProposalActions proposalId={proposal._id} status={proposal.status} />
-				)}
+				{/* Status actions (contextual based on status) */}
+				<ProposalActions proposalId={proposal._id} status={proposal.status} />
 			</div>
 
 			{/* Details Card */}

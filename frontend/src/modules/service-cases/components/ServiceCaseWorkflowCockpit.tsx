@@ -199,7 +199,10 @@ export function ServiceCaseWorkflowCockpit({
 				</div>
 
 				<div className="space-y-6">
-					<WorkflowBlockerList blockers={serviceCase.blockers || []} />
+					<WorkflowBlockerList
+						blockers={serviceCase.blockers || []}
+						serviceCaseId={serviceCase.serviceCaseId}
+					/>
 					<NextActionPanel
 						blockers={serviceCase.blockers || []}
 						nextActions={serviceCase.nextActions || []}

@@ -2,9 +2,11 @@
 
 import type { DomainBlocker } from "@cermont/shared-types";
 import { AlertTriangle, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 
 interface WorkflowBlockerListProps {
 	blockers: DomainBlocker[];
+	serviceCaseId?: string;
 }
 
 function severityTone(severity: DomainBlocker["severity"]): string {
@@ -18,7 +20,28 @@ function severityTone(severity: DomainBlocker["severity"]): string {
 	}
 }
 
-export function WorkflowBlockerList({ blockers }: WorkflowBlockerListProps) {
+function BlockerMessage({
+	blocker,
+	serviceCaseId,
+}: {
+	blocker: DomainBlocker;
+	serviceCaseId?: string;
+}) {
+	if (blocker.artifactType === "Proposal" && serviceCaseId) {
+		return (
+			<Link
+				href={`/proposals/new?serviceCaseId=${serviceCaseId}`}
+				className="text-blue-600 hover:text-blue-800 underline font-medium"
+				aria-label="Elaborar propuesta económica para este caso"
+			>
+				{blocker.message}
+			</Link>
+		);
+	}
+	return <>{blocker.message}</>;
+}
+
+export function WorkflowBlockerList({ blockers, serviceCaseId }: WorkflowBlockerListProps) {
 	return (
 		<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card">
 			<div className="flex items-start justify-between gap-4">
@@ -52,7 +75,7 @@ export function WorkflowBlockerList({ blockers }: WorkflowBlockerListProps) {
 								<div className="space-y-2">
 									<div className="flex flex-wrap items-center gap-2">
 										<p className="text-sm font-semibold text-[var(--text-primary)]">
-											{blocker.message}
+											<BlockerMessage blocker={blocker} serviceCaseId={serviceCaseId} />
 										</p>
 										<span className="rounded-full border border-current/20 bg-canvas/70 px-2 py-0.5 text-[10px] font-bold uppercase">
 											{blocker.severity}

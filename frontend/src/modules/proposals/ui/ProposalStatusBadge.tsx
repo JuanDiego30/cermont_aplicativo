@@ -30,6 +30,10 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
 		label: "Expirada",
 		className: "bg-[var(--color-warning-bg)] text-[var(--color-warning)]",
 	},
+	converted: {
+		label: "Convertida",
+		className: "bg-[var(--color-info-bg)] text-[var(--color-info)]",
+	},
 };
 
 const FALLBACK_META = {

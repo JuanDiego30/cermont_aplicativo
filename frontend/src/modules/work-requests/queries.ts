@@ -139,6 +139,7 @@ export function useQualifyWorkRequest() {
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.detail(variables) });
 			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.list() });
+			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.pendingCount() });
 			queryClient.invalidateQueries({ queryKey: ["service-cases"] });
 		},
 	});
@@ -159,6 +160,7 @@ export function useUpdateWorkRequestStatus() {
 		},
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.all });
+			void queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.pendingCount() });
 			void queryClient.invalidateQueries({ queryKey: ["service-cases"] });
 		},
 	});
@@ -175,5 +177,6 @@ export function usePendingWorkRequestCount(enabled: boolean) {
 		},
 		enabled,
 		...listQueryOptions,
+		refetchInterval: 60_000,
 	});
 }

@@ -3,7 +3,7 @@
 import type { CreateProposalInput } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, format } from "date-fns";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, InfoIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -111,6 +111,7 @@ function NewProposalContent() {
 				unitCost: item.unitCost,
 			})),
 			notes: data.notes?.trim() || undefined,
+			...(serviceCaseId ? { serviceCaseId } : {}),
 		};
 
 		const result = await mutation.mutateAsync(payload);
@@ -142,6 +143,23 @@ function NewProposalContent() {
 			</div>
 
 			<StepBreadcrumb />
+
+			{serviceCaseId && (
+				<div className="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:bg-blue-900/20 dark:border-blue-800">
+					<div className="flex items-start gap-3">
+						<InfoIcon className="mt-0.5 size-5 text-blue-600 dark:text-blue-400" />
+						<div>
+							<p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+								Propuesta vinculada a caso de servicio
+							</p>
+							<p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
+								Esta propuesta se vinculará automáticamente al caso. Al guardar, podrás continuar
+								con el flujo de aprobación.
+							</p>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{!isContextLoading && (
 				<InheritedFieldGroup
