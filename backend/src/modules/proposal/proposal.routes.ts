@@ -19,6 +19,7 @@ import {
 } from "../purchase-order/purchase-order.controller";
 import {
 	approveProposal,
+	approveWithSupport,
 	convertProposalToOrder,
 	createProposal,
 	getAllProposals,
@@ -98,6 +99,14 @@ router.patch(
 	validateParams(ProposalIdSchema),
 	validateBody(ApproveProposalSchema),
 	approveProposal,
+);
+
+// Approve with support (gerente bypass)
+router.post(
+	"/:id/approve-with-support",
+	authorize(CERMONT_ROLES.GERENTE),
+	validateParams(ProposalIdSchema),
+	approveWithSupport,
 );
 
 // Reject proposal (convenience endpoint)

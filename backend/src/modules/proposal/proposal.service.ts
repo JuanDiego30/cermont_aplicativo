@@ -13,6 +13,7 @@
 import type {
 	ConvertProposalToOrderInput,
 	CreateProposalInput,
+	ProposalCostBreakdown,
 	ProposalStatus,
 } from "@cermont/shared-types";
 import mongoose from "mongoose";
@@ -21,7 +22,7 @@ import { createLogger } from "../../common/utils/logger";
 import { escapeRegExp } from "../../common/utils/normalization";
 import type { AuthClaims } from "../../common/utils/request";
 import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
-import { Counter, Proposal } from "../../models";
+import { Counter, Proposal, ServiceCase } from "../../models";
 import * as OrderService from "../../modules/order/order.service";
 
 type ProposalOrderInput = Parameters<typeof OrderService.createOrder>[0];
@@ -118,10 +119,24 @@ export async function createProposal(data: CreateProposalInput, userId: string) 
 		notes: data.notes,
 		status: "draft",
 		createdBy: userId,
-		...(data.serviceCaseId ? { serviceCaseId: data.serviceCaseId } : {}),
+		...(data.serviceCaseId ? { serviceCaseId: new mongoose.Types.ObjectId(data.serviceCaseId) } : {}),
 	});
 
 	await proposal.save();
+
+	if (data.serviceCaseId) {
+		await ServiceCase.findByIdAndUpdate(data.serviceCaseId, {
+			$set: {
+				"artifacts.proposal": {
+					id: proposal._id,
+					code: proposal.code,
+					status: proposal.status,
+					updatedAt: new Date(),
+				},
+			},
+		});
+	}
+
 	await proposal.populate(["createdBy", "approvedBy"]);
 
 	log.info("Proposal created", { proposalId: String(proposal._id) });
@@ -208,52 +223,28 @@ export async function findProposalById(id: string, viewer: ProposalViewer) {
 	return proposal;
 }
 
-const ALLOWED_TRANSITIONS: Record<string, string[]> = {
-	draft: ["sent"],
-	sent: ["approved", "rejected"],
-	approved: ["converted"],
-	rejected: [],
-	expired: [],
-	converted: [],
-};
-
 /**
- * Update proposal status with transition validation
+ * Update proposal status
  */
 export async function updateProposalStatus(
 	id: string,
 	status: ProposalStatus,
 	userId: string,
 	_poNumber?: string,
-	notes?: string,
-	approvedAt?: string,
 ) {
 	const proposal = await Proposal.findById(id);
 	if (!proposal) {
 		throw new AppError("Propuesta no encontrada", 404, "PROPOSAL_NOT_FOUND");
 	}
 
-	const allowed = ALLOWED_TRANSITIONS[proposal.status];
-	if (!allowed?.includes(status)) {
-		throw new AppError(
-			`No se puede cambiar de ${proposal.status} a ${status}`,
-			400,
-			"INVALID_TRANSITION",
-		);
-	}
-
 	proposal.status = status;
-	if (notes) {
-		proposal.statusNotes = notes;
-	}
-
 	if (status === "approved") {
 		const recalculated = calculateProposalTotals(proposal.items, proposal.taxRate);
 		proposal.items = recalculated.items;
 		proposal.subtotal = recalculated.subtotal;
 		proposal.total = recalculated.total;
 		proposal.approvedBy = userId as unknown as mongoose.Types.ObjectId;
-		proposal.approvedAt = approvedAt ? new Date(approvedAt) : new Date();
+		proposal.approvedAt = new Date();
 	} else {
 		proposal.approvedBy = undefined;
 		proposal.approvedAt = undefined;
@@ -278,6 +269,81 @@ export async function approveProposal(id: string, userId: string, poNumber?: str
  */
 export async function rejectProposal(id: string, userId: string) {
 	return updateProposalStatus(id, "rejected", userId);
+}
+
+export interface ApproveWithSupportInput {
+	supportType: "verbal" | "email" | "document";
+	supportDescription: string;
+}
+
+export async function approveWithSupport(
+	id: string,
+	userId: string,
+	input: ApproveWithSupportInput,
+) {
+	const proposal = await Proposal.findById(id);
+	if (!proposal) {
+		throw new AppError("Propuesta no encontrada", 404, "PROPOSAL_NOT_FOUND");
+	}
+
+	const recalculated = calculateProposalTotals(proposal.items, proposal.taxRate);
+	proposal.items = recalculated.items;
+	proposal.subtotal = recalculated.subtotal;
+	proposal.total = recalculated.total;
+	proposal.status = "approved";
+	proposal.approvedBy = userId as unknown as mongoose.Types.ObjectId;
+	proposal.approvedAt = new Date();
+	await proposal.save();
+	await proposal.populate(["createdBy", "approvedBy"]);
+
+	log.info("Proposal approved with support bypass", {
+		proposalId: id,
+		userId,
+		supportType: input.supportType,
+	});
+
+	return proposal;
+}
+
+/**
+ * Get cost breakdown for a proposal
+ * Returns desglose detallado de costos
+ * Reference: PLAN_IMPLEMENTACION_CERMONT_v2.0 Tarea 1.2
+ */
+export async function getProposalCostBreakdown(
+	proposalId: string,
+	viewer: ProposalViewer,
+): Promise<ProposalCostBreakdown> {
+	const proposal = await Proposal.findById(proposalId).lean();
+
+	if (!proposal) {
+		throw new AppError("Propuesta no encontrada", 404, "PROPOSAL_NOT_FOUND");
+	}
+
+	assertProposalAccess(proposal, viewer);
+
+	const recalculated = calculateProposalTotals(proposal.items ?? [], proposal.taxRate ?? 0.19);
+
+	return {
+		proposalId: String(proposal._id),
+		proposalCode: proposal.code ?? `PROP-${String(proposal._id).slice(0, 8)}`,
+		title: proposal.title ?? "",
+		clientName: proposal.clientName ?? "",
+		status: proposal.status ?? "draft",
+		items: recalculated.items.map((item) => ({
+			description: item.description,
+			unit: item.unit,
+			quantity: item.quantity,
+			unitPrice: item.unitCost,
+			total: item.total,
+		})),
+		subtotal: recalculated.subtotal,
+		taxRate: recalculated.taxRate,
+		taxAmount: recalculated.total - recalculated.subtotal,
+		totalWithTax: recalculated.total,
+		...(proposal.validUntil ? { validUntil: proposal.validUntil.toISOString() } : {}),
+		generatedAt: new Date().toISOString(),
+	};
 }
 
 /**
