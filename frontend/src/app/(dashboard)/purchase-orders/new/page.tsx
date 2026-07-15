@@ -11,12 +11,9 @@ import { Suspense, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/core/ui/Button";
-import { FormField, Select, TextField } from "@/core/ui/FormField";
 import { apiClient } from "@/lib/http/api-client";
 import { PurchaseOrderFormFields } from "./PurchaseOrderFormFields";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
-
-const copFormat = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
 
 const RegisterPOFormSchema = RegisterPurchaseOrderSchema.omit({
 	attachments: true,
@@ -26,13 +23,8 @@ const RegisterPOFormSchema = RegisterPurchaseOrderSchema.omit({
 		message: "Use the local date-time format.",
 	}),
 });
-export type FormValues = z.infer<typeof RegisterPOFormSchema>;
 
-const CURRENCY_OPTIONS = [
-	{ value: "COP", label: "COP — Peso colombiano" },
-	{ value: "USD", label: "USD — Dólar estadounidense" },
-	{ value: "EUR", label: "EUR — Euro" },
-] as const;
+export type FormValues = z.infer<typeof RegisterPOFormSchema>;
 
 function toDateTimeLocalValue(date: Date): string {
 	const timezoneOffsetMs = date.getTimezoneOffset() * 60_000;

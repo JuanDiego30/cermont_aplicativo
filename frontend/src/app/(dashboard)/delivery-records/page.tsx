@@ -4,10 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useDeliveryRecordsList } from "@/modules/billing/queries";
 import {
-	deliveryRows,
 	WorkflowRecordsPage,
 	WorkflowRecordsPageLoadingState,
 } from "@/modules/billing/ui/WorkflowRecordsPage";
+import { deliveryRows } from "@/modules/billing/ui/workflow-record-rows";
 
 function DeliveryRecordsPageContent() {
 	const searchParams = useSearchParams();
@@ -23,8 +23,7 @@ function DeliveryRecordsPageContent() {
 							value: workOrderId,
 							clearHref: "/delivery-records",
 						}
-					: undefined
-			}
+					: undefined}
 			eyebrow="Dashboard / Actas"
 			title="Actas de entrega"
 			description="Cierre operativo posterior al informe técnico aprobado, con firma del cliente y soporte documental."

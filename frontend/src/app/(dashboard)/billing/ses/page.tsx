@@ -4,10 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useServiceEntrySheetsList } from "@/modules/billing/queries";
 import {
-	sesRows,
 	WorkflowRecordsPage,
 	WorkflowRecordsPageLoadingState,
 } from "@/modules/billing/ui/WorkflowRecordsPage";
+import { sesRows } from "@/modules/billing/ui/workflow-record-rows";
 
 function BillingSESPageContent() {
 	const searchParams = useSearchParams();
@@ -23,8 +23,7 @@ function BillingSESPageContent() {
 							value: workOrderId,
 							clearHref: "/billing/ses",
 						}
-					: undefined
-			}
+					: undefined}
 			eyebrow="Dashboard / Cierre administrativo / SES"
 			title="SES / Ariba"
 			description="Controla Service Entry Sheets, referencias Ariba, aprobación y soportes antes de facturar."
