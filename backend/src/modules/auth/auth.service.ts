@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import type { ChangePasswordInput } from "@cermont/shared-types";
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import jwt, { type JwtPayload as SignedJwtClaims } from "jsonwebtoken";
 import { Types } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -54,7 +54,7 @@ export interface RefreshContract {
 	refreshToken: string;
 }
 
-interface JwtClaims extends JwtPayload {
+interface JwtClaims extends SignedJwtClaims {
 	sub?: string;
 	_id?: string;
 	role?: string;
@@ -64,7 +64,7 @@ interface JwtClaims extends JwtPayload {
 	tokenType?: "access" | "refresh";
 }
 
-interface DecodedToken extends JwtPayload {
+interface DecodedToken extends SignedJwtClaims {
 	sub?: string;
 	_id?: string;
 	jti?: string;
@@ -307,6 +307,30 @@ export async function login(email: string, password: string): Promise<LoginContr
 	return issueLoginSession(user, "password");
 }
 
+export async function portalLogin(
+	email: string,
+	password: string,
+): Promise<LoginContract> {
+	const user = await User.findOne({ email }).select("+password +tokenVersion");
+
+	if (!user) {
+		throw new UnauthorizedError("Credenciales inválidas o no tiene acceso al portal");
+	}
+	if (!user.isActive) {
+		throw new UnauthorizedError("La cuenta de usuario está desactivada");
+	}
+	if (user.role !== "cliente") {
+		throw new UnauthorizedError("Credenciales inválidas o no tiene acceso al portal");
+	}
+
+	const valid = await user.comparePassword(password);
+	if (!valid) {
+		throw new UnauthorizedError("Credenciales inválidas o no tiene acceso al portal");
+	}
+
+	return issueLoginSession(user, "portal_password");
+}
+
 export async function changePassword(userId: string, payload: ChangePasswordInput): Promise<void> {
 	const user = await User.findById(userId).select("+password +tokenVersion");
 
@@ -502,6 +526,70 @@ export async function logout(accessToken: string, refreshToken: string): Promise
 
 export function getRefreshTokenMaxAge(): number {
 	return REFRESH_EXPIRES_IN;
+}
+
+// ─── Session Management ────────────────────────────────────────────────────
+
+export interface SessionInfo {
+	_id: string;
+	jti: string;
+	familyId: string;
+	createdAt: string;
+	expiresAt: string;
+	status: {
+		state: string;
+		changedAt: string;
+		reason: string;
+	};
+}
+
+export async function listUserSessions(userId: string): Promise<SessionInfo[]> {
+	const sessions = await RefreshToken.find(
+		{ userId: new Types.ObjectId(userId) },
+		{ jti: 1, familyId: 1, createdAt: 1, expiresAt: 1, status: 1 },
+	)
+		.sort({ createdAt: -1 })
+		.limit(50)
+		.lean();
+
+	return sessions.map((s) => ({
+		_id: s._id.toString(),
+		jti: s.jti,
+		familyId: s.familyId,
+		createdAt: s.createdAt.toISOString(),
+		expiresAt: s.expiresAt.toISOString(),
+		status: {
+			state: s.status.state,
+			changedAt: s.status.changedAt.toISOString(),
+			reason: s.status.reason,
+		},
+	}));
+}
+
+export async function revokeSession(sessionJti: string, userId: string, reason: string): Promise<void> {
+	const result = await RefreshToken.updateOne(
+		{ jti: sessionJti, userId: new Types.ObjectId(userId), "status.state": "active" },
+		{
+			$set: {
+				"status.state": "revoked",
+				"status.changedAt": new Date(),
+				"status.reason": reason,
+				"status.replacedByJti": "",
+			},
+		},
+	);
+
+	if (result.matchedCount === 0) {
+		throw new NotFoundError("RefreshToken", sessionJti);
+	}
+
+	await createAuditLog({
+		action: "SESSION_REVOKED",
+		entity: "RefreshToken",
+		entityId: sessionJti,
+		userId,
+		metadata: { reason },
+	});
 }
 
 export async function generateTokenPair(
