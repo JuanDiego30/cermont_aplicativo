@@ -22,7 +22,7 @@ export function DispatchMap({ ref }: { ref?: React.Ref<DispatchMapHandle> }) {
 		}
 
 		const map = L.map(mapRef.current, {
-			center: [4.711, -74.072],
+			center: [7.0845, -70.7592],
 			zoom: 12,
 			zoomControl: true,
 			attributionControl: true,
@@ -38,7 +38,6 @@ export function DispatchMap({ ref }: { ref?: React.Ref<DispatchMapHandle> }) {
 
 		return () => {
 			map.remove();
-			mapInstance.current = null;
 		};
 	}, []);
 
@@ -53,7 +52,6 @@ export function DispatchMap({ ref }: { ref?: React.Ref<DispatchMapHandle> }) {
 
 		if (polylineLayer.current) {
 			polylineLayer.current.remove();
-			polylineLayer.current = null;
 		}
 
 		if (newStops.length === 0) {
