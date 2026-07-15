@@ -13,7 +13,7 @@ export interface DianInvoiceResult {
 
 export async function emitirFacturaElectronica(invoice: InvoiceDocument): Promise<DianInvoiceResult> {
 	try {
-		log.info("Emitting electronic invoice to DIAN", { invoiceId: invoice._id });
+		log.info("Emitting electronic invoice to DIAN", { invoiceId: invoice._id.toString() });
 		const cufe = Array.from({ length: 32 }, () =>
 			Math.floor(Math.random() * 16).toString(16),
 		).join("");
@@ -25,7 +25,7 @@ export async function emitirFacturaElectronica(invoice: InvoiceDocument): Promis
 		};
 	} catch (error) {
 		log.error("DIAN emission failed", {
-			invoiceId: invoice._id,
+			invoiceId: invoice._id.toString(),
 			error: error instanceof Error ? error.message : String(error),
 		});
 		return {
