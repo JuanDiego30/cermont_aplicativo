@@ -1,10 +1,22 @@
 "use client";
 
-import { AlertCircle, Check, Loader2, Plug, RefreshCw, X } from "lucide-react";
+import type { CreateErpConnectorInput } from "@cermont/shared-types";
+import { ErpAuthTypeEnum, ErpProviderTypeEnum } from "@cermont/shared-types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as Dialog from "@radix-ui/react-dialog";
+import { AlertCircle, Check, Loader2, Plug, Plus, RefreshCw, X } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import { Button } from "@/core/ui/Button";
 import { EmptyState } from "@/core/ui/EmptyState";
-import { useErpConnectors, useSyncErpConnector } from "@/modules/erp-connector/queries";
+import { FormField, Select, TextField } from "@/core/ui/FormField";
+import {
+	useCreateErpConnector,
+	useErpConnectors,
+	useSyncErpConnector,
+} from "@/modules/erp-connector/queries";
 
 const PROVIDER_LABELS: Record<string, string> = {
 	fssm: "Field Service Management",
@@ -15,21 +27,153 @@ const PROVIDER_LABELS: Record<string, string> = {
 	custom: "Custom Adapter",
 };
 
+const createErpSchema = z.object({
+	provider: ErpProviderTypeEnum,
+	name: z.string().min(1, "Name is required"),
+	baseUrl: z.url("Must be a valid URL").optional().or(z.literal("")),
+	authType: ErpAuthTypeEnum,
+	enabled: z.boolean().default(true),
+	syncInterval: z.number().int().min(0).default(300),
+});
+
+type CreateErpFormValues = z.output<typeof createErpSchema>;
+
+function toCreateInput(values: CreateErpFormValues): CreateErpConnectorInput {
+	return {
+		provider: values.provider,
+		name: values.name,
+		baseUrl: values.baseUrl || undefined,
+		authType: values.authType,
+		enabled: values.enabled,
+		syncInterval: values.syncInterval,
+	};
+}
+
+function CreateErpDialog({
+	open,
+	onOpenChange,
+}: {
+	open: boolean;
+	onOpenChange: (o: boolean) => void;
+}) {
+	const createMutation = useCreateErpConnector();
+	const {
+		register,
+		handleSubmit,
+		reset,
+		formState: { errors },
+	} = useForm({
+		resolver: zodResolver(createErpSchema),
+		defaultValues: {
+			provider: "fssm",
+			name: "",
+			baseUrl: "",
+			authType: "api_key",
+			enabled: true,
+			syncInterval: 300,
+		},
+	});
+
+	const onSubmit = async (data: CreateErpFormValues) => {
+		try {
+			await createMutation.mutateAsync(toCreateInput(data));
+			toast.success("Conector ERP creado");
+			reset();
+			onOpenChange(false);
+		} catch {
+			toast.error("Error al crear conector ERP");
+		}
+	};
+
+	return (
+		<Dialog.Root open={open} onOpenChange={onOpenChange}>
+			<Dialog.Portal>
+				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
+				<Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-xl outline-none">
+					<Dialog.Title className="text-lg font-semibold text-[var(--text-primary)]">
+						Agregar conector ERP
+					</Dialog.Title>
+
+					<form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4" noValidate>
+						<FormField label="Proveedor" required error={errors.provider?.message}>
+							<Select {...register("provider")}>
+								{ErpProviderTypeEnum.options.map((opt) => (
+									<option key={opt} value={opt}>
+										{PROVIDER_LABELS[opt] ?? opt}
+									</option>
+								))}
+							</Select>
+						</FormField>
+
+						<FormField label="Nombre" required error={errors.name?.message}>
+							<TextField {...register("name")} placeholder="Mi conector ERP" />
+						</FormField>
+
+						<FormField label="URL base" error={errors.baseUrl?.message}>
+							<TextField {...register("baseUrl")} placeholder="https://..." />
+						</FormField>
+
+						<FormField label="Tipo de autenticación" required error={errors.authType?.message}>
+							<Select {...register("authType")}>
+								{ErpAuthTypeEnum.options.map((opt) => (
+									<option key={opt} value={opt}>
+										{opt}
+									</option>
+								))}
+							</Select>
+						</FormField>
+
+						<FormField label="Intervalo de sincronización (s)" error={errors.syncInterval?.message}>
+							<TextField type="number" {...register("syncInterval")} />
+						</FormField>
+
+						<div className="flex justify-end gap-3 pt-2">
+							<Dialog.Close asChild>
+								<Button type="button" variant="outline">
+									Cancelar
+								</Button>
+							</Dialog.Close>
+							<Button
+								type="submit"
+								loading={createMutation.isPending}
+								disabled={createMutation.isPending}
+							>
+								Crear
+							</Button>
+						</div>
+					</form>
+
+					<Dialog.Close asChild>
+						<button
+							type="button"
+							aria-label="Close"
+							className="absolute right-4 top-4 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+						>
+							<X className="size-4" />
+						</button>
+					</Dialog.Close>
+				</Dialog.Content>
+			</Dialog.Portal>
+		</Dialog.Root>
+	);
+}
+
 export default function ErpConnectorsPage() {
+	const [showCreate, setShowCreate] = useState(false);
 	const { data: connectors, isLoading, isError, refetch } = useErpConnectors();
 	const syncMutation = useSyncErpConnector();
 
 	const handleSync = (provider: string) => {
 		syncMutation.mutate(provider, {
-			onSuccess: () => toast.success(`Sync initiated for ${PROVIDER_LABELS[provider] ?? provider}`),
-			onError: () => toast.error(`Sync failed for ${PROVIDER_LABELS[provider] ?? provider}`),
+			onSuccess: () => toast.success(`Sincronización iniciada para ${PROVIDER_LABELS[provider] ?? provider}`),
+			onError: () => toast.error(`Sincronización falló para ${PROVIDER_LABELS[provider] ?? provider}`),
 		});
 	};
 
 	if (isLoading) {
 		return (
 			<section
-				aria-label="Loading ERP connectors"
+				aria-label="Cargando conectores ERP"
 				className="flex items-center justify-center py-16"
 			>
 				<Loader2 className="size-7 animate-spin text-brand" />
@@ -41,20 +185,23 @@ export default function ErpConnectorsPage() {
 		return (
 			<section className="flex flex-col items-center gap-4 py-16">
 				<AlertCircle className="size-8 text-brand-error" />
-				<h2 className="text-lg font-semibold">Failed to load ERP connectors</h2>
-				<Button onClick={() => refetch()}>Retry</Button>
+				<h2 className="text-lg font-semibold">Error al cargar conectores ERP</h2>
+				<Button onClick={() => refetch()}>Reintentar</Button>
 			</section>
 		);
 	}
 
 	if (!connectors || connectors.length === 0) {
 		return (
-			<EmptyState
-				icon={Plug}
-				title="No ERP Connectors"
-				description="Add an ERP connector to integrate with external systems like FSSM, GMAO/CSM, SAP, or DIAN."
-				action={{ label: "Add Connector", href: "/admin/erp-connectors/new" }}
-			/>
+			<section className="p-6">
+				<EmptyState
+					icon={Plug}
+					title="Sin conectores ERP"
+					description="Agregue un conector ERP para integrar sistemas externos como FSSM, GMAO/CSM, SAP o DIAN."
+					action={{ label: "Agregar conector", onClick: () => setShowCreate(true) }}
+				/>
+				<CreateErpDialog open={showCreate} onOpenChange={setShowCreate} />
+			</section>
 		);
 	}
 
@@ -63,13 +210,17 @@ export default function ErpConnectorsPage() {
 			<div className="flex items-center justify-between">
 				<div>
 					<h1 id="erp-title" className="text-2xl font-bold">
-						ERP Connectors
+						Conectores ERP
 					</h1>
 					<p className="mt-1 text-sm text-secondary">
-						Manage external system integrations for multi-ERP operations.
+						Gestionar integraciones con sistemas externos para operaciones multi-ERP.
 					</p>
 				</div>
+				<Button onClick={() => setShowCreate(true)} variant="primary" size="sm">
+					<Plus className="size-4" /> Agregar
+				</Button>
 			</div>
+			<CreateErpDialog open={showCreate} onOpenChange={setShowCreate} />
 
 			<div className="grid gap-4 md:grid-cols-2">
 				{connectors.map((conn) => (
@@ -96,15 +247,15 @@ export default function ErpConnectorsPage() {
 										: "bg-surface text-muted border border-hairline"
 								}`}
 							>
-								{conn.enabled ? (
-									<>
-										<Check className="size-3" /> Active
-									</>
-								) : (
-									<>
-										<X className="size-3" /> Disabled
-									</>
-								)}
+							{conn.enabled ? (
+								<>
+									<Check className="size-3" /> Activo
+								</>
+							) : (
+								<>
+									<X className="size-3" /> Inactivo
+								</>
+							)}
 							</span>
 						</div>
 
@@ -116,7 +267,7 @@ export default function ErpConnectorsPage() {
 								disabled={syncMutation.isPending}
 							>
 								<RefreshCw className={`size-3 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-								Sync Now
+								Sincronizar
 							</Button>
 						</div>
 
