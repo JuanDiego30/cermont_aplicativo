@@ -198,25 +198,32 @@ async function resolveSiteVisitBlockers({
 	return blockers;
 }
 
-function resolveProposalBlockers({ serviceCase }: BlockerResolverContext): DomainBlocker[] {
+function resolveProposalBlockers({
+	serviceCase,
+}: BlockerResolverContext): DomainBlocker[] {
 	const p = serviceCase.artifacts.proposal;
 	if (p?.id && p.status === "approved") {
 		return [];
 	}
 
+	const proposalId = p?.id?.toString() ?? undefined;
+
 	return [
-		createDocumentBlocker({
-			artifactType: "Proposal",
-			field: "proposal_document",
-			message: p?.id
+		{
+			code: "MISSING_STEP_REQUIRED_DOCUMENT",
+			severity: "blocking",
+			message: proposalId
 				? "La propuesta existe pero aún no está aprobada."
 				: "Falta la propuesta económica elaborada y guardada.",
 			ownerRole: "residente",
-			recommendedAction: p?.id
-				? "Obtener aprobación del cliente para la propuesta."
-				: "Elaborar y guardar la propuesta económica.",
+			recommendedAction: proposalId
+				? `/proposals/${proposalId}`
+				: `/proposals/new?serviceCaseId=${serviceCase._id}`,
+			artifactType: "Proposal",
+			artifactId: proposalId,
 			stepCode: "step_03_proposal",
-		}),
+			field: "proposal_document",
+		},
 	];
 }
 
