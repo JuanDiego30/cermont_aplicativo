@@ -10,7 +10,8 @@ import { toast } from "sonner";
 import { ApiError } from "@/lib/http/api-client";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
-import { ServiceCaseWorkflowCockpit } from "@/modules/service-cases/components/ServiceCaseWorkflowCockpit";
+import { useServiceCaseWorkflowCockpit } from "@/modules/service-cases/components/ServiceCaseWorkflowCockpit";
+import "@/modules/service-cases/helpers/proposal-url";
 import {
 	useAdvanceServiceCaseStep,
 	useArchiveServiceCase,

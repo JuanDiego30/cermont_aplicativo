@@ -10,6 +10,7 @@
  */
 
 import type { Vehicle, VehicleDocumentAlert } from "@cermont/shared-types";
+import "@/modules/fleet/hooks/useFleetDocuments";
 import {
 	AlertTriangle,
 	CalendarClock,
@@ -23,6 +24,7 @@ import { useState } from "react";
 import { useExpiringVehicleDocuments, useVehicles } from "@/modules/fleet/queries";
 import { NewVehicleDrawer } from "@/modules/fleet/ui/NewVehicleDrawer";
 import { VehicleCard } from "@/modules/fleet/ui/VehicleCard";
+import { localeDate } from "@/lib/utils/format-date";
 
 // ─── Document Alerts Banner ───────────────────────────────────────────────────
 
@@ -76,7 +78,7 @@ function DocumentAlertsBanner({ alerts }: { alerts: VehicleDocumentAlert[] }) {
 										vencido
 									</span>
 								) : (
-									<span>(vence {new Date(alert.expiresAt).toLocaleDateString("es-CO")})</span>
+									<span>(vence {localeDate(alert.expiresAt)})</span>
 								)}
 							</li>
 						))}

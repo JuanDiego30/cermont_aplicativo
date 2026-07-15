@@ -13,7 +13,8 @@ import {
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { DraftRestoreBanner, useStateAutosave } from "@/lib/form";
+import { DraftRestoreBanner } from "@/lib/form";
+import { useStateAutosave } from "@/lib/form/use-state-autosave";
 import { cn } from "@/lib/utils";
 import { useOfflineChecklist } from "../hooks/useOfflineChecklist";
 import { useChecklist } from "../queries";

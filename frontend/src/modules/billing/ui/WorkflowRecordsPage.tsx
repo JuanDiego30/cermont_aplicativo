@@ -18,6 +18,7 @@ import type { EmptyStateKind } from "@/core/ui/EmptyStateIllustration";
 import { useConnectivity } from "@/lib/offline/connectivity";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
 import type { WorkflowList } from "../queries";
+import { localeNumber } from "@/lib/utils/format-date";
 
 type QueryState<T> = {
 	data?: WorkflowList<T>;
@@ -63,10 +64,7 @@ const currencyFormatter = new Intl.NumberFormat("es-CO", {
 	maximumFractionDigits: 0,
 });
 
-const dateFormatter = new Intl.DateTimeFormat("es-CO", {
-	dateStyle: "medium",
-	timeStyle: "short",
-});
+const dateFormatter = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Bogota" });
 
 function formatCurrency(amount: number | undefined, currency: string | undefined): string {
 	if (typeof amount !== "number") {
@@ -75,7 +73,7 @@ function formatCurrency(amount: number | undefined, currency: string | undefined
 	if (currency === "COP" || !currency) {
 		return currencyFormatter.format(amount);
 	}
-	return `${currency} ${amount.toLocaleString("es-CO")}`;
+	return `${currency} ${localeNumber(amount)}`;
 }
 
 function formatDate(value: string): string {
@@ -426,7 +424,7 @@ function StatCard({
 	);
 }
 
-export function deliveryRows(items: DeliveryRecord[]): RecordRow[] {
+function deliveryRows(items: DeliveryRecord[]): RecordRow[] {
 	return items.map((item) => ({
 		id: item._id,
 		code: item.code,
@@ -438,7 +436,7 @@ export function deliveryRows(items: DeliveryRecord[]): RecordRow[] {
 	}));
 }
 
-export function sesRows(items: ServiceEntrySheet[]): RecordRow[] {
+function sesRows(items: ServiceEntrySheet[]): RecordRow[] {
 	return items.map((item) => ({
 		id: item._id,
 		code: item.code,
@@ -454,7 +452,7 @@ export function sesRows(items: ServiceEntrySheet[]): RecordRow[] {
 	}));
 }
 
-export function invoiceRows(items: Invoice[]): RecordRow[] {
+function invoiceRows(items: Invoice[]): RecordRow[] {
 	return items.map((item) => ({
 		id: item._id,
 		code: item.invoiceNumber || item.code,
@@ -470,7 +468,7 @@ export function invoiceRows(items: Invoice[]): RecordRow[] {
 	}));
 }
 
-export function paymentRows(items: Payment[]): RecordRow[] {
+function paymentRows(items: Payment[]): RecordRow[] {
 	return items.map((item) => ({
 		id: item._id,
 		code: item.paymentReference,

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import "@/core/ui/index";
 import { ConsentGate } from "@/modules/consents/ui/ConsentGate";
 import { CermontAIDrawer } from "@/modules/core/ui/ai/CermontAIDrawer";
 import Header from "@/modules/core/ui/layout/Header";
@@ -37,7 +38,7 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
 						tabIndex={-1}
 						className="min-w-0 flex-1 bg-[var(--surface-page)] scroll-mt-[calc(var(--header-height)+var(--space-4))]"
 					>
-						<div className="animate-fade-in-up mx-auto w-full max-w-[var(--shell-max-width)] px-4 py-4 pb-28 md:px-6 md:py-6 md:pb-8 2xl:px-8 2xl:py-8">
+						<div className="animate-fade-in-up mx-auto w-full max-w-[var(--shell-max-width)] px-4 py-4 pb-28 md:px-6 md:py-6 md:pb-24 2xl:px-8 2xl:py-8">
 							{children}
 						</div>
 					</main>

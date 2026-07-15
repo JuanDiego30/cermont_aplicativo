@@ -1,14 +1,21 @@
 "use client";
 
+import type { ProposalCostBreakdown as ProposalCostBreakdownType } from "@cermont/shared-types";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { PROPOSALS_KEYS } from "@/modules/proposals/queries";
 import { ProposalActions } from "@/modules/proposals/ui/ProposalActions";
-import { ProposalStatusBadge } from "@/modules/proposals/ui/ProposalStatusBadge";
+import { ProposalCostBreakdown } from "@/modules/proposals/ui/ProposalCostBreakdown";
+import { StatusBadge } from "@/core/ui/StatusBadge";
+import "@/modules/proposals/ui/ApproveWithSupportModal";
+import "@/modules/proposals/ui/VersionHistory";
 
 interface ProposalDetail {
 	_id: string;
@@ -19,9 +26,9 @@ interface ProposalDetail {
 	total: number;
 	subtotal: number;
 	taxRate: number;
-	validUntil: string | null;
-	approvedAt: string | null;
-	approvedBy: string | null;
+	validUntil: string | undefined;
+	approvedAt: string | undefined;
+	approvedBy: string | undefined;
 	notes: string;
 	createdAt: string;
 	updatedAt: string;
@@ -62,14 +69,14 @@ function propNum(p: Record<string, unknown>, ...keys: string[]): number {
 	return 0;
 }
 
-function propDate(p: Record<string, unknown>, ...keys: string[]): string | null {
+function propDate(p: Record<string, unknown>, ...keys: string[]): string | undefined {
 	for (const key of keys) {
 		const val = p[key];
 		if (val != null) {
 			return String(val);
 		}
 	}
-	return null;
+	return undefined;
 }
 
 async function fetchProposalDetail(id: string): Promise<ProposalDetail> {
@@ -106,14 +113,32 @@ async function fetchProposalDetail(id: string): Promise<ProposalDetail> {
 export default function ProposalDetailPage() {
 	const params = useParams();
 	const id = params.id as string;
+	const { accessToken } = useAuth();
 
 	const {
 		data: proposal,
 		isLoading,
 		error,
 	} = useQuery<ProposalDetail>({
-		queryKey: ["proposal", id],
+		queryKey: PROPOSALS_KEYS.detail(id),
 		queryFn: () => fetchProposalDetail(id),
+		enabled: !!id,
+	});
+
+	const {
+		data: costBreakdown,
+		isLoading: isCostsLoading,
+	} = useQuery<ProposalCostBreakdownType>({
+		queryKey: [...PROPOSALS_KEYS.detail(id), "costs"],
+		queryFn: async () => {
+			const body = await apiClient.get<{ success: boolean; data: ProposalCostBreakdownType }>(
+				`/proposals/${id}/costs`,
+			);
+			if (!body?.success || !body?.data) {
+				throw new Error("No se pudo cargar el desglose de costos");
+			}
+			return body.data;
+		},
 		enabled: !!id,
 	});
 
@@ -157,13 +182,13 @@ export default function ProposalDetailPage() {
 							>
 								{proposal.code}
 							</h1>
-							<ProposalStatusBadge status={proposal.status} />
+							<StatusBadge status={proposal.status} variant="flat" size="sm" />
 						</div>
 						<p className="mt-1 text-sm text-steel dark:text-steel">{proposal.clientName}</p>
 					</div>
 				</div>
 
-				{/* Status actions (contextual based on status) */}
+				{/* Status actions based on current status */}
 				<ProposalActions proposalId={proposal._id} status={proposal.status} />
 			</div>
 
@@ -180,7 +205,7 @@ export default function ProposalDetailPage() {
 					<div>
 						<dt className="font-medium text-steel dark:text-steel">Estado</dt>
 						<dd className="mt-1">
-							<ProposalStatusBadge status={proposal.status} />
+							<StatusBadge status={proposal.status} variant="flat" size="sm" />
 						</dd>
 					</div>
 					<div>
@@ -248,6 +273,24 @@ export default function ProposalDetailPage() {
 					{proposal.notes ? `\n\n${proposal.notes}` : ""}
 				</p>
 			</div>
+
+			{/* Cost Breakdown */}
+			{isCostsLoading ? (
+				<div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+					<Skeleton variant="text" height={24} />
+					<div className="mt-4 space-y-2">
+						<Skeleton variant="text" height={16} />
+						<Skeleton variant="text" height={16} />
+						<Skeleton variant="text" height={16} />
+					</div>
+				</div>
+			) : costBreakdown ? (
+				<ProposalCostBreakdown
+					proposalId={proposal._id}
+					breakdown={costBreakdown}
+					accessToken={accessToken ?? ""}
+				/>
+			) : null}
 		</section>
 	);
 }
