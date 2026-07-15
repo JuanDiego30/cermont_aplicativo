@@ -57,7 +57,7 @@ interface CreateTrackingInput {
 	assignedAt?: Date;
 }
 
-type SlaLookupResult = { status: "found"; config: SlaConfig } | { status: "not_found" };
+type SlaLookupState = { status: "found"; config: SlaConfig } | { status: "not_found" };
 
 function normalizeServiceType(value: string): string {
 	return value
@@ -133,7 +133,7 @@ export const SLAService = {
 		serviceType: string,
 		priority: SlaPriority,
 		clientId?: string,
-	): Promise<SlaLookupResult> {
+	): Promise<SlaLookupState> {
 		const normalizedType = normalizeServiceType(serviceType);
 		const configs = await this.getConfigs();
 		const activeConfigs = configs.filter(
@@ -268,15 +268,16 @@ export const SLAService = {
 			.populate("serviceCaseId", "code clientName")
 			.lean();
 		const settled = resolved + breached + escalated;
+		const safeAtRisk = atRisk > active ? active : atRisk;
 		return {
 			summary: {
 				active,
 				breached,
-				atRisk,
+				atRisk: safeAtRisk,
 				resolved,
 				escalated,
 				total,
-				complianceRate: settled > 0 ? Math.round((resolved / settled) * 100) : 100,
+				complianceRate: settled > 0 ? Math.round((resolved / settled) * 100) : null,
 			},
 			breaching,
 		};
@@ -359,7 +360,7 @@ export const SLAService = {
 				atRisk,
 				resolved,
 				escalated,
-				complianceRate: settled > 0 ? Math.round((resolved / settled) * 100) : 100,
+				complianceRate: settled > 0 ? Math.round((resolved / settled) * 100) : null,
 			},
 			generatedAt: new Date().toISOString(),
 		};
