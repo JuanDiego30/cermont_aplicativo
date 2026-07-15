@@ -1,5 +1,5 @@
 import { createLogger } from "../common/utils/logger";
-import type { Invoice } from "../models";
+import type { InvoiceDocument } from "../models/Invoice";
 
 const log = createLogger("dian-service");
 
@@ -11,7 +11,7 @@ export interface DianInvoiceResult {
 	dianResponse: Record<string, unknown>;
 }
 
-export async function emitirFacturaElectronica(invoice: Invoice): Promise<DianInvoiceResult> {
+export async function emitirFacturaElectronica(invoice: InvoiceDocument): Promise<DianInvoiceResult> {
 	try {
 		log.info("Emitting electronic invoice to DIAN", { invoiceId: invoice._id });
 		const cufe = Array.from({ length: 32 }, () =>
