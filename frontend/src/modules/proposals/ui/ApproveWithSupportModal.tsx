@@ -3,31 +3,63 @@
 import { apiClient } from "@/lib/http/api-client";
 import type { Proposal } from "@cermont/shared-types";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ApproveWithSupportModalProps {
 	proposalId: string;
+	open: boolean;
 	onClose: () => void;
 	onApproved: (proposal: Proposal) => void;
 }
 
 export function ApproveWithSupportModal({
 	proposalId,
+	open,
 	onClose,
 	onApproved,
 }: ApproveWithSupportModalProps) {
+	const dialogRef = useRef<HTMLDialogElement>(null);
 	const [supportType, setSupportType] = useState<"verbal" | "email" | "document">("verbal");
 	const [supportDescription, setSupportDescription] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const [error, setError] = useState<string>("");
+
+	const handleClose = useCallback(() => {
+		dialogRef.current?.close();
+		onClose();
+	}, [onClose]);
+
+	useEffect(() => {
+		const dialog = dialogRef.current;
+		if (!dialog) {
+			return;
+		}
+		if (open && !dialog.open) {
+			dialog.showModal();
+		} else if (!open && dialog.open) {
+			dialog.close();
+		}
+	}, [open]);
+
+	useEffect(() => {
+		const dialog = dialogRef.current;
+		if (!dialog) {
+			return;
+		}
+		const handleNativeClose = () => {
+			onClose();
+		};
+		dialog.addEventListener("close", handleNativeClose);
+		return () => dialog.removeEventListener("close", handleNativeClose);
+	}, [onClose]);
 
 	const handleSubmit = async () => {
 		if (supportDescription.trim().length < 10) {
-			setError("La descripción del soporte debe tener al menos 10 caracteres");
+			setError("La descripcion del soporte debe tener al menos 10 caracteres");
 			return;
 		}
 		setIsSubmitting(true);
-		setError(null);
+		setError("");
 		try {
 			const response = await apiClient.post<{
 				success: true;
@@ -37,30 +69,27 @@ export function ApproveWithSupportModal({
 				supportDescription: supportDescription.trim(),
 			});
 			onApproved(response.data.proposal);
+			handleClose();
 		} catch (err: unknown) {
-			const message =
-				err instanceof Error ? err.message : "Error al aprobar con soporte";
-			setError(message);
+			setError(err instanceof Error ? err.message : "Error al aprobar con soporte");
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
 	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-			role="dialog"
-			aria-modal="true"
-			aria-label="Aprobar propuesta con soporte"
+		<dialog
+			ref={dialogRef}
+			className="rounded-2xl border border-[var(--border-subtle)] bg-white p-0 shadow-xl backdrop:bg-black/40 dark:bg-gray-800"
 		>
-			<div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
+			<div className="w-full max-w-md p-6">
 				<div className="mb-4 flex items-center justify-between">
 					<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
 						Aprobar con soporte
 					</h2>
 					<button
 						type="button"
-						onClick={onClose}
+						onClick={handleClose}
 						className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700"
 						aria-label="Cerrar"
 					>
@@ -84,8 +113,8 @@ export function ApproveWithSupportModal({
 							}
 							className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50] dark:border-gray-600 dark:bg-gray-700 dark:text-white"
 						>
-							<option value="verbal">Aprobación verbal</option>
-							<option value="email">Confirmación por email</option>
+							<option value="verbal">Aprobacion verbal</option>
+							<option value="email">Confirmacion por email</option>
 							<option value="document">Documento escrito</option>
 						</select>
 					</div>
@@ -95,7 +124,7 @@ export function ApproveWithSupportModal({
 							htmlFor="supportDescription"
 							className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
 						>
-							Descripción del soporte
+							Descripcion del soporte
 						</label>
 						<textarea
 							id="supportDescription"
@@ -104,7 +133,7 @@ export function ApproveWithSupportModal({
 							rows={4}
 							minLength={10}
 							className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50] dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-							placeholder="Describa el soporte de la aprobación (mín. 10 caracteres)..."
+							placeholder="Describa el soporte de la aprobacion (min. 10 caracteres)..."
 						/>
 					</div>
 
@@ -117,7 +146,7 @@ export function ApproveWithSupportModal({
 					<div className="flex justify-end gap-3">
 						<button
 							type="button"
-							onClick={onClose}
+							onClick={handleClose}
 							className="rounded-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
 							disabled={isSubmitting}
 						>
@@ -129,11 +158,11 @@ export function ApproveWithSupportModal({
 							disabled={isSubmitting}
 							className="rounded-full bg-[#2154A6] px-4 py-2 text-sm font-medium text-white hover:bg-[#1a4390] disabled:opacity-50"
 						>
-							{isSubmitting ? "Aprobando..." : "Confirmar aprobación"}
+							{isSubmitting ? "Aprobando..." : "Confirmar aprobacion"}
 						</button>
 					</div>
 				</div>
 			</div>
-		</div>
+		</dialog>
 	);
 }
