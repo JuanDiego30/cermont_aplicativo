@@ -16,11 +16,11 @@ export async function fetchNotifications(): Promise<Notification[]> {
 	if (!body.success) {
 		throw new Error("Failed to fetch notifications");
 	}
-	const data = body.data as unknown;
+	const data = body.data;
 	if (Array.isArray(data)) {
-		return data as Notification[];
+		return data;
 	}
-	if (data && typeof data === "object" && "notifications" in (data as Record<string, unknown>)) {
+	if (data && typeof data === "object" && "notifications" in data) {
 		return (data as { notifications: Notification[] }).notifications;
 	}
 	return [];
