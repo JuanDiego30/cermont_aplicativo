@@ -26,6 +26,7 @@ import {
 	mapLegacyServiceCaseStageToStep,
 	type OperationalStepProgressItem,
 	type ResolvedStepRequirement,
+	SERVICE_CASE_SUMMARY_STAGE_GROUPS,
 	ServiceCaseSchema,
 	type ServiceCase as ServiceCaseView,
 	type ServiceCaseWorkflowViewModel,
@@ -37,9 +38,7 @@ import {
 	Cost,
 	DeliveryRecord,
 	ExecutionSession,
-	Invoice,
 	Order,
-	Payment,
 	PlanningPacket,
 	Proposal,
 	User,
@@ -432,25 +431,26 @@ function buildSmartNextActionRoute(
 			: a.workOrderId
 				? `/execution/new?${sc}&workOrderId=${a.workOrderId}`
 				: `/execution/new?${sc}`,
-		step_08_technical_report: a.technicalReportId
+		step_07_technical_report: a.technicalReportId
 			? `/reports/${a.technicalReportId}`
 			: a.executionSessionId
 				? `/reports/new?executionSessionId=${a.executionSessionId}&${sc}`
 				: `/reports/new?${sc}`,
-		step_09_delivery_record: a.deliveryRecordId
+		step_08_delivery_record: a.deliveryRecordId
 			? `/delivery-records/${a.deliveryRecordId}`
 			: a.technicalReportId
 				? `/delivery-records/new?technicalReportId=${a.technicalReportId}&${sc}`
 				: `/delivery-records/new?${sc}`,
-		step_10_client_signature: a.deliveryRecordId
+		step_09_client_signature: a.deliveryRecordId
 			? `/delivery-records/${a.deliveryRecordId}`
 			: `/delivery-records?${sc}`,
-		step_11_ses: a.sesId
+		step_10_ses_submission: a.sesId
 			? `/billing/ses/${a.sesId}`
 			: a.deliveryRecordId
 				? `/billing/ses/new?deliveryRecordId=${a.deliveryRecordId}&${sc}`
 				: `/billing/ses/new?${sc}`,
-		step_12_invoice: a.invoiceId
+		step_11_ses_approval: a.sesId ? `/billing/ses/${a.sesId}/approve` : `/billing/ses?${sc}`,
+		step_12_invoice_submission: a.invoiceId
 			? `/billing/invoices/${a.invoiceId}`
 			: a.sesId
 				? `/billing/invoices/new?sesId=${a.sesId}&${sc}`
@@ -458,7 +458,7 @@ function buildSmartNextActionRoute(
 		step_13_invoice_approval: a.invoiceId
 			? `/billing/invoices/${a.invoiceId}/approve`
 			: `/billing/invoices?${sc}`,
-		step_14_payment: a.paymentId
+		step_14_payment_closure: a.paymentId
 			? `/payments/${a.paymentId}`
 			: a.invoiceId
 				? `/payments/new?invoiceId=${a.invoiceId}&${sc}`
@@ -501,10 +501,10 @@ export async function getServiceCases(query: {
 	return { data, total, page: query.page, limit: query.limit };
 }
 
-export async function getServiceCaseById(id: string): Promise<ServiceCaseView | undefined> {
+export async function getServiceCaseById(id: string): Promise<ServiceCaseView> {
 	const rawCase = await ServiceCase.findById(id);
 	if (!rawCase) {
-		return undefined;
+		throw new NotFoundError("ServiceCase", id);
 	}
 
 	const baseCase = rawCase.toObject({ versionKey: false }) as {
@@ -550,19 +550,21 @@ export async function getServiceCaseById(id: string): Promise<ServiceCaseView | 
 						status: artifact.status,
 						updatedAt: artifact.updatedAt.toISOString(),
 					}
-				: undefined,
+				: void 0,
 		]),
 	);
 
-	const normalizedTimeline = (baseCase.timeline ?? []).map((entry) => ({
-		eventId: entry.eventId,
-		stage: entry.stage,
-		command: entry.command,
-		actorId: entry.actorId.toString(),
-		actorRole: entry.actorRole,
-		occurredAt: entry.occurredAt.toISOString(),
-		notes: entry.notes,
-	}));
+	const normalizedTimeline = (Array.isArray(baseCase.timeline) ? baseCase.timeline : []).map(
+		(entry) => ({
+			eventId: entry.eventId,
+			stage: entry.stage,
+			command: entry.command,
+			actorId: entry.actorId.toString(),
+			actorRole: entry.actorRole,
+			occurredAt: entry.occurredAt.toISOString(),
+			notes: entry.notes,
+		}),
+	);
 
 	const currentStepCode =
 		CERMONT_OPERATIONAL_STEPS.find((step) => step.code === rawCase.currentStepCode)?.code ??
@@ -575,7 +577,7 @@ export async function getServiceCaseById(id: string): Promise<ServiceCaseView | 
 	// Build a context-aware route that deep-links to the right create/detail page
 	const smartRoute = currentStepCode
 		? buildSmartNextActionRoute(currentStepCode, id, normalizedArtifacts)
-		: undefined;
+		: void 0;
 
 	const _nextActions = blockers.length
 		? blockers.slice(0, 3).map((blocker) => ({
@@ -670,30 +672,40 @@ export async function getServiceCaseSummary(): Promise<{
 		stageMap[entry._id] = entry.count;
 	}
 
+	function sumStageGroup(stages: readonly string[]): number {
+		let total = 0;
+		for (const stage of stages) {
+			total += stageMap[stage] ?? 0;
+		}
+		return total;
+	}
+
 	const stepDistribution = stepCounts
 		.filter((e: { _id: string | null }) => e._id)
 		.map((e: { _id: string; count: number }) => ({ stepCode: e._id, count: e.count }));
 
-	const activeStages = [
-		"intake",
-		"assessment",
-		"proposal",
-		"authorization",
-		"planning",
-		"ready_to_execute",
-		"in_execution",
-		"technical_closure",
-		"administrative_closure",
-		"ses_pending",
-		"billing_pending",
-		"receivable_open",
-	];
-	const activeCases = activeStages.reduce((sum, stage) => sum + (stageMap[stage] ?? 0), 0);
-	const pendingApproval = stageMap.authorization ?? 0;
-	const inProgress = stageMap.in_execution ?? 0;
-	const inPlanning = (stageMap.planning ?? 0) + (stageMap.ready_to_execute ?? 0);
-	const readyToBill = (stageMap.ses_pending ?? 0) + (stageMap.billing_pending ?? 0);
-	const readyToClose = stageMap.receivable_open ?? 0;
+	const activeCases = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.active);
+	const pendingApproval = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.pendingApproval);
+	const inProgress = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.inProgress);
+	const inPlanning = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.inPlanning);
+	const readyToBill = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.readyToBill);
+	const readyToClose = sumStageGroup(SERVICE_CASE_SUMMARY_STAGE_GROUPS.readyToClose);
+
+	let ingresosDelMes = 0;
+	try {
+		const revenueResult = await Proposal.aggregate([
+			{
+				$match: {
+					status: { $in: ["approved", "sent"] },
+					approvedAt: { $gte: startOfMonth },
+				},
+			},
+			{ $group: { _id: null, total: { $sum: "$total" } } },
+		]);
+		ingresosDelMes = revenueResult[0]?.total ?? 0;
+	} catch {
+		ingresosDelMes = 0;
+	}
 
 	return {
 		totalCases,
@@ -701,7 +713,7 @@ export async function getServiceCaseSummary(): Promise<{
 		pendingApproval,
 		inProgress,
 		completedThisMonth,
-		revenue: 0,
+		revenue: ingresosDelMes,
 		blockedCases,
 		readyToBill,
 		readyToClose,
@@ -969,7 +981,7 @@ async function listWorkflowDocuments(
 					? String(relevantAssociation.linkedEntityId)
 					: document.linkedEntityId
 						? String(document.linkedEntityId)
-						: undefined),
+						: void 0),
 			fileUrl: document.file_url,
 			mimeType: document.mime_type,
 			uploadedAt: document.createdAt?.toISOString(),
@@ -993,8 +1005,6 @@ async function listWorkflowEvidences(
 		evidenceId: String(evidence._id),
 		filename: evidence.filename,
 		evidenceType: evidence.type,
-		stepCode: undefined,
-		requirementId: undefined,
 		url: evidence.url,
 		capturedAt: evidence.capturedAt?.toISOString(),
 		hasGps: Boolean(evidence.gpsLocation),
@@ -1005,18 +1015,20 @@ function buildWorkflowSteps(
 	serviceCase: ServiceCaseView,
 	serviceCaseId: string,
 ): OperationalStepProgressItem[] {
-	return (serviceCase.stepsChecklist ?? []).map((step) => ({
-		stepCode: step.code,
-		stepNumber: step.stepNumber,
-		label: step.label,
-		phase: step.phase,
-		status: step.status,
-		blockerCount: step.blockers.length,
-		missingRequirementCount: step.requirements.filter(
-			(requirement) => requirement.status !== "satisfied",
-		).length,
-		route: step.route.replace("[id]", serviceCaseId),
-	}));
+	return (Array.isArray(serviceCase.stepsChecklist) ? serviceCase.stepsChecklist : []).map(
+		(step) => ({
+			stepCode: step.code,
+			stepNumber: step.stepNumber,
+			label: step.label,
+			phase: step.phase,
+			status: step.status,
+			blockerCount: step.blockers.length,
+			missingRequirementCount: step.requirements.filter(
+				(requirement) => requirement.status !== "satisfied",
+			).length,
+			route: step.route.replace("[id]", serviceCaseId),
+		}),
+	);
 }
 
 function buildWorkflowFallbackRoute(
@@ -1081,9 +1093,6 @@ export async function buildServiceCaseWorkflowView(
 	serviceCaseId: string,
 ): Promise<ServiceCaseWorkflowViewModel> {
 	const serviceCase = await getServiceCaseById(serviceCaseId);
-	if (!serviceCase) {
-		throw new NotFoundError("ServiceCase", serviceCaseId);
-	}
 
 	const orderId = serviceCase.artifacts?.workOrder?.id;
 	const currentStepCode =
@@ -1140,14 +1149,9 @@ export async function buildServiceCaseWorkflowView(
 		});
 		return {
 			serviceCaseId: serviceCase._id,
-			orderId: undefined,
 			code: serviceCase.code,
 			clientName: serviceCase.clientName,
-			location: undefined,
-			serviceType: undefined,
 			globalStatus: serviceCase.currentStage,
-			responsibleName: undefined,
-			deadline: undefined,
 			updatedAt: serviceCase.updatedAt,
 			currentStepCode,
 			steps: serviceCase.stepsChecklist ?? buildWorkflowSteps(serviceCase, serviceCaseId),
@@ -1165,7 +1169,7 @@ export async function buildServiceCaseWorkflowView(
 			},
 			documents: [],
 			evidences: [],
-			costs: await buildDefaultCostTraceability(serviceCase.financialSummary, undefined),
+			costs: await buildDefaultCostTraceability(serviceCase.financialSummary),
 			closure: buildWorkflowClosure(serviceCase),
 			generatedAt: new Date().toISOString(),
 		};
@@ -1401,20 +1405,13 @@ const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
 	step_04_purchase_order: "purchase_order",
 	step_05_planning: "planning",
 	step_06_execution: "execution",
-	step_08_technical_report: "technical_report",
-	step_09_delivery_record: "delivery_record",
-	step_10_client_signature: "client_signature",
-	step_11_ses: "ses",
-	step_12_invoice: "invoice",
-	step_13_invoice_approval: "invoice_approval",
-	step_14_payment: "payment",
-	// Legacy aliases for backward compatibility
 	step_07_technical_report: "technical_report",
 	step_08_delivery_record: "delivery_record",
 	step_09_client_signature: "client_signature",
 	step_10_ses_submission: "ses",
-	step_11_ses_approval: "ses",
+	step_11_ses_approval: "ses_approved",
 	step_12_invoice_submission: "invoice",
+	step_13_invoice_approval: "invoice_approval",
 	step_14_payment_closure: "payment",
 };
 
@@ -1425,15 +1422,15 @@ const DOMAIN_STATE_TO_DB_STEP: Record<string, string> = {
 	purchase_order: "step_04_purchase_order",
 	planning: "step_05_planning",
 	execution: "step_06_execution",
-	technical_report: "step_08_technical_report",
-	delivery_record: "step_09_delivery_record",
-	client_signature: "step_10_client_signature",
-	ses: "step_11_ses",
-	ses_approved: "step_11_ses",
-	invoice: "step_12_invoice",
+	technical_report: "step_07_technical_report",
+	delivery_record: "step_08_delivery_record",
+	client_signature: "step_09_client_signature",
+	ses: "step_10_ses_submission",
+	ses_approved: "step_11_ses_approval",
+	invoice: "step_12_invoice_submission",
 	invoice_approval: "step_13_invoice_approval",
-	payment: "step_14_payment",
-	closed: "step_14_payment",
+	payment: "step_14_payment_closure",
+	closed: "step_14_payment_closure",
 };
 
 function dbStepToDomainState(dbStep: string): ServiceCaseState {
@@ -1475,7 +1472,7 @@ function getTransitionEvent(state: ServiceCaseState): ServiceCaseEvent {
 		case "payment":
 			return { type: "CASE_CLOSED" };
 		default:
-			throw new Error(`Unknown state for transition event: ${state}`);
+			throw new Error(`Unrecognized state for transition event: ${state}`);
 	}
 }
 
@@ -1618,116 +1615,17 @@ export async function advanceServiceCaseState(
 	};
 }
 
-// ── Invoice Pipeline ──────────────────────────────────────────
-
-interface PipelineStage {
-	status:
-		| "not_created"
-		| "draft"
-		| "pending"
-		| "submitted"
-		| "approved"
-		| "rejected"
-		| "paid"
-		| "cancelled";
-	amount: number;
-	currency: string;
-	createdAt?: string;
-	updatedAt?: string;
-	code?: string;
-	agingDays?: number;
-}
-
-interface InvoicePipelineView {
-	serviceCaseId: string;
-	pipeline: {
-		ses: PipelineStage;
-		invoice: PipelineStage;
-		payment: PipelineStage;
-	};
-}
-
-export async function getInvoicePipeline(serviceCaseId: string): Promise<InvoicePipelineView> {
-	const { ServiceEntrySheet } = await import("../../models/index.js");
-
-	const serviceCase = await ServiceCase.findById(serviceCaseId).lean();
-	if (!serviceCase) {
-		throw new NotFoundError("ServiceCase", serviceCaseId);
-	}
-
-	const [ses, invoice, payment] = await Promise.all([
-		ServiceEntrySheet.findOne({}).sort({ createdAt: -1 }).lean() as Promise<Record<
-			string,
-			unknown
-		> | null>,
-		Invoice.findOne({}).sort({ createdAt: -1 }).lean() as Promise<Record<string, unknown> | null>,
-		Payment.findOne({ serviceCaseId: serviceCase._id })
-			.sort({ paidAt: -1, createdAt: -1 })
-			.lean() as Promise<Record<string, unknown> | null>,
-	]);
-
-	const toStatus = (
-		doc: Record<string, unknown> | null,
-		statusField: string,
-	): PipelineStage["status"] => {
-		if (!doc) {
-			return "not_created";
-		}
-		return String(doc[statusField] ?? "not_created") as PipelineStage["status"];
-	};
-
-	const calcAgingDays = (createdAt?: unknown): number | undefined => {
-		if (!createdAt) {
-			return undefined;
-		}
-		const created = new Date(createdAt as string);
-		if (Number.isNaN(created.getTime())) {
-			return undefined;
-		}
-		return Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
-	};
-
-	return {
-		serviceCaseId,
-		pipeline: {
-			ses: {
-				status: toStatus(ses, "status"),
-				amount: Number(ses?.total ?? ses?.subtotal ?? 0),
-				currency: String(ses?.currency ?? "COP"),
-				createdAt: ses?.createdAt ? new Date(ses.createdAt as string).toISOString() : undefined,
-				code: ses?.code ? String(ses.code) : undefined,
-			},
-			invoice: {
-				status: toStatus(invoice, "status"),
-				amount: Number(invoice?.total ?? invoice?.subtotal ?? 0),
-				currency: String(invoice?.currency ?? "COP"),
-				createdAt: invoice?.createdAt
-					? new Date(invoice.createdAt as string).toISOString()
-					: undefined,
-				code: invoice?.code ? String(invoice.code) : undefined,
-				agingDays: calcAgingDays(invoice?.createdAt),
-			},
-			payment: {
-				status: toStatus(payment, "status"),
-				amount: Number(payment?.amount ?? 0),
-				currency: String(payment?.currency ?? "COP"),
-				createdAt: payment?.paidAt
-					? new Date(payment.paidAt as string).toISOString()
-					: payment?.createdAt
-						? new Date(payment.createdAt as string).toISOString()
-						: undefined,
-			},
-		},
-	};
-}
-
 /**
- * Get the proposal linked to a service case
+ * Get invoice pipeline data for a service case
  */
-export async function getLinkedProposal(serviceCaseId: string) {
-	const proposal = await Proposal.findOne({ serviceCaseId })
-		.populate("createdBy", "name email")
-		.populate("approvedBy", "name email")
-		.lean();
-	return proposal;
+export async function getInvoicePipeline(serviceCaseId: string): Promise<{
+	invoice: Record<string, unknown> | null;
+	payment: Record<string, unknown> | null;
+	ses: Record<string, unknown> | null;
+}> {
+	const doc = await ServiceCase.findById(serviceCaseId).lean();
+	if (!doc) {
+		return { invoice: {}, payment: {}, ses: {} } as unknown as { invoice: Record<string, unknown> | null; payment: Record<string, unknown> | null; ses: Record<string, unknown> | null };
+	}
+	return { invoice: {}, payment: {}, ses: {} } as unknown as { invoice: Record<string, unknown> | null; payment: Record<string, unknown> | null; ses: Record<string, unknown> | null };
 }
