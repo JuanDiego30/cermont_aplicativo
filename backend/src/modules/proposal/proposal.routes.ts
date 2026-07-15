@@ -23,6 +23,8 @@ import {
 	createProposal,
 	getAllProposals,
 	getProposalById,
+	getProposalCostBreakdown,
+	getProposalPdf,
 	getProposalsByOrderId,
 	rejectProposal,
 	updateProposalStatus,
@@ -92,7 +94,7 @@ router.patch(
 // Approve proposal (convenience endpoint)
 router.patch(
 	"/:id/approve",
-	authorize(CERMONT_ROLES.CLIENTE),
+	authorize(CERMONT_ROLES.CLIENTE, CERMONT_ROLES.GERENTE),
 	validateParams(ProposalIdSchema),
 	validateBody(ApproveProposalSchema),
 	approveProposal,
@@ -101,9 +103,32 @@ router.patch(
 // Reject proposal (convenience endpoint)
 router.patch(
 	"/:id/reject",
-	authorize(CERMONT_ROLES.CLIENTE),
+	authorize(CERMONT_ROLES.CLIENTE, CERMONT_ROLES.GERENTE),
 	validateParams(ProposalIdSchema),
 	rejectProposal,
+);
+
+/**
+ * GET /api/proposals/:id/costs
+ * Cost breakdown for a proposal
+ * Reference: PLAN_IMPLEMENTACION_CERMONT_v2.0 Tarea 1.2
+ */
+router.get(
+	"/:id/costs",
+	authorize(...ALL_AUTHENTICATED_ROLES),
+	validateParams(ProposalIdSchema),
+	getProposalCostBreakdown,
+);
+
+/**
+ * GET /api/proposals/:id/pdf
+ * Generate cost breakdown PDF for a proposal
+ */
+router.get(
+	"/:id/pdf",
+	authorize(...ALL_AUTHENTICATED_ROLES),
+	validateParams(ProposalIdSchema),
+	getProposalPdf,
 );
 
 /**
