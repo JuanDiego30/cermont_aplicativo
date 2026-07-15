@@ -500,3 +500,74 @@ export async function getActiveAssignment(
 		.populate("driverId", "name email")
 		.populate("assignedBy", "name email");
 }
+
+interface DocumentStatus {
+	registered: boolean;
+	expiryDate: string | null;
+	expired: boolean;
+	daysUntilExpiry: number | null;
+}
+
+interface VehicleDocumentStatus {
+	vehicleId: string;
+	plate: string;
+	documents: {
+		soat: DocumentStatus;
+		tecnomecanica: DocumentStatus;
+		poliza: DocumentStatus;
+	};
+	allDocumentsValid: boolean;
+	missingDocuments: string[];
+}
+
+export async function validarDocumentosVehiculo(vehicleId: string): Promise<VehicleDocumentStatus> {
+	const vehicle = await getVehicleById(vehicleId);
+	const now = new Date();
+
+	function buildStatus(expiryDate: Date | null | undefined): DocumentStatus {
+		if (!expiryDate) {
+			return { registered: false, expiryDate: null, expired: false, daysUntilExpiry: null };
+		}
+		const expired = expiryDate < now;
+		const daysUntilExpiry = Math.ceil(
+			(expiryDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000),
+		);
+		return {
+			registered: true,
+			expiryDate: expiryDate.toISOString(),
+			expired,
+			daysUntilExpiry,
+		};
+	}
+
+	const soat = buildStatus(vehicle.soatExpiry);
+	const tecnomecanica = buildStatus(vehicle.technoMechanicalExpiry);
+	const poliza = buildStatus(vehicle.insuranceExpiry);
+
+	const missingDocuments: string[] = [];
+	if (!soat.registered) {
+		missingDocuments.push("SOAT");
+	}
+	if (!tecnomecanica.registered) {
+		missingDocuments.push("Tecnomecánica");
+	}
+	if (!poliza.registered) {
+		missingDocuments.push("Póliza");
+	}
+
+	const allDocumentsValid =
+		soat.registered &&
+		!soat.expired &&
+		tecnomecanica.registered &&
+		!tecnomecanica.expired &&
+		poliza.registered &&
+		!poliza.expired;
+
+	return {
+		vehicleId: vehicle._id.toString(),
+		plate: vehicle.plate,
+		documents: { soat, tecnomecanica, poliza },
+		allDocumentsValid,
+		missingDocuments,
+	};
+}

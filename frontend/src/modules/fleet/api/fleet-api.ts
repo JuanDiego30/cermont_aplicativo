@@ -9,6 +9,7 @@ import type {
 	CheckoutVehicleAssignmentInput,
 	CreateVehicleAssignmentInput,
 	CreateVehicleInput,
+	UpdateVehicleInput,
 	Vehicle,
 	VehicleAssignment,
 	VehicleDocumentAlert,
@@ -133,6 +134,11 @@ export async function checkinVehicle(
 	return envelope.data;
 }
 
+export async function updateVehicle(id: string, input: UpdateVehicleInput): Promise<Vehicle> {
+	const envelope = await apiClient.patch<{ success: true; data: Vehicle }>(`/fleet/${id}`, input);
+	return envelope.data;
+}
+
 export async function getActiveVehicleAssignment(
 	vehicleId: string,
 ): Promise<VehicleAssignment | null> {
@@ -145,6 +151,40 @@ export async function getActiveVehicleAssignment(
 export async function getVehicleHistory(vehicleId: string): Promise<VehicleAssignment[]> {
 	const envelope = await apiClient.get<{ success: true; data: VehicleAssignment[] }>(
 		`/fleet/${vehicleId}/assignments/history`,
+	);
+	return envelope.data;
+}
+
+export interface VehicleDocumentStatus {
+	vehicleId: string;
+	plate: string;
+	documents: {
+		soat: {
+			registered: boolean;
+			expiryDate: string | null;
+			expired: boolean;
+			daysUntilExpiry: number | null;
+		};
+		tecnomecanica: {
+			registered: boolean;
+			expiryDate: string | null;
+			expired: boolean;
+			daysUntilExpiry: number | null;
+		};
+		poliza: {
+			registered: boolean;
+			expiryDate: string | null;
+			expired: boolean;
+			daysUntilExpiry: number | null;
+		};
+	};
+	allDocumentsValid: boolean;
+	missingDocuments: string[];
+}
+
+export async function getVehicleDocumentStatus(vehicleId: string): Promise<VehicleDocumentStatus> {
+	const envelope = await apiClient.get<{ success: true; data: VehicleDocumentStatus }>(
+		`/fleet/${vehicleId}/document-status`,
 	);
 	return envelope.data;
 }

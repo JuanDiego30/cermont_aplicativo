@@ -6,6 +6,9 @@
 
 import { INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
+	CheckinVehicleAssignmentSchema,
+	CheckoutVehicleAssignmentSchema,
+	CreateVehicleAssignmentSchema,
 	CreateVehicleSchema,
 	ListVehiclesQuerySchema,
 	UpdateVehicleSchema,
@@ -42,6 +45,14 @@ router.get(
 	"/expiring-documents",
 	authorize(...INTERNAL_ROLES),
 	FleetController.getExpiringDocuments,
+);
+
+// GET /api/fleet/:id/document-status — vehicle document validation status
+router.get(
+	"/:id/document-status",
+	authorize(...INTERNAL_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	FleetController.getDocumentStatus,
 );
 
 router.get(
@@ -102,28 +113,45 @@ router.patch(
 	FleetController.updateVehicle,
 );
 
-// POST /api/fleet/:id/checkin — assign driver to vehicle
+// POST /api/fleet/:id/assignments — assign driver to vehicle
 router.post(
-	"/:id/checkin",
-	authorize(...MANAGEMENT_ROLES),
-	validateParams(VehicleIdParamsSchema),
-	FleetController.checkinVehicle,
-);
-
-// POST /api/fleet/:id/checkout — unassign driver from vehicle
-router.post(
-	"/:id/checkout",
-	authorize(...MANAGEMENT_ROLES),
-	validateParams(VehicleIdParamsSchema),
-	FleetController.checkoutVehicle,
-);
-
-// GET /api/fleet/:id/assignments — vehicle assignment history
-router.get(
 	"/:id/assignments",
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	validateBody(CreateVehicleAssignmentSchema),
+	FleetController.assignVehicle,
+);
+
+// GET /api/fleet/:id/assignments/active — get active assignment
+router.get(
+	"/:id/assignments/active",
+	authorize(...INTERNAL_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	FleetController.getActiveAssignment,
+);
+
+// GET /api/fleet/:id/assignments/history — vehicle assignment history
+router.get(
+	"/:id/assignments/history",
 	authorize(...INTERNAL_ROLES),
 	validateParams(VehicleIdParamsSchema),
 	FleetController.getAssignmentHistory,
+);
+
+// POST /api/fleet/assignments/:assignmentId/checkout — checkout (start trip)
+router.post(
+	"/assignments/:assignmentId/checkout",
+	authorize(...MANAGEMENT_ROLES),
+	validateBody(CheckoutVehicleAssignmentSchema),
+	FleetController.checkoutVehicle,
+);
+
+// POST /api/fleet/assignments/:assignmentId/checkin — checkin (end trip)
+router.post(
+	"/assignments/:assignmentId/checkin",
+	authorize(...MANAGEMENT_ROLES),
+	validateBody(CheckinVehicleAssignmentSchema),
+	FleetController.checkinVehicle,
 );
 
 export default router;
