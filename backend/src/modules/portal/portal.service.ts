@@ -219,6 +219,27 @@ export async function getClientProposals(clientUserId: string): Promise<PortalPr
 	}));
 }
 
+export async function getClientCases(clientUserId: string) {
+	const client = await resolveClient(clientUserId);
+	const clientObjectId = new Types.ObjectId(client.clientId);
+
+	const cases = await Order.find({
+		$or: [{ clientId: clientObjectId }, { createdBy: clientObjectId }],
+	})
+		.sort({ createdAt: -1 })
+		.limit(50)
+		.lean();
+
+	return cases.map((order) => ({
+		_id: order._id.toString(),
+		code: order.code ?? "",
+		status: order.status,
+		currentStep: (order as unknown as Record<string, string>).currentStep ?? "",
+		serviceType: (order as unknown as Record<string, string>).serviceType ?? "",
+		createdAt: order.createdAt?.toISOString() ?? "",
+	}));
+}
+
 /**
  * Get client dashboard summary
  */
