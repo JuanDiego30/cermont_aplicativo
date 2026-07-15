@@ -497,3 +497,4 @@ export async function getRoleBaseKPIs(_role?: string) {
 log.info("Dashboard service initialized");
 
 export { getFinancialKpis } from "./dashboard-financial.service";
+export type { FinancialKpisResult } from "./dashboard-financial.service";
