@@ -19,7 +19,7 @@ export async function getNotifications(req: Request, res: Response): Promise<voi
 			? { isRead: isReadParam === "true" }
 			: {}),
 	});
-	sendSuccess(res, data);
+	sendSuccess(res, data.notifications);
 }
 
 export async function markNotificationAsRead(req: Request, res: Response): Promise<void> {
@@ -41,4 +41,10 @@ export async function markAllNotificationsAsRead(req: Request, res: Response): P
 export async function getFailedOutboxEntries(_req: Request, res: Response): Promise<void> {
 	const data = await NotificationService.getFailedOutboxNotifications();
 	sendSuccess(res, data);
+}
+
+export async function getUnreadCount(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const count = await NotificationService.getUnreadCount(String(user._id));
+	sendSuccess(res, { count });
 }

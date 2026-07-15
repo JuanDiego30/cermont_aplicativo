@@ -7,6 +7,7 @@ import { validateParams } from "../../middlewares/validate";
 import {
 	getFailedOutboxEntries,
 	getNotifications,
+	getUnreadCount,
 	markAllNotificationsAsRead,
 	markNotificationAsRead,
 } from "./notification.controller";
@@ -17,6 +18,9 @@ router.use(authenticate);
 
 // GET /api/notifications
 router.get("/", authorize(...INTERNAL_ROLES), getNotifications);
+
+// GET /api/notifications/unread-count — lightweight count for header bell badge
+router.get("/unread-count", authorize(...INTERNAL_ROLES), getUnreadCount);
 
 // PATCH /api/notifications/:id
 router.patch(
@@ -34,11 +38,17 @@ router.patch(
 	markNotificationAsRead,
 );
 
-// POST /api/notifications/mark-all-read
+// POST /api/notifications/read-all — mark all as read
+router.post(
+	"/read-all",
+	authorize(...INTERNAL_ROLES),
+	markAllNotificationsAsRead,
+);
+
+// POST /api/notifications/mark-all-read — alias for read-all
 router.post(
 	"/mark-all-read",
 	authorize(...INTERNAL_ROLES),
-	/* No body validation needed — action endpoint */
 	markAllNotificationsAsRead,
 );
 

@@ -14,7 +14,7 @@ import { Types } from "mongoose";
 import { BadRequestError } from "../../common/errors";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
-import { Document, ServiceCase } from "../../models";
+import { Document, Proposal, ServiceCase } from "../../models";
 import { getConsolidatedReport } from "../../modules/order/order-closure.service";
 import {
 	applyClosingEvidenceMetadata,
@@ -154,6 +154,22 @@ export async function getCaseClosingStatus(req: Request, res: Response): Promise
 }
 
 /**
+ * GET /api/service-cases/:id/proposal
+ * Returns the proposal linked to this service case (if one exists)
+ */
+export async function getServiceCaseLinkedProposal(req: Request, res: Response): Promise<void> {
+	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
+	const proposal = await Proposal.findOne({ serviceCaseId: id }).lean();
+
+	if (!proposal) {
+		sendSuccess(res, { proposal: "not_found" });
+		return;
+	}
+
+	sendSuccess(res, proposal);
+}
+
+/**
  * POST /api/service-cases/:id/close
  * Close a service case
  */
@@ -181,12 +197,6 @@ export async function archiveServiceCase(req: Request, res: Response): Promise<v
  * GET /api/service-cases/:id/invoice-pipeline
  * Returns SES→Invoice→Payment pipeline status for a service case
  */
-export async function getLinkedProposal(req: Request, res: Response): Promise<void> {
-	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
-	const proposal = await ServiceCaseService.getLinkedProposal(id);
-	sendSuccess(res, proposal);
-}
-
 export async function getInvoicePipeline(req: Request, res: Response): Promise<void> {
 	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
 	const pipeline = await ServiceCaseService.getInvoicePipeline(id);

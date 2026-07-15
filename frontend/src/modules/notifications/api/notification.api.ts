@@ -1,31 +1,46 @@
 /**
- * Notifications API Service
+ * Notifications API — data access layer for the notifications module.
  *
- * Thin wrapper over `apiClient` for the `/api/notifications` endpoints.
- * Returns unwrapped response `data` fields and throws on non-2xx (handled by apiClient).
+ * All functions use the unique frontend apiClient.
  */
 
 import { apiClient } from "@/lib/http/api-client";
 import type { Notification } from "./types";
 
-const BASE = "/notifications";
+type NotificationListEnvelope = { success: boolean; data: Notification[] };
+type UnreadNotificationEnvelope = { success: boolean; data: { count: number } };
+type ApiAcknowledgement = { success: boolean };
 
 export async function fetchNotifications(): Promise<Notification[]> {
-	const envelope = await apiClient.get<{ success: true; data: Notification[] }>(BASE);
-	return envelope.data;
+	const body = await apiClient.get<NotificationListEnvelope>("/notifications");
+	if (!body.success) {
+		throw new Error("Failed to fetch notifications");
+	}
+	const data = body.data as unknown;
+	if (Array.isArray(data)) {
+		return data as Notification[];
+	}
+	if (data && typeof data === "object" && "notifications" in (data as Record<string, unknown>)) {
+		return (data as { notifications: Notification[] }).notifications;
+	}
+	return [];
 }
 
 export async function fetchUnreadCount(): Promise<number> {
-	const envelope = await apiClient.get<{ success: true; data: { count: number } }>(
-		`${BASE}/unread-count`,
-	);
-	return envelope.data.count;
+	const body = await apiClient.get<UnreadNotificationEnvelope>("/notifications/unread-count");
+	if (!body.success) {
+		return 0;
+	}
+	return body.data.count;
 }
 
-export async function markAsRead(id: string): Promise<void> {
-	await apiClient.patch<{ success: true; data: null }>(`${BASE}/${id}/read`);
+export async function markAsRead(notificationId: string): Promise<void> {
+	await apiClient.patch<ApiAcknowledgement>(
+		`/notifications/${encodeURIComponent(notificationId)}/read`,
+		{},
+	);
 }
 
 export async function markAllAsRead(): Promise<void> {
-	await apiClient.post<{ success: true; data: null }>(`${BASE}/mark-all-read`);
+	await apiClient.post<ApiAcknowledgement>("/notifications/read-all", {});
 }
