@@ -17,9 +17,13 @@ export function SignaturePad({ onSave, width = 400, height = 150 }: SignaturePad
 		e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
 	) => {
 		const canvas = canvasRef.current;
-		if (!canvas) return;
+		if (!canvas) {
+			return;
+		}
 		const ctx = canvas.getContext("2d");
-		if (!ctx) return;
+		if (!ctx) {
+			return;
+		}
 
 		setIsDrawing(true);
 		ctx.beginPath();
@@ -36,11 +40,17 @@ export function SignaturePad({ onSave, width = 400, height = 150 }: SignaturePad
 	const draw = (
 		e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
 	) => {
-		if (!isDrawing) return;
+		if (!isDrawing) {
+			return;
+		}
 		const canvas = canvasRef.current;
-		if (!canvas) return;
+		if (!canvas) {
+			return;
+		}
 		const ctx = canvas.getContext("2d");
-		if (!ctx) return;
+		if (!ctx) {
+			return;
+		}
 
 		const rect = canvas.getBoundingClientRect();
 		const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
@@ -56,16 +66,22 @@ export function SignaturePad({ onSave, width = 400, height = 150 }: SignaturePad
 
 	const clearSignature = () => {
 		const canvas = canvasRef.current;
-		if (!canvas) return;
+		if (!canvas) {
+			return;
+		}
 		const ctx = canvas.getContext("2d");
-		if (!ctx) return;
+		if (!ctx) {
+			return;
+		}
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		setHasSignature(false);
 	};
 
 	const handleSave = () => {
 		const canvas = canvasRef.current;
-		if (!canvas) return;
+		if (!canvas) {
+			return;
+		}
 		const dataUrl = canvas.toDataURL("image/png");
 		onSave(dataUrl);
 	};

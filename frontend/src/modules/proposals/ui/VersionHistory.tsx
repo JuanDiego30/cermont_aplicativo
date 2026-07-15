@@ -27,7 +27,7 @@ export function VersionHistory({ versions, currentProposalId }: VersionHistoryPr
 	}
 
 	return (
-		<div className="space-y-3" aria-label="Historial de versiones">
+		<section className="space-y-3" aria-label="Historial de versiones">
 			<div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
 				<History className="size-4" />
 				Historial de versiones
@@ -59,6 +59,6 @@ export function VersionHistory({ versions, currentProposalId }: VersionHistoryPr
 					</li>
 				))}
 			</ul>
-		</div>
+		</section>
 	);
 }
