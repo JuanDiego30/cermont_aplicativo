@@ -197,6 +197,10 @@ export async function listClientInvoices(clientUserId: string): Promise<PortalIn
  * List proposals for a client
  */
 export async function listClientProposals(clientUserId: string): Promise<PortalProposalSummary[]> {
+	return getClientProposals(clientUserId);
+}
+
+export async function getClientProposals(clientUserId: string): Promise<PortalProposalSummary[]> {
 	const client = await resolveClient(clientUserId);
 
 	const proposals = await Proposal.find({
