@@ -19,14 +19,17 @@ export function NotificationDrawer({ open, onClose }: NotificationDrawerProps) {
 		queryClient.invalidateQueries({ queryKey: ["notifications"] });
 	};
 
-	if (!open) return null;
+	if (!open) {
+		return null;
+	}
 
 	return (
 		<div className="fixed inset-0 z-50">
-			<div
-				className="absolute inset-0 bg-black/30"
+			<button
+				type="button"
+				className="absolute inset-0 bg-black/30 cursor-default"
 				onClick={onClose}
-				role="presentation"
+				aria-label="Cerrar panel de notificaciones"
 			/>
 			<div className="absolute right-0 top-0 h-full w-full max-w-sm border-l border-[var(--border-default)] bg-[var(--surface-primary)] shadow-xl">
 				<div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
