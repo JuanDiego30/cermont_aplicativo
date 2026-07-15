@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures/api-client.fixture";
+import { expect, test } from "@playwright/test";
 
 test.describe("QA Critical Bug Fixes", () => {
 	test("B1 — gerente can approve proposals", async ({ page }) => {
