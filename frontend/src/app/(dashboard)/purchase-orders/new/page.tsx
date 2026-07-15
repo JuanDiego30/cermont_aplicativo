@@ -1,19 +1,22 @@
 "use client";
 
-import type { ApiEnvelope, PurchaseOrderAuthorization } from "@cermont/shared-types";
+import type { ApiEnvelope, Proposal, PurchaseOrderAuthorization } from "@cermont/shared-types";
 import { RegisterPurchaseOrderSchema } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, ArrowLeft, CheckCircle2, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/core/ui/Button";
 import { FormField, Select, TextField } from "@/core/ui/FormField";
 import { apiClient } from "@/lib/http/api-client";
+import { PurchaseOrderFormFields } from "./PurchaseOrderFormFields";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
+
+const copFormat = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
 
 const RegisterPOFormSchema = RegisterPurchaseOrderSchema.omit({
 	attachments: true,
@@ -23,7 +26,7 @@ const RegisterPOFormSchema = RegisterPurchaseOrderSchema.omit({
 		message: "Use the local date-time format.",
 	}),
 });
-type FormValues = z.infer<typeof RegisterPOFormSchema>;
+export type FormValues = z.infer<typeof RegisterPOFormSchema>;
 
 const CURRENCY_OPTIONS = [
 	{ value: "COP", label: "COP — Peso colombiano" },
@@ -71,9 +74,29 @@ function NewPurchaseOrderContent() {
 
 	const inheritedProposalId = inheritedFields.find((f) => f.key === "proposalId")?.value ?? "";
 
+	const approvedProposalsQuery = useQuery({
+		queryKey: ["proposals", "approved"],
+		queryFn: async () => {
+			const response = await apiClient.get<{ success: boolean; data: Proposal[] }>(
+				"/proposals?status=approved",
+			);
+			return response.data;
+		},
+	});
+
+	const approvedProposalsMap = useMemo(() => {
+		const map = new Map<string, Proposal>();
+		for (const p of approvedProposalsQuery.data ?? []) {
+			map.set(p._id, p);
+		}
+		return map;
+	}, [approvedProposalsQuery.data]);
+
 	const {
 		register,
 		handleSubmit,
+		watch,
+		setValue,
 		formState: { errors, isSubmitting },
 		setError,
 	} = useForm<FormValues>({
@@ -90,6 +113,18 @@ function NewPurchaseOrderContent() {
 		},
 		mode: "onBlur",
 	});
+
+	const selectedProposalId = watch("proposalId");
+
+	// Auto-fill fields when proposal selection changes
+	useEffect(() => {
+		if (!selectedProposalId || !approvedProposalsMap.has(selectedProposalId)) {
+			return;
+		}
+		const proposal = approvedProposalsMap.get(selectedProposalId)!;
+		setValue("approvedAmount", proposal.total);
+		setValue("currency", "COP");
+	}, [selectedProposalId, approvedProposalsMap, setValue]);
 
 	const mutation = useMutation<
 		ApiEnvelope<PurchaseOrderAuthorization>,
@@ -174,127 +209,12 @@ function NewPurchaseOrderContent() {
 				noValidate
 			>
 				<div className="grid gap-4 md:grid-cols-2">
-					<FormField
-						name="proposalId"
-						label="ID de la propuesta"
-						helperText="ObjectId de la propuesta aprobada (24 caracteres)."
-						required
-						error={errors.proposalId?.message}
-					>
-						<TextField
-							id="proposalId"
-							{...register("proposalId")}
-							error={Boolean(errors.proposalId)}
-							placeholder="6700abcd1234567890abcdef"
-							autoComplete="off"
-							inputMode="text"
-						/>
-					</FormField>
-
-					<FormField name="poNumber" label="Número de PO" required error={errors.poNumber?.message}>
-						<TextField
-							id="poNumber"
-							{...register("poNumber")}
-							error={Boolean(errors.poNumber)}
-							placeholder="PO-2026-0001"
-							autoComplete="off"
-						/>
-					</FormField>
-
-					<FormField
-						name="contractReference"
-						label="Referencia de contrato"
-						helperText="Opcional. Referencia interna del contrato."
-						error={errors.contractReference?.message}
-					>
-						<TextField
-							id="contractReference"
-							{...register("contractReference")}
-							error={Boolean(errors.contractReference)}
-							placeholder="CT-2026-001"
-							autoComplete="off"
-						/>
-					</FormField>
-
-					<FormField
-						name="serviceAccount"
-						label="Cuenta de servicio"
-						required
-						error={errors.serviceAccount?.message}
-					>
-						<TextField
-							id="serviceAccount"
-							{...register("serviceAccount")}
-							error={Boolean(errors.serviceAccount)}
-							placeholder="Servicio-001"
-							autoComplete="off"
-						/>
-					</FormField>
-
-					<FormField
-						name="billingAccount"
-						label="Cuenta de facturación"
-						required
-						error={errors.billingAccount?.message}
-					>
-						<TextField
-							id="billingAccount"
-							{...register("billingAccount")}
-							error={Boolean(errors.billingAccount)}
-							placeholder="Facturación-001"
-							autoComplete="off"
-						/>
-					</FormField>
-
-					<FormField
-						name="approvedAmount"
-						label="Monto aprobado"
-						helperText="Valor numérico positivo en la moneda seleccionada."
-						required
-						error={errors.approvedAmount?.message}
-					>
-						<TextField
-							id="approvedAmount"
-							type="number"
-							min="0"
-							step="0.01"
-							{...register("approvedAmount", { valueAsNumber: true })}
-							error={Boolean(errors.approvedAmount)}
-							placeholder="0.00"
-							autoComplete="off"
-						/>
-					</FormField>
-
-					<FormField name="currency" label="Moneda" required error={errors.currency?.message}>
-						<Select
-							id="currency"
-							{...register("currency")}
-							error={Boolean(errors.currency)}
-							defaultValue="COP"
-						>
-							{CURRENCY_OPTIONS.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
-								</option>
-							))}
-						</Select>
-					</FormField>
-
-					<FormField
-						name="receivedAt"
-						label="Fecha de recepción"
-						helperText="Fecha y hora local; se guarda en formato ISO 8601."
-						required
-						error={errors.receivedAt?.message}
-					>
-						<TextField
-							id="receivedAt"
-							type="datetime-local"
-							{...register("receivedAt")}
-							error={Boolean(errors.receivedAt)}
-							autoComplete="off"
-						/>
-					</FormField>
+					<PurchaseOrderFormFields
+						register={register}
+						errors={errors}
+						approvedProposals={approvedProposalsQuery.data ?? []}
+						isLoadingProposals={approvedProposalsQuery.isLoading}
+					/>
 				</div>
 
 				{errors.root ? (
