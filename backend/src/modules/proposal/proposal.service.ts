@@ -98,6 +98,23 @@ export function calculateProposalTotals(
 }
 
 /**
+ * Check if there's an active proposal for a service case
+ */
+export async function existePropuestaActiva(
+	serviceCaseId: string,
+): Promise<{ _id: string; code: string } | null> {
+	const existing = await Proposal.findOne({
+		serviceCaseId: new mongoose.Types.ObjectId(serviceCaseId),
+		status: { $in: ["draft", "sent"] },
+		supersededBy: { $exists: false },
+	}).lean();
+	if (!existing) {
+		return null;
+	}
+	return { _id: String(existing._id), code: existing.code };
+}
+
+/**
  * Create a new proposal
  * Flow: clientName + items -> Proposal (draft)
  */
@@ -105,6 +122,17 @@ export async function createProposal(data: CreateProposalInput, userId: string) 
 	const { items, subtotal, taxRate, total } = calculateProposalTotals(data.items);
 	const code = await generateProposalCode();
 	const clientEmail = data.clientEmail?.trim().toLowerCase() || undefined;
+
+	if (data.serviceCaseId) {
+		const activeProposal = await existePropuestaActiva(data.serviceCaseId);
+		if (activeProposal) {
+			throw new AppError(
+				`Ya existe una propuesta activa (${activeProposal.code}) para este caso. Use supersede=true para reemplazarla.`,
+				409,
+				"PROPOSAL_ALREADY_EXISTS",
+			);
+		}
+	}
 
 	const proposal = new Proposal({
 		code,

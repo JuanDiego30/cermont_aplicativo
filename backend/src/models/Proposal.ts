@@ -25,7 +25,7 @@ export interface IProposalDocument extends Document {
 	title: string;
 	clientName: string;
 	clientEmail?: string;
-	status: "draft" | "sent" | "approved" | "rejected" | "expired" | "converted";
+	status: "draft" | "sent" | "approved" | "rejected" | "expired";
 	validUntil: Date;
 	items: Array<{
 		description: string;
@@ -38,12 +38,13 @@ export interface IProposalDocument extends Document {
 	taxRate: number;
 	total: number;
 	notes?: string;
-	statusNotes?: string;
-	serviceCaseId?: string;
 	createdBy: Types.ObjectId;
 	approvedBy?: Types.ObjectId;
 	approvedAt?: Date;
 	generatedOrders: Types.ObjectId[];
+	serviceCaseId?: Types.ObjectId;
+	supersededBy?: Types.ObjectId;
+	supersededAt?: Date;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -62,7 +63,7 @@ const ProposalSchema = new Schema<IProposalDocument>(
 		clientEmail: { type: String },
 		status: {
 			type: String,
-			enum: ["draft", "sent", "approved", "rejected", "expired", "converted"],
+			enum: ["draft", "sent", "approved", "rejected", "expired"],
 			default: "draft",
 			index: true,
 		},
@@ -72,12 +73,13 @@ const ProposalSchema = new Schema<IProposalDocument>(
 		taxRate: { type: Number, default: 0.19, min: 0, max: 1 },
 		total: { type: Number, required: true, min: 0 },
 		notes: { type: String, maxlength: 2000 },
-		statusNotes: { type: String, maxlength: 500 },
-		serviceCaseId: { type: String, index: true },
 		createdBy: { type: Types.ObjectId, ref: "User", required: true },
 		approvedBy: { type: Types.ObjectId, ref: "User" },
 		approvedAt: { type: Date },
 		generatedOrders: [{ type: Types.ObjectId, ref: "Order" }],
+		serviceCaseId: { type: Types.ObjectId, ref: "ServiceCase" },
+		supersededBy: { type: Types.ObjectId, ref: "Proposal" },
+		supersededAt: { type: Date },
 	},
 	{ timestamps: true, versionKey: false },
 );
@@ -93,8 +95,7 @@ ProposalSchema.index({ validUntil: 1 });
 // toJSON: limpiar __v de respuestas
 ProposalSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
+		const { __v, ...obj } = ret;
 		return obj;
 	},
 });
