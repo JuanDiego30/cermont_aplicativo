@@ -2,6 +2,7 @@
 
 import type { Proposal } from "@cermont/shared-types";
 import { History } from "lucide-react";
+import { useMemo } from "react";
 
 interface ProposalVersion {
 	_id: string;
@@ -18,6 +19,14 @@ interface VersionHistoryProps {
 }
 
 export function VersionHistory({ versions, currentProposalId }: VersionHistoryProps) {
+	const dateFormatter = useMemo(
+		() => new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeZone: "America/Bogota" }),
+		[],
+	);
+	const currencyFormatter = useMemo(
+		() => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }),
+		[],
+	);
 	if (versions.length === 0) {
 		return (
 			<div className="rounded-lg border border-dashed border-[var(--border-default)] p-4 text-center text-sm text-[var(--text-secondary)]">
@@ -51,9 +60,9 @@ export function VersionHistory({ versions, currentProposalId }: VersionHistoryPr
 							)}
 						</div>
 						<div className="flex items-center gap-3 text-xs">
-							<span>${version.total.toLocaleString("es-CO")}</span>
+							<span>{currencyFormatter.format(version.total)}</span>
 							<span className="text-[var(--text-tertiary)]">
-								{new Date(version.createdAt).toLocaleDateString("es-CO")}
+								{dateFormatter.format(new Date(version.createdAt))}
 							</span>
 						</div>
 					</li>

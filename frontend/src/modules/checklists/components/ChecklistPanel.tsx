@@ -11,7 +11,7 @@ import {
 	Sparkles,
 } from "lucide-react";
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { DraftRestoreBanner, useStateAutosave } from "@/lib/form";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ import { SummaryCard } from "./SummaryCard";
 
 function getErrorMessage(error: unknown, fallback: string): string {
 	if (typeof error === "object" && error !== null && "message" in error) {
-		const message = (error as { message?: unknown }).message;
+		const message = (error as Record<string, unknown>).message;
 		if (typeof message === "string") {
 			return message;
 		}
@@ -58,7 +58,7 @@ interface ChecklistDraftSyncInput {
 	previousChecklistKeyRef: MutableRefObject<string>;
 	restoreDraft: (fallback: { observations: string }) => { observations: string };
 	setObservations: Dispatch<SetStateAction<string>>;
-	setSignature: Dispatch<SetStateAction<string | null>>;
+	setSignature: Dispatch<SetStateAction<string>>;
 }
 
 function isChecklistMutable(checklist: Checklist, readOnly: boolean): boolean {
@@ -102,7 +102,7 @@ function syncChecklistDraftState({
 
 	previousChecklistKeyRef.current = checklistKey;
 	const restored = restoreDraft({ observations: checklist?.observations ?? "" });
-	setSignature(null);
+	setSignature("");
 	setObservations(restored.observations);
 }
 
@@ -110,13 +110,14 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 	const { data: checklist, isLoading, error } = useChecklist(orderId);
 	const { createChecklistMutation, updateChecklistItemMutation, completeChecklistMutation } =
 		useOfflineChecklist();
-	const [signature, setSignature] = useState<string | null>(null);
+	const [signature, setSignature] = useState("");
 	const [observations, setObservations] = useState(checklist?.observations ?? "");
 
 	const draftId = `checklist:${orderId}`;
+	const autosaveValue = useMemo(() => ({ observations }), [observations]);
 	const { restoreDraft, clearDraft, hasDraft } = useStateAutosave({
 		draftId,
-		value: { observations },
+		value: autosaveValue,
 	});
 
 	const checklistKey = checklist?._id ?? "";
@@ -171,6 +172,9 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 			toast.error("Firma requerida");
 			return;
 		}
+		if (checklist.status === "completed" || checklist.status === "cancelled") {
+			return;
+		}
 		if (remainingRequired > 0) {
 			toast.error("Items requeridos pendientes");
 			return;
@@ -182,7 +186,7 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 				signature,
 				observations,
 			});
-			setSignature(null);
+			setSignature("");
 			clearDraft();
 			toast.success(completed ? "Checklist completado" : "Guardado para sincronizar");
 		} catch (e) {
@@ -275,7 +279,7 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 					canMutate={canMutate}
 					isMutating={completeChecklistMutation.isPending}
 					remainingRequired={remainingRequired}
-					hasSignature={!!signature}
+					hasSignature={signature.length > 0}
 					observations={observations}
 					onObservationsChange={setObservations}
 					onSignatureChange={setSignature}
@@ -524,7 +528,7 @@ function ChecklistCompletionForm({
 	hasSignature: boolean;
 	observations: string;
 	onObservationsChange: (value: string) => void;
-	onSignatureChange: (signature: string | null) => void;
+	onSignatureChange: (signature: string) => void;
 	onComplete: () => void;
 }) {
 	return (
