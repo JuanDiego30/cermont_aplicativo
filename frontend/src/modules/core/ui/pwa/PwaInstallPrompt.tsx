@@ -1,7 +1,7 @@
 "use client";
 
 import { Download, Smartphone, Wifi, X } from "lucide-react";
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { useHydrated } from "@/core/hooks/useHydrated";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -10,10 +10,11 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const DISMISS_KEY = "cermont:pwa-install-dismissed-at";
+const DISMISS_BANNER_KEY = "pwa-banner-dismissed";
 const DISMISS_WINDOW_MS = 1000 * 60 * 60 * 24 * 7;
 
 interface PwaPromptState {
-	deferredPrompt: BeforeInstallPromptEvent | null;
+	deferredPrompt?: BeforeInstallPromptEvent;
 	isDismissed: boolean;
 }
 
@@ -44,7 +45,7 @@ function pwaPromptReducer(state: PwaPromptState, action: PwaPromptAction): PwaPr
 		case "prompt-available":
 			return { deferredPrompt: action.prompt, isDismissed: false };
 		case "installed":
-			return { deferredPrompt: null, isDismissed: true };
+			return { deferredPrompt: undefined, isDismissed: true };
 		case "dismissed":
 			return { ...state, isDismissed: true };
 	}
@@ -53,7 +54,7 @@ function pwaPromptReducer(state: PwaPromptState, action: PwaPromptAction): PwaPr
 export function PwaInstallPrompt() {
 	const isHydrated = useHydrated();
 	const [state, dispatch] = useReducer(pwaPromptReducer, {
-		deferredPrompt: null,
+		deferredPrompt: undefined,
 		isDismissed: getInitialDismissedState(),
 	});
 	const isIosSafari = useMemo(() => {
@@ -66,10 +67,7 @@ export function PwaInstallPrompt() {
 		const isSafari = /safari/.test(userAgent) && !/crios|fxios|edgios/.test(userAgent);
 		return isiOS && isSafari;
 	}, []);
-	const isStandaloneRef = useRef<boolean | null>(null);
-	if (isStandaloneRef.current === null) {
-		isStandaloneRef.current = isStandaloneMode();
-	}
+	const [isStandalone, setIsStandalone] = useState(() => isStandaloneMode());
 	const { deferredPrompt, isDismissed } = state;
 
 	useEffect(() => {
@@ -83,7 +81,7 @@ export function PwaInstallPrompt() {
 		};
 
 		const handleInstalled = () => {
-			isStandaloneRef.current = true;
+			setIsStandalone(true);
 			dispatch({ type: "installed" });
 		};
 
@@ -96,17 +94,18 @@ export function PwaInstallPrompt() {
 		};
 	}, []);
 
-	const shouldRender = useMemo(() => {
-		if (!isHydrated || isStandaloneRef.current || isDismissed) {
-			return false;
-		}
+const shouldRender = useMemo(() => {
+	if (!isHydrated || isStandalone || isDismissed) {
+		return false;
+	}
 
-		return Boolean(deferredPrompt) || isIosSafari;
-	}, [deferredPrompt, isDismissed, isHydrated, isIosSafari]);
+	return !!deferredPrompt || isIosSafari;
+}, [deferredPrompt, isDismissed, isHydrated, isIosSafari, isStandalone]);
 
 	const dismiss = () => {
 		if (typeof window !== "undefined") {
 			window.localStorage.setItem(DISMISS_KEY, String(Date.now()));
+			window.localStorage.setItem(DISMISS_BANNER_KEY, "true");
 		}
 		dispatch({ type: "dismissed" });
 	};
