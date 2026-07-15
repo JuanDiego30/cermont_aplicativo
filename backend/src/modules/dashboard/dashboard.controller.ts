@@ -6,7 +6,7 @@
 
 import type { Request, Response } from "express";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
-import { buildCostComparisonChart, getDashboardSummary, getFinancialKpis, getRoleBaseKPIs } from "./dashboard.service";
+import { buildCostComparisonChart, getDashboardSummary, getFinancialKpis as getFinancialKpisData, getRoleBaseKPIs } from "./dashboard.service";
 import { getOperationalKPIs } from "./dashboard-operational-kpi.service";
 import { buildSlaRiskOrders } from "./dashboard-sla.service";
 
@@ -54,6 +54,6 @@ export async function getCostComparisonChart(_req: Request, res: Response): Prom
 }
 
 export async function getFinancialKpis(_req: Request, res: Response): Promise<void> {
-	const kpis = await getFinancialKpis();
+	const kpis = await getFinancialKpisData();
 	sendSuccess(res, kpis);
 }

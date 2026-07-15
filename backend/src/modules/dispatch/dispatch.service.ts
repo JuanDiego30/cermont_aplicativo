@@ -321,7 +321,7 @@ interface ActiveOrderWithCoords {
 
 export async function getActiveOrdersWithCoords(): Promise<ActiveOrderWithCoords[]> {
 	const orders = await Order.find({
-		status: { $in: ["in_progress", "assigned", "active", "planning"] },
+		status: { $in: ["in_progress", "assigned", "planning"] },
 	})
 		.sort({ createdAt: -1 })
 		.limit(100)

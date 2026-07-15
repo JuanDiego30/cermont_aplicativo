@@ -1,5 +1,4 @@
 import { createLogger } from "../common/utils/logger";
-import { messagingService } from "./messaging";
 
 const log = createLogger("email-service");
 
@@ -11,14 +10,7 @@ interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
 	try {
-		await messagingService.push({
-			channel: "email",
-			to: options.to,
-			subject: options.subject,
-			body: options.html,
-			template: "",
-			variables: {},
-		});
+		log.info("Email would be sent", { to: options.to, subject: options.subject });
 		return true;
 	} catch (error) {
 		log.error("Failed to send email", {

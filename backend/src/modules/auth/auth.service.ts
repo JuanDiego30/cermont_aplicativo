@@ -328,7 +328,7 @@ export async function portalLogin(
 		throw new UnauthorizedError("Credenciales inválidas o no tiene acceso al portal");
 	}
 
-	return issueLoginSession(user, "portal_password");
+	return issueLoginSession(user, "password");
 }
 
 export async function changePassword(userId: string, payload: ChangePasswordInput): Promise<void> {
