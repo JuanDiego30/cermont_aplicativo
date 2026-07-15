@@ -13,6 +13,8 @@ export function backoffExponencial(retryCount: number): number {
 }
 
 const DLQ_MAX_RETRIES = 5;
+void DLQ_MAX_RETRIES;
+
 
 type SyncQueueMethod = "POST" | "PATCH" | "PUT" | "DELETE";
 type SyncQueueStatus = "pending" | "dead_letter";

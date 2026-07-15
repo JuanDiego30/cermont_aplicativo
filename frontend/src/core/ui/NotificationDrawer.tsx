@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Bell, Loader2, X } from "lucide-react";
 import { useNotifications } from "@/modules/notifications/hooks/useNotifications";
 import { markAsRead } from "@/modules/notifications/api/notification.api";
@@ -59,7 +59,7 @@ export function NotificationDrawer({ open, onClose }: NotificationDrawerProps) {
 								<li
 									key={n._id}
 									className={`px-4 py-3 hover:bg-[var(--surface-secondary)] ${
-										!n.readAt ? "bg-brand/5" : ""
+										!n.isRead ? "bg-brand/5" : ""
 									}`}
 								>
 									<div className="flex items-start justify-between gap-2">
@@ -68,10 +68,10 @@ export function NotificationDrawer({ open, onClose }: NotificationDrawerProps) {
 												{n.title}
 											</p>
 											<p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-												{n.body}
+												{n.message}
 											</p>
 										</div>
-										{!n.readAt && (
+										{!n.isRead && (
 											<button
 												type="button"
 												onClick={() => handleMarkAsRead(n._id)}
