@@ -3,6 +3,17 @@ import { createLogger } from "@/lib/monitoring/logger";
 import { useAuthStore } from "@/store/auth.store";
 import { hasIndexedDBSupport, legacyQueueEntryToOutboxItem, nowIso, offlineDb } from "./offline-db";
 
+const BASE_DELAY_MS = 30_000;
+const MAX_BACKOFF_DELAY_MS = 300_000;
+
+export function backoffExponencial(retryCount: number): number {
+	const delay = Math.min(BASE_DELAY_MS * 2 ** retryCount, MAX_BACKOFF_DELAY_MS);
+	const jitter = Math.random() * 5000;
+	return delay + jitter;
+}
+
+const DLQ_MAX_RETRIES = 5;
+
 type SyncQueueMethod = "POST" | "PATCH" | "PUT" | "DELETE";
 type SyncQueueStatus = "pending" | "dead_letter";
 
@@ -61,7 +72,7 @@ function readLocalStorageEntries(): SyncQueueEntry[] {
 	}
 
 	try {
-		const parsed = JSON.parse(raw) as unknown;
+		const parsed: unknown = JSON.parse(raw);
 		if (!Array.isArray(parsed)) {
 			return [];
 		}
@@ -214,12 +225,13 @@ async function readPersistentEntries(): Promise<SyncQueueEntry[]> {
 export async function enqueue(entry: SyncQueueEntry): Promise<SyncQueueEntry> {
 	const normalizedEntry = normalizeEntry(entry);
 	const entries = await readPersistentEntries();
-	const duplicate = normalizedEntry.dedupeKey
-		? entries.find(
-				(candidate) =>
-					candidate.dedupeKey === normalizedEntry.dedupeKey && candidate.status !== "dead_letter",
-			)
-		: undefined;
+	let duplicate: SyncQueueEntry | undefined;
+	if (normalizedEntry.dedupeKey) {
+		duplicate = entries.find(
+			(candidate) =>
+				candidate.dedupeKey === normalizedEntry.dedupeKey && candidate.status !== "dead_letter",
+		) ?? undefined;
+	}
 
 	if (duplicate) {
 		return normalizeEntry(duplicate);
