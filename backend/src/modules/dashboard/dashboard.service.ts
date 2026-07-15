@@ -34,6 +34,7 @@ import { buildFieldReadiness } from "./dashboard-readiness.service";
 import { buildSlaRiskOrders } from "./dashboard-sla.service";
 
 export { buildFinancialAgingSummary, buildServiceDemandSummary };
+export { buildCostComparisonChart, getDashboardKpiWidgetData } from "./dashboard-cost-widget.service";
 
 const log = createLogger("dashboard-service");
 
@@ -357,7 +358,7 @@ async function buildRecentActivity() {
 			event: "ORDER_CREATED",
 			entityType: "Order",
 			entityCode: order.code,
-			occurredAt: order.createdAt.toISOString(),
+			occurredAt: order.createdAt ? order.createdAt.toISOString() : new Date(0).toISOString(),
 		})),
 	};
 }
@@ -428,26 +429,116 @@ export async function getDashboardWithKpis(
 			mtbf: kpis.mtbf.mtbfHours,
 			firstTimeFixRate: kpis.firstTimeFixRate.rate,
 			technicianUtilizationRate: kpis.technicianUtilization.utilizationRate,
-			slaCompliance: kpis.mttr.trend >= 0 ? 85 : 70,
+			slaCompliance: null,
 			pendingCertifications: 0,
 			periodLabel: period,
 		},
 	};
 }
 
-export async function getDashboardKpiWidgetData(
-	period: KpiTimeRange = "30d",
-): Promise<DashboardKpiWidget> {
-	const kpis = await getDashboardKpiSummary(period);
+// ── Role-based KPIs ──────────────────────────────────────────────────
+
+export async function getRoleBaseKPIs(_role?: string) {
+	const now = new Date();
+	const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+	const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+	const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+	const [activeOrders, completedThisMonth, completedLastMonth, costData, docData] =
+		await Promise.all([
+			Order.countDocuments({ status: { $nin: ["closed" as const] } }),
+			Order.countDocuments({
+				status: "closed" as const,
+				closedAt: { $gte: startOfMonth },
+			}),
+			Order.countDocuments({
+				status: "closed" as const,
+				closedAt: { $gte: startOfLastMonth, $lt: endOfLastMonth },
+			}),
+			Cost.aggregate<{ billed: number; proposed: number }>([
+				{
+					$group: {
+						_id: null,
+						billed: { $sum: "$actualAmount" },
+						proposed: { $sum: "$estimatedAmount" },
+					},
+				},
+			]).then((r) => r[0] ?? { billed: 0, proposed: 0 }),
+			Promise.resolve({ totalDocs: 0, completedDocs: 0 }),
+		]);
+
+	const completionChangePct =
+		completedLastMonth > 0
+			? Math.round(((completedThisMonth - completedLastMonth) / completedLastMonth) * 100 * 10) / 10
+			: completedThisMonth > 0
+				? 100
+				: 0;
+
+	const budgetUtilizationPct =
+		costData.proposed > 0
+			? Math.min(100, Math.round((costData.billed / costData.proposed) * 100 * 10) / 10)
+			: 0;
+
 	return {
-		mttr: kpis.mttr.mttrHours,
-		mtbf: kpis.mtbf.mtbfHours,
-		firstTimeFixRate: kpis.firstTimeFixRate.rate,
-		technicianUtilizationRate: kpis.technicianUtilization.utilizationRate,
-		slaCompliance: kpis.mttr.trend >= 0 ? 85 : 70,
-		pendingCertifications: 0,
-		periodLabel: period,
+		activeOrders,
+		completedThisMonth,
+		completedLastMonth,
+		completionChangePct,
+		totalBilled: costData.billed,
+		totalProposed: costData.proposed,
+		budgetUtilizationPct,
+		avgClosureDays: 0,
+		blockedOrders: 0,
+		docCompletionRate:
+			docData.totalDocs > 0 ? Math.round((docData.completedDocs / docData.totalDocs) * 100) : 100,
 	};
 }
 
 log.info("Dashboard service initialized");
+
+interface FinancialKpisResult {
+	conversionRate: number | null;
+	pipelineValue: number;
+	averageDaysPerStep: number | null;
+	operatingMargin: number | null;
+	billedThisMonth: number;
+}
+
+export async function getFinancialKpis(): Promise<FinancialKpisResult> {
+	const startOfMonth = new Date();
+	startOfMonth.setDate(1);
+	startOfMonth.setHours(0, 0, 0, 0);
+
+	const [
+		totalProposals,
+		approvedProposals,
+		pipelineResult,
+		billingResult,
+	] = await Promise.all([
+		Proposal.countDocuments(),
+		Proposal.countDocuments({ status: "approved" }),
+		Proposal.aggregate([
+			{ $match: { status: { $in: ["draft", "sent"] } } },
+			{ $group: { _id: null, total: { $sum: "$total" } } },
+		]),
+		Invoice.aggregate([
+			{ $match: { createdAt: { $gte: startOfMonth } } },
+			{ $group: { _id: null, total: { $sum: "$total" } } },
+		]),
+	]);
+
+	const conversionRate =
+		totalProposals > 0
+			? Math.round((approvedProposals / totalProposals) * 100)
+			: null;
+	const pipelineValue = pipelineResult[0]?.total ?? 0;
+	const billedThisMonth = billingResult[0]?.total ?? 0;
+
+	return {
+		conversionRate,
+		pipelineValue,
+		averageDaysPerStep: null,
+		operatingMargin: null,
+		billedThisMonth,
+	};
+}
