@@ -1,13 +1,16 @@
 "use client";
 
 import type { DomainBlocker } from "@cermont/shared-types";
+import { hasRole, MANAGEMENT_ROLES } from "@cermont/domain";
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Suspense } from "react";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/http/api-client";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { PROPOSALS_KEYS } from "@/modules/proposals/queries";
 import { ServiceCaseWorkflowCockpit } from "@/modules/service-cases/components/ServiceCaseWorkflowCockpit";
 import {
 	useAdvanceServiceCaseStep,
@@ -33,14 +36,14 @@ function DetailSkeleton() {
 }
 
 function ServiceCaseDetailInner() {
-	const params = useParams();
-	const id = (params.id as string) ?? "";
+	const params = useParams<{ id: string }>();
+	const id = params.id ?? "";
 	const { data: envelope, isLoading, isError, refetch } = useServiceCase(id);
 	const sc = envelope?.data;
 	const advance = useAdvanceServiceCaseStep(id);
 	const archive = useArchiveServiceCase(id);
 	const { user } = useAuth();
-	const isGerente = user?.role === "gerente";
+	const isGerente = user?.role ? hasRole(user.role, MANAGEMENT_ROLES) : false;
 	const canArchive =
 		isGerente && sc && (sc.globalStatus === "paid" || sc.globalStatus === "cancelled");
 
@@ -119,13 +122,22 @@ function ServiceCaseDetailInner() {
 								Array.isArray(apiError.details) &&
 								apiError.details.length > 0 && (
 									<ul className="mt-3.5 space-y-2">
-										{(apiError.details as unknown as DomainBlocker[]).map((blocker, idx) => (
+										{(apiError.details as DomainBlocker[]).map((blocker, idx) => (
 											<li
 												key={`${blocker.code}-${blocker.field || blocker.artifactType || idx}`}
-												className="rounded-[var(--radius-md)] border border-rose-200 bg-white/90 p-3 shadow-sm text-xs dark:border-rose-900/40 dark:bg-zinc-950/80"
+												className={cn(
+													"rounded-[var(--radius-md)] border border-rose-200 bg-white/90 p-3 shadow-sm text-xs",
+													"dark:border-rose-900/40 dark:bg-zinc-950/80",
+												)}
 											>
 												<div className="flex items-start gap-2">
-													<span className="shrink-0 rounded-full bg-rose-100 text-brand-error px-2 py-0.5 text-[9px] font-bold uppercase dark:bg-rose-900/40 dark:text-brand-error">
+													<span
+														className={cn(
+															"shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase",
+															"bg-rose-100 text-brand-error",
+															"dark:bg-rose-900/40 dark:text-brand-error",
+														)}
+													>
 														{blocker.code || "B-XXX"}
 													</span>
 													<div className="space-y-1">
@@ -137,7 +149,12 @@ function ServiceCaseDetailInner() {
 															<span className="font-semibold">{blocker.ownerRole || "N/A"}</span>
 														</p>
 														{blocker.recommendedAction && (
-															<p className="mt-0.5 text-[10px] font-bold text-[var(--color-brand)] dark:text-[var(--color-cermont-blue-light)]">
+															<p
+																className={cn(
+																	"mt-0.5 text-[10px] font-bold",
+																	"text-[var(--color-brand)] dark:text-[var(--color-cermont-blue-light)]",
+																)}
+															>
 																Acción sugerida: {blocker.recommendedAction}
 															</p>
 														)}
