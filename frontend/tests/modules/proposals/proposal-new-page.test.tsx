@@ -74,7 +74,7 @@ describe("new proposal", () => {
 		await waitFor(() =>
 			expect(pushMock).toHaveBeenCalledWith("/proposals/507f1f77bcf86cd799439011"),
 		);
-		expect(pushMock).not.toHaveBeenCalledWith(expect.stringContaining(""));
+		expect(pushMock).toHaveBeenCalledTimes(1);
 		expect(mutateAsyncMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				items: [expect.objectContaining({ quantity: 2, unitCost: 1_000_000 })],
