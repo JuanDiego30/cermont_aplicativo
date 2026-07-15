@@ -17,6 +17,7 @@ import type {
 	TechnicianAssignment,
 } from "@cermont/shared-types";
 import { createLogger } from "../../common/utils/logger";
+import { Order } from "../../models";
 
 const log = createLogger("dispatch-service");
 
@@ -83,7 +84,7 @@ const OSRM_CACHE = new Map<string, { distance: number; duration: number }>();
 const OSRM_CACHE_TTL = 5 * 60 * 1000; // 5 min
 const OSRM_CACHE_TIMESTAMPS = new Map<string, number>();
 
-async function callOsrm(coordStr: string): Promise<{ distance: number; duration: number } | null> {
+async function callOsrm(coordStr: string): Promise<{ distance: number; duration: number } | undefined> {
 	const cached = OSRM_CACHE.get(coordStr);
 	const ts = OSRM_CACHE_TIMESTAMPS.get(coordStr);
 	if (cached && ts && Date.now() - ts < OSRM_CACHE_TTL) {
@@ -95,7 +96,7 @@ async function callOsrm(coordStr: string): Promise<{ distance: number; duration:
 		const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
 		if (!res.ok) {
 			log.warn("OSRM route request failed", { status: res.status });
-			return null;
+			return undefined;
 		}
 		const body = (await res.json()) as {
 			code: string;
@@ -104,7 +105,7 @@ async function callOsrm(coordStr: string): Promise<{ distance: number; duration:
 		const firstRoute = body.routes[0];
 		if (body.code !== "Ok" || !firstRoute) {
 			log.warn("OSRM route response did not contain a route", { code: body.code });
-			return null;
+			return undefined;
 		}
 		const data = {
 			distance: firstRoute.distance / 1000,
@@ -117,7 +118,7 @@ async function callOsrm(coordStr: string): Promise<{ distance: number; duration:
 		log.warn("OSRM route provider unavailable", {
 			error: error instanceof Error ? error.message : String(error),
 		});
-		return null;
+		return undefined;
 	}
 }
 
@@ -308,3 +309,37 @@ export const DispatchService = {
 		}
 	},
 };
+
+interface ActiveOrderWithCoords {
+	orderId: string;
+	code: string;
+	clientName: string;
+	status: string;
+	coord: { lat: number; lng: number };
+	serviceSite: string;
+}
+
+export async function getActiveOrdersWithCoords(): Promise<ActiveOrderWithCoords[]> {
+	const orders = await Order.find({
+		status: { $in: ["in_progress", "assigned", "active", "planning"] },
+	})
+		.sort({ createdAt: -1 })
+		.limit(100)
+		.lean();
+
+	return orders
+		.map((order) => {
+			const o = order as unknown as Record<string, unknown>;
+			const lat = typeof o.lat === "number" ? o.lat : 7.0845;
+			const lng = typeof o.lng === "number" ? o.lng : -70.7592;
+			return {
+				orderId: String(o._id ?? ""),
+				code: String(o.code ?? ""),
+				clientName: String(o.clientName ?? o.client ?? ""),
+				status: String(o.status ?? ""),
+				coord: { lat, lng },
+				serviceSite: String(o.serviceSite ?? o.location ?? "Arauca"),
+			};
+		})
+		.filter((order) => order.orderId !== "");
+}
