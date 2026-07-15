@@ -80,6 +80,7 @@ export function ApproveWithSupportModal({
 	return (
 		<dialog
 			ref={dialogRef}
+			aria-label="Aprobar propuesta con soporte"
 			className="rounded-2xl border border-[var(--border-subtle)] bg-white p-0 shadow-xl backdrop:bg-black/40 dark:bg-gray-800"
 		>
 			<div className="w-full max-w-md p-6">

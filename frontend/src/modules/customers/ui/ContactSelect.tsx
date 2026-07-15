@@ -102,7 +102,9 @@ export function ContactSelect({
 	const selectedContact = activeContacts.find((c) => c._id === value);
 	const autoSelectedKey = useRef("");
 	const onChangeRef = useRef(onChange);
-	onChangeRef.current = onChange;
+	useLayoutEffect(() => {
+		onChangeRef.current = onChange;
+	});
 	const inheritedContact =
 		activeContacts.length === 0 && legacyContact?.name.trim() ? legacyContact : false;
 
