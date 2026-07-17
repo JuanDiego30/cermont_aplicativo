@@ -1,0 +1,4 @@
+typecheck domain: EXIT 0
+tests domain: 75/75 passed (6 files)
+spec-015-rules.ts: evaluatePreflightGates, evaluateSLARisk, evaluateCostRisk, evaluateEvidenceCompleteness, computeMTTR, computeMTBF, computeFirstTimeFixRate + 17 unit tests
+Also restored: operational-steps.ts (canonical/legacy codes + normalizeOperationalStepCode lost from source, recovered from dist), cost.rules.ts (evaluateCostBudgetRisk, calculateGrossMargin per committed tests)

@@ -367,6 +367,55 @@ export async function notifyStateTransition(
 
 // ─── Query ──────────────────────────────────────────────────────────────────
 
+/**
+ * Get unread notification count for a user (F28-T086)
+ */
+export async function getUnreadCount(userId: string): Promise<number> {
+	return NotificationModel.countDocuments({
+		recipientUserId: new Types.ObjectId(userId),
+		isRead: false,
+	});
+}
+
+/**
+ * Notify all users with a given role (F28-T086)
+ * Reusable helper for hooking notifications into service actions.
+ */
+export async function notifyRoleGroup(
+	event: string,
+	roles: UserRole[],
+	title: string,
+	body: string,
+	relatedEntity?: { entityType: string; entityId: string },
+	metadata?: Record<string, unknown>,
+): Promise<void> {
+	const users = await User.find({ role: { $in: roles } }).lean();
+	if (users.length === 0) {
+		return;
+	}
+
+	const notificationsToCreate = users.map((user) => ({
+		notificationId: `not_${new Types.ObjectId().toString()}`,
+		recipientUserId: user._id,
+		recipientRole: user.role,
+		recipientEmail: user.email,
+		recipientPhone: user.phone,
+		type: event,
+		priority: "medium" as const,
+		title,
+		body,
+		relatedEntity: relatedEntity
+			? { entityType: relatedEntity.entityType, entityId: relatedEntity.entityId }
+			: undefined,
+		channels: [{ channel: "in_app" as const, status: "pending" as const, retryCount: 0 }],
+		isRead: false,
+		createdAt: new Date(),
+		metadata: metadata ?? {},
+	}));
+
+	await NotificationModel.insertMany(notificationsToCreate);
+}
+
 export async function getNotificationsForUserPaginated(
 	userId: string,
 	query: { page?: number; limit?: number; type?: string; isRead?: boolean },

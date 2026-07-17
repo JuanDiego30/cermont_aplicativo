@@ -1,0 +1,26 @@
+Task 1.8 — Final route validation QA
+
+Implemented:
+- analytics action markers are inside both POST route calls.
+- notifications action marker is inside POST /mark-all-read.
+- template-response create uses validateBody(CreateTemplateResponseSchema).
+- template-response update uses validateBody(UpdateTemplateResponseSchema).
+- template response identifiers are validated as Mongo ObjectIds.
+- route quality baselines are 0/0/0.
+
+Command: npx tsx tooling/quality/check-routes.ts
+Result: exit 0
+Backend route quality check: 0 findings
+
+Command: npm run quality:routes
+Result: exit 0
+Backend route quality check: 0 findings
+
+Command: npm run test -w backend
+Result: 102 files passed, 681 tests passed.
+
+Command: npm run build -w backend
+Result: exit 0.
+
+Command: npm run contracts:check
+Result: exit 0; migration 071-spec-020-wave-1-template-response-object-ids.

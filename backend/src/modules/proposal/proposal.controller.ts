@@ -165,7 +165,10 @@ export const approveWithSupport = async (req: Request, res: Response) => {
 	if (!supportDescription || supportDescription.trim().length < 10) {
 		res.status(400).json({
 			success: false,
-			error: { code: "VALIDATION_ERROR", message: "supportDescription debe tener al menos 10 caracteres" },
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "supportDescription debe tener al menos 10 caracteres",
+			},
 		});
 		return;
 	}

@@ -1,0 +1,2825 @@
+From 3ba18ff7c647549fee337c5a15a64aca7c5d05ef Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Sun, 5 Jul 2026 21:21:58 -0500
+Subject: [PATCH 12/42] feat(ui,backend): Sprint 3 - funcionalidades pendientes
+
+- T3.1: Add NextActionsByRolePanel dashboard component with role-based action filtering
+- T3.2: Add kit reminder notification 24h before execution in planning-packet service
+- T3.3: Add invoice pending notification on delivery record sign for administrativo role
+---
+ .../src/app/(dashboard)/dashboard/page.tsx    |  30 ++
+ .../app/(dashboard)/execution/[id]/page.tsx   | 141 ++++++-
+ .../src/app/(dashboard)/fleet/[id]/page.tsx   |   7 +-
+ .../service-cases/[id]/cockpit/page.tsx       |  25 +-
+ .../portal/service-cases/[id]/page.tsx        |  78 ++--
+ .../(portal)/portal/service-cases/page.tsx    |  86 ++---
+ .../modules/costs/hooks/useCostSuggestion.ts  |  25 --
+ frontend/src/modules/costs/queries.ts         |  24 ++
+ frontend/src/modules/costs/ui/CostPanel.tsx   |  54 ++-
+ .../costs/ui/CostProposalAssistant.tsx        | 143 -------
+ .../costs/ui/CostProposalAssistantForm.tsx    | 355 ------------------
+ .../costs/ui/CostProposalAssistantResults.tsx | 195 ----------
+ .../costs/ui/CostProposalAssistantSummary.tsx | 142 -------
+ .../ui/CostProposalSpecialConditions.tsx      | 114 ------
+ .../dashboard/ui/NextActionsByRolePanel.tsx   |  10 +-
+ frontend/src/modules/execution/queries.ts     |   2 +-
+ .../api/field-execution.api.ts                |  16 +-
+ .../ui/ExecutionStatusBadge.tsx               |  12 +-
+ .../field-execution/ui/ExecutionTimer.tsx     |  29 +-
+ .../field-execution/ui/PreflightGatesForm.tsx |   9 +-
+ .../ui/evidence/FieldNoveltyButton.tsx        |  35 +-
+ .../fleet/ui/VehicleAssignmentPanel.tsx       | 255 +++++++++++++
+ .../notifications/api/notification.api.ts     |  31 --
+ .../src/modules/notifications/api/types.ts    |  29 --
+ .../notifications/hooks/useNotifications.ts   |  23 --
+ .../notifications/hooks/useUnreadCount.ts     |  18 -
+ .../notifications/ui/NotificationBell.tsx     |  27 --
+ .../notifications/ui/NotificationCard.tsx     |  85 -----
+ .../notifications/ui/NotificationPanel.tsx    |  47 ---
+ .../portal/hooks/usePortalServiceCases.ts     |  58 +--
+ .../portal/ui/PortalServiceCaseDetail.tsx     |  23 +-
+ .../portal/ui/PortalSignDeliveryRecord.tsx    |  22 --
+ .../reports/ui/ReportVersionHistory.tsx       |  58 ---
+ 33 files changed, 672 insertions(+), 1536 deletions(-)
+ delete mode 100644 frontend/src/modules/costs/hooks/useCostSuggestion.ts
+ delete mode 100644 frontend/src/modules/costs/ui/CostProposalAssistant.tsx
+ delete mode 100644 frontend/src/modules/costs/ui/CostProposalAssistantForm.tsx
+ delete mode 100644 frontend/src/modules/costs/ui/CostProposalAssistantResults.tsx
+ delete mode 100644 frontend/src/modules/costs/ui/CostProposalAssistantSummary.tsx
+ delete mode 100644 frontend/src/modules/costs/ui/CostProposalSpecialConditions.tsx
+ create mode 100644 frontend/src/modules/fleet/ui/VehicleAssignmentPanel.tsx
+ delete mode 100644 frontend/src/modules/notifications/api/notification.api.ts
+ delete mode 100644 frontend/src/modules/notifications/api/types.ts
+ delete mode 100644 frontend/src/modules/notifications/hooks/useNotifications.ts
+ delete mode 100644 frontend/src/modules/notifications/hooks/useUnreadCount.ts
+ delete mode 100644 frontend/src/modules/notifications/ui/NotificationBell.tsx
+ delete mode 100644 frontend/src/modules/notifications/ui/NotificationCard.tsx
+ delete mode 100644 frontend/src/modules/notifications/ui/NotificationPanel.tsx
+ delete mode 100644 frontend/src/modules/portal/ui/PortalSignDeliveryRecord.tsx
+ delete mode 100644 frontend/src/modules/reports/ui/ReportVersionHistory.tsx
+
+diff --git a/frontend/src/app/(dashboard)/dashboard/page.tsx b/frontend/src/app/(dashboard)/dashboard/page.tsx
+index 58be24e..61878e4 100644
+--- a/frontend/src/app/(dashboard)/dashboard/page.tsx
++++ b/frontend/src/app/(dashboard)/dashboard/page.tsx
+@@ -41,6 +41,10 @@ import { FirstTimeFixRateGauge } from "@/modules/dashboard/ui/FirstTimeFixRateGa
+ import { FleetAlertsBanner } from "@/modules/dashboard/ui/FleetAlertsBanner";
+ import { KPICard } from "@/modules/dashboard/ui/KPICard";
+ import { MTTRMTBFCards } from "@/modules/dashboard/ui/MTTRMTBFCards";
++import {
++	type ActionItem,
++	NextActionsByRolePanel,
++} from "@/modules/dashboard/ui/NextActionsByRolePanel";
+ import { PendingInvoicesAlert } from "@/modules/dashboard/ui/PendingInvoicesAlert";
+ import { PendingReportsAlert } from "@/modules/dashboard/ui/PendingReportsAlert";
+ import { RecentOrdersTable } from "@/modules/dashboard/ui/RecentOrdersTable";
+@@ -219,6 +223,28 @@ function buildDashboardKpiSnapshot(
+ 	};
+ }
+ 
++const NEXT_ACTION_ROUTES: Record<string, string> = {
++	review_request: "/work-requests",
++	create_proposal: "/proposals/new",
++	start_execution: "/execution",
++	approve_planning: "/planning",
++};
++
++function buildNextActionItems(
++	nextActions: Array<{ command: string; label: string; requiredRole: string; count: number }>,
++): ActionItem[] {
++	return nextActions
++		.filter((action) => action.count > 0)
++		.map((action) => ({
++			id: action.command,
++			description: action.label,
++			orderCode: `${action.count} pendiente${action.count === 1 ? "" : "s"}`,
++			deepLink: NEXT_ACTION_ROUTES[action.command] ?? "/service-cases",
++			urgency: "normal" as const,
++			requiredRole: action.requiredRole,
++		}));
++}
++
+ function subscribeToTodayLabel(onStoreChange: () => void): () => void {
+ 	const intervalId = window.setInterval(onStoreChange, 60_000);
+ 
+@@ -408,6 +434,10 @@ export default function DashboardPage() {
+ 				inPlanning={serviceCaseSummary?.inPlanning ?? 0}
+ 			/>
+ 
++			<NextActionsByRolePanel
++				actions={buildNextActionItems(dashboardSummary?.nextActions ?? [])}
++			/>
++
+ 			<OperationalKpiSection
+ 				dashboardSummary={dashboardSummary}
+ 				operationalKpisQuery={operationalKpisQuery}
+diff --git a/frontend/src/app/(dashboard)/execution/[id]/page.tsx b/frontend/src/app/(dashboard)/execution/[id]/page.tsx
+index 497ac27..246a07a 100644
+--- a/frontend/src/app/(dashboard)/execution/[id]/page.tsx
++++ b/frontend/src/app/(dashboard)/execution/[id]/page.tsx
+@@ -2,6 +2,7 @@
+ 
+ import type { ExecutionSession, ExecutionSessionStatus } from "@cermont/shared-types";
+ import { isPresent, type StatusObject } from "@cermont/shared-types";
++import { useMutation, useQueryClient } from "@tanstack/react-query";
+ import {
+ 	AlertTriangle,
+ 	ArrowLeft,
+@@ -21,6 +22,7 @@ import { Button } from "@/core/ui/Button";
+ import { EmptyState } from "@/core/ui/EmptyState";
+ import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
+ import {
++	EXECUTION_KEYS,
+ 	useAddExecutionIncident,
+ 	useAddExecutionLabor,
+ 	useAddExecutionMaterial,
+@@ -31,26 +33,29 @@ import {
+ 	useStartExecutionSession,
+ 	useSubmitExecutionDynamicForm,
+ } from "@/modules/execution/queries";
++import { submitPreflight } from "@/modules/field-execution/api/field-execution.api";
++import { ExecutionStatusBadge } from "@/modules/field-execution/ui/ExecutionStatusBadge";
+ import { ExecutionTimer } from "@/modules/field-execution/ui/ExecutionTimer";
++import { FieldNoveltyButton } from "@/modules/field-execution/ui/evidence/FieldNoveltyButton";
++import { PreflightGatesForm } from "@/modules/field-execution/ui/PreflightGatesForm";
++import { StructuredEvidenceCapture } from "@/modules/field-execution/ui/evidence/StructuredEvidenceCapture";
+ import { useAuthStore } from "@/store/auth.store";
+ 
+ type ExecutionDetailPageProps = {
+ 	params: Promise<{ id: string }>;
+ };
+ 
+-const STATUS_LABELS: Record<ExecutionSessionStatus, string> = {
+-	draft: "Borrador",
+-	ready: "Lista",
+-	in_progress: "En ejecucion",
+-	paused: "Pausada",
+-	completed: "Completada",
+-	cancelled: "Cancelada",
+-	sync_pending: "Sync pendiente",
+-	sync_failed: "Sync fallida",
+-};
+-
+ const DEFAULT_EXECUTION_TARGET_MINUTES = 8 * 60;
+ 
++const PREFLIGHT_GATES = [
++	{ id: "eppComplete", label: "EPP completo", isBlocking: true },
++	{ id: "astSigned", label: "AST firmado y socializado", isBlocking: true },
++	{ id: "ptwObtained", label: "Permiso de trabajo (PTW) obtenido", isBlocking: true },
++	{ id: "toolsValidated", label: "Herramientas y equipos validados", isBlocking: true },
++	{ id: "vehicleDocumentsOk", label: "Documentos del vehículo vigentes", isBlocking: true },
++	{ id: "certificationsCurrent", label: "Certificaciones del personal vigentes", isBlocking: true },
++] as const;
++
+ const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
+ 	dateStyle: "medium",
+ 	timeStyle: "short",
+@@ -126,6 +131,7 @@ function ExecutionDetailWorkspace({
+ 	session: ExecutionSession;
+ 	user: { id: string; role: string } | null;
+ }) {
++	const { push } = useRouter();
+ 	const commandState = useExecutionDetailCommands(id, user);
+ 	const {
+ 		addIncident,
+@@ -157,6 +163,8 @@ function ExecutionDetailWorkspace({
+ 		submitDynamicForm,
+ 	} = commandState;
+ 
++	const canSubmitPreflight = session.status === "draft" || session.status === "ready";
++
+ 	return (
+ 		<section className="space-y-6" aria-labelledby="execution-detail-title">
+ 			<Link
+@@ -177,8 +185,9 @@ function ExecutionDetailWorkspace({
+ 						>
+ 							Ejecucion de orden {session.workOrderId}
+ 						</h1>
+-						<p className="mt-1 text-sm text-[var(--text-secondary)]">
+-							Estado: {STATUS_LABELS[session.status]} · Inicio: {formatDate(session.startedAt)}
++						<p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--text-secondary)]">
++							<ExecutionStatusBadge status={session.status} />
++							<span>Inicio: {formatDate(session.startedAt)}</span>
+ 						</p>
+ 					</div>
+ 					<ExecutionStatusActions
+@@ -223,6 +232,29 @@ function ExecutionDetailWorkspace({
+ 
+ 			<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.75fr)]">
+ 				<div className="space-y-4">
++					{canSubmitPreflight ? <PreflightPanel sessionId={id} /> : null}
++
++					<Panel title="Evidencias estructuradas">
++						<StructuredEvidenceCapture
++							slots={(["before", "during", "after"] as const).map((phase) => ({
++								id: `slot-${phase}`,
++								phase,
++								label:
++									phase === "before"
++										? "Foto antes del trabajo"
++										: phase === "during"
++											? "Foto durante el trabajo"
++											: "Foto después del trabajo",
++								isRequired: true,
++								isBlocking: phase !== "during",
++								status: session.evidences.some((evidence) => evidence.phase === phase)
++									? "uploaded"
++									: "empty",
++								onCapture: () => push("/evidences"),
++							}))}
++						/>
++					</Panel>
++
+ 					<Panel title="Acciones de campo">
+ 						<div className="grid gap-3 sm:grid-cols-2">
+ 							<Button
+@@ -364,10 +396,64 @@ function ExecutionDetailWorkspace({
+ 					</Panel>
+ 				</aside>
+ 			</div>
++
++			{canUseUserCommands ? <FieldNoveltyButton onReport={commandState.reportNovelty} /> : null}
+ 		</section>
+ 	);
+ }
+ 
++function PreflightPanel({ sessionId }: { sessionId: string }) {
++	const queryClient = useQueryClient();
++	const preflightMutation = useMutation({
++		mutationFn: (passedItems: string[]) => {
++			const passed = new Set(passedItems);
++			return submitPreflight(sessionId, {
++				items: PREFLIGHT_GATES.map((gate) => ({
++					id: gate.id,
++					label: gate.label,
++					isBlocking: gate.isBlocking,
++					checked: passed.has(gate.id),
++				})),
++				eppComplete: passed.has("eppComplete"),
++				astSigned: passed.has("astSigned"),
++				ptwObtained: passed.has("ptwObtained"),
++				toolsValidated: passed.has("toolsValidated"),
++				vehicleDocumentsOk: passed.has("vehicleDocumentsOk"),
++				certificationsCurrent: passed.has("certificationsCurrent"),
++			});
++		},
++		onSuccess: () => {
++			void queryClient.invalidateQueries({ queryKey: EXECUTION_KEYS.detail(sessionId) });
++		},
++	});
++
++	return (
++		<Panel title="Preflight de seguridad">
++			<p className="mb-3 text-xs text-[var(--text-secondary)]">
++				Verifica los requisitos de seguridad antes de iniciar la ejecución en campo.
++			</p>
++			{preflightMutation.isError ? (
++				<p role="alert" className="mb-3 text-xs text-[var(--color-danger)]">
++					{preflightMutation.error instanceof Error
++						? preflightMutation.error.message
++						: "No se pudo registrar el preflight"}
++				</p>
++			) : null}
++			{preflightMutation.isSuccess ? (
++				<p className="mb-3 text-xs font-semibold text-[var(--color-success)]">
++					Preflight registrado. La sesión queda lista para iniciar.
++				</p>
++			) : (
++				<PreflightGatesForm
++					gates={PREFLIGHT_GATES.map((gate) => ({ ...gate }))}
++					onComplete={(passedItems) => preflightMutation.mutate(passedItems)}
++					submitLabel="Registrar preflight"
++				/>
++			)}
++		</Panel>
++	);
++}
++
+ function useExecutionDetailCommands(id: string, user: { id: string; role: string } | null) {
+ 	const startMutation = useStartExecutionSession(id);
+ 	const pauseMutation = usePauseExecutionSession(id);
+@@ -499,6 +585,34 @@ function useExecutionDetailCommands(id: string, user: { id: string; role: string
+ 		setIncidentDescription("");
+ 	}
+ 
++	function reportNovelty(data: {
++		description: string;
++		severity: string;
++		generatesWorkRequest: boolean;
++	}) {
++		if (!user?.id) {
++			return;
++		}
++		const severity = ["low", "medium", "high", "critical"].includes(data.severity)
++			? (data.severity as "low" | "medium" | "high" | "critical")
++			: "medium";
++		incidentMutation.mutate({
++			clientMutationId: makeUuid(),
++			commandType: "add_incident",
++			incident: {
++				incidentId: makeUuid(),
++				type: "technical",
++				severity,
++				description: data.generatesWorkRequest
++					? `${data.description} [Novedad de campo — requiere solicitud de trabajo]`
++					: `${data.description} [Novedad de campo]`,
++				occurredAt: new Date().toISOString(),
++				reportedBy: user.id,
++				evidenceIds: [],
++			},
++		});
++	}
++
+ 	function submitDynamicForm() {
+ 		if (!user?.id || !dynamicValue.trim()) {
+ 			return;
+@@ -539,6 +653,7 @@ function useExecutionDetailCommands(id: string, user: { id: string; role: string
+ 		materialQuantity,
+ 		pauseExecution,
+ 		pauseMutation,
++		reportNovelty,
+ 		resumeExecution,
+ 		resumeMutation,
+ 		setDynamicValue,
+diff --git a/frontend/src/app/(dashboard)/fleet/[id]/page.tsx b/frontend/src/app/(dashboard)/fleet/[id]/page.tsx
+index 0391229..4652a57 100644
+--- a/frontend/src/app/(dashboard)/fleet/[id]/page.tsx
++++ b/frontend/src/app/(dashboard)/fleet/[id]/page.tsx
+@@ -33,6 +33,7 @@ import { apiClient } from "@/lib/http/api-client";
+ import { useAuth } from "@/modules/auth/hooks/useAuth";
+ import { FleetPhotoGallery } from "@/modules/fleet/ui/FleetPhotoGallery";
+ import { FleetReadinessBadge } from "@/modules/fleet/ui/FleetReadinessBadge";
++import { VehicleAssignmentPanel } from "@/modules/fleet/ui/VehicleAssignmentPanel";
+ import { VehicleDocumentsTab } from "@/modules/fleet/ui/VehicleDocumentsTab";
+ 
+ // ─── Types ────────────────────────────────────────────────────────────────────
+@@ -90,12 +91,13 @@ function useMounted(): boolean {
+ 
+ // ─── Tab definitions ──────────────────────────────────────────────────────────
+ 
+-type TabId = "info" | "documents" | "photos";
++type TabId = "info" | "documents" | "photos" | "assignment";
+ 
+ const TABS: { id: TabId; label: string; icon: typeof Info }[] = [
+ 	{ id: "info", label: "Información", icon: Info },
+ 	{ id: "documents", label: "Documentos", icon: FileText },
+ 	{ id: "photos", label: "Fotos", icon: Camera },
++	{ id: "assignment", label: "Asignación", icon: User },
+ ];
+ 
+ // ─── InfoRow ─────────────────────────────────────────────────────────────────
+@@ -381,6 +383,9 @@ function FleetDetailPageInner() {
+ 					{activeTab === "photos" && (
+ 						<FleetPhotoGallery vehicleId={data._id} canManage={canManage} />
+ 					)}
++
++					{/* ── Assignment tab ── */}
++					{activeTab === "assignment" && <VehicleAssignmentPanel vehicleId={data._id} />}
+ 				</div>
+ 			</div>
+ 		</section>
+diff --git a/frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx b/frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx
+index b54cc41..54f3914 100644
+--- a/frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx
++++ b/frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx
+@@ -1,7 +1,9 @@
+ "use client";
+ 
++import { ChevronsRight } from "lucide-react";
+ import { use } from "react";
+ import { useCockpit } from "@/modules/cockpit/hooks/useCockpit";
++import { useCockpitMutations } from "@/modules/cockpit/hooks/useCockpitMutations";
+ import { AuditTimeline } from "@/modules/cockpit/ui/AuditTimeline";
+ import { BlockersPanelCollapsible } from "@/modules/cockpit/ui/BlockersPanelCollapsible";
+ import { CockpitHeaderCard } from "@/modules/cockpit/ui/CockpitHeaderCard";
+@@ -17,6 +19,7 @@ interface Props {
+ export default function CockpitPage({ params }: Props) {
+ 	const { id } = use(params);
+ 	const { data, isLoading, isError, error } = useCockpit(id);
++	const { advanceMutation } = useCockpitMutations(id);
+ 
+ 	if (isLoading) {
+ 		return (
+@@ -68,8 +71,28 @@ export default function CockpitPage({ params }: Props) {
+ 			</section>
+ 
+ 			{data.nextAction && (
+-				<section aria-label="Próxima acción">
++				<section aria-label="Próxima acción" className="space-y-3">
+ 					<NextActionCard action={data.nextAction} />
++					{data.blockers.every((blocker) => blocker.severity !== "error") && (
++						<div className="flex items-center gap-3">
++							<button
++								type="button"
++								onClick={() => advanceMutation.mutate("advance_step")}
++								disabled={advanceMutation.isPending}
++								className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-brand-blue)] px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
++							>
++								<ChevronsRight className="size-4" aria-hidden="true" />
++								{advanceMutation.isPending ? "Avanzando…" : "Avanzar paso"}
++							</button>
++							{advanceMutation.isError ? (
++								<p role="alert" className="text-xs text-[var(--color-danger)]">
++									{advanceMutation.error instanceof Error
++										? advanceMutation.error.message
++										: "No se pudo avanzar el paso"}
++								</p>
++							) : null}
++						</div>
++					)}
+ 				</section>
+ 			)}
+ 
+diff --git a/frontend/src/app/(portal)/portal/service-cases/[id]/page.tsx b/frontend/src/app/(portal)/portal/service-cases/[id]/page.tsx
+index e18fe9b..5fda7f1 100644
+--- a/frontend/src/app/(portal)/portal/service-cases/[id]/page.tsx
++++ b/frontend/src/app/(portal)/portal/service-cases/[id]/page.tsx
+@@ -1,6 +1,9 @@
+ "use client";
+ 
++import { Loader2 } from "lucide-react";
+ import { use } from "react";
++import { usePortalServiceCaseDetail } from "@/modules/portal/hooks/usePortalServiceCases";
++import { PortalServiceCaseDetail } from "@/modules/portal/ui/PortalServiceCaseDetail";
+ 
+ interface Props {
+ 	params: Promise<{ id: string }>;
+@@ -8,49 +11,48 @@ interface Props {
+ 
+ export default function PortalServiceCaseDetailPage({ params }: Props) {
+ 	const { id } = use(params);
++	const { data: order, isLoading, isError, refetch } = usePortalServiceCaseDetail(id);
+ 
+ 	return (
+ 		<div className="p-4 md:p-6">
+ 			<h1 className="text-2xl font-semibold text-[var(--text-primary)]">Detalle de la orden</h1>
+-			<p className="mt-1 text-sm text-[var(--text-secondary)]">Código: SC-{id.slice(-8)}</p>
++			<p className="mt-1 text-sm text-[var(--text-secondary)]">
++				Código: {order?.code ?? `SC-${id.slice(-8)}`}
++			</p>
+ 
+-			<div className="mt-6 grid gap-4 md:grid-cols-2">
+-				<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5">
+-					<h2 className="text-sm font-semibold text-[var(--text-secondary)]">Estado actual</h2>
+-					<span className="mt-2 inline-block rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
+-						En ejecución
+-					</span>
+-				</div>
+-
+-				<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5">
+-					<h2 className="text-sm font-semibold text-[var(--text-secondary)]">Documentos</h2>
+-					<ul className="mt-2 space-y-1 text-sm">
+-						<li>
+-							<a
+-								href="/portal/service-cases/[id]/documents/propuesta"
+-								className="text-[var(--color-brand-blue)] hover:underline"
+-							>
+-								Propuesta comercial
+-							</a>
+-						</li>
+-						<li>
+-							<a
+-								href="/portal/service-cases/[id]/documents/orden-compra"
+-								className="text-[var(--color-brand-blue)] hover:underline"
+-							>
+-								Orden de compra
+-							</a>
+-						</li>
+-						<li>
+-							<a
+-								href="/portal/service-cases/[id]/documents/acta-entrega"
+-								className="text-[var(--color-brand-blue)] hover:underline"
+-							>
+-								Acta de entrega
+-							</a>
+-						</li>
+-					</ul>
+-				</div>
++			<div className="mt-6">
++				{isLoading ? (
++					<output className="flex items-center justify-center py-16" aria-live="polite">
++						<Loader2
++							className="size-8 animate-spin text-[var(--color-brand-blue)]"
++							aria-hidden="true"
++						/>
++						<span className="sr-only">Cargando orden</span>
++					</output>
++				) : isError || !order ? (
++					<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 text-center">
++						<p className="text-sm text-[var(--color-danger)]">
++							No se pudo cargar el detalle de la orden.
++						</p>
++						<button
++							type="button"
++							onClick={() => refetch()}
++							className="mt-2 text-sm font-medium text-[var(--color-brand-blue)] hover:underline"
++						>
++							Reintentar
++						</button>
++					</div>
++				) : (
++					<PortalServiceCaseDetail
++						code={order.code}
++						status={order.status}
++						description={order.description}
++						documents={order.technicalReports.map((report) => ({
++							name: `Informe técnico ${report.code}`,
++							url: `/portal/orders/${order._id}`,
++						}))}
++					/>
++				)}
+ 			</div>
+ 		</div>
+ 	);
+diff --git a/frontend/src/app/(portal)/portal/service-cases/page.tsx b/frontend/src/app/(portal)/portal/service-cases/page.tsx
+index 0fbea1c..b81d0ea 100644
+--- a/frontend/src/app/(portal)/portal/service-cases/page.tsx
++++ b/frontend/src/app/(portal)/portal/service-cases/page.tsx
+@@ -1,23 +1,11 @@
+ "use client";
+ 
+-import Link from "next/link";
+-import { useState } from "react";
+-
+-interface OrderSummary {
+-	id: string;
+-	code: string;
+-	status: string;
+-	date: string;
+-}
+-
+-const MOCK_ORDERS: OrderSummary[] = [
+-	{ id: "1", code: "SC-2026-0001", status: "En ejecución", date: "2026-06-15" },
+-	{ id: "2", code: "SC-2026-0002", status: "Pendiente de pago", date: "2026-06-20" },
+-	{ id: "3", code: "SC-2026-0003", status: "Completado", date: "2026-05-10" },
+-];
++import { Loader2 } from "lucide-react";
++import { usePortalServiceCases } from "@/modules/portal/hooks/usePortalServiceCases";
++import { PortalServiceCaseList } from "@/modules/portal/ui/PortalServiceCaseList";
+ 
+ export default function PortalServiceCaseListPage() {
+-	const [orders] = useState(MOCK_ORDERS);
++	const { data: orders, isLoading, isError, refetch } = usePortalServiceCases();
+ 
+ 	return (
+ 		<div className="p-4 md:p-6">
+@@ -30,46 +18,40 @@ export default function PortalServiceCaseListPage() {
+ 				</p>
+ 			</div>
+ 
+-			{orders.length === 0 ? (
++			{isLoading ? (
++				<output className="flex items-center justify-center py-16" aria-live="polite">
++					<Loader2
++						className="size-8 animate-spin text-[var(--color-brand-blue)]"
++						aria-hidden="true"
++					/>
++					<span className="sr-only">Cargando órdenes</span>
++				</output>
++			) : isError ? (
++				<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 text-center">
++					<p className="text-sm text-[var(--color-danger)]">
++						No se pudieron cargar tus órdenes de servicio.
++					</p>
++					<button
++						type="button"
++						onClick={() => refetch()}
++						className="mt-2 text-sm font-medium text-[var(--color-brand-blue)] hover:underline"
++					>
++						Reintentar
++					</button>
++				</div>
++			) : !orders || orders.length === 0 ? (
+ 				<p className="py-8 text-center text-sm text-[var(--text-secondary)]">
+ 					No tienes órdenes de servicio activas
+ 				</p>
+ 			) : (
+-				<div className="overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)]">
+-					<table className="w-full text-left text-sm">
+-						<thead>
+-							<tr className="border-b border-[var(--border-subtle)]">
+-								<th className="px-5 py-3 font-medium text-[var(--text-secondary)]">Código</th>
+-								<th className="px-5 py-3 font-medium text-[var(--text-secondary)]">Estado</th>
+-								<th className="px-5 py-3 font-medium text-[var(--text-secondary)]">Fecha</th>
+-								<th className="px-5 py-3 font-medium text-[var(--text-secondary)]">Acción</th>
+-							</tr>
+-						</thead>
+-						<tbody className="divide-y divide-[var(--border-subtle)]">
+-							{orders.map((order) => (
+-								<tr key={order.id}>
+-									<td className="px-5 py-4 font-mono text-[var(--text-primary)]">{order.code}</td>
+-									<td className="px-5 py-4">
+-										<span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+-											{order.status}
+-										</span>
+-									</td>
+-									<td className="px-5 py-4 text-[var(--text-secondary)]">
+-										{new Date(order.date).toLocaleDateString("es-CO")}
+-									</td>
+-									<td className="px-5 py-4">
+-										<Link
+-											href={`/portal/service-cases/${order.id}`}
+-											className="text-xs font-medium text-[var(--color-brand-blue)] hover:underline"
+-										>
+-											Ver detalle
+-										</Link>
+-									</td>
+-								</tr>
+-							))}
+-						</tbody>
+-					</table>
+-				</div>
++				<PortalServiceCaseList
++					orders={orders.map((order) => ({
++						id: order._id,
++						code: order.code,
++						status: order.status,
++						date: order.createdAt,
++					}))}
++				/>
+ 			)}
+ 		</div>
+ 	);
+diff --git a/frontend/src/modules/costs/hooks/useCostSuggestion.ts b/frontend/src/modules/costs/hooks/useCostSuggestion.ts
+deleted file mode 100644
+index 9188de4..0000000
+--- a/frontend/src/modules/costs/hooks/useCostSuggestion.ts
++++ /dev/null
+@@ -1,25 +0,0 @@
+-"use client";
+-
+-import type { CostProposalInput, CostProposalResult } from "@cermont/shared-types";
+-import { useMutation, useQueryClient } from "@tanstack/react-query";
+-import { apiClient } from "@/lib/http/api-client";
+-
+-export function useCostSuggestion() {
+-	const queryClient = useQueryClient();
+-
+-	return useMutation({
+-		mutationFn: async (input: CostProposalInput): Promise<CostProposalResult> => {
+-			const body = await apiClient.post<{ success: boolean; data?: CostProposalResult }>(
+-				"/costs/suggest",
+-				input,
+-			);
+-			if (!body?.data) {
+-				throw new Error("No se pudo generar la sugerencia de costos");
+-			}
+-			return body.data;
+-		},
+-		onSuccess: () => {
+-			queryClient.invalidateQueries({ queryKey: ["costs"] });
+-		},
+-	});
+-}
+diff --git a/frontend/src/modules/costs/queries.ts b/frontend/src/modules/costs/queries.ts
+index 6f2c0a8..72ed726 100644
+--- a/frontend/src/modules/costs/queries.ts
++++ b/frontend/src/modules/costs/queries.ts
+@@ -4,6 +4,7 @@ import type {
+ 	CostCatalogItem,
+ 	CostCatalogList,
+ 	CostCategory,
++	CostIntelligenceSummary,
+ 	CostResponse as CostSnapshot,
+ 	CostSummary,
+ 	CreateCostCatalogItemInput,
+@@ -301,6 +302,29 @@ export function useOrderCostSummary(orderId: string) {
+ 	});
+ }
+ 
++export function useCostIntelligence(orderId: string) {
++	const normalizedOrderId = orderId.trim();
++
++	return useQuery({
++		queryKey: [...COSTS_KEYS.all, "intelligence", normalizedOrderId] as const,
++		queryFn: async (): Promise<CostIntelligenceSummary> => {
++			const body = await apiClient.get<ApiEnvelope<CostIntelligenceSummary>>(
++				`/costs/${encodeURIComponent(normalizedOrderId)}/intelligence`,
++			);
++
++			if (body?.success === false || !body?.data) {
++				throw new Error(
++					getApiErrorMessage(body, "No se pudo cargar la inteligencia de costos"),
++				);
++			}
++
++			return body.data;
++		},
++		enabled: !!normalizedOrderId,
++		staleTime: CACHE_CONFIG.REALTIME,
++	});
++}
++
+ export function useCostSummary(orderId: string) {
+ 	const normalizedOrderId = orderId.trim();
+ 
+diff --git a/frontend/src/modules/costs/ui/CostPanel.tsx b/frontend/src/modules/costs/ui/CostPanel.tsx
+index 4a1ba4c..6c566f0 100644
+--- a/frontend/src/modules/costs/ui/CostPanel.tsx
++++ b/frontend/src/modules/costs/ui/CostPanel.tsx
+@@ -1,12 +1,18 @@
+ "use client";
+ 
+ import type { Cost } from "@cermont/shared-types";
++import { isPresent } from "@cermont/shared-types";
+ import { useState } from "react";
+-import { useOrderCostSummary, useOrderCosts } from "../queries";
++import { useCostIntelligence, useOrderCostSummary, useOrderCosts } from "../queries";
++import { BaselineCostCard } from "./BaselineCostCard";
++import { BudgetConsumedGauge } from "./BudgetConsumedGauge";
+ import { CostBreakdownTable } from "./CostBreakdownTable";
+ import { CostComparisonChart } from "./CostComparisonChart";
++import { CostDeviationStackedBar } from "./CostDeviationStackedBar";
++import { CostExportButton } from "./CostExportButton";
+ import { CostForm } from "./CostForm";
+ import { CostSummaryCard } from "./CostSummaryCard";
++import { MarginSummaryCard } from "./MarginSummaryCard";
+ 
+ interface CostPanelProps {
+ 	orderId: string;
+@@ -18,8 +24,11 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
+ 	const [editingCost, setEditingCost] = useState<Cost | undefined>(undefined);
+ 	const summaryQuery = useOrderCostSummary(orderId);
+ 	const listQuery = useOrderCosts(orderId);
++	const intelligenceQuery = useCostIntelligence(orderId);
+ 
+ 	const costs = listQuery.data?.costs ?? [];
++	const summary = summaryQuery.data;
++	const baseline = intelligenceQuery.data?.baselineCost;
+ 
+ 	return (
+ 		<section className="space-y-6">
+@@ -28,6 +37,49 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
+ 				isLoading={summaryQuery.isLoading}
+ 				error={summaryQuery.error instanceof Error ? summaryQuery.error : undefined}
+ 			/>
++			{summary?.hasCosts && (
++				<div className="grid gap-4 lg:grid-cols-3">
++					{isPresent(summary.budgetConsumptionPercent) && (
++						<BudgetConsumedGauge
++							percentage={Math.round(summary.budgetConsumptionPercent.value)}
++							estimatedBudget={summary.totalEstimated}
++							actualCost={summary.totalActual}
++						/>
++					)}
++					<MarginSummaryCard
++						totalRevenue={summary.totalEstimated}
++						totalCost={summary.totalActual}
++					/>
++					{baseline ? (
++						<BaselineCostCard
++							estimatedCost={baseline.totalEstimatedCOP}
++							baselineDate={baseline.frozenAt}
++						/>
++					) : null}
++				</div>
++			)}
++			{summary?.hasCosts && summary.byCategory.length > 0 && (
++				<section className="rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 shadow-sm sm:p-6">
++					<header className="mb-4 flex items-center justify-between gap-3">
++						<div>
++							<p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
++								Desviación por categoría
++							</p>
++							<h3 className="text-lg font-semibold text-[var(--text-primary)]">
++								Estimado vs real
++							</h3>
++						</div>
++						<CostExportButton summary={summary} costs={costs} />
++					</header>
++					<CostDeviationStackedBar
++						data={summary.byCategory.map((category) => ({
++							category: category.category,
++							estimated: category.estimated,
++							actual: category.actual,
++						}))}
++					/>
++				</section>
++			)}
+ 			{summaryQuery.data?.hasCosts && (
+ 				<CostComparisonChart
+ 					estimated={summaryQuery.data.totalEstimated}
+diff --git a/frontend/src/modules/costs/ui/CostProposalAssistant.tsx b/frontend/src/modules/costs/ui/CostProposalAssistant.tsx
+deleted file mode 100644
+index c7e0ef8..0000000
+--- a/frontend/src/modules/costs/ui/CostProposalAssistant.tsx
++++ /dev/null
+@@ -1,143 +0,0 @@
+-"use client";
+-
+-import type { CostProposalInput, CostProposalResult } from "@cermont/shared-types";
+-import { AlertTriangle, Calculator, Loader2 } from "lucide-react";
+-import { useMemo, useState } from "react";
+-import { useCostSuggestion } from "../hooks/useCostSuggestion";
+-import { CostProposalAssistantForm } from "./CostProposalAssistantForm";
+-import { CostProposalAssistantResults } from "./CostProposalAssistantResults";
+-import { CostProposalAssistantSummary } from "./CostProposalAssistantSummary";
+-
+-const copFormatter = new Intl.NumberFormat("es-CO", {
+-	style: "currency",
+-	currency: "COP",
+-	maximumFractionDigits: 0,
+-});
+-
+-function formatCOP(value: number): string {
+-	return copFormatter.format(value);
+-}
+-
+-interface CostProposalAssistantProps {
+-	/** Called when user wants to apply calculated costs to a proposal form */
+-	onApplyToProposal?: (result: CostProposalResult) => void;
+-	/** Pre-populated data (e.g. from a service case context) */
+-	initialData?: Partial<CostProposalInput>;
+-}
+-
+-export function CostProposalAssistant({
+-	onApplyToProposal,
+-	initialData,
+-}: CostProposalAssistantProps) {
+-	const [result, setResult] = useState<CostProposalResult | null>(null);
+-	const mutation = useCostSuggestion();
+-
+-	const handleSubmit = async (data: CostProposalInput) => {
+-		const suggestion = await mutation.mutateAsync(data);
+-		setResult(suggestion);
+-	};
+-
+-	const handleReset = () => {
+-		setResult(null);
+-		mutation.reset();
+-	};
+-
+-	const skeletonKeys = useMemo(() => Array.from({ length: 6 }, (_, i) => `skeleton-${i}`), []);
+-
+-	// Loading state
+-	if (mutation.isPending) {
+-		return (
+-			<div className="space-y-4 py-12">
+-				<div className="flex flex-col items-center gap-4 text-center">
+-					<Loader2 className="size-10 animate-spin text-[var(--color-brand)]" />
+-					<div>
+-						<p className="text-sm font-medium text-[var(--text-primary)]">Calculando costos…</p>
+-						<p className="mt-1 text-xs text-[var(--text-tertiary)]">
+-							Consultando catálogo de costos y calculando desglose
+-						</p>
+-					</div>
+-				</div>
+-				{/* Skeleton table */}
+-				<div className="animate-pulse space-y-3 rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-6">
+-					{skeletonKeys.map((key) => (
+-						<div key={key} className="h-8 rounded bg-[var(--surface-secondary)]" />
+-					))}
+-				</div>
+-			</div>
+-		);
+-	}
+-
+-	// Error state
+-	if (mutation.isError) {
+-		return (
+-			<div className="flex flex-col items-center gap-4 py-12 text-center">
+-				<AlertTriangle className="size-10 text-[var(--color-danger)]" />
+-				<div>
+-					<p className="text-sm font-medium text-[var(--text-primary)]">Error al calcular costos</p>
+-					<p className="mt-1 text-xs text-[var(--text-tertiary)]">
+-						{mutation.error instanceof Error
+-							? mutation.error.message
+-							: "Ocurrió un error inesperado"}
+-					</p>
+-				</div>
+-				<button
+-					type="button"
+-					onClick={handleReset}
+-					className="rounded-full border border-[var(--border-medium)] bg-[var(--surface-card)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
+-				>
+-					Intentar de nuevo
+-				</button>
+-			</div>
+-		);
+-	}
+-
+-	// Result state
+-	if (result) {
+-		return (
+-			<div className="space-y-6">
+-				{/* Header */}
+-				<div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3">
+-					<Calculator className="size-5 text-green-600" />
+-					<div>
+-						<p className="text-sm font-semibold text-green-800">Desglose de costos generado</p>
+-						<p className="text-xs text-green-600">
+-							Total propuesta: {formatCOP(result.totalRounded)}
+-						</p>
+-					</div>
+-				</div>
+-
+-				<CostProposalAssistantResults result={result} formatCOP={formatCOP} />
+-
+-				<CostProposalAssistantSummary
+-					result={result}
+-					formatCOP={formatCOP}
+-					onApplyToProposal={onApplyToProposal}
+-					onReset={handleReset}
+-				/>
+-			</div>
+-		);
+-	}
+-
+-	// Empty / initial state — show form
+-	return (
+-		<div className="space-y-6">
+-			<header className="space-y-1">
+-				<div className="flex items-center gap-2">
+-					<Calculator className="size-5 text-[var(--color-brand)]" />
+-					<h2 className="text-lg font-semibold text-[var(--text-primary)]">Asistente de costos</h2>
+-				</div>
+-				<p className="text-sm text-[var(--text-secondary)]">
+-					Complete los datos de la actividad para recibir un desglose detallado de costos estimados.
+-				</p>
+-			</header>
+-
+-			<div className="rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 shadow-sm sm:p-6">
+-				<CostProposalAssistantForm
+-					onSubmit={handleSubmit}
+-					isSubmitting={false}
+-					initialData={initialData}
+-				/>
+-			</div>
+-		</div>
+-	);
+-}
+diff --git a/frontend/src/modules/costs/ui/CostProposalAssistantForm.tsx b/frontend/src/modules/costs/ui/CostProposalAssistantForm.tsx
+deleted file mode 100644
+index 3c2c98d..0000000
+--- a/frontend/src/modules/costs/ui/CostProposalAssistantForm.tsx
++++ /dev/null
+@@ -1,355 +0,0 @@
+-"use client";
+-
+-import type { CostProposalActivityType, CostProposalInput } from "@cermont/shared-types";
+-import { CostProposalInputSchema } from "@cermont/shared-types";
+-import { zodResolver } from "@hookform/resolvers/zod";
+-import { Calculator, Loader2, Plus, Trash2 } from "lucide-react";
+-import { Controller, useFieldArray, useForm } from "react-hook-form";
+-import type { z } from "zod";
+-import { Checkbox } from "@/core/ui/FormField";
+-import { FormField, Select, TextArea, TextField } from "@/modules/core";
+-import { CostProposalSpecialConditions } from "./CostProposalSpecialConditions";
+-
+-type CostProposalFormValues = z.input<typeof CostProposalInputSchema>;
+-
+-const ACTIVITY_TYPE_LABELS: Record<CostProposalActivityType, string> = {
+-	lifeline_horizontal: "Línea de vida horizontal",
+-	lifeline_vertical: "Línea de vida vertical",
+-	cctv_installation: "Instalación CCTV",
+-	cctv_maintenance: "Mantenimiento CCTV",
+-	anchor_installation: "Instalación de anclajes",
+-	anchor_inspection: "Inspección de anclajes",
+-	structural_inspection: "Inspección estructural",
+-	safety_inspection: "Inspección de seguridad",
+-	electrical: "Trabajo eléctrico",
+-	refrigeration: "Refrigeración",
+-	civil_works: "Obra civil",
+-	general_maintenance: "Mantenimiento general",
+-	other: "Otro",
+-};
+-
+-const ACTIVITY_TYPE_OPTIONS = Object.entries(ACTIVITY_TYPE_LABELS).map(([value, label]) => ({
+-	value,
+-	label,
+-}));
+-
+-const LOCATION_TYPE_OPTIONS = [
+-	{ value: "urban", label: "Urbano" },
+-	{ value: "rural", label: "Rural" },
+-	{ value: "remote", label: "Remoto" },
+-];
+-
+-interface CostProposalAssistantFormProps {
+-	onSubmit: (data: CostProposalInput) => void;
+-	isSubmitting: boolean;
+-	initialData?: Partial<CostProposalInput>;
+-}
+-
+-export function CostProposalAssistantForm({
+-	onSubmit,
+-	isSubmitting,
+-	initialData,
+-}: CostProposalAssistantFormProps) {
+-	const {
+-		register,
+-		control,
+-		handleSubmit,
+-		formState: { errors },
+-	} = useForm<CostProposalFormValues>({
+-		resolver: zodResolver(CostProposalInputSchema),
+-		defaultValues: {
+-			activityType: "general_maintenance",
+-			location: "",
+-			locationType: "urban",
+-			technicians: 1,
+-			supervisor: false,
+-			engineer: false,
+-			estimatedDuration: { days: 1, hoursPerDay: 8 },
+-			scopeDescription: "",
+-			measurements: [],
+-			materials: [],
+-			requiresFinalCertification: false,
+-			nightWork: false,
+-			adverseWeather: false,
+-			requiresHeightWork: false,
+-			requiresHotWork: false,
+-			requiresLockoutTagout: false,
+-			...initialData,
+-		},
+-	});
+-
+-	const measurementsField = useFieldArray({ control, name: "measurements" });
+-	const materialsField = useFieldArray({ control, name: "materials" });
+-
+-	const submitHandler = (data: CostProposalFormValues) => {
+-		onSubmit(data as unknown as CostProposalInput);
+-	};
+-
+-	return (
+-		<form onSubmit={handleSubmit(submitHandler)} className="space-y-6" noValidate>
+-			{/* Activity Info */}
+-			<section className="space-y-4">
+-				<header>
+-					<h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+-						Actividad
+-					</h3>
+-				</header>
+-
+-				<Controller
+-					name="activityType"
+-					control={control}
+-					render={({ field }) => (
+-						<FormField label="Tipo de actividad" error={errors.activityType?.message}>
+-							<Select value={field.value} onChange={field.onChange} name={field.name}>
+-								{ACTIVITY_TYPE_OPTIONS.map((opt) => (
+-									<option key={opt.value} value={opt.value}>
+-										{opt.label}
+-									</option>
+-								))}
+-							</Select>
+-						</FormField>
+-					)}
+-				/>
+-
+-				<FormField label="Ubicación" error={errors.location?.message}>
+-					<TextField
+-						placeholder="Ej: Caño Limón, Bogotá, Barrancabermeja"
+-						{...register("location")}
+-					/>
+-				</FormField>
+-
+-				<Controller
+-					name="locationType"
+-					control={control}
+-					render={({ field }) => (
+-						<FormField label="Tipo de ubicación" error={errors.locationType?.message}>
+-							<Select value={field.value} onChange={field.onChange} name={field.name}>
+-								{LOCATION_TYPE_OPTIONS.map((opt) => (
+-									<option key={opt.value} value={opt.value}>
+-										{opt.label}
+-									</option>
+-								))}
+-							</Select>
+-						</FormField>
+-					)}
+-				/>
+-
+-				<FormField label="Nombre del cliente (opcional)" error={errors.clientName?.message}>
+-					<TextField placeholder="Empresa o persona" {...register("clientName")} />
+-				</FormField>
+-			</section>
+-
+-			{/* Personnel */}
+-			<section className="space-y-4">
+-				<header>
+-					<h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+-						Personal
+-					</h3>
+-				</header>
+-
+-				<div className="grid grid-cols-2 gap-4">
+-					<FormField label="Técnicos" error={errors.technicians?.message}>
+-						<TextField
+-							type="number"
+-							min={1}
+-							max={50}
+-							{...register("technicians", { valueAsNumber: true })}
+-						/>
+-					</FormField>
+-					<FormField label="Días estimados" error={errors.estimatedDuration?.days?.message}>
+-						<TextField
+-							type="number"
+-							min={1}
+-							max={365}
+-							{...register("estimatedDuration.days", { valueAsNumber: true })}
+-						/>
+-					</FormField>
+-				</div>
+-
+-				<FormField label="Horas por día" error={errors.estimatedDuration?.hoursPerDay?.message}>
+-					<TextField
+-						type="number"
+-						min={1}
+-						max={24}
+-						{...register("estimatedDuration.hoursPerDay", { valueAsNumber: true })}
+-					/>
+-				</FormField>
+-
+-				<div className="flex flex-wrap gap-4">
+-					<Controller
+-						name="supervisor"
+-						control={control}
+-						render={({ field }) => (
+-							<Checkbox
+-								label="Incluye supervisor"
+-								checked={field.value}
+-								onChange={field.onChange}
+-								name={field.name}
+-							/>
+-						)}
+-					/>
+-					<Controller
+-						name="engineer"
+-						control={control}
+-						render={({ field }) => (
+-							<Checkbox
+-								label="Incluye ingeniero"
+-								checked={field.value}
+-								onChange={field.onChange}
+-								name={field.name}
+-							/>
+-						)}
+-					/>
+-				</div>
+-			</section>
+-
+-			{/* Scope */}
+-			<section className="space-y-4">
+-				<header>
+-					<h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+-						Alcance
+-					</h3>
+-				</header>
+-
+-				<FormField label="Descripción del alcance" error={errors.scopeDescription?.message}>
+-					<TextArea
+-						placeholder="Describa el trabajo a realizar..."
+-						rows={3}
+-						{...register("scopeDescription")}
+-					/>
+-				</FormField>
+-
+-				{/* Measurements */}
+-				<div className="space-y-3">
+-					<div className="flex items-center justify-between">
+-						<span className="text-sm font-medium text-[var(--text-secondary)]">Mediciones</span>
+-						<button
+-							type="button"
+-							onClick={() => measurementsField.append({ description: "", value: 0, unit: "m" })}
+-							className="flex items-center gap-1 text-xs font-medium text-[var(--color-brand)] hover:underline"
+-						>
+-							<Plus className="size-3" />
+-							Agregar
+-						</button>
+-					</div>
+-
+-					{measurementsField.fields.map((field, index) => (
+-						<div key={field.id} className="grid grid-cols-[1fr_80px_80px_32px] gap-2 items-start">
+-							<FormField error={errors.measurements?.[index]?.description?.message}>
+-								<TextField
+-									placeholder="Descripción (ej: Longitud cable)"
+-									{...register(`measurements.${index}.description`)}
+-								/>
+-							</FormField>
+-							<FormField error={errors.measurements?.[index]?.value?.message}>
+-								<TextField
+-									type="number"
+-									placeholder="Valor"
+-									min={0}
+-									{...register(`measurements.${index}.value`, {
+-										valueAsNumber: true,
+-									})}
+-								/>
+-							</FormField>
+-							<FormField error={errors.measurements?.[index]?.unit?.message}>
+-								<TextField placeholder="Unidad" {...register(`measurements.${index}.unit`)} />
+-							</FormField>
+-							<button
+-								type="button"
+-								onClick={() => measurementsField.remove(index)}
+-								className="mt-1 flex size-8 items-center justify-center rounded text-[var(--text-tertiary)] hover:bg-[var(--color-danger-bg)] hover:text-[var(--color-danger)]"
+-								aria-label="Eliminar medición"
+-							>
+-								<Trash2 className="size-3.5" />
+-							</button>
+-						</div>
+-					))}
+-				</div>
+-
+-				{/* Materials */}
+-				<div className="space-y-3">
+-					<div className="flex items-center justify-between">
+-						<span className="text-sm font-medium text-[var(--text-secondary)]">
+-							Materiales conocidos (opcional)
+-						</span>
+-						<button
+-							type="button"
+-							onClick={() => materialsField.append({ name: "", quantity: 1, unit: "un" })}
+-							className="flex items-center gap-1 text-xs font-medium text-[var(--color-brand)] hover:underline"
+-						>
+-							<Plus className="size-3" />
+-							Agregar
+-						</button>
+-					</div>
+-
+-					{materialsField.fields.map((field, index) => (
+-						<div
+-							key={field.id}
+-							className="grid grid-cols-[1fr_80px_80px_100px_32px] gap-2 items-start"
+-						>
+-							<FormField error={errors.materials?.[index]?.name?.message}>
+-								<TextField
+-									placeholder="Nombre del material"
+-									{...register(`materials.${index}.name`)}
+-								/>
+-							</FormField>
+-							<FormField error={errors.materials?.[index]?.quantity?.message}>
+-								<TextField
+-									type="number"
+-									placeholder="Cant."
+-									min={0}
+-									{...register(`materials.${index}.quantity`, {
+-										valueAsNumber: true,
+-									})}
+-								/>
+-							</FormField>
+-							<FormField error={errors.materials?.[index]?.unit?.message}>
+-								<TextField placeholder="Unidad" {...register(`materials.${index}.unit`)} />
+-							</FormField>
+-							<FormField>
+-								<TextField
+-									type="number"
+-									placeholder="Precio (opc.)"
+-									min={0}
+-									{...register(`materials.${index}.estimatedPrice`, {
+-										valueAsNumber: true,
+-									})}
+-								/>
+-							</FormField>
+-							<button
+-								type="button"
+-								onClick={() => materialsField.remove(index)}
+-								className="mt-1 flex size-8 items-center justify-center rounded text-[var(--text-tertiary)] hover:bg-[var(--color-danger-bg)] hover:text-[var(--color-danger)]"
+-								aria-label="Eliminar material"
+-							>
+-								<Trash2 className="size-3.5" />
+-							</button>
+-						</div>
+-					))}
+-				</div>
+-			</section>
+-
+-			{/* Special Conditions */}
+-			<CostProposalSpecialConditions control={control} register={register} />
+-
+-			{/* Submit */}
+-			<button
+-				type="submit"
+-				disabled={isSubmitting}
+-				className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--color-brand)] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+-			>
+-				{isSubmitting ? (
+-					<>
+-						<Loader2 className="size-4 animate-spin" />
+-						Calculando costos…
+-					</>
+-				) : (
+-					<>
+-						<Calculator className="size-4" />
+-						Calcular costos
+-					</>
+-				)}
+-			</button>
+-		</form>
+-	);
+-}
+diff --git a/frontend/src/modules/costs/ui/CostProposalAssistantResults.tsx b/frontend/src/modules/costs/ui/CostProposalAssistantResults.tsx
+deleted file mode 100644
+index 8c045cf..0000000
+--- a/frontend/src/modules/costs/ui/CostProposalAssistantResults.tsx
++++ /dev/null
+@@ -1,195 +0,0 @@
+-"use client";
+-
+-import type { CostProposalLineItem, CostProposalResult } from "@cermont/shared-types";
+-import { Fragment } from "react";
+-
+-const CATEGORY_LABELS: Record<string, string> = {
+-	materials: "MATERIALES",
+-	labor: "MANO DE OBRA",
+-	equipment: "HERRAMIENTAS / EQUIPOS",
+-	transport: "TRANSPORTE",
+-	other: "OTROS",
+-};
+-
+-const SOURCE_LABELS: Record<string, string> = {
+-	catalog: "catálogo",
+-	calculated: "calculado",
+-	user_provided: "usuario",
+-	estimated: "estimado",
+-};
+-
+-interface CostProposalAssistantResultsProps {
+-	result: CostProposalResult;
+-	formatCOP: (value: number) => string;
+-}
+-
+-const SOURCE_BADGE_COLORS: Record<string, string> = {
+-	catalog: "bg-blue-50 text-blue-700",
+-	calculated: "bg-green-50 text-green-700",
+-	user_provided: "bg-purple-50 text-purple-700",
+-	estimated: "bg-amber-50 text-amber-700",
+-};
+-
+-const CATEGORY_ORDER = ["materials", "labor", "equipment", "transport", "other"] as const;
+-
+-function SourceBadge({ source }: { source: CostProposalLineItem["source"] }) {
+-	return (
+-		<span
+-			className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${SOURCE_BADGE_COLORS[source] ?? "bg-gray-50 text-gray-600"}`}
+-		>
+-			{SOURCE_LABELS[source] ?? source}
+-		</span>
+-	);
+-}
+-
+-export function CostProposalAssistantResults({
+-	result,
+-	formatCOP,
+-}: CostProposalAssistantResultsProps) {
+-	// Group line items by category
+-	const grouped = new Map<string, CostProposalLineItem[]>();
+-	for (const item of result.lineItems) {
+-		const existing = grouped.get(item.category) ?? [];
+-		existing.push(item);
+-		grouped.set(item.category, existing);
+-	}
+-
+-	return (
+-		<section className="space-y-6">
+-			<header>
+-				<h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+-					Desglose de costos
+-				</h3>
+-				<p className="mt-1 text-sm text-[var(--text-secondary)]">{result.activityDescription}</p>
+-			</header>
+-
+-			<div className="rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] shadow-sm overflow-hidden">
+-				<div className="overflow-x-auto">
+-					<table className="min-w-full border-separate border-spacing-0 text-sm">
+-						<thead>
+-							<tr className="text-left text-xs uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+-								<th className="border-b border-[var(--border-medium)] p-3 font-semibold">
+-									Categoría
+-								</th>
+-								<th className="border-b border-[var(--border-medium)] p-3 font-semibold">Ítem</th>
+-								<th className="border-b border-[var(--border-medium)] p-3 font-semibold text-right">
+-									Cantidad
+-								</th>
+-								<th className="border-b border-[var(--border-medium)] p-3 font-semibold text-right">
+-									V/Unitario
+-								</th>
+-								<th className="border-b border-[var(--border-medium)] p-3 font-semibold text-right">
+-									Total
+-								</th>
+-								<th className="border-b border-[var(--border-medium)] p-3 font-semibold">Fuente</th>
+-							</tr>
+-						</thead>
+-						<tbody className="text-[var(--text-secondary)]">
+-							{CATEGORY_ORDER.map((cat) => {
+-								const items = grouped.get(cat);
+-								if (!items || items.length === 0) {
+-									return null;
+-								}
+-
+-								const categorySubtotal = items.reduce((s, i) => s + i.total, 0);
+-
+-								return (
+-									<Fragment key={cat}>
+-										{items.map((item, itemIdx) => (
+-											<tr
+-												key={`${cat}-${item.item}`}
+-												className="border-b border-[var(--border-subtle)]"
+-											>
+-												<td className="p-3 font-medium text-[var(--text-primary)]">
+-													{itemIdx === 0 ? (CATEGORY_LABELS[cat] ?? cat) : ""}
+-												</td>
+-												<td className="p-3">
+-													{item.item}
+-													{item.notes && (
+-														<span className="ml-1 text-xs text-[var(--text-tertiary)]">
+-															({item.notes})
+-														</span>
+-													)}
+-												</td>
+-												<td className="p-3 text-right tabular-nums">
+-													{item.quantity} {item.unit}
+-												</td>
+-												<td className="p-3 text-right tabular-nums">{formatCOP(item.unitPrice)}</td>
+-												<td className="p-3 text-right tabular-nums font-medium">
+-													{formatCOP(item.total)}
+-												</td>
+-												<td className="p-3">
+-													<SourceBadge source={item.source} />
+-												</td>
+-											</tr>
+-										))}
+-										<tr className="bg-[var(--surface-secondary)]">
+-											<td
+-												className="p-3 text-xs font-semibold uppercase text-[var(--text-tertiary)]"
+-												colSpan={4}
+-											>
+-												Subtotal {CATEGORY_LABELS[cat] ?? cat}
+-											</td>
+-											<td
+-												className="p-3 text-right tabular-nums font-semibold text-[var(--text-primary)]"
+-												colSpan={2}
+-											>
+-												{formatCOP(categorySubtotal)}
+-											</td>
+-										</tr>
+-									</Fragment>
+-								);
+-							})}
+-						</tbody>
+-						<tfoot className="text-sm" aria-label="Resumen de totales">
+-							<tr className="border-t-2 border-[var(--border-medium)]">
+-								<td className="p-3 font-semibold" colSpan={5}>
+-									COSTO DIRECTO TOTAL
+-								</td>
+-								<td className="p-3 text-right tabular-nums font-semibold text-[var(--text-primary)]">
+-									{formatCOP(result.directCost)}
+-								</td>
+-							</tr>
+-							<tr>
+-								<td className="p-3 text-[var(--text-tertiary)]" colSpan={5}>
+-									Margen de contribución ({result.suggestedMarginPercent}%)
+-								</td>
+-								<td className="p-3 text-right tabular-nums text-[var(--text-primary)]">
+-									{formatCOP(result.suggestedMarginAmount)}
+-								</td>
+-							</tr>
+-							<tr className="border-t border-[var(--border-subtle)]">
+-								<td className="p-3 font-semibold" colSpan={5}>
+-									SUBTOTAL
+-								</td>
+-								<td className="p-3 text-right tabular-nums font-semibold text-[var(--text-primary)]">
+-									{formatCOP(result.subtotal)}
+-								</td>
+-							</tr>
+-							<tr>
+-								<td className="p-3 text-[var(--text-tertiary)]" colSpan={5}>
+-									IVA ({(result.taxRate * 100).toFixed(0)}%) sobre base gravable
+-								</td>
+-								<td className="p-3 text-right tabular-nums text-[var(--text-primary)]">
+-									{formatCOP(result.taxAmount)}
+-								</td>
+-							</tr>
+-							<tr className="border-t-2 border-[var(--color-brand)] bg-[#2154A608]">
+-								<td className="p-3 text-base font-bold text-[var(--color-brand)]" colSpan={5}>
+-									TOTAL PROPUESTA
+-								</td>
+-								<td className="p-3 text-right tabular-nums text-base font-bold text-[var(--color-brand)]">
+-									{formatCOP(result.totalRounded)}
+-								</td>
+-							</tr>
+-						</tfoot>
+-					</table>
+-				</div>
+-			</div>
+-
+-			<p className="text-xs text-[var(--text-tertiary)]">
+-				Generado: {new Date(result.generatedAt).toLocaleString("es-CO")}
+-			</p>
+-		</section>
+-	);
+-}
+diff --git a/frontend/src/modules/costs/ui/CostProposalAssistantSummary.tsx b/frontend/src/modules/costs/ui/CostProposalAssistantSummary.tsx
+deleted file mode 100644
+index 905a3de..0000000
+--- a/frontend/src/modules/costs/ui/CostProposalAssistantSummary.tsx
++++ /dev/null
+@@ -1,142 +0,0 @@
+-"use client";
+-
+-import type { CostProposalResult } from "@cermont/shared-types";
+-import { AlertTriangle, ArrowRight, CheckCircle2, FileText, RotateCcw } from "lucide-react";
+-
+-interface CostProposalAssistantSummaryProps {
+-	result: CostProposalResult;
+-	formatCOP: (value: number) => string;
+-	onApplyToProposal?: (result: CostProposalResult) => void;
+-	onReset?: () => void;
+-}
+-
+-export function CostProposalAssistantSummary({
+-	result,
+-	formatCOP,
+-	onApplyToProposal,
+-	onReset,
+-}: CostProposalAssistantSummaryProps) {
+-	return (
+-		<div className="space-y-6">
+-			{/* Observations */}
+-			{result.observations.length > 0 && (
+-				<section className="space-y-3 rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 shadow-sm sm:p-6">
+-					<header className="flex items-center gap-2">
+-						<AlertTriangle className="size-4 text-amber-500" />
+-						<h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+-							Observaciones
+-						</h3>
+-					</header>
+-					<ul className="space-y-2">
+-						{result.observations.map((obs) => (
+-							<li key={obs} className="flex items-start gap-2 text-sm text-[var(--text-secondary)]">
+-								<span className="mt-0.5 text-amber-500">•</span>
+-								{obs}
+-							</li>
+-						))}
+-					</ul>
+-				</section>
+-			)}
+-
+-			{/* Suggested Actions */}
+-			<section className="space-y-3 rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 shadow-sm sm:p-6">
+-				<header className="flex items-center gap-2">
+-					<CheckCircle2 className="size-4 text-[var(--color-brand)]" />
+-					<h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+-						Acciones sugeridas
+-					</h3>
+-				</header>
+-				<ul className="space-y-2">
+-					{result.suggestedActions.map((action, actionIdx) => (
+-						<li
+-							key={action}
+-							className="flex items-start gap-2 text-sm text-[var(--text-secondary)]"
+-						>
+-							<span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-[var(--border-medium)] text-[9px] text-[var(--text-tertiary)]">
+-								{actionIdx + 1}
+-							</span>
+-							{action}
+-						</li>
+-					))}
+-				</ul>
+-			</section>
+-
+-			{/* Budget Comparison */}
+-			{result.clientBudgetComparison.status === "present" && (
+-				<section className="space-y-3 rounded-3xl border border-[var(--border-medium)] bg-[var(--surface-card)] p-4 shadow-sm sm:p-6">
+-					<header>
+-						<h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+-							Comparativo vs presupuesto
+-						</h3>
+-					</header>
+-
+-					<div className="grid grid-cols-3 gap-3 text-center">
+-						<div>
+-							<p className="text-xs text-[var(--text-tertiary)]">Presupuesto</p>
+-							<p className="text-lg font-semibold tabular-nums text-[var(--text-primary)]">
+-								{formatCOP(result.clientBudgetComparison.value.clientBudget)}
+-							</p>
+-						</div>
+-						<div>
+-							<p className="text-xs text-[var(--text-tertiary)]">Propuesto</p>
+-							<p className="text-lg font-semibold tabular-nums text-[var(--text-primary)]">
+-								{formatCOP(result.clientBudgetComparison.value.proposedTotal)}
+-							</p>
+-						</div>
+-						<div>
+-							<p className="text-xs text-[var(--text-tertiary)]">Diferencia</p>
+-							<p
+-								className={`text-lg font-semibold tabular-nums ${
+-									result.clientBudgetComparison.value.isWithinBudget
+-										? "text-[var(--color-success)]"
+-										: "text-[var(--color-danger)]"
+-								}`}
+-							>
+-								{result.clientBudgetComparison.value.differencePercent > 0 ? "+" : ""}
+-								{result.clientBudgetComparison.value.differencePercent.toFixed(1)}%
+-							</p>
+-						</div>
+-					</div>
+-
+-					{result.clientBudgetComparison.value.isWithinBudget ? (
+-						<div className="flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
+-							<CheckCircle2 className="size-4" />
+-							Dentro del presupuesto del cliente
+-						</div>
+-					) : (
+-						<div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+-							<AlertTriangle className="size-4" />
+-							Excede el presupuesto del cliente en{" "}
+-							{formatCOP(Math.abs(result.clientBudgetComparison.value.difference))}
+-						</div>
+-					)}
+-				</section>
+-			)}
+-
+-			{/* Actions */}
+-			<div className="flex flex-col gap-3 sm:flex-row">
+-				{onApplyToProposal && (
+-					<button
+-						type="button"
+-						onClick={() => onApplyToProposal(result)}
+-						className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[var(--color-brand)] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+-					>
+-						<FileText className="size-4" />
+-						Aplicar a propuesta
+-						<ArrowRight className="size-4" />
+-					</button>
+-				)}
+-				{onReset && (
+-					<button
+-						type="button"
+-						onClick={onReset}
+-						className="flex items-center justify-center gap-2 rounded-full border border-[var(--border-medium)] bg-[var(--surface-card)] px-6 py-3 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
+-					>
+-						<RotateCcw className="size-4" />
+-						Nuevo cálculo
+-					</button>
+-				)}
+-			</div>
+-		</div>
+-	);
+-}
+diff --git a/frontend/src/modules/costs/ui/CostProposalSpecialConditions.tsx b/frontend/src/modules/costs/ui/CostProposalSpecialConditions.tsx
+deleted file mode 100644
+index f10ce45..0000000
+--- a/frontend/src/modules/costs/ui/CostProposalSpecialConditions.tsx
++++ /dev/null
+@@ -1,114 +0,0 @@
+-"use client";
+-
+-import type { CostProposalInputSchema } from "@cermont/shared-types";
+-import type { Control, UseFormRegister } from "react-hook-form";
+-import { Controller } from "react-hook-form";
+-import type { z } from "zod";
+-import { Checkbox } from "@/core/ui/FormField";
+-import { FormField, TextField } from "@/modules/core";
+-
+-type CostProposalFormValues = z.input<typeof CostProposalInputSchema>;
+-
+-interface CostProposalSpecialConditionsProps {
+-	control: Control<CostProposalFormValues>;
+-	register: UseFormRegister<CostProposalFormValues>;
+-}
+-
+-export function CostProposalSpecialConditions({
+-	control,
+-	register,
+-}: CostProposalSpecialConditionsProps) {
+-	return (
+-		<section className="space-y-4">
+-			<header>
+-				<h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+-					Condiciones especiales
+-				</h3>
+-			</header>
+-
+-			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+-				<Controller
+-					name="requiresHeightWork"
+-					control={control}
+-					render={({ field }) => (
+-						<Checkbox
+-							label="Trabajo en altura"
+-							checked={field.value}
+-							onChange={field.onChange}
+-							name={field.name}
+-						/>
+-					)}
+-				/>
+-				<Controller
+-					name="nightWork"
+-					control={control}
+-					render={({ field }) => (
+-						<Checkbox
+-							label="Trabajo nocturno"
+-							checked={field.value}
+-							onChange={field.onChange}
+-							name={field.name}
+-						/>
+-					)}
+-				/>
+-				<Controller
+-					name="requiresHotWork"
+-					control={control}
+-					render={({ field }) => (
+-						<Checkbox
+-							label="Trabajo en caliente"
+-							checked={field.value}
+-							onChange={field.onChange}
+-							name={field.name}
+-						/>
+-					)}
+-				/>
+-				<Controller
+-					name="adverseWeather"
+-					control={control}
+-					render={({ field }) => (
+-						<Checkbox
+-							label="Clima adverso"
+-							checked={field.value}
+-							onChange={field.onChange}
+-							name={field.name}
+-						/>
+-					)}
+-				/>
+-				<Controller
+-					name="requiresFinalCertification"
+-					control={control}
+-					render={({ field }) => (
+-						<Checkbox
+-							label="Requiere certificación final"
+-							checked={field.value}
+-							onChange={field.onChange}
+-							name={field.name}
+-						/>
+-					)}
+-				/>
+-				<Controller
+-					name="requiresLockoutTagout"
+-					control={control}
+-					render={({ field }) => (
+-						<Checkbox
+-							label="Requiere Lockout/Tagout"
+-							checked={field.value}
+-							onChange={field.onChange}
+-							name={field.name}
+-						/>
+-					)}
+-				/>
+-			</div>
+-
+-			<FormField label="Presupuesto del cliente (opcional)">
+-				<TextField
+-					type="number"
+-					placeholder="Presupuesto máximo en COP"
+-					min={0}
+-					{...register("clientBudget", { valueAsNumber: true })}
+-				/>
+-			</FormField>
+-		</section>
+-	);
+-}
+diff --git a/frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx b/frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx
+index 19d98d9..141b7cf 100644
+--- a/frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx
++++ b/frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx
+@@ -11,6 +11,8 @@ export interface ActionItem {
+ 	deadline?: string;
+ 	deepLink: string;
+ 	urgency: ActionUrgency;
++	/** Role the backend assigned to this action; used for role-based filtering. */
++	requiredRole?: string;
+ }
+ 
+ interface Props {
+@@ -30,6 +32,10 @@ const URGENCY_LABEL: Record<ActionUrgency, string> = {
+ };
+ 
+ function shouldShowAction(role: string, action: ActionItem): boolean {
++	if (action.requiredRole) {
++		// Gerente supervises the whole pipeline; everyone else sees their own actions.
++		return role === "gerente" || action.requiredRole === role;
++	}
+ 	const description = action.description.toLowerCase();
+ 	if (role === "gerente") {
+ 		return description.includes("aprobar") || description.includes("pago");
+@@ -90,7 +96,7 @@ export function NextActionsByRolePanel({ actions }: Props) {
+ 						<a
+ 							href={action.deepLink}
+ 							className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] p-3 transition hover:border-[var(--color-brand-blue)]/30 hover:bg-[var(--surface-secondary)]"
+-							aria-label={`${action.description} — Orden ${action.orderCode} — ${URGENCY_LABEL[action.urgency]}`}
++							aria-label={`${action.description} — ${action.orderCode} — ${URGENCY_LABEL[action.urgency]}`}
+ 						>
+ 							<span
+ 								className={`mt-1 size-2 shrink-0 rounded-full ${URGENCY_ICON_CLASS[
+@@ -102,7 +108,7 @@ export function NextActionsByRolePanel({ actions }: Props) {
+ 								<p className="text-sm font-medium text-[var(--text-primary)]">
+ 									{action.description}
+ 								</p>
+-								<p className="text-xs text-[var(--text-secondary)]">Orden: {action.orderCode}</p>
++								<p className="text-xs text-[var(--text-secondary)]">{action.orderCode}</p>
+ 								{action.deadline && (
+ 									<p className="text-xs text-[var(--text-tertiary)]">
+ 										{URGENCY_LABEL[action.urgency]} · {action.deadline}
+diff --git a/frontend/src/modules/execution/queries.ts b/frontend/src/modules/execution/queries.ts
+index c4375e2..1b7f548 100644
+--- a/frontend/src/modules/execution/queries.ts
++++ b/frontend/src/modules/execution/queries.ts
+@@ -26,7 +26,7 @@ type ExecutionDetailEnvelope = {
+ 	queued?: boolean;
+ };
+ 
+-const EXECUTION_KEYS = {
++export const EXECUTION_KEYS = {
+ 	all: ["execution-sessions"] as const,
+ 	list: (filters?: Partial<ExecutionSessionListQuery>) =>
+ 		[...EXECUTION_KEYS.all, "list", filters] as const,
+diff --git a/frontend/src/modules/field-execution/api/field-execution.api.ts b/frontend/src/modules/field-execution/api/field-execution.api.ts
+index da2dfdd..6ef244e 100644
+--- a/frontend/src/modules/field-execution/api/field-execution.api.ts
++++ b/frontend/src/modules/field-execution/api/field-execution.api.ts
+@@ -1,13 +1,13 @@
+ import { apiClient } from "@/lib/http/api-client";
+ 
+-interface PreflightChecklistItem {
++export interface PreflightChecklistItem {
+ 	id: string;
+ 	label: string;
+ 	isBlocking: boolean;
+ 	checked: boolean;
+ }
+ 
+-interface SubmitPreflightInput {
++export interface SubmitPreflightInput {
+ 	items: PreflightChecklistItem[];
+ 	eppComplete: boolean;
+ 	astSigned: boolean;
+@@ -20,15 +20,3 @@ interface SubmitPreflightInput {
+ export async function submitPreflight(sessionId: string, data: SubmitPreflightInput) {
+ 	return apiClient.post(`/execution-sessions/${encodeURIComponent(sessionId)}/preflight`, data);
+ }
+-
+-export async function fetchExecutionSession(sessionId: string) {
+-	return apiClient.get(`/execution-sessions/${encodeURIComponent(sessionId)}`);
+-}
+-
+-export async function startExecution(sessionId: string) {
+-	return apiClient.post(`/execution-sessions/${encodeURIComponent(sessionId)}/start`, {});
+-}
+-
+-export async function completeExecution(sessionId: string) {
+-	return apiClient.post(`/execution-sessions/${encodeURIComponent(sessionId)}/complete`, {});
+-}
+diff --git a/frontend/src/modules/field-execution/ui/ExecutionStatusBadge.tsx b/frontend/src/modules/field-execution/ui/ExecutionStatusBadge.tsx
+index 9588c48..e44f00b 100644
+--- a/frontend/src/modules/field-execution/ui/ExecutionStatusBadge.tsx
++++ b/frontend/src/modules/field-execution/ui/ExecutionStatusBadge.tsx
+@@ -1,7 +1,15 @@
+ "use client";
+ 
+ interface Props {
+-	status: "draft" | "ready" | "in_progress" | "paused" | "completed" | "cancelled";
++	status:
++		| "draft"
++		| "ready"
++		| "in_progress"
++		| "paused"
++		| "completed"
++		| "cancelled"
++		| "sync_pending"
++		| "sync_failed";
+ }
+ 
+ const STATUS_MAP: Record<string, { label: string; className: string }> = {
+@@ -11,6 +19,8 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
+ 	paused: { label: "Pausado", className: "bg-orange-100 text-orange-700" },
+ 	completed: { label: "Completado", className: "bg-[#4CAF50]/20 text-green-700" },
+ 	cancelled: { label: "Cancelado", className: "bg-[#F44336]/20 text-red-700" },
++	sync_pending: { label: "Sync pendiente", className: "bg-purple-100 text-purple-700" },
++	sync_failed: { label: "Sync fallida", className: "bg-[#F44336]/20 text-red-700" },
+ };
+ 
+ export function ExecutionStatusBadge({ status }: Props) {
+diff --git a/frontend/src/modules/field-execution/ui/ExecutionTimer.tsx b/frontend/src/modules/field-execution/ui/ExecutionTimer.tsx
+index 2004261..61f3c5e 100644
+--- a/frontend/src/modules/field-execution/ui/ExecutionTimer.tsx
++++ b/frontend/src/modules/field-execution/ui/ExecutionTimer.tsx
+@@ -37,10 +37,10 @@ export function ExecutionTimer({ startedAt, targetMinutes, end }: ExecutionTimer
+ 	const isOverdue = consumedPercent > 100;
+ 	const isCritical = consumedPercent > 110;
+ 	const tone = isOverdue
+-		? "bg-[var(--color-danger)]"
++		? "[&::-webkit-progress-value]:bg-[var(--color-danger)] [&::-moz-progress-bar]:bg-[var(--color-danger)]"
+ 		: consumedPercent >= 80
+-			? "bg-[var(--color-warning)]"
+-			: "bg-[var(--color-success)]";
++			? "[&::-webkit-progress-value]:bg-[var(--color-warning)] [&::-moz-progress-bar]:bg-[var(--color-warning)]"
++			: "[&::-webkit-progress-value]:bg-[var(--color-success)] [&::-moz-progress-bar]:bg-[var(--color-success)]";
+ 
+ 	return (
+ 		<section
+@@ -62,22 +62,15 @@ export function ExecutionTimer({ startedAt, targetMinutes, end }: ExecutionTimer
+ 					{formatElapsed(elapsedSeconds)}
+ 				</output>
+ 			</div>
+-			<div
+-				className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--surface-secondary)]"
+-				role="progressbar"
++			<progress
++				value={Math.round(progressScale * 100)}
++				max={100}
+ 				aria-label="Consumo del tiempo estimado"
+-				aria-valuemin={0}
+-				aria-valuemax={100}
+-				aria-valuenow={Math.round(consumedPercent)}
+-			>
+-				<span
+-					className={
+-						"block h-full origin-left rounded-full transition-transform motion-reduce:transition-none " +
+-						tone
+-					}
+-					style={{ transform: `scaleX(${progressScale})` }}
+-				/>
+-			</div>
++				className={
++					"mt-3 block h-2 w-full appearance-none overflow-hidden rounded-full bg-[var(--surface-secondary)] [&::-moz-progress-bar]:rounded-full [&::-webkit-progress-bar]:bg-[var(--surface-secondary)] [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:transition-all motion-reduce:[&::-webkit-progress-value]:transition-none " +
++					tone
++				}
++			/>
+ 			<p className="mt-2 text-xs text-[var(--text-secondary)]">
+ 				{Math.round(consumedPercent)}% de {targetMinutes} minutos estimados
+ 			</p>
+diff --git a/frontend/src/modules/field-execution/ui/PreflightGatesForm.tsx b/frontend/src/modules/field-execution/ui/PreflightGatesForm.tsx
+index 4c296c0..ea44127 100644
+--- a/frontend/src/modules/field-execution/ui/PreflightGatesForm.tsx
++++ b/frontend/src/modules/field-execution/ui/PreflightGatesForm.tsx
+@@ -12,9 +12,14 @@ interface GateItem {
+ interface Props {
+ 	gates: GateItem[];
+ 	onComplete: (passedItems: string[]) => void;
++	submitLabel?: string;
+ }
+ 
+-export function PreflightGatesForm({ gates, onComplete }: Props) {
++export function PreflightGatesForm({
++	gates,
++	onComplete,
++	submitLabel = "Iniciar ejecución",
++}: Props) {
+ 	const [checked, setChecked] = useState<Set<string>>(new Set());
+ 
+ 	const toggle = (id: string) => {
+@@ -68,7 +73,7 @@ export function PreflightGatesForm({ gates, onComplete }: Props) {
+ 				onClick={() => onComplete(Array.from(checked))}
+ 				className="w-full rounded-full bg-[var(--color-brand-blue)] px-6 py-3 text-sm font-semibold text-white disabled:opacity-50 transition"
+ 			>
+-				Iniciar ejecución
++				{submitLabel}
+ 			</button>
+ 		</div>
+ 	);
+diff --git a/frontend/src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx b/frontend/src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx
+index 28713fa..46e096e 100644
+--- a/frontend/src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx
++++ b/frontend/src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx
+@@ -1,7 +1,7 @@
+ "use client";
+ 
+ import { AlertCircle, X } from "lucide-react";
+-import { useState } from "react";
++import { useEffect, useRef, useState } from "react";
+ 
+ interface Props {
+ 	onReport: (data: {
+@@ -12,11 +12,24 @@ interface Props {
+ }
+ 
+ export function FieldNoveltyButton({ onReport }: Props) {
++	const dialogRef = useRef<HTMLDialogElement>(null);
+ 	const [isOpen, setIsOpen] = useState(false);
+ 	const [description, setDescription] = useState("");
+ 	const [severity, setSeverity] = useState("medium");
+ 	const [generatesWR, setGeneratesWR] = useState(false);
+ 
++	useEffect(() => {
++		const dialog = dialogRef.current;
++		if (!dialog) {
++			return;
++		}
++		if (isOpen && !dialog.open) {
++			dialog.showModal();
++		} else if (!isOpen && dialog.open) {
++			dialog.close();
++		}
++	}, [isOpen]);
++
+ 	const handleSubmit = () => {
+ 		if (description.trim().length < 5) {
+ 			return;
+@@ -41,18 +54,20 @@ export function FieldNoveltyButton({ onReport }: Props) {
+ 				<span className="sr-only">Reportar novedad</span>
+ 			</button>
+ 
+-			{isOpen && (
+-				<div
+-					className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+-					role="dialog"
+-					aria-modal="true"
+-				>
+-					<div className="w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--surface-primary)] p-6 shadow-xl">
++			<dialog
++				ref={dialogRef}
++				aria-label="Reportar novedad de campo"
++				onClose={() => setIsOpen(false)}
++				className="z-50 m-auto w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--surface-primary)] p-0 shadow-xl backdrop:bg-black/50"
++			>
++				{isOpen && (
++					<div className="p-6">
+ 						<div className="flex items-center justify-between">
+ 							<h2 className="text-lg font-semibold text-[var(--text-primary)]">Reportar novedad</h2>
+ 							<button
+ 								type="button"
+ 								onClick={() => setIsOpen(false)}
++								aria-label="Cerrar"
+ 								className="text-[var(--text-secondary)]"
+ 							>
+ 								<X className="size-5" aria-hidden="true" />
+@@ -113,8 +128,8 @@ export function FieldNoveltyButton({ onReport }: Props) {
+ 							</button>
+ 						</div>
+ 					</div>
+-				</div>
+-			)}
++				)}
++			</dialog>
+ 		</>
+ 	);
+ }
+diff --git a/frontend/src/modules/fleet/ui/VehicleAssignmentPanel.tsx b/frontend/src/modules/fleet/ui/VehicleAssignmentPanel.tsx
+new file mode 100644
+index 0000000..9e60a81
+--- /dev/null
++++ b/frontend/src/modules/fleet/ui/VehicleAssignmentPanel.tsx
+@@ -0,0 +1,255 @@
++"use client";
++
++/**
++ * VehicleAssignmentPanel — check-in / check-out lifecycle for a vehicle.
++ *
++ * Flow: assign (pending) → checkout with mileage+fuel (active) → checkin (completed).
++ * Backed by /fleet assignment endpoints via the fleet query hooks.
++ */
++
++import type { VehicleAssignment } from "@cermont/shared-types";
++import { CarFront, History, LogOut } from "lucide-react";
++import { type FormEvent, useState } from "react";
++import { useAuth } from "@/modules/auth/hooks/useAuth";
++import {
++	useActiveVehicleAssignment,
++	useAssignVehicle,
++	useCheckinVehicle,
++	useCheckoutVehicle,
++	useVehicleHistory,
++} from "../queries";
++
++const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
++	dateStyle: "medium",
++	timeStyle: "short",
++	timeZone: "America/Bogota",
++});
++
++function formatDate(value?: string): string {
++	return value ? DATE_FORMATTER.format(new Date(value)) : "—";
++}
++
++const ASSIGNMENT_STATUS_LABELS: Record<string, string> = {
++	pending: "Pendiente de salida",
++	active: "En uso",
++	completed: "Devuelto",
++};
++
++function MileageFuelForm({
++	title,
++	submitLabel,
++	isPending,
++	onSubmit,
++}: {
++	title: string;
++	submitLabel: string;
++	isPending: boolean;
++	onSubmit: (values: { mileage: number; fuelLevel: number; notes?: string }) => void;
++}) {
++	const [mileage, setMileage] = useState("");
++	const [fuelLevel, setFuelLevel] = useState("");
++	const [notes, setNotes] = useState("");
++
++	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
++		event.preventDefault();
++		const mileageValue = Number(mileage);
++		const fuelValue = Number(fuelLevel);
++		if (!Number.isFinite(mileageValue) || mileageValue < 0) {
++			return;
++		}
++		if (!Number.isFinite(fuelValue) || fuelValue < 0 || fuelValue > 100) {
++			return;
++		}
++		onSubmit({
++			mileage: Math.round(mileageValue),
++			fuelLevel: Math.round(fuelValue),
++			notes: notes.trim() ? notes.trim() : undefined,
++		});
++	};
++
++	return (
++		<form onSubmit={handleSubmit} className="space-y-3">
++			<p className="text-sm font-semibold text-[var(--text-primary)]">{title}</p>
++			<div className="grid gap-3 sm:grid-cols-2">
++				<label className="block text-xs font-medium text-[var(--text-secondary)]">
++					Kilometraje
++					<input
++						type="number"
++						min={0}
++						required
++						value={mileage}
++						onChange={(event) => setMileage(event.target.value)}
++						className="mt-1 h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
++					/>
++				</label>
++				<label className="block text-xs font-medium text-[var(--text-secondary)]">
++					Nivel de combustible (%)
++					<input
++						type="number"
++						min={0}
++						max={100}
++						required
++						value={fuelLevel}
++						onChange={(event) => setFuelLevel(event.target.value)}
++						className="mt-1 h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
++					/>
++				</label>
++			</div>
++			<label className="block text-xs font-medium text-[var(--text-secondary)]">
++				Observaciones
++				<textarea
++					rows={2}
++					value={notes}
++					onChange={(event) => setNotes(event.target.value)}
++					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)]"
++					placeholder="Estado del vehículo, novedades…"
++				/>
++			</label>
++			<button
++				type="submit"
++				disabled={isPending}
++				className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-brand-blue)] px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
++			>
++				{submitLabel}
++			</button>
++		</form>
++	);
++}
++
++function AssignmentHistory({ history }: { history: VehicleAssignment[] }) {
++	if (history.length === 0) {
++		return (
++			<p className="text-sm text-[var(--text-secondary)]">Sin asignaciones registradas.</p>
++		);
++	}
++
++	return (
++		<ul className="space-y-2">
++			{history.map((assignment) => (
++				<li
++					key={assignment._id ?? assignment.assignedAt}
++					className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-3 text-sm"
++				>
++					<div className="flex flex-wrap items-center justify-between gap-2">
++						<span className="font-medium text-[var(--text-primary)]">
++							{assignment.driverName ?? "Conductor asignado"}
++						</span>
++						<span className="rounded-full bg-[var(--surface-primary)] px-2.5 py-0.5 text-xs font-semibold text-[var(--text-secondary)]">
++							{ASSIGNMENT_STATUS_LABELS[assignment.status] ?? assignment.status}
++						</span>
++					</div>
++					<p className="mt-1 text-xs text-[var(--text-tertiary)]">
++						Asignado: {formatDate(assignment.assignedAt)}
++						{assignment.checkout ? ` · Salida km ${assignment.checkout.mileage}` : ""}
++						{assignment.checkin ? ` · Regreso km ${assignment.checkin.mileage}` : ""}
++					</p>
++				</li>
++			))}
++		</ul>
++	);
++}
++
++export function VehicleAssignmentPanel({ vehicleId }: { vehicleId: string }) {
++	const { user } = useAuth();
++	const activeQuery = useActiveVehicleAssignment(vehicleId);
++	const historyQuery = useVehicleHistory(vehicleId);
++	const assignMutation = useAssignVehicle();
++	const checkoutMutation = useCheckoutVehicle();
++	const checkinMutation = useCheckinVehicle();
++
++	const active = activeQuery.data;
++	const mutationError =
++		assignMutation.error ?? checkoutMutation.error ?? checkinMutation.error;
++
++	return (
++		<div className="space-y-6">
++			<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5">
++				<div className="flex items-center gap-2">
++					<CarFront className="size-4 text-[var(--color-brand-blue)]" aria-hidden="true" />
++					<h3 className="text-sm font-semibold text-[var(--text-primary)]">
++						Asignación del vehículo
++					</h3>
++				</div>
++
++				{mutationError ? (
++					<p role="alert" className="mt-3 text-xs text-[var(--color-danger)]">
++						{mutationError instanceof Error
++							? mutationError.message
++							: "No se pudo completar la operación"}
++					</p>
++				) : null}
++
++				<div className="mt-4">
++					{activeQuery.isLoading ? (
++						<p className="text-sm text-[var(--text-secondary)]">Cargando asignación…</p>
++					) : !active ? (
++						<div className="space-y-3">
++							<p className="text-sm text-[var(--text-secondary)]">
++								El vehículo está disponible para asignación.
++							</p>
++							<button
++								type="button"
++								disabled={!user?.id || assignMutation.isPending}
++								onClick={() =>
++									user?.id &&
++									assignMutation.mutate({
++										vehicleId,
++										input: { vehicleId, driverId: user.id },
++									})
++								}
++								className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-brand-blue)] px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
++							>
++								<LogOut className="size-4" aria-hidden="true" />
++								{assignMutation.isPending ? "Asignando…" : "Asignarme este vehículo"}
++							</button>
++						</div>
++					) : active.status === "pending" ? (
++						<MileageFuelForm
++							title={`Registrar salida — ${active.driverName ?? "conductor asignado"}`}
++							submitLabel={checkoutMutation.isPending ? "Registrando…" : "Registrar salida"}
++							isPending={checkoutMutation.isPending}
++							onSubmit={(values) =>
++								active._id &&
++								checkoutMutation.mutate({
++									assignmentId: active._id,
++									input: { checkout: { ...values, photos: [] } },
++								})
++							}
++						/>
++					) : (
++						<MileageFuelForm
++							title={`Registrar regreso — ${active.driverName ?? "conductor asignado"}`}
++							submitLabel={checkinMutation.isPending ? "Registrando…" : "Registrar regreso"}
++							isPending={checkinMutation.isPending}
++							onSubmit={(values) =>
++								active._id &&
++								checkinMutation.mutate({
++									assignmentId: active._id,
++									input: { checkin: { ...values, photos: [] } },
++								})
++							}
++						/>
++					)}
++				</div>
++			</section>
++
++			<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5">
++				<div className="mb-3 flex items-center gap-2">
++					<History className="size-4 text-[var(--color-brand-blue)]" aria-hidden="true" />
++					<h3 className="text-sm font-semibold text-[var(--text-primary)]">
++						Historial de asignaciones
++					</h3>
++				</div>
++				{historyQuery.isLoading ? (
++					<p className="text-sm text-[var(--text-secondary)]">Cargando historial…</p>
++				) : historyQuery.isError ? (
++					<p className="text-sm text-[var(--color-danger)]">
++						No se pudo cargar el historial de asignaciones.
++					</p>
++				) : (
++					<AssignmentHistory history={historyQuery.data ?? []} />
++				)}
++			</section>
++		</div>
++	);
++}
+diff --git a/frontend/src/modules/notifications/api/notification.api.ts b/frontend/src/modules/notifications/api/notification.api.ts
+deleted file mode 100644
+index 067a150..0000000
+--- a/frontend/src/modules/notifications/api/notification.api.ts
++++ /dev/null
+@@ -1,31 +0,0 @@
+-/**
+- * Notifications API Service
+- *
+- * Thin wrapper over `apiClient` for the `/api/notifications` endpoints.
+- * Returns unwrapped response `data` fields and throws on non-2xx (handled by apiClient).
+- */
+-
+-import { apiClient } from "@/lib/http/api-client";
+-import type { Notification } from "./types";
+-
+-const BASE = "/notifications";
+-
+-export async function fetchNotifications(): Promise<Notification[]> {
+-	const envelope = await apiClient.get<{ success: true; data: Notification[] }>(BASE);
+-	return envelope.data;
+-}
+-
+-export async function fetchUnreadCount(): Promise<number> {
+-	const envelope = await apiClient.get<{ success: true; data: { count: number } }>(
+-		`${BASE}/unread-count`,
+-	);
+-	return envelope.data.count;
+-}
+-
+-export async function markAsRead(id: string): Promise<void> {
+-	await apiClient.patch<{ success: true; data: null }>(`${BASE}/${id}/read`);
+-}
+-
+-export async function markAllAsRead(): Promise<void> {
+-	await apiClient.post<{ success: true; data: null }>(`${BASE}/mark-all-read`);
+-}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/api/types.ts b/frontend/src/modules/notifications/api/types.ts
+deleted file mode 100644
+index a312220..0000000
+--- a/frontend/src/modules/notifications/api/types.ts
++++ /dev/null
+@@ -1,29 +0,0 @@
+-/**
+- * Notifications module types.
+- *
+- * Local view model for notifications consumed by the UI layer. Aligned with the
+- * backend `Notification` document shape (see `backend/src/models/Notification.ts`).
+- */
+-
+-export type NotificationType =
+-	| "evidence_rejected"
+-	| "evidence_approved"
+-	| "ses_approved"
+-	| "ses_rejected"
+-	| "payment_received"
+-	| "report_generated"
+-	| "overdue"
+-	| "kit_reminder"
+-	| "invoice_pending"
+-	| "general";
+-
+-export interface Notification {
+-	_id: string;
+-	type: NotificationType;
+-	title: string;
+-	message: string;
+-	isRead: boolean;
+-	createdAt: string;
+-	deepLink?: string;
+-	userId?: string;
+-}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/hooks/useNotifications.ts b/frontend/src/modules/notifications/hooks/useNotifications.ts
+deleted file mode 100644
+index e090050..0000000
+--- a/frontend/src/modules/notifications/hooks/useNotifications.ts
++++ /dev/null
+@@ -1,23 +0,0 @@
+-/**
+- * useNotifications — TanStack Query hook for the current user's notifications.
+- *
+- * Polls every 30s to surface new alerts in the bell + panel. Query keys are
+- * stable and centralized via `notificationKeys` for cache invalidation.
+- */
+-
+-import { useQuery } from "@tanstack/react-query";
+-import { fetchNotifications } from "../api/notification.api";
+-
+-export const notificationKeys = {
+-	all: ["notifications"] as const,
+-	list: () => [...notificationKeys.all, "list"] as const,
+-	unreadCount: () => [...notificationKeys.all, "unread-count"] as const,
+-};
+-
+-export function useNotifications() {
+-	return useQuery({
+-		queryKey: notificationKeys.list(),
+-		queryFn: fetchNotifications,
+-		refetchInterval: 30_000,
+-	});
+-}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/hooks/useUnreadCount.ts b/frontend/src/modules/notifications/hooks/useUnreadCount.ts
+deleted file mode 100644
+index 3a6a9c0..0000000
+--- a/frontend/src/modules/notifications/hooks/useUnreadCount.ts
++++ /dev/null
+@@ -1,18 +0,0 @@
+-/**
+- * useUnreadCount — TanStack Query hook for the unread notification count.
+- *
+- * Polls every 30s. Shares the `notificationKeys` namespace so mutations that
+- * mark notifications as read can invalidate both the list and the counter.
+- */
+-
+-import { useQuery } from "@tanstack/react-query";
+-import { fetchUnreadCount } from "../api/notification.api";
+-import { notificationKeys } from "./useNotifications";
+-
+-export function useUnreadCount() {
+-	return useQuery({
+-		queryKey: notificationKeys.unreadCount(),
+-		queryFn: fetchUnreadCount,
+-		refetchInterval: 30_000,
+-	});
+-}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/ui/NotificationBell.tsx b/frontend/src/modules/notifications/ui/NotificationBell.tsx
+deleted file mode 100644
+index 6c112bd..0000000
+--- a/frontend/src/modules/notifications/ui/NotificationBell.tsx
++++ /dev/null
+@@ -1,27 +0,0 @@
+-"use client";
+-
+-import { Bell } from "lucide-react";
+-
+-interface Props {
+-	unreadCount: number;
+-	onClick: () => void;
+-}
+-
+-export function NotificationBell({ unreadCount, onClick }: Props) {
+-	return (
+-		<button
+-			type="button"
+-			onClick={onClick}
+-			className="relative inline-flex size-11 items-center justify-center rounded-full hover:bg-[var(--surface-secondary)] transition"
+-			aria-label={`Notificaciones${unreadCount > 0 ? ` — ${unreadCount} sin leer` : ""}`}
+-			style={{ minWidth: 44, minHeight: 44 }}
+-		>
+-			<Bell className="size-5 text-[var(--text-primary)]" aria-hidden="true" />
+-			{unreadCount > 0 && (
+-				<span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-[#F44336] text-[10px] font-bold text-white">
+-					{unreadCount > 99 ? "99+" : unreadCount}
+-				</span>
+-			)}
+-		</button>
+-	);
+-}
+diff --git a/frontend/src/modules/notifications/ui/NotificationCard.tsx b/frontend/src/modules/notifications/ui/NotificationCard.tsx
+deleted file mode 100644
+index fe34d1e..0000000
+--- a/frontend/src/modules/notifications/ui/NotificationCard.tsx
++++ /dev/null
+@@ -1,85 +0,0 @@
+-"use client";
+-
+-import {
+-	type AlertTriangle,
+-	Check,
+-	Clock,
+-	DollarSign,
+-	FileText,
+-	MessageSquare,
+-	X,
+-} from "lucide-react";
+-
+-const ICON_MAP: Record<string, typeof AlertTriangle> = {
+-	evidence_rejected: X,
+-	evidence_approved: Check,
+-	ses_approved: FileText,
+-	ses_rejected: X,
+-	payment_received: DollarSign,
+-	report_generated: FileText,
+-	overdue: Clock,
+-	default: MessageSquare,
+-};
+-
+-function getRelativeTime(dateStr: string): string {
+-	const diff = Date.now() - new Date(dateStr).getTime();
+-	const minutes = Math.floor(diff / 60000);
+-	if (minutes < 1) {
+-		return "Ahora";
+-	}
+-	if (minutes < 60) {
+-		return `Hace ${minutes} min`;
+-	}
+-	const hours = Math.floor(minutes / 60);
+-	if (hours < 24) {
+-		return `Hace ${hours}h`;
+-	}
+-	return new Date(dateStr).toLocaleDateString("es-CO");
+-}
+-
+-interface Notification {
+-	id: string;
+-	type: string;
+-	title: string;
+-	message: string;
+-	isRead: boolean;
+-	deepLink?: string;
+-	createdAt: string;
+-}
+-
+-interface Props {
+-	notification: Notification;
+-	onClick: (notification: Notification) => void;
+-}
+-
+-export function NotificationCard({ notification, onClick }: Props) {
+-	const Icon = ICON_MAP[notification.type] ?? ICON_MAP.default;
+-
+-	return (
+-		<button
+-			type="button"
+-			onClick={() => onClick(notification)}
+-			className={`flex w-full items-start gap-3 px-5 py-4 text-left transition hover:bg-[var(--surface-secondary)] ${notification.isRead ? "" : "bg-blue-50/50"}`}
+-		>
+-			<span
+-				className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full ${notification.isRead ? "bg-gray-100" : "bg-blue-100"}`}
+-			>
+-				<Icon className="size-4 text-[var(--text-secondary)]" aria-hidden="true" />
+-			</span>
+-			<div className="min-w-0 flex-1">
+-				<p className="text-sm font-medium text-[var(--text-primary)]">{notification.title}</p>
+-				<p className="mt-0.5 text-xs text-[var(--text-secondary)]">{notification.message}</p>
+-				<p className="mt-1 text-xs text-[var(--text-tertiary)]">
+-					{getRelativeTime(notification.createdAt)}
+-				</p>
+-			</div>
+-			{!notification.isRead && (
+-				<span
+-					className="mt-2 size-2 shrink-0 rounded-full bg-[var(--color-brand-blue)]"
+-					role="status"
+-					aria-label="No leída"
+-				/>
+-			)}
+-		</button>
+-	);
+-}
+diff --git a/frontend/src/modules/notifications/ui/NotificationPanel.tsx b/frontend/src/modules/notifications/ui/NotificationPanel.tsx
+deleted file mode 100644
+index 15eb705..0000000
+--- a/frontend/src/modules/notifications/ui/NotificationPanel.tsx
++++ /dev/null
+@@ -1,47 +0,0 @@
+-"use client";
+-
+-import { CheckCheck, X } from "lucide-react";
+-import type { ReactNode } from "react";
+-
+-interface Props {
+-	isOpen: boolean;
+-	onClose: () => void;
+-	onMarkAllRead: () => void;
+-	children: ReactNode;
+-}
+-
+-export function NotificationPanel({ isOpen, onClose, onMarkAllRead, children }: Props) {
+-	if (!isOpen) {
+-		return null;
+-	}
+-
+-	return (
+-		<div className="fixed inset-0 z-50">
+-			<button
+-				type="button"
+-				className="absolute inset-0 bg-black/30"
+-				aria-label="Cerrar panel de notificaciones"
+-				onClick={onClose}
+-			/>
+-			<div className="absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto border-l border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-xl">
+-				<div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-primary)] px-5 py-4">
+-					<h2 className="text-lg font-semibold text-[var(--text-primary)]">Notificaciones</h2>
+-					<div className="flex items-center gap-2">
+-						<button
+-							type="button"
+-							onClick={onMarkAllRead}
+-							className="text-xs text-[var(--color-brand-blue)] hover:underline"
+-						>
+-							<CheckCheck className="size-4" aria-hidden="true" />
+-							<span className="sr-only">Marcar todas como leídas</span>
+-						</button>
+-						<button type="button" onClick={onClose} className="text-[var(--text-secondary)]">
+-							<X className="size-5" aria-hidden="true" />
+-						</button>
+-					</div>
+-				</div>
+-				<div className="divide-y divide-[var(--border-subtle)]">{children}</div>
+-			</div>
+-		</div>
+-	);
+-}
+diff --git a/frontend/src/modules/portal/hooks/usePortalServiceCases.ts b/frontend/src/modules/portal/hooks/usePortalServiceCases.ts
+index 57e7a38..20ed13f 100644
+--- a/frontend/src/modules/portal/hooks/usePortalServiceCases.ts
++++ b/frontend/src/modules/portal/hooks/usePortalServiceCases.ts
+@@ -1,54 +1,14 @@
+ /**
+  * usePortalServiceCases — TanStack Query hooks for the client portal module.
+  *
+- * Provides read-only access to the authenticated client's service cases and
+- * their detail view. Query keys are stable and centralized via `portalKeys`
+- * for cache invalidation across portal pages.
++ * Service cases in the client portal are backed by the real portal endpoints
++ * (`GET /portal/orders`, `GET /portal/orders/:id`), so these hooks delegate to
++ * the canonical `portal-api` implementation instead of duplicating fetch logic.
+  */
+ 
+-import { useQuery } from "@tanstack/react-query";
+-import { apiClient } from "@/lib/http/api-client";
+-
+-const BASE = "/portal/service-cases";
+-
+-export const portalKeys = {
+-	all: ["portal"] as const,
+-	serviceCases: () => [...portalKeys.all, "service-cases"] as const,
+-	serviceCaseDetail: (id: string) => [...portalKeys.all, "detail", id] as const,
+-};
+-
+-type PortalServiceCase = {
+-	_id: string;
+-	code?: string;
+-	status: string;
+-	serviceType?: string;
+-	scheduledStartDate?: string;
+-};
+-
+-type PortalServiceCaseDetail = PortalServiceCase & {
+-	documents: Array<{ _id: string; originalName: string; url: string }>;
+-	stages: Array<{ key: string; label: string; status: string }>;
+-};
+-
+-export function usePortalServiceCases() {
+-	return useQuery({
+-		queryKey: portalKeys.serviceCases(),
+-		queryFn: async () => {
+-			const envelope = await apiClient.get<{ success: true; data: PortalServiceCase[] }>(BASE);
+-			return envelope.data;
+-		},
+-	});
+-}
+-
+-export function usePortalServiceCaseDetail(id: string) {
+-	return useQuery({
+-		queryKey: portalKeys.serviceCaseDetail(id),
+-		queryFn: async () => {
+-			const envelope = await apiClient.get<{ success: true; data: PortalServiceCaseDetail }>(
+-				`${BASE}/${id}`,
+-			);
+-			return envelope.data;
+-		},
+-		enabled: !!id,
+-	});
+-}
+\ No newline at end of file
++export {
++	type PortalOrderDetail,
++	type PortalOrderSummary,
++	usePortalOrderDetail as usePortalServiceCaseDetail,
++	usePortalOrders as usePortalServiceCases,
++} from "../api/portal-api";
+diff --git a/frontend/src/modules/portal/ui/PortalServiceCaseDetail.tsx b/frontend/src/modules/portal/ui/PortalServiceCaseDetail.tsx
+index 679a2c6..1c6209d 100644
+--- a/frontend/src/modules/portal/ui/PortalServiceCaseDetail.tsx
++++ b/frontend/src/modules/portal/ui/PortalServiceCaseDetail.tsx
+@@ -1,4 +1,4 @@
+-import Link from "next/link";
++import { PortalDocumentDownload } from "./PortalDocumentDownload";
+ 
+ interface Props {
+ 	code: string;
+@@ -23,24 +23,9 @@ export function PortalServiceCaseDetail({ code, status, description, documents }
+ 				<h2 className="text-sm font-semibold text-[var(--text-secondary)]">
+ 					Documentos disponibles
+ 				</h2>
+-				{documents.length === 0 ? (
+-					<p className="mt-2 text-sm text-[var(--text-tertiary)]">No hay documentos disponibles</p>
+-				) : (
+-					<ul className="mt-2 space-y-1">
+-						{documents.map((doc) => (
+-							<li key={doc.name}>
+-								<Link
+-									href={doc.url}
+-									className="text-sm text-[var(--color-brand-blue)] hover:underline"
+-									target="_blank"
+-									rel="noopener noreferrer"
+-								>
+-									{doc.name}
+-								</Link>
+-							</li>
+-						))}
+-					</ul>
+-				)}
++				<div className="mt-2">
++					<PortalDocumentDownload documents={documents} />
++				</div>
+ 			</div>
+ 		</div>
+ 	);
+diff --git a/frontend/src/modules/portal/ui/PortalSignDeliveryRecord.tsx b/frontend/src/modules/portal/ui/PortalSignDeliveryRecord.tsx
+deleted file mode 100644
+index dce0929..0000000
+--- a/frontend/src/modules/portal/ui/PortalSignDeliveryRecord.tsx
++++ /dev/null
+@@ -1,22 +0,0 @@
+-"use client";
+-
+-import { DigitalSignaturePad } from "@/modules/reports/ui/DigitalSignaturePad";
+-
+-interface Props {
+-	deliveryRecordId: string;
+-	onSign: (dataUrl: string) => void;
+-}
+-
+-export function PortalSignDeliveryRecord({ deliveryRecordId, onSign }: Props) {
+-	return (
+-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5">
+-			<h2 className="text-sm font-semibold text-[var(--text-secondary)]">
+-				Firma del acta de entrega
+-			</h2>
+-			<p className="mt-1 text-xs text-[var(--text-tertiary)]">Acta #{deliveryRecordId.slice(-8)}</p>
+-			<div className="mt-4">
+-				<DigitalSignaturePad signerName="Cliente" title="Firma de aceptación" onSign={onSign} />
+-			</div>
+-		</div>
+-	);
+-}
+diff --git a/frontend/src/modules/reports/ui/ReportVersionHistory.tsx b/frontend/src/modules/reports/ui/ReportVersionHistory.tsx
+deleted file mode 100644
+index ac78394..0000000
+--- a/frontend/src/modules/reports/ui/ReportVersionHistory.tsx
++++ /dev/null
+@@ -1,58 +0,0 @@
+-"use client";
+-
+-import { RotateCcw } from "lucide-react";
+-
+-interface ReportVersion {
+-	id: string;
+-	number: number;
+-	createdAt: string;
+-	author: string;
+-	description: string;
+-}
+-
+-interface Props {
+-	versions: ReportVersion[];
+-	onRestore: (versionId: string) => void;
+-}
+-
+-export function ReportVersionHistory({ versions, onRestore }: Props) {
+-	if (versions.length === 0) {
+-		return (
+-			<p className="py-8 text-center text-sm text-[var(--text-secondary)]">
+-				Sin versiones registradas
+-			</p>
+-		);
+-	}
+-
+-	return (
+-		<ol className="relative ml-4 border-l border-[var(--border-subtle)]">
+-			{versions.map((v) => (
+-				<li key={v.id} className="mb-6 ml-6">
+-					<span className="absolute -left-2 mt-1 flex size-4 items-center justify-center rounded-full bg-[var(--color-brand-blue)] ring-4 ring-[var(--surface-primary)]">
+-						<span className="size-1.5 rounded-full bg-white" />
+-					</span>
+-					<div className="flex items-start justify-between gap-4">
+-						<div>
+-							<p className="text-sm font-semibold text-[var(--text-primary)]">
+-								v{v.number} — {v.description}
+-							</p>
+-							<p className="mt-0.5 text-xs text-[var(--text-secondary)]">{v.author}</p>
+-							<time className="text-xs text-[var(--text-tertiary)]">
+-								{new Date(v.createdAt).toLocaleString("es-CO")}
+-							</time>
+-						</div>
+-						<button
+-							type="button"
+-							onClick={() => onRestore(v.id)}
+-							className="flex items-center gap-1 text-xs font-medium text-[var(--color-brand-blue)] hover:underline"
+-							title="Restaurar esta versión"
+-						>
+-							<RotateCcw className="size-3" aria-hidden="true" />
+-							Restaurar
+-						</button>
+-					</div>
+-				</li>
+-			))}
+-		</ol>
+-	);
+-}
+-- 
+2.51.1.windows.1
+

@@ -1,0 +1,697 @@
+From cd3d2da13bfe84ff47b9c8fec0eec17013c704d4 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 12:41:45 -0500
+Subject: [PATCH 31/42] fix(routes): add validateBody to erp-connector,
+ form-submissions, jobs, qr routes
+
+---
+ .../erp-connector/erp-connector.routes.ts     |  10 +-
+ .../form-submission.controller.ts             |  23 +-
+ .../form-submission.routes.ts                 |   4 +
+ backend/src/modules/jobs/jobs.routes.ts       |  10 +-
+ backend/src/modules/qr/qr.routes.ts           |  16 +-
+ .../contracts/api-contract.snapshot.json      | 253 ++++++++++++++++++
+ .../contracts/contract-migrations.json        |   9 +-
+ .../src/schemas/erp-connector.schema.ts       |  20 ++
+ .../src/schemas/form-submission.schema.ts     |  36 +++
+ packages/shared-types/src/schemas/index.ts    |   2 +
+ .../shared-types/src/schemas/job.schema.ts    |   5 +
+ .../src/schemas/qr-code.schema.ts             |   8 +
+ .../schemas/route-request.schema.test.ts      |  54 ++++
+ 13 files changed, 420 insertions(+), 30 deletions(-)
+ create mode 100644 packages/shared-types/src/schemas/form-submission.schema.ts
+ create mode 100644 packages/shared-types/src/schemas/job.schema.ts
+ create mode 100644 packages/shared-types/tests/schemas/route-request.schema.test.ts
+
+diff --git a/backend/src/modules/erp-connector/erp-connector.routes.ts b/backend/src/modules/erp-connector/erp-connector.routes.ts
+index 882a8e2..1fb7ad7 100644
+--- a/backend/src/modules/erp-connector/erp-connector.routes.ts
++++ b/backend/src/modules/erp-connector/erp-connector.routes.ts
+@@ -5,19 +5,17 @@
+ import {
+ 	CreateErpConnectorSchema,
+ 	ObjectIdSchema,
++	SyncErpConnectorParamsSchema,
++	SyncErpConnectorRequestSchema,
+ 	UpdateErpConnectorSchema,
++	ValidateErpMappingSchema,
+ } from "@cermont/shared-types";
+ import { Router } from "express";
+-import { z } from "zod";
+ import { authenticate } from "../../middlewares/auth.middleware";
+ import { authorize } from "../../middlewares/authorize.middleware";
+ import { validateBody, validateParams } from "../../middlewares/validate";
+ import { erpConnectorController } from "./erp-connector.controller";
+ 
+-const ValidateErpMappingSchema = z.object({
+-	fieldMappings: z.record(z.string(), z.string()),
+-});
+-
+ const router = Router();
+ 
+ router.get("/", authenticate, authorize("gerente", "residente"), erpConnectorController.list);
+@@ -73,6 +71,8 @@ router.post(
+ 	"/:provider/sync",
+ 	authenticate,
+ 	authorize("gerente", "residente"),
++	validateParams(SyncErpConnectorParamsSchema),
++	validateBody(SyncErpConnectorRequestSchema),
+ 	erpConnectorController.sync,
+ );
+ 
+diff --git a/backend/src/modules/form-submissions/form-submission.controller.ts b/backend/src/modules/form-submissions/form-submission.controller.ts
+index d318e4e..6fdc22c 100644
+--- a/backend/src/modules/form-submissions/form-submission.controller.ts
++++ b/backend/src/modules/form-submissions/form-submission.controller.ts
+@@ -1,3 +1,4 @@
++import { CreateFormSubmissionSchema } from "@cermont/shared-types";
+ import type { Request, Response } from "express";
+ import { z } from "zod";
+ import { createLogger } from "../../common/utils/logger";
+@@ -10,26 +11,6 @@ import {
+ 
+ const log = createLogger("form-submissions");
+ 
+-const CreateFormSubmissionBodySchema = z.object({
+-	templateId: z.string().min(1).max(100),
+-	stepCode: z.string().min(1).max(80),
+-	serviceCaseId: z.string().length(24).optional(),
+-	executionSessionId: z.string().length(24).optional(),
+-	values: z.object({}).catchall(z.string().or(z.number()).or(z.boolean())),
+-	photoAttachments: z
+-		.array(
+-			z.object({
+-				fieldKey: z.string().min(1),
+-				fileId: z.string().min(1),
+-				fileName: z.string().min(1),
+-				mimeType: z.string().min(1),
+-				sizeBytes: z.number().int().nonnegative(),
+-			}),
+-		)
+-		.optional(),
+-	status: z.enum(["draft", "submitted"]).optional(),
+-});
+-
+ const ListQuerySchema = z.object({
+ 	serviceCaseId: z.string().length(24).optional(),
+ 	templateId: z.string().optional(),
+@@ -40,7 +21,7 @@ const ListQuerySchema = z.object({
+ });
+ 
+ export async function createSubmission(req: Request, res: Response): Promise<void> {
+-	const parsed = CreateFormSubmissionBodySchema.safeParse(req.body);
++	const parsed = CreateFormSubmissionSchema.safeParse(req.body);
+ 	if (!parsed.success) {
+ 		res.status(422).json({ error: "Validation error", details: parsed.error.flatten() });
+ 		return;
+diff --git a/backend/src/modules/form-submissions/form-submission.routes.ts b/backend/src/modules/form-submissions/form-submission.routes.ts
+index 0e98328..feb5223 100644
+--- a/backend/src/modules/form-submissions/form-submission.routes.ts
++++ b/backend/src/modules/form-submissions/form-submission.routes.ts
+@@ -1,7 +1,9 @@
+ import { INTERNAL_ROLES } from "@cermont/domain";
++import { CreateFormSubmissionSchema, FormSubmissionIdParamsSchema } from "@cermont/shared-types";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+ import { authorize } from "../../middlewares/authorize.middleware";
++import { validateBody, validateParams } from "../../middlewares/validate";
+ import * as FormSubmissionController from "./form-submission.controller";
+ 
+ const router = Router();
+@@ -14,6 +16,7 @@ router.post(
+ 	"/",
+ 	authenticate,
+ 	authorize(...INTERNAL_ROLES),
++	validateBody(CreateFormSubmissionSchema),
+ 	FormSubmissionController.createSubmission,
+ );
+ 
+@@ -47,6 +50,7 @@ router.patch(
+ 	"/:id/archive",
+ 	authenticate,
+ 	authorize(...INTERNAL_ROLES),
++	validateParams(FormSubmissionIdParamsSchema),
+ 	FormSubmissionController.archiveSubmission,
+ );
+ 
+diff --git a/backend/src/modules/jobs/jobs.routes.ts b/backend/src/modules/jobs/jobs.routes.ts
+index 8559d5f..9fc29d7 100644
+--- a/backend/src/modules/jobs/jobs.routes.ts
++++ b/backend/src/modules/jobs/jobs.routes.ts
+@@ -2,15 +2,23 @@
+  * Jobs Routes — Admin endpoints for managing the reminder worker
+  */
+ 
++import { RunJobsSchema } from "@cermont/shared-types";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+ import { authorize } from "../../middlewares/authorize.middleware";
++import { validateBody } from "../../middlewares/validate";
+ import * as JobsController from "./jobs.controller";
+ 
+ const router = Router();
+ 
+ // POST /api/jobs/run — Trigger all checks manually
+-router.post("/run", authenticate, authorize("gerente"), JobsController.runJobs);
++router.post(
++	"/run",
++	authenticate,
++	authorize("gerente"),
++	validateBody(RunJobsSchema),
++	JobsController.runJobs,
++);
+ 
+ // GET /api/jobs/status — Check if worker is running
+ router.get("/status", authenticate, authorize("gerente"), JobsController.getStatus);
+diff --git a/backend/src/modules/qr/qr.routes.ts b/backend/src/modules/qr/qr.routes.ts
+index de3bd8c..25a0f04 100644
+--- a/backend/src/modules/qr/qr.routes.ts
++++ b/backend/src/modules/qr/qr.routes.ts
+@@ -1,14 +1,26 @@
+ import { INTERNAL_ROLES } from "@cermont/domain";
++import { GenerateBulkQrCodesSchema, GenerateQrCodeSchema } from "@cermont/shared-types";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+ import { authorize } from "../../middlewares/authorize.middleware";
++import { validateBody } from "../../middlewares/validate";
+ import * as QrController from "./qr.controller";
+ 
+ const router = Router();
+ 
+ router.use(authenticate);
+ 
+-router.post("/generate", authorize(...INTERNAL_ROLES), QrController.generateQrCode);
+-router.post("/generate-bulk", authorize(...INTERNAL_ROLES), QrController.generateBulkQrCodes);
++router.post(
++	"/generate",
++	authorize(...INTERNAL_ROLES),
++	validateBody(GenerateQrCodeSchema),
++	QrController.generateQrCode,
++);
++router.post(
++	"/generate-bulk",
++	authorize(...INTERNAL_ROLES),
++	validateBody(GenerateBulkQrCodesSchema),
++	QrController.generateBulkQrCodes,
++);
+ 
+ export default router;
+diff --git a/packages/shared-types/contracts/api-contract.snapshot.json b/packages/shared-types/contracts/api-contract.snapshot.json
+index af876e3..b89522f 100644
+--- a/packages/shared-types/contracts/api-contract.snapshot.json
++++ b/packages/shared-types/contracts/api-contract.snapshot.json
+@@ -24465,6 +24465,99 @@
+       ],
+       "type": "object"
+     },
++    "CreateFormSubmissionSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "executionSessionId": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "photoAttachments": {
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "fieldKey": {
++                "minLength": 1,
++                "type": "string"
++              },
++              "fileId": {
++                "minLength": 1,
++                "type": "string"
++              },
++              "fileName": {
++                "minLength": 1,
++                "type": "string"
++              },
++              "mimeType": {
++                "minLength": 1,
++                "type": "string"
++              },
++              "sizeBytes": {
++                "maximum": 9007199254740991,
++                "minimum": 0,
++                "type": "integer"
++              }
++            },
++            "required": [
++              "fieldKey",
++              "fileId",
++              "fileName",
++              "mimeType",
++              "sizeBytes"
++            ],
++            "type": "object"
++          },
++          "type": "array"
++        },
++        "serviceCaseId": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "status": {
++          "enum": [
++            "draft",
++            "submitted"
++          ],
++          "type": "string"
++        },
++        "stepCode": {
++          "maxLength": 80,
++          "minLength": 1,
++          "type": "string"
++        },
++        "templateId": {
++          "maxLength": 100,
++          "minLength": 1,
++          "type": "string"
++        },
++        "values": {
++          "additionalProperties": {
++            "anyOf": [
++              {
++                "type": "string"
++              },
++              {
++                "type": "number"
++              },
++              {
++                "type": "boolean"
++              }
++            ]
++          },
++          "propertyNames": {
++            "type": "string"
++          },
++          "type": "object"
++        }
++      },
++      "required": [
++        "templateId",
++        "stepCode",
++        "values"
++      ],
++      "type": "object"
++    },
+     "CreateInspectionSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -53953,6 +54046,112 @@
+       ],
+       "type": "string"
+     },
++    "FormSubmissionIdParamsSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "id": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        }
++      },
++      "required": [
++        "id"
++      ],
++      "type": "object"
++    },
++    "FormSubmissionPhotoAttachmentSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "fieldKey": {
++          "minLength": 1,
++          "type": "string"
++        },
++        "fileId": {
++          "minLength": 1,
++          "type": "string"
++        },
++        "fileName": {
++          "minLength": 1,
++          "type": "string"
++        },
++        "mimeType": {
++          "minLength": 1,
++          "type": "string"
++        },
++        "sizeBytes": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        }
++      },
++      "required": [
++        "fieldKey",
++        "fileId",
++        "fileName",
++        "mimeType",
++        "sizeBytes"
++      ],
++      "type": "object"
++    },
++    "FormSubmissionValueSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "anyOf": [
++        {
++          "type": "string"
++        },
++        {
++          "type": "number"
++        },
++        {
++          "type": "boolean"
++        }
++      ]
++    },
++    "GenerateBulkQrCodesSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "items": {
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "entityId": {
++                "pattern": "^[0-9a-fA-F]{24}$",
++                "type": "string"
++              },
++              "entityType": {
++                "enum": [
++                  "order",
++                  "service_case",
++                  "execution_session",
++                  "equipment",
++                  "tool",
++                  "vehicle"
++                ],
++                "type": "string"
++              },
++              "label": {
++                "maxLength": 100,
++                "type": "string"
++              }
++            },
++            "required": [
++              "entityType",
++              "entityId"
++            ],
++            "type": "object"
++          },
++          "minItems": 1,
++          "type": "array"
++        }
++      },
++      "required": [
++        "items"
++      ],
++      "type": "object"
++    },
+     "GeneratedDocumentSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -76190,6 +76389,13 @@
+       ],
+       "type": "object"
+     },
++    "RunJobsSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "default": {},
++      "properties": {},
++      "type": "object"
++    },
+     "ScheduleVisitSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -85759,6 +85965,34 @@
+       ],
+       "type": "object"
+     },
++    "SyncErpConnectorParamsSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "provider": {
++          "enum": [
++            "fssm",
++            "gmao_csm",
++            "sap",
++            "ariba",
++            "dian",
++            "custom"
++          ],
++          "type": "string"
++        }
++      },
++      "required": [
++        "provider"
++      ],
++      "type": "object"
++    },
++    "SyncErpConnectorRequestSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "default": {},
++      "properties": {},
++      "type": "object"
++    },
+     "SyncErrorSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -106503,6 +106737,25 @@
+       ],
+       "type": "object"
+     },
++    "ValidateErpMappingSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "fieldMappings": {
++          "additionalProperties": {
++            "type": "string"
++          },
++          "propertyNames": {
++            "type": "string"
++          },
++          "type": "object"
++        }
++      },
++      "required": [
++        "fieldMappings"
++      ],
++      "type": "object"
++    },
+     "ValidatePlanningReadinessSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+diff --git a/packages/shared-types/contracts/contract-migrations.json b/packages/shared-types/contracts/contract-migrations.json
+index 2e17702..903b486 100644
+--- a/packages/shared-types/contracts/contract-migrations.json
++++ b/packages/shared-types/contracts/contract-migrations.json
+@@ -1,5 +1,5 @@
+ {
+-	"currentSnapshotHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
++	"currentSnapshotHash": "sha256:d1753655489277cd50485f49409320f206df55dec0ccb06de0d7e7027126045c",
+ 	"migrations": [
+ 		{
+ 			"id": "000-initial-baseline",
+@@ -476,6 +476,13 @@
+ 			"toHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
+ 			"id": "067-spec-019-sprint-11-work-request-slahours",
+ 			"date": "2026-07-06"
++		},
++		{
++			"id": "068-spec-020-wave-1-route-request-contracts",
++			"date": "2026-07-06",
++			"type": "non-breaking",
++			"description": "Add form submission, ERP sync, jobs action, ERP mapping, and bulk QR request schemas for route-boundary validation.",
++			"toHash": "sha256:d1753655489277cd50485f49409320f206df55dec0ccb06de0d7e7027126045c"
+ 		}
+ 	]
+ }
+diff --git a/packages/shared-types/src/schemas/erp-connector.schema.ts b/packages/shared-types/src/schemas/erp-connector.schema.ts
+index e930614..0d36ff1 100644
+--- a/packages/shared-types/src/schemas/erp-connector.schema.ts
++++ b/packages/shared-types/src/schemas/erp-connector.schema.ts
+@@ -62,3 +62,23 @@ export type CreateErpConnectorInput = z.infer<typeof CreateErpConnectorSchema>;
+ export const UpdateErpConnectorSchema = CreateErpConnectorSchema.partial();
+ 
+ export type UpdateErpConnectorInput = z.infer<typeof UpdateErpConnectorSchema>;
++
++export const SyncErpConnectorParamsSchema = z
++	.object({
++		provider: ErpProviderTypeEnum,
++	})
++	.strict();
++
++export type SyncErpConnectorParams = z.infer<typeof SyncErpConnectorParamsSchema>;
++
++export const SyncErpConnectorRequestSchema = z.object({}).strict().default({});
++
++export type SyncErpConnectorRequest = z.infer<typeof SyncErpConnectorRequestSchema>;
++
++export const ValidateErpMappingSchema = z
++	.object({
++		fieldMappings: z.record(z.string(), z.string()),
++	})
++	.strict();
++
++export type ValidateErpMappingInput = z.infer<typeof ValidateErpMappingSchema>;
+diff --git a/packages/shared-types/src/schemas/form-submission.schema.ts b/packages/shared-types/src/schemas/form-submission.schema.ts
+new file mode 100644
+index 0000000..433af5c
+--- /dev/null
++++ b/packages/shared-types/src/schemas/form-submission.schema.ts
+@@ -0,0 +1,36 @@
++import { z } from "zod";
++import { ObjectIdSchema } from "./common.schema";
++
++export const FormSubmissionValueSchema = z.union([z.string(), z.number(), z.boolean()]);
++
++export const FormSubmissionPhotoAttachmentSchema = z
++	.object({
++		fieldKey: z.string().min(1),
++		fileId: z.string().min(1),
++		fileName: z.string().min(1),
++		mimeType: z.string().min(1),
++		sizeBytes: z.number().int().nonnegative(),
++	})
++	.strict();
++
++export const CreateFormSubmissionSchema = z
++	.object({
++		templateId: z.string().min(1).max(100),
++		stepCode: z.string().min(1).max(80),
++		serviceCaseId: ObjectIdSchema.optional(),
++		executionSessionId: ObjectIdSchema.optional(),
++		values: z.record(z.string(), FormSubmissionValueSchema),
++		photoAttachments: z.array(FormSubmissionPhotoAttachmentSchema).optional(),
++		status: z.enum(["draft", "submitted"]).optional(),
++	})
++	.strict();
++
++export type CreateFormSubmissionInput = z.infer<typeof CreateFormSubmissionSchema>;
++
++export const FormSubmissionIdParamsSchema = z
++	.object({
++		id: ObjectIdSchema,
++	})
++	.strict();
++
++export type FormSubmissionIdParams = z.infer<typeof FormSubmissionIdParamsSchema>;
+diff --git a/packages/shared-types/src/schemas/index.ts b/packages/shared-types/src/schemas/index.ts
+index 53fa1c9..bb69a0d 100644
+--- a/packages/shared-types/src/schemas/index.ts
++++ b/packages/shared-types/src/schemas/index.ts
+@@ -51,12 +51,14 @@ export * from "./execution-labor.schema";
+ export * from "./execution-session.schema";
+ export * from "./execution-signature.schema";
+ export * from "./file-asset.schema";
++export * from "./form-submission.schema";
+ export * from "./geolocation.schema";
+ export * from "./history.schema";
+ export * from "./inspection.schema";
+ export * from "./inventory-item.schema";
+ export * from "./invoice.schema";
+ export * from "./invoice-approval.schema";
++export * from "./job.schema";
+ export * from "./kit.schema";
+ export * from "./kpi.schema";
+ export * from "./maintenance-plan.schema";
+diff --git a/packages/shared-types/src/schemas/job.schema.ts b/packages/shared-types/src/schemas/job.schema.ts
+new file mode 100644
+index 0000000..8bc0712
+--- /dev/null
++++ b/packages/shared-types/src/schemas/job.schema.ts
+@@ -0,0 +1,5 @@
++import { z } from "zod";
++
++export const RunJobsSchema = z.object({}).strict().default({});
++
++export type RunJobsInput = z.infer<typeof RunJobsSchema>;
+diff --git a/packages/shared-types/src/schemas/qr-code.schema.ts b/packages/shared-types/src/schemas/qr-code.schema.ts
+index 9a41033..430cea3 100644
+--- a/packages/shared-types/src/schemas/qr-code.schema.ts
++++ b/packages/shared-types/src/schemas/qr-code.schema.ts
+@@ -22,6 +22,14 @@ export const GenerateQrCodeSchema = z
+ 
+ export type GenerateQrCodeInput = z.infer<typeof GenerateQrCodeSchema>;
+ 
++export const GenerateBulkQrCodesSchema = z
++	.object({
++		items: z.array(GenerateQrCodeSchema).min(1),
++	})
++	.strict();
++
++export type GenerateBulkQrCodesInput = z.infer<typeof GenerateBulkQrCodesSchema>;
++
+ export const QrCodeSchema = z
+ 	.object({
+ 		_id: ObjectIdSchema,
+diff --git a/packages/shared-types/tests/schemas/route-request.schema.test.ts b/packages/shared-types/tests/schemas/route-request.schema.test.ts
+new file mode 100644
+index 0000000..5e59253
+--- /dev/null
++++ b/packages/shared-types/tests/schemas/route-request.schema.test.ts
+@@ -0,0 +1,54 @@
++import { describe, expect, it } from "vitest";
++import {
++	CreateFormSubmissionSchema,
++	GenerateBulkQrCodesSchema,
++	RunJobsSchema,
++	SyncErpConnectorParamsSchema,
++	SyncErpConnectorRequestSchema,
++} from "../../src";
++
++const OBJECT_ID = "507f1f77bcf86cd799439011";
++
++describe("route request schemas", () => {
++	it("accepts a valid operational form submission", () => {
++		const result = CreateFormSubmissionSchema.safeParse({
++			templateId: "cermont_cctv_v1",
++			stepCode: "step_07_evidence",
++			serviceCaseId: OBJECT_ID,
++			values: { approved: true, quantity: 2, observation: "Ready" },
++		});
++
++		expect(result.success).toBe(true);
++	});
++
++	it("rejects a form submission with an invalid service case id", () => {
++		const result = CreateFormSubmissionSchema.safeParse({
++			templateId: "cermont_cctv_v1",
++			stepCode: "step_07_evidence",
++			serviceCaseId: "invalid",
++			values: {},
++		});
++
++		expect(result.success).toBe(false);
++	});
++
++	it("accepts bodyless action requests without accepting extra fields", () => {
++		expect(RunJobsSchema.safeParse(undefined).success).toBe(true);
++		expect(SyncErpConnectorRequestSchema.safeParse(undefined).success).toBe(true);
++		expect(RunJobsSchema.safeParse({ unexpected: true }).success).toBe(false);
++	});
++
++	it("validates the ERP provider route parameter", () => {
++		expect(SyncErpConnectorParamsSchema.safeParse({ provider: "sap" }).success).toBe(true);
++		expect(SyncErpConnectorParamsSchema.safeParse({ provider: "invalid" }).success).toBe(false);
++	});
++
++	it("requires at least one valid item for bulk QR generation", () => {
++		expect(GenerateBulkQrCodesSchema.safeParse({ items: [] }).success).toBe(false);
++		expect(
++			GenerateBulkQrCodesSchema.safeParse({
++				items: [{ entityType: "tool", entityId: OBJECT_ID, label: "Taladro" }],
++			}).success,
++		).toBe(true);
++	});
++});
+-- 
+2.51.1.windows.1
+

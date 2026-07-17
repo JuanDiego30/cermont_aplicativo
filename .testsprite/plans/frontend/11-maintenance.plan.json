@@ -1,0 +1,41 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Maintenance - Preventive and corrective maintenance",
+  "description": "Verifies maintenance management: creating maintenance tasks, scheduling, tracking completion, and calendar view",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/maintenance"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that maintenance dashboard shows both list and calendar views"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New Maintenance' and select type (preventive or corrective)"
+    },
+    {
+      "type": "action",
+      "description": "Fill in: asset/equipment selection, description, priority, scheduled date, assigned technician"
+    },
+    {
+      "type": "action",
+      "description": "Submit and verify the maintenance task is created with 'scheduled' status"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /dashboard/maintenance/schedules to view the calendar with FullCalendar integration"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the new maintenance task appears on the calendar on the correct date"
+    },
+    {
+      "type": "action",
+      "description": "Mark the maintenance task as 'completed' with completion notes and verify status update"
+    }
+  ]
+}

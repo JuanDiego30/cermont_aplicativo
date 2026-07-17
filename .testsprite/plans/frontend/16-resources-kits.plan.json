@@ -1,0 +1,37 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Resources - Tool and kit management",
+  "description": "Verifies resource and kit management: tool inventory, kit assembly, assignment to orders, and availability tracking",
+  "priority": "p2",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/resources"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that resources page shows tool/equipment inventory with availability status"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /dashboard/resources/kits and view the list of typical kits per activity type"
+    },
+    {
+      "type": "action",
+      "description": "Create a new kit: name it, add tools from inventory, set quantities"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the kit is created and tools are marked as 'reserved' or 'in-kit'"
+    },
+    {
+      "type": "action",
+      "description": "Assign the kit to an existing order and verify the order's resource requirements update"
+    },
+    {
+      "type": "action",
+      "description": "Check tool availability by navigating to /dashboard/tools and verifying the list with status badges"
+    }
+  ]
+}

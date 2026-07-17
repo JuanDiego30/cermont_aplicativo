@@ -1,0 +1,5 @@
+
+> @cermont/frontend@1.2.0 lint
+> biome lint .
+
+Checked 887 files in 482ms. No fixes applied.

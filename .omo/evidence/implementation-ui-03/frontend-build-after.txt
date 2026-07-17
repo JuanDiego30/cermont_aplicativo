@@ -1,0 +1,176 @@
+
+> @cermont/frontend@1.2.0 build
+> next build --turbopack
+
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local, .env.production
+- Experiments (use with caution):
+  · optimizePackageImports
+  · serverActions
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 18.6s
+  Running TypeScript ...
+  Finished TypeScript in 28.9s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/96) ...
+  Generating static pages using 15 workers (24/96) 
+  Generating static pages using 15 workers (48/96) 
+  Generating static pages using 15 workers (72/96) 
+○ (serwist) Using esbuild to bundle the service worker.
+✓ (serwist) 242 precache entries (6701.89 KiB)
+✓ Generating static pages using 15 workers (96/96) in 1753ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /~offline
+├ ƒ /admin
+├ ƒ /admin/audit
+├ ƒ /admin/backups
+├ ƒ /admin/custom-fields
+├ ƒ /admin/erp-connectors
+├ ƒ /admin/personnel
+├ ƒ /admin/settings
+├ ƒ /admin/users
+├ ƒ /admin/users/[id]
+├ ƒ /admin/users/[id]/edit
+├ ƒ /admin/users/new
+├ ƒ /api/auth/forgot-password
+├ ƒ /api/auth/login
+├ ƒ /api/auth/refresh
+├ ƒ /api/auth/register-client
+├ ƒ /api/backend/[...path]
+├ ƒ /api/files/[id]/content
+├ ƒ /api/health
+├ ƒ /assets
+├ ƒ /assets/[id]
+├ ƒ /billing
+├ ƒ /billing/invoices
+├ ƒ /billing/invoices/[id]
+├ ƒ /billing/invoices/[id]/approve
+├ ƒ /billing/invoices/new
+├ ƒ /billing/ses
+├ ƒ /billing/ses/[id]
+├ ƒ /billing/ses/[id]/approve
+├ ƒ /billing/ses/new
+├ ƒ /business-documents
+├ ƒ /business-documents/[id]
+├ ƒ /checklists
+├ ○ /consent
+├ ƒ /costs
+├ ƒ /costs/[orderId]
+├ ƒ /costs/[orderId]/ejecucion
+├ ƒ /costs/catalog
+├ ƒ /customers
+├ ƒ /customers/[id]
+├ ƒ /customers/new
+├ ƒ /dashboard
+├ ƒ /delivery-records
+├ ƒ /delivery-records/[id]
+├ ƒ /delivery-records/[id]/signature
+├ ƒ /delivery-records/new
+├ ƒ /dispatch
+├ ƒ /documents
+├ ƒ /documents/ingestion/[id]
+├ ƒ /documents/templates
+├ ƒ /documents/templates/new
+├ ƒ /erp-connector
+├ ƒ /evidences
+├ ƒ /evidences/[id]
+├ ƒ /evidences/report
+├ ƒ /execution
+├ ƒ /execution-sessions/[id]
+├ ƒ /execution/[id]
+├ ƒ /execution/new
+├ ƒ /fleet
+├ ƒ /fleet/[id]
+├ ○ /forgot-password
+├ ƒ /forms
+├ ƒ /forms/[templateId]
+├ ƒ /inventory
+├ ƒ /inventory/scan
+├ ƒ /invoices/[id]/pipeline
+├ ○ /login
+├ ƒ /maintenance
+├ ƒ /maintenance/[id]
+├ ƒ /maintenance/[id]/edit
+├ ƒ /maintenance/new
+├ ƒ /maintenance/schedules
+├ ƒ /notifications
+├ ƒ /offline-sync
+├ ƒ /orders
+├ ƒ /orders/[id]
+├ ƒ /orders/[id]/asts
+├ ƒ /orders/[id]/costs
+├ ƒ /orders/[id]/edit
+├ ƒ /orders/[id]/execution
+├ ƒ /orders/[id]/inspections/[inspectionId]
+├ ƒ /orders/[id]/invoice
+├ ƒ /orders/[id]/planning
+├ ƒ /orders/kanban
+├ ƒ /orders/new
+├ ƒ /payments
+├ ƒ /payments/[id]
+├ ƒ /payments/new
+├ ƒ /planning
+├ ƒ /planning-packet/new
+├ ƒ /planning/[id]
+├ ○ /portal
+├ ○ /portal/invoices
+├ ○ /portal/orders
+├ ƒ /portal/orders/[id]
+├ ○ /portal/proposals
+├ ○ /portal/service-cases
+├ ƒ /portal/service-cases/[id]
+├ ƒ /portal/signatures/[id]
+├ ○ /privacy
+├ ƒ /profile
+├ ƒ /profile/privacy
+├ ƒ /proposals
+├ ƒ /proposals/[id]
+├ ƒ /proposals/new
+├ ƒ /purchase-orders
+├ ƒ /purchase-orders/[id]
+├ ƒ /purchase-orders/new
+├ ƒ /register
+├ ƒ /reports
+├ ƒ /reports/[id]
+├ ƒ /reports/[id]/draft
+├ ƒ /reports/[id]/sign
+├ ƒ /reports/analytics
+├ ƒ /reports/archive
+├ ƒ /reports/new
+├ ○ /reset-password
+├ ƒ /resources
+├ ƒ /resources/[id]
+├ ƒ /resources/kits
+├ ƒ /resources/kits/new
+├ ○ /robots.txt
+├ ƒ /service-cases
+├ ƒ /service-cases/[id]
+├ ƒ /serwist
+├ ● /serwist/[path]
+│ ├ /serwist/sw.js.map
+│ └ /serwist/sw.js
+├ ƒ /settings/notifications
+├ ƒ /site-visits
+├ ƒ /site-visits/[id]
+├ ƒ /site-visits/new
+├ ○ /sitemap.xml
+├ ƒ /sla
+├ ƒ /templates
+├ ƒ /templates/[id]
+├ ○ /terms
+├ ƒ /tools
+├ ○ /unauthorized
+├ ƒ /work-requests
+├ ƒ /work-requests/[id]
+└ ƒ /work-requests/new
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

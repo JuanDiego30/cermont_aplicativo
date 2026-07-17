@@ -12,14 +12,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { apiClient } from "@/lib/http/api-client";
 
-const PLANNING_KEYS = {
+export const PLANNING_KEYS = {
 	all: ["planning-packets"] as const,
 	detail: (id: string) => [...PLANNING_KEYS.all, "detail", id] as const,
+	byWorkOrder: (workOrderId: string) => [...PLANNING_KEYS.all, "by-work-order", workOrderId] as const,
 };
 
 export function usePlanningByWorkOrder(workOrderId: string) {
 	return useQuery({
-		queryKey: [...PLANNING_KEYS.all, "by-work-order", workOrderId],
+		queryKey: PLANNING_KEYS.byWorkOrder(workOrderId),
 		queryFn: async () => {
 			const res = await apiClient.get<ApiEnvelope<PlanningPacket>>(
 				`/orders/${workOrderId}/planning-packet`,
@@ -40,9 +41,7 @@ export function useCreatePlanningPacket() {
 			const packet = res?.data;
 			if (packet) {
 				void qc.invalidateQueries({ queryKey: PLANNING_KEYS.detail(packet._id) });
-				void qc.invalidateQueries({
-					queryKey: [...PLANNING_KEYS.all, "by-work-order", packet.workOrderId],
-				});
+				void qc.invalidateQueries({ queryKey: PLANNING_KEYS.byWorkOrder(packet.workOrderId) });
 			}
 			void qc.invalidateQueries({ queryKey: PLANNING_KEYS.all });
 		},

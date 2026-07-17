@@ -16,6 +16,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { CACHE_CONFIG } from "@/lib/constants/query-config";
 import { apiClient } from "@/lib/http/api-client";
 
+import { ORDERS_KEYS } from "@/modules/orders/queries";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
 
 export interface CostListFilters {
@@ -387,7 +388,7 @@ export function useCreateCost() {
 		retry: 0,
 		onSuccess: (createdCost) => {
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.all });
-			queryClient.invalidateQueries({ queryKey: ["orders", createdCost.orderId] });
+			queryClient.invalidateQueries({ queryKey: ORDERS_KEYS.detail(createdCost.orderId) });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.orderList(createdCost.orderId) });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.summary(createdCost.orderId) });
 		},
@@ -417,7 +418,7 @@ export function useUpdateCost(costId: string) {
 		onSuccess: (updatedCost) => {
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.all });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.detail(normalizedCostId) });
-			queryClient.invalidateQueries({ queryKey: ["orders", updatedCost.orderId] });
+			queryClient.invalidateQueries({ queryKey: ORDERS_KEYS.detail(updatedCost.orderId) });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.orderList(updatedCost.orderId) });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.summary(updatedCost.orderId) });
 		},
@@ -445,7 +446,7 @@ export function useDeleteCost() {
 		onSuccess: (deletedCost) => {
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.all });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.detail(deletedCost._id) });
-			queryClient.invalidateQueries({ queryKey: ["orders", deletedCost.orderId] });
+			queryClient.invalidateQueries({ queryKey: ORDERS_KEYS.detail(deletedCost.orderId) });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.orderList(deletedCost.orderId) });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.summary(deletedCost.orderId) });
 		},

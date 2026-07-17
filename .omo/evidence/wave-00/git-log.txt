@@ -1,0 +1,10 @@
+6a3465f docs(spec-024): sprint 7 - final report, handoff, and PR preparation
+414ddab feat(spec-024): sprint 1 - comprehensive test suite for SPEC-022 components
+b332b6d feat(spec-022): sprint 4+5 - Planning Readiness + Automation Rules MVP
+3586fce feat(spec-022): sprint 3 - Dashboard OS dedicated endpoints
+3b8ec4f feat(spec-022): sprint 2.2 - EvidenceStatusBadge + gallery integration
+6ef2de4 feat(spec-022): sprint 2 - Field Execution + Evidence FSM
+d29cc27 feat(spec-022): sprint 1 - ServiceCase Cockpit enrichment with real data
+4651e4b feat(spec-021): RBAC SSOT, roles checker, pre-commit enforcement, React Doctor fixes
+7bfd101 fix(routes): add validation markers to analytics, notifications, template-response routes
+3678abc fix(routes): add authentication to resource/:resourceId/documents route

@@ -43,6 +43,7 @@ import type { IEvidenceDocument } from "../../models/Evidence";
 import { createAuditLog } from "../../modules/audit/audit.service";
 import { assertServiceCaseStageMutable } from "../../services/case-closure-lock.service";
 import { assertEvidenceReferencesBelongToCase } from "../../services/evidence-reference-integrity.service";
+import { notifyRoleGroup } from "../notifications/notification.service";
 import { getOrderByIdWithAuth } from "../order/order-crud.service";
 
 export interface EvidenceSnapshot {
@@ -439,6 +440,16 @@ export async function createEvidence(
 			sizeBytes,
 		},
 	});
+
+	// F28-T086: Notify residente when evidence is uploaded
+	await notifyRoleGroup(
+		"EVIDENCE_UPLOADED",
+		["residente"],
+		"Evidencia subida",
+		`Se ha subido evidencia para la orden ${orderId}.`,
+		{ entityType: "Order", entityId: orderId },
+		{ orderId, filename, evidenceId: evidence._id.toString(), uploadedBy: userId },
+	);
 
 	return formatEvidenceResponse(evidence);
 }

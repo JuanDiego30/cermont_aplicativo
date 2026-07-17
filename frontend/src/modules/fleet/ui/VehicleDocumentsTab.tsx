@@ -176,16 +176,18 @@ interface VehicleDocumentsTabProps {
 	soatExpiry?: string;
 	technoMechanicalExpiry?: string;
 	insuranceExpiry?: string;
+	tarjetaPropiedadExpiry?: string;
 }
 
 export function VehicleDocumentsTab({
 	soatExpiry,
 	technoMechanicalExpiry,
 	insuranceExpiry,
+	tarjetaPropiedadExpiry,
 }: VehicleDocumentsTabProps) {
 	const mounted = useMounted();
 
-	const expiredCount = [soatExpiry, technoMechanicalExpiry, insuranceExpiry].filter((d) => {
+	const expiredCount = [soatExpiry, technoMechanicalExpiry, insuranceExpiry, tarjetaPropiedadExpiry].filter((d) => {
 		if (!d || !mounted) {
 			return false;
 		}
@@ -206,7 +208,7 @@ export function VehicleDocumentsTab({
 				)}
 			</div>
 
-			<div className="grid gap-3 sm:grid-cols-1 lg:grid-cols-3">
+			<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
 				<DocumentStatusCard label="SOAT" expiryIso={soatExpiry} mounted={mounted} />
 				<DocumentStatusCard
 					label="Tecnomecánica"
@@ -216,6 +218,11 @@ export function VehicleDocumentsTab({
 				<DocumentStatusCard
 					label="Póliza de seguros"
 					expiryIso={insuranceExpiry}
+					mounted={mounted}
+				/>
+				<DocumentStatusCard
+					label="Tarjeta de propiedad"
+					expiryIso={tarjetaPropiedadExpiry}
 					mounted={mounted}
 				/>
 			</div>

@@ -1,0 +1,50 @@
+
+> cermont-monorepo@1.0.0 typecheck
+> turbo run typecheck
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running typecheck in 5 packages
+   • Remote caching disabled
+
+@cermont/domain:typecheck: cache hit, replaying logs 0c57df23bf0de886
+@cermont/domain:typecheck: 
+@cermont/domain:typecheck: > @cermont/domain@1.0.0 typecheck
+@cermont/domain:typecheck: > tsc --noEmit
+@cermont/domain:typecheck: 
+@cermont/config:typecheck: cache hit, replaying logs eb156ad986cee32e
+@cermont/config:typecheck: 
+@cermont/config:typecheck: > @cermont/config@1.0.0 typecheck
+@cermont/config:typecheck: > tsc --noEmit
+@cermont/config:typecheck: 
+@cermont/domain:build: cache hit, replaying logs 7adef73b384b74cc
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:typecheck: cache hit, replaying logs 254e29bf3288538b
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:typecheck: > @cermont/shared-types@1.0.0 typecheck
+@cermont/shared-types:typecheck: > tsc --noEmit
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:build: cache hit, replaying logs f1e351eb5567f810
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/frontend:typecheck: cache miss, executing d4972d829c1fe514
+@cermont/backend:typecheck: cache miss, executing c5ffb29811d73011
+@cermont/frontend:typecheck: 
+@cermont/frontend:typecheck: > @cermont/frontend@1.2.0 typecheck
+@cermont/frontend:typecheck: > tsc --noEmit
+@cermont/frontend:typecheck: 
+@cermont/backend:typecheck: 
+@cermont/backend:typecheck: > @cermont/backend@5.2.1 typecheck
+@cermont/backend:typecheck: > tsc --noEmit
+@cermont/backend:typecheck: 
+
+ Tasks:    7 successful, 7 total
+Cached:    5 cached, 7 total
+  Time:    22.364s 
+

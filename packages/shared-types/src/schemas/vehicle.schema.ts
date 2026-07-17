@@ -4,7 +4,7 @@ import { FileAssetRefSchema } from "./file-asset.schema";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Fleet / Vehicle — Parque automotor con documentos obligatorios colombianos
-// (SOAT, tecnomecánica, póliza) y control de mantenimiento por kilometraje.
+// (SOAT, tecnomecánica, póliza, tarjeta de propiedad) y control de mantenimiento.
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const VehicleTypeSchema = z.enum(["camioneta", "camion", "moto", "van", "otro"]);
@@ -44,6 +44,37 @@ export const VehiclePhotoParamsSchema = z
 	})
 	.strict();
 
+// ─── Vehicle Document Types ─────────────────────────────────────────────────
+
+export const VehicleDocumentTypeSchema = z.enum([
+	"soat",
+	"tecnomecanica",
+	"poliza",
+	"tarjeta_propiedad",
+]);
+export type VehicleDocumentType = z.infer<typeof VehicleDocumentTypeSchema>;
+
+export const VehicleDocumentExpiryStatusSchema = z.enum([
+	"valid",
+	"expiring",
+	"expired",
+	"missing",
+]);
+export type VehicleDocumentExpiryStatus = z.infer<typeof VehicleDocumentExpiryStatusSchema>;
+
+export const VehicleDocumentSchema = z
+	.object({
+		documentType: VehicleDocumentTypeSchema,
+		documentNumber: z.string().min(1).max(60),
+		issueDate: z.string().datetime(),
+		expiryDate: z.string().datetime(),
+		status: VehicleDocumentExpiryStatusSchema,
+		fileUrl: z.string().url().max(2048).optional(),
+		verifiedAt: z.string().datetime().optional(),
+	})
+	.strict();
+export type VehicleDocument = z.infer<typeof VehicleDocumentSchema>;
+
 export const VehicleSchema = z
 	.object({
 		_id: ObjectIdSchema.optional(),
@@ -59,6 +90,7 @@ export const VehicleSchema = z
 		capacity: z.string().max(60).optional(),
 		driverName: z.string().max(200).optional(),
 		driverId: ObjectIdSchema.optional(),
+		documents: z.array(VehicleDocumentSchema).default([]),
 		soatExpiry: z.string().datetime().optional(),
 		technoMechanicalExpiry: z.string().datetime().optional(),
 		insuranceExpiry: z.string().datetime().optional(),
@@ -104,13 +136,37 @@ export const VehicleDocumentAlertSchema = z
 	.object({
 		vehicleId: ObjectIdSchema,
 		plate: z.string(),
-		documentType: z.enum(["soat", "tecnomecanica", "poliza"]),
+		documentType: VehicleDocumentTypeSchema,
 		expiresAt: z.string().datetime(),
 		daysUntilExpiry: z.number().int(),
 		expired: z.boolean(),
 	})
 	.strict();
 export type VehicleDocumentAlert = z.infer<typeof VehicleDocumentAlertSchema>;
+
+export const FleetReadinessSchema = z
+	.object({
+		totalVehicles: z.number().int().nonnegative(),
+		readyVehicles: z.number().int().nonnegative(),
+		blockedVehicles: z.number().int().nonnegative(),
+		readinessPercent: z.number().min(0).max(100),
+		expiringSoonCount: z.number().int().nonnegative(),
+		expiredCount: z.number().int().nonnegative(),
+		missingDocumentCount: z.number().int().nonnegative(),
+	})
+	.strict();
+export type FleetReadiness = z.infer<typeof FleetReadinessSchema>;
+
+export const AddVehicleDocumentSchema = z
+	.object({
+		documentType: VehicleDocumentTypeSchema,
+		documentNumber: z.string().min(1).max(60),
+		issueDate: z.string().datetime(),
+		expiryDate: z.string().datetime(),
+		fileUrl: z.string().url().max(2048).optional(),
+	})
+	.strict();
+export type AddVehicleDocumentInput = z.infer<typeof AddVehicleDocumentSchema>;
 
 export const VehicleAssignmentStatusSchema = z.enum(["pending", "active", "completed"]);
 export type VehicleAssignmentStatus = z.infer<typeof VehicleAssignmentStatusSchema>;

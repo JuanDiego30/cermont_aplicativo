@@ -189,6 +189,136 @@ export function isTerminalState(entityType: FsmEntityType, state: string): boole
 	return fsm.terminalStates?.includes(state) ?? false;
 }
 
+/**
+ * Type for a single audit entry during rollback
+ */
+export interface RollbackAuditEntry {
+	entityType: FsmEntityType;
+	entityId: string;
+	from: string;
+	to: string;
+	userId: string;
+	reason: string;
+	timestamp: Date;
+}
+
+/**
+ * Result of a rollback transition
+ */
+export interface RollbackTransitionResult {
+	success: boolean;
+	from: string;
+	to: string;
+	entityType: FsmEntityType;
+	error?: string;
+	auditEntry?: RollbackAuditEntry;
+}
+
+/**
+ * Determine valid previous states for a given state by reversing the transition graph.
+ * Returns all states that can transition TO the given state.
+ */
+export function findPreviousStates(entityType: FsmEntityType, state: string): string[] {
+	const fsm = registry.get(entityType);
+	if (!fsm) {
+		return [];
+	}
+
+	return fsm.transitions.filter((rule) => rule.to.includes(state)).map((rule) => rule.from);
+}
+
+/**
+ * Rollback a state transition (admin override).
+ *
+ * Validates that:
+ * 1. The FSM definition exists for the entity type
+ * 2. The target state is a valid previous state (can transition TO the current state)
+ * 3. The entity is not in a terminal state
+ *
+ * Returns a RollbackTransitionResult with an audit entry on success.
+ */
+export function rollbackTransition(
+	entityType: FsmEntityType,
+	entityId: string,
+	currentState: string,
+	targetState: string,
+	userId: string,
+	reason: string,
+): RollbackTransitionResult {
+	const fsm = registry.get(entityType);
+
+	if (!fsm) {
+		return {
+			success: false,
+			from: currentState,
+			to: targetState,
+			entityType,
+			error: `No FSM definition found for entity: ${entityType}`,
+		};
+	}
+
+	if (!fsm.states.includes(currentState)) {
+		return {
+			success: false,
+			from: currentState,
+			to: targetState,
+			entityType,
+			error: `Invalid current state '${currentState}' for ${entityType}`,
+		};
+	}
+
+	if (!fsm.states.includes(targetState)) {
+		return {
+			success: false,
+			from: currentState,
+			to: targetState,
+			entityType,
+			error: `Invalid target state '${targetState}' for ${entityType}`,
+		};
+	}
+
+	if (fsm.terminalStates?.includes(currentState)) {
+		return {
+			success: false,
+			from: currentState,
+			to: targetState,
+			entityType,
+			error: `Cannot rollback from terminal state '${currentState}' for ${entityType}`,
+		};
+	}
+
+	const previousStates = findPreviousStates(entityType, currentState);
+	const isValidRollback = previousStates.includes(targetState);
+
+	if (!isValidRollback) {
+		return {
+			success: false,
+			from: currentState,
+			to: targetState,
+			entityType,
+			error: `'${targetState}' is not a valid previous state of '${currentState}' for ${entityType}. Valid previous states: ${previousStates.join(", ") || "none (initial state)"}`,
+		};
+	}
+
+	const auditEntry: RollbackAuditEntry = {
+		entityType,
+		entityId,
+		from: currentState,
+		to: targetState,
+		userId,
+		reason,
+		timestamp: new Date(),
+	};
+
+	return {
+		success: true,
+		from: currentState,
+		to: targetState,
+		entityType,
+		auditEntry,
+	};
+}
+
 // ─── Built-in FSM Definitions ───────────────────────────────────────────────
 
 export function registerAllFsms(): void {

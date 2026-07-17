@@ -88,6 +88,7 @@ export function NewVehicleDrawer({ open, onClose }: NewVehicleDrawerProps) {
 			...data,
 			plate: data.plate.toUpperCase().trim(),
 			status: "active" as const,
+			documents: [],
 			...(data.soatExpiry ? { soatExpiry: toIso(data.soatExpiry) } : {}),
 			...(data.technoMechanicalExpiry
 				? { technoMechanicalExpiry: toIso(data.technoMechanicalExpiry) }

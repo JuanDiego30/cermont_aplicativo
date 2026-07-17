@@ -1,0 +1,9 @@
+ backend/src/modules/checklist/checklist.routes.ts  |     8 +-
+ backend/src/modules/checklist/checklist.service.ts |    36 +-
+ .../service-cases/service-case.controller.ts       |    10 +
+ .../modules/service-cases/service-case.routes.ts   |    18 +-
+ .../modules/service-cases/service-case.service.ts  |    15 +
+ .../contracts/api-contract.snapshot.json           | 18590 +++++++++++++------
+ .../contracts/contract-migrations.json             |   116 +-
+ .../shared-types/src/schemas/checklist.schema.ts   |    19 +-
+ 8 files changed, 13292 insertions(+), 5520 deletions(-)

@@ -1,0 +1,11 @@
+F3.5 — Offline sync status
+
+Implementation result:
+
+- Reused the existing shared `useSyncStatus`, offline store, and `OfflineUploadQueueStatus` instead of creating a duplicate banner.
+- Mounted `OfflineUploadQueueStatus` in the execution detail workspace with entity context and manual retry.
+- Added `data-testid="sync-status"` to the rendered status region for the planned E2E assertion.
+- Existing states cover offline, pending, syncing, and error; the global provider keeps the idle online state hidden.
+
+Verification: frontend typecheck PASS; offline/recovery/network tests PASS (10 tests).
+Status: IMPLEMENTED pending root gate.

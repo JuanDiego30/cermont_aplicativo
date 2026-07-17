@@ -1,5 +1,5 @@
-import { createLogger } from "../common/utils/logger";
 import { AppError } from "../common/errors/AppError";
+import { createLogger } from "../common/utils/logger";
 
 const log = createLogger("report-generator");
 
@@ -42,9 +42,7 @@ export async function generateDraft(input: GenerateDraftInput): Promise<Generate
 	if (input.executionData.observations.length > 0) {
 		sections.push({
 			heading: "2. Observaciones",
-			content: input.executionData.observations
-				.map((obs, i) => `${i + 1}. ${obs}`)
-				.join("\n"),
+			content: input.executionData.observations.map((obs, i) => `${i + 1}. ${obs}`).join("\n"),
 		});
 	}
 
@@ -52,10 +50,7 @@ export async function generateDraft(input: GenerateDraftInput): Promise<Generate
 		sections.push({
 			heading: "3. Recursos Utilizados",
 			content: input.executionData.resources
-				.map(
-					(r) =>
-						`- ${r.name}: ${r.quantity} ${r.unit}`,
-				)
+				.map((r) => `- ${r.name}: ${r.quantity} ${r.unit}`)
 				.join("\n"),
 		});
 	}

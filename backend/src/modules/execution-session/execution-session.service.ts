@@ -54,6 +54,7 @@ import {
 	PlanningPacket,
 	ServiceCase,
 } from "../../models";
+import { notifyRoleGroup } from "../notifications/notification.service";
 import { computeNextActions } from "../service-cases/service-case.service";
 
 type PlanningCrewMemberProjection = {
@@ -457,6 +458,22 @@ export async function startExecutionSession(
 	await refreshExecutionState(session);
 	await updateServiceCaseProjection(session, actor, "start_execution", "in_execution");
 	await session.save();
+
+	// F28-T086: Notify supervisor when execution starts
+	await notifyRoleGroup(
+		"EXECUTION_STARTED",
+		["supervisor"],
+		`Ejecución iniciada: ${order.code ?? ""}`,
+		`La ejecución de la orden ${order.code ?? ""} ha comenzado.`,
+		session.serviceCaseId
+			? { entityType: "ServiceCase", entityId: session.serviceCaseId.toString() }
+			: undefined,
+		{
+			sessionId: toObjectIdString(session._id),
+			workOrderId: toObjectIdString(session.workOrderId),
+			startedBy: actor._id,
+		},
+	);
 
 	return session;
 }

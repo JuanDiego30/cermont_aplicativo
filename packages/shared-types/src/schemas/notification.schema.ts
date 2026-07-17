@@ -2,6 +2,39 @@ import { z } from "zod";
 import { ObjectIdSchema } from "./common.schema";
 import { UserRoleSchema } from "./user.schema";
 
+// ─── Notifiable Events Catalog (F28-T085) ──────────────────────────────────
+//
+// These are the canonical event types that trigger notifications throughout
+// the Cermont 14-step business flow. Every service that creates a notification
+// MUST use one of these event names as its `type`.
+//
+export const NOTIFIABLE_EVENTS = [
+	"WORK_REQUEST_CREATED",
+	"WORK_REQUEST_QUALIFIED",
+	"SITE_VISIT_SCHEDULED",
+	"PROPOSAL_CREATED",
+	"PROPOSAL_APPROVED",
+	"PURCHASE_ORDER_RECEIVED",
+	"PLANNING_APPROVED",
+	"EXECUTION_STARTED",
+	"EXECUTION_COMPLETED",
+	"EVIDENCE_UPLOADED",
+	"REPORT_GENERATED",
+	"DELIVERY_RECORD_CREATED",
+	"CLIENT_SIGNATURE_RECEIVED",
+	"SES_CREATED",
+	"SES_APPROVED",
+	"INVOICE_CREATED",
+	"INVOICE_APPROVED",
+	"PAYMENT_REGISTERED",
+	"DOCUMENT_EXPIRING",
+	"VEHICLE_DOCUMENT_EXPIRING",
+	"CERTIFICATION_EXPIRING",
+	"SLA_BREACH",
+] as const;
+
+export type NotifiableEvent = (typeof NOTIFIABLE_EVENTS)[number];
+
 // ─── Notification Types ──────────────────────────────────────────────────────
 
 export const NotificationTypeSchema = z.enum([

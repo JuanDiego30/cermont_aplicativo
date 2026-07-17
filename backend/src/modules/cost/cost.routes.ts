@@ -15,6 +15,12 @@ import {
 	CreateCostSchema,
 	ListCostCatalogQuerySchema,
 	ListCostsQuerySchema,
+	RegisterEquipmentCostSchema,
+	RegisterLaborCostSchema,
+	RegisterMaterialCostSchema,
+	RegisterSubcontractorCostSchema,
+	RegisterTaxCostSchema,
+	RegisterTransportCostSchema,
 	UpdateCostSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
@@ -163,6 +169,86 @@ router.delete(
 	authorize(...costAccessRoles),
 	validateParams(CostIdSchema),
 	CostController.deleteCost,
+);
+
+// ── F22: Baseline, registration, and variance endpoints ────────────────
+
+// POST /api/costs/baseline/:proposalId — Freeze cost baseline on proposal approval
+router.post(
+	"/baseline/:proposalId",
+	authenticate,
+	authorize(...MANAGEMENT_ROLES),
+	CostController.freezeBaseline,
+);
+
+// POST /api/costs/register/labor — Register labor cost
+router.post(
+	"/register/labor",
+	authenticate,
+	authorize(...costAccessRoles),
+	validateBody(RegisterLaborCostSchema),
+	CostController.registerLaborCost,
+);
+
+// POST /api/costs/register/material — Register material cost
+router.post(
+	"/register/material",
+	authenticate,
+	authorize(...costAccessRoles),
+	validateBody(RegisterMaterialCostSchema),
+	CostController.registerMaterialCost,
+);
+
+// POST /api/costs/register/equipment — Register equipment cost
+router.post(
+	"/register/equipment",
+	authenticate,
+	authorize(...costAccessRoles),
+	validateBody(RegisterEquipmentCostSchema),
+	CostController.registerEquipmentCost,
+);
+
+// POST /api/costs/register/transport — Register transport cost
+router.post(
+	"/register/transport",
+	authenticate,
+	authorize(...costAccessRoles),
+	validateBody(RegisterTransportCostSchema),
+	CostController.registerTransportCost,
+);
+
+// POST /api/costs/register/subcontractor — Register subcontractor cost
+router.post(
+	"/register/subcontractor",
+	authenticate,
+	authorize(...costAccessRoles),
+	validateBody(RegisterSubcontractorCostSchema),
+	CostController.registerSubcontractorCost,
+);
+
+// POST /api/costs/register/tax — Register tax cost
+router.post(
+	"/register/tax",
+	authenticate,
+	authorize(...costAccessRoles),
+	validateBody(RegisterTaxCostSchema),
+	CostController.registerTaxCost,
+);
+
+// GET /api/costs/variance/:serviceCaseId — Calculate variance report
+router.get(
+	"/variance/:serviceCaseId",
+	authenticate,
+	authorize(...costAccessRoles),
+	CostController.getCalculateVariance,
+);
+
+// GET /api/costs/dashboard/:serviceCaseId — Full cost dashboard per service case
+router.get(
+	"/dashboard/:serviceCaseId",
+	authenticate,
+	authorize(...costAccessRoles),
+	CostController.getServiceCaseCostDashboard,
 );
 
 export default router;

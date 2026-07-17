@@ -11,6 +11,7 @@ import {
 	saveWorkRequestListSnapshot,
 } from "@/lib/offline/local-repositories";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
+import { SERVICE_CASE_KEYS } from "@/modules/service-cases/queries";
 import { useOfflineStore } from "@/store/offline.store";
 
 export type WorkRequestListSource =
@@ -140,7 +141,7 @@ export function useQualifyWorkRequest() {
 			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.detail(variables) });
 			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.list() });
 			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.pendingCount() });
-			queryClient.invalidateQueries({ queryKey: ["service-cases"] });
+			queryClient.invalidateQueries({ queryKey: SERVICE_CASE_KEYS.all });
 		},
 	});
 }
@@ -161,7 +162,7 @@ export function useUpdateWorkRequestStatus() {
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.all });
 			void queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.pendingCount() });
-			void queryClient.invalidateQueries({ queryKey: ["service-cases"] });
+			void queryClient.invalidateQueries({ queryKey: SERVICE_CASE_KEYS.all });
 		},
 	});
 }

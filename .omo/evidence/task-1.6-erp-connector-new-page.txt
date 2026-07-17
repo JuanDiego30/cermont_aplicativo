@@ -1,0 +1,5 @@
+TASK-1.6 verification
+
+- Production build lists `/admin/erp-connectors/new` as a dynamic route.
+- Page has heading `Nuevo conector ERP` and a link to `APP_ROUTES.erpConnectors`.
+- Page uses existing Cermont surface and token styles; no new dependency or navigation entry added.

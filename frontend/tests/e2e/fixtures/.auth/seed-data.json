@@ -1,0 +1,25 @@
+{
+  "admin": {
+    "id": "6a57f060916c4c5d3ece4a83",
+    "name": "E2E Admin",
+    "email": "admin@cermont.test",
+    "password": "Admin123!",
+    "role": "gerente",
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTU3ZjA2MDkxNmM0YzVkM2VjZTRhODMiLCJyb2xlIjoiZ2VyZW50ZSIsInRva2VuVmVyc2lvbiI6MCwianRpIjoiYjc5OGFmM2QtNzNkNC00NTc4LWI3NzUtNjdjYjJjMGM2MmNhIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaWF0IjoxNzg0MTQ4MDY0LCJleHAiOjE3ODQxNDg5NjR9.KDt-e7kLuKrEK-q13vEtFhCztHvJzXN8MxYHFPFIs18"
+  },
+  "supervisor": {
+    "id": "6a57f060916c4c5d3ece4a84",
+    "name": "E2E Supervisor",
+    "email": "sup@cermont.test",
+    "password": "Sup123!",
+    "role": "supervisor"
+  },
+  "technician": {
+    "id": "6a57f060916c4c5d3ece4a85",
+    "name": "E2E Technician",
+    "email": "tech@cermont.test",
+    "password": "Tech123!",
+    "role": "tecnico",
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTU3ZjA2MDkxNmM0YzVkM2VjZTRhODUiLCJyb2xlIjoidGVjbmljbyIsInRva2VuVmVyc2lvbiI6MCwianRpIjoiOWY4MWY5OTUtNGNlYi00ZGJiLTlmODEtNDU0ZjgwNTUxYWUxIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaWF0IjoxNzg0MTQ4MDY0LCJleHAiOjE3ODQxNDg5NjR9.biPbQ2Gj4-Jmp2Sk9nOTV6KOHcxedJimQhwzfq4WWPM"
+  }
+}

@@ -1,0 +1,547 @@
+## plan/contract-first-masterplan-v6...origin/deploy/vps-clean [ahead 1]
+ D .agents/skills/react-best-practices/metadata.json
+ M .github/workflows/qodana_code_quality.yml
+ M .github/workflows/staging.yml
+ M backend/.gitignore
+ M backend/package.json
+ M backend/src/middlewares/authorize.middleware.ts
+ M backend/src/models/Checklist.ts
+ M backend/src/models/Document.ts
+ M backend/src/models/DynamicFormTemplate.ts
+ M backend/src/models/ExecutionSession.ts
+ M backend/src/models/Inspection.ts
+ M backend/src/models/MaintenanceKit.ts
+ M backend/src/models/Report.ts
+ M backend/src/models/Resource.ts
+ M backend/src/models/ServiceCase.ts
+ M backend/src/models/index.ts
+ M backend/src/modules/admin-backup/admin-backup.routes.ts
+ M backend/src/modules/ai/ai.routes.ts
+ M backend/src/modules/analytics/analytics.routes.ts
+ M backend/src/modules/asset/asset.routes.ts
+ M backend/src/modules/auth/auth.routes.ts
+ M backend/src/modules/business-document/business-document.routes.ts
+ M backend/src/modules/checklist/checklist.routes.ts
+ M backend/src/modules/checklist/checklist.service.ts
+ M backend/src/modules/client/client.routes.ts
+ M backend/src/modules/cost/cost.controller.ts
+ M backend/src/modules/cost/cost.routes.ts
+ M backend/src/modules/cost/cost.service.ts
+ M backend/src/modules/custom-fields/custom-field.routes.ts
+ M backend/src/modules/dashboard/dashboard.controller.ts
+ M backend/src/modules/dashboard/dashboard.routes.ts
+ M backend/src/modules/dashboard/dashboard.service.ts
+ M backend/src/modules/delivery-record/delivery-record.routes.ts
+ M backend/src/modules/documents/document-import.routes.ts
+ M backend/src/modules/documents/document-ingestion.service.ts
+ M backend/src/modules/documents/document-template.routes.ts
+ M backend/src/modules/documents/document.routes.ts
+ M backend/src/modules/documents/document.service.ts
+ M backend/src/modules/erp-connector/erp-connector.routes.ts
+ M backend/src/modules/evidence/evidence.controller.ts
+ M backend/src/modules/evidence/evidence.routes.ts
+ M backend/src/modules/evidence/evidence.service.ts
+ M backend/src/modules/execution-session/execution-session.controller.ts
+ M backend/src/modules/execution-session/execution-session.routes.ts
+ M backend/src/modules/execution-session/execution-session.service.ts
+ M backend/src/modules/form-submissions/form-submission.controller.ts
+ M backend/src/modules/form-submissions/form-submission.routes.ts
+ M backend/src/modules/form-submissions/form-submission.service.ts
+ M backend/src/modules/inspection/inspection.routes.ts
+ M backend/src/modules/invoice/invoice.routes.ts
+ M backend/src/modules/kit/kit.service.ts
+ M backend/src/modules/maintenance/maintenance.routes.ts
+ M backend/src/modules/notifications/notification.service.ts
+ M backend/src/modules/notifications/notifications.routes.ts
+ M backend/src/modules/observability/observability.controller.ts
+ M backend/src/modules/order/administrative-workflow.controller.ts
+ M backend/src/modules/order/administrative-workflow.service.ts
+ M backend/src/modules/order/order-closure.service.ts
+ M backend/src/modules/order/order.routes.ts
+ M backend/src/modules/payment/payment.routes.ts
+ M backend/src/modules/planning-packet/planning-packet.routes.ts
+ M backend/src/modules/planning-packet/planning-packet.service.ts
+ M backend/src/modules/portal/portal.routes.ts
+ M backend/src/modules/privacy-requests/privacy-requests.routes.ts
+ M backend/src/modules/proposal/proposal.routes.ts
+ M backend/src/modules/report/report.routes.ts
+ M backend/src/modules/resource/resource.routes.ts
+ M backend/src/modules/service-cases/service-case.controller.ts
+ M backend/src/modules/service-cases/service-case.routes.ts
+ M backend/src/modules/service-cases/service-case.service.ts
+ M backend/src/modules/service-entry-sheet/service-entry-sheet.routes.ts
+ M backend/src/modules/sync/sync.service.ts
+ M backend/src/modules/technical-report/technical-report.routes.ts
+ M backend/src/modules/template-draft/template-draft.routes.ts
+ M backend/src/modules/template-draft/template-draft.service.ts
+ M backend/src/modules/template-response/template-response.routes.ts
+ M backend/src/modules/user/user.routes.ts
+ M backend/src/modules/work-requests/work-requests.routes.ts
+ M backend/src/services/cermont-workflow-gate.service.ts
+ M backend/src/services/closing-evidence-routing.service.ts
+ M backend/src/services/erp/erp-core-engine.ts
+ M backend/src/services/service-case-step-context.service.ts
+ M backend/tests/common/authorize.middleware.test.ts
+ M backend/tests/controllers/costs.controller.test.ts
+ M backend/tests/controllers/spec-008-endpoints.test.ts
+ M backend/tests/services/cermont-workflow-gate.service.test.ts
+ M backend/tests/services/checklist.service.test.ts
+ M backend/tests/services/closing-evidence-routing.test.ts
+ M backend/tests/services/cost.service.test.ts
+ M backend/vitest.config.ts
+ M docs/audits/READINESS_REPORT_DEPLOY_2026-06-17.md
+ M frontend/src/app/(dashboard)/billing/invoices/new/page.tsx
+ M frontend/src/app/(dashboard)/billing/page.tsx
+ M frontend/src/app/(dashboard)/billing/ses/new/page.tsx
+ M frontend/src/app/(dashboard)/dashboard/page.tsx
+ M frontend/src/app/(dashboard)/delivery-records/new/page.tsx
+ M frontend/src/app/(dashboard)/execution/[id]/page.tsx
+ M frontend/src/app/(dashboard)/forms/[templateId]/page.tsx
+ M frontend/src/app/(dashboard)/forms/page.tsx
+ M frontend/src/app/(dashboard)/payments/new/page.tsx
+ M frontend/src/app/(dashboard)/planning/[id]/page.tsx
+ M frontend/src/app/(dashboard)/reports/new/page.tsx
+ M frontend/src/app/globals.css
+ M frontend/src/lib/offline/mutation-defaults.ts
+ M frontend/src/modules/checklists/components/ChecklistPanel.tsx
+ M frontend/src/modules/checklists/hooks/useOfflineChecklist.ts
+ M frontend/src/modules/checklists/queries.ts
+ M frontend/src/modules/core/ui/layout/Header.tsx
+ M frontend/src/modules/costs/queries.ts
+ M frontend/src/modules/costs/ui/CostComparisonChart.tsx
+ M frontend/src/modules/costs/ui/CostPanel.tsx
+ M frontend/src/modules/dashboard/hooks/useDashboardSummary.ts
+ M frontend/src/modules/dashboard/ui/StepTimeline.tsx
+ M frontend/src/modules/documents/document-lifecycle.ts
+ M frontend/src/modules/documents/ui/DocumentUploader.tsx
+ M frontend/src/modules/execution/queries.ts
+ M frontend/src/modules/files/api/files.api.ts
+ M frontend/src/modules/files/ui/ImageUploadField.tsx
+ M frontend/src/modules/forms/queries/form-submissions.ts
+ M frontend/src/modules/forms/templates/cermont-form-templates.ts
+ M frontend/src/modules/forms/ui/SectionedFormRenderer.tsx
+ M frontend/src/modules/orders/ui/detail/OrderAdministrativeWorkflowLane.tsx
+ M frontend/src/modules/portal/api/portal-api.ts
+ M frontend/src/modules/service-cases/components/NextActionPanel.tsx
+ M frontend/src/modules/service-cases/components/ServiceCaseWorkflowCockpit.tsx
+ M frontend/tests/e2e/fixtures/api-client.fixture.ts
+ M frontend/tests/lib/costs-queries.test.tsx
+ M frontend/tests/modules/checklists/useOfflineChecklist.test.tsx
+ M frontend/tests/modules/dashboard/dashboard-visuals.test.tsx
+ M frontend/tests/modules/documents/document-gallery.test.tsx
+ M frontend/tests/modules/documents/documents-page.test.tsx
+ M frontend/tests/modules/orders/order-closure-tab.test.tsx
+ M frontend/tests/modules/service-cases/service-cases-page.test.tsx
+ M package-lock.json
+ M package.json
+ M packages/domain/src/__tests__/operational-steps.test.ts
+ M packages/domain/src/cost.rules.ts
+ M packages/domain/src/index.ts
+ M packages/domain/src/operational-steps.ts
+ M packages/domain/src/planning.rules.ts
+ M packages/domain/src/roles.ts
+ M packages/shared-types/contracts/api-contract.snapshot.json
+ M packages/shared-types/contracts/contract-migrations.json
+ M packages/shared-types/src/constants/audit-actions.ts
+ M packages/shared-types/src/schemas/cermont-operational-step.schema.ts
+ M packages/shared-types/src/schemas/checklist.schema.ts
+ M packages/shared-types/src/schemas/cost-cart.schema.ts
+ M packages/shared-types/src/schemas/cost.schema.ts
+ M packages/shared-types/src/schemas/dashboard-summary.schema.ts
+ M packages/shared-types/src/schemas/document-attachment.schema.ts
+ M packages/shared-types/src/schemas/dynamic-form-template.schema.ts
+ M packages/shared-types/src/schemas/erp-connector.schema.ts
+ M packages/shared-types/src/schemas/evidence.schema.ts
+ M packages/shared-types/src/schemas/execution-session.schema.ts
+ M packages/shared-types/src/schemas/index.ts
+ M packages/shared-types/src/schemas/kit.schema.ts
+ M packages/shared-types/src/schemas/notification.schema.ts
+ M packages/shared-types/src/schemas/planning-packet.schema.ts
+ M packages/shared-types/src/schemas/service-case.schema.ts
+ M packages/shared-types/src/schemas/template-response.schema.ts
+ M packages/shared-types/src/schemas/work-request.schema.ts
+ M packages/shared-types/src/utils/query-helpers.ts
+ M packages/shared-types/tests/schemas/cermont-operational-step.schema.test.ts
+ M scripts/clean-rebuild.ps1
+ M scripts/clean-zombies.ps1
+ M scripts/monitor.ps1
+ M scripts/monitor.sh
+ M tooling/git/pre-commit.mjs
+ M tooling/quality/baseline.json
+ M tooling/quality/check-routes.ts
+?? .agents/AGENTS.md
+?? .agents/checklists/
+?? .agents/rules/
+?? .agents/skills/accessibility/
+?? .agents/skills/bash-defensive-patterns/
+?? .agents/skills/brandkit/
+?? .agents/skills/composition-patterns/AGENTS.md
+?? .agents/skills/composition-patterns/README.md
+?? .agents/skills/composition-patterns/SKILL.md
+?? .agents/skills/composition-patterns/rules/
+?? .agents/skills/design-taste-frontend-v1/
+?? .agents/skills/design-taste-frontend/
+?? .agents/skills/emil-design-eng/
+?? .agents/skills/frontend-design/
+?? .agents/skills/full-output-enforcement/
+?? .agents/skills/gpt-taste/
+?? .agents/skills/gsap-core/
+?? .agents/skills/gsap-frameworks/
+?? .agents/skills/gsap-performance/
+?? .agents/skills/gsap-plugins/
+?? .agents/skills/gsap-react/
+?? .agents/skills/gsap-scrolltrigger/
+?? .agents/skills/gsap-timeline/
+?? .agents/skills/gsap-utils/
+?? .agents/skills/high-end-visual-design/
+?? .agents/skills/image-to-code/
+?? .agents/skills/imagegen-frontend-mobile/
+?? .agents/skills/imagegen-frontend-web/
+?? .agents/skills/impeccable/SKILL.md
+?? .agents/skills/impeccable/reference/
+?? .agents/skills/industrial-brutalist-ui/
+?? .agents/skills/minimalist-ui/
+?? .agents/skills/next-best-practices/
+?? .agents/skills/next-cache-components/
+?? .agents/skills/next-upgrade/
+?? .agents/skills/nodejs-backend-patterns/
+?? .agents/skills/nodejs-best-practices/
+?? .agents/skills/nodejs-express-server/SKILL.md
+?? .agents/skills/nodejs-express-server/references/
+?? .agents/skills/playwright-best-practices/.github/
+?? .agents/skills/playwright-best-practices/LICENSE.md
+?? .agents/skills/playwright-best-practices/README.md
+?? .agents/skills/playwright-best-practices/SKILL.md
+?? .agents/skills/playwright-best-practices/advanced/
+?? .agents/skills/playwright-best-practices/architecture/
+?? .agents/skills/playwright-best-practices/browser-apis/
+?? .agents/skills/playwright-best-practices/core/
+?? .agents/skills/playwright-best-practices/debugging/
+?? .agents/skills/playwright-best-practices/frameworks/
+?? .agents/skills/playwright-best-practices/infrastructure-ci-cd/
+?? .agents/skills/playwright-best-practices/testing-patterns/
+?? .agents/skills/ponytail-audit/
+?? .agents/skills/ponytail-debt/
+?? .agents/skills/ponytail-gain/
+?? .agents/skills/ponytail-help/
+?? .agents/skills/ponytail-review/
+?? .agents/skills/ponytail/
+?? .agents/skills/react-doctor/
+?? .agents/skills/react-hook-form/AGENTS.md
+?? .agents/skills/react-hook-form/README.md
+?? .agents/skills/react-hook-form/SKILL.md
+?? .agents/skills/react-hook-form/assets/
+?? .agents/skills/react-hook-form/references/
+?? .agents/skills/redesign-existing-projects/
+?? .agents/skills/seo/
+?? .agents/skills/stitch-design-taste/
+?? .agents/skills/tailwind-css-patterns/
+?? .agents/skills/turborepo/
+?? .agents/skills/typescript-advanced-types/
+?? .agents/skills/vercel-composition-patterns/AGENTS.md
+?? .agents/skills/vercel-composition-patterns/README.md
+?? .agents/skills/vercel-composition-patterns/SKILL.md
+?? .agents/skills/vercel-composition-patterns/rules/
+?? .agents/skills/vercel-react-best-practices/AGENTS.md
+?? .agents/skills/vercel-react-best-practices/README.md
+?? .agents/skills/vercel-react-best-practices/SKILL.md
+?? .agents/skills/vercel-react-best-practices/rules/
+?? .agents/skills/vite/
+?? .agents/skills/vitest/
+?? .agents/skills/zod/AGENTS.md
+?? .agents/skills/zod/README.md
+?? .agents/skills/zod/SKILL.md
+?? .agents/skills/zod/assets/
+?? .agents/skills/zod/references/
+?? .agents/workflows/
+?? .claude/skills/brandkit/
+?? .claude/skills/design-taste-frontend-v1/
+?? .claude/skills/design-taste-frontend/
+?? .claude/skills/emil-design-eng/
+?? .claude/skills/full-output-enforcement/
+?? .claude/skills/gpt-taste/
+?? .claude/skills/high-end-visual-design/
+?? .claude/skills/image-to-code/
+?? .claude/skills/imagegen-frontend-mobile/
+?? .claude/skills/imagegen-frontend-web/
+?? .claude/skills/impeccable/SKILL.md
+?? .claude/skills/impeccable/reference/
+?? .claude/skills/industrial-brutalist-ui/
+?? .claude/skills/minimalist-ui/
+?? .claude/skills/ponytail-audit/
+?? .claude/skills/ponytail-debt/
+?? .claude/skills/ponytail-gain/
+?? .claude/skills/ponytail-help/
+?? .claude/skills/ponytail-review/
+?? .claude/skills/ponytail/
+?? .claude/skills/redesign-existing-projects/
+?? .claude/skills/stitch-design-taste/
+?? .omo/
+?? AGENTS.md
+?? AUTHORS.md
+?? COPYRIGHT.md
+?? DESIGN.md
+?? Dockerfile
+?? Libro/Capturas/
+?? Libro/UniPamplonaStyleData/Logos/
+?? Libro/logo_65_.png
+?? NOTICE.md
+?? PRODUCT.md
+?? PROMPT_MEJORA_KPIS_E_IMPLEMENTACION_DESIGN.md
+?? README.md
+?? backend/AGENTS.md
+?? backend/README.md
+?? backend/src/__tests__/
+?? backend/src/middlewares/rate-limit.config.ts
+?? backend/src/middlewares/sanitize.middleware.ts
+?? backend/src/models/AutomationExecution.ts
+?? backend/src/models/AutomationOperationalAction.ts
+?? backend/src/models/AutomationRule.ts
+?? backend/src/models/CostCatalogItem.ts
+?? backend/src/models/NotificationPreference.ts
+?? backend/src/models/VehicleAssignment.ts
+?? backend/src/models/automation-indexes.ts
+?? backend/src/modules/ai/ai-copilot.service.ts
+?? backend/src/modules/automation/
+?? backend/src/modules/cost/cost-budget-alert.service.ts
+?? backend/src/modules/cost/cost-catalog.service.ts
+?? backend/src/modules/cost/cost-suggest.service.ts
+?? backend/src/modules/dashboard/dashboard-demand.service.ts
+?? backend/src/modules/dashboard/dashboard-efficiency.service.ts
+?? backend/src/modules/dashboard/dashboard-financial.service.ts
+?? backend/src/modules/dashboard/dashboard-operational-kpi.service.ts
+?? backend/src/modules/dashboard/dashboard-readiness.service.ts
+?? backend/src/modules/dashboard/dashboard-sla.service.ts
+?? backend/src/modules/delivery-record/delivery-record.controller.ts
+?? backend/src/modules/delivery-record/delivery-record.service.ts
+?? backend/src/modules/invoice/invoice.controller.ts
+?? backend/src/modules/invoice/invoice.service.ts
+?? backend/src/modules/jobs/
+?? backend/src/modules/kpi/
+?? backend/src/modules/notification-preferences/
+?? backend/src/modules/observability/observability.service.ts
+?? backend/src/modules/payment/payment.controller.ts
+?? backend/src/modules/payment/payment.service.ts
+?? backend/src/modules/planning-packet/planning-readiness.service.ts
+?? backend/src/modules/portal/portal-sign.schema.ts
+?? backend/src/modules/qr/
+?? backend/src/modules/service-entry-sheet/service-entry-sheet.controller.ts
+?? backend/src/modules/service-entry-sheet/service-entry-sheet.service.ts
+?? backend/src/modules/technical-report/technical-report.controller.ts
+?? backend/src/modules/technical-report/technical-report.service.ts
+?? backend/src/scripts/seed-demo-data.ts
+?? backend/tests/integration/
+?? backend/tests/models/automation-indexes.test.ts
+?? backend/tests/models/service-case-operational-step.test.ts
+?? backend/tests/services/automation.service.test.ts
+?? backend/tests/services/cost-budget-alert.service.test.ts
+?? backend/tests/services/cost-catalog.service.test.ts
+?? backend/tests/services/cost-suggest.service.test.ts
+?? backend/tests/services/dashboard-sla.service.test.ts
+?? backend/tests/services/invoice.service.test.ts
+?? backend/tests/services/kpi.service.test.ts
+?? backend/tests/services/observability.service.test.ts
+?? backend/tests/services/payment.service.test.ts
+?? backend/tests/services/planning-readiness.service.test.ts
+?? claude.md
+?? docker/
+?? docs/API_STATUS.md
+?? docs/B9-DEV-SERVER-OBSERVATIONS.md
+?? docs/CHANGELOG.md
+?? docs/DEVELOPMENT_STATUS.md
+?? docs/DOCUMENTATION_INVENTORY.md
+?? docs/DOCUMENTATION_VALIDATION_REPORT.md
+?? docs/Intrucciones_para_crear_app_web/
+?? docs/KNOWN_ISSUES.md
+?? docs/PLAN-REFACTORIZACION-PROGRESO-2026-04-13.md
+?? docs/PROMPTS/
+?? docs/README.md
+?? docs/REGLAS_DESARROLLO_CERMONT.md
+?? docs/REMEDIATION-LOG.md
+?? docs/REPO_MANIFEST.md
+?? docs/STALE_DOCUMENTATION_REPORT.md
+?? docs/TECHNICAL_DEBT.md
+?? docs/adr/ADR-QUALITY-RULES-ENGINE-DEPENDENCY.md
+?? docs/agents/
+?? docs/architecture/
+?? docs/audits/archive/
+?? docs/cermont-domain-map.md
+?? docs/claude/
+?? docs/compliance/
+?? docs/coordination/
+?? docs/design/
+?? docs/development/
+?? docs/domain/
+?? docs/frontend-motion-guidelines.md
+?? docs/frontend/
+?? docs/internal/
+?? docs/legal/
+?? docs/logo.png
+?? docs/observability/
+?? docs/offline-known-limitations.md
+?? docs/offline-online-module.md
+?? docs/offline-performance-a11y-fix-report.md
+?? docs/offline-scope.md
+?? docs/offline-test-plan.md
+?? docs/pdf/
+?? docs/plans/PLAN_ARQUITECTONICO.md
+?? docs/plans/PLAN_COST_PROPOSAL_ASSISTANT.md
+?? docs/plans/PLAN_OPERATIONAL_IMPROVEMENT.md
+?? docs/product/
+?? docs/prueba/
+?? docs/quality/
+?? docs/research-cermont/
+?? docs/research/
+?? docs/superpowers/
+?? docs/test-diagnostic-plan.md
+?? docs/testing/
+?? ecosystem.config.js
+?? frontend/.agents/
+?? frontend/.claude/
+?? frontend/AGENTS.md
+?? frontend/doctor.config.json
+?? frontend/next-env.d.ts
+?? frontend/public/favicon.png
+?? frontend/public/icons/icon-192.png
+?? frontend/public/icons/icon-512.png
+?? frontend/public/icons/logo-cermont.png
+?? frontend/public/icons/maskable-icon-192.png
+?? frontend/public/icons/maskable-icon-512.png
+?? frontend/public/images/landing/
+?? frontend/public/landing/
+?? frontend/src/app/(dashboard)/costs/catalog/
+?? frontend/src/app/(dashboard)/evidences/report/
+?? frontend/src/app/(dashboard)/execution-sessions/
+?? frontend/src/app/(dashboard)/invoices/
+?? frontend/src/app/(dashboard)/planning-packet/new/PlanningPacketSignatures.tsx
+?? frontend/src/app/(dashboard)/reports/[id]/draft/
+?? frontend/src/app/(dashboard)/reports/[id]/sign/
+?? frontend/src/app/(dashboard)/settings/
+?? frontend/src/app/(dashboard)/tools/
+?? frontend/src/app/(legal)/terms/
+?? frontend/src/app/(portal)/portal/service-cases/
+?? frontend/src/app/(portal)/portal/signatures/
+?? frontend/src/app/robots.ts
+?? frontend/src/lib/utils/lazy-operational-kpi-section.tsx
+?? frontend/src/modules/automation/
+?? frontend/src/modules/checklists/components/ChecklistItemControl.tsx
+?? frontend/src/modules/cockpit/
+?? frontend/src/modules/costs/cost-export.ts
+?? frontend/src/modules/costs/ui/BaselineCostCard.tsx
+?? frontend/src/modules/costs/ui/BudgetConsumedGauge.tsx
+?? frontend/src/modules/costs/ui/CostBudgetStatus.tsx
+?? frontend/src/modules/costs/ui/CostCatalogForm.tsx
+?? frontend/src/modules/costs/ui/CostCatalogPanel.tsx
+?? frontend/src/modules/costs/ui/CostDeviationStackedBar.tsx
+?? frontend/src/modules/costs/ui/CostExportButton.tsx
+?? frontend/src/modules/costs/ui/MarginSummaryCard.tsx
+?? frontend/src/modules/dashboard/ui/BottleneckDetectionPanel.tsx
+?? frontend/src/modules/dashboard/ui/CashFlowFunnel.tsx
+?? frontend/src/modules/dashboard/ui/CostOverrunWidget.tsx
+?? frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx
+?? frontend/src/modules/dashboard/ui/DashboardKPIWidgets.tsx
+?? frontend/src/modules/dashboard/ui/FirstTimeFixRateGauge.tsx
+?? frontend/src/modules/dashboard/ui/KPIStatCard.tsx
+?? frontend/src/modules/dashboard/ui/MTTRMTBFCards.tsx
+?? frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx
+?? frontend/src/modules/dashboard/ui/OperationalKpiSection.tsx
+?? frontend/src/modules/dashboard/ui/PendingInvoicesAlert.tsx
+?? frontend/src/modules/dashboard/ui/PendingReportsAlert.tsx
+?? frontend/src/modules/dashboard/ui/SlaRiskOrdersTable.tsx
+?? frontend/src/modules/evidences/ui/EvidenceStatusBadge.tsx
+?? frontend/src/modules/evidences/ui/__tests__/
+?? frontend/src/modules/field-execution/
+?? frontend/src/modules/fleet/ui/MaintenanceTab.tsx
+?? frontend/src/modules/fleet/ui/VehicleAssignmentPanel.tsx
+?? frontend/src/modules/invoices/
+?? frontend/src/modules/notifications/
+?? frontend/src/modules/planning/ui/
+?? frontend/src/modules/portal/hooks/
+?? frontend/src/modules/portal/ui/
+?? frontend/src/modules/reports/ui/DigitalSignaturePad.tsx
+?? frontend/src/modules/reports/ui/PDFExportButton.tsx
+?? frontend/src/modules/reports/ui/ReportReviewPanel.tsx
+?? frontend/src/modules/reports/ui/TechnicalReportDraftPage.tsx
+?? frontend/src/modules/service-cases/components/AdministrativeClosurePipeline.tsx
+?? frontend/src/modules/service-cases/components/CockpitTabs.tsx
+?? frontend/src/modules/service-cases/components/EvidenceGallerySection.tsx
+?? frontend/src/modules/service-cases/components/LinkedDocumentsSection.tsx
+?? frontend/src/modules/service-cases/components/SlaDeadlineBadge.tsx
+?? frontend/src/modules/service-cases/components/__tests__/
+?? frontend/src/modules/service-cases/model/
+?? frontend/tests/e2e/spec-014/
+?? frontend/tests/modules/automation/
+?? frontend/tests/modules/checklists/ChecklistItemControl.test.tsx
+?? frontend/tests/modules/checklists/checklist-file-upload.test.ts
+?? frontend/tests/modules/cockpit/
+?? frontend/tests/modules/costs/
+?? frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx
+?? frontend/tests/modules/dashboard/dashboard-hooks.test.ts
+?? frontend/tests/modules/dashboard/dashboard-kpis.test.ts
+?? frontend/tests/modules/evidences/evidence-category.test.ts
+?? frontend/tests/modules/evidences/evidence-report.test.ts
+?? frontend/tests/modules/fleet/MaintenanceTab.test.tsx
+?? frontend/tests/modules/fleet/NewVehicleDrawer.test.tsx
+?? frontend/tests/modules/fleet/VehicleAssignmentPanel.test.tsx
+?? frontend/tests/modules/forms/
+?? frontend/tests/modules/kits/
+?? frontend/tests/modules/p0/
+?? frontend/tests/modules/planning/
+?? frontend/tests/public/pwa-assets.test.ts
+?? output/
+?? packages/AGENTS.md
+?? packages/domain/src/__tests__/checklist.rules.test.ts
+?? packages/domain/src/__tests__/cost-budget.rules.test.ts
+?? packages/domain/src/__tests__/planning.rules.test.ts
+?? packages/domain/src/__tests__/spec-015-rules.test.ts
+?? packages/domain/src/checklist.rules.ts
+?? packages/domain/src/dashboard.rules.ts
+?? packages/domain/src/spec-013-rules.ts
+?? packages/domain/src/spec-015-rules.ts
+?? packages/shared-types/scripts/
+?? packages/shared-types/src/__tests__/
+?? packages/shared-types/src/schemas/administrative-workflow.schema.ts
+?? packages/shared-types/src/schemas/automation-rule.schema.ts
+?? packages/shared-types/src/schemas/automation.schema.ts
+?? packages/shared-types/src/schemas/cost-suggest.schema.ts
+?? packages/shared-types/src/schemas/form-submission.schema.ts
+?? packages/shared-types/src/schemas/job.schema.ts
+?? packages/shared-types/src/schemas/kpi.schema.ts
+?? packages/shared-types/src/schemas/notification-preference.schema.ts
+?? packages/shared-types/src/schemas/privacy-request.schema.ts
+?? packages/shared-types/src/schemas/qr-code.schema.ts
+?? packages/shared-types/src/schemas/service-case-cockpit.schema.ts
+?? packages/shared-types/tests/schemas/automation.schema.test.ts
+?? packages/shared-types/tests/schemas/checklist.schema.test.ts
+?? packages/shared-types/tests/schemas/cost-intelligence.schema.test.ts
+?? packages/shared-types/tests/schemas/dashboard-summary.schema.test.ts
+?? packages/shared-types/tests/schemas/route-request.schema.test.ts
+?? scripts/audit/output/
+?? scripts/backup.sh
+?? skills-lock.json
+?? skills/brandkit/
+?? skills/design-taste-frontend-v1/
+?? skills/design-taste-frontend/
+?? skills/emil-design-eng/
+?? skills/full-output-enforcement/
+?? skills/gpt-taste/
+?? skills/high-end-visual-design/
+?? skills/image-to-code/
+?? skills/imagegen-frontend-mobile/
+?? skills/imagegen-frontend-web/
+?? skills/impeccable/SKILL.md
+?? skills/impeccable/reference/
+?? skills/industrial-brutalist-ui/
+?? skills/minimalist-ui/
+?? skills/ponytail-audit/
+?? skills/ponytail-debt/
+?? skills/ponytail-gain/
+?? skills/ponytail-help/
+?? skills/ponytail-review/
+?? skills/ponytail/
+?? skills/react-doctor/
+?? skills/redesign-existing-projects/
+?? skills/stitch-design-taste/
+?? specs/
+?? tooling/BIOME-SETUP-DOCUMENTATION.md
+?? tooling/quality/check-hardcoded-roles.ts

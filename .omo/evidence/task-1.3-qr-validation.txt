@@ -1,0 +1,8 @@
+Task 1.3 — QR validation
+
+Implemented:
+- POST /generate -> validateBody(GenerateQrCodeSchema)
+- POST /generate-bulk -> validateBody(GenerateBulkQrCodesSchema)
+
+Schema QA: route-request.schema.test.ts passed 5/5 tests.
+Checker QA: qr.routes.ts is absent from findings.

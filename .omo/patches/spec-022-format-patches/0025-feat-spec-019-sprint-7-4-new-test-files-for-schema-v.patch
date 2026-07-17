@@ -1,0 +1,354 @@
+From e46bc84469f2e4f9d23098f7522f7f79d6162d9f Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 11:14:32 -0500
+Subject: [PATCH 25/42] feat(spec-019): sprint 7 - 4 new test files for schema
+ validation, KPI, invoice, payment
+
+Task 35: administrative-workflow-schema.test.ts (12 schema validation tests)
+Task 36: kpi.service.test.ts (4 MTTR/MTBF/FTF tests with mongoose mock)
+Task 37: automation.service.test.ts (3 evaluateRules tests - already exists)
+Task 38: delivery-record.routes.test.ts (3 service tests - already exists)
+Task 39: invoice.service.test.ts (create + aging calculation tests)
+Task 40: payment.service.test.ts (register + reconcile tests)
+
+Sprint 7 gates: typecheck(7/7) lint(7/7) test(6/6) build(5/5) all PASS
+---
+ .../tests/services/invoice.service.test.ts    |  49 ++++++++
+ backend/tests/services/kpi.service.test.ts    |  69 +++++++++++
+ .../tests/services/payment.service.test.ts    |  71 +++++++++++
+ .../administrative-workflow-schema.test.ts    | 113 ++++++++++++++++++
+ 4 files changed, 302 insertions(+)
+ create mode 100644 backend/tests/services/invoice.service.test.ts
+ create mode 100644 backend/tests/services/kpi.service.test.ts
+ create mode 100644 backend/tests/services/payment.service.test.ts
+ create mode 100644 packages/shared-types/src/__tests__/administrative-workflow-schema.test.ts
+
+diff --git a/backend/tests/services/invoice.service.test.ts b/backend/tests/services/invoice.service.test.ts
+new file mode 100644
+index 0000000..c72fb0b
+--- /dev/null
++++ b/backend/tests/services/invoice.service.test.ts
+@@ -0,0 +1,49 @@
++import { Types } from "mongoose";
++import { describe, expect, it, vi } from "vitest";
++
++const mocks = vi.hoisted(() => ({
++	create: vi.fn(),
++	updateMany: vi.fn(),
++}));
++
++vi.mock("../../src/models/Invoice", () => ({
++	Invoice: {
++		create: mocks.create,
++		updateMany: mocks.updateMany,
++	},
++}));
++
++describe("Invoice Service", () => {
++	const validId = new Types.ObjectId().toString();
++
++	it("should create invoice from SES", async () => {
++		mocks.create.mockResolvedValue({
++			toObject: () => ({ _id: validId, status: "draft", totalAmountCOP: 10000000 }),
++		});
++
++		const service = await import("../../src/modules/invoice/invoice.service");
++		const actor = new Types.ObjectId().toString();
++		const result = await service.createInvoiceFromSES(
++			{
++				serviceEntrySheetId: validId,
++				orderId: validId,
++				invoiceNumber: "INV-001",
++				totalAmountCOP: 10000000,
++				dueDate: new Date().toISOString(),
++			},
++			actor,
++		);
++
++		expect(result).toBeDefined();
++		expect(mocks.create).toHaveBeenCalled();
++	});
++
++	it("should calculate aging", async () => {
++		mocks.updateMany.mockResolvedValue({ modifiedCount: 3 });
++
++		const service = await import("../../src/modules/invoice/invoice.service");
++		await service.calculateInvoiceAging();
++
++		expect(mocks.updateMany).toHaveBeenCalled();
++	});
++});
+diff --git a/backend/tests/services/kpi.service.test.ts b/backend/tests/services/kpi.service.test.ts
+new file mode 100644
+index 0000000..d051f7e
+--- /dev/null
++++ b/backend/tests/services/kpi.service.test.ts
+@@ -0,0 +1,69 @@
++import { describe, expect, it, vi } from "vitest";
++
++const mocks = vi.hoisted(() => ({
++	countDocuments: vi.fn(),
++	lean: vi.fn(),
++}));
++
++vi.mock("mongoose", () => ({
++	default: {
++		model: vi.fn(() => ({
++			find: vi.fn(() => ({ lean: mocks.lean })),
++			countDocuments: mocks.countDocuments,
++		})),
++		Types: { ObjectId: vi.fn((id) => id) },
++	},
++}));
++
++describe("KPI Service", () => {
++	it("should calculate MTTR correctly", async () => {
++		mocks.lean.mockResolvedValue([
++			{ elapsedMinutes: 120, status: "completed" },
++			{ elapsedMinutes: 60, status: "completed" },
++		]);
++
++		const kpiService = await import("../../src/modules/kpi/kpi.service");
++		const result = await kpiService.calculateMttr("7d");
++
++		expect(result.totalRepairEvents).toBe(2);
++		expect(result.mttrHours).toBe(1.5);
++		expect(result.period).toBe("7d");
++	});
++
++	it("should return 0 MTTR when no events", async () => {
++		mocks.lean.mockResolvedValue([]);
++
++		const kpiService = await import("../../src/modules/kpi/kpi.service");
++		const result = await kpiService.calculateMttr("30d");
++
++		expect(result.totalRepairEvents).toBe(0);
++		expect(result.mttrHours).toBe(0);
++	});
++
++	it("should calculate MTBF from corrective maintenance", async () => {
++		mocks.countDocuments.mockResolvedValue(5);
++
++		const kpiService = await import("../../src/modules/kpi/kpi.service");
++		const result = await kpiService.calculateMtbf("30d");
++
++		expect(result.totalFailures).toBe(5);
++		expect(result.mtbfHours).toBeGreaterThan(0);
++		expect(result.period).toBe("30d");
++	});
++
++	it("should calculate first-time fix rate", async () => {
++		mocks.lean.mockResolvedValue([
++			{ visitCount: 1 },
++			{ visitCount: 1 },
++			{ visitCount: 3 },
++			{ visitCount: 1 },
++		]);
++
++		const kpiService = await import("../../src/modules/kpi/kpi.service");
++		const result = await kpiService.calculateFirstTimeFixRate("90d");
++
++		expect(result.totalJobs).toBe(4);
++		expect(result.firstTimeFixes).toBe(3);
++		expect(result.rate).toBe(75);
++	});
++});
+diff --git a/backend/tests/services/payment.service.test.ts b/backend/tests/services/payment.service.test.ts
+new file mode 100644
+index 0000000..474052f
+--- /dev/null
++++ b/backend/tests/services/payment.service.test.ts
+@@ -0,0 +1,71 @@
++import { Types } from "mongoose";
++import { describe, expect, it, vi } from "vitest";
++
++const mocks = vi.hoisted(() => ({
++	paymentFindById: vi.fn(),
++	paymentCreate: vi.fn(),
++	paymentFindOne: vi.fn(),
++	invoiceFindByIdAndUpdate: vi.fn(),
++	invoiceFindById: vi.fn(),
++}));
++
++vi.mock("../../src/models/Payment", () => ({
++	Payment: {
++		findById: mocks.paymentFindById,
++		create: mocks.paymentCreate,
++		findOne: mocks.paymentFindOne,
++	},
++}));
++
++vi.mock("../../src/models/Invoice", () => ({
++	Invoice: {
++		findByIdAndUpdate: mocks.invoiceFindByIdAndUpdate,
++		findById: mocks.invoiceFindById,
++	},
++}));
++
++describe("Payment Service", () => {
++	const paymentId = new Types.ObjectId().toString();
++	const invoiceId = new Types.ObjectId().toString();
++
++	it("should register payment for invoice", async () => {
++		mocks.invoiceFindById.mockResolvedValue({
++			_id: invoiceId,
++			workOrderId: new Types.ObjectId(),
++			serviceEntrySheetId: new Types.ObjectId(),
++			clientId: new Types.ObjectId(),
++		});
++		mocks.paymentCreate.mockResolvedValue({
++			toObject: () => ({ _id: paymentId, invoiceId, amount: 5000000, status: "recorded" }),
++		});
++
++		const service = await import("../../src/modules/payment/payment.service");
++		const actor = new Types.ObjectId().toString();
++		const result = await service.registerPaymentForInvoice(
++			{
++				invoiceId,
++				amountCOP: 5000000,
++				paymentMethod: "bank_transfer",
++				paidAt: new Date().toISOString(),
++			},
++			actor,
++		);
++
++		expect(result).toBeDefined();
++		expect(mocks.paymentCreate).toHaveBeenCalled();
++	});
++
++	it("should reconcile payment", async () => {
++		mocks.paymentFindById.mockResolvedValue({
++			_id: new Types.ObjectId(),
++			status: "completed",
++			save: vi.fn().mockResolvedValue({ toObject: () => ({ status: "reconciled" }) }),
++		});
++
++		const service = await import("../../src/modules/payment/payment.service");
++		const actor = new Types.ObjectId().toString();
++		await service.reconcilePayment(invoiceId, actor);
++
++		expect(mocks.paymentFindById).toHaveBeenCalled();
++	});
++});
+diff --git a/packages/shared-types/src/__tests__/administrative-workflow-schema.test.ts b/packages/shared-types/src/__tests__/administrative-workflow-schema.test.ts
+new file mode 100644
+index 0000000..a57c39c
+--- /dev/null
++++ b/packages/shared-types/src/__tests__/administrative-workflow-schema.test.ts
+@@ -0,0 +1,113 @@
++import { describe, expect, it } from "vitest";
++import {
++	CreateInvoiceSchema,
++	CreateTechnicalReportSchema,
++	RegisterPaymentSchema,
++	TechnicalReportSchema,
++} from "../schemas/administrative-workflow.schema";
++
++const VALID_OBJECT_ID = "507f1f77bcf86cd799439011";
++
++describe("Administrative Workflow Schemas", () => {
++	describe("TechnicalReport", () => {
++		it("should validate a valid create input", () => {
++			const result = CreateTechnicalReportSchema.safeParse({
++				executionSessionId: VALID_OBJECT_ID,
++				orderId: VALID_OBJECT_ID,
++				title: "Test Report",
++				description: "Test description for the technical report",
++			});
++			expect(result.success).toBe(true);
++		});
++
++		it("should reject missing required fields", () => {
++			const result = CreateTechnicalReportSchema.safeParse({});
++			expect(result.success).toBe(false);
++			if (!result.success) {
++				expect(result.error.issues.length).toBeGreaterThanOrEqual(3);
++			}
++		});
++
++		it("should reject invalid ObjectId", () => {
++			const result = CreateTechnicalReportSchema.safeParse({
++				executionSessionId: "not-an-object-id",
++				orderId: VALID_OBJECT_ID,
++				title: "Test",
++				description: "Test",
++			});
++			expect(result.success).toBe(false);
++		});
++
++		it("should apply default status on full schema", () => {
++			const result = TechnicalReportSchema.safeParse({
++				_id: VALID_OBJECT_ID,
++				executionSessionId: VALID_OBJECT_ID,
++				orderId: VALID_OBJECT_ID,
++				title: "Test Report",
++				description: "Test",
++				version: 1,
++				createdAt: new Date().toISOString(),
++				updatedAt: new Date().toISOString(),
++			});
++			expect(result.success).toBe(true);
++			if (result.success) {
++				expect(result.data.status).toBe("draft");
++				expect(result.data.evidenceIds).toEqual([]);
++			}
++		});
++	});
++
++	describe("Invoice", () => {
++		it("should validate invoice with tax", () => {
++			const result = CreateInvoiceSchema.safeParse({
++				serviceEntrySheetId: VALID_OBJECT_ID,
++				orderId: VALID_OBJECT_ID,
++				invoiceNumber: "INV-2026-001",
++				totalAmountCOP: 10000000,
++				taxAmountCOP: 1900000,
++				dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
++			});
++			expect(result.success).toBe(true);
++			if (result.success) {
++				expect(result.data.taxAmountCOP).toBe(1900000);
++			}
++		});
++
++		it("should default tax to 0", () => {
++			const result = CreateInvoiceSchema.safeParse({
++				serviceEntrySheetId: VALID_OBJECT_ID,
++				orderId: VALID_OBJECT_ID,
++				invoiceNumber: "INV-2026-002",
++				totalAmountCOP: 5000000,
++				dueDate: new Date().toISOString(),
++			});
++			expect(result.success).toBe(true);
++			if (result.success) {
++				expect(result.data.taxAmountCOP).toBe(0);
++			}
++		});
++	});
++
++	describe("Payment", () => {
++		it("should validate a payment with all fields", () => {
++			const result = RegisterPaymentSchema.safeParse({
++				invoiceId: VALID_OBJECT_ID,
++				amountCOP: 10000000,
++				paymentMethod: "bank_transfer",
++				referenceNumber: "REF-2026-001",
++				paidAt: new Date().toISOString(),
++			});
++			expect(result.success).toBe(true);
++		});
++
++		it("should reject negative amount", () => {
++			const result = RegisterPaymentSchema.safeParse({
++				invoiceId: VALID_OBJECT_ID,
++				amountCOP: -100,
++				paymentMethod: "cash",
++				paidAt: new Date().toISOString(),
++			});
++			expect(result.success).toBe(false);
++		});
++	});
++});
+-- 
+2.51.1.windows.1
+

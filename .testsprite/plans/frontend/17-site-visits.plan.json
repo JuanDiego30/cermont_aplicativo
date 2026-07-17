@@ -1,0 +1,37 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Site Visits - Registration and management",
+  "description": "Verifies site visit management: registering visits, attaching findings, linking to work requests",
+  "priority": "p2",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/site-visits"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that site visits list loads with date, client, technician, and purpose columns"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New Site Visit' and fill in: client, date, location, purpose, technician assigned"
+    },
+    {
+      "type": "action",
+      "description": "Add visit findings: observations, photos, recommendations"
+    },
+    {
+      "type": "action",
+      "description": "Link the site visit to an existing work request if applicable"
+    },
+    {
+      "type": "action",
+      "description": "Submit and verify the visit is recorded with 'completed' status"
+    },
+    {
+      "type": "action",
+      "description": "Verify the site visit detail shows all entered data with the option to generate a visit report"
+    }
+  ]
+}

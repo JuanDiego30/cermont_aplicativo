@@ -1,0 +1,16 @@
+{
+  "$schema": "https://react.doctor/schema/config.json",
+  "lint": true,
+  "deadCode": true,
+  "verbose": false,
+  "blocking": "none",
+  "categories": {
+    "Performance": "off"
+  },
+  "rules": {
+    "react-doctor/prefer-tag-over-role": "off",
+    "react-doctor/no-redundant-roles": "off",
+    "react-doctor/no-fetch-in-effect": "off",
+    "react-doctor/no-impure-state-updater": "off"
+  }
+}

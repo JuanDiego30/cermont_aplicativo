@@ -283,7 +283,7 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 					hasSignature={signature.length > 0}
 					observations={observations}
 					onObservationsChange={setObservations}
-					onSignatureChange={setSignature}
+					onSignatureChange={(s) => { if (s !== null) setSignature(s); }}
 					onComplete={handleCompleteChecklist}
 				/>
 			)}
@@ -529,7 +529,7 @@ function ChecklistCompletionForm({
 	hasSignature: boolean;
 	observations: string;
 	onObservationsChange: (value: string) => void;
-	onSignatureChange: (signature: string) => void;
+	onSignatureChange: (signature: string | null) => void;
 	onComplete: () => void;
 }) {
 	return (

@@ -1,0 +1,41 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Work Requests - Create and manage service requests",
+  "description": "Verifies the full work request lifecycle from creation through approval and conversion to order",
+  "priority": "p0",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/work-requests"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the work requests list is displayed with status badges (pending, approved, rejected, converted)"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New Work Request' and fill in the form: client details, service description, priority, requested date"
+    },
+    {
+      "type": "action",
+      "description": "Submit the work request and verify it appears in the list with 'pending' status"
+    },
+    {
+      "type": "action",
+      "description": "Open the work request detail and click 'Approve'"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the status changes to 'approved' and a 'Convert to Order' button appears"
+    },
+    {
+      "type": "action",
+      "description": "Click 'Convert to Order' and verify it navigates to order creation pre-filled with work request data"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that after conversion, the work request status shows 'converted' with a link to the new order"
+    }
+  ]
+}

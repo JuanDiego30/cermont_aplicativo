@@ -1,0 +1,354 @@
+From 21ea70b6297cbc851748eda8e9c382cd9f515833 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 12:50:16 -0500
+Subject: [PATCH 33/42] fix(routes): add authorization policies to
+ privacy-requests, resource, auth, ai routes
+
+---
+ .../src/middlewares/authorize.middleware.ts   | 11 +++-
+ backend/src/modules/ai/ai.routes.ts           |  4 +-
+ backend/src/modules/auth/auth.routes.ts       |  6 ++-
+ .../privacy-requests.routes.ts                | 22 ++++++--
+ .../src/modules/resource/resource.routes.ts   |  2 +-
+ .../tests/common/authorize.middleware.test.ts | 14 +++++
+ .../contracts/api-contract.snapshot.json      | 51 +++++++++++++++++++
+ .../contracts/contract-migrations.json        |  9 +++-
+ packages/shared-types/src/schemas/index.ts    |  1 +
+ .../src/schemas/privacy-request.schema.ts     | 25 +++++++++
+ .../schemas/route-request.schema.test.ts      | 13 +++++
+ 11 files changed, 148 insertions(+), 10 deletions(-)
+ create mode 100644 packages/shared-types/src/schemas/privacy-request.schema.ts
+
+diff --git a/backend/src/middlewares/authorize.middleware.ts b/backend/src/middlewares/authorize.middleware.ts
+index 95da30d..fde7de7 100644
+--- a/backend/src/middlewares/authorize.middleware.ts
++++ b/backend/src/middlewares/authorize.middleware.ts
+@@ -11,7 +11,12 @@
+  * DOC REFERENCE: DOC-04 §6 (RBAC), DOC-11 (Reglas del agente)
+  */
+ 
+-import { ADMIN_ROLES, ROLE_HIERARCHY, type UserRole } from "@cermont/domain";
++import {
++	ADMIN_ROLES,
++	ALL_AUTHENTICATED_ROLES,
++	ROLE_HIERARCHY,
++	type UserRole,
++} from "@cermont/domain";
+ import type { NextFunction, Request, Response } from "express";
+ import { ForbiddenError } from "../common/errors/AppError";
+ import { requireUser } from "../common/utils/request";
+@@ -41,6 +46,10 @@ export function authorize(...requiredRoles: UserRole[]) {
+ 	};
+ }
+ 
++export function authorizeAllAuthenticated() {
++	return authorize(...ALL_AUTHENTICATED_ROLES);
++}
++
+ /**
+  * Middleware: Check if user has minimum role level
+  * Useful for checking "at least this level or higher"
+diff --git a/backend/src/modules/ai/ai.routes.ts b/backend/src/modules/ai/ai.routes.ts
+index a8bcfaa..9a26e46 100644
+--- a/backend/src/modules/ai/ai.routes.ts
++++ b/backend/src/modules/ai/ai.routes.ts
+@@ -1,4 +1,4 @@
+-import { SUPERVISORY_ROLES } from "@cermont/domain";
++import { INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+ import { AssistantChatRequestSchema } from "@cermont/shared-types";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+@@ -13,7 +13,7 @@ const router = Router();
+  * Documenta el estado actual y evolución futura del módulo IA (Pasos v2.0).
+  * No body validation needed — status check is GET-only
+  */
+-router.get("/status", authenticate, (_req, res) => {
++router.get("/status", authenticate, authorize(...INTERNAL_ROLES), (_req, res) => {
+ 	res.json({
+ 		success: true,
+ 		status: "implemented_v1",
+diff --git a/backend/src/modules/auth/auth.routes.ts b/backend/src/modules/auth/auth.routes.ts
+index 802de15..986d150 100644
+--- a/backend/src/modules/auth/auth.routes.ts
++++ b/backend/src/modules/auth/auth.routes.ts
+@@ -21,6 +21,7 @@ import {
+ } from "@cermont/shared-types";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
++import { authorizeAllAuthenticated } from "../../middlewares/authorize.middleware";
+ import { authLimiter, refreshLimiter } from "../../middlewares/rate-limiter";
+ import { validateBody } from "../../middlewares/validate";
+ import * as AuthController from "./auth.controller";
+@@ -51,13 +52,13 @@ router.post("/refresh", refreshLimiter, AuthController.refresh);
+  * Also reads refreshToken from cookie
+  * No body validation needed — logout uses cookie, not body
+  */
+-router.post("/logout", authenticate, AuthController.logout);
++router.post("/logout", authenticate, authorizeAllAuthenticated(), AuthController.logout);
+ 
+ /**
+  * GET /api/auth/me
+  * Protected endpoint — returns authenticated user's profile
+  */
+-router.get("/me", authenticate, AuthController.getMe);
++router.get("/me", authenticate, authorizeAllAuthenticated(), AuthController.getMe);
+ 
+ /**
+  * PATCH /api/auth/change-password
+@@ -66,6 +67,7 @@ router.get("/me", authenticate, AuthController.getMe);
+ router.patch(
+ 	"/change-password",
+ 	authenticate,
++	authorizeAllAuthenticated(),
+ 	validateBody(ChangePasswordSchema),
+ 	AuthController.changePassword,
+ );
+diff --git a/backend/src/modules/privacy-requests/privacy-requests.routes.ts b/backend/src/modules/privacy-requests/privacy-requests.routes.ts
+index cf68034..da0b384 100644
+--- a/backend/src/modules/privacy-requests/privacy-requests.routes.ts
++++ b/backend/src/modules/privacy-requests/privacy-requests.routes.ts
+@@ -1,11 +1,27 @@
++import { ADMIN_ROLES } from "@cermont/domain";
++import { CreatePrivacyRequestSchema, PrivacyRequestIdParamsSchema } from "@cermont/shared-types";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
++import { authorize } from "../../middlewares/authorize.middleware";
++import { validateBody, validateParams } from "../../middlewares/validate";
+ import { privacyRequestsController } from "./privacy-requests.controller";
+ 
+ const router = Router();
+ 
+-router.get("/", authenticate, privacyRequestsController.list);
+-router.get("/:id", authenticate, privacyRequestsController.get);
+-router.post("/", authenticate, privacyRequestsController.create);
++router.get("/", authenticate, authorize(...ADMIN_ROLES), privacyRequestsController.list);
++router.get(
++	"/:id",
++	authenticate,
++	authorize(...ADMIN_ROLES),
++	validateParams(PrivacyRequestIdParamsSchema),
++	privacyRequestsController.get,
++);
++router.post(
++	"/",
++	authenticate,
++	authorize(...ADMIN_ROLES),
++	validateBody(CreatePrivacyRequestSchema),
++	privacyRequestsController.create,
++);
+ 
+ export default router;
+diff --git a/backend/src/modules/resource/resource.routes.ts b/backend/src/modules/resource/resource.routes.ts
+index 80b56aa..b40334e 100644
+--- a/backend/src/modules/resource/resource.routes.ts
++++ b/backend/src/modules/resource/resource.routes.ts
+@@ -116,7 +116,7 @@ router.post(
+ 	attachDocumentToTool,
+ );
+ 
+-router.get("/:resourceId/documents", listToolDocuments);
++router.get("/:resourceId/documents", authorize(...INTERNAL_ROLES), listToolDocuments);
+ 
+ router.delete(
+ 	"/:resourceId/documents/:documentId",
+diff --git a/backend/tests/common/authorize.middleware.test.ts b/backend/tests/common/authorize.middleware.test.ts
+index 5626cdb..631eca3 100644
+--- a/backend/tests/common/authorize.middleware.test.ts
++++ b/backend/tests/common/authorize.middleware.test.ts
+@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
+ import { ForbiddenError, UnauthorizedError } from "../../src/common/errors";
+ import {
+ 	authorize,
++	authorizeAllAuthenticated,
+ 	authorizeMinimum,
+ 	authorizeOwnerOrAdmin,
+ } from "../../src/middlewares/authorize.middleware";
+@@ -43,6 +44,19 @@ describe("authorize middleware", () => {
+ 		expect(next).toHaveBeenCalledWith();
+ 	});
+ 
++	it("allows every authenticated domain role through the shared auth policy", () => {
++		const next = vi.fn();
++		const guard = authorizeAllAuthenticated();
++
++		guard(
++			{ user: { _id: "user-id", email: "client@cermont.com", role: "cliente" } } as never,
++			{} as never,
++			next,
++		);
++
++		expect(next).toHaveBeenCalledTimes(1);
++	});
++
+ 	it("enforces the minimum role hierarchy", () => {
+ 		const next = vi.fn();
+ 		const guard = authorizeMinimum("supervisor");
+diff --git a/packages/shared-types/contracts/api-contract.snapshot.json b/packages/shared-types/contracts/api-contract.snapshot.json
+index 5f3c6c1..0f8dea9 100644
+--- a/packages/shared-types/contracts/api-contract.snapshot.json
++++ b/packages/shared-types/contracts/api-contract.snapshot.json
+@@ -28567,6 +28567,32 @@
+       ],
+       "type": "object"
+     },
++    "CreatePrivacyRequestSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "description": {
++          "maxLength": 2000,
++          "minLength": 1,
++          "type": "string"
++        },
++        "type": {
++          "enum": [
++            "access",
++            "rectification",
++            "erasure",
++            "restriction",
++            "portability"
++          ],
++          "type": "string"
++        }
++      },
++      "required": [
++        "type",
++        "description"
++      ],
++      "type": "object"
++    },
+     "CreateProposalInputSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -72365,6 +72391,31 @@
+       ],
+       "type": "object"
+     },
++    "PrivacyRequestIdParamsSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "id": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        }
++      },
++      "required": [
++        "id"
++      ],
++      "type": "object"
++    },
++    "PrivacyRequestTypeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "access",
++        "rectification",
++        "erasure",
++        "restriction",
++        "portability"
++      ],
++      "type": "string"
++    },
+     "ProposalIdSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+diff --git a/packages/shared-types/contracts/contract-migrations.json b/packages/shared-types/contracts/contract-migrations.json
+index b52606b..bd17ff2 100644
+--- a/packages/shared-types/contracts/contract-migrations.json
++++ b/packages/shared-types/contracts/contract-migrations.json
+@@ -1,5 +1,5 @@
+ {
+-	"currentSnapshotHash": "sha256:3a643f53303fbc06eead26734aa12c32fe9942515050c6e902defd4f37e3e5f1",
++	"currentSnapshotHash": "sha256:a187abe2bc57840c7dd766683820035b66e7cae017cecd127c9a1c842c91404f",
+ 	"migrations": [
+ 		{
+ 			"id": "000-initial-baseline",
+@@ -490,6 +490,13 @@
+ 			"type": "non-breaking",
+ 			"description": "Add route-boundary body and parameter schemas for kit and resource document attachments.",
+ 			"toHash": "sha256:3a643f53303fbc06eead26734aa12c32fe9942515050c6e902defd4f37e3e5f1"
++		},
++		{
++			"id": "070-spec-020-wave-1-privacy-request-validation",
++			"date": "2026-07-06",
++			"type": "non-breaking",
++			"description": "Add privacy request creation and identifier schemas for authenticated administrative route handling.",
++			"toHash": "sha256:a187abe2bc57840c7dd766683820035b66e7cae017cecd127c9a1c842c91404f"
+ 		}
+ 	]
+ }
+diff --git a/packages/shared-types/src/schemas/index.ts b/packages/shared-types/src/schemas/index.ts
+index bb69a0d..e0388fd 100644
+--- a/packages/shared-types/src/schemas/index.ts
++++ b/packages/shared-types/src/schemas/index.ts
+@@ -116,6 +116,7 @@ export {
+ 	WorkerRequirementsSchema,
+ } from "./planning-packet.schema";
+ export * from "./planning-reference-document.schema";
++export * from "./privacy-request.schema";
+ export * from "./proposal.schema";
+ export * from "./purchase-order-authorization.schema";
+ export * from "./qr-code.schema";
+diff --git a/packages/shared-types/src/schemas/privacy-request.schema.ts b/packages/shared-types/src/schemas/privacy-request.schema.ts
+new file mode 100644
+index 0000000..81bbb34
+--- /dev/null
++++ b/packages/shared-types/src/schemas/privacy-request.schema.ts
+@@ -0,0 +1,25 @@
++import { z } from "zod";
++import { ObjectIdSchema } from "./common.schema";
++
++export const PrivacyRequestTypeSchema = z.enum([
++	"access",
++	"rectification",
++	"erasure",
++	"restriction",
++	"portability",
++]);
++
++export const CreatePrivacyRequestSchema = z
++	.object({
++		type: PrivacyRequestTypeSchema,
++		description: z.string().min(1).max(2000),
++	})
++	.strict();
++
++export type CreatePrivacyRequestInput = z.infer<typeof CreatePrivacyRequestSchema>;
++
++export const PrivacyRequestIdParamsSchema = z
++	.object({
++		id: ObjectIdSchema,
++	})
++	.strict();
+diff --git a/packages/shared-types/tests/schemas/route-request.schema.test.ts b/packages/shared-types/tests/schemas/route-request.schema.test.ts
+index 277985e..b9eaa75 100644
+--- a/packages/shared-types/tests/schemas/route-request.schema.test.ts
++++ b/packages/shared-types/tests/schemas/route-request.schema.test.ts
+@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
+ import {
+ 	AttachEntityDocumentSchema,
+ 	CreateFormSubmissionSchema,
++	CreatePrivacyRequestSchema,
+ 	GenerateBulkQrCodesSchema,
+ 	RunJobsSchema,
+ 	SyncErpConnectorParamsSchema,
+@@ -64,4 +65,16 @@ describe("route request schemas", () => {
+ 		).toBe(true);
+ 		expect(AttachEntityDocumentSchema.safeParse({ documentId: OBJECT_ID }).success).toBe(false);
+ 	});
++
++	it("validates privacy request type and description", () => {
++		expect(
++			CreatePrivacyRequestSchema.safeParse({
++				type: "access",
++				description: "Solicito una copia de mis datos personales.",
++			}).success,
++		).toBe(true);
++		expect(
++			CreatePrivacyRequestSchema.safeParse({ type: "invalid", description: "Solicitud" }).success,
++		).toBe(false);
++	});
+ });
+-- 
+2.51.1.windows.1
+

@@ -4,7 +4,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateQuery } from "../../middlewares/validate";
-import { getEndpointHealth, getErrorDashboard } from "./observability.controller";
+import { getEndpointHealth, getErrorDashboard, getFullStatus } from "./observability.controller";
 
 const router = Router();
 
@@ -21,5 +21,8 @@ router.get(
 
 // GET /api/observability/health — Endpoint health status
 router.get("/health", authorize(...INTERNAL_ROLES), getEndpointHealth);
+
+// GET /api/observability/status — Full component status (MongoDB, Redis, FS, AI)
+router.get("/status", authorize(...INTERNAL_ROLES), getFullStatus);
 
 export default router;

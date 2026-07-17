@@ -5,10 +5,12 @@
  */
 
 import type {
+	AddVehicleDocumentInput,
 	CheckinVehicleAssignmentInput,
 	CheckoutVehicleAssignmentInput,
 	CreateVehicleAssignmentInput,
 	CreateVehicleInput,
+	FleetReadiness,
 	UpdateVehicleInput,
 	Vehicle,
 	VehicleAssignment,
@@ -188,3 +190,36 @@ export async function getVehicleDocumentStatus(vehicleId: string): Promise<Vehic
 	);
 	return envelope.data;
 }
+
+export interface BlockerEntry {
+	vehicleId: string;
+	plate: string;
+	blockers: string[];
+	ready: boolean;
+}
+
+export async function getBlockerDocuments(): Promise<BlockerEntry[]> {
+	const envelope = await apiClient.get<{ success: true; data: BlockerEntry[] }>(
+		"/fleet/blocker-documents",
+	);
+	return envelope.data;
+}
+
+export async function getFleetReadiness(): Promise<FleetReadiness> {
+	const envelope = await apiClient.get<{ success: true; data: FleetReadiness }>(
+		"/fleet/readiness",
+	);
+	return envelope.data;
+}
+
+export async function addVehicleDocument(
+	vehicleId: string,
+	input: AddVehicleDocumentInput,
+): Promise<Vehicle> {
+	const envelope = await apiClient.post<{ success: true; data: Vehicle }>(
+		`/fleet/${vehicleId}/documents`,
+		input,
+	);
+	return envelope.data;
+}
+

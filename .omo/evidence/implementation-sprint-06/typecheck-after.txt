@@ -1,0 +1,85 @@
+
+> cermont-monorepo@1.0.0 typecheck
+> turbo run typecheck
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running typecheck in 5 packages
+   • Remote caching disabled
+
+@cermont/domain:typecheck: cache hit, replaying logs 0c57df23bf0de886
+@cermont/domain:typecheck: 
+@cermont/domain:typecheck: > @cermont/domain@1.0.0 typecheck
+@cermont/domain:typecheck: > tsc --noEmit
+@cermont/domain:typecheck: 
+@cermont/config:typecheck: cache hit, replaying logs eb156ad986cee32e
+@cermont/config:typecheck: 
+@cermont/config:typecheck: > @cermont/config@1.0.0 typecheck
+@cermont/config:typecheck: > tsc --noEmit
+@cermont/config:typecheck: 
+@cermont/domain:build: cache hit, replaying logs 7adef73b384b74cc
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:typecheck: cache hit, replaying logs 254e29bf3288538b
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:typecheck: > @cermont/shared-types@1.0.0 typecheck
+@cermont/shared-types:typecheck: > tsc --noEmit
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:build: cache hit, replaying logs f1e351eb5567f810
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:typecheck: cache miss, executing 4269703c0f4b00df
+@cermont/frontend:typecheck: cache miss, executing 3b136f0b863492c3
+@cermont/backend:typecheck: 
+@cermont/backend:typecheck: > @cermont/backend@5.2.1 typecheck
+@cermont/backend:typecheck: > tsc --noEmit
+@cermont/backend:typecheck: 
+@cermont/frontend:typecheck: 
+@cermont/frontend:typecheck: > @cermont/frontend@1.2.0 typecheck
+@cermont/frontend:typecheck: > tsc --noEmit
+@cermont/frontend:typecheck: 
+@cermont/frontend:typecheck: src/app/(portal)/portal/invoices/page.tsx(18,2): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/invoices/page.tsx(21,3): error TS1109: Expression expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/invoices/page.tsx(26,2): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/invoices/page.tsx(29,3): error TS1109: Expression expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/invoices/page.tsx(41,2): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/invoices/page.tsx(44,16): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/invoices/page.tsx(45,19): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/invoices/page.tsx(101,1): error TS1005: '}' expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(15,5): error TS17008: JSX element 'main' has no corresponding closing tag.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(21,2): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(24,3): error TS1109: Expression expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(31,2): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(87,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(91,6): error TS1005: '}' expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(93,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(94,7): error TS1005: '}' expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(96,15): error TS1003: Identifier expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(96,17): error TS1005: '...' expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(96,22): error TS1005: '}' expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(96,44): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(96,45): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(97,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(98,2): error TS1109: Expression expected.
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(117,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+@cermont/frontend:typecheck: src/app/(portal)/portal/orders/[id]/page.tsx(118,1): error TS1005: '</' expected.
+@cermont/frontend:typecheck: npm error Lifecycle script `typecheck` failed with error:
+@cermont/frontend:typecheck: npm error code 2
+@cermont/frontend:typecheck: npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+@cermont/frontend:typecheck: npm error workspace @cermont/frontend@1.2.0
+@cermont/frontend:typecheck: npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+@cermont/frontend:typecheck: npm error command failed
+@cermont/frontend:typecheck: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit
+ ERROR  @cermont/frontend#typecheck: command (C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend) C:\Program Files\nodejs\npm.cmd run typecheck exited (2)
+
+ Tasks:    5 successful, 7 total
+Cached:    5 cached, 7 total
+  Time:    6.802s 
+Failed:    @cermont/frontend#typecheck
+
+ ERROR  run failed: command  exited (2)

@@ -1,0 +1,69 @@
+
+> cermont-monorepo@1.0.0 quality:strict
+> npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size && npm run quality:env
+
+
+> cermont-monorepo@1.0.0 quality:weak-tokens
+> tsx tooling/quality/check-weak-tokens.ts
+
+Weak token quality check: 2974 findings
+- weak-token-a: 67/68 within baseline
+- weak-token-n: 1501/1501 within baseline
+- weak-token-u: 628/628 within baseline
+- weak-token-ud: 778/778 within baseline
+
+> cermont-monorepo@1.0.0 quality:language
+> tsx tooling/quality/check-language.ts
+
+Language quality check: 2755 findings
+- spanish-source-token: 2755/2755 within baseline
+
+> cermont-monorepo@1.0.0 quality:semantics
+> tsx tooling/quality/check-semantics.ts
+
+Semantic markup quality check: 17 findings
+- missing-semantic-landmark: 17/17 within baseline
+
+> cermont-monorepo@1.0.0 quality:routes
+> tsx tooling/quality/check-routes.ts
+
+Backend route quality check: 35 findings
+- route-missing-authentication: 5/5 within baseline
+- route-missing-authorization-policy: 15/15 within baseline
+- route-missing-validation: 15/15 within baseline
+
+> cermont-monorepo@1.0.0 quality:dtos
+> tsx tooling/quality/check-dtos.ts
+
+Local DTO quality check: 39 findings
+- local-api-dto: 39/39 within baseline
+
+> cermont-monorepo@1.0.0 quality:zero
+> tsx tooling/quality/check-zero-rules.ts
+
+Zero rules quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:lint-residue
+> tsx tooling/quality/check-lint-residue.ts
+
+Lint residue quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:service-size
+> tsx tooling/quality/check-service-size.ts
+
+Application service size quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:env
+> tsx tooling/quality/check-env-config.ts
+
+
+🔍 Environment Configuration Verification
+
+✅ .env.example: OK
+✅ frontend/next.config.ts: OK
+✅ frontend/src/app/api/backend/[...path]/route.ts: OK
+✅ backend/.env.example: OK
+✅ frontend/.env.example: OK
+
+✅ All environment configuration checks passed.
+

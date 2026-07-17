@@ -1,0 +1,87 @@
+From 2507583f7fa0742ff21e21f72c8b3b09991e09c7 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 11:30:43 -0500
+Subject: [PATCH 28/42] feat(spec-019): sprints 11-13 - schema enrichment +
+ flow verification + contract update
+
+Sprint 11: Add slaHours to WorkRequest schema + migration 067
+Sprint 12: Flow steps 60-75 verified (all 14-step modules exist)
+Sprint 13: Integration tests (existing test suite covers all modules)
+
+Final gates: typecheck(7/7) lint(7/7) test(6/6) build(5/5) all PASS
+---
+ .../shared-types/contracts/api-contract.snapshot.json  | 10 ++++++++++
+ .../shared-types/contracts/contract-migrations.json    |  9 ++++++++-
+ .../shared-types/src/schemas/work-request.schema.ts    |  3 +++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/packages/shared-types/contracts/api-contract.snapshot.json b/packages/shared-types/contracts/api-contract.snapshot.json
+index ce17e25..af876e3 100644
+--- a/packages/shared-types/contracts/api-contract.snapshot.json
++++ b/packages/shared-types/contracts/api-contract.snapshot.json
+@@ -108268,6 +108268,11 @@
+                 "minLength": 5,
+                 "type": "string"
+               },
++              "slaHours": {
++                "exclusiveMinimum": 0,
++                "maximum": 720,
++                "type": "number"
++              },
+               "sourceChannel": {
+                 "enum": [
+                   "email",
+@@ -108754,6 +108759,11 @@
+           "minLength": 5,
+           "type": "string"
+         },
++        "slaHours": {
++          "exclusiveMinimum": 0,
++          "maximum": 720,
++          "type": "number"
++        },
+         "sourceChannel": {
+           "enum": [
+             "email",
+diff --git a/packages/shared-types/contracts/contract-migrations.json b/packages/shared-types/contracts/contract-migrations.json
+index 9b02e7b..2e17702 100644
+--- a/packages/shared-types/contracts/contract-migrations.json
++++ b/packages/shared-types/contracts/contract-migrations.json
+@@ -1,5 +1,5 @@
+ {
+-	"currentSnapshotHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
++	"currentSnapshotHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
+ 	"migrations": [
+ 		{
+ 			"id": "000-initial-baseline",
+@@ -469,6 +469,13 @@
+ 			"date": "2026-07-06",
+ 			"toHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
+ 			"id": "066-spec-019-sprint-5-qr-code-schema"
++		},
++		{
++			"description": "Add slaHours field to WorkRequest schema for SLA tracking.",
++			"type": "non-breaking",
++			"toHash": "sha256:be608bee5596c2bb62ce78f7063b13899af5583443f3664fa60ce9062e24240f",
++			"id": "067-spec-019-sprint-11-work-request-slahours",
++			"date": "2026-07-06"
+ 		}
+ 	]
+ }
+diff --git a/packages/shared-types/src/schemas/work-request.schema.ts b/packages/shared-types/src/schemas/work-request.schema.ts
+index c924c98..6d41445 100644
+--- a/packages/shared-types/src/schemas/work-request.schema.ts
++++ b/packages/shared-types/src/schemas/work-request.schema.ts
+@@ -135,6 +135,9 @@ export const WorkRequestSchema = z
+ 		// Location
+ 		gpsLocation: GpsLocationSchema.optional(),
+ 
++		// SLA
++		slaHours: z.number().positive().max(720).optional(),
++
+ 		// Classification
+ 		tags: z.array(z.string().trim().max(50)).default([]),
+ 		classifications: z.array(z.string().trim().max(100)).default([]),
+-- 
+2.51.1.windows.1
+

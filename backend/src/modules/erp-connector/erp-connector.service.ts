@@ -3,8 +3,12 @@
  */
 import type { CreateErpConnectorInput, UpdateErpConnectorInput } from "@cermont/shared-types";
 import { AppError } from "../../common/errors/AppError";
+import { createLogger } from "../../common/utils/logger";
 import { ErpConnector } from "../../models/ErpConnector";
-import { erpEngine } from "../../services/erp";
+import { ErpAdapter, erpEngine, FieldMappingService } from "../../services/erp";
+import { SystemConfigService } from "../system-config/system-config.service";
+
+const log = createLogger("erp-connector-service");
 
 export class ErpConnectorService {
 	async list() {
@@ -47,6 +51,27 @@ export class ErpConnectorService {
 	}
 
 	async sync(provider: string) {
+		const erpIntegrationEnabled =
+			await SystemConfigService.isFeatureEnabled("enable_erp_integration");
+
+		if (erpIntegrationEnabled) {
+			const result = await ErpAdapter.sendSES(
+				{
+					sesNumber: `SYNC-${Date.now()}`,
+					workOrderCode: "MANUAL",
+					period: {
+						from: new Date(Date.now() - 86400000).toISOString(),
+						to: new Date().toISOString(),
+					},
+					totalAmount: 0,
+					currency: "COP",
+					clientName: "SYNC",
+				},
+				provider,
+			);
+			return [result];
+		}
+
 		const adapter = erpEngine.getProvider(provider);
 		if (!adapter) {
 			throw new AppError(
@@ -76,35 +101,40 @@ export class ErpConnectorService {
 
 	async validateMapping(id: string, fieldMappings: Record<string, string>) {
 		const connector = await this.getById(id);
-		const errors: string[] = [];
-		const validFields = Object.keys(fieldMappings);
-
-		if (validFields.length === 0) {
-			errors.push("No field mappings provided");
-		}
-
-		for (const [localField, remoteField] of Object.entries(fieldMappings)) {
-			if (!localField || localField.trim().length === 0) {
-				errors.push("Empty local field name detected");
-			}
-			if (!remoteField || remoteField.trim().length === 0) {
-				errors.push(`Remote field mapping missing for: ${localField}`);
-			}
-		}
+		const mappingEntries = Object.entries(fieldMappings).map(([localField, remoteField]) => ({
+			localField,
+			remoteField,
+		}));
+		const errors = FieldMappingService.validateMapping(mappingEntries);
 
 		return {
 			valid: errors.length === 0,
 			errors,
 			connectorId: connector._id.toString(),
 			provider: connector.provider,
-			fieldCount: validFields.length,
+			fieldCount: Object.keys(fieldMappings).length,
 		};
 	}
 
 	async testSync(id: string) {
+		const erpIntegrationEnabled =
+			await SystemConfigService.isFeatureEnabled("enable_erp_integration");
 		const connector = await this.getById(id);
 		try {
 			const provider = connector.provider;
+
+			if (erpIntegrationEnabled) {
+				const result = await ErpAdapter.queryStatus(`test-${provider}-${Date.now()}`, provider);
+				return {
+					success: result.status === "connected",
+					message:
+						result.status === "connected"
+							? `ERP integration active for ${provider}`
+							: `ERP integration error: ${result.error}`,
+					recordsProcessed: 1,
+				};
+			}
+
 			const adapter = erpEngine.getProvider(provider);
 			if (!adapter) {
 				return {
@@ -133,6 +163,30 @@ export class ErpConnectorService {
 				recordsProcessed: 0,
 			};
 		}
+	}
+
+	async sendInvoiceToErp(payload: {
+		invoiceNumber: string;
+		clientName: string;
+		totalAmount: number;
+		currency: string;
+		issueDate: string;
+		provider?: string;
+	}) {
+		const erpIntegrationEnabled =
+			await SystemConfigService.isFeatureEnabled("enable_erp_integration");
+		if (!erpIntegrationEnabled) {
+			log.info("ERP integration disabled, tracking invoice internally", {
+				invoiceNumber: payload.invoiceNumber,
+			});
+			return {
+				success: true,
+				status: "tracked_locally",
+				syncedAt: new Date().toISOString(),
+				provider: payload.provider ?? "internal",
+			};
+		}
+		return ErpAdapter.sendInvoice(payload, payload.provider);
 	}
 }
 

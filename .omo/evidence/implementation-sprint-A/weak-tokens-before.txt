@@ -1,0 +1,61 @@
+
+> cermont-monorepo@1.0.0 quality:weak-tokens
+> tsx tooling/quality/check-weak-tokens.ts
+
+Weak token quality check: 3087 findings
+- weak-token-a: 73/67 above baseline
+- weak-token-n: 1548/1453 above baseline
+- weak-token-u: 679/597 above baseline
+- weak-token-ud: 787/751 above baseline
+
+Weak token quality check failed: new findings exceed the baseline.
+backend/src/common/docs/api-docs.ts:74:28 weak-token-u Forbidden weak token "unknown"
+backend/src/common/fsm/fsm-engine.ts:61:68 weak-token-ud Forbidden weak token "undefined"
+backend/src/common/security/mongo-rate-limit.store.ts:32:56 weak-token-ud Forbidden weak token "undefined"
+backend/src/middlewares/idempotency.middleware.ts:45:84 weak-token-ud Forbidden weak token "undefined"
+backend/src/middlewares/rate-limiter.ts:21:63 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:9:74 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:15:53 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:15:79 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:16:31 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:24:58 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:38:17 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:38:43 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:42:61 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:23:53 weak-token-n Forbidden weak token "null"
+backend/src/middlewares/uploadMiddleware.ts:89:5 weak-token-n Forbidden weak token "null"
+backend/src/middlewares/validate.ts:31:12 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/validate.ts:32:13 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/validate.ts:33:14 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Document.ts:217:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/DynamicFormTemplate.ts:67:9 weak-token-u Forbidden weak token "unknown"
+backend/src/models/DynamicFormTemplate.ts:89:13 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/DynamicFormTemplate.ts:93:13 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/EvidenceCollection.ts:76:13 weak-token-u Forbidden weak token "unknown"
+backend/src/models/FormSubmission.ts:21:25 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Inspection.ts:133:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/MaintenanceKit.ts:127:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Notification.ts:32:37 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Notification.ts:38:28 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Order.ts:93:17 weak-token-u Forbidden weak token "unknown"
+backend/src/models/PurchaseOrder.ts:53:17 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Report.ts:96:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Resource.ts:74:34 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Resource.ts:75:29 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Resource.ts:76:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Resource.ts:174:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/ServiceCase.ts:151:80 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/ServiceCase.ts:152:82 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/TemplateDraft.ts:115:51 weak-token-u Forbidden weak token "unknown"
+backend/src/models/TemplateResponse.ts:150:26 weak-token-u Forbidden weak token "unknown"
+backend/src/models/TemplateResponse.ts:173:34 weak-token-u Forbidden weak token "unknown"
+backend/src/models/TemplateResponse.ts:174:33 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Vehicle.ts:107:13 weak-token-n Forbidden weak token "null"
+backend/src/models/WorkRequest.ts:169:44 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/plugins/optimistic-concurrency.ts:50:29 weak-token-u Forbidden weak token "unknown"
+backend/src/models/plugins/optimistic-concurrency.ts:52:14 weak-token-u Forbidden weak token "unknown"
+backend/src/models/plugins/optimistic-concurrency.ts:59:53 weak-token-u Forbidden weak token "unknown"
+backend/src/models/sub-schemas/FileAssetRefSchema.ts:123:36 weak-token-ud Forbidden weak token "undefined"
+backend/src/modules/admin-backup/admin-backup.service.ts:61:31 weak-token-u Forbidden weak token "unknown"
+backend/src/modules/ai/ai-copilot.service.ts:45:43 weak-token-u Forbidden weak token "unknown"
+backend/src/modules/ai/ai.controller.ts:26:61 weak-token-a Forbidden weak token "any"

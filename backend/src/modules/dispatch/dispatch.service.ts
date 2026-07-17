@@ -84,7 +84,9 @@ const OSRM_CACHE = new Map<string, { distance: number; duration: number }>();
 const OSRM_CACHE_TTL = 5 * 60 * 1000; // 5 min
 const OSRM_CACHE_TIMESTAMPS = new Map<string, number>();
 
-async function callOsrm(coordStr: string): Promise<{ distance: number; duration: number } | undefined> {
+async function callOsrm(
+	coordStr: string,
+): Promise<{ distance: number; duration: number } | undefined> {
 	const cached = OSRM_CACHE.get(coordStr);
 	const ts = OSRM_CACHE_TIMESTAMPS.get(coordStr);
 	if (cached && ts && Date.now() - ts < OSRM_CACHE_TTL) {

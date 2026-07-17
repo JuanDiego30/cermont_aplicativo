@@ -1,0 +1,130 @@
+
+> @cermont/frontend@1.2.0 build
+> next build --turbopack
+
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local, .env.production
+- Experiments (use with caution):
+  · optimizePackageImports
+  · serverActions
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 3 errors:
+./frontend/src/modules/notifications/index.ts:9:1
+Module not found: Can't resolve './api/notification.api'
+   7 |  */
+   8 |
+>  9 | export {
+     | ^^^^^^^
+> 10 | 	fetchNotifications,
+     | ^^^^^^^^^^^^^^^^^^^
+> 11 | 	fetchUnreadCount,
+     | ^^^^^^^^^^^^^^^^^
+> 12 | 	markAllAsRead,
+     | ^^^^^^^^^^^^^^
+> 13 | 	markAsRead,
+     | ^^^^^^^^^^^
+> 14 | } from "./api/notification.api";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 | export type { Notification, NotificationType } from "./api/types";
+  16 | export {
+  17 | 	notificationKeys,
+
+
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/modules/notifications/index.ts [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/Header.tsx [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Server Component]
+    ./frontend/src/app/(dashboard)/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/modules/notifications/index.ts [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/Header.tsx [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Server Component]
+    ./frontend/src/app/(dashboard)/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./frontend/src/modules/notifications/index.ts:16:1
+Module not found: Can't resolve './hooks/useNotifications'
+  14 | } from "./api/notification.api";
+  15 | export type { Notification, NotificationType } from "./api/types";
+> 16 | export {
+     | ^^^^^^^
+> 17 | 	notificationKeys,
+     | ^^^^^^^^^^^^^^^^^
+> 18 | 	useNotifications,
+     | ^^^^^^^^^^^^^^^^^
+> 19 | } from "./hooks/useNotifications";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  20 | export { useUnreadCount } from "./hooks/useUnreadCount";
+  21 |
+
+
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/modules/notifications/index.ts [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/Header.tsx [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Server Component]
+    ./frontend/src/app/(dashboard)/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/modules/notifications/index.ts [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/Header.tsx [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Server Component]
+    ./frontend/src/app/(dashboard)/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./frontend/src/modules/notifications/index.ts:20:1
+Module not found: Can't resolve './hooks/useUnreadCount'
+  18 | 	useNotifications,
+  19 | } from "./hooks/useNotifications";
+> 20 | export { useUnreadCount } from "./hooks/useUnreadCount";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  21 |
+
+
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/modules/notifications/index.ts [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/Header.tsx [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Client Component Browser]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Server Component]
+    ./frontend/src/app/(dashboard)/layout.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/modules/notifications/index.ts [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/Header.tsx [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Client Component SSR]
+    ./frontend/src/modules/core/ui/layout/DefaultLayout.tsx [Server Component]
+    ./frontend/src/app/(dashboard)/layout.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./frontend/src/modules/notifications/index.ts:9:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./frontend/src/modules/notifications/index.ts:16:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./frontend/src/modules/notifications/index.ts:20:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next build --turbopack

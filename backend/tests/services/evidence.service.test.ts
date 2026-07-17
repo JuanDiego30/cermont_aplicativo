@@ -24,6 +24,9 @@ vi.mock("../../src/models", () => ({
 	Order: {
 		findById: vi.fn(),
 	},
+	User: {
+		find: vi.fn().mockResolvedValue([]),
+	},
 }));
 
 vi.mock("../../src/common/storage/local-storage", () => ({

@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import { model, Schema, type Types } from "mongoose";
 
 export interface ISlaRuleDocument {
 	_id: Types.ObjectId;

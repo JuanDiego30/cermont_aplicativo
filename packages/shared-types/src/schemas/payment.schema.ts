@@ -48,6 +48,7 @@ export const PaymentSchema = z
 		rejectedBy: ObjectIdSchema.optional(),
 		rejectedAt: z.string().datetime().optional(),
 		rejectionReason: z.string().max(500).optional(),
+		reconciliationNotes: z.string().max(500).optional(),
 		commandHistory: z
 			.array(
 				z
@@ -124,3 +125,35 @@ export type ListPaymentsQuery = z.infer<typeof ListPaymentsQuerySchema>;
 
 export const PaymentIdParamsSchema = z.object({ id: ObjectIdSchema }).strict();
 export type PaymentIdParams = z.infer<typeof PaymentIdParamsSchema>;
+
+// ─── Dashboard / Aging types ──────────────────────────────────────────
+
+export const PaymentAgingEntrySchema = z.object({
+	invoiceId: z.string(),
+	clientName: z.string(),
+	invoiceNumber: z.string().optional(),
+	totalAmount: z.number().nonnegative(),
+	paidAmount: z.number().nonnegative(),
+	outstanding: z.number().nonnegative(),
+	pendingAmount: z.number().nonnegative(),
+	total: z.number().nonnegative(),
+	bucket: z.string(),
+	agingBucket: z.string(),
+	issueDate: z.string().optional(),
+	dueDate: z.string(),
+	daysOverdue: z.number().int(),
+	invoiceCode: z.string().optional(),
+	count: z.number().int().nonnegative().optional(),
+});
+export type PaymentAgingEntry = z.infer<typeof PaymentAgingEntrySchema>;
+
+export const PaymentDashboardSchema = z.object({
+	totalInvoiced: z.number().nonnegative(),
+	totalCollected: z.number().nonnegative(),
+	totalPending: z.number().nonnegative(),
+	totalOverdue: z.number().nonnegative(),
+	collectionRate: z.number().min(0).max(100),
+	averagePaymentDays: z.number().nonnegative(),
+	agingBuckets: z.array(PaymentAgingEntrySchema),
+});
+export type PaymentDashboard = z.infer<typeof PaymentDashboardSchema>;

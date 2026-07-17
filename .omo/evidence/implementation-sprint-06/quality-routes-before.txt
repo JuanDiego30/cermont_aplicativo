@@ -1,0 +1,5 @@
+
+> cermont-monorepo@1.0.0 quality:routes
+> tsx tooling/quality/check-routes.ts
+
+Backend route quality check: 0 findings

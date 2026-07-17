@@ -14,6 +14,23 @@ export interface CustomerListFilters {
 	search?: string;
 }
 
+export interface ClientContact {
+	_id: string;
+	name: string;
+	email?: string;
+	phone?: string;
+	isActive?: boolean;
+	isPrimary?: boolean;
+}
+
+export interface ServiceSite {
+	_id: string;
+	name: string;
+	address: string;
+	city?: string;
+	isActive?: boolean;
+}
+
 export interface CustomerListEnvelope {
 	success: boolean;
 	data: Client[];

@@ -17,6 +17,7 @@ import { migrateLegacyOfflineStores, openOfflineDb } from "@/lib/offline/offline
 import { SyncManagerProvider } from "@/lib/offline/SyncManagerProvider";
 import { dexieQueryPersister } from "@/lib/pwa/query-persist";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
+import { setSpanishErrorMap } from "@cermont/shared-types";
 import { AuthInitializer } from "@/modules/auth/components/AuthInitializer";
 import { useReadyAuthenticatedSession } from "@/modules/auth/hooks/useReadyAuthenticatedSession";
 import { useAuthStore } from "@/store/auth.store";
@@ -132,6 +133,9 @@ function OfflineSyncBootstrap({ queryClient }: { queryClient: QueryClient }) {
 		</>
 	);
 }
+
+// Set Spanish validation messages globally once
+setSpanishErrorMap();
 
 export function Providers({ children }: { children: ReactNode }) {
 	const [queryClient] = useState(() => {

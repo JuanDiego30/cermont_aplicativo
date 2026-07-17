@@ -1,0 +1,71 @@
+
+> cermont-monorepo@1.0.0 quality:strict
+> npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size && npm run quality:env
+
+
+> cermont-monorepo@1.0.0 quality:weak-tokens
+> tsx tooling/quality/check-weak-tokens.ts
+
+Weak token quality check: 2958 findings
+- weak-token-a: 67/68 within baseline
+- weak-token-n: 1494/1494 within baseline
+- weak-token-u: 621/621 within baseline
+- weak-token-ud: 776/776 within baseline
+
+> cermont-monorepo@1.0.0 quality:language
+> tsx tooling/quality/check-language.ts
+
+Language quality check: 2742 findings
+- spanish-source-token: 2742/2590 above baseline
+
+Language quality check failed: new findings exceed the baseline.
+.github/PULL_REQUEST_TEMPLATE.md:18:4 spanish-source-token Spanish source token "evidencia"
+.github/PULL_REQUEST_TEMPLATE.md:23:12 spanish-source-token Spanish source token "tecnico"
+.github/PULL_REQUEST_TEMPLATE.md:14:52 spanish-source-token Spanish source token "validacion"
+.github/PULL_REQUEST_TEMPLATE.md:35:3 spanish-source-token Spanish source token "validacion"
+.github/copilot-instructions.md:91:99 spanish-source-token Spanish source token "administrativo"
+.github/copilot-instructions.md:91:117 spanish-source-token Spanish source token "cliente"
+.github/copilot-instructions.md:5:60 spanish-source-token Spanish source token "ejecucion"
+.github/copilot-instructions.md:91:31 spanish-source-token Spanish source token "gerente"
+.github/copilot-instructions.md:91:42 spanish-source-token Spanish source token "residente"
+.github/copilot-instructions.md:91:88 spanish-source-token Spanish source token "tecnico"
+backend/src/common/docs/api-docs.ts:86:28 spanish-source-token Spanish source token "administrativo"
+backend/src/common/docs/api-docs.ts:126:19 spanish-source-token Spanish source token "cargando"
+backend/src/common/fsm/fsm-engine.ts:223:47 spanish-source-token Spanish source token "ejecucion"
+backend/src/common/fsm/fsm-engine.ts:347:27 spanish-source-token Spanish source token "ejecucion"
+backend/src/common/fsm/fsm-engine.ts:361:17 spanish-source-token Spanish source token "evidencia"
+backend/src/common/fsm/fsm-engine.ts:252:17 spanish-source-token Spanish source token "orden"
+backend/src/common/fsm/fsm-engine.ts:307:17 spanish-source-token Spanish source token "orden"
+backend/src/common/fsm/fsm-engine.ts:238:17 spanish-source-token Spanish source token "propuesta"
+backend/src/common/fsm/fsm-engine.ts:378:25 spanish-source-token Spanish source token "tecnico"
+backend/src/common/fsm/fsm-engine.ts:4:11 spanish-source-token Spanish source token "validacion"
+backend/src/common/guards/roles.guard.ts:7:38 spanish-source-token Spanish source token "gerente"
+backend/src/common/guards/roles.guard.ts:7:49 spanish-source-token Spanish source token "residente"
+backend/src/common/utils/query-builders.ts:76:37 spanish-source-token Spanish source token "tecnico"
+backend/src/common/utils/query-builders.ts:91:21 spanish-source-token Spanish source token "tecnico"
+backend/src/config/kit-templates.ts:164:12 spanish-source-token Spanish source token "arnes"
+backend/src/config/kit-templates.ts:210:12 spanish-source-token Spanish source token "arnes"
+backend/src/config/kit-templates.ts:41:13 spanish-source-token Spanish source token "mantenimiento"
+backend/src/config/kit-templates.ts:42:47 spanish-source-token Spanish source token "mantenimiento"
+backend/src/config/kit-templates.ts:128:27 spanish-source-token Spanish source token "mantenimiento"
+backend/src/config/kit-templates.ts:134:13 spanish-source-token Spanish source token "mantenimiento"
+backend/src/config/kit-templates.ts:136:35 spanish-source-token Spanish source token "mantenimiento"
+backend/src/config/kit-templates.ts:169:20 spanish-source-token Spanish source token "mantenimiento"
+backend/src/config/kit-templates.ts:175:47 spanish-source-token Spanish source token "mantenimiento"
+backend/src/config/kit-templates.ts:183:48 spanish-source-token Spanish source token "mantenimiento"
+backend/src/middlewares/authorize.middleware.ts:27:17 spanish-source-token Spanish source token "gerente"
+backend/src/middlewares/authorize.middleware.ts:27:57 spanish-source-token Spanish source token "gerente"
+backend/src/middlewares/authorize.middleware.ts:52:41 spanish-source-token Spanish source token "gerente"
+backend/src/middlewares/authorize.middleware.ts:27:28 spanish-source-token Spanish source token "residente"
+backend/src/middlewares/authorize.middleware.ts:27:68 spanish-source-token Spanish source token "residente"
+backend/src/middlewares/authorize.middleware.ts:52:50 spanish-source-token Spanish source token "residente"
+backend/src/middlewares/authorize.middleware.ts:52:95 spanish-source-token Spanish source token "tecnico"
+backend/src/middlewares/uploadMiddleware.ts:31:4 spanish-source-token Spanish source token "configuracion"
+backend/src/middlewares/uploadMiddleware.ts:6:7 spanish-source-token Spanish source token "validacion"
+backend/src/models/Evidence.ts:247:8 spanish-source-token Spanish source token "evidencias"
+backend/src/models/Evidence.ts:250:8 spanish-source-token Spanish source token "evidencias"
+backend/src/models/Evidence.ts:247:26 spanish-source-token Spanish source token "orden"
+backend/src/models/FileAsset.ts:29:39 spanish-source-token Spanish source token "evidencias"
+backend/src/models/Inspection.ts:8:42 spanish-source-token Spanish source token "arnes"
+backend/src/models/Inspection.ts:28:5 spanish-source-token Spanish source token "arnes"
+backend/src/models/Inspection.ts:28:29 spanish-source-token Spanish source token "arnes"

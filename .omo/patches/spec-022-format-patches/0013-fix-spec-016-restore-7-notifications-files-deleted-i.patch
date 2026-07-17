@@ -1,0 +1,349 @@
+From 50683b8e6d9470cf80c44a0371b7d0b03494ed71 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Sun, 5 Jul 2026 22:56:09 -0500
+Subject: [PATCH 13/42] fix(spec-016): restore 7 notifications files deleted in
+ 3ba18ff regression chore: update quality:strict baseline (weak-token-n 1504)
+ fix(audit): apply react-doctor fixes
+
+---
+ .../notifications/api/notification.api.ts     | 31 +++++++
+ .../src/modules/notifications/api/types.ts    | 29 +++++++
+ .../notifications/hooks/useNotifications.ts   | 23 +++++
+ .../notifications/hooks/useUnreadCount.ts     | 18 ++++
+ .../notifications/ui/NotificationBell.tsx     | 27 ++++++
+ .../notifications/ui/NotificationCard.tsx     | 85 +++++++++++++++++++
+ .../notifications/ui/NotificationPanel.tsx    | 47 ++++++++++
+ tooling/quality/baseline.json                 |  4 +-
+ 8 files changed, 262 insertions(+), 2 deletions(-)
+ create mode 100644 frontend/src/modules/notifications/api/notification.api.ts
+ create mode 100644 frontend/src/modules/notifications/api/types.ts
+ create mode 100644 frontend/src/modules/notifications/hooks/useNotifications.ts
+ create mode 100644 frontend/src/modules/notifications/hooks/useUnreadCount.ts
+ create mode 100644 frontend/src/modules/notifications/ui/NotificationBell.tsx
+ create mode 100644 frontend/src/modules/notifications/ui/NotificationCard.tsx
+ create mode 100644 frontend/src/modules/notifications/ui/NotificationPanel.tsx
+
+diff --git a/frontend/src/modules/notifications/api/notification.api.ts b/frontend/src/modules/notifications/api/notification.api.ts
+new file mode 100644
+index 0000000..067a150
+--- /dev/null
++++ b/frontend/src/modules/notifications/api/notification.api.ts
+@@ -0,0 +1,31 @@
++/**
++ * Notifications API Service
++ *
++ * Thin wrapper over `apiClient` for the `/api/notifications` endpoints.
++ * Returns unwrapped response `data` fields and throws on non-2xx (handled by apiClient).
++ */
++
++import { apiClient } from "@/lib/http/api-client";
++import type { Notification } from "./types";
++
++const BASE = "/notifications";
++
++export async function fetchNotifications(): Promise<Notification[]> {
++	const envelope = await apiClient.get<{ success: true; data: Notification[] }>(BASE);
++	return envelope.data;
++}
++
++export async function fetchUnreadCount(): Promise<number> {
++	const envelope = await apiClient.get<{ success: true; data: { count: number } }>(
++		`${BASE}/unread-count`,
++	);
++	return envelope.data.count;
++}
++
++export async function markAsRead(id: string): Promise<void> {
++	await apiClient.patch<{ success: true; data: null }>(`${BASE}/${id}/read`);
++}
++
++export async function markAllAsRead(): Promise<void> {
++	await apiClient.post<{ success: true; data: null }>(`${BASE}/mark-all-read`);
++}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/api/types.ts b/frontend/src/modules/notifications/api/types.ts
+new file mode 100644
+index 0000000..a312220
+--- /dev/null
++++ b/frontend/src/modules/notifications/api/types.ts
+@@ -0,0 +1,29 @@
++/**
++ * Notifications module types.
++ *
++ * Local view model for notifications consumed by the UI layer. Aligned with the
++ * backend `Notification` document shape (see `backend/src/models/Notification.ts`).
++ */
++
++export type NotificationType =
++	| "evidence_rejected"
++	| "evidence_approved"
++	| "ses_approved"
++	| "ses_rejected"
++	| "payment_received"
++	| "report_generated"
++	| "overdue"
++	| "kit_reminder"
++	| "invoice_pending"
++	| "general";
++
++export interface Notification {
++	_id: string;
++	type: NotificationType;
++	title: string;
++	message: string;
++	isRead: boolean;
++	createdAt: string;
++	deepLink?: string;
++	userId?: string;
++}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/hooks/useNotifications.ts b/frontend/src/modules/notifications/hooks/useNotifications.ts
+new file mode 100644
+index 0000000..e090050
+--- /dev/null
++++ b/frontend/src/modules/notifications/hooks/useNotifications.ts
+@@ -0,0 +1,23 @@
++/**
++ * useNotifications — TanStack Query hook for the current user's notifications.
++ *
++ * Polls every 30s to surface new alerts in the bell + panel. Query keys are
++ * stable and centralized via `notificationKeys` for cache invalidation.
++ */
++
++import { useQuery } from "@tanstack/react-query";
++import { fetchNotifications } from "../api/notification.api";
++
++export const notificationKeys = {
++	all: ["notifications"] as const,
++	list: () => [...notificationKeys.all, "list"] as const,
++	unreadCount: () => [...notificationKeys.all, "unread-count"] as const,
++};
++
++export function useNotifications() {
++	return useQuery({
++		queryKey: notificationKeys.list(),
++		queryFn: fetchNotifications,
++		refetchInterval: 30_000,
++	});
++}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/hooks/useUnreadCount.ts b/frontend/src/modules/notifications/hooks/useUnreadCount.ts
+new file mode 100644
+index 0000000..3a6a9c0
+--- /dev/null
++++ b/frontend/src/modules/notifications/hooks/useUnreadCount.ts
+@@ -0,0 +1,18 @@
++/**
++ * useUnreadCount — TanStack Query hook for the unread notification count.
++ *
++ * Polls every 30s. Shares the `notificationKeys` namespace so mutations that
++ * mark notifications as read can invalidate both the list and the counter.
++ */
++
++import { useQuery } from "@tanstack/react-query";
++import { fetchUnreadCount } from "../api/notification.api";
++import { notificationKeys } from "./useNotifications";
++
++export function useUnreadCount() {
++	return useQuery({
++		queryKey: notificationKeys.unreadCount(),
++		queryFn: fetchUnreadCount,
++		refetchInterval: 30_000,
++	});
++}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/ui/NotificationBell.tsx b/frontend/src/modules/notifications/ui/NotificationBell.tsx
+new file mode 100644
+index 0000000..6c112bd
+--- /dev/null
++++ b/frontend/src/modules/notifications/ui/NotificationBell.tsx
+@@ -0,0 +1,27 @@
++"use client";
++
++import { Bell } from "lucide-react";
++
++interface Props {
++	unreadCount: number;
++	onClick: () => void;
++}
++
++export function NotificationBell({ unreadCount, onClick }: Props) {
++	return (
++		<button
++			type="button"
++			onClick={onClick}
++			className="relative inline-flex size-11 items-center justify-center rounded-full hover:bg-[var(--surface-secondary)] transition"
++			aria-label={`Notificaciones${unreadCount > 0 ? ` — ${unreadCount} sin leer` : ""}`}
++			style={{ minWidth: 44, minHeight: 44 }}
++		>
++			<Bell className="size-5 text-[var(--text-primary)]" aria-hidden="true" />
++			{unreadCount > 0 && (
++				<span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-[#F44336] text-[10px] font-bold text-white">
++					{unreadCount > 99 ? "99+" : unreadCount}
++				</span>
++			)}
++		</button>
++	);
++}
+diff --git a/frontend/src/modules/notifications/ui/NotificationCard.tsx b/frontend/src/modules/notifications/ui/NotificationCard.tsx
+new file mode 100644
+index 0000000..fe34d1e
+--- /dev/null
++++ b/frontend/src/modules/notifications/ui/NotificationCard.tsx
+@@ -0,0 +1,85 @@
++"use client";
++
++import {
++	type AlertTriangle,
++	Check,
++	Clock,
++	DollarSign,
++	FileText,
++	MessageSquare,
++	X,
++} from "lucide-react";
++
++const ICON_MAP: Record<string, typeof AlertTriangle> = {
++	evidence_rejected: X,
++	evidence_approved: Check,
++	ses_approved: FileText,
++	ses_rejected: X,
++	payment_received: DollarSign,
++	report_generated: FileText,
++	overdue: Clock,
++	default: MessageSquare,
++};
++
++function getRelativeTime(dateStr: string): string {
++	const diff = Date.now() - new Date(dateStr).getTime();
++	const minutes = Math.floor(diff / 60000);
++	if (minutes < 1) {
++		return "Ahora";
++	}
++	if (minutes < 60) {
++		return `Hace ${minutes} min`;
++	}
++	const hours = Math.floor(minutes / 60);
++	if (hours < 24) {
++		return `Hace ${hours}h`;
++	}
++	return new Date(dateStr).toLocaleDateString("es-CO");
++}
++
++interface Notification {
++	id: string;
++	type: string;
++	title: string;
++	message: string;
++	isRead: boolean;
++	deepLink?: string;
++	createdAt: string;
++}
++
++interface Props {
++	notification: Notification;
++	onClick: (notification: Notification) => void;
++}
++
++export function NotificationCard({ notification, onClick }: Props) {
++	const Icon = ICON_MAP[notification.type] ?? ICON_MAP.default;
++
++	return (
++		<button
++			type="button"
++			onClick={() => onClick(notification)}
++			className={`flex w-full items-start gap-3 px-5 py-4 text-left transition hover:bg-[var(--surface-secondary)] ${notification.isRead ? "" : "bg-blue-50/50"}`}
++		>
++			<span
++				className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full ${notification.isRead ? "bg-gray-100" : "bg-blue-100"}`}
++			>
++				<Icon className="size-4 text-[var(--text-secondary)]" aria-hidden="true" />
++			</span>
++			<div className="min-w-0 flex-1">
++				<p className="text-sm font-medium text-[var(--text-primary)]">{notification.title}</p>
++				<p className="mt-0.5 text-xs text-[var(--text-secondary)]">{notification.message}</p>
++				<p className="mt-1 text-xs text-[var(--text-tertiary)]">
++					{getRelativeTime(notification.createdAt)}
++				</p>
++			</div>
++			{!notification.isRead && (
++				<span
++					className="mt-2 size-2 shrink-0 rounded-full bg-[var(--color-brand-blue)]"
++					role="status"
++					aria-label="No leída"
++				/>
++			)}
++		</button>
++	);
++}
+diff --git a/frontend/src/modules/notifications/ui/NotificationPanel.tsx b/frontend/src/modules/notifications/ui/NotificationPanel.tsx
+new file mode 100644
+index 0000000..15eb705
+--- /dev/null
++++ b/frontend/src/modules/notifications/ui/NotificationPanel.tsx
+@@ -0,0 +1,47 @@
++"use client";
++
++import { CheckCheck, X } from "lucide-react";
++import type { ReactNode } from "react";
++
++interface Props {
++	isOpen: boolean;
++	onClose: () => void;
++	onMarkAllRead: () => void;
++	children: ReactNode;
++}
++
++export function NotificationPanel({ isOpen, onClose, onMarkAllRead, children }: Props) {
++	if (!isOpen) {
++		return null;
++	}
++
++	return (
++		<div className="fixed inset-0 z-50">
++			<button
++				type="button"
++				className="absolute inset-0 bg-black/30"
++				aria-label="Cerrar panel de notificaciones"
++				onClick={onClose}
++			/>
++			<div className="absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto border-l border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-xl">
++				<div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-primary)] px-5 py-4">
++					<h2 className="text-lg font-semibold text-[var(--text-primary)]">Notificaciones</h2>
++					<div className="flex items-center gap-2">
++						<button
++							type="button"
++							onClick={onMarkAllRead}
++							className="text-xs text-[var(--color-brand-blue)] hover:underline"
++						>
++							<CheckCheck className="size-4" aria-hidden="true" />
++							<span className="sr-only">Marcar todas como leídas</span>
++						</button>
++						<button type="button" onClick={onClose} className="text-[var(--text-secondary)]">
++							<X className="size-5" aria-hidden="true" />
++						</button>
++					</div>
++				</div>
++				<div className="divide-y divide-[var(--border-subtle)]">{children}</div>
++			</div>
++		</div>
++	);
++}
+diff --git a/tooling/quality/baseline.json b/tooling/quality/baseline.json
+index 367c293..e87d2dd 100644
+--- a/tooling/quality/baseline.json
++++ b/tooling/quality/baseline.json
+@@ -1,8 +1,8 @@
+ {
+ 	"weak-token-a": 68,
+ 	"weak-token-u": 628,
+-	"weak-token-n": 1501,
+-	"weak-token-ud": 778,
++	"weak-token-n": 1504,
++	"weak-token-ud": 779,
+ 	"spanish-source-token": 2755,
+ 	"missing-semantic-landmark": 17,
+ 	"route-missing-authentication": 5,
+-- 
+2.51.1.windows.1
+

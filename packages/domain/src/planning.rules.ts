@@ -3,6 +3,9 @@
  *
  * These rules block execution (step 6) if planning is incomplete.
  * SSOT for planning readiness validation.
+ *
+ * F14-T044: Readiness calculation and approval gating.
+ * F15-T047: Certification validation and equipment calibration checks.
  */
 
 /** Document types required for planning readiness */
@@ -143,4 +146,76 @@ export function getMaxBlockerSeverity(
 		return "warning";
 	}
 	return "none";
+}
+
+// ─── F14-T044: Readiness calculation ─────────────────────────────────────
+
+export interface ReadinessReport {
+	ready: boolean;
+	blockers: PlanningBlocker[];
+	severity: ReturnType<typeof getMaxBlockerSeverity>;
+}
+
+/**
+ * Calculate full readiness report from a PlanningReadiness view.
+ * Returns explicit blockers for missing tools, expired certifications,
+ * and incomplete documents (F14-T044, F15-T047).
+ */
+export function calculateReadiness(readiness: PlanningReadiness): ReadinessReport {
+	const blockers = getPlanningBlockers(readiness);
+	const severity = getMaxBlockerSeverity(blockers);
+	return {
+		ready: blockers.length === 0,
+		blockers,
+		severity,
+	};
+}
+
+// ─── F14-T044: Approval decision ─────────────────────────────────────────
+
+export type ApprovalDecision =
+	| { allowed: true; blockers: [] }
+	| { allowed: false; blockers: PlanningBlocker[] };
+
+const APPROVAL_ALLOWED_ROLES = ["gerente", "residente"] as const;
+
+/**
+ * Determine if a user can approve a planning packet.
+ * Checks: readiness completeness, current status, and user role.
+ *
+ * Approval is allowed when:
+ * - Packet is not already approved
+ * - Readiness has no blockers (complete schedule, crew, tools, equipment, etc.)
+ * - User is gerente or residente
+ */
+export function canApprovePlanning(
+	readiness: PlanningReadiness,
+	currentStatus: string,
+	userRole: string,
+): ApprovalDecision {
+	const blockers: PlanningBlocker[] = [];
+
+	if (currentStatus === "approved") {
+		blockers.push({
+			code: "ALREADY_APPROVED",
+			message: "La planeación ya está aprobada.",
+			severity: "error",
+		});
+	}
+
+	const readinessBlockers = getPlanningBlockers(readiness);
+	blockers.push(...readinessBlockers);
+
+	if (!(APPROVAL_ALLOWED_ROLES as readonly string[]).includes(userRole)) {
+		blockers.push({
+			code: "INSUFFICIENT_PERMISSIONS",
+			message: "Se requiere rol gerente o residente para aprobar la planeación.",
+			severity: "error",
+		});
+	}
+
+	if (blockers.length > 0) {
+		return { allowed: false, blockers };
+	}
+	return { allowed: true, blockers: [] };
 }

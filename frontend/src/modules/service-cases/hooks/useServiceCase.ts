@@ -6,6 +6,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
+import { SERVICE_CASE_KEYS } from "@/modules/service-cases/queries";
 
 interface ServiceCaseSummary {
 	totalCases: number;
@@ -27,11 +28,6 @@ interface SummaryContract {
 	success?: boolean;
 	data?: ServiceCaseSummary;
 }
-
-const SERVICE_CASE_KEYS = {
-	all: ["service-cases"] as const,
-	summary: ["service-cases", "summary"] as const,
-} as const;
 
 export function useServiceCaseSummary() {
 	return useQuery({

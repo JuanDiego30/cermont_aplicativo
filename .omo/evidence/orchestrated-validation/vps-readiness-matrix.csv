@@ -1,0 +1,12 @@
+criterion,status,evidence
+Dockerfile exists,VERIFIED,Root Dockerfile present
+PM2 config exists,VERIFIED,ecosystem.config.js present
+Nginx config,NOT_VERIFIED,Not checked
+MongoDB connection,VERIFIED,backend/src/config/db.ts
+Build production,VERIFIED,npm run build -w frontend passes
+Health checks,VERIFIED,/api/health endpoint exists
+Environment variables,VERIFIED,.env.example files exist
+SSL/TLS,NOT_VERIFIED,Not checked in runtime
+Backups,IMPLEMENTED_UNVERIFIED,/admin/backups page exists
+Logging,VERIFIED,Structured JSON logging in production
+Upload persistence,VERIFIED,files endpoint with local storage

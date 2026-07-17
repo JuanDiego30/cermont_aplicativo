@@ -307,10 +307,7 @@ export async function login(email: string, password: string): Promise<LoginContr
 	return issueLoginSession(user, "password");
 }
 
-export async function portalLogin(
-	email: string,
-	password: string,
-): Promise<LoginContract> {
+export async function portalLogin(email: string, password: string): Promise<LoginContract> {
 	const user = await User.findOne({ email }).select("+password +tokenVersion");
 
 	if (!user) {
@@ -566,7 +563,11 @@ export async function listUserSessions(userId: string): Promise<SessionInfo[]> {
 	}));
 }
 
-export async function revokeSession(sessionJti: string, userId: string, reason: string): Promise<void> {
+export async function revokeSession(
+	sessionJti: string,
+	userId: string,
+	reason: string,
+): Promise<void> {
 	const result = await RefreshToken.updateOne(
 		{ jti: sessionJti, userId: new Types.ObjectId(userId), "status.state": "active" },
 		{

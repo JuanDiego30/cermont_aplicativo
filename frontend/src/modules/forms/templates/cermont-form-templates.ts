@@ -773,3 +773,23 @@ export const CERMONT_FORM_TEMPLATES: Record<string, CermontFormTemplate> = {
 };
 
 export const ALL_TEMPLATES = Object.values(CERMONT_FORM_TEMPLATES);
+
+export function getFormTemplateById(
+	id: string,
+): CermontFormTemplate | undefined {
+	return CERMONT_FORM_TEMPLATES[id];
+}
+
+export function getFormTemplatesByStepCode(
+	stepCode: string,
+): CermontFormTemplate[] {
+	return ALL_TEMPLATES.filter((t) => t.stepCode === stepCode);
+}
+
+export function getFormTemplatesByWorkType(
+	workType: string,
+): CermontFormTemplate[] {
+	return ALL_TEMPLATES.filter((t) =>
+		t.workTypeHint.split(",").includes(workType),
+	);
+}

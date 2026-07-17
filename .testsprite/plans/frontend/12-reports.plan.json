@@ -1,0 +1,45 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Reports - Generate, view, and manage reports",
+  "description": "Verifies report generation including technical reports, delivery records, PDF export, and status tracking",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/reports"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that reports list loads with type, status, date columns and filter options"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New Report' and select report type (Technical Report, Delivery Record, Inspection Report)"
+    },
+    {
+      "type": "action",
+      "description": "Select an order to associate the report with and verify order data pre-populates"
+    },
+    {
+      "type": "action",
+      "description": "Add report content: observations, recommendations, attachments"
+    },
+    {
+      "type": "action",
+      "description": "Save the report as draft, then submit for review"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that report status changes to 'under_review'"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /dashboard/delivery-records and create a new delivery record with signature capture"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that PDF generation is available and the report can be downloaded"
+    }
+  ]
+}

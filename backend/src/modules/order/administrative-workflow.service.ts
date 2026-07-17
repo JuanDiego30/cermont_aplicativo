@@ -52,7 +52,10 @@ import {
 	type TechnicalReportDocument,
 } from "../../models";
 import { assertInvoiceMatchesServiceEntrySheet } from "../../services/invoice-integrity.service";
+import * as InvoiceService from "../invoice/invoice.service";
 import { createNotification } from "../notifications/notification.service";
+import * as PaymentService from "../payment/payment.service";
+import * as SesService from "../service-entry-sheet/service-entry-sheet.service";
 
 type ListEnvelope<T> = {
 	data: T[];
@@ -96,11 +99,6 @@ type ServiceCaseSetValue =
 	| Record<string, number | string>;
 
 const DEFAULT_LIMIT = 20;
-const PAYMENT_ELIGIBLE_INVOICE_STATUSES = new Set<InvoiceDocument["status"]>([
-	"approved",
-	"accepted",
-	"partially_paid",
-]);
 
 function parseObjectId(value: string, field: string): Types.ObjectId {
 	if (!Types.ObjectId.isValid(value)) {
@@ -127,10 +125,6 @@ function pages(total: number, limit: number): number {
 async function nextCode(prefix: string, countDocuments: () => Promise<number>): Promise<string> {
 	const count = await countDocuments();
 	return `${prefix}-${new Date().getFullYear()}-${String(count + 1).padStart(4, "0")}`;
-}
-
-function commandEntry(clientMutationId: string | undefined, command: string) {
-	return clientMutationId ? [{ clientMutationId, command, recordedAt: new Date() }] : [];
 }
 
 function validateInvoiceAgainstSes(invoice: InvoiceDocument, ses: ServiceEntrySheetDocument): void {
@@ -420,25 +414,6 @@ function formatPayment(doc: PaymentDocument): PaymentResponse {
 		createdAt: doc.createdAt.toISOString(),
 		updatedAt: doc.updatedAt.toISOString(),
 	};
-}
-
-async function getRecordedPaymentTotal(invoiceId: Types.ObjectId): Promise<number> {
-	const [summary] = await Payment.aggregate<{ paidTotal: number }>([
-		{
-			$match: {
-				invoiceId,
-				status: { $ne: "rejected" },
-			},
-		},
-		{
-			$group: {
-				_id: "$invoiceId",
-				paidTotal: { $sum: "$amount" },
-			},
-		},
-	]);
-
-	return summary?.paidTotal ?? 0;
 }
 
 async function requireTechnicalReport(id: string): Promise<TechnicalReportDocument> {
@@ -945,38 +920,29 @@ export async function cancelDeliveryRecord(id: string): Promise<DeliveryRecordRe
 export async function listServiceEntrySheets(
 	filters: ListServiceEntrySheetsQuery,
 ): Promise<ListEnvelope<ServiceEntrySheetResponse>> {
-	const page = filters.page ?? 1;
-	const limit = filters.limit ?? DEFAULT_LIMIT;
-	const query: Record<string, Types.ObjectId | string | { $in: string[] }> = {};
-	const workOrderId = maybeObjectId(filters.workOrderId);
-	const clientId = maybeObjectId(filters.clientId);
-	if (workOrderId) {
-		query.workOrderId = workOrderId;
-	}
-	if (clientId) {
-		query.clientId = clientId;
-	}
-	if (filters.status?.length) {
-		query.status = { $in: filters.status };
-	}
-	const [docs, total] = await Promise.all([
-		ServiceEntrySheet.find(query)
-			.sort({ createdAt: -1 })
-			.skip((page - 1) * limit)
-			.limit(limit),
-		ServiceEntrySheet.countDocuments(query),
-	]).catch((error: unknown) => {
-		if (isTransientDatabaseError(error as Error)) {
-			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
-		}
-		throw error;
+	const docs = await ServiceEntrySheet.find({
+		...(filters.workOrderId
+			? { workOrderId: parseObjectId(filters.workOrderId, "workOrderId") }
+			: {}),
+		...(filters.clientId ? { clientId: parseObjectId(filters.clientId, "clientId") } : {}),
+		...(filters.status?.length ? { status: { $in: filters.status } } : {}),
+	})
+		.sort({ createdAt: -1 })
+		.skip(((filters.page ?? 1) - 1) * (filters.limit ?? DEFAULT_LIMIT))
+		.limit(filters.limit ?? DEFAULT_LIMIT);
+	const total = await ServiceEntrySheet.countDocuments({
+		...(filters.workOrderId
+			? { workOrderId: parseObjectId(filters.workOrderId, "workOrderId") }
+			: {}),
+		...(filters.clientId ? { clientId: parseObjectId(filters.clientId, "clientId") } : {}),
+		...(filters.status?.length ? { status: { $in: filters.status } } : {}),
 	});
 	return {
 		data: docs.map(formatServiceEntrySheet),
 		total,
-		page,
-		limit,
-		pages: pages(total, limit),
+		page: filters.page ?? 1,
+		limit: filters.limit ?? DEFAULT_LIMIT,
+		pages: pages(total, filters.limit ?? DEFAULT_LIMIT),
 	};
 }
 
@@ -1004,28 +970,14 @@ export async function createServiceEntrySheetFromDeliveryRecord(
 	actor: WorkflowActor,
 ): Promise<ServiceEntrySheetResponse> {
 	const record = await requireDeliveryRecord(deliveryRecordId);
-	if (record.status !== "signed") {
-		throw new UnprocessableError(
-			"Delivery record must be signed before SES creation",
-			"SES_DELIVERY_RECORD_NOT_SIGNED",
-		);
-	}
-	const existing = await ServiceEntrySheet.findOne({
-		deliveryRecordId: record._id,
-		status: { $ne: "cancelled" },
-	});
-	if (existing) {
-		return formatServiceEntrySheet(existing);
-	}
 	const order = await Order.findById(record.workOrderId);
-	const ses = new ServiceEntrySheet({
+	const sesInput: Record<string, unknown> = {
 		code: await nextCode("SES", () => ServiceEntrySheet.countDocuments().exec()),
 		workOrderId: record.workOrderId,
 		workOrderCode: order?.code,
-		deliveryRecordId: record._id,
 		technicalReportId: record.technicalReportId,
 		serviceCaseId: record.serviceCaseId,
-		clientId: parseObjectId(actor._id, "userId"),
+		clientId: record.clientRepresentative ? undefined : parseObjectId(actor._id, "userId"),
 		clientName: record.clientRepresentative || "Cliente asociado al acta",
 		aribaDocumentNumber: input.aribaDocumentNumber,
 		amount: input.subtotal,
@@ -1037,11 +989,13 @@ export async function createServiceEntrySheetFromDeliveryRecord(
 		taxLines: input.taxLines,
 		total: input.total,
 		description: input.description,
-		status: "draft",
-		commandHistory: commandEntry(input.clientMutationId, "create_service_entry_sheet"),
-		createdBy: parseObjectId(actor._id, "userId"),
-	});
-	await ses.save();
+	};
+	const raw = await SesService.createServiceEntrySheetFromDeliveryRecord(
+		deliveryRecordId,
+		sesInput,
+		actor._id,
+	);
+	const ses = await requireServiceEntrySheet((raw as { _id: string })._id as string);
 	await updateServiceCaseArtifact(
 		ses.serviceCaseId,
 		"serviceEntrySheet",
@@ -1064,13 +1018,10 @@ export async function submitServiceEntrySheet(
 	input: SubmitServiceEntrySheetInput,
 	actor: WorkflowActor,
 ): Promise<ServiceEntrySheetResponse> {
-	const ses = await requireServiceEntrySheet(id);
-	ses.status = "submitted";
-	ses.submittedAt = new Date();
-	ses.submittedBy = parseObjectId(actor._id, "userId");
-	ses.commandHistory.push(...commandEntry(input.clientMutationId, "submit_service_entry_sheet"));
-	await ses.save();
-	return formatServiceEntrySheet(ses);
+	await SesService.submitServiceEntrySheet(id, actor._id, {
+		clientMutationId: input.clientMutationId,
+	});
+	return formatServiceEntrySheet(await requireServiceEntrySheet(id));
 }
 
 export async function approveServiceEntrySheet(
@@ -1078,14 +1029,11 @@ export async function approveServiceEntrySheet(
 	input: ApproveServiceEntrySheetInput,
 	actor: WorkflowActor,
 ): Promise<ServiceEntrySheetResponse> {
+	await SesService.approveServiceEntrySheet(id, actor._id, {
+		approverReference: input.approverReference,
+		clientMutationId: input.clientMutationId,
+	});
 	const ses = await requireServiceEntrySheet(id);
-	ses.status = "approved";
-	ses.approvedAt = new Date();
-	ses.approvedBy = parseObjectId(actor._id, "userId");
-	ses.approverReference = input.approverReference;
-	ses.rejectionReason = undefined;
-	ses.commandHistory.push(...commandEntry(input.clientMutationId, "approve_service_entry_sheet"));
-	await ses.save();
 	await updateServiceCaseArtifact(
 		ses.serviceCaseId,
 		"serviceEntrySheet",
@@ -1108,28 +1056,20 @@ export async function rejectServiceEntrySheet(
 	input: RejectServiceEntrySheetInput,
 	actor: WorkflowActor,
 ): Promise<ServiceEntrySheetResponse> {
-	const ses = await requireServiceEntrySheet(id);
-	ses.status = "rejected";
-	ses.rejectedAt = new Date();
-	ses.rejectedBy = parseObjectId(actor._id, "userId");
-	ses.rejectionReason = input.reason.trim();
-	ses.commandHistory.push(...commandEntry(input.clientMutationId, "reject_service_entry_sheet"));
-	await ses.save();
-	return formatServiceEntrySheet(ses);
+	await SesService.rejectServiceEntrySheet(id, input.reason.trim(), actor._id, {
+		clientMutationId: input.clientMutationId,
+	});
+	return formatServiceEntrySheet(await requireServiceEntrySheet(id));
 }
 
 export async function cancelServiceEntrySheet(id: string): Promise<ServiceEntrySheetResponse> {
-	const ses = await requireServiceEntrySheet(id);
-	ses.status = "cancelled";
-	await ses.save();
-	return formatServiceEntrySheet(ses);
+	await SesService.cancelServiceEntrySheet(id);
+	return formatServiceEntrySheet(await requireServiceEntrySheet(id));
 }
 
 export async function listInvoices(
 	filters: ListInvoicesQuery,
 ): Promise<ListEnvelope<InvoiceResponse>> {
-	const page = filters.page ?? 1;
-	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const query: Record<string, Types.ObjectId | string | { $in: string[] }> = {};
 	const workOrderId = maybeObjectId(filters.workOrderId);
 	const clientId = maybeObjectId(filters.clientId);
@@ -1142,18 +1082,15 @@ export async function listInvoices(
 	if (filters.status?.length) {
 		query.status = { $in: filters.status };
 	}
+	const page = filters.page ?? 1;
+	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const [docs, total] = await Promise.all([
 		Invoice.find(query)
 			.sort({ createdAt: -1 })
 			.skip((page - 1) * limit)
 			.limit(limit),
 		Invoice.countDocuments(query),
-	]).catch((error: unknown) => {
-		if (isTransientDatabaseError(error as Error)) {
-			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
-		}
-		throw error;
-	});
+	]);
 	return { data: docs.map(formatInvoice), total, page, limit, pages: pages(total, limit) };
 }
 
@@ -1167,24 +1104,10 @@ export async function createInvoiceFromServiceEntrySheet(
 	actor: WorkflowActor,
 ): Promise<InvoiceResponse> {
 	const ses = await requireServiceEntrySheet(serviceEntrySheetId);
-	if (ses.status !== "approved") {
-		throw new UnprocessableError(
-			"SES must be approved before invoice creation",
-			"INVOICE_SES_NOT_APPROVED",
-		);
-	}
-	const existing = await Invoice.findOne({
-		serviceEntrySheetId: ses._id,
-		status: { $ne: "cancelled" },
-	});
-	if (existing) {
-		return formatInvoice(existing);
-	}
-	const invoice = new Invoice({
+	const invInput: Record<string, unknown> = {
 		code: await nextCode("INV", () => Invoice.countDocuments().exec()),
 		workOrderId: ses.workOrderId,
 		workOrderCode: ses.workOrderCode,
-		serviceEntrySheetId: ses._id,
 		serviceEntrySheetCode: ses.code,
 		serviceCaseId: ses.serviceCaseId,
 		clientId: ses.clientId,
@@ -1202,11 +1125,14 @@ export async function createInvoiceFromServiceEntrySheet(
 		taxBreakdown: ses.taxLines,
 		subtotal: ses.subtotal,
 		total: ses.total,
-		status: "issued",
 		notes: input.notes,
-		commandHistory: commandEntry(input.clientMutationId, "create_invoice"),
-		createdBy: parseObjectId(actor._id, "userId"),
-	});
+	};
+	const invDoc = await InvoiceService.createInvoiceFromServiceEntrySheet(
+		serviceEntrySheetId,
+		invInput,
+		actor._id,
+	);
+	const invoice = await requireInvoice((invDoc as { _id: string })._id as string);
 	validateInvoiceAgainstSes(invoice, ses);
 	await invoice.save();
 	await updateServiceCaseArtifact(
@@ -1233,23 +1159,15 @@ export async function createInvoiceFromServiceEntrySheet(
 }
 
 export async function submitInvoice(id: string, actor: WorkflowActor): Promise<InvoiceResponse> {
-	const invoice = await requireInvoice(id);
-	await assertPersistedInvoiceMatchesSes(invoice);
-	invoice.status = "submitted";
-	invoice.submittedAt = new Date();
-	invoice.submittedBy = parseObjectId(actor._id, "userId");
-	await invoice.save();
-	return formatInvoice(invoice);
+	await InvoiceService.submitInvoice(id, actor._id);
+	await assertPersistedInvoiceMatchesSes(await requireInvoice(id));
+	return formatInvoice(await requireInvoice(id));
 }
 
 export async function approveInvoice(id: string, actor: WorkflowActor): Promise<InvoiceResponse> {
-	const invoice = await requireInvoice(id);
-	await assertPersistedInvoiceMatchesSes(invoice);
-	invoice.status = "approved";
-	invoice.approvedAt = new Date();
-	invoice.approvedBy = parseObjectId(actor._id, "userId");
-	await invoice.save();
-	return formatInvoice(invoice);
+	await InvoiceService.approveInvoice(id, actor._id);
+	await assertPersistedInvoiceMatchesSes(await requireInvoice(id));
+	return formatInvoice(await requireInvoice(id));
 }
 
 export async function rejectInvoice(
@@ -1257,27 +1175,18 @@ export async function rejectInvoice(
 	input: RejectServiceEntrySheetInput,
 	actor: WorkflowActor,
 ): Promise<InvoiceResponse> {
-	const invoice = await requireInvoice(id);
-	invoice.status = "rejected";
-	invoice.rejectedAt = new Date();
-	invoice.rejectedBy = parseObjectId(actor._id, "userId");
-	invoice.rejectionReason = input.reason.trim();
-	await invoice.save();
-	return formatInvoice(invoice);
+	await InvoiceService.rejectInvoice(id, input.reason.trim(), actor._id);
+	return formatInvoice(await requireInvoice(id));
 }
 
 export async function cancelInvoice(id: string): Promise<InvoiceResponse> {
-	const invoice = await requireInvoice(id);
-	invoice.status = "cancelled";
-	await invoice.save();
-	return formatInvoice(invoice);
+	await InvoiceService.cancelInvoice(id);
+	return formatInvoice(await requireInvoice(id));
 }
 
 export async function listPayments(
 	filters: ListPaymentsQuery,
 ): Promise<ListEnvelope<PaymentResponse>> {
-	const page = filters.page ?? 1;
-	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const query: Record<string, Types.ObjectId | string> = {};
 	const invoiceId = maybeObjectId(filters.invoiceId);
 	const workOrderId = maybeObjectId(filters.workOrderId);
@@ -1294,18 +1203,15 @@ export async function listPayments(
 	if (filters.status) {
 		query.status = filters.status;
 	}
+	const page = filters.page ?? 1;
+	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const [docs, total] = await Promise.all([
 		Payment.find(query)
 			.sort({ createdAt: -1 })
 			.skip((page - 1) * limit)
 			.limit(limit),
 		Payment.countDocuments(query),
-	]).catch((error: unknown) => {
-		if (isTransientDatabaseError(error as Error)) {
-			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
-		}
-		throw error;
-	});
+	]);
 	return { data: docs.map(formatPayment), total, page, limit, pages: pages(total, limit) };
 }
 
@@ -1317,62 +1223,37 @@ export async function registerPaymentForInvoice(
 	invoiceId: string,
 	input: RegisterInvoicePaymentInput,
 	actor: WorkflowActor,
+	options?: { bypassPreconditions?: boolean },
 ): Promise<PaymentResponse> {
 	const invoice = await requireInvoice(invoiceId);
-	const existing = await Payment.findOne({
-		invoiceId: invoice._id,
-		paymentReference: input.paymentReference,
-	});
-	if (existing) {
-		return formatPayment(existing);
-	}
-	if (!invoice.serviceEntrySheetId) {
-		throw new UnprocessableError("Invoice is not linked to SES", "PAYMENT_INVOICE_WITHOUT_SES");
-	}
-	if (!PAYMENT_ELIGIBLE_INVOICE_STATUSES.has(invoice.status)) {
-		throw new UnprocessableError(
-			"Invoice must be approved before registering a payment",
-			"PAYMENT_INVOICE_NOT_APPROVED",
-		);
-	}
-	const amount = input.amount ?? invoice.totalAmount;
-	const paidBefore = await getRecordedPaymentTotal(invoice._id);
-	const outstandingAmount = Math.max(invoice.totalAmount - paidBefore, 0);
-	if (amount > outstandingAmount) {
-		throw new UnprocessableError(
-			"Payment amount exceeds invoice outstanding balance",
-			"PAYMENT_AMOUNT_EXCEEDS_OUTSTANDING",
-		);
-	}
-	const payment = new Payment({
-		invoiceId: invoice._id,
-		workOrderId: invoice.workOrderId,
-		serviceEntrySheetId: invoice.serviceEntrySheetId,
-		serviceCaseId: invoice.serviceCaseId,
-		clientId: invoice.clientId,
-		paymentReference: input.paymentReference,
-		paidAt: new Date(input.paidAt),
-		amount,
-		currency: input.currency ?? invoice.currency,
-		paymentMethod: input.paymentMethod,
-		bankReference: input.bankReference,
-		supportingDocument: input.supportingDocument,
-		supportingDocumentUrl: input.supportingDocumentUrl,
-		recordedBy: parseObjectId(actor._id, "userId"),
-		recordedAt: new Date(),
-		commandHistory: commandEntry(input.clientMutationId, "register_payment"),
-		status: "recorded",
-	});
-	await payment.save();
-	const paidTotal = paidBefore + payment.amount;
-	invoice.status = paidTotal >= invoice.totalAmount ? "paid" : "partially_paid";
-	invoice.paidAt = payment.paidAt;
-	invoice.paymentReference = payment.paymentReference;
-	await invoice.save();
+	const raw = await PaymentService.registerPaymentForInvoice(
+		{
+			invoiceId,
+			amount: input.amount ?? invoice.totalAmount,
+			paymentMethod: input.paymentMethod,
+			paymentReference: input.paymentReference,
+			paidAt: input.paidAt,
+			currency: input.currency ?? invoice.currency,
+			bankReference: input.bankReference,
+			supportingDocument: input.supportingDocument,
+			supportingDocumentUrl: input.supportingDocumentUrl,
+			clientMutationId: input.clientMutationId,
+		},
+		actor._id,
+		{ bypassPreconditions: options?.bypassPreconditions },
+	);
+	const savedInvoice = await requireInvoice(invoiceId);
+	const paidTotal = await PaymentService.getRecordedPaymentTotal(invoiceId);
+	const outstandingAmount = Math.max(savedInvoice.totalAmount - paidTotal, 0);
 	await updateServiceCaseArtifact(
-		payment.serviceCaseId,
+		savedInvoice.serviceCaseId,
 		"payment",
-		toArtifactProjection({ ...payment, code: payment.paymentReference }),
+		toArtifactProjection({
+			_id: (raw as { _id: Types.ObjectId })._id,
+			code: input.paymentReference,
+			status: "recorded",
+			updatedAt: new Date(),
+		}),
 		"receivable_open",
 		[
 			{
@@ -1383,14 +1264,14 @@ export async function registerPaymentForInvoice(
 			},
 		],
 		{
-			status: "complete",
-			invoiceTotal: invoice.totalAmount,
+			status: "complete" as const,
+			invoiceTotal: savedInvoice.totalAmount,
 			paidTotal,
-			outstandingAmount: Math.max(invoice.totalAmount - paidTotal, 0),
-			currency: invoice.currency,
+			outstandingAmount,
+			currency: savedInvoice.currency,
 		},
 	);
-	return formatPayment(payment);
+	return formatPayment(await requirePayment((raw as { _id: string })._id as string));
 }
 
 export async function reconcilePayment(
@@ -1398,16 +1279,14 @@ export async function reconcilePayment(
 	input: ReconcilePaymentInput,
 	actor: WorkflowActor,
 ): Promise<PaymentResponse> {
+	await PaymentService.reconcilePayment(id, actor._id, {
+		clientMutationId: input.clientMutationId,
+	});
 	const payment = await requirePayment(id);
-	payment.status = "reconciled";
-	payment.reconciledBy = parseObjectId(actor._id, "userId");
-	payment.reconciledAt = new Date();
-	payment.commandHistory.push(...commandEntry(input.clientMutationId, "reconcile_payment"));
-	await payment.save();
 	await updateServiceCaseArtifact(
 		payment.serviceCaseId,
 		"payment",
-		toArtifactProjection({ ...payment, code: payment.paymentReference }),
+		toArtifactProjection({ ...payment.toObject(), code: payment.paymentReference }),
 		"paid",
 		[],
 		{
@@ -1426,14 +1305,10 @@ export async function rejectPayment(
 	input: RejectPaymentRecordInput,
 	actor: WorkflowActor,
 ): Promise<PaymentResponse> {
-	const payment = await requirePayment(id);
-	payment.status = "rejected";
-	payment.rejectedBy = parseObjectId(actor._id, "userId");
-	payment.rejectedAt = new Date();
-	payment.rejectionReason = input.rejectionReason.trim();
-	payment.commandHistory.push(...commandEntry(input.clientMutationId, "reject_payment"));
-	await payment.save();
-	return formatPayment(payment);
+	await PaymentService.rejectPayment(id, input.rejectionReason.trim(), actor._id, {
+		clientMutationId: input.clientMutationId,
+	});
+	return formatPayment(await requirePayment(id));
 }
 
 export async function generateAutoDraftReport(

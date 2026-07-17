@@ -1,0 +1,64 @@
+
+Filename                           LineNumber Line
+--------                           ---------- ----
+step-requirements.d.ts                     20     hasCostBaseline: boolean;
+cost.rules.d.ts                            23 /** Calculate margin percentage */
+cost.rules.d.ts                            24 export declare function calculateMargin(income: number | null, cost: numb…
+cost.rules.d.ts                            25 /** Calculate variance between estimated and real */
+cost.rules.d.ts                            26 export declare function calculateVariance(estimated: number | null, real:…
+cost.rules.d.ts                            45  * not_available (never a false $0 baseline).
+cost.rules.d.ts                            53     grossMarginPercent: CostBudgetValue;
+cost.rules.d.ts                            56  * Gross profit and margin from approved revenue and supported actual cos…
+cost.rules.d.ts                            59 export declare function calculateGrossMargin(input: {
+index.d.ts                                 23 export { COST_REQUIRED_FIELDS, calculateGrossMargin, calculateMargin, cal…
+cost-budget.rules.test.ts                   2 import { calculateGrossMargin, evaluateCostBudgetRisk } from "../cost.rul…
+cost-budget.rules.test.ts                  37 describe("calculateGrossMargin", () => {
+cost-budget.rules.test.ts                  38 	it("calculates profit and margin from approved revenue and supported cos…
+cost-budget.rules.test.ts                  40 			calculateGrossMargin({
+cost-budget.rules.test.ts                  46 			grossMarginPercent: { status: "present", value: 0.25 },
+cost-budget.rules.test.ts                  51 		expect(calculateGrossMargin({ revenue: { status: "absent" }, actualCost…
+cost-budget.rules.test.ts                  53 			grossMarginPercent: { status: "absent" },
+service-case-state-machine.test.ts         54 	hasCostBaseline: true,
+step-requirements.test.ts                  42 	hasCostBaseline: false,
+step-requirements.test.ts                  68 	hasCostBaseline: true,
+step-requirements.test.ts                  97 		// planning requires: ats, ptw, checklist, kit (documents) + cost_basel…
+step-requirements.ts                       30 	hasCostBaseline: boolean;
+step-requirements.ts                       51 	hasCostBaseline: false,
+step-requirements.ts                       96 		{ id: "cost_baseline", label: "Costo estimado congelado", kind: "cost",…
+step-requirements.ts                      158 			return requirement.id === "actual_costs" ? context.hasActualCosts : co…
+cost.rules.ts                              40 /** Calculate margin percentage */
+cost.rules.ts                              41 export function calculateMargin(income: number | null, cost: number | nul…
+cost.rules.ts                              48 /** Calculate variance between estimated and real */
+cost.rules.ts                              49 export function calculateVariance(estimated: number | null, real: number …
+cost.rules.ts                              79  * not_available (never a false $0 baseline).
+cost.rules.ts                             108 	grossMarginPercent: CostBudgetValue;
+cost.rules.ts                             112  * Gross profit and margin from approved revenue and supported actual cos…
+cost.rules.ts                             115 export function calculateGrossMargin(input: {
+cost.rules.ts                             122 			grossMarginPercent: { status: "absent" },
+cost.rules.ts                             128 		grossMarginPercent: { status: "present", value: grossProfit / input.rev…
+index.ts                                   52 	calculateGrossMargin,
+index.ts                                   53 	calculateMargin,
+index.ts                                   54 	calculateVariance,
+index.d.ts                                781             costBaseline: import("zod").ZodOptional<import("zod").ZodObje…
+index.d.ts                                983             costBaseline: import("zod").ZodOptional<import("zod").ZodObje…
+cost-cart.schema.d.ts                     165     baselineSnapshotId: z.ZodOptional<z.ZodString>;
+cost-cart.schema.d.ts                     185     variance: z.ZodNumber;
+cost-cart.schema.d.ts                     186     variancePercentage: z.ZodNumber;
+cost-cart.schema.d.ts                     203     totalVariance: z.ZodNumber;
+cost-cart.schema.d.ts                     217         variance: z.ZodNumber;
+cost-cart.schema.d.ts                     218         variancePercentage: z.ZodNumber;
+cost-suggest.schema.d.ts                  187     suggestedMarginPercent: z.ZodNumber;
+cost-suggest.schema.d.ts                  188     suggestedMarginAmount: z.ZodNumber;
+cost-suggest.schema.d.ts                  249         suggestedMarginPercent: z.ZodNumber;
+cost-suggest.schema.d.ts                  250         suggestedMarginAmount: z.ZodNumber;
+cost-traceability.schema.d.ts              65     estimatedMargin: z.ZodDiscriminatedUnion<[z.ZodObject<{
+cost-traceability.schema.d.ts              71     realMargin: z.ZodDiscriminatedUnion<[z.ZodObject<{
+cost-traceability.schema.d.ts              77     variance: z.ZodDiscriminatedUnion<[z.ZodObject<{
+cost-traceability.schema.d.ts              83     variancePercentage: z.ZodDiscriminatedUnion<[z.ZodObject<{
+cost-traceability.schema.d.ts             156     estimatedMargin: z.ZodDiscriminatedUnion<[z.ZodObject<{
+cost-traceability.schema.d.ts             162     realMargin: z.ZodDiscriminatedUnion<[z.ZodObject<{
+cost-traceability.schema.d.ts             168     variance: z.ZodDiscriminatedUnion<[z.ZodObject<{
+cost-traceability.schema.d.ts             174     variancePercentage: z.ZodDiscriminatedUnion<[z.ZodObject<{
+cost-traceability.schema.d.ts             185     varianceLabel: z.ZodDefault<z.ZodString>;
+cost-tracking.schema.d.ts                  60         variance: z.ZodNumber;
+

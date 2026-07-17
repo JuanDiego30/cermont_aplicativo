@@ -1,0 +1,142 @@
+
+> cermont-monorepo@1.0.0 verify
+> npm run verify:shared-types && npm run verify:domain && npm run verify:config && npm run verify:backend && npm run verify:frontend && npm run contracts:check && npm run quality:strict && npm run doctor:verbose -w frontend
+
+
+> cermont-monorepo@1.0.0 verify:shared-types
+> npm run typecheck -w @cermont/shared-types && npm run lint -w @cermont/shared-types && npm run test -w @cermont/shared-types && npm run build -w @cermont/shared-types
+
+
+> @cermont/shared-types@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/shared-types@1.0.0 lint
+> biome check .
+
+Checked 169 files in 214ms. No fixes applied.
+
+> @cermont/shared-types@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types
+
+
+ Test Files  30 passed (30)
+      Tests  173 passed (173)
+   Start at  10:58:48
+   Duration  2.89s (transform 8.76s, setup 0ms, import 23.17s, tests 767ms, environment 5ms)
+
+
+> @cermont/shared-types@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:domain
+> npm run typecheck -w @cermont/domain && npm run lint -w @cermont/domain && npm run build -w @cermont/domain
+
+
+> @cermont/domain@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/domain@1.0.0 lint
+> biome check .
+
+Checked 28 files in 37ms. No fixes applied.
+
+> @cermont/domain@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:config
+> npm run typecheck -w @cermont/config && npm run lint -w @cermont/config && npm run build -w @cermont/config
+
+
+> @cermont/config@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/config@1.0.0 lint
+> biome check .
+
+Checked 4 files in 12ms. No fixes applied.
+
+> @cermont/config@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:backend
+> npm run typecheck -w backend && npm run lint -w backend && npm run test -w backend && npm run build -w backend
+
+
+> @cermont/backend@5.2.1 typecheck
+> tsc --noEmit
+
+
+> @cermont/backend@5.2.1 lint
+> biome lint .
+
+Checked 471 files in 506ms. No fixes applied.
+
+> @cermont/backend@5.2.1 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend
+
+
+ Test Files  99 passed (99)
+      Tests  672 passed (672)
+   Start at  10:59:23
+   Duration  26.16s (transform 20.99s, setup 2.62s, import 244.50s, tests 18.72s, environment 32ms)
+
+
+> @cermont/backend@5.2.1 build
+> tsc
+
+
+> cermont-monorepo@1.0.0 verify:frontend
+> npm run typecheck -w frontend && npm run lint -w frontend && npm run test -w frontend && npm run build -w frontend
+
+
+> @cermont/frontend@1.2.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/frontend@1.2.0 lint
+> biome lint .
+
+Checked 853 files in 741ms. No fixes applied.
+
+> @cermont/frontend@1.2.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend
+
+
+ Test Files  64 passed (64)
+      Tests  260 passed (260)
+   Start at  11:00:20
+   Duration  49.27s (transform 6.53s, setup 52.29s, import 143.78s, tests 21.06s, environment 412.59s)
+
+
+> @cermont/frontend@1.2.0 build
+> next build --turbopack
+
+⨯ Another next build process is already running.
+
+  This could be:
+  - A next build still in progress
+  - A previous build that didn't exit cleanly
+
+  Suggestion: Wait for the build to complete.
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next build --turbopack

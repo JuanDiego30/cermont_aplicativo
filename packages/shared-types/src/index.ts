@@ -2,6 +2,7 @@
 export { z } from "zod";
 export * from "./api";
 export * from "./constants";
+export * from "./i18n";
 export * from "./schemas";
 export * from "./utils/status-types";
 export * from "./utils/types";

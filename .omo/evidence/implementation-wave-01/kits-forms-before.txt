@@ -1,0 +1,156 @@
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\forms\[templateId]\page.tsx:3 - import type { FormSubmissionValue } from "@cermont/shared-types";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\forms\[templateId]\page.tsx:9 - import { useCreateFormSubmission } from "@/modules/forms/queries/form-submissions";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\forms\[templateId]\page.tsx:10 - import { CERMONT_FORM_TEMPLATES } from "@/modules/forms/templates/cermont-form-templates";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\forms\[templateId]\page.tsx:11 - import { type FormValues, SectionedFormRenderer } from "@/modules/forms/ui/SectionedFormRenderer";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\forms\[templateId]\page.tsx:36 - const template = CERMONT_FORM_TEMPLATES[templateId];
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\forms\[templateId]\page.tsx:37 - const createMutation = useCreateFormSubmission();
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\forms\[templateId]\page.tsx:67 - const jsonValues: Record<string, FormSubmissionValue> = {};
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\forms\[templateId]\page.tsx:162 - <SectionedFormRenderer
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\maintenance\[id]\edit\page.tsx:9 - import { KitWizardForm } from "@/modules/kits/ui/KitWizardForm";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\maintenance\[id]\edit\page.tsx:84 - <KitWizardForm
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\maintenance\new\page.tsx:10 - import { KitWizardForm } from "@/modules/kits/ui/KitWizardForm";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\maintenance\new\page.tsx:68 - <KitWizardForm
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\orders\[id]\planning\page.tsx:37 - useApplyKitToPlanning,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\orders\[id]\planning\page.tsx:1009 - const applyKitMutation = useApplyKitToPlanning(planningPacket?._id || "");
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\queries\form-submissions.ts:1 - import type { CreateFormSubmissionInput } from "@cermont/shared-types";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\queries\form-submissions.ts:7 - export interface FormSubmission {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\queries\form-submissions.ts:28 - interface FormSubmissionEnvelope {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\queries\form-submissions.ts:29 - data: FormSubmission;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\queries\form-submissions.ts:50 - export function useCreateFormSubmission() {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\queries\form-submissions.ts:54 - mutationFn: async (payload: CreateFormSubmissionInput): Promise<FormSubmissionEnvelope> => {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\queries\form-submissions.ts:55 - return apiClient.post<FormSubmissionEnvelope>("/form-submissions", payload);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:10 - * handled by the SectionedFormRenderer.
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:60 - const PLANNING_OBRA_TEMPLATE: CermontFormTemplate = {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:285 - const LINEAS_VIDA_TEMPLATE: CermontFormTemplate = {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:473 - const CCTV_TEMPLATE: CermontFormTemplate = {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:769 - export const CERMONT_FORM_TEMPLATES: Record<string, CermontFormTemplate> = {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:770 - [PLANNING_OBRA_TEMPLATE.id]: PLANNING_OBRA_TEMPLATE,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:771 - [LINEAS_VIDA_TEMPLATE.id]: LINEAS_VIDA_TEMPLATE,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:772 - [CCTV_TEMPLATE.id]: CCTV_TEMPLATE,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\templates\cermont-form-templates.ts:775 - export const ALL_TEMPLATES = Object.values(CERMONT_FORM_TEMPLATES);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\ui\SectionedFormRenderer.tsx:4 - * SectionedFormRenderer
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\ui\SectionedFormRenderer.tsx:414 - interface SectionedFormRendererProps {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\ui\SectionedFormRenderer.tsx:426 - export function SectionedFormRenderer({
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\forms\ui\SectionedFormRenderer.tsx:433 - }: SectionedFormRendererProps) {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\kits\ui\KitForm.tsx:50 - const kitFormSchema = z.object({
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\kits\ui\KitForm.tsx:97 - resolver: zodResolver(kitFormSchema) as never,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\kits\ui\KitWizardForm.tsx:60 - interface KitWizardFormProps {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\kits\ui\KitWizardForm.tsx:80 - export function KitWizardForm({ onSubmit, errorMessage, activityOptions }: KitWizardFormProps) {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\planning\queries.ts:73 - export function useApplyKitToPlanning(id: string) {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:2 - * DynamicFormTemplate Model — Mongoose schema
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:9 - * Aligned with @cermont/shared-types DynamicFormTemplateSchema
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:12 - import type { DynamicFormTemplate as DynamicFormTemplateType } from "@cermont/shared-types";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:58 - const dynamicFormTemplateSchema = new Schema(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:82 - dynamicFormTemplateSchema.index({ status: 1, updatedAt: -1 });
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:84 - export type DynamicFormTemplateDocument = DynamicFormTemplateType & {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:91 - export const DynamicFormTemplate = model<DynamicFormTemplateDocument>(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:92 - "DynamicFormTemplate",
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts:93 - dynamicFormTemplateSchema,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts:2 - * FormSubmission Model — Mongoose schema
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts:12 - export interface FormSubmissionDocument {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts:37 - const formSubmissionSchema = new Schema<FormSubmissionDocument>(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts:72 - formSubmissionSchema.index({ serviceCaseId: 1, templateId: 1, submittedAt: -1 });
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts:73 - formSubmissionSchema.index({ serviceCaseId: 1, stepCode: 1, status: 1 });
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts:75 - export const FormSubmission = model<FormSubmissionDocument>("FormSubmission", formSubmissionSchema);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\index.ts:47 - export { DynamicFormTemplate, type DynamicFormTemplateDocument } from "./DynamicFormTemplate";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\index.ts:52 - export { FormSubmission, type FormSubmissionDocument } from "./FormSubmission";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:1 - import { CreateFormSubmissionSchema } from "@cermont/shared-types";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:6 - archiveFormSubmission,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:7 - createFormSubmission,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:8 - getFormSubmissionById,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:9 - listFormSubmissions,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:24 - const parsed = CreateFormSubmissionSchema.safeParse(req.body);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:38 - const submission = await createFormSubmission({
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:66 - const result = await listFormSubmissions(parsed.data);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:76 - const submission = await getFormSubmissionById(id);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.controller.ts:86 - const submission = await archiveFormSubmission(id);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.routes.ts:2 - import { CreateFormSubmissionSchema, FormSubmissionIdParamsSchema } from "@cermont/shared-types";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.routes.ts:7 - import * as FormSubmissionController from "./form-submission.controller";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.routes.ts:19 - validateBody(CreateFormSubmissionSchema),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.routes.ts:20 - FormSubmissionController.createSubmission,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.routes.ts:31 - FormSubmissionController.listSubmissions,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.routes.ts:42 - FormSubmissionController.getSubmission,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.routes.ts:53 - validateParams(FormSubmissionIdParamsSchema),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.routes.ts:54 - FormSubmissionController.archiveSubmission,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:4 - import { FormSubmission, type FormSubmissionDocument } from "../../models/FormSubmission";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:6 - export interface CreateFormSubmissionInput {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:23 - export interface ListFormSubmissionsFilter {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:32 - export async function createFormSubmission(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:33 - input: CreateFormSubmissionInput,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:34 - ): Promise<FormSubmissionDocument> {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:35 - const doc = await FormSubmission.create({
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:52 - export async function getFormSubmissionById(id: string): Promise<FormSubmissionDocument | null> {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:56 - return FormSubmission.findById(id).lean<FormSubmissionDocument>();
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:59 - export async function listFormSubmissions(filter: ListFormSubmissionsFilter) {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:79 - let items: FormSubmissionDocument[];
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:84 - FormSubmission.find(query)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:88 - .lean<FormSubmissionDocument[]>(),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:89 - FormSubmission.countDocuments(query),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:101 - export async function archiveFormSubmission(id: string): Promise<FormSubmissionDocument | null> {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:105 - return FormSubmission.findByIdAndUpdate(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\form-submissions\form-submission.service.ts:109 - ).lean<FormSubmissionDocument>();
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.controller.ts:2 - ApplyKitToPlanningSchema,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.controller.ts:4 - CreateKitSchema,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.controller.ts:20 - applyKitToPlanning,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.controller.ts:35 - const body = CreateKitSchema.parse(req.body);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.controller.ts:116 - const body = ApplyKitToPlanningSchema.parse(req.body);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.controller.ts:118 - const result = await applyKitToPlanning(id, body.planningId, String(user._id));
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.routes.ts:4 - ApplyKitToPlanningSchema,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.routes.ts:6 - CreateKitSchema,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.routes.ts:37 - validateBody(CreateKitSchema),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.routes.ts:106 - validateBody(ApplyKitToPlanningSchema),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.service.ts:11 - canApplyKitToPlanning,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.service.ts:610 - export async function applyKitToPlanning(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.service.ts:627 - const applyDecision = canApplyKitToPlanning(domainModel, {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\planning-packet\planning-packet.controller.ts:218 - const planningPacket = await PlanningPacketService.applyKitToPlanningPacket(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\planning-packet\planning-packet.service.ts:892 - export async function applyKitToPlanningPacket(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\index.ts:46 - import formSubmissionRoutes from "./modules/form-submissions/form-submission.routes";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\index.ts:225 - { prefix: "/api/form-submissions", router: formSubmissionRoutes },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\dist\index.d.ts:29 - export { calculateKitReadiness, canActivateKit, canApplyKitToPlanning, canArchiveKit, canDeleteKit, canRestoreKit, getAllKitItems, getCriticalItemCount, getMissingCriticalKitItems, } from "./kit.rules";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\dist\kit.rules.d.ts:99 - export declare function canApplyKitToPlanning(kit: KitDomainModel, planningHasItems: {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\src\index.ts:103 - canApplyKitToPlanning,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\src\kit.rules.ts:145 - export function canApplyKitToPlanning(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\dynamic-form-template.schema.d.ts:55 - export declare const DynamicFormTemplateSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\dynamic-form-template.schema.d.ts:102 - export type DynamicFormTemplate = z.infer<typeof DynamicFormTemplateSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\dynamic-form-template.schema.d.ts:103 - export declare const CreateDynamicFormTemplateSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\dynamic-form-template.schema.d.ts:140 - export type CreateDynamicFormTemplateInput = z.infer<typeof CreateDynamicFormTemplateSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\dynamic-form-template.schema.d.ts:141 - export declare const UpdateDynamicFormTemplateSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\dynamic-form-template.schema.d.ts:178 - export type UpdateDynamicFormTemplateInput = z.infer<typeof UpdateDynamicFormTemplateSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\form-submission.schema.d.ts:2 - export declare const FormSubmissionValueSchema: z.ZodUnion<readonly [z.ZodString, z.ZodNumber, z.ZodBoolean]>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\form-submission.schema.d.ts:3 - export type FormSubmissionValue = z.infer<typeof FormSubmissionValueSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\form-submission.schema.d.ts:4 - export declare const FormSubmissionPhotoAttachmentSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\form-submission.schema.d.ts:11 - export declare const CreateFormSubmissionSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\form-submission.schema.d.ts:29 - export type CreateFormSubmissionInput = z.infer<typeof CreateFormSubmissionSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\form-submission.schema.d.ts:30 - export declare const FormSubmissionIdParamsSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\form-submission.schema.d.ts:33 - export type FormSubmissionIdParams = z.infer<typeof FormSubmissionIdParamsSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\kit.schema.d.ts:593 - export declare const CreateKitSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\kit.schema.d.ts:972 - export type CreateKitInput = z.infer<typeof CreateKitSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\kit.schema.d.ts:1405 - export declare const ApplyKitToPlanningSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\kit.schema.d.ts:1408 - export type ApplyKitToPlanningInput = z.infer<typeof ApplyKitToPlanningSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\kit.schema.d.ts:1409 - export declare const ApplyKitToPlanningResultSchema: z.ZodObject<{
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\dist\schemas\kit.schema.d.ts:1423 - export type ApplyKitToPlanningResult = z.infer<typeof ApplyKitToPlanningResultSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\dynamic-form-template.schema.ts:51 - export const DynamicFormTemplateSchema = z
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\dynamic-form-template.schema.ts:64 - export type DynamicFormTemplate = z.infer<typeof DynamicFormTemplateSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\dynamic-form-template.schema.ts:66 - export const CreateDynamicFormTemplateSchema = z
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\dynamic-form-template.schema.ts:73 - export type CreateDynamicFormTemplateInput = z.infer<typeof CreateDynamicFormTemplateSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\dynamic-form-template.schema.ts:75 - export const UpdateDynamicFormTemplateSchema = CreateDynamicFormTemplateSchema.partial();
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\dynamic-form-template.schema.ts:76 - export type UpdateDynamicFormTemplateInput = z.infer<typeof UpdateDynamicFormTemplateSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:4 - export const FormSubmissionValueSchema = z.union([z.string(), z.number(), z.boolean()]);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:6 - export type FormSubmissionValue = z.infer<typeof FormSubmissionValueSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:8 - export const FormSubmissionPhotoAttachmentSchema = z
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:18 - export const CreateFormSubmissionSchema = z
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:24 - values: z.record(z.string(), FormSubmissionValueSchema),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:25 - photoAttachments: z.array(FormSubmissionPhotoAttachmentSchema).optional(),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:30 - export type CreateFormSubmissionInput = z.infer<typeof CreateFormSubmissionSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:32 - export const FormSubmissionIdParamsSchema = z
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\form-submission.schema.ts:38 - export type FormSubmissionIdParams = z.infer<typeof FormSubmissionIdParamsSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\kit.schema.ts:234 - export const CreateKitSchema = KitTemplateSchema.omit({
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\kit.schema.ts:245 - export type CreateKitInput = z.infer<typeof CreateKitSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\kit.schema.ts:247 - export const UpdateKitSchema = CreateKitSchema.partial();
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\kit.schema.ts:292 - export const ApplyKitToPlanningSchema = z
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\kit.schema.ts:297 - export type ApplyKitToPlanningInput = z.infer<typeof ApplyKitToPlanningSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\kit.schema.ts:299 - export const ApplyKitToPlanningResultSchema = z.object({
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\kit.schema.ts:308 - export type ApplyKitToPlanningResult = z.infer<typeof ApplyKitToPlanningResultSchema>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\tests\schemas\route-request.schema.test.ts:4 - CreateFormSubmissionSchema,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\tests\schemas\route-request.schema.test.ts:17 - const result = CreateFormSubmissionSchema.safeParse({
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\tests\schemas\route-request.schema.test.ts:28 - const result = CreateFormSubmissionSchema.safeParse({

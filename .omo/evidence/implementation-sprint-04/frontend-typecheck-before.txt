@@ -1,0 +1,24 @@
+
+> @cermont/frontend@1.2.0 typecheck
+> tsc --noEmit
+
+src/app/(dashboard)/dashboard/page.tsx(193,38): error TS2339: Property 'totalOverdue' does not exist on type '{ buckets: { bucket: string; count: number; amount: number; currency: string; minDays?: number | undefined; maxDays?: number | undefined; }[]; totalOutstandingAmount: number; totalOverdueAmount: number; overdueInvoiceCount: number; }'.
+src/modules/cockpit/api/cockpit.api.ts(3,34): error TS2307: Cannot find module '../model/cockpit.types' or its corresponding type declarations.
+src/modules/cockpit/hooks/useCockpit.ts(3,34): error TS2307: Cannot find module '../model/cockpit.types' or its corresponding type declarations.
+src/modules/cockpit/ui/BlockersPanelCollapsible.tsx(6,30): error TS2307: Cannot find module '../model/cockpit.types' or its corresponding type declarations.
+src/modules/cockpit/ui/CockpitHeaderCard.tsx(2,34): error TS2307: Cannot find module '../model/cockpit.types' or its corresponding type declarations.
+src/modules/cockpit/ui/FourteenStepProgressBar.tsx(4,35): error TS2307: Cannot find module '../model/cockpit.types' or its corresponding type declarations.
+src/modules/cockpit/ui/NextActionCard.tsx(5,41): error TS2307: Cannot find module '../model/cockpit.types' or its corresponding type declarations.
+src/modules/cockpit/utils/cockpitTransformer.ts(9,34): error TS2307: Cannot find module '../model/cockpit.types' or its corresponding type declarations.
+src/modules/core/ui/layout/Header.tsx(85,4): error TS7006: Parameter 'n' implicitly has an 'any' type.
+src/modules/core/ui/layout/Header.tsx(166,45): error TS2345: Argument of type 'string' is not assignable to parameter of type 'void'.
+src/modules/notifications/index.ts(14,8): error TS2307: Cannot find module './api/notification.api' or its corresponding type declarations.
+src/modules/notifications/index.ts(19,8): error TS2307: Cannot find module './hooks/useNotifications' or its corresponding type declarations.
+src/modules/notifications/index.ts(20,32): error TS2307: Cannot find module './hooks/useUnreadCount' or its corresponding type declarations.
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 1
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit

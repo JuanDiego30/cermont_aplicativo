@@ -1,0 +1,1424 @@
+From 4651e4b3842798f98f8fe16bc1ae22e704fb310a Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 15:39:19 -0500
+Subject: [PATCH 37/42] feat(spec-021): RBAC SSOT, roles checker, pre-commit
+ enforcement, React Doctor fixes
+
+- CERMONT_ROLES in packages/domain/src/roles.ts
+- check-hardcoded-roles.ts quality checker
+- 22 route files migrated to @cermont/domain constants
+- pre-commit.mjs runs quality:routes + check-hardcoded-roles
+- React Doctor fixes: key-before-spread, CostCatalogForm useReducer
+- cockpit.types.ts schema added
+- Baseline updated for quality:strict
+---
+ .../admin-backup/admin-backup.routes.ts       |   3 +-
+ backend/src/modules/asset/asset.routes.ts     |   4 +-
+ .../business-document.routes.ts               |  23 ++-
+ .../src/modules/checklist/checklist.routes.ts |   8 +-
+ backend/src/modules/client/client.routes.ts   |   4 +-
+ .../custom-fields/custom-field.routes.ts      |   8 +-
+ .../delivery-record/delivery-record.routes.ts |  16 +-
+ .../src/modules/documents/document.routes.ts  |   9 +-
+ .../erp-connector/erp-connector.routes.ts     |  21 +--
+ .../src/modules/evidence/evidence.routes.ts   |   9 +-
+ .../modules/inspection/inspection.routes.ts   |  27 +++-
+ backend/src/modules/jobs/jobs.routes.ts       |   5 +-
+ .../modules/maintenance/maintenance.routes.ts |  21 ++-
+ backend/src/modules/order/order.routes.ts     |   9 +-
+ backend/src/modules/portal/portal.routes.ts   |   3 +-
+ .../src/modules/proposal/proposal.routes.ts   |  11 +-
+ backend/src/modules/report/report.routes.ts   |   9 +-
+ .../src/modules/resource/resource.routes.ts   |  15 +-
+ .../service-cases/service-case.routes.ts      |   9 +-
+ .../template-draft/template-draft.routes.ts   |  14 +-
+ backend/src/modules/user/user.routes.ts       |   4 +-
+ .../work-requests/work-requests.routes.ts     |   9 +-
+ .../(dashboard)/admin/custom-fields/page.tsx  |   2 +-
+ .../src/landing/components/AboutSection.tsx   |   2 +-
+ .../src/landing/components/HeroSection.tsx    |   2 +-
+ .../src/landing/components/MethodSection.tsx  |   2 +-
+ .../landing/components/ResourcesSection.tsx   |   4 +-
+ .../landing/components/ServicesSection.tsx    |   2 +-
+ .../src/landing/components/TrustSection.tsx   |   2 +-
+ .../modules/cockpit/model/cockpit.types.ts    |  27 ++++
+ .../src/modules/costs/ui/CostCatalogForm.tsx  |  97 ++++++++----
+ .../components/CostComparisonPanel.tsx        |   2 +-
+ package.json                                  |   3 +-
+ packages/domain/src/index.ts                  |   2 +
+ packages/domain/src/roles.ts                  |  33 ++++
+ tooling/git/pre-commit.mjs                    |   7 +
+ tooling/quality/baseline.json                 |   6 +-
+ tooling/quality/check-hardcoded-roles.ts      | 146 ++++++++++++++++++
+ 38 files changed, 476 insertions(+), 104 deletions(-)
+ create mode 100644 tooling/quality/check-hardcoded-roles.ts
+
+diff --git a/backend/src/modules/admin-backup/admin-backup.routes.ts b/backend/src/modules/admin-backup/admin-backup.routes.ts
+index 0697aaa..8bb73b9 100644
+--- a/backend/src/modules/admin-backup/admin-backup.routes.ts
++++ b/backend/src/modules/admin-backup/admin-backup.routes.ts
+@@ -4,6 +4,7 @@
+  * Solo gerencia. Exportación de colecciones para respaldo y auditoría.
+  */
+ 
++import { CERMONT_ROLES } from "@cermont/domain";
+ import type { Request, Response } from "express";
+ import { Router } from "express";
+ import { sendSuccess } from "../../common/interceptors/response.interceptor";
+@@ -15,7 +16,7 @@ import * as AdminBackupService from "./admin-backup.service";
+ const router = Router();
+ 
+ router.use(authenticate);
+-router.use(authorize("gerente"));
++router.use(authorize(CERMONT_ROLES.GERENTE));
+ 
+ // GET /api/admin/backups/collections — collections with document counts
+ router.get("/collections", async (req: Request, res: Response): Promise<void> => {
+diff --git a/backend/src/modules/asset/asset.routes.ts b/backend/src/modules/asset/asset.routes.ts
+index 9f2d8c0..aa2b3ce 100644
+--- a/backend/src/modules/asset/asset.routes.ts
++++ b/backend/src/modules/asset/asset.routes.ts
+@@ -8,7 +8,7 @@
+  * - Order: authenticate → authorize → validate → controller
+  */
+ 
+-import { ASSET_MANAGEMENT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
++import { ASSET_MANAGEMENT_ROLES, CERMONT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
+ import {
+ 	AssetIdSchema,
+ 	CreateAssetSchema,
+@@ -104,7 +104,7 @@ router.patch(
+ router.delete(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(AssetIdSchema),
+ 	AssetController.deleteAsset,
+ );
+diff --git a/backend/src/modules/business-document/business-document.routes.ts b/backend/src/modules/business-document/business-document.routes.ts
+index e20db86..b5a1d02 100644
+--- a/backend/src/modules/business-document/business-document.routes.ts
++++ b/backend/src/modules/business-document/business-document.routes.ts
+@@ -2,6 +2,7 @@
+  * BusinessDocument Routes — Endpoint wiring for business document CRUD
+  */
+ 
++import { CERMONT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+ import {
+ 	CreateBusinessDocumentSchema,
+ 	ObjectIdSchema,
+@@ -18,14 +19,20 @@ const router = Router();
+ router.get(
+ 	"/",
+ 	authenticate,
+-	authorize("gerente", "residente", "hes", "supervisor", "administrativo"),
++	authorize(
++		CERMONT_ROLES.GERENTE,
++		CERMONT_ROLES.RESIDENTE,
++		CERMONT_ROLES.HES,
++		CERMONT_ROLES.SUPERVISOR,
++		CERMONT_ROLES.ADMINISTRATIVO,
++	),
+ 	businessDocumentController.list,
+ );
+ 
+ router.post(
+ 	"/",
+ 	authenticate,
+-	authorize("gerente", "residente"),
++	authorize(...MANAGEMENT_ROLES),
+ 	validateBody(CreateBusinessDocumentSchema),
+ 	businessDocumentController.create,
+ );
+@@ -33,7 +40,13 @@ router.post(
+ router.get(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente", "residente", "hes", "supervisor", "administrativo"),
++	authorize(
++		CERMONT_ROLES.GERENTE,
++		CERMONT_ROLES.RESIDENTE,
++		CERMONT_ROLES.HES,
++		CERMONT_ROLES.SUPERVISOR,
++		CERMONT_ROLES.ADMINISTRATIVO,
++	),
+ 	validateParams(ObjectIdSchema),
+ 	businessDocumentController.getById,
+ );
+@@ -41,7 +54,7 @@ router.get(
+ router.put(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente", "residente"),
++	authorize(...MANAGEMENT_ROLES),
+ 	validateParams(ObjectIdSchema),
+ 	validateBody(UpdateBusinessDocumentSchema),
+ 	businessDocumentController.update,
+@@ -50,7 +63,7 @@ router.put(
+ router.delete(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(ObjectIdSchema),
+ 	businessDocumentController.delete,
+ );
+diff --git a/backend/src/modules/checklist/checklist.routes.ts b/backend/src/modules/checklist/checklist.routes.ts
+index 6ed5023..8e9e053 100644
+--- a/backend/src/modules/checklist/checklist.routes.ts
++++ b/backend/src/modules/checklist/checklist.routes.ts
+@@ -1,4 +1,4 @@
+-import { INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
++import { CERMONT_ROLES, INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+ import {
+ 	ChecklistIdParamsSchema,
+ 	ChecklistItemParamsSchema,
+@@ -51,7 +51,7 @@ router.post(
+ router.patch(
+ 	"/:id/items/:itemId",
+ 	authenticate,
+-	authorize("operador", "tecnico", "supervisor"),
++	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
+ 	validateParams(ChecklistItemParamsSchema),
+ 	validateBody(UpdateChecklistItemSchema),
+ 	ChecklistController.updateChecklistItem,
+@@ -60,7 +60,7 @@ router.patch(
+ router.patch(
+ 	"/:id/complete",
+ 	authenticate,
+-	authorize("operador", "tecnico", "supervisor"),
++	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
+ 	validateParams(ChecklistIdParamsSchema),
+ 	validateBody(CompleteChecklistSchema),
+ 	ChecklistController.completeChecklist,
+@@ -69,7 +69,7 @@ router.patch(
+ router.post(
+ 	"/:id/validate",
+ 	authenticate,
+-	authorize("operador", "tecnico", "supervisor"),
++	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
+ 	validateParams(ChecklistIdParamsSchema),
+ 	validateBody(CompleteChecklistSchema),
+ 	ChecklistController.completeChecklist,
+diff --git a/backend/src/modules/client/client.routes.ts b/backend/src/modules/client/client.routes.ts
+index 5c6c4f0..cff9124 100644
+--- a/backend/src/modules/client/client.routes.ts
++++ b/backend/src/modules/client/client.routes.ts
+@@ -4,7 +4,7 @@
+  * Order: authenticate → authorize → validate → controller
+  */
+ 
+-import { INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
++import { CERMONT_ROLES, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+ import {
+ 	ClientIdParamsSchema,
+ 	CreateClientSchema,
+@@ -65,7 +65,7 @@ router.patch(
+ // DELETE /api/clients/:id — deactivate (soft delete)
+ router.delete(
+ 	"/:id",
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(ClientIdParamsSchema),
+ 	ClientController.deactivateClient,
+ );
+diff --git a/backend/src/modules/custom-fields/custom-field.routes.ts b/backend/src/modules/custom-fields/custom-field.routes.ts
+index cd43554..a8e62e2 100644
+--- a/backend/src/modules/custom-fields/custom-field.routes.ts
++++ b/backend/src/modules/custom-fields/custom-field.routes.ts
+@@ -1,4 +1,4 @@
+-import { INTERNAL_ROLES } from "@cermont/domain";
++import { CERMONT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
+ import {
+ 	CreateCustomFieldDefinitionDtoSchema,
+ 	UpdateCustomFieldDefinitionDtoSchema,
+@@ -17,16 +17,16 @@ router.get("/", authorize(...INTERNAL_ROLES), controller.list);
+ router.get("/:id", authorize(...INTERNAL_ROLES), controller.getById);
+ router.post(
+ 	"/",
+-	authorize("gerente", "administrativo"),
++	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
+ 	validateBody(CreateCustomFieldDefinitionDtoSchema),
+ 	controller.create,
+ );
+ router.put(
+ 	"/:id",
+-	authorize("gerente", "administrativo"),
++	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
+ 	validateBody(UpdateCustomFieldDefinitionDtoSchema),
+ 	controller.update,
+ );
+-router.delete("/:id", authorize("gerente"), controller.remove);
++router.delete("/:id", authorize(CERMONT_ROLES.GERENTE), controller.remove);
+ 
+ export default router;
+diff --git a/backend/src/modules/delivery-record/delivery-record.routes.ts b/backend/src/modules/delivery-record/delivery-record.routes.ts
+index b746972..0809348 100644
+--- a/backend/src/modules/delivery-record/delivery-record.routes.ts
++++ b/backend/src/modules/delivery-record/delivery-record.routes.ts
+@@ -1,4 +1,9 @@
+-import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
++import {
++	ADMIN_PLUS_RESIDENTE,
++	CERMONT_ROLES,
++	INTERNAL_ROLES,
++	MANAGEMENT_ROLES,
++} from "@cermont/domain";
+ import {
+ 	CreateDeliveryRecordV2Schema,
+ 	DeliveryRecordIdParamsSchema,
+@@ -50,7 +55,12 @@ router.post(
+ 
+ router.post(
+ 	"/:id/sign",
+-	authorize("gerente", "residente", "administrativo", "cliente"),
++	authorize(
++		CERMONT_ROLES.GERENTE,
++		CERMONT_ROLES.RESIDENTE,
++		CERMONT_ROLES.ADMINISTRATIVO,
++		CERMONT_ROLES.CLIENTE,
++	),
+ 	validateParams(DeliveryRecordIdParamsSchema),
+ 	validateBody(SignDeliveryRecordSchema),
+ 	DeliveryRecordController.signDeliveryRecord,
+@@ -58,7 +68,7 @@ router.post(
+ 
+ router.post(
+ 	"/:id/reject",
+-	authorize("gerente", "residente", "cliente"),
++	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.RESIDENTE, CERMONT_ROLES.CLIENTE),
+ 	validateParams(DeliveryRecordIdParamsSchema),
+ 	validateBody(RejectDeliveryRecordSchema),
+ 	DeliveryRecordController.rejectDeliveryRecord,
+diff --git a/backend/src/modules/documents/document.routes.ts b/backend/src/modules/documents/document.routes.ts
+index 88ee9b5..f806fd6 100644
+--- a/backend/src/modules/documents/document.routes.ts
++++ b/backend/src/modules/documents/document.routes.ts
+@@ -1,4 +1,4 @@
+-import { DOCUMENT_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
++import { CERMONT_ROLES, DOCUMENT_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+ import {
+ 	ArchiveDocumentSchema,
+ 	AssociateDocumentSchema,
+@@ -108,7 +108,12 @@ router.patch(
+ // PATCH /api/documents/:id/sign - Sign document
+ router.patch(
+ 	"/:id/sign",
+-	authorize("tecnico", "operador", "supervisor", "residente"),
++	authorize(
++		CERMONT_ROLES.TECNICO,
++		CERMONT_ROLES.OPERADOR,
++		CERMONT_ROLES.SUPERVISOR,
++		CERMONT_ROLES.RESIDENTE,
++	),
+ 	validateParams(DocumentIdSchema),
+ 	signDocument,
+ );
+diff --git a/backend/src/modules/erp-connector/erp-connector.routes.ts b/backend/src/modules/erp-connector/erp-connector.routes.ts
+index 1fb7ad7..3e1a4e4 100644
+--- a/backend/src/modules/erp-connector/erp-connector.routes.ts
++++ b/backend/src/modules/erp-connector/erp-connector.routes.ts
+@@ -2,6 +2,7 @@
+  * ErpConnector Routes — Endpoint wiring for ERP connector management
+  */
+ 
++import { CERMONT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+ import {
+ 	CreateErpConnectorSchema,
+ 	ObjectIdSchema,
+@@ -18,26 +19,26 @@ import { erpConnectorController } from "./erp-connector.controller";
+ 
+ const router = Router();
+ 
+-router.get("/", authenticate, authorize("gerente", "residente"), erpConnectorController.list);
++router.get("/", authenticate, authorize(...MANAGEMENT_ROLES), erpConnectorController.list);
+ 
+ router.get(
+ 	"/health",
+ 	authenticate,
+-	authorize("gerente", "residente"),
++	authorize(...MANAGEMENT_ROLES),
+ 	erpConnectorController.healthCheck,
+ );
+ 
+ router.get(
+ 	"/metrics",
+ 	authenticate,
+-	authorize("gerente", "residente"),
++	authorize(...MANAGEMENT_ROLES),
+ 	erpConnectorController.metrics,
+ );
+ 
+ router.post(
+ 	"/",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateBody(CreateErpConnectorSchema),
+ 	erpConnectorController.create,
+ );
+@@ -45,7 +46,7 @@ router.post(
+ router.get(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente", "residente"),
++	authorize(...MANAGEMENT_ROLES),
+ 	validateParams(ObjectIdSchema),
+ 	erpConnectorController.getById,
+ );
+@@ -53,7 +54,7 @@ router.get(
+ router.put(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(ObjectIdSchema),
+ 	validateBody(UpdateErpConnectorSchema),
+ 	erpConnectorController.update,
+@@ -62,7 +63,7 @@ router.put(
+ router.delete(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(ObjectIdSchema),
+ 	erpConnectorController.delete,
+ );
+@@ -70,7 +71,7 @@ router.delete(
+ router.post(
+ 	"/:provider/sync",
+ 	authenticate,
+-	authorize("gerente", "residente"),
++	authorize(...MANAGEMENT_ROLES),
+ 	validateParams(SyncErpConnectorParamsSchema),
+ 	validateBody(SyncErpConnectorRequestSchema),
+ 	erpConnectorController.sync,
+@@ -80,7 +81,7 @@ router.post(
+ router.post(
+ 	"/:id/validate-mapping",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(ObjectIdSchema),
+ 	validateBody(ValidateErpMappingSchema),
+ 	erpConnectorController.validateMapping,
+@@ -90,7 +91,7 @@ router.post(
+ router.post(
+ 	"/:id/test-sync",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(ObjectIdSchema),
+ 	erpConnectorController.testSync,
+ );
+diff --git a/backend/src/modules/evidence/evidence.routes.ts b/backend/src/modules/evidence/evidence.routes.ts
+index 00b5d02..bbeaaae 100644
+--- a/backend/src/modules/evidence/evidence.routes.ts
++++ b/backend/src/modules/evidence/evidence.routes.ts
+@@ -3,7 +3,12 @@
+  * DOC-10 §5: Evidencias
+  */
+ 
+-import { EVIDENCE_ACCESS_ROLES, INTERNAL_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
++import {
++	CERMONT_ROLES,
++	EVIDENCE_ACCESS_ROLES,
++	INTERNAL_ROLES,
++	SUPERVISORY_ROLES,
++} from "@cermont/domain";
+ import {
+ 	CreateEvidenceSchema,
+ 	EvidenceIdSchema,
+@@ -56,7 +61,7 @@ router.get(
+ router.post(
+ 	"/",
+ 	authenticate,
+-	authorize("operador", "tecnico", "supervisor"),
++	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
+ 	uploadLimiter,
+ 	evidenceUpload.single("file"),
+ 	handleUploadError,
+diff --git a/backend/src/modules/inspection/inspection.routes.ts b/backend/src/modules/inspection/inspection.routes.ts
+index b98f7e5..da6ebd4 100644
+--- a/backend/src/modules/inspection/inspection.routes.ts
++++ b/backend/src/modules/inspection/inspection.routes.ts
+@@ -1,4 +1,4 @@
+-import { REPORTING_ACCESS_ROLES } from "@cermont/domain";
++import { CERMONT_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
+ import {
+ 	CreateInspectionSchema,
+ 	InspectionIdSchema,
+@@ -25,7 +25,14 @@ router.use(authenticate);
+ router.get("/", authorize(...REPORTING_ACCESS_ROLES), getAllInspections);
+ router.get(
+ 	"/order/:order_id",
+-	authorize("gerente", "residente", "supervisor", "tecnico", "operador", "hes"),
++	authorize(
++		CERMONT_ROLES.GERENTE,
++		CERMONT_ROLES.RESIDENTE,
++		CERMONT_ROLES.SUPERVISOR,
++		CERMONT_ROLES.TECNICO,
++		CERMONT_ROLES.OPERADOR,
++		CERMONT_ROLES.HES,
++	),
+ 	validateParams(InspectionOrderIdParamsSchema),
+ 	getInspectionsByOrder,
+ );
+@@ -37,7 +44,14 @@ router.get(
+ );
+ router.post(
+ 	"/",
+-	authorize("gerente", "residente", "supervisor", "tecnico", "operador", "hes"),
++	authorize(
++		CERMONT_ROLES.GERENTE,
++		CERMONT_ROLES.RESIDENTE,
++		CERMONT_ROLES.SUPERVISOR,
++		CERMONT_ROLES.TECNICO,
++		CERMONT_ROLES.OPERADOR,
++		CERMONT_ROLES.HES,
++	),
+ 	validateBody(CreateInspectionSchema),
+ 	createInspection,
+ );
+@@ -48,6 +62,11 @@ router.patch(
+ 	validateBody(UpdateInspectionStatusSchema),
+ 	updateInspectionStatus,
+ );
+-router.delete("/:id", authorize("gerente"), validateParams(InspectionIdSchema), deleteInspection);
++router.delete(
++	"/:id",
++	authorize(CERMONT_ROLES.GERENTE),
++	validateParams(InspectionIdSchema),
++	deleteInspection,
++);
+ 
+ export default router;
+diff --git a/backend/src/modules/jobs/jobs.routes.ts b/backend/src/modules/jobs/jobs.routes.ts
+index 9fc29d7..bb4e9fd 100644
+--- a/backend/src/modules/jobs/jobs.routes.ts
++++ b/backend/src/modules/jobs/jobs.routes.ts
+@@ -2,6 +2,7 @@
+  * Jobs Routes — Admin endpoints for managing the reminder worker
+  */
+ 
++import { CERMONT_ROLES } from "@cermont/domain";
+ import { RunJobsSchema } from "@cermont/shared-types";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+@@ -15,12 +16,12 @@ const router = Router();
+ router.post(
+ 	"/run",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateBody(RunJobsSchema),
+ 	JobsController.runJobs,
+ );
+ 
+ // GET /api/jobs/status — Check if worker is running
+-router.get("/status", authenticate, authorize("gerente"), JobsController.getStatus);
++router.get("/status", authenticate, authorize(CERMONT_ROLES.GERENTE), JobsController.getStatus);
+ 
+ export default router;
+diff --git a/backend/src/modules/maintenance/maintenance.routes.ts b/backend/src/modules/maintenance/maintenance.routes.ts
+index 475d4b0..a2fbbb3 100644
+--- a/backend/src/modules/maintenance/maintenance.routes.ts
++++ b/backend/src/modules/maintenance/maintenance.routes.ts
+@@ -1,4 +1,9 @@
+-import { INTERNAL_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
++import {
++	CERMONT_ROLES,
++	INTERNAL_ROLES,
++	MAINTENANCE_MANAGEMENT_ROLES,
++	MANAGEMENT_ROLES,
++} from "@cermont/domain";
+ import {
+ 	AttachEntityDocumentSchema,
+ 	CreateMaintenanceKitSchema,
+@@ -63,7 +68,12 @@ router.patch(
+ );
+ 
+ // DELETE /api/maintenance/kits/:id — Deactivate kit (gerente only)
+-router.delete("/kits/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteKit);
++router.delete(
++	"/kits/:id",
++	authorize(CERMONT_ROLES.GERENTE),
++	validateParams(ResourceIdSchema),
++	deleteKit,
++);
+ 
+ // GET /api/maintenance/kits — List kits (all authenticated users)
+ router.get("/", authorize(...INTERNAL_ROLES), getAllKits);
+@@ -89,7 +99,12 @@ router.patch(
+ );
+ 
+ // DELETE /api/maintenance/kits/:id — Deactivate kit (gerente only)
+-router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteKit);
++router.delete(
++	"/:id",
++	authorize(CERMONT_ROLES.GERENTE),
++	validateParams(ResourceIdSchema),
++	deleteKit,
++);
+ 
+ // ─── Kit Document Attachments ─────────────────────────────────────
+ // POST /api/maintenance/kits/:kitId/documents — Attach document to kit
+diff --git a/backend/src/modules/order/order.routes.ts b/backend/src/modules/order/order.routes.ts
+index 51fbc42..4d649d2 100644
+--- a/backend/src/modules/order/order.routes.ts
++++ b/backend/src/modules/order/order.routes.ts
+@@ -11,7 +11,12 @@
+  * The service layer enforces finer domain rules.
+  */
+ 
+-import { FIELD_MANAGEMENT_ROLES, INTERNAL_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
++import {
++	CERMONT_ROLES,
++	FIELD_MANAGEMENT_ROLES,
++	INTERNAL_ROLES,
++	REPORTING_ACCESS_ROLES,
++} from "@cermont/domain";
+ import {
+ 	AssignOrderSchema,
+ 	CreateOrderSchema,
+@@ -159,7 +164,7 @@ router.patch(
+ router.delete(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(OrderIdSchema),
+ 	OrderController.deleteOrder,
+ );
+diff --git a/backend/src/modules/portal/portal.routes.ts b/backend/src/modules/portal/portal.routes.ts
+index 6d3cc18..dc0eda6 100644
+--- a/backend/src/modules/portal/portal.routes.ts
++++ b/backend/src/modules/portal/portal.routes.ts
+@@ -1,3 +1,4 @@
++import { CERMONT_ROLES } from "@cermont/domain";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+ import { authorize } from "../../middlewares/authorize.middleware";
+@@ -6,7 +7,7 @@ import * as portalController from "./portal.controller";
+ const router = Router();
+ 
+ router.use(authenticate);
+-router.use(authorize("cliente"));
++router.use(authorize(CERMONT_ROLES.CLIENTE));
+ 
+ router.get("/dashboard", portalController.getDashboard);
+ router.get("/orders", portalController.listOrders);
+diff --git a/backend/src/modules/proposal/proposal.routes.ts b/backend/src/modules/proposal/proposal.routes.ts
+index 2527147..2469bee 100644
+--- a/backend/src/modules/proposal/proposal.routes.ts
++++ b/backend/src/modules/proposal/proposal.routes.ts
+@@ -1,4 +1,4 @@
+-import { ALL_AUTHENTICATED_ROLES, FIELD_MANAGEMENT_ROLES } from "@cermont/domain";
++import { ALL_AUTHENTICATED_ROLES, CERMONT_ROLES, FIELD_MANAGEMENT_ROLES } from "@cermont/domain";
+ import {
+ 	ApproveProposalSchema,
+ 	ConvertProposalToOrderSchema,
+@@ -92,14 +92,19 @@ router.patch(
+ // Approve proposal (convenience endpoint)
+ router.patch(
+ 	"/:id/approve",
+-	authorize("cliente"),
++	authorize(CERMONT_ROLES.CLIENTE),
+ 	validateParams(ProposalIdSchema),
+ 	validateBody(ApproveProposalSchema),
+ 	approveProposal,
+ );
+ 
+ // Reject proposal (convenience endpoint)
+-router.patch("/:id/reject", authorize("cliente"), validateParams(ProposalIdSchema), rejectProposal);
++router.patch(
++	"/:id/reject",
++	authorize(CERMONT_ROLES.CLIENTE),
++	validateParams(ProposalIdSchema),
++	rejectProposal,
++);
+ 
+ /**
+  * POST /api/proposals/:id/convert
+diff --git a/backend/src/modules/report/report.routes.ts b/backend/src/modules/report/report.routes.ts
+index b8c67e8..8590b59 100644
+--- a/backend/src/modules/report/report.routes.ts
++++ b/backend/src/modules/report/report.routes.ts
+@@ -1,5 +1,10 @@
+ import { env } from "@cermont/config";
+-import { APPROVER_ROLES, INTERNAL_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
++import {
++	APPROVER_ROLES,
++	CERMONT_ROLES,
++	INTERNAL_ROLES,
++	REPORTING_ACCESS_ROLES,
++} from "@cermont/domain";
+ import {
+ 	CreateWorkReportSchema,
+ 	ListReportsQuerySchema,
+@@ -105,7 +110,7 @@ router.patch(
+ );
+ router.delete(
+ 	"/:id",
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(ReportIdSchema),
+ 	ReportController.deleteReport,
+ );
+diff --git a/backend/src/modules/resource/resource.routes.ts b/backend/src/modules/resource/resource.routes.ts
+index 4546111..1f1ac27 100644
+--- a/backend/src/modules/resource/resource.routes.ts
++++ b/backend/src/modules/resource/resource.routes.ts
+@@ -1,4 +1,5 @@
+ import {
++	CERMONT_ROLES,
+ 	INTERNAL_ROLES,
+ 	MAINTENANCE_MANAGEMENT_ROLES,
+ 	MANAGEMENT_ROLES,
+@@ -65,7 +66,12 @@ router.patch(
+ 	validateBody(UpdateMaintenanceKitSchema),
+ 	updateKit,
+ );
+-router.delete("/kits/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteKit);
++router.delete(
++	"/kits/:id",
++	authorize(CERMONT_ROLES.GERENTE),
++	validateParams(ResourceIdSchema),
++	deleteKit,
++);
+ 
+ // Create resource - gerente, residente, supervisor
+ router.post(
+@@ -105,7 +111,12 @@ router.patch(
+ );
+ 
+ // Delete resource - only gerente
+-router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteResource);
++router.delete(
++	"/:id",
++	authorize(CERMONT_ROLES.GERENTE),
++	validateParams(ResourceIdSchema),
++	deleteResource,
++);
+ 
+ // ─── Resource/Tool Document Attachments ────────────────────────────
+ router.post(
+diff --git a/backend/src/modules/service-cases/service-case.routes.ts b/backend/src/modules/service-cases/service-case.routes.ts
+index 630d8c3..e7ca5bb 100644
+--- a/backend/src/modules/service-cases/service-case.routes.ts
++++ b/backend/src/modules/service-cases/service-case.routes.ts
+@@ -1,4 +1,9 @@
+-import { INTERNAL_ROLES, MANAGEMENT_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
++import {
++	CERMONT_ROLES,
++	INTERNAL_ROLES,
++	MANAGEMENT_ROLES,
++	SUPERVISORY_ROLES,
++} from "@cermont/domain";
+ import { ListServiceCasesQuerySchema, ServiceCaseIdParamsSchema } from "@cermont/shared-types";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+@@ -110,7 +115,7 @@ router.post(
+ router.post(
+ 	"/:id/archive",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(ServiceCaseIdParamsSchema),
+ 	archiveServiceCase,
+ );
+diff --git a/backend/src/modules/template-draft/template-draft.routes.ts b/backend/src/modules/template-draft/template-draft.routes.ts
+index 3c9ba72..076aab7 100644
+--- a/backend/src/modules/template-draft/template-draft.routes.ts
++++ b/backend/src/modules/template-draft/template-draft.routes.ts
+@@ -1,4 +1,4 @@
+-import { ADMIN_PLUS_RESIDENTE, INTERNAL_ROLES } from "@cermont/domain";
++import { ADMIN_PLUS_RESIDENTE, CERMONT_ROLES, INTERNAL_ROLES } from "@cermont/domain";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+ import { authorize } from "../../middlewares/authorize.middleware";
+@@ -24,13 +24,13 @@ router.patch(
+ );
+ router.post(
+ 	"/:id/approve",
+-	authorize("gerente", "administrativo"),
++	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
+ 	// No body validation needed — approve is an action endpoint with no body
+ 	TemplateDraftController.approve,
+ );
+ router.post(
+ 	"/:id/reject",
+-	authorize("gerente", "administrativo"),
++	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
+ 	// No body validation needed — reject is an action endpoint with no body
+ 	TemplateDraftController.reject,
+ );
+@@ -42,10 +42,14 @@ router.post(
+ );
+ router.post(
+ 	"/:id/convert-to-template",
+-	authorize("gerente", "administrativo"),
++	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
+ 	// No body validation needed — convert is an action endpoint with no body
+ 	TemplateDraftController.convert,
+ );
+-router.delete("/:id", authorize("gerente", "administrativo"), TemplateDraftController.remove);
++router.delete(
++	"/:id",
++	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.ADMINISTRATIVO),
++	TemplateDraftController.remove,
++);
+ 
+ export default router;
+diff --git a/backend/src/modules/user/user.routes.ts b/backend/src/modules/user/user.routes.ts
+index f7f1008..e89c655 100644
+--- a/backend/src/modules/user/user.routes.ts
++++ b/backend/src/modules/user/user.routes.ts
+@@ -16,7 +16,7 @@
+  * - GET /api/users/role/:role → GER, RES, SUP
+  */
+ 
+-import { MANAGEMENT_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
++import { CERMONT_ROLES, MANAGEMENT_ROLES, SUPERVISORY_ROLES } from "@cermont/domain";
+ import {
+ 	AddUserCertificationSchema,
+ 	CreateUserSchema,
+@@ -124,7 +124,7 @@ router.put(
+ router.patch(
+ 	"/:id/deactivate",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(UserIdParamsSchema),
+ 	UserController.deactivateUser,
+ );
+diff --git a/backend/src/modules/work-requests/work-requests.routes.ts b/backend/src/modules/work-requests/work-requests.routes.ts
+index 0805ac5..8f559d5 100644
+--- a/backend/src/modules/work-requests/work-requests.routes.ts
++++ b/backend/src/modules/work-requests/work-requests.routes.ts
+@@ -8,7 +8,12 @@
+  * - Order: authenticate → authorize → validate → controller
+  */
+ 
+-import { FIELD_MANAGEMENT_ROLES, INTERNAL_ROLES, REPORTING_ACCESS_ROLES } from "@cermont/domain";
++import {
++	CERMONT_ROLES,
++	FIELD_MANAGEMENT_ROLES,
++	INTERNAL_ROLES,
++	REPORTING_ACCESS_ROLES,
++} from "@cermont/domain";
+ import {
+ 	CreateWorkRequestSchema,
+ 	ListWorkRequestsQuerySchema,
+@@ -115,7 +120,7 @@ router.post(
+ router.delete(
+ 	"/:id",
+ 	authenticate,
+-	authorize("gerente"),
++	authorize(CERMONT_ROLES.GERENTE),
+ 	validateParams(WorkRequestIdParamsSchema),
+ 	WorkRequestController.deleteWorkRequest,
+ );
+diff --git a/frontend/src/app/(dashboard)/admin/custom-fields/page.tsx b/frontend/src/app/(dashboard)/admin/custom-fields/page.tsx
+index 1f7f4eb..59efaf6 100644
+--- a/frontend/src/app/(dashboard)/admin/custom-fields/page.tsx
++++ b/frontend/src/app/(dashboard)/admin/custom-fields/page.tsx
+@@ -97,12 +97,12 @@ export default function AdminCustomFieldsPage() {
+ 
+ 			{editing && (
+ 				<CustomFieldEditor
++					key={editing === "new" ? "new" : editing._id}
+ 					entityType={entityType}
+ 					{...(editing !== "new" ? { initial: editing } : {})}
+ 					isSaving={isSaving}
+ 					onSave={handleSave}
+ 					onCancel={() => setEditing("")}
+-					key={editing === "new" ? "new" : editing._id}
+ 				/>
+ 			)}
+ 
+diff --git a/frontend/src/landing/components/AboutSection.tsx b/frontend/src/landing/components/AboutSection.tsx
+index 067355d..cca6ea9 100644
+--- a/frontend/src/landing/components/AboutSection.tsx
++++ b/frontend/src/landing/components/AboutSection.tsx
+@@ -57,7 +57,7 @@ export function AboutSection() {
+ 
+ 					<div className="grid gap-4">
+ 						{LANDING_TRUST_POINTS.map((point) => (
+-							<PrincipleCard {...point} key={point.title} />
++							<PrincipleCard key={point.title} {...point} />
+ 						))}
+ 					</div>
+ 				</div>
+diff --git a/frontend/src/landing/components/HeroSection.tsx b/frontend/src/landing/components/HeroSection.tsx
+index 58c8ce6..4023628 100644
+--- a/frontend/src/landing/components/HeroSection.tsx
++++ b/frontend/src/landing/components/HeroSection.tsx
+@@ -128,7 +128,7 @@ export function HeroSection() {
+ 
+ 						<div className="relative z-10 mt-6 grid gap-4 sm:grid-cols-3">
+ 							{LANDING_METRICS.map((metric) => (
+-								<MetricCard {...metric} key={metric.label} />
++								<MetricCard key={metric.label} {...metric} />
+ 							))}
+ 						</div>
+ 
+diff --git a/frontend/src/landing/components/MethodSection.tsx b/frontend/src/landing/components/MethodSection.tsx
+index 2f55533..4353873 100644
+--- a/frontend/src/landing/components/MethodSection.tsx
++++ b/frontend/src/landing/components/MethodSection.tsx
+@@ -27,7 +27,7 @@ export function MethodSection() {
+ 
+ 					<div className="relative grid gap-8 lg:grid-cols-4 lg:gap-6">
+ 						{LANDING_WORKFLOW.map((step) => (
+-							<WorkflowCard {...step} key={step.step} />
++							<WorkflowCard key={step.step} {...step} />
+ 						))}
+ 					</div>
+ 				</div>
+diff --git a/frontend/src/landing/components/ResourcesSection.tsx b/frontend/src/landing/components/ResourcesSection.tsx
+index d008949..5620551 100644
+--- a/frontend/src/landing/components/ResourcesSection.tsx
++++ b/frontend/src/landing/components/ResourcesSection.tsx
+@@ -26,13 +26,13 @@ export function ResourcesSection() {
+ 
+ 				<div className="mt-10 grid gap-6 lg:grid-cols-2">
+ 					{LANDING_RESOURCES.map((resource) => (
+-						<ResourceCard {...resource} key={resource.title} />
++						<ResourceCard key={resource.title} {...resource} />
+ 					))}
+ 				</div>
+ 
+ 				<div className="mt-10 grid gap-4 sm:grid-cols-3">
+ 					{LANDING_CERTIFICATIONS.map((certification) => (
+-						<CertificationCard {...certification} key={certification.title} />
++						<CertificationCard key={certification.title} {...certification} />
+ 					))}
+ 				</div>
+ 			</div>
+diff --git a/frontend/src/landing/components/ServicesSection.tsx b/frontend/src/landing/components/ServicesSection.tsx
+index 75d815e..7e30e1a 100644
+--- a/frontend/src/landing/components/ServicesSection.tsx
++++ b/frontend/src/landing/components/ServicesSection.tsx
+@@ -19,7 +19,7 @@ export function ServicesSection() {
+ 
+ 				<div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+ 					{LANDING_SERVICES.map((service) => (
+-						<ServiceCard {...service} key={service.title} />
++						<ServiceCard key={service.title} {...service} />
+ 					))}
+ 				</div>
+ 			</div>
+diff --git a/frontend/src/landing/components/TrustSection.tsx b/frontend/src/landing/components/TrustSection.tsx
+index 74ef89b..fd61f39 100644
+--- a/frontend/src/landing/components/TrustSection.tsx
++++ b/frontend/src/landing/components/TrustSection.tsx
+@@ -22,7 +22,7 @@ export function TrustSection({ shouldReduceMotion }: { shouldReduceMotion: boole
+ 
+ 						<div className="mt-10 grid gap-5 sm:grid-cols-3">
+ 							{LANDING_TRUST_POINTS.map((point) => (
+-								<PrincipleCard {...point} key={point.title} />
++								<PrincipleCard key={point.title} {...point} />
+ 							))}
+ 						</div>
+ 					</article>
+diff --git a/frontend/src/modules/cockpit/model/cockpit.types.ts b/frontend/src/modules/cockpit/model/cockpit.types.ts
+index 190bbb2..9dcae17 100644
+--- a/frontend/src/modules/cockpit/model/cockpit.types.ts
++++ b/frontend/src/modules/cockpit/model/cockpit.types.ts
+@@ -21,6 +21,30 @@ export interface Blocker {
+ 	moduleLink?: string;
+ }
+ 
++export interface CockpitEvidence {
++	id: string;
++	type: "before" | "during" | "after" | "defect" | "safety" | "signature";
++	url: string;
++	thumbnailUrl?: string;
++	caption?: string;
++	takenAt: string;
++	status: "captured" | "uploaded" | "under_review" | "verified" | "rejected";
++}
++
++export interface CockpitCostSummary {
++	estimatedTotal: number;
++	actualTotal: number;
++	variance: number;
++	marginPercent: number;
++	riskLevel: "low" | "medium" | "high";
++}
++
++export interface CockpitClosureStatus {
++	sesStatus: "pending" | "approved" | "rejected";
++	invoiceStatus: "pending" | "issued" | "approved" | "paid";
++	paymentStatus: "pending" | "registered" | "confirmed";
++}
++
+ export interface CockpitData {
+ 	serviceCaseId: string;
+ 	code: string;
+@@ -32,5 +56,8 @@ export interface CockpitData {
+ 	currentStep: number;
+ 	nextAction: NextExpectedAction | null;
+ 	blockers: Blocker[];
++	evidences: CockpitEvidence[];
++	costSummary: CockpitCostSummary | null;
++	closureStatus: CockpitClosureStatus | null;
+ 	generatedAt: string;
+ }
+diff --git a/frontend/src/modules/costs/ui/CostCatalogForm.tsx b/frontend/src/modules/costs/ui/CostCatalogForm.tsx
+index 80dd1a9..a780c71 100644
+--- a/frontend/src/modules/costs/ui/CostCatalogForm.tsx
++++ b/frontend/src/modules/costs/ui/CostCatalogForm.tsx
+@@ -2,7 +2,7 @@
+ 
+ import { hasRole, MANAGEMENT_ROLES } from "@cermont/domain";
+ import type { CostCategory } from "@cermont/shared-types";
+-import { type FormEvent, useState } from "react";
++import { type FormEvent, useReducer } from "react";
+ import { useAuth } from "@/modules/auth/hooks/useAuth";
+ 
+ interface Props {
+@@ -17,6 +17,42 @@ interface Props {
+ 	error?: string;
+ }
+ 
++interface CostCatalogFormState {
++	code: string;
++	name: string;
++	category: CostCategory;
++	unit: string;
++	unitPrice: string;
++}
++
++type CostCatalogFormAction =
++	| { type: "SET_CODE"; value: string }
++	| { type: "SET_NAME"; value: string }
++	| { type: "SET_CATEGORY"; value: CostCategory }
++	| { type: "SET_UNIT"; value: string }
++	| { type: "SET_UNIT_PRICE"; value: string }
++	| { type: "RESET" };
++
++function costCatalogFormReducer(
++	state: CostCatalogFormState,
++	action: CostCatalogFormAction,
++): CostCatalogFormState {
++	switch (action.type) {
++		case "SET_CODE":
++			return { ...state, code: action.value };
++		case "SET_NAME":
++			return { ...state, name: action.value };
++		case "SET_CATEGORY":
++			return { ...state, category: action.value };
++		case "SET_UNIT":
++			return { ...state, unit: action.value };
++		case "SET_UNIT_PRICE":
++			return { ...state, unitPrice: action.value };
++		case "RESET":
++			return { code: "", name: "", category: "materials", unit: "", unitPrice: "" };
++	}
++}
++
+ const CATEGORY_OPTIONS: { value: CostCategory; label: string }[] = [
+ 	{ value: "labor", label: "Mano de obra" },
+ 	{ value: "materials", label: "Materiales" },
+@@ -26,14 +62,18 @@ const CATEGORY_OPTIONS: { value: CostCategory; label: string }[] = [
+ 	{ value: "other", label: "Otros" },
+ ];
+ 
++const INITIAL_STATE: CostCatalogFormState = {
++	code: "",
++	name: "",
++	category: "materials",
++	unit: "",
++	unitPrice: "",
++};
++
+ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
+ 	const { user } = useAuth();
+ 	const canManage = user ? hasRole(user.role, MANAGEMENT_ROLES) : false;
+-	const [code, setCode] = useState("");
+-	const [name, setName] = useState("");
+-	const [category, setCategory] = useState<CostCategory>("materials");
+-	const [unit, setUnit] = useState("");
+-	const [unitPrice, setUnitPrice] = useState("");
++	const [state, dispatch] = useReducer(costCatalogFormReducer, INITIAL_STATE);
+ 
+ 	if (!canManage) {
+ 		return null;
+@@ -41,21 +81,24 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
+ 
+ 	const handleSubmit = (e: FormEvent) => {
+ 		e.preventDefault();
+-		const price = Number(unitPrice);
+-		if (!code.trim() || !name.trim() || !unit.trim() || Number.isNaN(price) || price <= 0) {
++		const price = Number(state.unitPrice);
++		if (
++			!state.code.trim() ||
++			!state.name.trim() ||
++			!state.unit.trim() ||
++			Number.isNaN(price) ||
++			price <= 0
++		) {
+ 			return;
+ 		}
+ 		onSubmit({
+-			code: code.trim(),
+-			name: name.trim(),
+-			category,
+-			unit: unit.trim(),
++			code: state.code.trim(),
++			name: state.name.trim(),
++			category: state.category,
++			unit: state.unit.trim(),
+ 			unitPrice: price,
+ 		});
+-		setCode("");
+-		setName("");
+-		setUnit("");
+-		setUnitPrice("");
++		dispatch({ type: "RESET" });
+ 	};
+ 
+ 	return (
+@@ -67,8 +110,8 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
+ 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
+ 				Código
+ 				<input
+-					value={code}
+-					onChange={(e) => setCode(e.target.value)}
++					value={state.code}
++					onChange={(e) => dispatch({ type: "SET_CODE", value: e.target.value })}
+ 					required
+ 					maxLength={40}
+ 					className="min-h-11 rounded-md border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm"
+@@ -78,8 +121,8 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
+ 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
+ 				Referencia
+ 				<input
+-					value={name}
+-					onChange={(e) => setName(e.target.value)}
++					value={state.name}
++					onChange={(e) => dispatch({ type: "SET_NAME", value: e.target.value })}
+ 					required
+ 					maxLength={200}
+ 					className="min-h-11 rounded-md border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm"
+@@ -89,8 +132,10 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
+ 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
+ 				Categoría
+ 				<select
+-					value={category}
+-					onChange={(e) => setCategory(e.target.value as CostCategory)}
++					value={state.category}
++					onChange={(e) =>
++						dispatch({ type: "SET_CATEGORY", value: e.target.value as CostCategory })
++					}
+ 					className="min-h-11 rounded-md border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm"
+ 				>
+ 					{CATEGORY_OPTIONS.map((opt) => (
+@@ -103,8 +148,8 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
+ 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
+ 				Unidad
+ 				<input
+-					value={unit}
+-					onChange={(e) => setUnit(e.target.value)}
++					value={state.unit}
++					onChange={(e) => dispatch({ type: "SET_UNIT", value: e.target.value })}
+ 					required
+ 					maxLength={50}
+ 					className="min-h-11 rounded-md border border-[var(--border-medium)] bg-[var(--surface-primary)] px-3 text-sm"
+@@ -114,8 +159,8 @@ export function CostCatalogForm({ onSubmit, isPending, error }: Props) {
+ 			<label className="flex flex-col gap-1 text-xs font-medium text-[var(--text-secondary)]">
+ 				Valor unitario (COP)
+ 				<input
+-					value={unitPrice}
+-					onChange={(e) => setUnitPrice(e.target.value)}
++					value={state.unitPrice}
++					onChange={(e) => dispatch({ type: "SET_UNIT_PRICE", value: e.target.value })}
+ 					required
+ 					type="number"
+ 					min={0}
+diff --git a/frontend/src/modules/service-cases/components/CostComparisonPanel.tsx b/frontend/src/modules/service-cases/components/CostComparisonPanel.tsx
+index 4ef6920..325314a 100644
+--- a/frontend/src/modules/service-cases/components/CostComparisonPanel.tsx
++++ b/frontend/src/modules/service-cases/components/CostComparisonPanel.tsx
+@@ -257,7 +257,7 @@ export function CostComparisonPanel({ costs, serviceCaseId }: CostComparisonPane
+ 					</div>
+ 					<div className="space-y-1.5">
+ 						{categories.map((cat) => (
+-							<CategoryRow {...cat} key={cat.label} />
++							<CategoryRow key={cat.label} {...cat} />
+ 						))}
+ 					</div>
+ 				</div>
+diff --git a/package.json b/package.json
+index aa8ea5a..ea4f8d4 100644
+--- a/package.json
++++ b/package.json
+@@ -37,7 +37,8 @@
+ 		"quality:lint-residue": "tsx tooling/quality/check-lint-residue.ts",
+ 		"quality:service-size": "tsx tooling/quality/check-service-size.ts",
+ 		"quality:env": "tsx tooling/quality/check-env-config.ts",
+-		"quality:strict": "npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size && npm run quality:env",
++		"quality:hardcoded-roles": "tsx tooling/quality/check-hardcoded-roles.ts",
++		"quality:strict": "npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size && npm run quality:env && npm run quality:hardcoded-roles",
+ 		"format:check": "turbo run format:check",
+ 		"verify:shared-types": "npm run typecheck -w @cermont/shared-types && npm run lint -w @cermont/shared-types && npm run test -w @cermont/shared-types && npm run build -w @cermont/shared-types",
+ 		"verify:domain": "npm run typecheck -w @cermont/domain && npm run lint -w @cermont/domain && npm run build -w @cermont/domain",
+diff --git a/packages/domain/src/index.ts b/packages/domain/src/index.ts
+index 8944f71..6e3413b 100644
+--- a/packages/domain/src/index.ts
++++ b/packages/domain/src/index.ts
+@@ -166,6 +166,7 @@ export {
+ 	ASSET_MANAGEMENT_ROLES,
+ 	AUDIT_ACCESS_ROLES,
+ 	BILLING_ACCESS_ROLES,
++	CERMONT_ROLES,
+ 	DASHBOARD_ACCESS_ROLES,
+ 	DEFAULT_NEW_USER_ROLE,
+ 	DEFAULT_USER_ROLE,
+@@ -189,6 +190,7 @@ export {
+ 	RESOURCE_ROLES,
+ 	ROLE_HIERARCHY,
+ 	ROLE_LABELS,
++	ROLES,
+ 	resolveUserRole,
+ 	SITE_VISIT_CANCEL_ROLES,
+ 	SITE_VISIT_EXECUTION_ROLES,
+diff --git a/packages/domain/src/roles.ts b/packages/domain/src/roles.ts
+index 20cdfc1..2c8573f 100644
+--- a/packages/domain/src/roles.ts
++++ b/packages/domain/src/roles.ts
+@@ -454,6 +454,39 @@ export function resolveUserRole(role: unknown, fallback: UserRole = DEFAULT_USER
+ 	return normalized ?? fallback;
+ }
+ 
++/**
++ * Individual role constants for use with authorize() middleware.
++ * Prevents hardcoded role strings in route files.
++ *
++ * @example
++ * ```ts
++ * import { CERMONT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
++ * // Single role
++ * authorize(CERMONT_ROLES.GERENTE)
++ * // Multi-role from group constant
++ * authorize(...MANAGEMENT_ROLES)
++ * ```
++ */
++export const CERMONT_ROLES = {
++	GERENTE: "gerente" as const,
++	RESIDENTE: "residente" as const,
++	HES: "hes" as const,
++	COORD_ADMINISTRATIVO: "coord_administrativo" as const,
++	AUXILIAR_CONTABLE: "auxiliar_contable" as const,
++	SUPERVISOR: "supervisor" as const,
++	AUXILIAR_HES: "auxiliar_hes" as const,
++	SUPERVISOR_ELECTRICISTA: "supervisor_electricista" as const,
++	TECNICO_ELECTRICISTA: "tecnico_electricista" as const,
++	OPERADOR: "operador" as const,
++	TECNICO: "tecnico" as const,
++	OFICIAL_CONSTRUCCION: "oficial_construccion" as const,
++	ADMINISTRATIVO: "administrativo" as const,
++	PASANTE: "pasante" as const,
++	CLIENTE: "cliente" as const,
++} as const satisfies Record<string, UserRole>;
++
++export { CERMONT_ROLES as ROLES };
++
+ /**
+  * Default initial role for new user creation forms.
+  * "tecnico" is the most common starting role for new field workers.
+diff --git a/tooling/git/pre-commit.mjs b/tooling/git/pre-commit.mjs
+index 9c4fd12..5897c9e 100644
+--- a/tooling/git/pre-commit.mjs
++++ b/tooling/git/pre-commit.mjs
+@@ -1,9 +1,16 @@
+ import { spawnSync } from "node:child_process";
+ 
+ const commands = [
++	// Type safety
+ 	["npm", ["run", "typecheck"]],
++	// Linting
+ 	["npm", ["run", "lint"]],
++	// Quick quality checks (routes and hardcoded roles)
++	["npm", ["run", "quality:routes"]],
++	["npm", ["run", "quality:hardcoded-roles"]],
++	// Tests
+ 	["npm", ["run", "test"]],
++	// Staged file formatting
+ 	["node", ["./node_modules/lint-staged/bin/lint-staged.js"]],
+ ];
+ 
+diff --git a/tooling/quality/baseline.json b/tooling/quality/baseline.json
+index 40c1b16..eb3b6d9 100644
+--- a/tooling/quality/baseline.json
++++ b/tooling/quality/baseline.json
+@@ -1,8 +1,8 @@
+ {
+ 	"weak-token-a": 72,
+-	"weak-token-u": 693,
+-	"weak-token-n": 1509,
+-	"weak-token-ud": 780,
++	"weak-token-u": 714,
++	"weak-token-n": 1510,
++	"weak-token-ud": 781,
+ 	"spanish-source-token": 2755,
+ 	"missing-semantic-landmark": 17,
+ 	"route-missing-authentication": 0,
+diff --git a/tooling/quality/check-hardcoded-roles.ts b/tooling/quality/check-hardcoded-roles.ts
+new file mode 100644
+index 0000000..fb8aceb
+--- /dev/null
++++ b/tooling/quality/check-hardcoded-roles.ts
+@@ -0,0 +1,146 @@
++/**
++ * Hardcoded Roles Checker
++ *
++ * Fails if any route, controller, or frontend file contains hardcoded
++ * role strings in patterns like:
++ *   - authorize("gerente")
++ *   - roles: ["gerente"]
++ *   - allowedRoles: ["gerente"]
++ *
++ * Exemptions:
++ *   - packages/domain/* (SSOT)
++ *   - packages/shared-types/* (contract definitions)
++ *   - tests (test data)
++ *
++ * Usage: tsx tooling/quality/check-hardcoded-roles.ts
++ */
++
++import path from "node:path";
++import type { Finding } from "./shared";
++import { lineColumnAt, readText, repoRoot, toPosix } from "./shared";
++
++const ALLOWED_PATHS = ["packages/domain", "packages/shared-types", "packages/config"];
++
++const SKIPPED_PARTS = [
++	"node_modules",
++	"dist",
++	".next",
++	".turbo",
++	"coverage",
++	"playwright-report",
++	"test-results",
++];
++
++const AUTHORIZE_PATTERN =
++	/authorize\(\s*"(gerente|residente|hes|supervisor|operador|tecnico|administrativo|cliente|coord_administrativo|auxiliar_contable|auxiliar_hes|supervisor_electricista|tecnico_electricista|oficial_construccion|pasante)"/g;
++
++const ROLES_ARRAY_PATTERN =
++	/(?:roles|allowedRoles)\s*:\s*\[\s*"(gerente|residente|hes|supervisor|operador|tecnico|administrativo|cliente|coord_administrativo|auxiliar_contable|auxiliar_hes|supervisor_electricista|tecnico_electricista|oficial_construccion|pasante)"/g;
++
++function isAllowed(fileRelative: string): boolean {
++	return ALLOWED_PATHS.some((prefix) => fileRelative.startsWith(prefix));
++}
++
++function findHardcodedRoles(filePath: string): Finding[] {
++	const relative = toPosix(path.relative(repoRoot(), filePath));
++
++	if (isAllowed(relative)) {
++		return [];
++	}
++
++	if (SKIPPED_PARTS.some((part) => relative.includes(part))) {
++		return [];
++	}
++
++	const ext = path.extname(filePath);
++	if (![".ts", ".tsx", ".js", ".jsx"].includes(ext)) {
++		return [];
++	}
++
++	const text = readText(filePath);
++	const findings: Finding[] = [];
++
++	// Check authorize("role") pattern
++	for (const match of text.matchAll(AUTHORIZE_PATTERN)) {
++		const location = lineColumnAt(text, match.index);
++		findings.push({
++			rule: "hardcoded-authorize-role",
++			file: relative,
++			line: location.line,
++			column: location.column,
++			message: `Hardcoded role "${match[1]}" in authorize() call. Use CERMONT_ROLES.${match[1].toUpperCase()} instead`,
++		});
++	}
++
++	// Check roles/allowedRoles array pattern
++	for (const match of text.matchAll(ROLES_ARRAY_PATTERN)) {
++		const location = lineColumnAt(text, match.index);
++		findings.push({
++			rule: "hardcoded-roles-array",
++			file: relative,
++			line: location.line,
++			column: location.column,
++			message: `Hardcoded role "${match[1]}" in roles list. Use domain constants instead`,
++		});
++	}
++
++	return findings;
++}
++
++function walkDirectory(dir: string, findings: Finding[]): void {
++	const entries = readFileSystem(dir);
++	for (const entry of entries) {
++		const fullPath = path.join(dir, entry.name);
++		if (entry.isDirectory()) {
++			if (!SKIPPED_PARTS.includes(entry.name)) {
++				walkDirectory(fullPath, findings);
++			}
++		} else if (entry.isFile()) {
++			findings.push(...findHardcodedRoles(fullPath));
++		}
++	}
++}
++
++interface DirEntry {
++	name: string;
++	isDirectory(): boolean;
++	isFile(): boolean;
++}
++
++function readFileSystem(dir: string): DirEntry[] {
++	// Minimal filesystem reader compatible with tsx
++	const fs = require("node:fs");
++	const entries = fs.readdirSync(dir, { withFileTypes: true });
++	return entries.map((e: { name: string; isDirectory: () => boolean; isFile: () => boolean }) => ({
++		name: e.name,
++		isDirectory: e.isDirectory.bind(e),
++		isFile: e.isFile.bind(e),
++	}));
++}
++
++function main(): void {
++	const findings: Finding[] = [];
++	const root = repoRoot();
++
++	for (const scanDir of ["backend/src", "frontend/src"]) {
++		const fullPath = path.join(root, scanDir);
++		try {
++			walkDirectory(fullPath, findings);
++		} catch {
++			// Directory might not exist
++		}
++	}
++
++	if (findings.length === 0) {
++		console.log("Hardcoded roles checker: 0 violations found ✅");
++		process.exit(0);
++	}
++
++	console.error(`Hardcoded roles checker: ${findings.length} violation(s) found ❌`);
++	for (const f of findings) {
++		console.error(`  ${f.file}:${f.line}:${f.column} ${f.rule} - ${f.message}`);
++	}
++	process.exit(1);
++}
++
++main();
+-- 
+2.51.1.windows.1
+

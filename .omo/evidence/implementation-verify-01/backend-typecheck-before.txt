@@ -1,0 +1,4 @@
+
+> @cermont/backend@5.2.1 typecheck
+> tsc --noEmit
+

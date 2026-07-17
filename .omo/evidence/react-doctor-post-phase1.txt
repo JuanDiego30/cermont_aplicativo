@@ -1,0 +1,14 @@
+React Doctor v0.7.4
+
+✔ Select projects › @cermont/frontend
+Scanning changes: plan/contract-first-masterplan-v6 → deploy/vps-clean
+
+  
+No issues found!
+
+  ┌─────┐  89 / 100 Great
+  │ ◠ ◠ │  █████████████████████████████████████████████░░░░░
+  │  ▽  │  React Doctor (https://react.doctor)
+  └─────┘
+
+

@@ -1,0 +1,38 @@
+GapID,Severity,Sprint,Module,Description,RootCause,Impact,Effort,Order
+GAP-P0-001,P0,Cross-cutting,Frontend,React Doctor regression 76/100 from 100/100,New code without refactor; large components,Blocks verify and production deploy,3-5d,1
+GAP-P0-002,P0,4,Testing,E2E tests not executable (Playwright not installed),Browsers not installed in environment,Cannot verify full 14-step flow,1-2d,2
+GAP-P1-001,P1,5,Auth,MFA not implemented (no TOTP/QR/recovery),Not prioritized,Weak authentication security,3-5d,3
+GAP-P1-002,P1,2,Execution,Offline execution not verified with runtime (FIFO,DLQ,retry),Infrastructure exists but not end-to-end tested,Offline execution reliability unknown,3-5d,4
+GAP-P1-003,P1,3,Billing,Three-way reconciliation not implemented (SES-Invoice-Payment),Missing specific module,Billing integrity risk,3-5d,5
+GAP-P1-004,P1,6,Testing,Playwright specs exist but cannot execute,Playwright browsers not installed,No automated E2E verification,1-2d,2
+GAP-P1-005,P1,3,Billing,DIAN electronic invoicing integration not verified,External system dependency,Legal compliance risk,3-5d,6
+GAP-P1-006,P1,3,Billing,Ariba integration not implemented,External system dependency,Missing procurement integration,3-5d,7
+GAP-P1-007,P1,3,Delivery,Digital cryptographic signature not implemented (only canvas drawing),Not prioritized,Legal validity of signatures,3-5d,8
+GAP-P1-008,P1,2,Dashboard,dashboard.service.ts exceeds 500 line limit (532 lines),Service grew without refactoring,Maintainability risk,1d,9
+GAP-P2-001,P2,1,Costs,Cost dashboard not verified with real data,No runtime testing with seed data,Verification gap,1d,10
+GAP-P2-002,P2,1,Proposals,Proposal cost recalculation not verified,No runtime testing,Verification gap,1d,11
+GAP-P2-003,P2,1,Inventory,QR/inventory module without tests,Not prioritized,Quality gap,2d,12
+GAP-P2-004,P2,2,Evidences,Evidence gallery not verified (grid,lazy,lightbox,swipe),Visual components not inspected,UX quality unknown,2d,13
+GAP-P2-005,P2,2,Dashboard,Dashboard not tested with real data,No runtime testing,Verification gap,1d,14
+GAP-P2-006,P2,2,Personnel,Certifications module without independent verification,No specific tests,Quality gap,1d,15
+GAP-P2-007,P2,4,AI,Contextual chat not implemented,Not prioritized,Missing feature,3d,16
+GAP-P2-008,P2,4,AI,AI features in stub stage (no provider abstraction, no feature flags),Early stage,Not production-ready,3d,17
+GAP-P2-009,P2,5,Admin,Backups not verified in runtime,Interface exists without real testing,DR risk,2d,18
+GAP-P2-010,P2,6,Infra,Redis not implemented,Not prioritized,No caching layer,2d,19
+GAP-P2-011,P2,6,Infra,OpenTelemetry/Sentry not implemented,Not prioritized,No distributed tracing,3d,20
+GAP-P2-012,P2,6,Performance,Performance not measured (no Lighthouse,bundle analysis),Not executed,Performance unknown,1d,21
+GAP-P2-013,P2,2,Dashboard,WebSocket not implemented,Not prioritized,No real-time updates,2d,22
+GAP-P2-014,P2,6,Observability,No observability dashboards or alerts,Not implemented,Monitoring gap,2d,23
+GAP-P2-015,P2,5,Audit,Audit immutability not verified,Not runtime tested,Compliance risk,1d,24
+GAP-P3-001,P3,4,SLA,SLA prediction not implemented (no dataset, model, metrics),Insufficient historical data,Innovation gap,5d,25
+GAP-P3-002,P3,4,Costs,Predictive costs in stub stage,Early stage,Innovation gap,5d,26
+GAP-P3-003,P3,4,AI,Field assistant not implemented,Not prioritized,Innovation gap,5d,27
+GAP-P3-004,P3,6,Infra,CDN not implemented,Not prioritized,Performance optimization,2d,28
+GAP-P3-005,P3,6,Infra,Sharding documented but not active,Volume does not justify,Architecture readiness,3d,29
+GAP-P3-006,P3,4,Analytics,Analytics without verifiable dashboard,Not verified,Feature gap,2d,30
+GAP-P3-007,P3,Cross-cutting,Quality,2839 Spanish tokens still present,Not fully migrated,Code quality,3d,31
+GAP-P3-008,P3,2,Evidences,Evidence metadata partial implementation,Incomplete feature,Feature gap,1d,32
+GAP-P3-009,P3,Cross-cutting,UI/UX,Dark mode not verified,Not tested,UX gap,2d,33
+GAP-P3-010,P3,Cross-cutting,A11y,axe-core not executed,Not automated,Accessibility unknown,1d,34
+GAP-P3-011,P3,Cross-cutting,Testing,Test coverage not measured,Not configured,Quality gap,1d,35
+GAP-P3-012,P3,6,DevOps,Rollback not documented,Not documented,Operations gap,1d,36

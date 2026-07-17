@@ -465,6 +465,34 @@ export function useCancelInvoice(id: string) {
 	});
 }
 
+// ─── Payment dashboard & aging ──────────────────────────────────────────
+
+export function usePaymentDashboard() {
+	return useQuery({
+		queryKey: [...BILLING_KEYS.payments.all, "dashboard"] as const,
+		queryFn: async () => {
+			const res = await apiClient.get<ApiEnvelope<import("@cermont/shared-types").PaymentDashboard>>("/payments/dashboard");
+			return res.data;
+		},
+		staleTime: STALE_TIMES.REALTIME,
+	});
+}
+
+export function usePaymentAgingReport() {
+	return useQuery({
+		queryKey: [...BILLING_KEYS.payments.all, "aging"] as const,
+		queryFn: async () => {
+			const res = await apiClient.get<ApiEnvelope<import("@cermont/shared-types").PaymentAgingEntry[]>>("/payments/aging");
+			return res.data;
+		},
+		staleTime: STALE_TIMES.REALTIME,
+	});
+}
+
+export function usePaymentList(filters?: Partial<ListPaymentsQuery>) {
+	return usePaymentsList(filters);
+}
+
 // ─── Payment mutations ──────────────────────────────────────────────────
 
 export function useRegisterPaymentForInvoice(invoiceId: string) {
@@ -501,3 +529,4 @@ export function useRejectPayment(id: string) {
 		},
 	});
 }
+

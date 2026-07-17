@@ -1,0 +1,61 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Orders - Full CRUD and Kanban workflow",
+  "description": "Verifies orders listing, creation, detail view, editing, and Kanban board across the complete order lifecycle",
+  "priority": "p0",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/orders to see the orders list with filters"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that orders table is displayed with columns: ID, Client, Status, Priority, Date, Assigned To"
+    },
+    {
+      "type": "action",
+      "description": "Test search/filter functionality by typing a client name in the search bar"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New Order' button and verify the creation form with all required sections loads"
+    },
+    {
+      "type": "action",
+      "description": "Fill in order form: select client, enter description, set priority, assign resources, set dates"
+    },
+    {
+      "type": "action",
+      "description": "Submit the form and verify order is created successfully and redirected to the order detail page"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the new order appears in the orders list with status 'pending' or 'draft'"
+    },
+    {
+      "type": "action",
+      "description": "Click on the order row to open the detail view with tabs (Info, Costs, Execution, Evidence, Planning)"
+    },
+    {
+      "type": "action",
+      "description": "Switch to Kanban view (/dashboard/orders/kanban) and verify columns: Pending, In Progress, Completed, Approved"
+    },
+    {
+      "type": "action",
+      "description": "Drag and drop an order card from 'Pending' to 'In Progress' column"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the order status updates after the drag operation"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to order edit view and modify the description, then save"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the updated description is displayed in the order detail"
+    }
+  ]
+}

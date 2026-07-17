@@ -4,7 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { apiClient } from "@/lib/http/api-client";
-//import { Skeleton } from "@/components/ui/skeleton";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 
 import { ImageIcon, X } from "lucide-react";
 import { EvidenceStatusBadge } from "./EvidenceStatusBadge";
@@ -28,7 +28,7 @@ export function EvidenceGallery({ orderId, readOnly }: EvidenceGalleryProps) {
 	const [rejectionReason, setRejectionReason] = useState("");
 
 	const { data, isLoading, error } = useQuery<{ data: EvidenceItem[] }>({
-		queryKey: ["evidences", orderId],
+		queryKey: EVIDENCE_KEYS.byOrder(orderId),
 		queryFn: () => apiClient.get(`/evidences?orderId=${orderId}`),
 	});
 

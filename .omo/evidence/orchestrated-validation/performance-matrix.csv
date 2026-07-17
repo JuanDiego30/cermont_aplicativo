@@ -1,0 +1,17 @@
+metric,tool,result,baseline,status
+Bundle size (JS transfer),Next build,~6767 KiB precache,N/A,INFO
+LCP,Not measured,N/A,N/A,NOT_MEASURED
+CLS,Not measured,N/A,N/A,NOT_MEASURED
+INP,Not measured,N/A,N/A,NOT_MEASURED
+Dynamic imports,Code audit,Partial usage,N/A,NEEDS_IMPROVEMENT
+RSC/client boundaries,Code audit,Standard,N/A,ACCEPTABLE
+Waterfalls,Code audit,Not detected,N/A,CLEAN
+Images,Code audit,Optimized,N/A,ACCEPTABLE
+Mongo indexes,Code audit,Standard indexes,N/A,VERIFIED
+Pagination,Code audit,query-helpers.ts exists,N/A,VERIFIED
+Lean queries,Code audit,Standard,N/A,VERIFIED
+N+1 prevention,Code audit,Not systematically verified,N/A,NEEDS_AUDIT
+Build time Next,Next build,12.0s compile,N/A,FAST
+Build typecheck time,Next build,20.2s,N/A,NORMAL
+Static pages,Next build,97 pages,N/A,GOOD
+PWA precache entries,Serwist,243 entries,6767 KiB,NORMAL

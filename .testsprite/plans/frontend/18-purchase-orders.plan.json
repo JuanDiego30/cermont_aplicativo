@@ -1,0 +1,33 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Purchase Orders - PO attachment and approval",
+  "description": "Verifies purchase order management: PO attachment to orders, document upload, approval workflow, and status tracking",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/purchase-orders"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that POs list shows with status (pending, approved, rejected) and order references"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New PO' and select an existing order"
+    },
+    {
+      "type": "action",
+      "description": "Upload a PO document (PDF) and enter PO reference number, amount, and vendor"
+    },
+    {
+      "type": "action",
+      "description": "Submit the PO and verify it is attached to the order with 'pending_approval' status"
+    },
+    {
+      "type": "action",
+      "description": "Approve the PO and verify status changes and order is updated with PO reference"
+    }
+  ]
+}

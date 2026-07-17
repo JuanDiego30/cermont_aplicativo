@@ -1,0 +1,16 @@
+module,threat,riskLevel,mitigation,status
+Auth,JWT token storage,Medium,HttpOnly cookies + Zustand,IMPLEMENTED
+Auth,CSRF,Low,SameSite cookies + proxy,IMPLEMENTED
+General,XSS,Low,React + Zod validation,VERIFIED
+General,Mongo injection,Low,Mongoose + Zod strict,VERIFIED
+API,Rate limiting,Medium,rate-limit.config.ts,IMPLEMENTED
+API,CORS,Medium,CORS strict config,IMPLEMENTED
+API,Helmet headers,Low,Helmet middleware,IMPLEMENTED
+Auth,RBAC bypass,High,authorize.middleware.ts + domain roles,IMPLEMENTED
+Upload,Path traversal,High,sanitize.middleware.ts,IMPLEMENTED
+Upload,MIME type,Medium,allowlist mime validation,PARTIAL
+Upload,File size,Medium,size validation,IMPLEMENTED
+General,Mass assignment,High,Zod validateBody/Query/Params,IMPLEMENTED
+General,Secrets in logs,Medium,recursive redact in logger,IMPLEMENTED
+General,Stack in production,Low,error handling no stack trace,IMPLEMENTED
+Auth,Brute force,Medium,rate limiting login route,IMPLEMENTED

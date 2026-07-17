@@ -1,0 +1,17 @@
+F1.1 Thesis Deduplication - Comparison Results
+===============================================
+Date: 2026-07-09
+Canonical: LTG_JUAN_DIEGO_AREVALO-3_markdown.md (selected by user)
+Duplicate: 01_main10.md
+
+| Criterion | LTG (CANONICAL) | 01_main10 (DUPLICATE) |
+|---|---|---|
+| User Confirmation | "si el ltg es la version mas nueva" | N/A |
+| Total Lines | 4935 | 8987 |
+| PDF Pages | 207 (source: LTG_JUAN_DIEGO_AREVALO-3(3).pdf) | 203 (source: main(10).pdf) |
+| Conversion Date | 2026-06-18 | Not specified |
+| Frontmatter | YAML metadata present | Text metadata section |
+| Content Quality | Cleaner conversion, less OCR noise | Longer, more page-break artifacts |
+| Headings Present | Full thesis structure (10 chapters + appendices) | Full thesis structure (identical content) |
+
+Decision: LTG is CANONICAL. 01_main10 archived as THESIS_DUPLICATE.

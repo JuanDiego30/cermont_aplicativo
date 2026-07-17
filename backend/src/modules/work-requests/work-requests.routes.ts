@@ -65,7 +65,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize(...INTERNAL_ROLES),
+	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.RESIDENTE, CERMONT_ROLES.CLIENTE),
 	validateBody(CreateWorkRequestSchema),
 	WorkRequestController.createWorkRequest,
 );
@@ -79,7 +79,7 @@ router.post(
 router.patch(
 	"/:id",
 	authenticate,
-	authorize(...FIELD_MANAGEMENT_ROLES),
+	authorize(...FIELD_MANAGEMENT_ROLES, CERMONT_ROLES.CLIENTE),
 	validateParams(WorkRequestIdParamsSchema),
 	validateBody(CreateWorkRequestSchema.partial()),
 	WorkRequestController.updateWorkRequest,

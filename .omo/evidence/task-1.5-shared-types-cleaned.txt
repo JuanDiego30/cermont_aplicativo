@@ -1,0 +1,5 @@
+TASK-1.5 verification
+
+- `frontend/src/modules/planning/ui/steps/shared-types.ts` had no consumers.
+- File removed without changing shared Zod contracts or active step props.
+- Frontend typecheck, lint, tests, and build passed.

@@ -1,0 +1,16 @@
+module,testType,loading,error,empty,offline,forbidden,semanticHTML,labels,contrast,focus,keyboard,touch,totalScore
+Auth,E2E,y,y,y,y,y,y,y,y,y,y,y,100
+Dashboard,unit,y,y,y,y,y,y,y,n,y,y,y,91
+Orders,unit,y,y,y,y,y,y,y,y,y,y,y,100
+Execution,unit,y,y,n,y,y,n,n,y,n,n,45
+Evidences,unit,y,y,y,y,y,n,y,n,y,n,64
+Billing,unit,y,y,y,y,y,y,n,n,y,y,73
+Planning,unit,y,y,n,y,y,n,n,y,n,n,45
+Fleet,unit,y,n,n,y,y,n,n,n,n,n,27
+Portal,unit,y,y,y,y,y,y,n,n,y,n,64
+Checklists,unit,y,y,y,y,y,n,y,n,y,y,73
+Costs,unit,y,y,y,y,y,y,y,n,y,y,91
+Reports,unit,y,y,y,y,y,n,y,n,y,y,73
+SiteVisits,unit,y,y,y,y,y,y,y,y,y,y,100
+Proposals,unit,y,y,y,y,y,y,n,n,y,y,73
+WorkRequests,unit,y,y,y,y,y,y,y,y,y,y,100

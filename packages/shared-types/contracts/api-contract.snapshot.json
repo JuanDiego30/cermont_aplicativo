@@ -191,6 +191,7 @@
                 "ARCHIVED",
                 "LOGIN_SUCCESS",
                 "LOGOUT",
+                "SESSION_REVOKED",
                 "REFRESH_TOKEN_REUSE_DETECTED",
                 "USER_CREATED",
                 "USER_UPDATED",
@@ -270,7 +271,9 @@
                 "AUTOMATION_ACTION_RESOLVED",
                 "COST_CATALOG_ITEM_CREATED",
                 "COST_CATALOG_ITEM_UPDATED",
-                "PREFLIGHT_SUBMITTED"
+                "PREFLIGHT_SUBMITTED",
+                "AI_CHAT_COMPLETION",
+                "INTEGRATION_FAILED"
               ],
               "type": "string"
             },
@@ -427,6 +430,7 @@
                 "ARCHIVED",
                 "LOGIN_SUCCESS",
                 "LOGOUT",
+                "SESSION_REVOKED",
                 "REFRESH_TOKEN_REUSE_DETECTED",
                 "USER_CREATED",
                 "USER_UPDATED",
@@ -506,7 +510,9 @@
                 "AUTOMATION_ACTION_RESOLVED",
                 "COST_CATALOG_ITEM_CREATED",
                 "COST_CATALOG_ITEM_UPDATED",
-                "PREFLIGHT_SUBMITTED"
+                "PREFLIGHT_SUBMITTED",
+                "AI_CHAT_COMPLETION",
+                "INTEGRATION_FAILED"
               ],
               "type": "string"
             },
@@ -676,6 +682,7 @@
                   "ARCHIVED",
                   "LOGIN_SUCCESS",
                   "LOGOUT",
+                  "SESSION_REVOKED",
                   "REFRESH_TOKEN_REUSE_DETECTED",
                   "USER_CREATED",
                   "USER_UPDATED",
@@ -755,7 +762,9 @@
                   "AUTOMATION_ACTION_RESOLVED",
                   "COST_CATALOG_ITEM_CREATED",
                   "COST_CATALOG_ITEM_UPDATED",
-                  "PREFLIGHT_SUBMITTED"
+                  "PREFLIGHT_SUBMITTED",
+                  "AI_CHAT_COMPLETION",
+                  "INTEGRATION_FAILED"
                 ],
                 "type": "string"
               },
@@ -5802,11 +5811,10 @@
                               },
                               "businessUnit": {
                                 "enum": [
-                                  "IT",
-                                  "MNT",
+                                  "IT_MNT",
                                   "SC",
                                   "GEN",
-                                  "OTHER"
+                                  "OTROS"
                                 ],
                                 "type": "string"
                               },
@@ -8648,6 +8656,48 @@
       "required": [
         "name",
         "issuedAt"
+      ],
+      "type": "object"
+    },
+    "AddVehicleDocumentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentNumber": {
+          "maxLength": 60,
+          "minLength": 1,
+          "type": "string"
+        },
+        "documentType": {
+          "enum": [
+            "soat",
+            "tecnomecanica",
+            "poliza",
+            "tarjeta_propiedad"
+          ],
+          "type": "string"
+        },
+        "expiryDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "fileUrl": {
+          "format": "uri",
+          "maxLength": 2048,
+          "type": "string"
+        },
+        "issueDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "documentType",
+        "documentNumber",
+        "issueDate",
+        "expiryDate"
       ],
       "type": "object"
     },
@@ -11982,6 +12032,7 @@
             "ARCHIVED",
             "LOGIN_SUCCESS",
             "LOGOUT",
+            "SESSION_REVOKED",
             "REFRESH_TOKEN_REUSE_DETECTED",
             "USER_CREATED",
             "USER_UPDATED",
@@ -12061,7 +12112,9 @@
             "AUTOMATION_ACTION_RESOLVED",
             "COST_CATALOG_ITEM_CREATED",
             "COST_CATALOG_ITEM_UPDATED",
-            "PREFLIGHT_SUBMITTED"
+            "PREFLIGHT_SUBMITTED",
+            "AI_CHAT_COMPLETION",
+            "INTEGRATION_FAILED"
           ],
           "type": "string"
         },
@@ -12216,6 +12269,7 @@
             "ARCHIVED",
             "LOGIN_SUCCESS",
             "LOGOUT",
+            "SESSION_REVOKED",
             "REFRESH_TOKEN_REUSE_DETECTED",
             "USER_CREATED",
             "USER_UPDATED",
@@ -12295,7 +12349,9 @@
             "AUTOMATION_ACTION_RESOLVED",
             "COST_CATALOG_ITEM_CREATED",
             "COST_CATALOG_ITEM_UPDATED",
-            "PREFLIGHT_SUBMITTED"
+            "PREFLIGHT_SUBMITTED",
+            "AI_CHAT_COMPLETION",
+            "INTEGRATION_FAILED"
           ],
           "type": "string"
         },
@@ -17903,6 +17959,239 @@
       ],
       "type": "object"
     },
+    "CostDashboardSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "byCategory": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actual": {
+                "type": "number"
+              },
+              "category": {
+                "type": "string"
+              },
+              "estimated": {
+                "type": "number"
+              },
+              "variance": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "category",
+              "estimated",
+              "actual",
+              "variance"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "monthlyTrend": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actual": {
+                "type": "number"
+              },
+              "budgeted": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "actual"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "period": {
+          "type": "string"
+        },
+        "summary": {
+          "additionalProperties": false,
+          "properties": {
+            "byCategory": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "actual": {
+                    "type": "number"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "estimated": {
+                    "type": "number"
+                  },
+                  "variance": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "category",
+                  "estimated",
+                  "actual",
+                  "variance"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "totalActual": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalBilled": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalBudgeted": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "totalEstimated": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "variance": {
+              "type": "number"
+            },
+            "variancePercent": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "totalBudgeted",
+            "totalActual",
+            "variance",
+            "variancePercent"
+          ],
+          "type": "object"
+        },
+        "topVariance": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actual": {
+                "type": "number"
+              },
+              "budgeted": {
+                "type": "number"
+              },
+              "clientName": {
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status",
+                  "value"
+                ],
+                "type": "object"
+              },
+              "orderCode": {
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status",
+                  "value"
+                ],
+                "type": "object"
+              },
+              "orderId": {
+                "type": "string"
+              },
+              "serviceCaseId": {
+                "type": "string"
+              },
+              "status": {
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status",
+                  "value"
+                ],
+                "type": "object"
+              },
+              "totalActual": {
+                "type": "number"
+              },
+              "totalEstimated": {
+                "type": "number"
+              },
+              "variance": {
+                "type": "number"
+              },
+              "variancePercent": {
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "status",
+                  "value"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "orderId",
+              "orderCode",
+              "clientName",
+              "status",
+              "totalEstimated",
+              "budgeted",
+              "actual",
+              "totalActual",
+              "variance",
+              "variancePercent"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "summary",
+        "topVariance",
+        "monthlyTrend",
+        "byCategory",
+        "period"
+      ],
+      "type": "object"
+    },
     "CostDataStateSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -18239,6 +18528,92 @@
         "unitPrice",
         "total",
         "isBudgeted"
+      ],
+      "type": "object"
+    },
+    "CostLineSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "labor",
+            "materials",
+            "equipment",
+            "transport",
+            "subcontract",
+            "overhead",
+            "tax",
+            "other"
+          ],
+          "type": "string"
+        },
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 300,
+          "minLength": 1,
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "equipmentId": {
+          "type": "string"
+        },
+        "evidenceId": {
+          "type": "string"
+        },
+        "materialId": {
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "registeredAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "registeredBy": {
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "taxType": {
+          "type": "string"
+        },
+        "total": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "unitPrice": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "workerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "serviceCaseId",
+        "category",
+        "description",
+        "quantity",
+        "unitPrice",
+        "total",
+        "registeredBy",
+        "registeredAt"
       ],
       "type": "object"
     },
@@ -21360,6 +21735,206 @@
       ],
       "type": "object"
     },
+    "CostVarianceItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "actual": {
+          "type": "number"
+        },
+        "budgeted": {
+          "type": "number"
+        },
+        "category": {
+          "enum": [
+            "labor",
+            "materials",
+            "equipment",
+            "transport",
+            "subcontract",
+            "overhead",
+            "tax",
+            "other"
+          ],
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "variance": {
+          "type": "number"
+        },
+        "variancePercent": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "category",
+        "description",
+        "budgeted",
+        "actual",
+        "variance",
+        "variancePercent"
+      ],
+      "type": "object"
+    },
+    "CostVarianceReportSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "byCategory": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actual": {
+                "type": "number"
+              },
+              "budgeted": {
+                "type": "number"
+              },
+              "category": {
+                "enum": [
+                  "labor",
+                  "materials",
+                  "equipment",
+                  "transport",
+                  "subcontract",
+                  "overhead",
+                  "tax",
+                  "other"
+                ],
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "variance": {
+                "type": "number"
+              },
+              "variancePercent": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "category",
+              "description",
+              "budgeted",
+              "actual",
+              "variance",
+              "variancePercent"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "serviceCaseCode": {
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "type": "string"
+        },
+        "significantVariances": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "actual": {
+                "type": "number"
+              },
+              "budgeted": {
+                "type": "number"
+              },
+              "category": {
+                "enum": [
+                  "labor",
+                  "materials",
+                  "equipment",
+                  "transport",
+                  "subcontract",
+                  "overhead",
+                  "tax",
+                  "other"
+                ],
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "variance": {
+                "type": "number"
+              },
+              "variancePercent": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "category",
+              "description",
+              "budgeted",
+              "actual",
+              "variance",
+              "variancePercent"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "totalActual": {
+          "type": "number"
+        },
+        "totalBudgeted": {
+          "type": "number"
+        },
+        "totalInvoiced": {
+          "default": 0,
+          "type": "number"
+        },
+        "totalPaid": {
+          "default": 0,
+          "type": "number"
+        },
+        "unregisteredCategories": {
+          "items": {
+            "enum": [
+              "labor",
+              "materials",
+              "equipment",
+              "transport",
+              "subcontract",
+              "overhead",
+              "tax",
+              "other"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "variance": {
+          "type": "number"
+        },
+        "variancePercent": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "serviceCaseId",
+        "generatedAt",
+        "totalBudgeted",
+        "totalActual",
+        "totalInvoiced",
+        "totalPaid",
+        "variance",
+        "variancePercent",
+        "byCategory",
+        "significantVariances",
+        "unregisteredCategories"
+      ],
+      "type": "object"
+    },
     "CreateAssetSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -22670,6 +23245,11 @@
           ],
           "type": "string"
         },
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
         "currency": {
           "default": "COP",
           "type": "string"
@@ -22719,6 +23299,9 @@
           "maximum": 1,
           "minimum": 0,
           "type": "number"
+        },
+        "workerId": {
+          "type": "string"
         }
       },
       "required": [
@@ -26970,11 +27553,10 @@
         },
         "businessUnit": {
           "enum": [
-            "IT",
-            "MNT",
+            "IT_MNT",
             "SC",
             "GEN",
-            "OTHER"
+            "OTROS"
           ],
           "type": "string"
         },
@@ -27997,11 +28579,10 @@
         },
         "businessUnit": {
           "enum": [
-            "IT",
-            "MNT",
+            "IT_MNT",
             "SC",
             "GEN",
-            "OTHER"
+            "OTROS"
           ],
           "type": "string"
         },
@@ -30621,6 +31202,66 @@
           "maxLength": 60,
           "type": "string"
         },
+        "documents": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "documentNumber": {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              "documentType": {
+                "enum": [
+                  "soat",
+                  "tecnomecanica",
+                  "poliza",
+                  "tarjeta_propiedad"
+                ],
+                "type": "string"
+              },
+              "expiryDate": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "fileUrl": {
+                "format": "uri",
+                "maxLength": 2048,
+                "type": "string"
+              },
+              "issueDate": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "valid",
+                  "expiring",
+                  "expired",
+                  "missing"
+                ],
+                "type": "string"
+              },
+              "verifiedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "documentType",
+              "documentNumber",
+              "issueDate",
+              "expiryDate",
+              "status"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
         "driverId": {
           "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
@@ -30706,6 +31347,7 @@
         "model",
         "year",
         "type",
+        "documents",
         "kilometers",
         "status"
       ],
@@ -31639,6 +32281,83 @@
         "totalOutstandingAmount",
         "totalOverdueAmount",
         "overdueInvoiceCount"
+      ],
+      "type": "object"
+    },
+    "DashboardKpiEntrySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "change": {
+          "type": "number"
+        },
+        "changeType": {
+          "enum": [
+            "increase",
+            "decrease",
+            "neutral"
+          ],
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "type": "object"
+    },
+    "DashboardKPIResponseSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "kpis": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "change": {
+                "type": "number"
+              },
+              "changeType": {
+                "enum": [
+                  "increase",
+                  "decrease",
+                  "neutral"
+                ],
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "period": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kpis"
       ],
       "type": "object"
     },
@@ -54029,6 +54748,57 @@
       ],
       "type": "object"
     },
+    "FleetReadinessSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "blockedVehicles": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expiredCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expiringSoonCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "missingDocumentCount": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "readinessPercent": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "readyVehicles": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "totalVehicles": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "totalVehicles",
+        "readyVehicles",
+        "blockedVehicles",
+        "readinessPercent",
+        "expiringSoonCount",
+        "expiredCount",
+        "missingDocumentCount"
+      ],
+      "type": "object"
+    },
     "ForgotPasswordSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -59322,11 +60092,10 @@
                 },
                 "businessUnit": {
                   "enum": [
-                    "IT",
-                    "MNT",
+                    "IT_MNT",
                     "SC",
                     "GEN",
-                    "OTHER"
+                    "OTROS"
                   ],
                   "type": "string"
                 },
@@ -65483,11 +66252,10 @@
                     },
                     "businessUnit": {
                       "enum": [
-                        "IT",
-                        "MNT",
+                        "IT_MNT",
                         "SC",
                         "GEN",
-                        "OTHER"
+                        "OTROS"
                       ],
                       "type": "string"
                     },
@@ -67189,11 +67957,10 @@
         },
         "businessUnit": {
           "enum": [
-            "IT",
-            "MNT",
+            "IT_MNT",
             "SC",
             "GEN",
-            "OTHER"
+            "OTROS"
           ],
           "type": "string"
         },
@@ -69074,6 +69841,80 @@
       ],
       "type": "object"
     },
+    "PaymentAgingEntrySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "agingBucket": {
+          "type": "string"
+        },
+        "bucket": {
+          "type": "string"
+        },
+        "clientName": {
+          "type": "string"
+        },
+        "count": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "daysOverdue": {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
+        "dueDate": {
+          "type": "string"
+        },
+        "invoiceCode": {
+          "type": "string"
+        },
+        "invoiceId": {
+          "type": "string"
+        },
+        "invoiceNumber": {
+          "type": "string"
+        },
+        "issueDate": {
+          "type": "string"
+        },
+        "outstanding": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "paidAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "pendingAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "total": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalAmount": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "invoiceId",
+        "clientName",
+        "totalAmount",
+        "paidAmount",
+        "outstanding",
+        "pendingAmount",
+        "total",
+        "bucket",
+        "agingBucket",
+        "dueDate",
+        "daysOverdue"
+      ],
+      "type": "object"
+    },
     "PaymentCurrencySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -69082,6 +69923,123 @@
         "EUR"
       ],
       "type": "string"
+    },
+    "PaymentDashboardSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "agingBuckets": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "agingBucket": {
+                "type": "string"
+              },
+              "bucket": {
+                "type": "string"
+              },
+              "clientName": {
+                "type": "string"
+              },
+              "count": {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "daysOverdue": {
+                "maximum": 9007199254740991,
+                "minimum": -9007199254740991,
+                "type": "integer"
+              },
+              "dueDate": {
+                "type": "string"
+              },
+              "invoiceCode": {
+                "type": "string"
+              },
+              "invoiceId": {
+                "type": "string"
+              },
+              "invoiceNumber": {
+                "type": "string"
+              },
+              "issueDate": {
+                "type": "string"
+              },
+              "outstanding": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "paidAmount": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "pendingAmount": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "total": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "totalAmount": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "invoiceId",
+              "clientName",
+              "totalAmount",
+              "paidAmount",
+              "outstanding",
+              "pendingAmount",
+              "total",
+              "bucket",
+              "agingBucket",
+              "dueDate",
+              "daysOverdue"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "averagePaymentDays": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "collectionRate": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalCollected": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalInvoiced": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalOverdue": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalPending": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "totalInvoiced",
+        "totalCollected",
+        "totalPending",
+        "totalOverdue",
+        "collectionRate",
+        "averagePaymentDays",
+        "agingBuckets"
+      ],
+      "type": "object"
     },
     "PaymentIdParamsSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -69228,6 +70186,10 @@
         },
         "reconciledBy": {
           "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "reconciliationNotes": {
+          "maxLength": 500,
           "type": "string"
         },
         "recordedAt": {
@@ -71104,6 +72066,15 @@
       ],
       "type": "object"
     },
+    "PeriodOptionSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "monthly",
+        "quarterly",
+        "yearly"
+      ],
+      "type": "string"
+    },
     "PipelineStatusSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -71116,11 +72087,10 @@
     "PlanningBusinessUnitSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
-        "IT",
-        "MNT",
+        "IT_MNT",
         "SC",
         "GEN",
-        "OTHER"
+        "OTROS"
       ],
       "type": "string"
     },
@@ -71360,11 +72330,10 @@
         },
         "businessUnit": {
           "enum": [
-            "IT",
-            "MNT",
+            "IT_MNT",
             "SC",
             "GEN",
-            "OTHER"
+            "OTROS"
           ],
           "type": "string"
         },
@@ -72443,6 +73412,128 @@
       ],
       "type": "string"
     },
+    "ProposalCostBreakdownSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "clientName": {
+          "type": "string"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "quantity": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "total": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "unitPrice": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "description",
+              "quantity",
+              "unitPrice",
+              "total"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "proposalCode": {
+          "type": "string"
+        },
+        "proposalId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "subtotal": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "title": {
+          "type": "string"
+        },
+        "totalWithTax": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "validUntil": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "items",
+        "subtotal",
+        "taxRate",
+        "taxAmount",
+        "totalWithTax"
+      ],
+      "type": "object"
+    },
+    "ProposalCostItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "quantity": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "total": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "unitPrice": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "description",
+        "quantity",
+        "unitPrice",
+        "total"
+      ],
+      "type": "object"
+    },
     "ProposalIdSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -73441,6 +74532,70 @@
       },
       "type": "object"
     },
+    "RegisterEquipmentCostSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "equipmentId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "hours": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "orderId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "rate": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "recordedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "supportDocumentIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "supportEvidenceIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        }
+      },
+      "required": [
+        "orderId",
+        "equipmentId",
+        "hours",
+        "rate",
+        "supportEvidenceIds",
+        "supportDocumentIds"
+      ],
+      "type": "object"
+    },
     "RegisterExecutionIncidentSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -73594,6 +74749,134 @@
         "paidAt",
         "amount",
         "paymentMethod"
+      ],
+      "type": "object"
+    },
+    "RegisterLaborCostSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "hours": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "orderId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "rate": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "recordedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "supportDocumentIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "supportEvidenceIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "workerId": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderId",
+        "hours",
+        "rate",
+        "workerId",
+        "supportEvidenceIds",
+        "supportDocumentIds"
+      ],
+      "type": "object"
+    },
+    "RegisterMaterialCostSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "materialId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "orderId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "quantity": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "recordedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "supportDocumentIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "supportEvidenceIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "unitPrice": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "orderId",
+        "materialId",
+        "quantity",
+        "unitPrice",
+        "supportEvidenceIds",
+        "supportDocumentIds"
       ],
       "type": "object"
     },
@@ -73820,6 +75103,176 @@
       "required": [
         "type",
         "quantity"
+      ],
+      "type": "object"
+    },
+    "RegisterSubcontractorCostSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 300,
+          "minLength": 1,
+          "type": "string"
+        },
+        "orderId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "recordedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "supportDocumentIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "supportEvidenceIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        }
+      },
+      "required": [
+        "orderId",
+        "description",
+        "amount",
+        "supportEvidenceIds",
+        "supportDocumentIds"
+      ],
+      "type": "object"
+    },
+    "RegisterTaxCostSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "orderId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "recordedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "supportDocumentIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "supportEvidenceIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "taxType": {
+          "maxLength": 50,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderId",
+        "taxType",
+        "amount",
+        "supportEvidenceIds",
+        "supportDocumentIds"
+      ],
+      "type": "object"
+    },
+    "RegisterTransportCostSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 300,
+          "minLength": 1,
+          "type": "string"
+        },
+        "orderId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "recordedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "supportDocumentIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        "supportEvidenceIds": {
+          "default": [],
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        }
+      },
+      "required": [
+        "orderId",
+        "description",
+        "amount",
+        "supportEvidenceIds",
+        "supportDocumentIds"
       ],
       "type": "object"
     },
@@ -74932,6 +76385,45 @@
         "invoiceId",
         "clientId",
         "clientName"
+      ],
+      "type": "object"
+    },
+    "RequiredCertificationSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "certificationId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "requiredForRoles": {
+          "default": [],
+          "items": {
+            "maxLength": 60,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "verified": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "requiredForRoles",
+        "verified"
       ],
       "type": "object"
     },
@@ -84284,6 +85776,58 @@
       ],
       "type": "object"
     },
+    "SupportDocumentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "documentType": {
+          "enum": [
+            "ats",
+            "ast",
+            "ptw",
+            "procedure",
+            "procedimiento",
+            "sds",
+            "formato_tarea_critica",
+            "checklist_equipos",
+            "certificacion_equipo",
+            "certificacion_personal",
+            "other"
+          ],
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "type": "boolean"
+        },
+        "uploadedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "url",
+        "documentType",
+        "uploadedAt",
+        "required"
+      ],
+      "type": "object"
+    },
     "SyncBatchSchema": {
       "$defs": {
         "__schema0": {
@@ -84855,11 +86399,10 @@
                           },
                           "businessUnit": {
                             "enum": [
-                              "IT",
-                              "MNT",
+                              "IT_MNT",
                               "SC",
                               "GEN",
-                              "OTHER"
+                              "OTROS"
                             ],
                             "type": "string"
                           },
@@ -98469,6 +100012,11 @@
           ],
           "type": "string"
         },
+        "clientMutationId": {
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+          "type": "string"
+        },
         "currency": {
           "default": "COP",
           "type": "string"
@@ -98514,6 +100062,9 @@
           "maximum": 1,
           "minimum": 0,
           "type": "number"
+        },
+        "workerId": {
+          "type": "string"
         }
       },
       "type": "object"
@@ -101974,11 +103525,10 @@
         },
         "businessUnit": {
           "enum": [
-            "IT",
-            "MNT",
+            "IT_MNT",
             "SC",
             "GEN",
-            "OTHER"
+            "OTROS"
           ],
           "type": "string"
         },
@@ -105714,6 +107264,66 @@
           "maxLength": 60,
           "type": "string"
         },
+        "documents": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "documentNumber": {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              "documentType": {
+                "enum": [
+                  "soat",
+                  "tecnomecanica",
+                  "poliza",
+                  "tarjeta_propiedad"
+                ],
+                "type": "string"
+              },
+              "expiryDate": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "fileUrl": {
+                "format": "uri",
+                "maxLength": 2048,
+                "type": "string"
+              },
+              "issueDate": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "valid",
+                  "expiring",
+                  "expired",
+                  "missing"
+                ],
+                "type": "string"
+              },
+              "verifiedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "documentType",
+              "documentNumber",
+              "issueDate",
+              "expiryDate",
+              "status"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
         "driverId": {
           "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
@@ -107230,7 +108840,8 @@
           "enum": [
             "soat",
             "tecnomecanica",
-            "poliza"
+            "poliza",
+            "tarjeta_propiedad"
           ],
           "type": "string"
         },
@@ -107259,6 +108870,83 @@
         "expired"
       ],
       "type": "object"
+    },
+    "VehicleDocumentExpiryStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "valid",
+        "expiring",
+        "expired",
+        "missing"
+      ],
+      "type": "string"
+    },
+    "VehicleDocumentSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "documentNumber": {
+          "maxLength": 60,
+          "minLength": 1,
+          "type": "string"
+        },
+        "documentType": {
+          "enum": [
+            "soat",
+            "tecnomecanica",
+            "poliza",
+            "tarjeta_propiedad"
+          ],
+          "type": "string"
+        },
+        "expiryDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "fileUrl": {
+          "format": "uri",
+          "maxLength": 2048,
+          "type": "string"
+        },
+        "issueDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "valid",
+            "expiring",
+            "expired",
+            "missing"
+          ],
+          "type": "string"
+        },
+        "verifiedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "documentType",
+        "documentNumber",
+        "issueDate",
+        "expiryDate",
+        "status"
+      ],
+      "type": "object"
+    },
+    "VehicleDocumentTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "soat",
+        "tecnomecanica",
+        "poliza",
+        "tarjeta_propiedad"
+      ],
+      "type": "string"
     },
     "VehicleIdParamsSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -107401,6 +109089,66 @@
           "format": "date-time",
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
           "type": "string"
+        },
+        "documents": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "documentNumber": {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              "documentType": {
+                "enum": [
+                  "soat",
+                  "tecnomecanica",
+                  "poliza",
+                  "tarjeta_propiedad"
+                ],
+                "type": "string"
+              },
+              "expiryDate": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "fileUrl": {
+                "format": "uri",
+                "maxLength": 2048,
+                "type": "string"
+              },
+              "issueDate": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "valid",
+                  "expiring",
+                  "expired",
+                  "missing"
+                ],
+                "type": "string"
+              },
+              "verifiedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "documentType",
+              "documentNumber",
+              "issueDate",
+              "expiryDate",
+              "status"
+            ],
+            "type": "object"
+          },
+          "type": "array"
         },
         "driverId": {
           "pattern": "^[0-9a-fA-F]{24}$",
@@ -107737,6 +109485,7 @@
         "model",
         "year",
         "type",
+        "documents",
         "kilometers",
         "status",
         "fileAssets",

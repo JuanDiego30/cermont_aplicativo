@@ -4,14 +4,17 @@
  * Solo gerencia. Exportación de colecciones para respaldo y auditoría.
  */
 
+import { existsSync } from "node:fs";
 import { CERMONT_ROLES } from "@cermont/domain";
 import type { Request, Response } from "express";
 import { Router } from "express";
+import { AppError } from "../../common/errors";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import * as AdminBackupService from "./admin-backup.service";
+import { verifyBackupManifest } from "./admin-backup-verify.service";
 
 const router = Router();
 
@@ -26,6 +29,29 @@ router.get("/collections", async (req: Request, res: Response): Promise<void> =>
 });
 
 // GET /api/admin/backups/export/:collection?year=2026&month=5 — JSON download
+// POST /api/admin/backups/verify — verify a backup manifest against live DB
+router.post("/verify", async (req: Request, res: Response): Promise<void> => {
+	requireUser(req);
+	const manifestPath = String(req.body.manifestPath ?? "");
+	if (!manifestPath || !existsSync(manifestPath)) {
+		throw new AppError("manifestPath no encontrado o inválido", 400, "MANIFEST_NOT_FOUND");
+	}
+
+	const result = await verifyBackupManifest(manifestPath);
+	sendSuccess(res, result);
+});
+
+// GET /api/admin/backups/verify — returns stored verification manifest schema hint
+router.get("/verify", (_req: Request, res: Response): void => {
+	sendSuccess(res, {
+		description:
+			"Envía POST /api/admin/backups/verify con { manifestPath: '/ruta/al/manifest.json' } para verificar un respaldo.",
+		schema: {
+			manifestPath: "string — ruta absoluta al manifest.json del backup",
+		},
+	});
+});
+
 router.get("/export/:collection", async (req: Request, res: Response): Promise<void> => {
 	requireUser(req);
 	const year = Number.parseInt(String(req.query.year ?? ""), 10);

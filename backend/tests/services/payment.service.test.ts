@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
 	paymentFindById: vi.fn(),
 	paymentCreate: vi.fn(),
 	paymentFindOne: vi.fn(),
+	paymentAggregate: vi.fn(),
 	invoiceFindByIdAndUpdate: vi.fn(),
 	invoiceFindById: vi.fn(),
 }));
@@ -14,6 +15,7 @@ vi.mock("../../src/models/Payment", () => ({
 		findById: mocks.paymentFindById,
 		create: mocks.paymentCreate,
 		findOne: mocks.paymentFindOne,
+		aggregate: mocks.paymentAggregate,
 	},
 }));
 
@@ -31,13 +33,19 @@ describe("Payment Service", () => {
 	it("should register payment for invoice", async () => {
 		mocks.invoiceFindById.mockResolvedValue({
 			_id: invoiceId,
+			status: "approved",
+			totalAmount: 5000000,
+			currency: "COP",
 			workOrderId: new Types.ObjectId(),
 			serviceEntrySheetId: new Types.ObjectId(),
 			clientId: new Types.ObjectId(),
+			save: vi.fn().mockResolvedValue(undefined),
 		});
 		mocks.paymentCreate.mockResolvedValue({
-			toObject: () => ({ _id: paymentId, invoiceId, amount: 5000000, status: "recorded" }),
+			toJSON: () => ({ _id: paymentId, invoiceId, amount: 5000000, status: "recorded" }),
 		});
+		mocks.paymentAggregate = mocks.paymentAggregate || vi.fn();
+		mocks.paymentAggregate.mockResolvedValue([{ paidTotal: 0 }]);
 
 		const service = await import("../../src/modules/payment/payment.service");
 		const actor = new Types.ObjectId().toString();

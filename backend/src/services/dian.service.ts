@@ -11,12 +11,14 @@ export interface DianInvoiceResult {
 	dianResponse: Record<string, unknown>;
 }
 
-export async function emitirFacturaElectronica(invoice: InvoiceDocument): Promise<DianInvoiceResult> {
+export async function emitirFacturaElectronica(
+	invoice: InvoiceDocument,
+): Promise<DianInvoiceResult> {
 	try {
 		log.info("Emitting electronic invoice to DIAN", { invoiceId: invoice._id.toString() });
-		const cufe = Array.from({ length: 32 }, () =>
-			Math.floor(Math.random() * 16).toString(16),
-		).join("");
+		const cufe = Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join(
+			"",
+		);
 		return {
 			success: true,
 			cufe,

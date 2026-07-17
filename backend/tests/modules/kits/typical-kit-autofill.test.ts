@@ -12,6 +12,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+	applyKitTemplateToPlanningPacketData,
 	getDefaultKitForOrderType,
 	getKitsByType,
 	getKitTemplate,
@@ -20,7 +21,7 @@ import {
 } from "../../../src/config/kit-templates";
 
 describe("KIT_REGISTRY — completeness", () => {
-	it("contains all 7 kit templates (5 generic + 2 domain-specific)", () => {
+	it("contains all 8 kit templates (5 generic + 3 domain-specific)", () => {
 		const ids = Object.keys(KIT_REGISTRY);
 		expect(ids).toContain("kit-maintenance-001");
 		expect(ids).toContain("kit-inspection-001");
@@ -29,7 +30,8 @@ describe("KIT_REGISTRY — completeness", () => {
 		expect(ids).toContain("kit-decommission-001");
 		expect(ids).toContain("kit-cctv-001");
 		expect(ids).toContain("kit-lifeline-001");
-		expect(ids).toHaveLength(7);
+		expect(ids).toContain("kit-electrical-001");
+		expect(ids).toHaveLength(8);
 	});
 
 	it("all kits have required fields", () => {
@@ -233,7 +235,82 @@ describe("getKitsByType", () => {
 });
 
 describe("listAllKits", () => {
-	it("returns all 7 kits", () => {
-		expect(listAllKits()).toHaveLength(7);
+	it("returns all 8 kits", () => {
+		expect(listAllKits()).toHaveLength(8);
+	});
+});
+
+describe("getDefaultKitForOrderType — new types", () => {
+	it("returns KIT_ELECTRICAL for type 'electrical'", () => {
+		const kit = getDefaultKitForOrderType("electrical");
+		expect("id" in kit && kit.id).toBe("kit-electrical-001");
+	});
+
+	it("returns KIT_INSPECTION for type 'safety'", () => {
+		const kit = getDefaultKitForOrderType("safety");
+		expect("id" in kit && kit.id).toBe("kit-inspection-001");
+	});
+});
+
+describe("KIT Electrical — kit-electrical-001", () => {
+	const kit = KIT_REGISTRY["kit-electrical-001"];
+
+	it("has type 'electrical'", () => {
+		expect(kit?.type).toBe("electrical");
+	});
+
+	it("has tools, equipment, safetyElements, and workerCount", () => {
+		expect(kit?.tools?.length).toBeGreaterThan(0);
+		expect(kit?.equipment?.length).toBeGreaterThan(0);
+		expect(kit?.safetyElements?.length).toBeGreaterThan(0);
+		expect(kit?.workerCount?.length).toBeGreaterThan(0);
+	});
+
+	it("includes dielectric gloves in safety elements", () => {
+		const names = kit?.safetyElements?.map((s) => s.name.toLowerCase()) ?? [];
+		const hasGloves = names.some((n) => n.includes("guante") && n.includes("dieléctric"));
+		expect(hasGloves).toBe(true);
+	});
+
+	it("includes calibrated equipment (telurómetro)", () => {
+		const names = kit?.equipment?.map((e) => e.name.toLowerCase()) ?? [];
+		const hasTelurometer = names.some(
+			(n) => n.includes("telurómetro") || n.includes("telurometro"),
+		);
+		expect(hasTelurometer).toBe(true);
+		const telurometro = kit?.equipment?.find((e) => e.name.toLowerCase().includes("telur"));
+		expect(telurometro?.calibrationRequired).toBe(true);
+	});
+});
+
+describe("applyKitTemplateToPlanningPacketData", () => {
+	it("normalizes electrical kit into planning packet resource format", () => {
+		const kit = KIT_REGISTRY["kit-electrical-001"];
+		const result = applyKitTemplateToPlanningPacketData(kit);
+
+		expect(result.tools.length).toBeGreaterThan(0);
+		expect(result.equipment.length).toBeGreaterThan(0);
+		expect(result.materials.length).toBeGreaterThan(0);
+		expect(result.safetyElements.length).toBeGreaterThan(0);
+		expect(result.workerRequirements.electricistas).toBeGreaterThan(0);
+		expect(result.workerRequirements.obreros).toBeGreaterThan(0);
+	});
+
+	it("sets available=true on all normalized tools and equipment", () => {
+		const kit = KIT_REGISTRY["kit-electrical-001"];
+		const result = applyKitTemplateToPlanningPacketData(kit);
+
+		expect(result.tools.every((t) => t.available)).toBe(true);
+		expect(result.equipment.every((e) => e.available)).toBe(true);
+	});
+
+	it("handles a kit without optional fields gracefully", () => {
+		const kit = KIT_REGISTRY["kit-maintenance-001"];
+		const result = applyKitTemplateToPlanningPacketData(kit);
+
+		expect(result.tools).toEqual([]);
+		expect(result.equipment).toEqual([]);
+		expect(result.materials.length).toBeGreaterThan(0);
+		expect(result.safetyElements).toEqual([]);
 	});
 });

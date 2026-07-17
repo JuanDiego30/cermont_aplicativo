@@ -38,7 +38,7 @@ import { VehicleDocumentsTab } from "@/modules/fleet/ui/VehicleDocumentsTab";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type VehicleDetail = {
+export type VehicleDetail = {
 	_id: string;
 	plate: string;
 	brand: string;
@@ -54,6 +54,15 @@ type VehicleDetail = {
 	soatExpiry?: string;
 	technoMechanicalExpiry?: string;
 	insuranceExpiry?: string;
+	documents?: Array<{
+		documentType: string;
+		documentNumber: string;
+		issueDate: string;
+		expiryDate: string;
+		status: string;
+		fileUrl?: string;
+		verifiedAt?: string;
+	}>;
 	lastMaintenanceAt?: string;
 	nextMaintenanceKm?: number;
 	createdAt: string;
@@ -376,6 +385,7 @@ function FleetDetailPageInner() {
 							soatExpiry={data.soatExpiry}
 							technoMechanicalExpiry={data.technoMechanicalExpiry}
 							insuranceExpiry={data.insuranceExpiry}
+							tarjetaPropiedadExpiry={data.documents?.find((d) => d.documentType === "tarjeta_propiedad")?.expiryDate}
 						/>
 					)}
 
@@ -391,3 +401,4 @@ function FleetDetailPageInner() {
 		</section>
 	);
 }
+

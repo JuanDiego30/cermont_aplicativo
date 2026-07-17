@@ -6,6 +6,7 @@
 
 import { INTERNAL_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
+	AddVehicleDocumentSchema,
 	CheckinVehicleAssignmentSchema,
 	CheckoutVehicleAssignmentSchema,
 	CreateVehicleAssignmentSchema,
@@ -46,6 +47,12 @@ router.get(
 	authorize(...INTERNAL_ROLES),
 	FleetController.getExpiringDocuments,
 );
+
+// GET /api/fleet/blocker-documents — vehicles with expired/missing mandatory docs
+router.get("/blocker-documents", authorize(...INTERNAL_ROLES), FleetController.getBlockerDocuments);
+
+// GET /api/fleet/readiness — fleet-wide readiness percentage
+router.get("/readiness", authorize(...INTERNAL_ROLES), FleetController.getFleetReadiness);
 
 // GET /api/fleet/:id/document-status — vehicle document validation status
 router.get(
@@ -102,6 +109,15 @@ router.post(
 	authorize(...MANAGEMENT_ROLES),
 	validateBody(CreateVehicleSchema),
 	FleetController.createVehicle,
+);
+
+// POST /api/fleet/:id/documents — add a structured document to vehicle
+router.post(
+	"/:id/documents",
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(VehicleIdParamsSchema),
+	validateBody(AddVehicleDocumentSchema),
+	FleetController.addVehicleDocument,
 );
 
 // PATCH /api/fleet/:id — update vehicle (blocks driver assignment with expired docs)

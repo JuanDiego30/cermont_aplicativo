@@ -1,6 +1,6 @@
 import type { DashboardAgingBucket, DashboardFinancialAging } from "@cermont/shared-types";
-import { Invoice } from "../../models/Invoice";
 import { Proposal } from "../../models";
+import { Invoice } from "../../models/Invoice";
 
 type AgingBucketDefinition =
 	| { status: "bounded"; minDays: number; maxDays: number; label: string }
@@ -82,24 +82,21 @@ export async function getFinancialKpis(): Promise<FinancialKpisResult> {
 	startOfMonth.setDate(1);
 	startOfMonth.setHours(0, 0, 0, 0);
 
-	const [totalProposals, approvedProposals, pipelineResult, billingResult] =
-		await Promise.all([
-			Proposal.countDocuments(),
-			Proposal.countDocuments({ status: "approved" }),
-			Proposal.aggregate([
-				{ $match: { status: { $in: ["draft", "sent"] } } },
-				{ $group: { _id: "total", total: { $sum: "$total" } } },
-			]),
-			Invoice.aggregate([
-				{ $match: { createdAt: { $gte: startOfMonth } } },
-				{ $group: { _id: "total", total: { $sum: "$total" } } },
-			]),
-		]);
+	const [totalProposals, approvedProposals, pipelineResult, billingResult] = await Promise.all([
+		Proposal.countDocuments(),
+		Proposal.countDocuments({ status: "approved" }),
+		Proposal.aggregate([
+			{ $match: { status: { $in: ["draft", "sent"] } } },
+			{ $group: { _id: "total", total: { $sum: "$total" } } },
+		]),
+		Invoice.aggregate([
+			{ $match: { createdAt: { $gte: startOfMonth } } },
+			{ $group: { _id: "total", total: { $sum: "$total" } } },
+		]),
+	]);
 
 	const conversionRate =
-		totalProposals > 0
-			? Math.round((approvedProposals / totalProposals) * 100)
-			: null;
+		totalProposals > 0 ? Math.round((approvedProposals / totalProposals) * 100) : null;
 	const pipelineValue = pipelineResult[0]?.total ?? 0;
 	const billedThisMonth = billingResult[0]?.total ?? 0;
 

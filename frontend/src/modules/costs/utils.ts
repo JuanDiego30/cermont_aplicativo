@@ -2,7 +2,7 @@ import { type CostCategory, CostCategorySchema, type CostDataState } from "@cerm
 
 export const COST_CATEGORY_OPTIONS = [...CostCategorySchema.options] as CostCategory[];
 
-export const COST_CATEGORY_LABELS: Record<CostCategory, string> = {
+export const COST_CATEGORY_LABELS: Record<CostCategory, string> & Record<string, string> = {
 	labor: "Mano de obra",
 	materials: "Materiales",
 	equipment: "Equipos",

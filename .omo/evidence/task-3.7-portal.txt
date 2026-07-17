@@ -1,0 +1,11 @@
+F3.7 — Client portal
+
+Audit and implementation result:
+
+- `/portal`, `/portal/orders`, `/portal/orders/[id]`, `/portal/invoices`, `/portal/proposals`, `/portal/service-cases`, and `/portal/signatures/[id]` are present.
+- Portal hooks use the real `/api/portal/dashboard`, `/orders`, `/orders/:id`, `/invoices`, and `/proposals` contracts. Service-case aliases intentionally reuse the canonical portal order endpoints.
+- Backend portal routes are protected by authentication plus `CERMONT_ROLES.CLIENTE`; order detail checks tenant ownership before returning linked documents.
+- List/detail/signature pages include loading, error/retry, empty, or forbidden behavior as applicable.
+- Fixed the signature integration so the frontend `signedDocumentRef` reaches the backend delivery-record service instead of being discarded as the obsolete `signatureImageId` field.
+
+Status: IMPLEMENTED pending root gate.

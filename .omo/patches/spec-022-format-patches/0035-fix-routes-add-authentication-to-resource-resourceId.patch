@@ -1,0 +1,32 @@
+From 3678abce2fa94b6ea2fa823acf27ba5d3d0b6dae Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 12:55:55 -0500
+Subject: [PATCH 35/42] fix(routes): add authentication to
+ resource/:resourceId/documents route
+
+---
+ backend/src/modules/resource/resource.routes.ts | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/backend/src/modules/resource/resource.routes.ts b/backend/src/modules/resource/resource.routes.ts
+index b40334e..4546111 100644
+--- a/backend/src/modules/resource/resource.routes.ts
++++ b/backend/src/modules/resource/resource.routes.ts
+@@ -116,7 +116,13 @@ router.post(
+ 	attachDocumentToTool,
+ );
+ 
+-router.get("/:resourceId/documents", authorize(...INTERNAL_ROLES), listToolDocuments);
++router.get(
++	"/:resourceId/documents",
++	authenticate,
++	authorize(...INTERNAL_ROLES),
++	validateParams(ResourceDocumentParamsSchema),
++	listToolDocuments,
++);
+ 
+ router.delete(
+ 	"/:resourceId/documents/:documentId",
+-- 
+2.51.1.windows.1
+

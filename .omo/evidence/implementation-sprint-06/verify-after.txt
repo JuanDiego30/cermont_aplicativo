@@ -1,0 +1,372 @@
+
+> cermont-monorepo@1.0.0 verify
+> npm run verify:shared-types && npm run verify:domain && npm run verify:config && npm run verify:backend && npm run verify:frontend && npm run contracts:check && npm run quality:strict && npm run doctor:verbose -w frontend
+
+
+> cermont-monorepo@1.0.0 verify:shared-types
+> npm run typecheck -w @cermont/shared-types && npm run lint -w @cermont/shared-types && npm run test -w @cermont/shared-types && npm run build -w @cermont/shared-types
+
+
+> @cermont/shared-types@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/shared-types@1.0.0 lint
+> biome check .
+
+Checked 174 files in 210ms. No fixes applied.
+
+> @cermont/shared-types@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types
+
+
+ Test Files  31 passed (31)
+      Tests  181 passed (181)
+   Start at  01:21:10
+   Duration  4.21s (transform 14.06s, setup 0ms, import 37.13s, tests 1.08s, environment 10ms)
+
+
+> @cermont/shared-types@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:domain
+> npm run typecheck -w @cermont/domain && npm run lint -w @cermont/domain && npm run build -w @cermont/domain
+
+
+> @cermont/domain@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/domain@1.0.0 lint
+> biome check .
+
+Checked 30 files in 41ms. No fixes applied.
+
+> @cermont/domain@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:config
+> npm run typecheck -w @cermont/config && npm run lint -w @cermont/config && npm run build -w @cermont/config
+
+
+> @cermont/config@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/config@1.0.0 lint
+> biome check .
+
+Checked 4 files in 37ms. No fixes applied.
+
+> @cermont/config@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:backend
+> npm run typecheck -w backend && npm run lint -w backend && npm run test -w backend && npm run build -w backend
+
+
+> @cermont/backend@5.2.1 typecheck
+> tsc --noEmit
+
+
+> @cermont/backend@5.2.1 lint
+> biome lint .
+
+Checked 479 files in 397ms. No fixes applied.
+
+> @cermont/backend@5.2.1 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend
+
+
+ Test Files  102 passed (102)
+      Tests  686 passed (686)
+   Start at  01:22:16
+   Duration  26.94s (transform 34.88s, setup 3.67s, import 282.84s, tests 14.23s, environment 20ms)
+
+
+> @cermont/backend@5.2.1 build
+> tsc
+
+
+> cermont-monorepo@1.0.0 verify:frontend
+> npm run typecheck -w frontend && npm run lint -w frontend && npm run test -w frontend && npm run build -w frontend
+
+
+> @cermont/frontend@1.2.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/frontend@1.2.0 lint
+> biome lint .
+
+Checked 880 files in 599ms. No fixes applied.
+
+> @cermont/frontend@1.2.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend
+
+
+ Test Files  83 passed (83)
+      Tests  411 passed (411)
+   Start at  01:23:17
+   Duration  41.51s (transform 8.65s, setup 67.78s, import 105.03s, tests 18.82s, environment 354.76s)
+
+
+> @cermont/frontend@1.2.0 build
+> next build --turbopack
+
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local, .env.production
+- Experiments (use with caution):
+  · optimizePackageImports
+  · serverActions
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 12.6s
+  Running TypeScript ...
+  Finished TypeScript in 28.8s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/96) ...
+  Generating static pages using 15 workers (24/96) 
+  Generating static pages using 15 workers (48/96) 
+  Generating static pages using 15 workers (72/96) 
+○ (serwist) Using esbuild to bundle the service worker.
+✓ (serwist) 242 precache entries (6691.46 KiB)
+✓ Generating static pages using 15 workers (96/96) in 2.5s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /~offline
+├ ƒ /admin
+├ ƒ /admin/audit
+├ ƒ /admin/backups
+├ ƒ /admin/custom-fields
+├ ƒ /admin/erp-connectors
+├ ƒ /admin/personnel
+├ ƒ /admin/settings
+├ ƒ /admin/users
+├ ƒ /admin/users/[id]
+├ ƒ /admin/users/[id]/edit
+├ ƒ /admin/users/new
+├ ƒ /api/auth/forgot-password
+├ ƒ /api/auth/login
+├ ƒ /api/auth/refresh
+├ ƒ /api/auth/register-client
+├ ƒ /api/backend/[...path]
+├ ƒ /api/files/[id]/content
+├ ƒ /api/health
+├ ƒ /assets
+├ ƒ /assets/[id]
+├ ƒ /billing
+├ ƒ /billing/invoices
+├ ƒ /billing/invoices/[id]
+├ ƒ /billing/invoices/[id]/approve
+├ ƒ /billing/invoices/new
+├ ƒ /billing/ses
+├ ƒ /billing/ses/[id]
+├ ƒ /billing/ses/[id]/approve
+├ ƒ /billing/ses/new
+├ ƒ /business-documents
+├ ƒ /business-documents/[id]
+├ ƒ /checklists
+├ ○ /consent
+├ ƒ /costs
+├ ƒ /costs/[orderId]
+├ ƒ /costs/[orderId]/ejecucion
+├ ƒ /costs/catalog
+├ ƒ /customers
+├ ƒ /customers/[id]
+├ ƒ /customers/new
+├ ƒ /dashboard
+├ ƒ /delivery-records
+├ ƒ /delivery-records/[id]
+├ ƒ /delivery-records/[id]/signature
+├ ƒ /delivery-records/new
+├ ƒ /dispatch
+├ ƒ /documents
+├ ƒ /documents/ingestion/[id]
+├ ƒ /documents/templates
+├ ƒ /documents/templates/new
+├ ƒ /erp-connector
+├ ƒ /evidences
+├ ƒ /evidences/[id]
+├ ƒ /evidences/report
+├ ƒ /execution
+├ ƒ /execution-sessions/[id]
+├ ƒ /execution/[id]
+├ ƒ /execution/new
+├ ƒ /fleet
+├ ƒ /fleet/[id]
+├ ○ /forgot-password
+├ ƒ /forms
+├ ƒ /forms/[templateId]
+├ ƒ /inventory
+├ ƒ /inventory/scan
+├ ƒ /invoices/[id]/pipeline
+├ ○ /login
+├ ƒ /maintenance
+├ ƒ /maintenance/[id]
+├ ƒ /maintenance/[id]/edit
+├ ƒ /maintenance/new
+├ ƒ /maintenance/schedules
+├ ƒ /notifications
+├ ƒ /offline-sync
+├ ƒ /orders
+├ ƒ /orders/[id]
+├ ƒ /orders/[id]/asts
+├ ƒ /orders/[id]/costs
+├ ƒ /orders/[id]/edit
+├ ƒ /orders/[id]/execution
+├ ƒ /orders/[id]/inspections/[inspectionId]
+├ ƒ /orders/[id]/invoice
+├ ƒ /orders/[id]/planning
+├ ƒ /orders/kanban
+├ ƒ /orders/new
+├ ƒ /payments
+├ ƒ /payments/[id]
+├ ƒ /payments/new
+├ ƒ /planning
+├ ƒ /planning-packet/new
+├ ƒ /planning/[id]
+├ ○ /portal
+├ ○ /portal/invoices
+├ ○ /portal/orders
+├ ƒ /portal/orders/[id]
+├ ○ /portal/proposals
+├ ○ /portal/service-cases
+├ ƒ /portal/service-cases/[id]
+├ ƒ /portal/signatures/[id]
+├ ○ /privacy
+├ ƒ /profile
+├ ƒ /profile/privacy
+├ ƒ /proposals
+├ ƒ /proposals/[id]
+├ ƒ /proposals/new
+├ ƒ /purchase-orders
+├ ƒ /purchase-orders/[id]
+├ ƒ /purchase-orders/new
+├ ƒ /register
+├ ƒ /reports
+├ ƒ /reports/[id]
+├ ƒ /reports/[id]/draft
+├ ƒ /reports/[id]/sign
+├ ƒ /reports/analytics
+├ ƒ /reports/archive
+├ ƒ /reports/new
+├ ○ /reset-password
+├ ƒ /resources
+├ ƒ /resources/[id]
+├ ƒ /resources/kits
+├ ƒ /resources/kits/new
+├ ○ /robots.txt
+├ ƒ /service-cases
+├ ƒ /service-cases/[id]
+├ ƒ /serwist
+├ ● /serwist/[path]
+│ ├ /serwist/sw.js.map
+│ └ /serwist/sw.js
+├ ƒ /settings/notifications
+├ ƒ /site-visits
+├ ƒ /site-visits/[id]
+├ ƒ /site-visits/new
+├ ○ /sitemap.xml
+├ ƒ /sla
+├ ƒ /templates
+├ ƒ /templates/[id]
+├ ○ /terms
+├ ƒ /tools
+├ ○ /unauthorized
+├ ƒ /work-requests
+├ ƒ /work-requests/[id]
+└ ƒ /work-requests/new
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+> cermont-monorepo@1.0.0 contracts:check
+> tsx tooling/contracts/check-contract-guard.ts
+
+✅ API contracts guard passed.
+   Snapshot hash: sha256:034404b932a789d1461a8261996b910e4024993cbca99b15c8497e72cd5a6c5a
+   Latest migration: 073-query-helpers-filterquery-type
+
+> cermont-monorepo@1.0.0 quality:strict
+> npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size && npm run quality:env && npm run quality:hardcoded-roles
+
+
+> cermont-monorepo@1.0.0 quality:weak-tokens
+> tsx tooling/quality/check-weak-tokens.ts
+
+Weak token quality check: 3041 findings
+- weak-token-a: 83/85 within baseline
+- weak-token-n: 1543/1543 within baseline
+- weak-token-u: 638/636 above baseline
+- weak-token-ud: 777/777 within baseline
+
+Weak token quality check failed: new findings exceed the baseline.
+backend/src/common/docs/api-docs.ts:74:28 weak-token-u Forbidden weak token "unknown"
+backend/src/common/fsm/fsm-engine.ts:61:68 weak-token-ud Forbidden weak token "undefined"
+backend/src/common/security/mongo-rate-limit.store.ts:32:56 weak-token-ud Forbidden weak token "undefined"
+backend/src/middlewares/idempotency.middleware.ts:45:84 weak-token-ud Forbidden weak token "undefined"
+backend/src/middlewares/rate-limiter.ts:21:63 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:4:36 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:37:44 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:40:46 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/sanitize.middleware.ts:23:53 weak-token-n Forbidden weak token "null"
+backend/src/middlewares/uploadMiddleware.ts:89:5 weak-token-n Forbidden weak token "null"
+backend/src/middlewares/validate.ts:31:12 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/validate.ts:32:13 weak-token-u Forbidden weak token "unknown"
+backend/src/middlewares/validate.ts:33:14 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Document.ts:216:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/DynamicFormTemplate.ts:67:9 weak-token-u Forbidden weak token "unknown"
+backend/src/models/DynamicFormTemplate.ts:89:13 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/DynamicFormTemplate.ts:93:13 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/EvidenceCollection.ts:76:13 weak-token-u Forbidden weak token "unknown"
+backend/src/models/FormSubmission.ts:21:25 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Inspection.ts:132:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/MaintenanceKit.ts:126:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Notification.ts:32:37 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Notification.ts:38:28 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Order.ts:93:17 weak-token-u Forbidden weak token "unknown"
+backend/src/models/PurchaseOrder.ts:53:17 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Report.ts:95:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Resource.ts:74:34 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Resource.ts:75:29 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Resource.ts:76:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Resource.ts:173:40 weak-token-u Forbidden weak token "unknown"
+backend/src/models/ServiceCase.ts:151:80 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/ServiceCase.ts:152:82 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/TemplateDraft.ts:115:51 weak-token-u Forbidden weak token "unknown"
+backend/src/models/TemplateResponse.ts:150:26 weak-token-u Forbidden weak token "unknown"
+backend/src/models/TemplateResponse.ts:173:34 weak-token-u Forbidden weak token "unknown"
+backend/src/models/TemplateResponse.ts:174:33 weak-token-u Forbidden weak token "unknown"
+backend/src/models/Vehicle.ts:107:13 weak-token-n Forbidden weak token "null"
+backend/src/models/WorkRequest.ts:169:44 weak-token-ud Forbidden weak token "undefined"
+backend/src/models/plugins/optimistic-concurrency.ts:50:29 weak-token-u Forbidden weak token "unknown"
+backend/src/models/plugins/optimistic-concurrency.ts:52:14 weak-token-u Forbidden weak token "unknown"
+backend/src/models/plugins/optimistic-concurrency.ts:59:53 weak-token-u Forbidden weak token "unknown"
+backend/src/models/sub-schemas/FileAssetRefSchema.ts:123:36 weak-token-ud Forbidden weak token "undefined"
+backend/src/modules/admin-backup/admin-backup.service.ts:61:31 weak-token-u Forbidden weak token "unknown"
+backend/src/modules/ai/ai-copilot.service.ts:45:43 weak-token-u Forbidden weak token "unknown"
+backend/src/modules/ai/ai.controller.ts:26:61 weak-token-a Forbidden weak token "any"
+backend/src/modules/analytics-report/analytics-report.service.ts:53:29 weak-token-u Forbidden weak token "unknown"
+backend/src/modules/analytics-report/analytics-report.service.ts:23:80 weak-token-ud Forbidden weak token "undefined"
+backend/src/modules/analytics-report/analytics-report.service.ts:25:10 weak-token-ud Forbidden weak token "undefined"
+backend/src/modules/analytics-report/analytics-report.service.ts:76:38 weak-token-ud Forbidden weak token "undefined"
+backend/src/modules/analytics/analytics.service.ts:141:10 weak-token-n Forbidden weak token "null"

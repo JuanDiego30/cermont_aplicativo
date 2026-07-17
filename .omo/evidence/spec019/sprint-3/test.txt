@@ -1,0 +1,443 @@
+
+> cermont-monorepo@1.0.0 test
+> turbo run test
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running test in 5 packages
+   • Remote caching disabled
+
+@cermont/domain:test: cache hit, replaying logs 472714eee3523e8f
+@cermont/domain:test: 
+@cermont/domain:test: > @cermont/domain@1.0.0 test
+@cermont/domain:test: > vitest run
+@cermont/domain:test: 
+@cermont/domain:test: 
+@cermont/domain:test: [1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90mC:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/domain[39m
+@cermont/domain:test: 
+@cermont/domain:test:  [32m✓[39m src/__tests__/spec-015-rules.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/__tests__/operational-steps.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/workflow/__tests__/service-case-state-machine.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/__tests__/cost-budget.rules.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/__tests__/checklist.rules.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/workflow/__tests__/step-requirements.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/domain:test: 
+@cermont/domain:test: [2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+@cermont/domain:test: [2m      Tests [22m [1m[32m77 passed[39m[22m[90m (77)[39m
+@cermont/domain:test: [2m   Start at [22m 02:32:54
+@cermont/domain:test: [2m   Duration [22m 1.58s[2m (transform 257ms, setup 0ms, import 451ms, tests 67ms, environment 2ms)[22m
+@cermont/domain:test: 
+@cermont/domain:build: cache hit, replaying logs 686deffeb50a1d0b
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:build: cache hit, replaying logs 6b96e07cfa8afe4a
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:test: cache miss, executing f36053ce3e63c6b7
+@cermont/shared-types:test: cache hit, replaying logs 295d812418f21b90
+@cermont/shared-types:test: 
+@cermont/shared-types:test: > @cermont/shared-types@1.0.0 test
+@cermont/shared-types:test: > vitest run
+@cermont/shared-types:test: 
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90mC:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types[39m
+@cermont/shared-types:test: 
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/dashboard-summary.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/file-asset.schema.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 109[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/dispatch.schema.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/service-case-step-context.schema.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/offline-sync.schema.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/cermont-operational-step.schema.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/audit.schema.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/automation.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/custom-field-values.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/order-clean-contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/domain-pipeline-phase1.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/execution-session.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/document-ingestion.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/contracts/api-contracts.snapshot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 774[2mms[22m[39m
+@cermont/shared-types:test:      [33m[2m✓[22m[39m matches the committed snapshot artifact [33m 734[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/vehicle-media.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/analytics-schema.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/maintenance-kit-enterprise.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/auth-normalization.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/sla.schema.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/workflow/document-ingestion-mode.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/analytics-report.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/cost-intelligence.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/system-config.schema.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/workflow/closure-readiness.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/asset-list.schema.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/dian.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/constants/labels.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/contracts/contract-tests-read-only.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/checklist.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/work-request.schema.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [2m Test Files [22m [1m[32m30 passed[39m[22m[90m (30)[39m
+@cermont/shared-types:test: [2m      Tests [22m [1m[32m173 passed[39m[22m[90m (173)[39m
+@cermont/shared-types:test: [2m   Start at [22m 02:38:59
+@cermont/shared-types:test: [2m   Duration [22m 8.20s[2m (transform 11.22s, setup 0ms, import 35.00s, tests 1.32s, environment 6ms)[22m
+@cermont/shared-types:test: 
+@cermont/frontend:test: cache hit, replaying logs 22818b2f4c757a4d
+@cermont/frontend:test: 
+@cermont/frontend:test: > @cermont/frontend@1.2.0 test
+@cermont/frontend:test: > vitest run
+@cermont/frontend:test: 
+@cermont/frontend:test: 
+@cermont/frontend:test: [1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90mC:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend[39m
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m tests/modules/inventory/inventory-page.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1159[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m creates an item through a semantic form submission [33m 934[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/costs-queries.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 797[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/checklists/ChecklistItemControl.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 599[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m identifica controles bloqueantes y no permite aprobar sin foto [33m 343[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/documents/document-gallery.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 980[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m marks protected closeout documents and turns delete into retention-aware removal [33m 937[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/sync-manager.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 619[2mms[22m[39m
+@cermont/frontend:test: [90mstderr[2m | tests/app/api/backend-proxy-route.test.ts[2m > [22m[2m/api/backend proxy route[2m > [22m[2mreturns BACKEND_UNAVAILABLE instead of a generic 500 when backend fetch fails
+@cermont/frontend:test: [22m[39m[33m[WARN][0m[90m[API:backend-proxy][0m Backend unavailable through frontend proxy {
+@cermont/frontend:test:   "method": "GET",
+@cermont/frontend:test:   "path": "/api/backend/dashboard/summary",
+@cermont/frontend:test:   "error": "ECONNREFUSED"
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m src/modules/service-cases/components/__tests__/CockpitEnrichment.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 692[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m shows an overdue alert when the closure is late [33m 355[2mms[22m[39m
+@cermont/frontend:test: [90mstderr[2m | tests/modules/documents/documents-page.test.tsx[2m > [22m[2mDocuments page[2m > [22m[2mhydrates contextual filters from search params and forwards them to query and upload defaults
+@cermont/frontend:test: [22m[39mThe tag <search> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m src/modules/audit/ui/__tests__/AuditLogViewer.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1136[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m renders forensic actor, resource, request correlation, and details [33m 648[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m applies action and date filters through the query hook [33m 388[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/system-config/reminder-settings-form.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 662[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m submits worker cadence and reminder rules [33m 490[2mms[22m[39m
+@cermont/frontend:test: [90mstderr[2m | tests/app/api/backend-proxy-route.test.ts[2m > [22m[2m/api/backend proxy route[2m > [22m[2mreturns a no-error fallback signal for the connectivity health probe
+@cermont/frontend:test: [22m[39m[33m[WARN][0m[90m[API:backend-proxy][0m Backend unavailable through frontend proxy {
+@cermont/frontend:test:   "method": "HEAD",
+@cermont/frontend:test:   "path": "/api/backend/health",
+@cermont/frontend:test:   "error": "ECONNREFUSED"
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m tests/app/api/backend-proxy-route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 2032[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m returns BACKEND_UNAVAILABLE instead of a generic 500 when backend fetch fails [33m 1008[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m returns a no-error fallback signal for the connectivity health probe [33m 1002[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/documents/documents-page.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 796[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m hydrates contextual filters from search params and forwards them to query and upload defaults [33m 541[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/evidences/evidences-page.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1443[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m renders the gallery view for the selected order [33m 732[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m persists view mode changes into the URL [33m 706[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/service-cases/service-cases-page.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 714[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m keeps the service cases module rendered offline when no local data exists [33m 435[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/automation/RulesEngineConfig.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 917[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m renders the configurable rule builder and a real empty state [33m 661[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/app/delivery-records/illegal-invocation-fix.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 244[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/files/image-upload-field.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 559[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m uploads a selected image and renders the persisted preview [33m 555[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/site-visits/site-visits-page.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 550[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m keeps the module rendered when offline has no local snapshot [33m 527[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/p0/react-doctor-remediation.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 465[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m renders the non-blocking consent notice as complementary content [33m 401[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/site-visits/site-visits-new-page.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 534[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m renders case selector then transitions to form on case selection [33m 530[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/fleet/fleet-photo-gallery.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 406[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m uses the canonical file id for primary and delete mutations [33m 371[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/work-requests/work-requests-page.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 338[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m keeps the module rendered when offline has no local snapshot [33m 334[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/core/empty-state.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 433[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m renders the module illustration and delegates the primary action [33m 387[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/templates/templates-page.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 348[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m keeps the module rendered when offline has no local snapshot [33m 344[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/dashboard/DashboardCommandCenter.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 302[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/documents/documents-queries.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 175[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/orders/order-closure-tab.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 540[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m creates the delivery record from the order closure lane when the technical report is approved [33m 426[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m src/components/sync/__tests__/NetworkStatusChip.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 273[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m src/modules/offline/ui/__tests__/OfflineRecoveryCenter.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 772[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m shows conflict context and lets the user choose the server version [33m 537[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/dashboard/dashboard-visuals.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 108[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/billing/billing-queries.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 195[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m src/modules/auth/hooks/__tests__/useReadyAuthenticatedSession.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 58[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/core/header-notifications.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 172[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/offline/blob-outbox.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m src/lib/offline/__tests__/connectivity.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+@cermont/frontend:test: [90mstderr[2m | tests/lib/offline/blob-outbox-processor.test.ts[2m > [22m[2mblob-outbox-processor[2m > [22m[2mprocessBlobOutboxEntry[2m > [22m[2mon failure: marks the entry failed (increments retry), keeps it in the outbox, emits changed
+@cermont/frontend:test: [22m[39m[33m[WARN][0m[90m[offline-sync:blob-processor][0m Blob outbox entry blob-1783323580072-c51x0mo0 failed: network down
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstderr[2m | tests/lib/offline/blob-outbox-processor.test.ts[2m > [22m[2mblob-outbox-processor[2m > [22m[2mprocessBlobOutboxEntry[2m > [22m[2mhandles non-Error rejections by storing a fallback message
+@cermont/frontend:test: [22m[39m[33m[WARN][0m[90m[offline-sync:blob-processor][0m Blob outbox entry blob-1783323580076-khhh9efm failed: Error desconocido al subir archivo
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstderr[2m | tests/lib/offline/blob-outbox-processor.test.ts[2m > [22m[2mblob-outbox-processor[2m > [22m[2mdrainBlobOutbox[2m > [22m[2mprocesses every pending entry and reports succeeded/failed counts
+@cermont/frontend:test: [22m[39m[33m[WARN][0m[90m[offline-sync:blob-processor][0m Blob outbox entry blob-1783323580081-jrpf2k05 failed: network
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m tests/lib/offline/blob-outbox-processor.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/checklists/useOfflineChecklist.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/evidences/useOfflineEvidence.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 50[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/costs/CostBudgetStatus.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 151[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/reports/reports-queries.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/connectivity.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/proposals/proposals-search-params.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 441[2mms[22m[39m
+@cermont/frontend:test:      [33m[2m✓[22m[39m reads query parameters without unbound URLSearchParams methods [33m 408[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/orders/orders-queries.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 36[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/auth/use-auth.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 38[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/rbac-extended.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m src/lib/offline/__tests__/offline-recovery.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/work-order-fsm.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/sync-queue.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-url.test.ts[2m > [22m[2mapiClient URL construction[2m > [22m[2mapiClient.request URL[2m > [22m[2mroutes login through its dedicated no-store handler
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request completed {
+@cermont/frontend:test:   method: [32m'POST'[39m,
+@cermont/frontend:test:   url: [32m'/auth/login'[39m,
+@cermont/frontend:test:   status: [33m200[39m,
+@cermont/frontend:test:   requestId: [32m'563de2ad-d5a7-4307-bbb2-33d80dde8549'[39m,
+@cermont/frontend:test:   durationMs: [33m1[39m,
+@cermont/frontend:test:   attempt: [33m1[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-url.test.ts[2m > [22m[2mapiClient URL construction[2m > [22m[2mapiClient.request URL[2m > [22m[2mroutes refresh through its dedicated cookie-forwarding handler
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request completed {
+@cermont/frontend:test:   method: [32m'POST'[39m,
+@cermont/frontend:test:   url: [32m'/auth/refresh'[39m,
+@cermont/frontend:test:   status: [33m200[39m,
+@cermont/frontend:test:   requestId: [32m'bc95edb7-888b-4d32-805b-d4dbc5063120'[39m,
+@cermont/frontend:test:   durationMs: [33m0[39m,
+@cermont/frontend:test:   attempt: [33m1[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-url.test.ts[2m > [22m[2mapiClient URL construction[2m > [22m[2mapiClient.request URL[2m > [22m[2mcalls fetch with a single /api/backend prefix for logout
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request completed {
+@cermont/frontend:test:   method: [32m'POST'[39m,
+@cermont/frontend:test:   url: [32m'/auth/logout'[39m,
+@cermont/frontend:test:   status: [33m200[39m,
+@cermont/frontend:test:   requestId: [32m'75629ecc-d475-4878-84a2-fadc41ed749b'[39m,
+@cermont/frontend:test:   durationMs: [33m0[39m,
+@cermont/frontend:test:   attempt: [33m1[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-url.test.ts[2m > [22m[2mapiClient URL construction[2m > [22m[2mapiClient.request URL[2m > [22m[2mdoes not double-prefix even if a caller passes a path containing /api/backend
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request completed {
+@cermont/frontend:test:   method: [32m'GET'[39m,
+@cermont/frontend:test:   url: [32m'/api/backend/users'[39m,
+@cermont/frontend:test:   status: [33m200[39m,
+@cermont/frontend:test:   requestId: [32m'42f0322a-e14b-4d23-a78a-57cc9c20534f'[39m,
+@cermont/frontend:test:   durationMs: [33m0[39m,
+@cermont/frontend:test:   attempt: [33m1[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-url.test.ts[2m > [22m[2mapiClient URL construction[2m > [22m[2mapiClient.request URL[2m > [22m[2mdoes not retry backend-unavailable proxy responses
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request failed {
+@cermont/frontend:test:   method: [32m'GET'[39m,
+@cermont/frontend:test:   url: [32m'/orders'[39m,
+@cermont/frontend:test:   status: [33m503[39m,
+@cermont/frontend:test:   requestId: [32m'e0f0374a-c1d1-4979-9a31-a3436b38f4b8'[39m,
+@cermont/frontend:test:   durationMs: [33m1[39m,
+@cermont/frontend:test:   attempt: [33m1[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m tests/lib/http/api-client-url.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+@cermont/frontend:test: [90mstderr[2m | tests/lib/env-validator.test.ts[2m > [22m[2mvalidateEnv (frontend)[2m > [22m[2mthrows when NEXT_PUBLIC_APP_URL is missing
+@cermont/frontend:test: [22m[39m
+@cermont/frontend:test: ❌ Frontend environment validation failed:
+@cermont/frontend:test: 
+@cermont/frontend:test:   - NEXT_PUBLIC_APP_URL is required
+@cermont/frontend:test: 
+@cermont/frontend:test: Please ensure NEXT_PUBLIC_APP_URL is set in your environment.
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m src/lib/offline/__tests__/sync-queue.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m tests/lib/env-validator.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-401-refresh.test.ts[2m > [22m[2mapiClient 401 → refresh behaviour[2m > [22m[2mtriggers refresh on 401 with code 'UNAUTHORIZED' when isAuthenticated is true
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request completed after refresh {
+@cermont/frontend:test:   method: [32m'GET'[39m,
+@cermont/frontend:test:   url: [32m'/orders'[39m,
+@cermont/frontend:test:   status: [33m200[39m,
+@cermont/frontend:test:   requestId: [32m'8738008b-f746-474c-b749-7b19e2e46947'[39m,
+@cermont/frontend:test:   durationMs: [33m3[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-401-refresh.test.ts[2m > [22m[2mapiClient 401 → refresh behaviour[2m > [22m[2mtriggers refresh on 401 with code 'TOKEN_EXPIRED' when isAuthenticated is true
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request completed after refresh {
+@cermont/frontend:test:   method: [32m'GET'[39m,
+@cermont/frontend:test:   url: [32m'/work-requests'[39m,
+@cermont/frontend:test:   status: [33m200[39m,
+@cermont/frontend:test:   requestId: [32m'06bb9e13-656e-42ee-ac60-0011aaf78621'[39m,
+@cermont/frontend:test:   durationMs: [33m0[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-401-refresh.test.ts[2m > [22m[2mapiClient 401 → refresh behaviour[2m > [22m[2mdoes NOT trigger refresh on 401 when isAuthenticated is false
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request failed {
+@cermont/frontend:test:   method: [32m'GET'[39m,
+@cermont/frontend:test:   url: [32m'/orders'[39m,
+@cermont/frontend:test:   status: [33m401[39m,
+@cermont/frontend:test:   requestId: [32m'837e5020-15db-40ba-9557-2e945551e020'[39m,
+@cermont/frontend:test:   durationMs: [33m1[39m,
+@cermont/frontend:test:   attempt: [33m1[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-401-refresh.test.ts[2m > [22m[2mapiClient 401 → refresh behaviour[2m > [22m[2mclears auth when refresh itself returns 401
+@cermont/frontend:test: [22m[39m[frontend-api-client] Pre-flight refresh failed {
+@cermont/frontend:test:   method: [32m'GET'[39m,
+@cermont/frontend:test:   url: [32m'/orders'[39m,
+@cermont/frontend:test:   requestId: [32m'acfc1587-c79c-487f-aa71-1cbbe14bd9c5'[39m,
+@cermont/frontend:test:   error: [32m'Missing token'[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test: [90mstdout[2m | tests/lib/http/api-client-401-refresh.test.ts[2m > [22m[2mapiClient 401 → refresh behaviour[2m > [22m[2mclears auth when refresh itself returns 401
+@cermont/frontend:test: [22m[39m[frontend-api-client] Request failed {
+@cermont/frontend:test:   method: [32m'GET'[39m,
+@cermont/frontend:test:   url: [32m'/orders'[39m,
+@cermont/frontend:test:   status: [33m401[39m,
+@cermont/frontend:test:   requestId: [32m'acfc1587-c79c-487f-aa71-1cbbe14bd9c5'[39m,
+@cermont/frontend:test:   durationMs: [33m1[39m,
+@cermont/frontend:test:   attempt: [33m1[39m
+@cermont/frontend:test: }
+@cermont/frontend:test: 
+@cermont/frontend:test:  [32m✓[39m tests/lib/http/api-client-401-refresh.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/public/pwa-assets.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m src/lib/offline/__tests__/local-repositories.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/logger.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/public/service-worker.bypass.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m src/modules/audit/__tests__/api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 12[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m src/lib/offline/__tests__/offline-db.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/core/navigation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/checklists/checklist-file-upload.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/costs/cost-export.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/retry-strategy.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/offline/service-worker-order.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/public/serwist-route.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/lib/pagination.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+@cermont/frontend:test:  [32m✓[39m tests/modules/orders/kanban-query-limit.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+@cermont/frontend:test: 
+@cermont/frontend:test: [2m Test Files [22m [1m[32m64 passed[39m[22m[90m (64)[39m
+@cermont/frontend:test: [2m      Tests [22m [1m[32m260 passed[39m[22m[90m (260)[39m
+@cermont/frontend:test: [2m   Start at [22m 02:38:59
+@cermont/frontend:test: [2m   Duration [22m 50.36s[2m (transform 5.57s, setup 50.96s, import 113.87s, tests 20.28s, environment 445.34s)[22m
+@cermont/frontend:test: 
+@cermont/backend:test: 
+@cermont/backend:test: > @cermont/backend@5.2.1 test
+@cermont/backend:test: > vitest run
+@cermont/backend:test: 
+@cermont/backend:test: 
+@cermont/backend:test: [1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90mC:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend[39m
+@cermont/backend:test: 
+@cermont/backend:test:  [32m✓[39m tests/quality/mongoose-update-options.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 93[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/reminder-checks.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/orders.controller.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1134[2mms[22m[39m
+@cermont/backend:test:        [33m[2m✓[22m[39m should return paginated orders list [33m 1122[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/spec-008-endpoints.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 1469[2mms[22m[39m
+@cermont/backend:test:      [33m[2m✓[22m[39m downloadEvidence should log audit and return 200 [33m 1400[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/proposals.controller.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1989[2mms[22m[39m
+@cermont/backend:test:        [33m[2m✓[22m[39m should return paginated proposals [33m 1977[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/auth.controller.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 2080[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/costs.controller.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 2243[2mms[22m[39m
+@cermont/backend:test:        [33m[2m✓[22m[39m should return paginated costs [33m 2235[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/common/request-id.middleware.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/pdf-generator.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 224[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/security/uploads.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 612[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/security/auth.middleware.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 166[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/order.service.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/cost-suggest.service.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/security-input-validation.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 85[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/modules/kits/typical-kit-autofill.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/fleet.service.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/cost.service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/sync.service.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/files/file-upload.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 444[2mms[22m[39m
+@cermont/backend:test:      [33m[2m✓[22m[39m persists an equipment image and appends the FileAssetRef to the resource parent [33m 347[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/cost-budget-alert.service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/evidence.service.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/notification.service.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/cermont-workflow-gate.service.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/proposal.service.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/checklist.service.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/middlewares/idempotency.middleware.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/dian-workflow.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/models/audit-log.model.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/payment-business-rules.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/auth.service.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/audit.service.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/notification.outbox.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/maintenance.service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/document.service.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/service-case-step-context.service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/automation.service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/planning-packet.service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/files/file-serving-route.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 63[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/common/health-routes.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/business-flow-api-contract.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 190[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/models/tenant-isolation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/cost-catalog.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/client.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/report.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/security/http-hardening.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1012[2mms[22m[39m
+@cermont/backend:test:      [33m[2m✓[22m[39m supports normal SPA request bursts above one hundred requests [33m 786[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/safety-analysis.service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/purchase-order.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/client-signature.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/security/mongo-rate-limit.store.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/models/service-case-operational-step.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/middlewares/upload-magic-bytes.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/planning-readiness.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/workflow-audit.service.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/common/logger.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/security-idor.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/execution-session.routes.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/reminder-worker.service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/observability.service.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/sla.service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/common/roles.guard.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/order-rules.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/config/env.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/system-config.service.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/work-request.service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/security/rate-limit-scope.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/models/soft-delete.plugin.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/inventory.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/common/authorize.middleware.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/case-closure-lock.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/common/error-metrics.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/work-request.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/order.helpers.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 16[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/no-in-memory-business-controllers.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/models/automation-indexes.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/analytics-report.service.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/work-request.routes.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/dispatch.service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/service-case.service.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/service-entry-sheet.routes.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/notification-templates.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/evidence-reference-integrity.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/quality/file-asset-ssot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/invoice-integrity.service.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/common/errors.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/user.service.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/delivery-record.routes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/dashboard-sla.service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/invoice.routes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/fleet-photo-upload-security.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/payment.routes.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/common/mapping.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/administrative-workflow.service.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/closing-evidence-routing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/service-case.controller.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/dian.service.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/order-closure-assert.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/dynamic-platform-routes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/dashboard-pipeline.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/plan-endpoint-aliases.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/backend:test: 
+@cermont/backend:test: [2m Test Files [22m [1m[32m99 passed[39m[22m[90m (99)[39m
+@cermont/backend:test: [2m      Tests [22m [1m[32m672 passed[39m[22m[90m (672)[39m
+@cermont/backend:test: [2m   Start at [22m 02:48:42
+@cermont/backend:test: [2m   Duration [22m 32.35s[2m (transform 22.19s, setup 3.72s, import 291.36s, tests 13.29s, environment 21ms)[22m
+@cermont/backend:test: 
+
+ Tasks:    6 successful, 6 total
+Cached:    5 cached, 6 total
+  Time:    34.421s 
+

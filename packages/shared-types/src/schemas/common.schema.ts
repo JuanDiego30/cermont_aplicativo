@@ -33,3 +33,10 @@ export interface SoftDeleteDocument<_T = object> extends AuditableDocument<_T> {
 	deletedAt?: string;
 	deletedBy?: string;
 }
+
+/** Reusable helper: a required string with Spanish "obligatorio" message */
+export const requiredString = (fieldName: string) =>
+	z.string().min(1, { message: `${fieldName} es obligatorio` });
+
+/** Reusable helper: a required email with Spanish error message */
+export const requiredEmail = () => z.string().email({ message: "Correo electrónico no válido" });

@@ -1,0 +1,731 @@
+From 02dd8ec2c2a0fb1a565c2b4aa9ed7582a71efe85 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Tue, 30 Jun 2026 02:01:27 -0500
+Subject: [PATCH 01/42] fix: migrate old step names to canonical 14-step naming
+ + fix template-draft type error
+
+- service-case-step-context: fixed PREVIOUS_STEP, STEP_LABELS, step handler maps
+- closing-evidence-routing: merged ses_filing/ses_approval -> step_11_ses
+- document-ingestion: added missing step_07_evidence, merged duplicate step_11_ses
+- notification.service: added legacy aliases for backward compat
+- service-case.service: added legacy aliases for backward compat
+- template-draft: filter extended roles to canonical 8 for TemplatePermission type
+- document.service, order-closure: step name migration
+- closing-evidence-routing tests: updated for canonical step names
+- domain/src/index.ts: sorted exports consistently (lint fix)
+- Gates: typecheck 0 errors, tests 653/653
+---
+ .../documents/document-ingestion.service.ts   | 33 +++++----
+ .../src/modules/documents/document.service.ts | 14 ++--
+ .../notifications/notification.service.ts     | 11 ++-
+ .../modules/order/order-closure.service.ts    | 32 ++++----
+ .../service-cases/service-case.service.ts     | 40 +++++-----
+ .../template-draft/template-draft.service.ts  |  8 +-
+ .../closing-evidence-routing.service.ts       | 24 +++---
+ .../service-case-step-context.service.ts      | 74 +++++++++----------
+ .../services/closing-evidence-routing.test.ts | 18 ++---
+ packages/domain/src/index.ts                  | 24 +++++-
+ 10 files changed, 159 insertions(+), 119 deletions(-)
+
+diff --git a/backend/src/modules/documents/document-ingestion.service.ts b/backend/src/modules/documents/document-ingestion.service.ts
+index a1351b0..d408715 100644
+--- a/backend/src/modules/documents/document-ingestion.service.ts
++++ b/backend/src/modules/documents/document-ingestion.service.ts
+@@ -253,14 +253,14 @@ function mapStepCodeToTargetStage(stepCode: CermontOperationalStepCode | undefin
+ 		step_04_purchase_order: "purchase_order",
+ 		step_05_planning: "planning",
+ 		step_06_execution: "execution",
+-		step_07_technical_report: "technical_report",
+-		step_08_delivery_record: "delivery_record",
+-		step_09_client_signature: "delivery_record",
+-		step_10_ses_submission: "service_entry_sheet",
+-		step_11_ses_approval: "service_entry_sheet",
+-		step_12_invoice_submission: "invoice",
++		step_07_evidence: "evidence",
++		step_08_technical_report: "technical_report",
++		step_09_delivery_record: "delivery_record",
++		step_10_client_signature: "delivery_record",
++		step_11_ses: "service_entry_sheet",
++		step_12_invoice: "invoice",
+ 		step_13_invoice_approval: "invoice",
+-		step_14_payment_closure: "payment",
++		step_14_payment: "payment",
+ 	};
+ 
+ 	return [stageMap[stepCode]];
+@@ -361,8 +361,8 @@ function buildDraftSections(
+ 	}
+ 
+ 	if (
+-		targetStepCode === "step_08_delivery_record" ||
+-		targetStepCode === "step_09_client_signature"
++		targetStepCode === "step_09_delivery_record" ||
++		targetStepCode === "step_10_client_signature"
+ 	) {
+ 		return [
+ 			{
+@@ -605,7 +605,7 @@ function detectBasicFields(title: string, targetStepCode?: CermontOperationalSte
+ 			"firma_tecnico",
+ 			"firma_supervisor",
+ 		],
+-		step_07_technical_report: [
++		step_08_technical_report: [
+ 			"objetivo",
+ 			"alcance",
+ 			"hallazgos",
+@@ -613,22 +613,23 @@ function detectBasicFields(title: string, targetStepCode?: CermontOperationalSte
+ 			"observaciones",
+ 			"firma_residente",
+ 		],
+-		step_08_delivery_record: [
++		step_09_delivery_record: [
+ 			"cliente",
+ 			"descripcion_entrega",
+ 			"fecha_entrega",
+ 			"observaciones_cliente",
+ 			"firma_tecnico",
+ 		],
+-		step_09_client_signature: ["cliente", "fecha_firma", "aceptacion_cliente", "firma_cliente"],
+-		step_10_ses_submission: [
++		step_10_client_signature: ["cliente", "fecha_firma", "aceptacion_cliente", "firma_cliente"],
++		step_11_ses: [
+ 			"ses_numero",
+ 			"fecha_radicacion",
+ 			"responsable_radicacion",
++			"fecha_aprobacion",
++			"aprobado_por",
+ 			"observaciones",
+ 		],
+-		step_11_ses_approval: ["ses_numero", "fecha_aprobacion", "aprobado_por", "observaciones"],
+-		step_12_invoice_submission: [
++		step_12_invoice: [
+ 			"numero_factura",
+ 			"fecha_emision",
+ 			"valor_factura",
+@@ -641,7 +642,7 @@ function detectBasicFields(title: string, targetStepCode?: CermontOperationalSte
+ 			"aprobado_por",
+ 			"observaciones",
+ 		],
+-		step_14_payment_closure: [
++		step_14_payment: [
+ 			"referencia_pago",
+ 			"fecha_pago",
+ 			"valor_pago",
+diff --git a/backend/src/modules/documents/document.service.ts b/backend/src/modules/documents/document.service.ts
+index a42c441..4d1fed9 100644
+--- a/backend/src/modules/documents/document.service.ts
++++ b/backend/src/modules/documents/document.service.ts
+@@ -345,14 +345,14 @@ type DocumentDeletionOutcome =
+ 
+ const RETENTION_YEARS = 5;
+ const CRITICAL_DOCUMENT_STEPS = new Set([
+-	"step_07_technical_report",
+-	"step_08_delivery_record",
+-	"step_09_client_signature",
+-	"step_10_ses_submission",
+-	"step_11_ses_approval",
+-	"step_12_invoice_submission",
++	"step_08_technical_report",
++	"step_09_delivery_record",
++	"step_10_client_signature",
++	"step_11_ses",
++	"step_11_ses",
++	"step_12_invoice",
+ 	"step_13_invoice_approval",
+-	"step_14_payment_closure",
++	"step_14_payment",
+ ]);
+ const CRITICAL_DOCUMENT_ENTITIES = new Set([
+ 	"technical_report",
+diff --git a/backend/src/modules/notifications/notification.service.ts b/backend/src/modules/notifications/notification.service.ts
+index 8a4b6d5..b448389 100644
+--- a/backend/src/modules/notifications/notification.service.ts
++++ b/backend/src/modules/notifications/notification.service.ts
+@@ -49,13 +49,20 @@ const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
+ 	step_04_purchase_order: "purchase_order",
+ 	step_05_planning: "planning",
+ 	step_06_execution: "execution",
++	step_08_technical_report: "technical_report",
++	step_09_delivery_record: "delivery_record",
++	step_10_client_signature: "client_signature",
++	step_11_ses: "ses",
++	step_12_invoice: "invoice",
++	step_13_invoice_approval: "invoice_approval",
++	step_14_payment: "payment",
++	// Legacy aliases for backward compatibility
+ 	step_07_technical_report: "technical_report",
+ 	step_08_delivery_record: "delivery_record",
+ 	step_09_client_signature: "client_signature",
+ 	step_10_ses_submission: "ses",
+-	step_11_ses_approval: "ses_approved",
++	step_11_ses_approval: "ses",
+ 	step_12_invoice_submission: "invoice",
+-	step_13_invoice_approval: "invoice_approval",
+ 	step_14_payment_closure: "payment",
+ };
+ 
+diff --git a/backend/src/modules/order/order-closure.service.ts b/backend/src/modules/order/order-closure.service.ts
+index 28559d4..dae292c 100644
+--- a/backend/src/modules/order/order-closure.service.ts
++++ b/backend/src/modules/order/order-closure.service.ts
+@@ -24,20 +24,20 @@ const CLOSURE_REQUIREMENT_DEFINITIONS: Array<{
+ 	label: string;
+ 	stepCode: ClosureRequirement["stepCode"];
+ }> = [
+-	{ kind: "acta_delivery", label: "Acta de entrega", stepCode: "step_08_delivery_record" },
+-	{ kind: "client_signature", label: "Firma del cliente", stepCode: "step_09_client_signature" },
+-	{ kind: "ses_filing", label: "Radicación SES", stepCode: "step_10_ses_submission" },
+-	{ kind: "ses_approval", label: "Aprobación SES", stepCode: "step_11_ses_approval" },
++	{ kind: "acta_delivery", label: "Acta de entrega", stepCode: "step_09_delivery_record" },
++	{ kind: "client_signature", label: "Firma del cliente", stepCode: "step_10_client_signature" },
++	{ kind: "ses_filing", label: "Radicación SES", stepCode: "step_11_ses" },
++	{ kind: "ses_approval", label: "Aprobación SES", stepCode: "step_11_ses" },
+ 	{
+ 		kind: "invoice_sent",
+ 		label: "Factura emitida / enviada",
+-		stepCode: "step_12_invoice_submission",
++		stepCode: "step_12_invoice",
+ 	},
+ 	{ kind: "invoice_approval", label: "Factura aprobada", stepCode: "step_13_invoice_approval" },
+ 	{
+ 		kind: "payment_support",
+ 		label: "Soporte de pago y conciliación",
+-		stepCode: "step_14_payment_closure",
++		stepCode: "step_14_payment",
+ 	},
+ ];
+ 
+@@ -219,13 +219,13 @@ async function loadClosureEntities(
+ 				linkedEntityId: { $in: linkedEntityIds },
+ 				targetStepCode: {
+ 					$in: [
+-						"step_08_delivery_record",
+-						"step_09_client_signature",
+-						"step_10_ses_submission",
+-						"step_11_ses_approval",
+-						"step_12_invoice_submission",
++						"step_09_delivery_record",
++						"step_10_client_signature",
++						"step_11_ses",
++						"step_11_ses",
++						"step_12_invoice",
+ 						"step_13_invoice_approval",
+-						"step_14_payment_closure",
++						"step_14_payment",
+ 					],
+ 				},
+ 			}),
+@@ -287,7 +287,7 @@ export async function getConsolidatedReport(
+ 					signatureType: normalizeSignatureType(deliveryRecord.signatureMethod),
+ 					signatureDocumentUrl:
+ 						deliveryRecord.signedDocumentRef ||
+-						closingDocs.find((d) => d.targetStepCode === "step_09_client_signature")?.file_url,
++						closingDocs.find((d) => d.targetStepCode === "step_10_client_signature")?.file_url,
+ 				}
+ 			: undefined,
+ 
+@@ -301,7 +301,7 @@ export async function getConsolidatedReport(
+ 					sesApprovedBy: ses.approvedBy?.toString(),
+ 					sesStatus: normalizeSesStatus(ses.status),
+ 					sesNotes: ses.description,
+-					supportDocumentUrl: closingDocs.find((d) => d.targetStepCode === "step_10_ses_submission")
++					supportDocumentUrl: closingDocs.find((d) => d.targetStepCode === "step_11_ses")
+ 						?.file_url,
+ 				}
+ 			: undefined,
+@@ -318,7 +318,7 @@ export async function getConsolidatedReport(
+ 					invoiceApprovedBy: invoice.acceptedBy?.toString(),
+ 					invoiceDocumentUrl:
+ 						invoice.attachments?.[0]?.url ||
+-						closingDocs.find((d) => d.targetStepCode === "step_12_invoice_submission")?.file_url,
++						closingDocs.find((d) => d.targetStepCode === "step_12_invoice")?.file_url,
+ 				}
+ 			: undefined,
+ 
+@@ -331,7 +331,7 @@ export async function getConsolidatedReport(
+ 					paymentConfirmedBy: payment.recordedBy.toString(),
+ 					paymentSupportUrl:
+ 						payment.supportingDocumentUrl ||
+-						closingDocs.find((d) => d.targetStepCode === "step_14_payment_closure")?.file_url,
++						closingDocs.find((d) => d.targetStepCode === "step_14_payment")?.file_url,
+ 				}
+ 			: undefined,
+ 		requirements,
+diff --git a/backend/src/modules/service-cases/service-case.service.ts b/backend/src/modules/service-cases/service-case.service.ts
+index 2f621aa..948a329 100644
+--- a/backend/src/modules/service-cases/service-case.service.ts
++++ b/backend/src/modules/service-cases/service-case.service.ts
+@@ -430,26 +430,25 @@ function buildSmartNextActionRoute(
+ 			: a.workOrderId
+ 				? `/execution/new?${sc}&workOrderId=${a.workOrderId}`
+ 				: `/execution/new?${sc}`,
+-		step_07_technical_report: a.technicalReportId
++		step_08_technical_report: a.technicalReportId
+ 			? `/reports/${a.technicalReportId}`
+ 			: a.executionSessionId
+ 				? `/reports/new?executionSessionId=${a.executionSessionId}&${sc}`
+ 				: `/reports/new?${sc}`,
+-		step_08_delivery_record: a.deliveryRecordId
++		step_09_delivery_record: a.deliveryRecordId
+ 			? `/delivery-records/${a.deliveryRecordId}`
+ 			: a.technicalReportId
+ 				? `/delivery-records/new?technicalReportId=${a.technicalReportId}&${sc}`
+ 				: `/delivery-records/new?${sc}`,
+-		step_09_client_signature: a.deliveryRecordId
++		step_10_client_signature: a.deliveryRecordId
+ 			? `/delivery-records/${a.deliveryRecordId}`
+ 			: `/delivery-records?${sc}`,
+-		step_10_ses_submission: a.sesId
++		step_11_ses: a.sesId
+ 			? `/billing/ses/${a.sesId}`
+ 			: a.deliveryRecordId
+ 				? `/billing/ses/new?deliveryRecordId=${a.deliveryRecordId}&${sc}`
+ 				: `/billing/ses/new?${sc}`,
+-		step_11_ses_approval: a.sesId ? `/billing/ses/${a.sesId}/approve` : `/billing/ses?${sc}`,
+-		step_12_invoice_submission: a.invoiceId
++		step_12_invoice: a.invoiceId
+ 			? `/billing/invoices/${a.invoiceId}`
+ 			: a.sesId
+ 				? `/billing/invoices/new?sesId=${a.sesId}&${sc}`
+@@ -457,7 +456,7 @@ function buildSmartNextActionRoute(
+ 		step_13_invoice_approval: a.invoiceId
+ 			? `/billing/invoices/${a.invoiceId}/approve`
+ 			: `/billing/invoices?${sc}`,
+-		step_14_payment_closure: a.paymentId
++		step_14_payment: a.paymentId
+ 			? `/payments/${a.paymentId}`
+ 			: a.invoiceId
+ 				? `/payments/new?invoiceId=${a.invoiceId}&${sc}`
+@@ -1400,13 +1399,20 @@ const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
+ 	step_04_purchase_order: "purchase_order",
+ 	step_05_planning: "planning",
+ 	step_06_execution: "execution",
++	step_08_technical_report: "technical_report",
++	step_09_delivery_record: "delivery_record",
++	step_10_client_signature: "client_signature",
++	step_11_ses: "ses",
++	step_12_invoice: "invoice",
++	step_13_invoice_approval: "invoice_approval",
++	step_14_payment: "payment",
++	// Legacy aliases for backward compatibility
+ 	step_07_technical_report: "technical_report",
+ 	step_08_delivery_record: "delivery_record",
+ 	step_09_client_signature: "client_signature",
+ 	step_10_ses_submission: "ses",
+-	step_11_ses_approval: "ses_approved",
++	step_11_ses_approval: "ses",
+ 	step_12_invoice_submission: "invoice",
+-	step_13_invoice_approval: "invoice_approval",
+ 	step_14_payment_closure: "payment",
+ };
+ 
+@@ -1417,15 +1423,15 @@ const DOMAIN_STATE_TO_DB_STEP: Record<string, string> = {
+ 	purchase_order: "step_04_purchase_order",
+ 	planning: "step_05_planning",
+ 	execution: "step_06_execution",
+-	technical_report: "step_07_technical_report",
+-	delivery_record: "step_08_delivery_record",
+-	client_signature: "step_09_client_signature",
+-	ses: "step_10_ses_submission",
+-	ses_approved: "step_11_ses_approval",
+-	invoice: "step_12_invoice_submission",
++	technical_report: "step_08_technical_report",
++	delivery_record: "step_09_delivery_record",
++	client_signature: "step_10_client_signature",
++	ses: "step_11_ses",
++	ses_approved: "step_11_ses",
++	invoice: "step_12_invoice",
+ 	invoice_approval: "step_13_invoice_approval",
+-	payment: "step_14_payment_closure",
+-	closed: "step_14_payment_closure",
++	payment: "step_14_payment",
++	closed: "step_14_payment",
+ };
+ 
+ function dbStepToDomainState(dbStep: string): ServiceCaseState {
+diff --git a/backend/src/modules/template-draft/template-draft.service.ts b/backend/src/modules/template-draft/template-draft.service.ts
+index 48ab9b4..bcd7b3b 100644
+--- a/backend/src/modules/template-draft/template-draft.service.ts
++++ b/backend/src/modules/template-draft/template-draft.service.ts
+@@ -180,7 +180,13 @@ function resolveTemplateFlags(draft: ITemplateDraftDocument) {
+ 
+ function buildDefaultPermissions(targetStepCode: string | undefined): TemplatePermission[] {
+ 	const step = CERMONT_OPERATIONAL_STEPS.find((current) => current.code === targetStepCode);
+-	const allowedRoles = step?.allowedRoles || ["gerente", "residente", "administrativo"];
++	const allowedRoles: TemplatePermission["role"][] = (
++		step?.allowedRoles || ["gerente", "residente", "administrativo"]
++	).filter((r): r is TemplatePermission["role"] =>
++		(["gerente", "residente", "hes", "supervisor", "operador", "tecnico", "administrativo", "cliente"] as const).includes(
++			r as TemplatePermission["role"],
++		),
++	);
+ 
+ 	return allowedRoles.map((role) => ({
+ 		role,
+diff --git a/backend/src/services/closing-evidence-routing.service.ts b/backend/src/services/closing-evidence-routing.service.ts
+index cf9425d..c941fa1 100644
+--- a/backend/src/services/closing-evidence-routing.service.ts
++++ b/backend/src/services/closing-evidence-routing.service.ts
+@@ -76,19 +76,19 @@ export function mapClassificationToStepCode(
+ ): CermontOperationalStepCode | undefined {
+ 	switch (classification) {
+ 		case "acta_delivery":
+-			return "step_08_delivery_record";
++			return "step_09_delivery_record";
+ 		case "client_signature":
+-			return "step_09_client_signature";
++			return "step_10_client_signature";
+ 		case "ses_filing":
+-			return "step_10_ses_submission";
++			return "step_11_ses";
+ 		case "ses_approval":
+-			return "step_11_ses_approval";
++			return "step_11_ses";
+ 		case "invoice_sent":
+-			return "step_12_invoice_submission";
++			return "step_12_invoice";
+ 		case "invoice_approval":
+ 			return "step_13_invoice_approval";
+ 		case "payment_support":
+-			return "step_14_payment_closure";
++			return "step_14_payment";
+ 		default:
+ 			return undefined;
+ 	}
+@@ -98,19 +98,17 @@ function mapStepCodeToClassification(
+ 	stepCode: CermontOperationalStepCode,
+ ): ClosingEvidenceClassification | undefined {
+ 	switch (stepCode) {
+-		case "step_08_delivery_record":
++		case "step_09_delivery_record":
+ 			return "acta_delivery";
+-		case "step_09_client_signature":
++		case "step_10_client_signature":
+ 			return "client_signature";
+-		case "step_10_ses_submission":
++		case "step_11_ses":
+ 			return "ses_filing";
+-		case "step_11_ses_approval":
+-			return "ses_approval";
+-		case "step_12_invoice_submission":
++		case "step_12_invoice":
+ 			return "invoice_sent";
+ 		case "step_13_invoice_approval":
+ 			return "invoice_approval";
+-		case "step_14_payment_closure":
++		case "step_14_payment":
+ 			return "payment_support";
+ 		default:
+ 			return undefined;
+diff --git a/backend/src/services/service-case-step-context.service.ts b/backend/src/services/service-case-step-context.service.ts
+index 8934842..a8f6f87 100644
+--- a/backend/src/services/service-case-step-context.service.ts
++++ b/backend/src/services/service-case-step-context.service.ts
+@@ -38,14 +38,14 @@ const PREVIOUS_STEP: Record<CermontOperationalStepCode, CermontOperationalStepCo
+ 	step_04_purchase_order: "step_03_proposal",
+ 	step_05_planning: "step_04_purchase_order",
+ 	step_06_execution: "step_05_planning",
+-	step_07_technical_report: "step_06_execution",
+-	step_08_delivery_record: "step_07_technical_report",
+-	step_09_client_signature: "step_08_delivery_record",
+-	step_10_ses_submission: "step_09_client_signature",
+-	step_11_ses_approval: "step_10_ses_submission",
+-	step_12_invoice_submission: "step_11_ses_approval",
+-	step_13_invoice_approval: "step_12_invoice_submission",
+-	step_14_payment_closure: "step_13_invoice_approval",
++	step_07_evidence: "step_06_execution",
++	step_08_technical_report: "step_07_evidence",
++	step_09_delivery_record: "step_08_technical_report",
++	step_10_client_signature: "step_09_delivery_record",
++	step_11_ses: "step_10_client_signature",
++	step_12_invoice: "step_11_ses",
++	step_13_invoice_approval: "step_12_invoice",
++	step_14_payment: "step_13_invoice_approval",
+ };
+ 
+ /**
+@@ -58,14 +58,14 @@ const STEP_LABELS: Record<CermontOperationalStepCode, string> = {
+ 	step_04_purchase_order: "Orden de compra",
+ 	step_05_planning: "Planeación",
+ 	step_06_execution: "Ejecución en campo",
+-	step_07_technical_report: "Informe técnico",
+-	step_08_delivery_record: "Acta de entrega",
+-	step_09_client_signature: "Firma del cliente",
+-	step_10_ses_submission: "Radicación SES",
+-	step_11_ses_approval: "Aprobación SES",
+-	step_12_invoice_submission: "Emisión factura",
++	step_07_evidence: "Evidencia",
++	step_08_technical_report: "Informe técnico",
++	step_09_delivery_record: "Acta de entrega",
++	step_10_client_signature: "Firma del cliente",
++	step_11_ses: "SES / Ariba",
++	step_12_invoice: "Factura",
+ 	step_13_invoice_approval: "Aprobación factura",
+-	step_14_payment_closure: "Pago y cierre",
++	step_14_payment: "Pago",
+ };
+ 
+ type ServiceCaseLeanObj = {
+@@ -617,7 +617,7 @@ function addFieldsForStep08(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.tr?.id,
+ 		"technicalReportId",
+ 		"ID de informe técnico",
+-		"step_07_technical_report",
++		"step_08_technical_report",
+ 		a.trId,
+ 		"Informe técnico",
+ 		false,
+@@ -628,7 +628,7 @@ function addFieldsForStep08(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.tr?.status,
+ 		"reportStatus",
+ 		"Estado del informe",
+-		"step_07_technical_report",
++		"step_08_technical_report",
+ 		a.trId,
+ 		"Informe técnico",
+ 		false,
+@@ -664,7 +664,7 @@ function addFieldsForStep09(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.dr?.id,
+ 		"deliveryRecordId",
+ 		"ID de acta de entrega",
+-		"step_08_delivery_record",
++		"step_09_delivery_record",
+ 		a.drId,
+ 		"Acta de entrega",
+ 		false,
+@@ -675,7 +675,7 @@ function addFieldsForStep09(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.dr?.status,
+ 		"deliveryStatus",
+ 		"Estado del acta",
+-		"step_08_delivery_record",
++		"step_09_delivery_record",
+ 		a.drId,
+ 		"Acta de entrega",
+ 		false,
+@@ -686,7 +686,7 @@ function addFieldsForStep09(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.dr?.updatedAt,
+ 		"deliveryDate",
+ 		"Fecha de entrega",
+-		"step_08_delivery_record",
++		"step_09_delivery_record",
+ 		a.drId,
+ 		"Acta de entrega",
+ 		false,
+@@ -711,7 +711,7 @@ function addFieldsForStep10(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.dr?.status,
+ 		"signedDeliveryStatus",
+ 		"Acta firmada",
+-		"step_08_delivery_record",
++		"step_09_delivery_record",
+ 		a.drId,
+ 		"Acta de entrega",
+ 		false,
+@@ -747,7 +747,7 @@ function addFieldsForStep11(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.ses?.id,
+ 		"sesId",
+ 		"ID de SES",
+-		"step_10_ses_submission",
++		"step_11_ses",
+ 		a.sesId,
+ 		"Radicación SES",
+ 		false,
+@@ -758,7 +758,7 @@ function addFieldsForStep11(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.ses?.status,
+ 		"sesStatus",
+ 		"Estado SES",
+-		"step_10_ses_submission",
++		"step_11_ses",
+ 		a.sesId,
+ 		"Radicación SES",
+ 		false,
+@@ -794,7 +794,7 @@ function addFieldsForStep12(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.ses?.id,
+ 		"approvedSesId",
+ 		"SES aprobada",
+-		"step_11_ses_approval",
++		"step_11_ses",
+ 		a.sesId,
+ 		"Aprobación SES",
+ 		false,
+@@ -805,7 +805,7 @@ function addFieldsForStep12(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.ses?.status,
+ 		"sesAmount",
+ 		"Valor SES",
+-		"step_11_ses_approval",
++		"step_11_ses",
+ 		a.sesId,
+ 		"Aprobación SES",
+ 		true,
+@@ -841,7 +841,7 @@ function addFieldsForStep13(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.inv?.id,
+ 		"invoiceId",
+ 		"ID de factura",
+-		"step_12_invoice_submission",
++		"step_12_invoice",
+ 		a.invId,
+ 		"Emisión factura",
+ 		false,
+@@ -852,7 +852,7 @@ function addFieldsForStep13(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.inv?.status,
+ 		"invoiceNumber",
+ 		"Número de factura",
+-		"step_12_invoice_submission",
++		"step_12_invoice",
+ 		a.invId,
+ 		"Emisión factura",
+ 		false,
+@@ -863,7 +863,7 @@ function addFieldsForStep13(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.inv?.updatedAt,
+ 		"invoiceAmount",
+ 		"Valor factura",
+-		"step_12_invoice_submission",
++		"step_12_invoice",
+ 		a.invId,
+ 		"Emisión factura",
+ 		true,
+@@ -910,7 +910,7 @@ function addFieldsForStep14(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.inv?.updatedAt,
+ 		"paymentDueDate",
+ 		"Fecha de vencimiento",
+-		"step_12_invoice_submission",
++		"step_12_invoice",
+ 		a.invId,
+ 		"Emisión factura",
+ 		true,
+@@ -921,7 +921,7 @@ function addFieldsForStep14(fields: InheritedField[], a: ArtifactRefs): void {
+ 		a.pay?.status,
+ 		"paymentStatus",
+ 		"Estado de pago",
+-		"step_14_payment_closure",
++		"step_14_payment",
+ 		a.payId,
+ 		"Pago y cierre",
+ 		true,
+@@ -949,14 +949,14 @@ const STEP_FIELD_RESOLVERS: Partial<
+ 	step_04_purchase_order: addFieldsForStep04,
+ 	step_05_planning: addFieldsForStep05,
+ 	step_06_execution: addFieldsForStep06,
+-	step_07_technical_report: addFieldsForStep07,
+-	step_08_delivery_record: addFieldsForStep08,
+-	step_09_client_signature: addFieldsForStep09,
+-	step_10_ses_submission: addFieldsForStep10,
+-	step_11_ses_approval: addFieldsForStep11,
+-	step_12_invoice_submission: addFieldsForStep12,
++	step_07_evidence: addFieldsForStep07,
++	step_08_technical_report: addFieldsForStep08,
++	step_09_delivery_record: addFieldsForStep09,
++	step_10_client_signature: addFieldsForStep10,
++	step_11_ses: addFieldsForStep11,
++	step_12_invoice: addFieldsForStep12,
+ 	step_13_invoice_approval: addFieldsForStep13,
+-	step_14_payment_closure: addFieldsForStep14,
++	step_14_payment: addFieldsForStep14,
+ };
+ 
+ /**
+diff --git a/backend/tests/services/closing-evidence-routing.test.ts b/backend/tests/services/closing-evidence-routing.test.ts
+index ca2ac93..2d7e10b 100644
+--- a/backend/tests/services/closing-evidence-routing.test.ts
++++ b/backend/tests/services/closing-evidence-routing.test.ts
+@@ -5,27 +5,27 @@ import {
+ } from "../../src/services/closing-evidence-routing.service";
+ 
+ describe("closing-evidence-routing", () => {
+-	it("clasifica acta de entrega al paso 8", () => {
++	it("clasifica acta de entrega al paso 9 (canonical)", () => {
+ 		expect(classifyClosingEvidence("acta_entrega_obra.pdf")).toBe("acta_delivery");
+-		expect(mapClassificationToStepCode("acta_delivery")).toBe("step_08_delivery_record");
++		expect(mapClassificationToStepCode("acta_delivery")).toBe("step_09_delivery_record");
+ 	});
+ 
+-	it("clasifica firma del cliente al paso 9", () => {
++	it("clasifica firma del cliente al paso 10 (canonical)", () => {
+ 		expect(classifyClosingEvidence("acta_firmada_cliente.pdf")).toBe("client_signature");
+-		expect(mapClassificationToStepCode("client_signature")).toBe("step_09_client_signature");
++		expect(mapClassificationToStepCode("client_signature")).toBe("step_10_client_signature");
+ 	});
+ 
+-	it("clasifica radicación y aprobación SES en pasos 10 y 11", () => {
++	it("clasifica radicación y aprobación SES en paso 11 (canonical, merged)", () => {
+ 		expect(classifyClosingEvidence("comprobante_ses_ariba.pdf")).toBe("ses_filing");
+ 		expect(classifyClosingEvidence("ses_aprobada_cliente.pdf")).toBe("ses_approval");
+-		expect(mapClassificationToStepCode("ses_filing")).toBe("step_10_ses_submission");
+-		expect(mapClassificationToStepCode("ses_approval")).toBe("step_11_ses_approval");
++		expect(mapClassificationToStepCode("ses_filing")).toBe("step_11_ses");
++		expect(mapClassificationToStepCode("ses_approval")).toBe("step_11_ses");
+ 	});
+ 
+-	it("clasifica factura y pago en pasos 12–14", () => {
++	it("clasifica factura y pago en pasos 12–14 (canonical)", () => {
+ 		expect(classifyClosingEvidence("factura_venta_001.pdf")).toBe("invoice_sent");
+ 		expect(classifyClosingEvidence("factura_aprobada_pago.pdf")).toBe("invoice_approval");
+ 		expect(classifyClosingEvidence("comprobante_pago_transferencia.pdf")).toBe("payment_support");
+-		expect(mapClassificationToStepCode("payment_support")).toBe("step_14_payment_closure");
++		expect(mapClassificationToStepCode("payment_support")).toBe("step_14_payment");
+ 	});
+ });
+diff --git a/packages/domain/src/index.ts b/packages/domain/src/index.ts
+index 0b3a6b4..d539934 100644
+--- a/packages/domain/src/index.ts
++++ b/packages/domain/src/index.ts
+@@ -22,6 +22,14 @@ export {
+ 	BILLING_STEP_LABELS,
+ 	getNextBillingAction,
+ } from "./billing.rules";
++export type {
++	ChecklistBlockerCode,
++	ChecklistItemResult,
++	ChecklistReadiness,
++	ChecklistReadinessBlocker,
++	ChecklistReadinessItem,
++} from "./checklist.rules";
++export { evaluateChecklistReadiness } from "./checklist.rules";
+ export type { ClosureBlocker, ServiceCaseClosureContext } from "./closure.rules";
+ // ─── Closure Rules ──────────────────────────────────────────────────────────
+ export {
+@@ -31,12 +39,20 @@ export {
+ 	canDeleteServiceCase,
+ 	canRegisterPayment,
+ } from "./closure.rules";
+-export type { CostEntry } from "./cost.rules";
++export type {
++	CostBudgetAssessment,
++	CostBudgetRisk,
++	CostBudgetValue,
++	CostEntry,
++	CostProfitability,
++} from "./cost.rules";
+ // ─── Cost Rules ─────────────────────────────────────────────────────────────
+ export {
+ 	COST_REQUIRED_FIELDS,
++	calculateGrossMargin,
+ 	calculateMargin,
+ 	calculateVariance,
++	evaluateCostBudgetRisk,
+ 	formatCostValue,
+ 	isCostMissing,
+ } from "./cost.rules";
+@@ -94,14 +110,20 @@ export {
+ } from "./kit.rules";
+ // ─── Operational Steps ──────────────────────────────────────────────────────
+ export type {
++	CanonicalOperationalStepCode,
++	LegacyOperationalStepCode,
+ 	OperationalStep,
++	OperationalStepCodeNormalization,
+ 	OperationalStepKey,
+ 	OperationalStepStatus,
+ } from "./operational-steps";
+ export {
+ 	CANONICAL_CODES,
+ 	getNextStep,
++	getOperationalStepCodeAliases,
+ 	isValidStepKey,
++	LEGACY_OPERATIONAL_STEP_CODES,
++	normalizeOperationalStepCode,
+ 	OPERATIONAL_STEPS,
+ 	STEP_BY_KEY,
+ 	STEP_KEYS,
+-- 
+2.51.1.windows.1
+

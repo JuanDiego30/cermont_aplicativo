@@ -1,0 +1,10 @@
+F3.3 — SES → Invoice → Payment pipeline
+
+Audit result: verified existing canonical implementation.
+
+- `InvoicePipelinePage` renders three responsive stages: SES, Factura, and Pago.
+- Each stage renders status, amount, document code, and aging where present; payment details are rendered by `PaymentRecordCard`.
+- `useInvoicePipeline` uses TanStack Query and the canonical service-case invoice-pipeline endpoint.
+- Loading skeleton, retryable error state, and empty state are present.
+
+Status: VERIFIED.

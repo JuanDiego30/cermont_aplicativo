@@ -137,6 +137,17 @@ export default function NewWorkRequestPage() {
 				});
 				push(`/service-cases/${created.serviceCase._id}`);
 			},
+			onError: (error) => {
+				const message =
+					error instanceof ApiError
+						? error.details?.length
+							? error.details.map((d) => d.message).join(", ")
+							: error.message
+						: error instanceof Error
+							? error.message
+							: "Error al crear la solicitud";
+				toast.error(message, { duration: 6000 });
+			},
 		});
 	}
 

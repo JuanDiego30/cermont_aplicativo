@@ -1,0 +1,195 @@
+React Doctor v0.7.4
+
+✔ Select projects › @cermont/frontend
+  
+
+  ⚠ Bugs: Locale/timezone formatting during render ×46
+    This can cause a hydration mismatch because
+    toLocaleDateString() formats with the server's locale and
+    timezone during server rendering but the user's in the
+    browser. Format it in a post-mount useEffect, or pass an
+    explicit locale and timeZone.
+    → Format locale/timezone-dependent values in a post-mount
+    useEffect + state, or pass an explicit locale and timeZone
+    so the server and the browser render the same text. Only
+    runs on SSR-capable projects.
+    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/no-locale-format-in-render
+
+    src/app/(dashboard)/admin/personnel/page.tsx:161
+
+    src/app/(dashboard)/admin/personnel/page.tsx:206
+
+    src/app/(dashboard)/assets/[id]/page.tsx:50
+
+    src/app/(dashboard)/billing/invoices/[id]/page.tsx:261
+
+    src/app/(dashboard)/billing/ses/[id]/page.tsx:21
+
+    src/app/(dashboard)/delivery-records/[id]/page.tsx:21
+
+    src/app/(dashboard)/documents/templates/page.tsx:137
+
+    src/app/(dashboard)/evidences/[id]/page.tsx:166
+
+    src/app/(dashboard)/evidences/[id]/page.tsx:170
+
+    src/app/(dashboard)/fleet/[id]/page.tsx:353
+
+    src/app/(dashboard)/fleet/page.tsx:79
+
+    src/app/(dashboard)/maintenance/schedules/page.tsx:234
+
+    src/app/(dashboard)/orders/[id]/inspections/[inspectionId]/page.tsx:70
+
+    src/app/(dashboard)/orders/[id]/planning/page.tsx:431
+
+    src/app/(dashboard)/orders/[id]/planning/page.tsx:805
+
+    src/app/(dashboard)/payments/[id]/page.tsx:14
+
+    src/app/(dashboard)/planning/[id]/page.tsx:17
+
+    src/app/(dashboard)/service-cases/page.tsx:238
+
+    src/app/(dashboard)/site-visits/[id]/page.tsx:18
+
+    src/app/(dashboard)/site-visits/page.tsx:28
+
+    src/app/(dashboard)/site-visits/page.tsx:88
+
+    src/app/(dashboard)/templates/[id]/page.tsx:11
+
+    src/app/(dashboard)/templates/page.tsx:58
+
+    src/app/(dashboard)/templates/page.tsx:106
+
+    src/app/(dashboard)/work-requests/page.tsx:56
+
+    src/modules/audit/ui/AuditLogViewer.tsx:55
+
+    src/modules/billing/ui/WorkflowRecordsPage.tsx:86
+
+    src/modules/cockpit/ui/FourteenStepProgressBar.tsx:27
+
+    src/modules/costs/ui/BaselineCostCard.tsx:22
+
+    src/modules/dashboard/ui/SlaRiskOrdersTable.tsx:105
+
+    src/modules/documents/ui/DocumentGallery.tsx:59
+
+    src/modules/files/ui/AttachmentList.tsx:50
+
+    src/modules/files/ui/ImagePreview.tsx:45
+
+    src/modules/fleet/ui/VehicleDocumentsTab.tsx:48
+
+    src/modules/orders/ui/OrderTimeline.tsx:343
+
+    src/modules/orders/ui/detail/OrderDetailHeader.tsx:31
+
+    src/modules/orders/ui/detail/OrderDetailsTab.tsx:35
+
+    src/modules/planning/ui/PlanningCostBaselineSection.tsx:58
+
+    src/modules/planning/ui/PlanningReadinessGate.tsx:170
+
+    src/modules/planning/ui/PlanningSignaturesSection.tsx:75
+
+    src/modules/planning/ui/steps/ReviewStep.tsx:99
+
+    src/modules/portal/ui/PortalServiceCaseList.tsx:46
+
+    src/modules/service-cases/components/EvidenceGallerySection.tsx:130
+
+    src/modules/service-cases/components/LinkedDocumentsSection.tsx:81
+
+    src/modules/service-cases/components/ServiceCaseWorkflowCockpit.tsx:69
+
+    src/modules/service-cases/components/SlaDeadlineBadge.tsx:57
+
+  ⚠ Accessibility: Control missing accessible label ×3
+    Blind users can't tell what this control does because
+    screen readers find no label, so add visible text,
+    `aria-label`, or `aria-labelledby`.
+    → Give every interactive control a label screen readers can
+    read.
+    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/control-has-associated-label
+
+    src/app/(dashboard)/maintenance/page.tsx:480
+
+    src/app/(dashboard)/maintenance/page.tsx:499
+
+    src/modules/core/ui/layout/Sidebar.tsx:184
+
+  ⚠ Bugs: Derived state stored in an effect
+    Your users briefly see stale state on every prop change.
+    → Work out derived values while rendering: `const x =
+    fn(dep)`. To reset a component's state when a prop changes,
+    give it a key prop: `<Component key={prop} />`. See
+    https://react.dev/learn/you-might-not-need-an-effect
+    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/no-derived-state-effect
+
+    src/modules/files/ui/OfflineUploadQueueStatus.tsx:55
+
+  ⚠ Maintainability: Static value rebuilt every render ×2
+    `nextStep` inside `PlanningWizard` uses no local state but
+    is rebuilt every render, so it looks new each time & breaks
+    memoized children. Move it to the top of the file, outside
+    the component.
+    → Move the value above the component, at the top of the
+    file. It doesn't use local state, so rebuilding it each
+    update is wasted and makes it look new every time.
+    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/prefer-module-scope-static-value
+
+    src/modules/planning/ui/PlanningWizard.tsx:77-78
+
+
+  ────────────────────────────────────────────────────────────
+
+  All 52 issues
+
+  Bugs > 47 warnings
+  Accessibility > 3 warnings
+  Maintainability > 2 warnings
+
+  ⚠ Migration-scale change: sample before you sweep
+    Locale/timezone formatting during render ×46 across 41 files
+    Fixing all of them at once is hard to review and prone to
+    subtle mistakes across the whole repo. Fix a representative
+    few first and confirm the recipe holds. Then get the code
+    owner's sign-off before changing the rest.
+    Scope it down one area at a time: npx react-doctor@latest <path>
+
+Agent guidance
+  - Treat React Doctor diagnostics as starting hypotheses. Read the relevant code before confirming or suppressing each finding.
+  - For each group, decide true positive, false positive, or needs-human-review, then assign high/medium/low confidence.
+  - Do not suppress a finding without evidence from the file in question. Confidence requires code context.
+  - Understand the root cause before editing. Fix the underlying code instead of changing react-doctor config or suppressing rules unless explicitly asked.
+  - Investigate deeply where relevant: race conditions, security-sensitive flows, state propagation, multi-file refactors, and downstream dependency chains.
+  - Ignore pure style preferences, theoretical issues without real impact, missing features, and unrelated pre-existing code.
+  - Start with high-confidence fixes that preserve behavior. Leave low-confidence or product-dependent changes as notes.
+  - Run `npx react-doctor@latest --verbose --scope changed` before and after changes, plus relevant tests after each focused batch.
+  - When available, spawn subagents or isolated worktrees for independent rule families, then review and merge only the best safe fixes.
+  - Split unrelated, broad, or behavior-changing work into separate PRs/branches instead of one large cleanup.
+  - When one rule spans dozens of files (a migration-scale change), fix a representative sample first, confirm the recipe holds, and get the code owner's sign-off before changing the rest. Don't mass-fix a broad pattern in one unreviewed pass.
+  - For confirmed issues that cannot be fixed now, create GitHub issues with the rule, file/line, confidence, impact, and proposed fix.
+  - If a fix needs an API, UX, or architecture decision, stop and ask before editing.
+
+  React Doctor (https://react.doctor)
+  Score unavailable (could not reach the score API). Want something custom to your company? Contact us at https://react.doctor/enterprise.
+
+  Full diagnostics written to C:\Users\camil\AppData\Local\Temp\react-doctor-ef000dc5-c635-41fb-9678-e9a03e8c4c3d
+
+
+  ────────────────────────────────────────────────────────────
+
+  Share: https://react.doctor/share?p=%40cermont%2Ffrontend&w=52&f=45
+  Tell others how you did on socials
+
+  Docs: https://react.doctor/docs
+  Learn more about fixing issues, setting up CI/CD, and
+  configuring rules with a config file
+
+  GitHub: https://github.com/millionco/react-doctor
+  Report issues and star the repository!
+

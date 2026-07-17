@@ -1,0 +1,5 @@
+6a3465f docs(spec-024): sprint 7 - final report, handoff, and PR preparation
+414ddab feat(spec-024): sprint 1 - comprehensive test suite for SPEC-022 components
+b332b6d feat(spec-022): sprint 4+5 - Planning Readiness + Automation Rules MVP
+3586fce feat(spec-022): sprint 3 - Dashboard OS dedicated endpoints
+3b8ec4f feat(spec-022): sprint 2.2 - EvidenceStatusBadge + gallery integration

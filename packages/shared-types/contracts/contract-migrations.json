@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:070967b5d97032447a922d8d4518b9475732dc3ce66b20a66f5b0db9f069cb6a",
+	"currentSnapshotHash": "sha256:a49667d5535c678ee0bafb062ebda9589109af46399da3b2af33288626153340",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -504,6 +504,13 @@
 			"type": "breaking",
 			"description": "Require Mongo ObjectId values for template and version identifiers when creating template responses.",
 			"toHash": "sha256:070967b5d97032447a922d8d4518b9475732dc3ce66b20a66f5b0db9f069cb6a"
+		},
+		{
+			"id": "072-bugfix-audit-schema-alignments",
+			"date": "2026-07-15",
+			"type": "non-breaking",
+			"description": "Add unit field to ProposalCostItemSchema, reconciliationNotes to PaymentSchema, export SupportDocument and RequiredCertification from barrel.",
+			"toHash": "sha256:a49667d5535c678ee0bafb062ebda9589109af46399da3b2af33288626153340"
 		}
 	]
 }

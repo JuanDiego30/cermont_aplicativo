@@ -1,0 +1,607 @@
+
+> cermont-monorepo@1.0.0 test
+> turbo run test
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running test in 5 packages
+   • Remote caching disabled
+
+@cermont/domain:test: cache miss, executing 472714eee3523e8f
+@cermont/domain:build: cache hit, replaying logs 686deffeb50a1d0b
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:test: cache miss, executing ffd64bde53ad1a43
+@cermont/shared-types:build: cache hit, replaying logs b3b7ac056302630f
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/frontend:test: cache miss, executing 3f012a2835803419
+@cermont/backend:test: cache miss, executing 5f991e8e50c6dc1e
+@cermont/domain:test: 
+@cermont/domain:test: > @cermont/domain@1.0.0 test
+@cermont/domain:test: > vitest run
+@cermont/domain:test: 
+@cermont/shared-types:test: 
+@cermont/shared-types:test: > @cermont/shared-types@1.0.0 test
+@cermont/shared-types:test: > vitest run
+@cermont/shared-types:test: 
+@cermont/frontend:test: 
+@cermont/frontend:test: > @cermont/frontend@1.2.0 test
+@cermont/frontend:test: > vitest run
+@cermont/frontend:test: 
+@cermont/backend:test: 
+@cermont/backend:test: > @cermont/backend@5.2.1 test
+@cermont/backend:test: > vitest run
+@cermont/backend:test: 
+@cermont/domain:test: 
+@cermont/domain:test: [1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90mC:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/domain[39m
+@cermont/domain:test: 
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90mC:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types[39m
+@cermont/shared-types:test: 
+@cermont/frontend:test: 
+@cermont/frontend:test: [1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90mC:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend[39m
+@cermont/frontend:test: 
+@cermont/backend:test: 
+@cermont/backend:test: [1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90mC:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend[39m
+@cermont/backend:test: 
+@cermont/domain:test:  [32m✓[39m src/__tests__/spec-015-rules.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/__tests__/operational-steps.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/workflow/__tests__/service-case-state-machine.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/__tests__/cost-budget.rules.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/__tests__/checklist.rules.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/file-asset.schema.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+@cermont/domain:test:  [32m✓[39m src/workflow/__tests__/step-requirements.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/domain:test: 
+@cermont/domain:test: [2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+@cermont/domain:test: [2m      Tests [22m [1m[32m77 passed[39m[22m[90m (77)[39m
+@cermont/domain:test: [2m   Start at [22m 02:32:54
+@cermont/domain:test: [2m   Duration [22m 1.58s[2m (transform 257ms, setup 0ms, import 451ms, tests 67ms, environment 2ms)[22m
+@cermont/domain:test: 
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/offline-sync.schema.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/dashboard-summary.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/service-case-step-context.schema.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/cermont-operational-step.schema.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/quality/mongoose-update-options.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 104[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/automation.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/orders.controller.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1617[2mms[22m[39m
+@cermont/backend:test:        [33m[2m✓[22m[39m should return paginated orders list [33m 1605[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/dispatch.schema.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/custom-field-values.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/cost-intelligence.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/order-clean-contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/domain-pipeline-phase1.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/routes/security-input-validation.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/execution-session.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/document-ingestion.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/vehicle-media.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+@cermont/shared-types:test:  [31m❯[39m tests/contracts/api-contracts.snapshot.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 966[2mms[22m[39m
+@cermont/shared-types:test: [31m     [31m×[31m matches the committed snapshot artifact[39m[33m 939[2mms[22m[39m
+@cermont/shared-types:test:      [32m✓[39m keeps migration manifest aligned with current snapshot hash[32m 24[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/security/auth.middleware.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 347[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/dian.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/sla.schema.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/work-request.schema.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/maintenance-kit-enterprise.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/spec-008-endpoints.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2449[2mms[22m[39m
+@cermont/backend:test:      [33m[2m✓[22m[39m downloadEvidence should log audit and return 200 [33m 1906[2mms[22m[39m
+@cermont/backend:test:      [33m[2m✓[22m[39m getWorkOrderStatus returns status with deadlines [33m 405[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/workflow/document-ingestion-mode.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/analytics-schema.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/auth-normalization.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/services/reminder-checks.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/workflow/closure-readiness.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/security/uploads.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1020[2mms[22m[39m
+@cermont/backend:test:      [33m[2m✓[22m[39m stores a path-like original filename under a UUID filename [33m 369[2mms[22m[39m
+@cermont/backend:test:      [33m[2m✓[22m[39m rejects files larger than 20 MB with HTTP 413 [33m 470[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/constants/labels.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/contracts/contract-tests-read-only.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/proposals.controller.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 2919[2mms[22m[39m
+@cermont/backend:test:        [33m[2m✓[22m[39m should return paginated proposals [33m 2907[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/system-config.schema.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/asset-list.schema.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/audit.schema.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/checklist.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+@cermont/backend:test:  [32m✓[39m tests/controllers/auth.controller.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 3044[2mms[22m[39m
+@cermont/shared-types:test:  [32m✓[39m tests/schemas/analytics-report.schema.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [41m[1m FAIL [22m[49m tests/contracts/api-contracts.snapshot.test.ts[2m > [22mAPI contract snapshot[2m > [22mmatches the committed snapshot artifact
+@cermont/shared-types:test: [31m[1mAssertionError[22m: expected '{\n  "apis": {\n    "aiAPI": {\n     …' to be '{\n  "apis": {\n    "aiAPI": {\n     …' // Object.is equality[39m
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [32m- Expected[39m
+@cermont/shared-types:test: [31m+ Received[39m
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [33m@@ -31450,10 +31450,240 @@[39m
+@cermont/shared-types:test: [2m          "totalOverdueAmount",[22m
+@cermont/shared-types:test: [2m          "overdueInvoiceCount"[22m
+@cermont/shared-types:test: [2m        ],[22m
+@cermont/shared-types:test: [2m        "type": "object"[22m
+@cermont/shared-types:test: [2m      },[22m
+@cermont/shared-types:test: [31m+     "DashboardKpiSummarySchema": {[39m
+@cermont/shared-types:test: [31m+       "$schema": "https://json-schema.org/draft/2020-12/schema",[39m
+@cermont/shared-types:test: [31m+       "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+       "properties": {[39m
+@cermont/shared-types:test: [31m+         "calculatedAt": {[39m
+@cermont/shared-types:test: [31m+           "format": "date-time",[39m
+@cermont/shared-types:test: [31m+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",[39m
+@cermont/shared-types:test: [31m+           "type": "string"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "firstTimeFixRate": {[39m
+@cermont/shared-types:test: [31m+           "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+           "properties": {[39m
+@cermont/shared-types:test: [31m+             "firstTimeFixes": {[39m
+@cermont/shared-types:test: [31m+               "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "integer"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "period": {[39m
+@cermont/shared-types:test: [31m+               "enum": [[39m
+@cermont/shared-types:test: [31m+                 "7d",[39m
+@cermont/shared-types:test: [31m+                 "30d",[39m
+@cermont/shared-types:test: [31m+                 "90d",[39m
+@cermont/shared-types:test: [31m+                 "12m"[39m
+@cermont/shared-types:test: [31m+               ],[39m
+@cermont/shared-types:test: [31m+               "type": "string"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "rate": {[39m
+@cermont/shared-types:test: [31m+               "maximum": 100,[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "totalJobs": {[39m
+@cermont/shared-types:test: [31m+               "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "integer"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "trend": {[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             }[39m
+@cermont/shared-types:test: [31m+           },[39m
+@cermont/shared-types:test: [31m+           "required": [[39m
+@cermont/shared-types:test: [31m+             "period",[39m
+@cermont/shared-types:test: [31m+             "totalJobs",[39m
+@cermont/shared-types:test: [31m+             "firstTimeFixes",[39m
+@cermont/shared-types:test: [31m+             "rate",[39m
+@cermont/shared-types:test: [31m+             "trend"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "object"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "mtbf": {[39m
+@cermont/shared-types:test: [31m+           "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+           "properties": {[39m
+@cermont/shared-types:test: [31m+             "mtbfHours": {[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "period": {[39m
+@cermont/shared-types:test: [31m+               "enum": [[39m
+@cermont/shared-types:test: [31m+                 "7d",[39m
+@cermont/shared-types:test: [31m+                 "30d",[39m
+@cermont/shared-types:test: [31m+                 "90d",[39m
+@cermont/shared-types:test: [31m+                 "12m"[39m
+@cermont/shared-types:test: [31m+               ],[39m
+@cermont/shared-types:test: [31m+               "type": "string"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "totalFailures": {[39m
+@cermont/shared-types:test: [31m+               "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "integer"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "totalOperationalHours": {[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "trend": {[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             }[39m
+@cermont/shared-types:test: [31m+           },[39m
+@cermont/shared-types:test: [31m+           "required": [[39m
+@cermont/shared-types:test: [31m+             "period",[39m
+@cermont/shared-types:test: [31m+             "totalOperationalHours",[39m
+@cermont/shared-types:test: [31m+             "totalFailures",[39m
+@cermont/shared-types:test: [31m+             "mtbfHours",[39m
+@cermont/shared-types:test: [31m+             "trend"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "object"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "mttr": {[39m
+@cermont/shared-types:test: [31m+           "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+           "properties": {[39m
+@cermont/shared-types:test: [31m+             "mttrHours": {[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "period": {[39m
+@cermont/shared-types:test: [31m+               "enum": [[39m
+@cermont/shared-types:test: [31m+                 "7d",[39m
+@cermont/shared-types:test: [31m+                 "30d",[39m
+@cermont/shared-types:test: [31m+                 "90d",[39m
+@cermont/shared-types:test: [31m+                 "12m"[39m
+@cermont/shared-types:test: [31m+               ],[39m
+@cermont/shared-types:test: [31m+               "type": "string"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "totalRepairEvents": {[39m
+@cermont/shared-types:test: [31m+               "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "integer"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "totalRepairHours": {[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "trend": {[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             }[39m
+@cermont/shared-types:test: [31m+           },[39m
+@cermont/shared-types:test: [31m+           "required": [[39m
+@cermont/shared-types:test: [31m+             "period",[39m
+@cermont/shared-types:test: [31m+             "totalRepairHours",[39m
+@cermont/shared-types:test: [31m+             "totalRepairEvents",[39m
+@cermont/shared-types:test: [31m+             "mttrHours",[39m
+@cermont/shared-types:test: [31m+             "trend"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "object"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "period": {[39m
+@cermont/shared-types:test: [31m+           "enum": [[39m
+@cermont/shared-types:test: [31m+             "7d",[39m
+@cermont/shared-types:test: [31m+             "30d",[39m
+@cermont/shared-types:test: [31m+             "90d",[39m
+@cermont/shared-types:test: [31m+             "12m"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "string"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "technicianUtilization": {[39m
+@cermont/shared-types:test: [31m+           "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+           "properties": {[39m
+@cermont/shared-types:test: [31m+             "period": {[39m
+@cermont/shared-types:test: [31m+               "enum": [[39m
+@cermont/shared-types:test: [31m+                 "7d",[39m
+@cermont/shared-types:test: [31m+                 "30d",[39m
+@cermont/shared-types:test: [31m+                 "90d",[39m
+@cermont/shared-types:test: [31m+                 "12m"[39m
+@cermont/shared-types:test: [31m+               ],[39m
+@cermont/shared-types:test: [31m+               "type": "string"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "totalAvailableHours": {[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "totalBilledHours": {[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "trend": {[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             },[39m
+@cermont/shared-types:test: [31m+             "utilizationRate": {[39m
+@cermont/shared-types:test: [31m+               "maximum": 100,[39m
+@cermont/shared-types:test: [31m+               "minimum": 0,[39m
+@cermont/shared-types:test: [31m+               "type": "number"[39m
+@cermont/shared-types:test: [31m+             }[39m
+@cermont/shared-types:test: [31m+           },[39m
+@cermont/shared-types:test: [31m+           "required": [[39m
+@cermont/shared-types:test: [31m+             "period",[39m
+@cermont/shared-types:test: [31m+             "totalAvailableHours",[39m
+@cermont/shared-types:test: [31m+             "totalBilledHours",[39m
+@cermont/shared-types:test: [31m+             "utilizationRate",[39m
+@cermont/shared-types:test: [31m+             "trend"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "object"[39m
+@cermont/shared-types:test: [31m+         }[39m
+@cermont/shared-types:test: [31m+       },[39m
+@cermont/shared-types:test: [31m+       "required": [[39m
+@cermont/shared-types:test: [31m+         "mttr",[39m
+@cermont/shared-types:test: [31m+         "mtbf",[39m
+@cermont/shared-types:test: [31m+         "firstTimeFixRate",[39m
+@cermont/shared-types:test: [31m+         "technicianUtilization",[39m
+@cermont/shared-types:test: [31m+         "period",[39m
+@cermont/shared-types:test: [31m+         "calculatedAt"[39m
+@cermont/shared-types:test: [31m+       ],[39m
+@cermont/shared-types:test: [31m+       "type": "object"[39m
+@cermont/shared-types:test: [31m+     },[39m
+@cermont/shared-types:test: [31m+     "DashboardKpiWidgetSchema": {[39m
+@cermont/shared-types:test: [31m+       "$schema": "https://json-schema.org/draft/2020-12/schema",[39m
+@cermont/shared-types:test: [31m+       "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+       "properties": {[39m
+@cermont/shared-types:test: [31m+         "firstTimeFixRate": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 100,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "mtbf": {[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "mttr": {[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "pendingCertifications": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "integer"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "periodLabel": {[39m
+@cermont/shared-types:test: [31m+           "type": "string"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "slaCompliance": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 100,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "technicianUtilizationRate": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 100,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         }[39m
+@cermont/shared-types:test: [31m+       },[39m
+@cermont/shared-types:test: [31m+       "required": [[39m
+@cermont/shared-types:test: [31m+         "mttr",[39m
+@cermont/shared-types:test: [31m+         "mtbf",[39m
+@cermont/shared-types:test: [31m+         "firstTimeFixRate",[39m
+@cermont/shared-types:test: [31m+         "technicianUtilizationRate",[39m
+@cermont/shared-types:test: [31m+         "slaCompliance",[39m
+@cermont/shared-types:test: [31m+         "pendingCertifications",[39m
+@cermont/shared-types:test: [31m+         "periodLabel"[39m
+@cermont/shared-types:test: [31m+       ],[39m
+@cermont/shared-types:test: [31m+       "type": "object"[39m
+@cermont/shared-types:test: [31m+     },[39m
+@cermont/shared-types:test: [2m      "DashboardMaintenanceEfficiencySchema": {[22m
+@cermont/shared-types:test: [2m        "$schema": "https://json-schema.org/draft/2020-12/schema",[22m
+@cermont/shared-types:test: [2m        "additionalProperties": false,[22m
+@cermont/shared-types:test: [2m        "properties": {[22m
+@cermont/shared-types:test: [2m          "activeWorkOrders": {[22m
+@cermont/shared-types:test: [33m@@ -53566,10 +53796,51 @@[39m
+@cermont/shared-types:test: [2m          "clientMutationId",[22m
+@cermont/shared-types:test: [2m          "commandType"[22m
+@cermont/shared-types:test: [2m        ],[22m
+@cermont/shared-types:test: [2m        "type": "object"[22m
+@cermont/shared-types:test: [2m      },[22m
+@cermont/shared-types:test: [31m+     "FirstTimeFixRateKpiSchema": {[39m
+@cermont/shared-types:test: [31m+       "$schema": "https://json-schema.org/draft/2020-12/schema",[39m
+@cermont/shared-types:test: [31m+       "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+       "properties": {[39m
+@cermont/shared-types:test: [31m+         "firstTimeFixes": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "integer"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "period": {[39m
+@cermont/shared-types:test: [31m+           "enum": [[39m
+@cermont/shared-types:test: [31m+             "7d",[39m
+@cermont/shared-types:test: [31m+             "30d",[39m
+@cermont/shared-types:test: [31m+             "90d",[39m
+@cermont/shared-types:test: [31m+             "12m"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "string"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "rate": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 100,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "totalJobs": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "integer"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "trend": {[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         }[39m
+@cermont/shared-types:test: [31m+       },[39m
+@cermont/shared-types:test: [31m+       "required": [[39m
+@cermont/shared-types:test: [31m+         "period",[39m
+@cermont/shared-types:test: [31m+         "totalJobs",[39m
+@cermont/shared-types:test: [31m+         "firstTimeFixes",[39m
+@cermont/shared-types:test: [31m+         "rate",[39m
+@cermont/shared-types:test: [31m+         "trend"[39m
+@cermont/shared-types:test: [31m+       ],[39m
+@cermont/shared-types:test: [31m+       "type": "object"[39m
+@cermont/shared-types:test: [31m+     },[39m
+@cermont/shared-types:test: [2m      "ForgotPasswordSchema": {[22m
+@cermont/shared-types:test: [2m        "$schema": "https://json-schema.org/draft/2020-12/schema",[22m
+@cermont/shared-types:test: [2m        "additionalProperties": false,[22m
+@cermont/shared-types:test: [2m        "properties": {[22m
+@cermont/shared-types:test: [2m          "email": {[22m
+@cermont/shared-types:test: [33m@@ -58245,10 +58516,20 @@[39m
+@cermont/shared-types:test: [2m          "appliedAt",[22m
+@cermont/shared-types:test: [2m          "appliedBy"[22m
+@cermont/shared-types:test: [2m        ],[22m
+@cermont/shared-types:test: [2m        "type": "object"[22m
+@cermont/shared-types:test: [2m      },[22m
+@cermont/shared-types:test: [31m+     "KpiTimeRangeSchema": {[39m
+@cermont/shared-types:test: [31m+       "$schema": "https://json-schema.org/draft/2020-12/schema",[39m
+@cermont/shared-types:test: [31m+       "enum": [[39m
+@cermont/shared-types:test: [31m+         "7d",[39m
+@cermont/shared-types:test: [31m+         "30d",[39m
+@cermont/shared-types:test: [31m+         "90d",[39m
+@cermont/shared-types:test: [31m+         "12m"[39m
+@cermont/shared-types:test: [31m+       ],[39m
+@cermont/shared-types:test: [31m+       "type": "string"[39m
+@cermont/shared-types:test: [31m+     },[39m
+@cermont/shared-types:test: [2m      "LaborTimeEntrySchema": {[22m
+@cermont/shared-types:test: [2m        "$schema": "https://json-schema.org/draft/2020-12/schema",[22m
+@cermont/shared-types:test: [2m        "additionalProperties": false,[22m
+@cermont/shared-types:test: [2m        "properties": {[22m
+@cermont/shared-types:test: [2m          "description": {[22m
+@cermont/shared-types:test: [33m@@ -62690,10 +62971,88 @@[39m
+@cermont/shared-types:test: [2m          "quantityPlanned",[22m
+@cermont/shared-types:test: [2m          "quantityUsed",[22m
+@cermont/shared-types:test: [2m          "unit",[22m
+@cermont/shared-types:test: [2m          "recordedAt",[22m
+@cermont/shared-types:test: [2m          "recordedBy"[22m
+@cermont/shared-types:test: [31m+       ],[39m
+@cermont/shared-types:test: [31m+       "type": "object"[39m
+@cermont/shared-types:test: [31m+     },[39m
+@cermont/shared-types:test: [31m+     "MtbfKpiSchema": {[39m
+@cermont/shared-types:test: [31m+       "$schema": "https://json-schema.org/draft/2020-12/schema",[39m
+@cermont/shared-types:test: [31m+       "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+       "properties": {[39m
+@cermont/shared-types:test: [31m+         "mtbfHours": {[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "period": {[39m
+@cermont/shared-types:test: [31m+           "enum": [[39m
+@cermont/shared-types:test: [31m+             "7d",[39m
+@cermont/shared-types:test: [31m+             "30d",[39m
+@cermont/shared-types:test: [31m+             "90d",[39m
+@cermont/shared-types:test: [31m+             "12m"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "string"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "totalFailures": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "integer"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "totalOperationalHours": {[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "trend": {[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         }[39m
+@cermont/shared-types:test: [31m+       },[39m
+@cermont/shared-types:test: [31m+       "required": [[39m
+@cermont/shared-types:test: [31m+         "period",[39m
+@cermont/shared-types:test: [31m+         "totalOperationalHours",[39m
+@cermont/shared-types:test: [31m+         "totalFailures",[39m
+@cermont/shared-types:test: [31m+         "mtbfHours",[39m
+@cermont/shared-types:test: [31m+         "trend"[39m
+@cermont/shared-types:test: [31m+       ],[39m
+@cermont/shared-types:test: [31m+       "type": "object"[39m
+@cermont/shared-types:test: [31m+     },[39m
+@cermont/shared-types:test: [31m+     "MttrKpiSchema": {[39m
+@cermont/shared-types:test: [31m+       "$schema": "https://json-schema.org/draft/2020-12/schema",[39m
+@cermont/shared-types:test: [31m+       "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+       "properties": {[39m
+@cermont/shared-types:test: [31m+         "mttrHours": {[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "period": {[39m
+@cermont/shared-types:test: [31m+           "enum": [[39m
+@cermont/shared-types:test: [31m+             "7d",[39m
+@cermont/shared-types:test: [31m+             "30d",[39m
+@cermont/shared-types:test: [31m+             "90d",[39m
+@cermont/shared-types:test: [31m+             "12m"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "string"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "totalRepairEvents": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 9007199254740991,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "integer"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "totalRepairHours": {[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "trend": {[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         }[39m
+@cermont/shared-types:test: [31m+       },[39m
+@cermont/shared-types:test: [31m+       "required": [[39m
+@cermont/shared-types:test: [31m+         "period",[39m
+@cermont/shared-types:test: [31m+         "totalRepairHours",[39m
+@cermont/shared-types:test: [31m+         "totalRepairEvents",[39m
+@cermont/shared-types:test: [31m+         "mttrHours",[39m
+@cermont/shared-types:test: [31m+         "trend"[39m
+@cermont/shared-types:test: [2m        ],[22m
+@cermont/shared-types:test: [2m        "type": "object"[22m
+@cermont/shared-types:test: [2m      },[22m
+@cermont/shared-types:test: [2m      "NavigationBadgesSchema": {[22m
+@cermont/shared-types:test: [2m        "$schema": "https://json-schema.org/draft/2020-12/schema",[22m
+@cermont/shared-types:test: [33m@@ -88799,10 +89158,49 @@[39m
+@cermont/shared-types:test: [2m        "required": [[22m
+@cermont/shared-types:test: [2m          "_id",[22m
+@cermont/shared-types:test: [2m          "userId",[22m
+@cermont/shared-types:test: [2m          "points",[22m
+@cermont/shared-types:test: [2m          "startedAt"[22m
+@cermont/shared-types:test: [31m+       ],[39m
+@cermont/shared-types:test: [31m+       "type": "object"[39m
+@cermont/shared-types:test: [31m+     },[39m
+@cermont/shared-types:test: [31m+     "TechnicianUtilizationKpiSchema": {[39m
+@cermont/shared-types:test: [31m+       "$schema": "https://json-schema.org/draft/2020-12/schema",[39m
+@cermont/shared-types:test: [31m+       "additionalProperties": false,[39m
+@cermont/shared-types:test: [31m+       "properties": {[39m
+@cermont/shared-types:test: [31m+         "period": {[39m
+@cermont/shared-types:test: [31m+           "enum": [[39m
+@cermont/shared-types:test: [31m+             "7d",[39m
+@cermont/shared-types:test: [31m+             "30d",[39m
+@cermont/shared-types:test: [31m+             "90d",[39m
+@cermont/shared-types:test: [31m+             "12m"[39m
+@cermont/shared-types:test: [31m+           ],[39m
+@cermont/shared-types:test: [31m+           "type": "string"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "totalAvailableHours": {[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "totalBilledHours": {[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "trend": {[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         },[39m
+@cermont/shared-types:test: [31m+         "utilizationRate": {[39m
+@cermont/shared-types:test: [31m+           "maximum": 100,[39m
+@cermont/shared-types:test: [31m+           "minimum": 0,[39m
+@cermont/shared-types:test: [31m+           "type": "number"[39m
+@cermont/shared-types:test: [31m+         }[39m
+@cermont/shared-types:test: [31m+       },[39m
+@cermont/shared-types:test: [31m+       "required": [[39m
+@cermont/shared-types:test: [31m+         "period",[39m
+@cermont/shared-types:test: [31m+         "totalAvailableHours",[39m
+@cermont/shared-types:test: [31m+         "totalBilledHours",[39m
+@cermont/shared-types:test: [31m+         "utilizationRate",[39m
+@cermont/shared-types:test: [31m+         "trend"[39m
+@cermont/shared-types:test: [2m        ],[22m
+@cermont/shared-types:test: [2m        "type": "object"[22m
+@cermont/shared-types:test: [2m      },[22m
+@cermont/shared-types:test: [2m      "TemplateDraftExportHintSchema": {[22m
+@cermont/shared-types:test: [2m        "$schema": "https://json-schema.org/draft/2020-12/schema",[22m
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [36m [2m❯[22m tests/contracts/api-contracts.snapshot.test.ts:[2m18:29[22m[39m
+@cermont/shared-types:test:     [90m 16|[39m   const generatedSnapshot = stringifyApiContractSnapshot(buildApiContr…
+@cermont/shared-types:test:     [90m 17|[39m
+@cermont/shared-types:test:     [90m 18|[39m   [34mexpect[39m(generatedSnapshot)[33m.[39m[34mtoBe[39m(committedSnapshot)[33m;[39m
+@cermont/shared-types:test:     [90m   |[39m                             [31m^[39m
+@cermont/shared-types:test:     [90m 19|[39m  })[33m;[39m
+@cermont/shared-types:test:     [90m 20|[39m
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+@cermont/shared-types:test: 
+@cermont/shared-types:test: 
+@cermont/shared-types:test: [2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m29 passed[39m[22m[90m (30)[39m
+@cermont/shared-types:test: [2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m172 passed[39m[22m[90m (173)[39m
+@cermont/shared-types:test: [2m   Start at [22m 02:32:54
+@cermont/shared-types:test: [2m   Duration [22m 8.09s[2m (transform 9.07s, setup 0ms, import 35.59s, tests 1.39s, environment 7ms)[22m
+@cermont/shared-types:test: 
+@cermont/backend:test:  [32m✓[39m tests/common/request-id.middleware.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+@cermont/shared-types:test: npm error Lifecycle script `test` failed with error:
+@cermont/shared-types:test: npm error code 1
+@cermont/shared-types:test: npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types
+@cermont/shared-types:test: npm error workspace @cermont/shared-types@1.0.0
+@cermont/shared-types:test: npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types
+@cermont/shared-types:test: npm error command failed
+@cermont/shared-types:test: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vitest run
+ ERROR  @cermont/shared-types#test: command (C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types) C:\Program Files\nodejs\npm.cmd run test exited (1)
+
+ Tasks:    3 successful, 6 total
+Cached:    2 cached, 6 total
+  Time:    11.01s 
+Failed:    @cermont/shared-types#test
+
+ WARNING  no output files found for task @cermont/domain#test. Please check your `outputs` key in `turbo.json`
+ ERROR  run failed: command  exited (1)

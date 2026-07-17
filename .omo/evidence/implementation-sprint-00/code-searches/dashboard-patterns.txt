@@ -1,0 +1,64 @@
+
+Filename                        LineNumber Line
+--------                        ---------- ----
+index.d.ts                               4 export { buildBlockers, canAdvanceStep, getAllowedActions, getCurrentStep, g…
+service-case-state-machine.d.ts          2 import { buildBlockers, canAdvanceStep, getAllowedActions, getStepRequiremen…
+service-case-state-machine.d.ts         55 export { buildBlockers, canAdvanceStep, getAllowedActions, getStepRequiremen…
+step-requirements.d.ts                  35 export declare function buildBlockers(serviceCase: ServiceCaseWorkflowSnapsh…
+step-requirements.d.ts                  38     blockers: readonly WorkflowBlocker[];
+checklist.rules.d.ts                    21     blockers: [];
+checklist.rules.d.ts                    24     blockers: ChecklistReadinessBlocker[];
+closure.rules.d.ts                      32     blockers: ClosureBlocker[];
+closure.rules.d.ts                      37     blockers: ClosureBlocker[];
+closure.rules.d.ts                      42     blockers: ClosureBlocker[];
+closure.rules.d.ts                      47     blockers: ClosureBlocker[];
+closure.rules.d.ts                      52     blockers: ClosureBlocker[];
+execution.d.ts                          26 export declare function calculateExecutionBlockers(session: ExecutionReadMod…
+fleet-readiness.rules.d.ts               2  * Fleet Readiness Rules — Vehicle readiness score and blockers
+fleet-readiness.rules.d.ts              18     blockers: FleetBlocker[];
+index.d.ts                              10  * - execution.ts: Execution session rules and blockers
+index.d.ts                              25 export { calculateExecutionBlockers, calculateExecutionNextActions, canCance…
+index.d.ts                              35 export { getMaxBlockerSeverity, getPlanningBlockers, isPlanningReady, REQUIR…
+index.d.ts                              38 export { ADMIN_PLUS_RESIDENTE, ADMIN_ROLES, AI_ASSISTANT_ROLES, ALL_AUTHENTI…
+index.d.ts                              42 export { buildBlockers, CERMONT_OPERATIONAL_STEP_BY_KEY, CERMONT_OPERATIONAL…
+kit.rules.d.ts                          97     blockers: string[];
+planning.rules.d.ts                     30 /** Get all blockers that prevent execution */
+planning.rules.d.ts                     31 export declare function getPlanningBlockers(readiness: PlanningReadiness): P…
+planning.rules.d.ts                     33 export declare function getMaxBlockerSeverity(blockers: PlanningBlocker[]): …
+rbac.d.ts                               28     readonly prefix: "/dashboard";
+rbac.d.ts                              127  * PUBLIC_PATHS.includes('/dashboard'); // false
+rbac.d.ts                              137  * const invalid: PublicPath = '/dashboard'; // ❌ Type error
+rbac.d.ts                              153  * isPublicPath('/dashboard'); // false
+rbac.d.ts                              173  * canAccessPath('/dashboard', 'tecnico'); // true (common path)
+roles.d.ts                              53  * Intern / pasante roles — read-only access to dashboards and reports
+roles.d.ts                              58 export declare const DASHBOARD_ACCESS_ROLES: readonly ["gerente", "residente…
+checklist.rules.test.ts                 21 		expect(result.blockers).toEqual([
+checklist.rules.test.ts                 42 		expect(result.blockers[0]?.code).toBe("CHECKLIST_CRITICAL_ITEM_FAILED");
+checklist.rules.test.ts                 60 		expect(result.blockers.map((blocker) => blocker.code)).toEqual([
+checklist.rules.test.ts                 81 		expect(result).toEqual({ status: "ready", blockers: [] });
+step-requirements.test.ts                4 	buildBlockers,
+step-requirements.test.ts               72 describe("buildBlockers", () => {
+step-requirements.test.ts               73 	it("should return no blockers for work_request with no preconditions", () =…
+step-requirements.test.ts               75 		const blockers = buildBlockers(svc, FULL_CONTEXT);
+step-requirements.test.ts               76 		expect(blockers).toHaveLength(0);
+step-requirements.test.ts               81 		const blockers = buildBlockers(svc, FULL_CONTEXT);
+step-requirements.test.ts               82 		expect(blockers.some((b) => b.code === "missing_work_request")).toBe(true);
+step-requirements.test.ts               87 		const blockers = buildBlockers(svc, FULL_CONTEXT);
+step-requirements.test.ts               88 		expect(blockers.some((b) => b.code === "missing_work_request")).toBe(false…
+step-requirements.test.ts               96 		const blockers = buildBlockers(svc, EMPTY_CONTEXT);
+step-requirements.test.ts               98 		expect(blockers.some((b) => b.code === "missing_ats")).toBe(true);
+step-requirements.test.ts               99 		expect(blockers.some((b) => b.code === "missing_ptw")).toBe(true);
+step-requirements.test.ts              104 		const blockers = buildBlockers(svc, EMPTY_CONTEXT);
+step-requirements.test.ts              105 		expect(blockers.some((b) => b.code === "missing_formal_request")).toBe(tru…
+step-requirements.test.ts              110 		const blockers = buildBlockers(svc, EMPTY_CONTEXT);
+step-requirements.test.ts              111 		expect(blockers.some((b) => b.code === "missing_visit_evidence")).toBe(tru…
+step-requirements.test.ts              116 	it("should return allowed when no blockers", () => {
+step-requirements.test.ts              120 		expect(result.blockers).toHaveLength(0);
+step-requirements.test.ts              123 	it("should return blocked with reasons when blockers exist", () => {
+step-requirements.test.ts              127 		expect(result.blockers.length).toBeGreaterThan(0);
+index.ts                                26 	buildBlockers,
+service-case-state-machine.ts            9 	buildBlockers,
+service-case-state-machine.ts          117 				reasons: gate.blockers.map((blocker) => blocker.message),
+service-case-state-machine.ts          142 export { buildBlockers, canAdvanceStep, getAllowedActions, getStepRequiremen…
+step-requirements.ts                   173 export function buildBlockers(
+

@@ -1,0 +1,76 @@
+From 3586fce83d166a1421488dd39589e95456e0704e Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 16:09:46 -0500
+Subject: [PATCH 41/42] feat(spec-022): sprint 3 - Dashboard OS dedicated
+ endpoints
+
+- Added GET /api/dashboard/next-actions endpoint
+- Added GET /api/dashboard/blockers endpoint
+- Added GET /api/dashboard/recent-activity endpoint
+- Controllers delegate to existing buildNextActions/buildBlockers/buildRecentActivity
+- Dashboard already had 28 frontend components + 9 backend files with real data
+---
+ .../modules/dashboard/dashboard.controller.ts  | 15 +++++++++++++++
+ .../src/modules/dashboard/dashboard.routes.ts  | 18 +++++++++++++++++-
+ 2 files changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/backend/src/modules/dashboard/dashboard.controller.ts b/backend/src/modules/dashboard/dashboard.controller.ts
+index 045c3f0..dd02d71 100644
+--- a/backend/src/modules/dashboard/dashboard.controller.ts
++++ b/backend/src/modules/dashboard/dashboard.controller.ts
+@@ -26,3 +26,18 @@ export async function getSlaRisk(_req: Request, res: Response): Promise<void> {
+ 	const orders = await buildSlaRiskOrders();
+ 	sendSuccess(res, orders);
+ }
++
++export async function getNextActions(_req: Request, res: Response): Promise<void> {
++	const summary = await getDashboardSummary();
++	sendSuccess(res, summary.nextActions);
++}
++
++export async function getBlockers(_req: Request, res: Response): Promise<void> {
++	const summary = await getDashboardSummary();
++	sendSuccess(res, summary.blockers);
++}
++
++export async function getRecentActivity(_req: Request, res: Response): Promise<void> {
++	const summary = await getDashboardSummary();
++	sendSuccess(res, summary.recentActivity);
++}
+diff --git a/backend/src/modules/dashboard/dashboard.routes.ts b/backend/src/modules/dashboard/dashboard.routes.ts
+index 6f0fb3e..c8045de 100644
+--- a/backend/src/modules/dashboard/dashboard.routes.ts
++++ b/backend/src/modules/dashboard/dashboard.routes.ts
+@@ -2,7 +2,14 @@ import { ALL_AUTHENTICATED_ROLES } from "@cermont/domain";
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+ import { authorize } from "../../middlewares/authorize.middleware";
+-import { getOperationalKpis, getSlaRisk, getSummary } from "./dashboard.controller";
++import {
++	getBlockers,
++	getNextActions,
++	getOperationalKpis,
++	getRecentActivity,
++	getSlaRisk,
++	getSummary,
++} from "./dashboard.controller";
+ 
+ const router = Router();
+ 
+@@ -17,4 +24,13 @@ router.get("/operational-kpis", authorize(...ALL_AUTHENTICATED_ROLES), getOperat
+ // GET /api/dashboard/sla-risk — Spec-015 SLA risk orders
+ router.get("/sla-risk", authorize(...ALL_AUTHENTICATED_ROLES), getSlaRisk);
+ 
++// GET /api/dashboard/next-actions — Spec-022 next actions panel
++router.get("/next-actions", authorize(...ALL_AUTHENTICATED_ROLES), getNextActions);
++
++// GET /api/dashboard/blockers — Spec-022 critical blockers panel
++router.get("/blockers", authorize(...ALL_AUTHENTICATED_ROLES), getBlockers);
++
++// GET /api/dashboard/recent-activity — Spec-022 recent activity feed
++router.get("/recent-activity", authorize(...ALL_AUTHENTICATED_ROLES), getRecentActivity);
++
+ export default router;
+-- 
+2.51.1.windows.1
+

@@ -19,7 +19,9 @@ import { AppError, ForbiddenError } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
 import type { AuthClaims } from "../../common/utils/request";
 import { Invoice, type InvoiceDocument } from "../../models/Invoice";
+import { DianAdapter } from "../../services/dian/dian-adapter.service";
 import { createAuditLog } from "../audit/audit.service";
+import { SystemConfigService } from "../system-config/system-config.service";
 import { type DianConfigurationDocument, DianConfigurationModel } from "./dian.config.model";
 
 const log = createLogger("dian-service");
@@ -597,6 +599,66 @@ async function markSubmissionFailed(invoiceId: string, error: Error): Promise<vo
 	);
 }
 
+// ─── Adapter-backed Send ─────────────────────────────────────────────────
+
+async function sendInvoiceViaAdapter(
+	invoiceId: string,
+	config: DianConfigurationDocument,
+	userId?: string,
+) {
+	const invoice = await claimInvoiceForSubmission(invoiceId);
+	const reservation = await reserveInvoiceNumber(config);
+	const prepared = prepareDianInvoice(invoice, reservation.config, reservation.number);
+	const seller = invoice.seller as NonNullable<typeof invoice.seller>;
+	const buyer = invoice.buyer as NonNullable<typeof invoice.buyer>;
+	const adapterResult = await DianAdapter.sendInvoice(
+		{
+			invoiceId: invoice._id.toString(),
+			invoiceNumber: String(reservation.number),
+			prefix: config.resolutionPrefix,
+			issueDate: prepared.cufe.slice(0, 10),
+			issueTime: new Date().toISOString().slice(11, 19),
+			currency: invoice.currency ?? "COP",
+			totalAmount: invoice.totalAmount ?? invoice.total ?? 0,
+			taxableAmount:
+				(invoice.totalAmount ?? invoice.total ?? 0) - (invoice.ivaAmount ?? invoice.taxAmount ?? 0),
+			ivaAmount: invoice.ivaAmount ?? invoice.taxAmount ?? 0,
+			seller,
+			buyer,
+			lineItems: (invoice.invoiceLines ?? []).map((line) => ({
+				description: line.description,
+				quantity: line.quantity,
+				unitPrice: line.unitPrice,
+				total: line.total,
+			})),
+		},
+		config,
+	);
+	if (adapterResult.success) {
+		const dianResponse = {
+			code: "OK",
+			description: "Factura enviada a DIAN",
+			trackId: adapterResult.trackId,
+		};
+		await persistDianSubmission(invoice, reservation.config, prepared, dianResponse, userId);
+		return {
+			invoiceId: invoice._id,
+			invoiceNumber: invoice.invoiceNumber,
+			cufe: prepared.cufe,
+			status: invoice.status,
+			dianStatus: invoice.dianStatus,
+			documentHash: prepared.documentHash,
+			dianResponse,
+		};
+	}
+	await markSubmissionFailed(invoiceId, new Error(adapterResult.error ?? "DIAN submission failed"));
+	throw new AppError(
+		adapterResult.error ?? "Error al enviar factura a DIAN",
+		502,
+		adapterResult.errorCode ?? "DIAN_SUBMISSION_FAILED",
+	);
+}
+
 // ─── Service ─────────────────────────────────────────────────────────────
 
 export const DianService = {
@@ -664,11 +726,20 @@ export const DianService = {
 	/**
 	 * Send an invoice to DIAN.
 	 * Generates UBL XML, computes CUFE, and submits to DIAN web service.
+	 * When `enable_dian_invoicing` feature flag is ON, uses DianAdapter
+	 * with idempotency, retry, and DLQ. When OFF, uses internal tracking only.
 	 */
 	async sendInvoice(invoiceId: string, userId?: string) {
 		const config = await loadDianConfiguration();
 		assertDianConfigured(config);
 		assertResolutionIsActive(config, new Date());
+
+		const dianIntegrationEnabled =
+			await SystemConfigService.isFeatureEnabled("enable_dian_invoicing");
+		if (dianIntegrationEnabled) {
+			return sendInvoiceViaAdapter(invoiceId, config, userId);
+		}
+
 		if (config.environment === "production") {
 			throw new AppError(
 				"La pasarela DIAN de producción requiere certificado y firma XAdES configurados",
@@ -702,6 +773,7 @@ export const DianService = {
 
 	/**
 	 * Check the DIAN status of an electronic invoice.
+	 * When `enable_dian_invoicing` feature flag is ON, queries DIAN directly.
 	 */
 	async checkInvoiceStatus(invoiceId: string, user: AuthClaims) {
 		const invoice = await Invoice.findById(invoiceId);
@@ -714,6 +786,19 @@ export const DianService = {
 
 		if (!invoice.cufe) {
 			throw new AppError("La factura no ha sido enviada a DIAN", 400, "NO_DIAN_SENT");
+		}
+
+		const dianIntegrationEnabled =
+			await SystemConfigService.isFeatureEnabled("enable_dian_invoicing");
+		if (dianIntegrationEnabled && invoice.dianTrackId) {
+			const statusResult = await DianAdapter.checkStatus(invoice.cufe, invoice.dianTrackId);
+			return {
+				cufe: statusResult.cufe,
+				status: statusResult.status,
+				description: statusResult.description,
+				trackId: statusResult.trackId,
+				timestamp: statusResult.timestamp,
+			};
 		}
 
 		const config = await loadDianConfiguration();

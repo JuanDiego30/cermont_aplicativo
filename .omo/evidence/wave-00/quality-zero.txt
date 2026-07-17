@@ -1,0 +1,5 @@
+
+> cermont-monorepo@1.0.0 quality:zero
+> tsx tooling/quality/check-zero-rules.ts
+
+Zero rules quality check: 0 findings

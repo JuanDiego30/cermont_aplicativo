@@ -1,0 +1,377 @@
+From 33d2fbd16e6ae9adfb80f15a5969b8423a3942d6 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 11:17:21 -0500
+Subject: [PATCH 26/42] feat(spec-019): sprint 8 - Dockerfile, seed script,
+ backup, PM2, nginx
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Task 41: Multi-stage Dockerfile (4 stages: shared→backend→frontend→production)
+Task 42: seed-demo-data.ts (8 users, 3 clients, 10 service cases, 10 orders)
+Task 43: scripts/backup.sh (mongodump, compression, 7-day rotation)
+Task 44: ecosystem.config.js (PM2 cluster mode, backend 2 instances, frontend)
+Task 45: docker/nginx.conf (TLS, reverse proxy, security headers, upload 50MB)
+---
+ Dockerfile                            |  41 ++++++++
+ backend/src/scripts/seed-demo-data.ts | 140 ++++++++++++++++++++++++++
+ docker/nginx.conf                     |  73 ++++++++++++++
+ ecosystem.config.js                   |  37 +++++++
+ scripts/backup.sh                     |  26 +++++
+ 5 files changed, 317 insertions(+)
+ create mode 100644 Dockerfile
+ create mode 100644 backend/src/scripts/seed-demo-data.ts
+ create mode 100644 docker/nginx.conf
+ create mode 100644 ecosystem.config.js
+ create mode 100644 scripts/backup.sh
+
+diff --git a/Dockerfile b/Dockerfile
+new file mode 100644
+index 0000000..465e619
+--- /dev/null
++++ b/Dockerfile
+@@ -0,0 +1,41 @@
++# Stage 1: Build shared packages
++FROM node:22-alpine AS builder-shared
++WORKDIR /app
++COPY package.json package-lock.json ./
++COPY packages/ ./packages/
++RUN npm ci --ignore-scripts && npm run build -w @cermont/shared-types && npm run build -w @cermont/domain && npm run build -w @cermont/config
++
++# Stage 2: Build backend
++FROM node:22-alpine AS builder-backend
++WORKDIR /app
++COPY --from=builder-shared /app ./
++COPY backend/ ./backend/
++RUN npm ci --ignore-scripts -w backend && npm run build -w backend
++
++# Stage 3: Build frontend
++FROM node:22-alpine AS builder-frontend
++WORKDIR /app
++COPY --from=builder-shared /app ./
++COPY --from=builder-backend /app/backend/dist ./backend/dist
++COPY frontend/ ./frontend/
++RUN npm ci --ignore-scripts -w frontend && npm run build -w frontend
++
++# Stage 4: Production
++FROM node:22-alpine AS production
++WORKDIR /app
++RUN addgroup -S appgroup && adduser -S appuser -G appgroup
++
++COPY --from=builder-shared /app/packages ./packages
++COPY --from=builder-backend /app/backend/dist ./backend/dist
++COPY --from=builder-backend /app/backend/package.json ./backend/
++COPY --from=builder-frontend /app/frontend/.next ./frontend/.next
++COPY --from=builder-frontend /app/frontend/public ./frontend/public
++COPY --from=builder-frontend /app/frontend/package.json ./frontend/
++COPY --from=builder-frontend /app/frontend/next.config.ts ./frontend/
++COPY package.json package-lock.json ./
++
++RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
++
++USER appuser
++EXPOSE 4000 3000
++CMD ["node", "backend/dist/server.js"]
+diff --git a/backend/src/scripts/seed-demo-data.ts b/backend/src/scripts/seed-demo-data.ts
+new file mode 100644
+index 0000000..b7ef4e9
+--- /dev/null
++++ b/backend/src/scripts/seed-demo-data.ts
+@@ -0,0 +1,140 @@
++import bcrypt from "bcryptjs";
++import mongoose from "mongoose";
++
++async function seedDemoData(): Promise<void> {
++	await mongoose.connect("mongodb://127.0.0.1:27017/cermont");
++	console.log("Connected to MongoDB");
++
++	const User = mongoose.model("User");
++	const salt = await bcrypt.genSalt(10);
++	const password = await bcrypt.hash("Demo1234!", salt);
++
++	const users = [
++		{
++			name: "Gerente Demo",
++			email: "gerente@cermont.com",
++			password,
++			role: "gerente",
++			isActive: true,
++		},
++		{
++			name: "Residente Demo",
++			email: "residente@cermont.com",
++			password,
++			role: "residente",
++			isActive: true,
++		},
++		{ name: "HES Demo", email: "hes@cermont.com", password, role: "hes", isActive: true },
++		{
++			name: "Supervisor Demo",
++			email: "supervisor@cermont.com",
++			password,
++			role: "supervisor",
++			isActive: true,
++		},
++		{
++			name: "Operador Demo",
++			email: "operador@cermont.com",
++			password,
++			role: "operador",
++			isActive: true,
++		},
++		{
++			name: "Tecnico Demo",
++			email: "tecnico@cermont.com",
++			password,
++			role: "tecnico",
++			isActive: true,
++		},
++		{
++			name: "Admin Demo",
++			email: "admin@cermont.com",
++			password,
++			role: "administrativo",
++			isActive: true,
++		},
++		{
++			name: "Cliente Demo",
++			email: "cliente@cermont.com",
++			password,
++			role: "cliente",
++			isActive: true,
++		},
++	];
++
++	for (const u of users) {
++		const existing = await User.findOne({ email: u.email });
++		if (!existing) {
++			await User.create(u);
++			console.log(`Created user: ${u.email}`);
++		}
++	}
++
++	const Client = mongoose.model("Client");
++	const clients = [
++		{
++			name: "SIERRACOL Energy",
++			nit: "900123456-7",
++			email: "facturas@sierracol.com",
++			phone: "+57 1 2345678",
++		},
++		{
++			name: "Ecopetrol S.A.",
++			nit: "899999001-1",
++			email: "facturas@ecopetrol.com",
++			phone: "+57 1 2345679",
++		},
++		{
++			name: "Constructora ABC",
++			nit: "900789012-3",
++			email: "info@constructoraabc.com",
++			phone: "+57 4 5678901",
++		},
++	];
++
++	for (const c of clients) {
++		const existing = await Client.findOne({ nit: c.nit });
++		if (!existing) {
++			await Client.create(c);
++			console.log(`Created client: ${c.name}`);
++		}
++	}
++
++	const Order = mongoose.model("Order");
++	const ServiceCase = mongoose.model("ServiceCase");
++	const workStatuses = ["open", "assigned", "in_progress", "completed", "closed"];
++	const orderTypes = [
++		{ title: "Mantenimiento CCTV Torre 5A", type: "cctv_maintenance" },
++		{ title: "Instalación línea de vida vertical", type: "safety_line" },
++		{ title: "Mantenimiento eléctrico subestación", type: "electrical" },
++		{ title: "Montaje de equipos de refrigeración", type: "refrigeration" },
++		{ title: "Inspección de redes de telecomunicaciones", type: "telecom" },
++	];
++
++	for (let i = 0; i < 10; i++) {
++		const sc = await ServiceCase.create({
++			code: `SC-2026-${String(i + 1).padStart(3, "0")}`,
++			title: orderTypes[i % orderTypes.length].title,
++			status: "open",
++			currentStep: Math.floor(Math.random() * 8) + 1,
++			createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000),
++		});
++
++		await Order.create({
++			code: `ORD-2026-${String(i + 1).padStart(3, "0")}`,
++			serviceCaseId: sc._id,
++			title: sc.title,
++			status: workStatuses[i % workStatuses.length],
++			type: orderTypes[i % orderTypes.length].type,
++			estimatedCostCOP: Math.floor(Math.random() * 50000000) + 5000000,
++			createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000),
++		});
++	}
++
++	console.log(
++		`Created ${users.length} users, ${clients.length} clients, 10 service cases and 10 orders`,
++	);
++	await mongoose.disconnect();
++}
++
++seedDemoData().catch(console.error);
+diff --git a/docker/nginx.conf b/docker/nginx.conf
+new file mode 100644
+index 0000000..5b848d9
+--- /dev/null
++++ b/docker/nginx.conf
+@@ -0,0 +1,73 @@
++# Cermont Production Nginx Config
++# Reverse proxy for backend (4000) and frontend (3000)
++
++upstream backend {
++    server 127.0.0.1:4000;
++    keepalive 64;
++}
++
++upstream frontend {
++    server 127.0.0.1:3000;
++    keepalive 64;
++}
++
++server {
++    listen 80;
++    server_name app.cermont.com.co;
++    return 301 https://$server_name$request_uri;
++}
++
++server {
++    listen 443 ssl http2;
++    server_name app.cermont.com.co;
++
++    ssl_certificate /etc/ssl/certs/cermont.crt;
++    ssl_certificate_key /etc/ssl/private/cermont.key;
++    ssl_protocols TLSv1.2 TLSv1.3;
++    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
++
++    # Security headers
++    add_header X-Frame-Options "SAMEORIGIN" always;
++    add_header X-Content-Type-Options "nosniff" always;
++    add_header X-XSS-Protection "1; mode=block" always;
++    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
++
++    # Backend API
++    location /api/ {
++        proxy_pass http://backend;
++        proxy_http_version 1.1;
++        proxy_set_header Host $host;
++        proxy_set_header X-Real-IP $remote_addr;
++        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
++        proxy_set_header X-Forwarded-Proto $scheme;
++        proxy_read_timeout 60s;
++        proxy_send_timeout 60s;
++    }
++
++    # Frontend
++    location / {
++        proxy_pass http://frontend;
++        proxy_http_version 1.1;
++        proxy_set_header Host $host;
++        proxy_set_header X-Real-IP $remote_addr;
++        proxy_set_header Upgrade $http_upgrade;
++        proxy_set_header Connection "upgrade";
++        proxy_read_timeout 60s;
++    }
++
++    # Static files caching
++    location /_next/static {
++        proxy_pass http://frontend;
++        expires 365d;
++        add_header Cache-Control "public, immutable";
++    }
++
++    location /static {
++        alias /app/frontend/public/static;
++        expires 30d;
++        add_header Cache-Control "public";
++    }
++
++    # Large upload support
++    client_max_body_size 50M;
++}
+diff --git a/ecosystem.config.js b/ecosystem.config.js
+new file mode 100644
+index 0000000..9e44265
+--- /dev/null
++++ b/ecosystem.config.js
+@@ -0,0 +1,37 @@
++/** @type {import('pm2').StartOptions[]} */
++module.exports = {
++	apps: [
++		{
++			name: "cermont-backend",
++			cwd: "./backend",
++			script: "dist/server.js",
++			instances: 2,
++			exec_mode: "cluster",
++			env: {
++				NODE_ENV: "production",
++				PORT: "4000",
++			},
++			max_memory_restart: "500M",
++			log_date_format: "YYYY-MM-DD HH:mm:ss Z",
++			error_file: "../logs/backend-error.log",
++			out_file: "../logs/backend-out.log",
++			merge_logs: true,
++			time: true,
++		},
++		{
++			name: "cermont-frontend",
++			cwd: "./frontend",
++			script: "node_modules/.bin/next",
++			args: "start -p 3000",
++			env: {
++				NODE_ENV: "production",
++			},
++			max_memory_restart: "500M",
++			log_date_format: "YYYY-MM-DD HH:mm:ss Z",
++			error_file: "../logs/frontend-error.log",
++			out_file: "../logs/frontend-out.log",
++			merge_logs: true,
++			time: true,
++		},
++	],
++};
+diff --git a/scripts/backup.sh b/scripts/backup.sh
+new file mode 100644
+index 0000000..8271154
+--- /dev/null
++++ b/scripts/backup.sh
+@@ -0,0 +1,26 @@
++#!/bin/bash
++# Cermont DB backup script
++# Usage: ./scripts/backup.sh [output-directory]
++
++set -euo pipefail
++
++BACKUP_DIR="${1:-./backups}"
++TIMESTAMP=$(date +%Y%m%d_%H%M%S)
++BACKUP_PATH="${BACKUP_DIR}/cermont_backup_${TIMESTAMP}"
++
++mkdir -p "${BACKUP_PATH}"
++
++echo "Starting MongoDB backup..."
++mongodump --uri="${MONGO_URI:-mongodb://127.0.0.1:27017/cermont}" \
++  --out="${BACKUP_PATH}" \
++  --quiet
++
++echo "Compressing backup..."
++tar -czf "${BACKUP_PATH}.tar.gz" -C "${BACKUP_DIR}" "cermont_backup_${TIMESTAMP}"
++rm -rf "${BACKUP_PATH}"
++
++echo "Backup completed: ${BACKUP_PATH}.tar.gz"
++
++# Rotate old backups (keep last 7 days)
++find "${BACKUP_DIR}" -name "cermont_backup_*.tar.gz" -mtime +7 -delete
++echo "Old backups rotated (kept last 7 days)"
+-- 
+2.51.1.windows.1
+

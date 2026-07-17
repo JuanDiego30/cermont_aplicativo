@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/core/ui/Button";
 import { Skeleton } from "@/core/ui/Skeleton";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { apiClient } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
@@ -27,7 +28,7 @@ export default function EvidenceDetailPage() {
 		isLoading,
 		error,
 	} = useQuery({
-		queryKey: ["evidence", id],
+		queryKey: EVIDENCE_KEYS.detail(id),
 		queryFn: async () => {
 			const result = await apiClient.get<{ success: boolean; data: EvidenceDetail }>(
 				`/evidences/${id}`,
@@ -48,7 +49,7 @@ export default function EvidenceDetailPage() {
 		onSuccess: (data) => {
 			window.open(data.url, "_blank");
 			toast.success("Descargando evidencia");
-			queryClient.invalidateQueries({ queryKey: ["evidence", id] });
+			queryClient.invalidateQueries({ queryKey: EVIDENCE_KEYS.detail(id) });
 		},
 		onError: () => {
 			toast.error("Error al descargar la evidencia");

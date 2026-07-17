@@ -25,11 +25,13 @@ export { AutomationOperationalAction } from "./AutomationOperationalAction";
 export { AutomationRule } from "./AutomationRule";
 export { Checklist } from "./Checklist";
 export { Cost } from "./Cost";
+export { CostBaseline } from "./CostBaseline";
 export { CostCatalogItem } from "./CostCatalogItem";
 // Optional: Legacy models (kept for compatibility but may be deprecated)
 export { CostControl } from "./CostControl";
 export { Counter } from "./Counter";
 export { DeliveryRecord, type DeliveryRecordDocument } from "./DeliveryRecord";
+export { DlqEntry, type DlqEntryDocument } from "./DlqEntry";
 export { Document } from "./Document";
 export {
 	DocumentAttachment,
@@ -52,6 +54,7 @@ export { FileAsset, type IFileAssetDocument } from "./FileAsset";
 export { FormSubmission, type FormSubmissionDocument } from "./FormSubmission";
 export { IdempotencyEntry, type IdempotencyEntryDocument } from "./IdempotencyEntry";
 export { Inspection } from "./Inspection";
+export { IntegrationLog, type IntegrationLogDocument } from "./IntegrationLog";
 export { Invoice, type InvoiceDocument } from "./Invoice";
 export { type IKitDocument, Kit } from "./Kit";
 export { MaintenanceKit } from "./MaintenanceKit";

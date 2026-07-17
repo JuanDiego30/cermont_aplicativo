@@ -1,0 +1,45 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Execution - Field execution sessions management",
+  "description": "Verifies field execution: starting/stopping sessions, recording labor hours, materials used, and checklists",
+  "priority": "p0",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in as 'operador' role and navigate to /dashboard/execution"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that execution page shows pending and active sessions for the logged-in operator"
+    },
+    {
+      "type": "action",
+      "description": "Click 'Start Execution' on a pending order and verify a new execution session begins"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the session timer starts and the status changes to 'in_progress'"
+    },
+    {
+      "type": "action",
+      "description": "Record labor hours: select crew members, enter hours worked, add notes"
+    },
+    {
+      "type": "action",
+      "description": "Log materials used: select from inventory list or add custom, enter quantities"
+    },
+    {
+      "type": "action",
+      "description": "Complete a preflight checklist for the session, verifying each item"
+    },
+    {
+      "type": "action",
+      "description": "Stop the execution session and verify the summary with total hours and costs"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the execution session is saved and visible in the order's execution history"
+    }
+  ]
+}

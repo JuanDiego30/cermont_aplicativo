@@ -1,0 +1,37 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Auth - Login flow with JWT authentication",
+  "description": "Verifies the complete login flow: valid credentials redirect to dashboard, invalid credentials show error, and unauthenticated access redirects to login",
+  "priority": "p0",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to /login and verify the login form is rendered with email and password fields"
+    },
+    {
+      "type": "action",
+      "description": "Submit with invalid credentials (wrong password) and verify error message is displayed"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the error toast/message appears indicating invalid credentials"
+    },
+    {
+      "type": "action",
+      "description": "Submit with valid seeded test credentials (gerente@cermont.com / test-password) and wait for redirect"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the user is redirected to /dashboard and the sidebar with navigation links is visible"
+    },
+    {
+      "type": "action",
+      "description": "Open browser devtools and verify that an HttpOnly cookie named 'refreshToken' was set"
+    },
+    {
+      "type": "action",
+      "description": "Navigate directly to /dashboard/orders without auth token and verify redirect to /login"
+    }
+  ]
+}

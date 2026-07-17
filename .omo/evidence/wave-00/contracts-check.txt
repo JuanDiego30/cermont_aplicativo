@@ -1,0 +1,7 @@
+
+> cermont-monorepo@1.0.0 contracts:check
+> tsx tooling/contracts/check-contract-guard.ts
+
+✅ API contracts guard passed.
+   Snapshot hash: sha256:cb5c2fdd5f1bcd27eb38bb8a7e031598ff874790a81b0e0b91829d1476bf26b5
+   Latest migration: 071-spec-020-wave-1-template-response-object-ids

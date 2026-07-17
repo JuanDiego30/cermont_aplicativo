@@ -1,0 +1,49 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Billing - SES creation and approval workflow",
+  "description": "Verifies the Service Entry Sheet (SES) lifecycle: creation from order, approval routing, and PDF generation",
+  "priority": "p0",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in with a role that has billing access (administrativo or gerente) and navigate to /dashboard/billing/ses"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that SES list displays with status filters (draft, pending_approval, approved, rejected)"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New SES' and select an existing order to base the SES on"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the SES form is pre-populated with order data (items, quantities, client info)"
+    },
+    {
+      "type": "action",
+      "description": "Edit SES line items if needed, add descriptions, and submit for approval"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that SES status changes to 'pending_approval' and appears in the approval queue"
+    },
+    {
+      "type": "action",
+      "description": "Log in with an approver role and navigate to the SES approval view"
+    },
+    {
+      "type": "action",
+      "description": "Review the SES details and click 'Approve'"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that SES status changes to 'approved' and invoice creation button becomes available"
+    },
+    {
+      "type": "action",
+      "description": "Generate PDF of the approved SES and verify download"
+    }
+  ]
+}

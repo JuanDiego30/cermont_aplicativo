@@ -1,0 +1,80 @@
+
+Path                                                                                                         LineNumber Line
+----                                                                                                         ---------- ----
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            10 	estimatedAmount: number;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            11 	actualAmount: number;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            24 	variance?: number;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            25 	variancePercent?: number;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            40 		estimatedAmount: { type: Number, required: true, min: 0 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            41 		actualAmount: { type: Number, required: true, min: 0 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            69 CostSchema.virtual("variance").get(function (this: ICostDocument) {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            70 	return Number(this.actualAmount ?? 0) - Number(this.estimatedAmount ?? 0);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            73 CostSchema.virtual("variancePercent").get(function (this: ICostDocument) {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            74 	const estimatedAmount = Number(this.estimatedAmount ?? 0);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            75 	if (estimatedAmount <= 0) {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Cost.ts                            79 	return (Number(this.actualAmount ?? 0) - estimatedAmount) / estimatedAmount;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                     15 // ✓ variance: number, auto-computed (actual - budget)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                     16 // ✓ variance_pct: number, auto-computed percentage
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                     61 	variance: number; // actual_total - budget_approved (or estimated)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                     62 	variance_pct: number; // variance / approved * 100
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                    115 		variance: { type: Number, default: 0 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                    116 		variance_pct: { type: Number, default: 0 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                    140 // Auto-compute line item totals, actual_total and variance before save
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                    150 	// Compute variance against approved budget (fall back to estimated)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                    151 	const baseline = this.budget_approved ?? this.budget_estimated;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                    152 	this.variance = this.actual_total - baseline;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\CostControl.ts                    153 	this.variance_pct = baseline > 0 ? (this.variance / baseline) * 100 : 0;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\PlanningPacket.ts                 308 		costBaselineSnapshot: {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts         66 	estimatedAmount: number;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts         67 	actualAmount: number;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        121 const MARGIN = 42;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        122 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        418 	if (layout.cursorY - requiredHeight >= MARGIN) {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        424 	layout.cursorY = PAGE_HEIGHT - MARGIN;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        447 		x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        455 		x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        463 		x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        471 		x: PAGE_WIDTH - MARGIN - 120,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        479 		x: PAGE_WIDTH - MARGIN - 160,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        494 		x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        504 			x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        514 		start: { x: MARGIN, y: layout.cursorY },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        515 		end: { x: PAGE_WIDTH - MARGIN, y: layout.cursorY },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        578 			MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        590 				MARGIN + CARD_WIDTH + CARD_GAP,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        616 		x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        625 			x: MARGIN + labelWidth,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        656 			x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        672 	variance: number;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        673 	variancePercent: number | null;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        674 	byCategory: Record<string, { estimated: number; actual: number; tax: number; variance: number }>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        678 			const estimatedAmount = toNumber(cost.estimatedAmount);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        679 			const actualAmount = toNumber(cost.actualAmount);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        681 			const variance = actualAmount - estimatedAmount;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        683 			accumulator.totalEstimated += estimatedAmount;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        684 			accumulator.totalActual += actualAmount;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        692 				variance: 0,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        695 			accumulator.byCategory[category].estimated += estimatedAmount;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        696 			accumulator.byCategory[category].actual += actualAmount;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        698 			accumulator.byCategory[category].variance += variance;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        708 				{ estimated: number; actual: number; tax: number; variance: number }
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        713 	const variance = summary.totalActual - summary.totalEstimated;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        717 		variance,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        718 		variancePercent: summary.totalEstimated > 0 ? variance / summary.totalEstimated : null,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        787 		x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        795 		x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        926 	drawLabelValue(layout, "Variance", formatCurrency(costTotals.variance));
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts        941 		const summary = `${labelForCostCategory(cost.category)} · estimado ${formatCurrency(cost.estimatedAmount)} · real ${formatCurrency(cost.actualAmount)} · impuestos ${formatCurrency(cost.taxAmount)} · variance ${formatCurrency(cost.actualAmount - cost.estimatedAmount)}`;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1011 		start: { x: MARGIN, y: layout.cursorY - 8 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1012 		end: { x: MARGIN + 200, y: layout.cursorY - 8 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1017 		start: { x: MARGIN + 250, y: layout.cursorY - 8 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1018 		end: { x: MARGIN + 450, y: layout.cursorY - 8 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1024 		x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1031 		x: MARGIN + 250,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1067 			start: { x: MARGIN, y: 28 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1068 			end: { x: PAGE_WIDTH - MARGIN, y: 28 },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1074 			x: MARGIN,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1082 			x: PAGE_WIDTH - MARGIN - pageWidth,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1091 				x: PAGE_WIDTH - MARGIN - 120,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\pdf-generator.service.ts       1150 		cursorY: PAGE_HEIGHT - MARGIN,
+

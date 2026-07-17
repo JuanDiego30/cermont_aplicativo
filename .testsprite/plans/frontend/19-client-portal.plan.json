@@ -1,0 +1,45 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Client Portal - Limited access client view",
+  "description": "Verifies the client portal with restricted access: read-only views of orders, invoices, service cases, and proposals",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in as 'cliente' role and navigate to /portal"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that portal shows only client-relevant sections: Orders, Proposals, Service Cases, Invoices, Signatures"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /portal/orders and verify the client can see their orders but cannot edit them"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that no edit/create buttons are visible for 'cliente' role"
+    },
+    {
+      "type": "action",
+      "description": "Click on an order to view its detail with status, timeline, and evidence"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /portal/proposals and verify proposals are listed in read-only mode"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /portal/invoices and verify invoices are displayed"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /portal/signatures and attempt to sign a document"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the signature is captured and saved to the delivery record"
+    }
+  ]
+}

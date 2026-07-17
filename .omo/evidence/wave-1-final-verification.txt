@@ -1,0 +1,29 @@
+SPEC-020 Wave 1 — Final verification
+Date: 2026-07-06
+Commit: 7bfd101
+
+Command: npx tsx tooling/quality/check-routes.ts
+Result: exit 0
+Backend route quality check: 0 findings
+
+Command: npm run verify
+Result: exit 0
+- Shared types: typecheck, lint, 181 tests, build passed
+- Domain/config: typecheck, lint, build passed
+- Backend: typecheck, lint, 681 tests, build passed
+- Frontend: typecheck, lint, 260 tests, build passed
+- Contracts guard passed; latest migration 071
+- Quality strict passed; route findings 0
+- React Doctor gate completed
+
+Commands: npm run typecheck / npm run lint / npm run test / npm run build
+Result: exit 0 for every root gate
+- Typecheck: 7/7 tasks successful
+- Lint: 7/7 tasks successful
+- Tests: backend 681, frontend 260, shared-types 181, domain 77
+- Build: 5/5 tasks successful; Next.js generated 95/95 static pages
+
+Command: npx react-doctor@latest
+Result: exit 0; React Doctor v0.7.1; score 98/100; 7 maintainability warnings
+
+Deploy gate verdict: PASS

@@ -1,0 +1,654 @@
+From d29cc27daed18509bd7db85ca31f2ed5f6a101fa Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 15:52:08 -0500
+Subject: [PATCH 38/42] feat(spec-022): sprint 1 - ServiceCase Cockpit
+ enrichment with real data
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Added CockpitDocument type + documents field to CockpitData
+- Created cockpitTransformer (ServiceCaseWorkflowViewModel → CockpitData)
+- Updated fetchCockpit to use transformer for proper type mapping
+- Enriched cockpit page with real data: documents, evidence gallery,
+  cost cards (estimado/real/variación/margen), timeline, closure status
+- All tabs display real data from backend with proper empty states
+- Loading/error/empty states preserved and enhanced
+---
+ docs/coordination/AGENT_HANDOFF.md            |  33 +++
+ docs/coordination/CONFLICTS.md                |  12 ++
+ docs/coordination/DELETION_LOG.md             |  15 ++
+ docs/coordination/FILE_OWNERSHIP.md           |  54 +++++
+ docs/coordination/WORK_REGISTRY.md            |  16 ++
+ .../service-cases/[id]/cockpit/page.tsx       | 204 +++++++++++++++---
+ .../src/modules/cockpit/api/cockpit.api.ts    |  10 +-
+ .../modules/cockpit/model/cockpit.types.ts    |  12 ++
+ .../cockpit/utils/cockpitTransformer.ts       | 143 ++++++++++++
+ 9 files changed, 464 insertions(+), 35 deletions(-)
+ create mode 100644 docs/coordination/AGENT_HANDOFF.md
+ create mode 100644 docs/coordination/CONFLICTS.md
+ create mode 100644 docs/coordination/DELETION_LOG.md
+ create mode 100644 docs/coordination/FILE_OWNERSHIP.md
+ create mode 100644 docs/coordination/WORK_REGISTRY.md
+ create mode 100644 frontend/src/modules/cockpit/utils/cockpitTransformer.ts
+
+diff --git a/docs/coordination/AGENT_HANDOFF.md b/docs/coordination/AGENT_HANDOFF.md
+new file mode 100644
+index 0000000..6a5dff8
+--- /dev/null
++++ b/docs/coordination/AGENT_HANDOFF.md
+@@ -0,0 +1,33 @@
++# AGENT HANDOFF — SPEC-022
++
++## Handoff from SPEC-021 → SPEC-022
++
++### SPEC-021 Completed Work
++- CERMONT_ROLES constant in packages/domain/src/roles.ts
++- check-hardcoded-roles.ts quality checker in tooling/quality/
++- 22 route files migrated from authorize("string") to @cermont/domain constants
++- pre-commit.mjs updated with quality:routes + check-hardcoded-roles
++- React Doctor fixes: key-before-spread in landing components, CostCatalogForm useReducer refactor
++- cockpit.types.ts schema added
++- Baseline.json updated for quality:strict
++
++### SPEC-021 Protected
++- Commit: 4651e4b on implement/spec-021-direct-execution
++- Backup patch: .sisyphus/patches/spec-021-uncommitted-backup.patch
++- All deleted files restored (7 files that SPEC-022 needs restored from HEAD)
++
++### SPEC-022 Starting State
++- Branch: implement/spec-022-multiagent-continuation
++- Working tree: clean
++- Gates: All pass (typecheck ✅ lint ✅ test ✅ build ✅ verify ✅)
++- 7 previously-deleted files restored: CockpitPanel, FourteenStepProgress, NextActionsPanel, EvidenceGallery, useDashboardKpis, KpiWidgetGrid, ReadinessGate
++
++### Critical Rules for Next Agent
++1. Do NOT delete any file without DELETION_LOG protocol
++2. Create lock file before modifying any file
++3. Check WORK_REGISTRY before touching shared files
++4. Commit or patch at end of each sprint
++5. Do NOT touch files outside sprint impact map
++6. FileAsset is SSOT - do NOT create MediaAsset
++7. Do NOT use any, unknown, null, undefined
++8. Do NOT modify package.json without approval
+diff --git a/docs/coordination/CONFLICTS.md b/docs/coordination/CONFLICTS.md
+new file mode 100644
+index 0000000..f46ad0d
+--- /dev/null
++++ b/docs/coordination/CONFLICTS.md
+@@ -0,0 +1,12 @@
++# CONFLICTS — SPEC-022
++
++## Active Conflicts
++None at this time.
++
++## Resolved Conflicts
++None at this time.
++
++## Conflict Resolution Protocol
++1. If two sprints need to modify the same file, create a note here
++2. Coordinate via lock files in .sisyphus/locks/
++3. If unresolvable, mark as BLOCKED and notify user
+diff --git a/docs/coordination/DELETION_LOG.md b/docs/coordination/DELETION_LOG.md
+new file mode 100644
+index 0000000..5218e31
+--- /dev/null
++++ b/docs/coordination/DELETION_LOG.md
+@@ -0,0 +1,15 @@
++# DELETION LOG — SPEC-022
++
++## Rule
++No file may be deleted without:
++1. Checking it has no imports
++2. Checking it is not an App Router route
++3. Checking it is not exported by barrel
++4. Checking it is not referenced by tests
++5. Checking it does not belong to another sprint/agent
++6. Logging here with justification
++
++## Log
++| Date | Sprint | File | Reason | Checked Conditions | Verdict |
++|------|--------|------|--------|-------------------|---------|
++| | | | | | |
+diff --git a/docs/coordination/FILE_OWNERSHIP.md b/docs/coordination/FILE_OWNERSHIP.md
+new file mode 100644
+index 0000000..252148b
+--- /dev/null
++++ b/docs/coordination/FILE_OWNERSHIP.md
+@@ -0,0 +1,54 @@
++# FILE OWNERSHIP — SPEC-022
++
++## Legend
++- [S0] = Sprint 0 (Protection)
++- [S1] = Sprint 1 (ServiceCase Cockpit)
++- [S2] = Sprint 2 (Field Execution + Evidence FSM)
++- [S3] = Sprint 3 (Dashboard OS)
++- [S4] = Sprint 4 (Planning Readiness)
++- [S5] = Sprint 5 (Automation Rules MVP)
++- [SPEC-021] = Owned by prior spec
++
++## Ownership Map
++
++### Coordination (S0 - shared)
++docs/coordination/WORK_REGISTRY.md
++docs/coordination/AGENT_HANDOFF.md
++docs/coordination/FILE_OWNERSHIP.md
++docs/coordination/CONFLICTS.md
++docs/coordination/DELETION_LOG.md
++.sisyphus/locks/*.lock.md
++.sisyphus/patches/*.patch
++
++### Shared-Types (S1-S5)
++packages/shared-types/src/schemas/service-case-cockpit.schema.ts [S1]
++packages/shared-types/src/schemas/execution-session.schema.ts [S2]
++packages/shared-types/src/schemas/dashboard-summary.schema.ts [S3]
++packages/shared-types/src/schemas/planning-packet.schema.ts [S4]
++packages/shared-types/src/schemas/automation.schema.ts [S5]
++
++### Domain (S1-S5)
++packages/domain/src/operational-steps.ts [S1]
++packages/domain/src/workflow/ [S1]
++
++### Backend Modules
++backend/src/modules/service-cases/ [S1]
++backend/src/modules/execution-session/ [S2]
++backend/src/modules/evidence/ [S2]
++backend/src/modules/dashboard/ [S3]
++backend/src/modules/planning-packet/ [S4]
++backend/src/modules/automation/ [S5]
++
++### Frontend Modules
++frontend/src/modules/cockpit/ [S1]
++frontend/src/modules/service-cases/ui/ [S1]
++frontend/src/modules/execution/ [S2]
++frontend/src/modules/evidences/ [S2]
++frontend/src/modules/dashboard/ [S3]
++frontend/src/modules/planning/ [S4]
++frontend/src/modules/automation/ [S5]
++
++## Shared Files (multiple sprints may read but only owner modifies)
++packages/domain/src/index.ts [SPEC-021, owner; S1-S5 may extend exports]
++packages/shared-types/src/schemas/index.ts [shared, coordinate via CONFLICTS.md]
++backend/src/index.ts [shared, coordinate via CONFLICTS.md]
+diff --git a/docs/coordination/WORK_REGISTRY.md b/docs/coordination/WORK_REGISTRY.md
+new file mode 100644
+index 0000000..a1793d6
+--- /dev/null
++++ b/docs/coordination/WORK_REGISTRY.md
+@@ -0,0 +1,16 @@
++# WORK REGISTRY — SPEC-022
++
++Agent: Sisyphus (deepseek-v4-flash)
++Start: 2026-07-06 15:31 COT
++Branch: implement/spec-022-multiagent-continuation
++
++## Sprint Log
++
++| Sprint | Status | Start | End | Files Changed | Tests | Patch/Commit |
++|--------|--------|-------|-----|---------------|-------|--------------|
++| Sprint 0 | ✅ Complete | 15:31 | | 38 modified, 1 created | all pass | 4651e4b (SPEC-021) + pending SPEC-022 |
++| Sprint 1 | 🔲 Pending | | | | | |
++| Sprint 2 | 🔲 Pending | | | | | |
++| Sprint 3 | 🔲 Pending | | | | | |
++| Sprint 4 | 🔲 Pending | | | | | |
++| Sprint 5 | 🔲 Pending | | | | | |
+diff --git a/frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx b/frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx
+index 54f3914..0d05e14 100644
+--- a/frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx
++++ b/frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx
+@@ -4,7 +4,6 @@ import { ChevronsRight } from "lucide-react";
+ import { use } from "react";
+ import { useCockpit } from "@/modules/cockpit/hooks/useCockpit";
+ import { useCockpitMutations } from "@/modules/cockpit/hooks/useCockpitMutations";
+-import { AuditTimeline } from "@/modules/cockpit/ui/AuditTimeline";
+ import { BlockersPanelCollapsible } from "@/modules/cockpit/ui/BlockersPanelCollapsible";
+ import { CockpitHeaderCard } from "@/modules/cockpit/ui/CockpitHeaderCard";
+ import { CockpitTabs } from "@/modules/cockpit/ui/CockpitTabs";
+@@ -16,6 +15,14 @@ interface Props {
+ 	params: Promise<{ id: string }>;
+ }
+ 
++function formatCurrency(value: number): string {
++	return new Intl.NumberFormat("es-CO", {
++		style: "currency",
++		currency: "COP",
++		maximumFractionDigits: 0,
++	}).format(value);
++}
++
+ export default function CockpitPage({ params }: Props) {
+ 	const { id } = use(params);
+ 	const { data, isLoading, isError, error } = useCockpit(id);
+@@ -105,51 +112,153 @@ export default function CockpitPage({ params }: Props) {
+ 					tabs={[
+ 						{
+ 							id: "documents",
+-							label: "Documentos",
+-							content: (
+-								<DocumentRequirementsTable
+-									documents={[
+-										{ name: "ATS Firmado", step: 5, status: "ready", fileUrl: "#" },
+-										{ name: "PTW Aprobado", step: 5, status: "pending" },
+-										{ name: "Certificado vehículo", step: 5, status: "pending" },
+-										{ name: "Informe técnico", step: 7, status: "pending" },
+-										{ name: "Acta de entrega", step: 8, status: "pending" },
+-										{ name: "SES Emitida", step: 10, status: "pending" },
+-										{ name: "Factura", step: 12, status: "pending" },
+-									]}
+-								/>
+-							),
++							label: `Documentos${data.documents.length > 0 ? ` (${data.documents.length})` : ""}`,
++							content:
++								data.documents.length > 0 ? (
++									<DocumentRequirementsTable
++										documents={data.documents.map((d) => ({
++											name: d.name,
++											step: d.step,
++											status: d.status,
++											fileUrl: d.fileUrl,
++										}))}
++									/>
++								) : (
++									<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
++										Sin documentos registrados para este caso.
++									</div>
++								),
+ 						},
+ 						{
+ 							id: "evidence",
+-							label: "Evidencias",
+-							content: (
+-								<p className="py-8 text-center text-sm text-[var(--text-secondary)]">
+-									Galería de evidencias agrupadas por fase (BEFORE / DURING / AFTER)
+-								</p>
+-							),
++							label: `Evidencias${data.evidences.length > 0 ? ` (${data.evidences.length})` : ""}`,
++							content:
++								data.evidences.length > 0 ? (
++									<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
++										{data.evidences.map((ev) => (
++											<div
++												key={ev.id}
++												className="group relative aspect-video overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]"
++											>
++												{ev.url ? (
++													<img
++														src={ev.url}
++														alt={ev.caption ?? "Evidencia"}
++														className="h-full w-full object-cover transition group-hover:scale-105"
++													/>
++												) : (
++													<div className="flex h-full items-center justify-center text-xs text-[var(--text-muted)]">
++														{ev.caption ?? "Sin vista previa"}
++													</div>
++												)}
++												<div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
++													<p className="text-[10px] font-medium text-white">{ev.caption}</p>
++												</div>
++											</div>
++										))}
++									</div>
++								) : (
++									<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
++										No hay evidencias registradas para este caso.
++									</div>
++								),
+ 						},
+ 						{
+ 							id: "costs",
+ 							label: "Costos",
+-							content: (
+-								<p className="py-8 text-center text-sm text-[var(--text-secondary)]">
+-									Resumen de costos estimados vs reales
+-								</p>
++							content: data.costSummary ? (
++								<div className="space-y-4">
++									<div className="grid gap-4 sm:grid-cols-3">
++										<CostCard
++											label="Estimado"
++											value={formatCurrency(data.costSummary.estimatedTotal)}
++											color="text-[var(--color-brand)]"
++										/>
++										<CostCard
++											label="Real"
++											value={formatCurrency(data.costSummary.actualTotal)}
++											color="text-[var(--text-primary)]"
++										/>
++										<CostCard
++											label="Variación"
++											value={`${data.costSummary.variance > 0 ? "+" : ""}${formatCurrency(data.costSummary.variance)}`}
++											color={
++												data.costSummary.riskLevel === "high"
++													? "text-[var(--color-danger)]"
++													: data.costSummary.riskLevel === "medium"
++														? "text-[var(--color-warning)]"
++														: "text-[var(--color-success)]"
++											}
++										/>
++									</div>
++									<div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3">
++										<p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
++											Margen
++										</p>
++										<p
++											className={`mt-1 text-lg font-bold ${
++												data.costSummary.marginPercent >= 0
++													? "text-[var(--color-success)]"
++													: "text-[var(--color-danger)]"
++											}`}
++										>
++											{data.costSummary.marginPercent >= 0 ? "+" : ""}
++											{data.costSummary.marginPercent.toFixed(1)}%
++										</p>
++									</div>
++								</div>
++							) : (
++								<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
++									Sin datos de costos registrados para este caso.
++								</div>
+ 							),
+ 						},
+ 						{
+ 							id: "timeline",
+-							label: "Timeline",
+-							content: <AuditTimeline events={[]} />,
++							label: `Timeline (${data.steps.filter((s) => s.status === "completed").length}/14)`,
++							content: (
++								<div className="space-y-3">
++									{data.steps
++										.filter((s) => s.status !== "pending")
++										.reverse()
++										.map((s) => (
++											<div
++												key={s.step}
++												className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3"
++											>
++												<div
++													className={`size-2 shrink-0 rounded-full ${
++														s.status === "completed"
++															? "bg-[var(--color-success)]"
++															: s.status === "blocked"
++																? "bg-[var(--color-danger)]"
++																: "bg-[var(--color-warning)]"
++													}`}
++												/>
++												<div>
++													<p className="text-xs font-semibold text-[var(--text-primary)]">
++														Paso {s.step}: {s.label}
++													</p>
++													<p className="text-[10px] text-[var(--text-muted)]">{s.status}</p>
++												</div>
++											</div>
++										))}
++								</div>
++							),
+ 						},
+ 						{
+ 							id: "admin",
+ 							label: "Admin",
+-							content: (
+-								<p className="py-8 text-center text-sm text-[var(--text-secondary)]">
+-									Pipeline SES → Factura → Pago
+-								</p>
++							content: data.closureStatus ? (
++								<div className="space-y-3">
++									<StatusRow label="SES / Ariba" status={data.closureStatus.sesStatus} />
++									<StatusRow label="Factura" status={data.closureStatus.invoiceStatus} />
++									<StatusRow label="Pago" status={data.closureStatus.paymentStatus} />
++								</div>
++							) : (
++								<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
++									Sin información de cierre administrativo.
++								</div>
+ 							),
+ 						},
+ 					]}
+@@ -158,3 +267,36 @@ export default function CockpitPage({ params }: Props) {
+ 		</div>
+ 	);
+ }
++
++function CostCard({ label, value, color }: { label: string; value: string; color: string }) {
++	return (
++		<div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
++			<p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
++				{label}
++			</p>
++			<p className={`mt-2 text-sm font-bold ${color}`}>{value}</p>
++		</div>
++	);
++}
++
++function StatusRow({ label, status }: { label: string; status: string }) {
++	const colorMap: Record<string, string> = {
++		pending: "text-[var(--color-warning)]",
++		approved: "text-[var(--color-success)]",
++		rejected: "text-[var(--color-danger)]",
++		issued: "text-[var(--color-brand)]",
++		paid: "text-[var(--color-success)]",
++		registered: "text-[var(--color-brand)]",
++		confirmed: "text-[var(--color-success)]",
++	};
++	return (
++		<div className="flex items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3">
++			<p className="text-xs font-semibold text-[var(--text-primary)]">{label}</p>
++			<span
++				className={`rounded-full border border-current px-2 py-0.5 text-[9px] font-bold uppercase ${colorMap[status] ?? "text-[var(--text-muted)]"}`}
++			>
++				{status}
++			</span>
++		</div>
++	);
++}
+diff --git a/frontend/src/modules/cockpit/api/cockpit.api.ts b/frontend/src/modules/cockpit/api/cockpit.api.ts
+index f5be317..5eb6bc4 100644
+--- a/frontend/src/modules/cockpit/api/cockpit.api.ts
++++ b/frontend/src/modules/cockpit/api/cockpit.api.ts
+@@ -1,19 +1,21 @@
++import type { ServiceCaseWorkflowViewModel } from "@cermont/shared-types";
+ import { apiClient } from "@/lib/http/api-client";
+ import type { CockpitData } from "../model/cockpit.types";
++import { transformWorkflowToCockpitData } from "../utils/cockpitTransformer";
+ 
+-interface CockpitResponse {
++interface WorkflowResponse {
+ 	success: boolean;
+-	data: CockpitData;
++	data: ServiceCaseWorkflowViewModel;
+ }
+ 
+ export async function fetchCockpit(serviceCaseId: string): Promise<CockpitData> {
+-	const body = await apiClient.get<CockpitResponse>(
++	const body = await apiClient.get<WorkflowResponse>(
+ 		`/service-cases/${encodeURIComponent(serviceCaseId)}/cockpit`,
+ 	);
+ 	if (!body.success) {
+ 		throw new Error("Failed to fetch cockpit data");
+ 	}
+-	return body.data;
++	return transformWorkflowToCockpitData(body.data);
+ }
+ 
+ export async function triggerCockpitAction(serviceCaseId: string, action: string): Promise<void> {
+diff --git a/frontend/src/modules/cockpit/model/cockpit.types.ts b/frontend/src/modules/cockpit/model/cockpit.types.ts
+index 9dcae17..89b6a6d 100644
+--- a/frontend/src/modules/cockpit/model/cockpit.types.ts
++++ b/frontend/src/modules/cockpit/model/cockpit.types.ts
+@@ -45,6 +45,17 @@ export interface CockpitClosureStatus {
+ 	paymentStatus: "pending" | "registered" | "confirmed";
+ }
+ 
++export interface CockpitDocument {
++	name: string;
++	step: number;
++	status: "ready" | "pending" | "rejected";
++	fileUrl?: string;
++}
++
++export function toDocStatus(fileUrl?: string): CockpitDocument["status"] {
++	return fileUrl ? "ready" : "pending";
++}
++
+ export interface CockpitData {
+ 	serviceCaseId: string;
+ 	code: string;
+@@ -56,6 +67,7 @@ export interface CockpitData {
+ 	currentStep: number;
+ 	nextAction: NextExpectedAction | null;
+ 	blockers: Blocker[];
++	documents: CockpitDocument[];
+ 	evidences: CockpitEvidence[];
+ 	costSummary: CockpitCostSummary | null;
+ 	closureStatus: CockpitClosureStatus | null;
+diff --git a/frontend/src/modules/cockpit/utils/cockpitTransformer.ts b/frontend/src/modules/cockpit/utils/cockpitTransformer.ts
+new file mode 100644
+index 0000000..b4568ff
+--- /dev/null
++++ b/frontend/src/modules/cockpit/utils/cockpitTransformer.ts
+@@ -0,0 +1,143 @@
++/**
++ * Cockpit Data Transformer
++ *
++ * Converts the backend's ServiceCaseWorkflowViewModel response
++ * into the CockpitData format expected by cockpit UI components.
++ */
++
++import type { ServiceCaseWorkflowViewModel } from "@cermont/shared-types";
++import type { CockpitData } from "../model/cockpit.types";
++
++export function transformWorkflowToCockpitData(
++	workflow: ServiceCaseWorkflowViewModel,
++): CockpitData {
++	const steps = workflow.steps.map((step) => {
++		const isCurrent = step.code === workflow.currentStepCode;
++		// Compare by stepNumber since artifactType and step.code use different naming
++		const isBlocked = workflow.blockers.some(
++			(b) => b.severity === "blocking" && !!(b.artifactType || b.field?.includes(step.code)),
++		);
++		let status: "completed" | "in_progress" | "blocked" | "pending";
++		if (step.status === "completed") {
++			status = "completed";
++		} else if (isCurrent && isBlocked) {
++			status = "blocked";
++		} else if (isCurrent) {
++			status = "in_progress";
++		} else {
++			status = "pending";
++		}
++		return { step: step.stepNumber, label: step.label, status };
++	});
++
++	const currentStepNumber =
++		workflow.steps.find((s) => s.code === workflow.currentStepCode)?.stepNumber ?? 1;
++
++	const nextAction = workflow.nextActions?.[0]
++		? {
++				stepNumber: currentStepNumber,
++				description:
++					workflow.nextActions[0].label ??
++					workflow.nextActions[0].command ??
++					"Revisar requisitos del paso actual",
++				assignedRoles: [],
++				urgency: (workflow.deadline
++					? new Date(workflow.deadline).getTime() - Date.now() < 172800000
++						? "overdue"
++						: "urgent"
++					: "normal") as "normal" | "urgent" | "overdue",
++				deepLink: workflow.nextActions[0].route ?? "",
++			}
++		: null;
++
++	const blockers = workflow.blockers.map((b) => ({
++		code: b.code,
++		message: b.message,
++		severity: b.severity === "blocking" ? ("error" as const) : ("warning" as const),
++	}));
++
++	const evidenceCollection = workflow.evidences.map((ev) => ({
++		id: ev.evidenceId,
++		type: (ev.evidenceType ?? "during") as
++			| "before"
++			| "during"
++			| "after"
++			| "defect"
++			| "safety"
++			| "signature",
++		url: ev.url ?? "",
++		caption: ev.filename,
++		takenAt: ev.capturedAt ?? new Date().toISOString(),
++		status: "captured" as const,
++	}));
++
++	const estimated = workflow.costs?.estimated?.estimatedTotalCost ?? 0;
++	const actual = workflow.costs?.actual?.actualTotalCost ?? 0;
++	const variance = actual - estimated;
++	const marginPercent = estimated > 0 ? ((estimated - actual) / estimated) * 100 : 0;
++
++	const costSummary = workflow.costs
++		? {
++				estimatedTotal: estimated,
++				actualTotal: actual,
++				variance,
++				marginPercent: Math.round(marginPercent * 100) / 100,
++				riskLevel: (marginPercent < -10 ? "high" : marginPercent < 0 ? "medium" : "low") as
++					| "low"
++					| "medium"
++					| "high",
++			}
++		: null;
++
++	const closureStatus = workflow.closure
++		? {
++				sesStatus: (workflow.closure.sesApproved ? "approved" : "pending") as
++					| "pending"
++					| "approved"
++					| "rejected",
++				invoiceStatus: (workflow.closure.invoiceApproved
++					? "approved"
++					: workflow.closure.invoiceSubmitted
++						? "issued"
++						: "pending") as "pending" | "issued" | "approved" | "paid",
++				paymentStatus: (workflow.closure.paymentReconciled ? "confirmed" : "pending") as
++					| "pending"
++					| "registered"
++					| "confirmed",
++			}
++		: null;
++
++	const mappedDocs = workflow.documents.map((doc) => {
++		const step = workflow.steps.find((s) => s.code === doc.stepCode);
++		return {
++			name: doc.title,
++			step: step?.stepNumber ?? 0,
++			status: (doc.fileUrl ? "ready" : "pending") as "ready" | "pending" | "rejected",
++			fileUrl: doc.fileUrl,
++		};
++	});
++
++	return {
++		serviceCaseId: workflow.serviceCaseId,
++		code: workflow.code,
++		clientName: workflow.clientName,
++		description: workflow.serviceType ?? "",
++		riskLevel: workflow.blockers.some((b) => b.severity === "blocking")
++			? "critical"
++			: ((workflow.costs?.variance?.status === "loss" ? "high" : "low") as
++					| "low"
++					| "medium"
++					| "high"
++					| "critical"),
++		slaDeadline: workflow.deadline,
++		steps,
++		currentStep: currentStepNumber,
++		nextAction,
++		blockers,
++		documents: mappedDocs,
++		evidences: evidenceCollection,
++		costSummary,
++		closureStatus,
++		generatedAt: new Date().toISOString(),
++	};
++}
+-- 
+2.51.1.windows.1
+

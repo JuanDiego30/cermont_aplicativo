@@ -1,0 +1,8 @@
+backend/src/modules/checklist/checklist.routes.ts
+backend/src/modules/checklist/checklist.service.ts
+backend/src/modules/service-cases/service-case.controller.ts
+backend/src/modules/service-cases/service-case.routes.ts
+backend/src/modules/service-cases/service-case.service.ts
+packages/shared-types/contracts/api-contract.snapshot.json
+packages/shared-types/contracts/contract-migrations.json
+packages/shared-types/src/schemas/checklist.schema.ts

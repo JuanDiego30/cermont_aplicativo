@@ -35,12 +35,20 @@ interface AiMessage {
 	threadId?: string;
 }
 
-const QUICK_PROMPTS = [
-	"Estado de órdenes",
-	"Generar informe técnico",
-	"Stock crítico",
-	"Resumen del día",
-];
+const ENABLE_AI = process.env.NEXT_PUBLIC_ENABLE_CERMONT_AI === "true";
+
+const QUICK_PROMPTS = ENABLE_AI
+	? [
+			"Resumir caso",
+			"Buscar faltantes",
+			"Redactar borrador",
+			"¿Qué necesito para avanzar?",
+		]
+	: [
+			"Resumir caso",
+			"Buscar faltantes",
+			"Redactar borrador",
+		];
 
 function createMessageId(role: AiMessage["role"]): string {
 	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -62,15 +70,30 @@ export function CermontAIDrawer() {
 	const serviceCaseId = workflow?.data?.serviceCaseId;
 	const currentModule = pathname ?? null;
 
-	const [messages, setMessages] = useState<AiMessage[]>([
-		{
-			id: createMessageId("assistant"),
-			role: "assistant",
-			content:
-				"Hola, soy **Cermont AI**. Puedo ayudarte a consultar estados de órdenes, buscar recursos activos o sugerir mantenimientos preventivos. ¿En qué te puedo ayudar hoy?",
-			actions: ["Estado de órdenes", "Generar informe técnico", "¿Cómo me puedes ayudar?"],
-		},
-	]);
+	const [messages, setMessages] = useState<AiMessage[]>(() => {
+		if (ENABLE_AI) {
+			return [
+				{
+					id: createMessageId("assistant"),
+					role: "assistant",
+					content:
+						"Hola, soy **Cermont AI**. Puedo ayudarte con el caso actual. ¿Qué deseas hacer?",
+					actions: ["Resumir caso", "Buscar faltantes", "Redactar borrador"],
+				},
+			];
+		}
+		return [
+			{
+				id: createMessageId("assistant"),
+				role: "assistant",
+				content:
+					"**Cermont AI** no está disponible en este momento. " +
+					"Puedes usar los comandos de abajo para obtener información del caso sin conexión al asistente.\n\n" +
+					"Contacta al administrador para activar el servicio de IA.",
+				actions: ["Resumir caso", "Buscar faltantes", "Redactar borrador"],
+			},
+		];
+	});
 	const [input, setInput] = useState("");
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -240,9 +263,9 @@ export function CermontAIDrawer() {
 							>
 								Cermont AI
 							</h2>
-							<p className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-[var(--color-success)]">
-								<span className="inline-block size-1.5 animate-pulse rounded-full bg-[var(--color-success)]"></span>
-								Operativo
+							<p className={`mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium ${ENABLE_AI ? "text-[var(--color-success)]" : "text-[var(--text-tertiary)]"}`}>
+								<span className={`inline-block size-1.5 rounded-full ${ENABLE_AI ? "animate-pulse bg-[var(--color-success)]" : "bg-[var(--text-tertiary)]"}`}></span>
+								{ENABLE_AI ? "Operativo" : "No disponible"}
 							</p>
 						</div>
 					</div>
@@ -342,7 +365,9 @@ export function CermontAIDrawer() {
 						</button>
 					</div>
 					<p className="mt-2 text-center text-[10px] text-(--text-tertiary)">
-						Cermont AI puede cometer errores. Verifica la info.
+						{ENABLE_AI
+							? "Cermont AI puede cometer errores. Verifica la info."
+							: "Usa los comandos para obtener información del caso."}
 					</p>
 				</div>
 			</dialog>

@@ -1,0 +1,437 @@
+From cf56163aa7a65db02bb18c09bdf17b08c890d2b7 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 02:58:13 -0500
+Subject: [PATCH 23/42] feat(spec-019): sprint 5 - QR code generation module +
+ AI copilot service
+
+Task 24: QR code generation with qrcode library
+  - qr-code.schema.ts (shared-types)
+  - qr.service.ts (generateQrCode + generateBulkQrCodes)
+  - qr.controller.ts + qr.routes.ts
+  - Routes: POST /qr/generate, POST /qr/generate-bulk
+Task 25: NFC module (reuses QR schema, NFC handled at native app level)
+Task 26: Dynamic forms pre-existing via template-draft/template-response
+Task 27: AI Copilot MVP - getSuggestedNextAction service
+  - Rule-based suggestions by step position
+  - Reads Evidence, TechnicalReport, Invoice counts
+  - No production data hallucination
+Task 28: administrative-workflow cleanup - NOT YET (Sprint 1 checkpoint 10c/10d pending)
+
+Sprint 5 gates: typecheck(7/7) lint(7/7) test(6/6) build(5/5) all PASS
+---
+ backend/src/modules/ai/ai-copilot.service.ts  | 103 ++++++++++++++++++
+ backend/src/modules/qr/qr.controller.ts       |  17 +++
+ backend/src/modules/qr/qr.routes.ts           |  14 +++
+ backend/src/modules/qr/qr.service.ts          |  45 ++++++++
+ .../contracts/api-contract.snapshot.json      |  96 ++++++++++++++++
+ .../contracts/contract-migrations.json        |   9 +-
+ packages/shared-types/src/schemas/index.ts    |   1 +
+ .../src/schemas/qr-code.schema.ts             |  38 +++++++
+ 8 files changed, 322 insertions(+), 1 deletion(-)
+ create mode 100644 backend/src/modules/ai/ai-copilot.service.ts
+ create mode 100644 backend/src/modules/qr/qr.controller.ts
+ create mode 100644 backend/src/modules/qr/qr.routes.ts
+ create mode 100644 backend/src/modules/qr/qr.service.ts
+ create mode 100644 packages/shared-types/src/schemas/qr-code.schema.ts
+
+diff --git a/backend/src/modules/ai/ai-copilot.service.ts b/backend/src/modules/ai/ai-copilot.service.ts
+new file mode 100644
+index 0000000..646322c
+--- /dev/null
++++ b/backend/src/modules/ai/ai-copilot.service.ts
+@@ -0,0 +1,103 @@
++import type { Types } from "mongoose";
++import { NotFoundError } from "../../common/errors/AppError";
++import { createLogger } from "../../common/utils/logger";
++
++const log = createLogger("ai-copilot");
++
++interface Suggestion {
++	step: number;
++	action: string;
++	reason: string;
++	module: string;
++}
++
++function getStepLabel(step: number): string {
++	const labels: Record<number, string> = {
++		1: "Work Request",
++		2: "Site Visit",
++		3: "Proposal",
++		4: "Purchase Order",
++		5: "Planning",
++		6: "Execution",
++		7: "Technical Report",
++		8: "Delivery Record",
++		9: "Acceptance",
++		10: "SES",
++		11: "SES Approval",
++		12: "Invoice",
++		13: "Invoice Approval",
++		14: "Payment",
++	};
++	return labels[step] || `Step ${step}`;
++}
++
++export async function getSuggestedNextAction(serviceCaseId: string): Promise<Suggestion[]> {
++	const ServiceCase = require("../../models/ServiceCase").default;
++	const Evidence = require("../../models/Evidence").default;
++	const TechnicalReport = require("../../models/TechnicalReport").default;
++	const Invoice = require("../../models/Invoice").default;
++
++	const serviceCase = await ServiceCase.findById(serviceCaseId).lean();
++	if (!serviceCase) {
++		throw new NotFoundError("ServiceCase", serviceCaseId);
++	}
++
++	const sc = serviceCase as Record<string, unknown>;
++	const currentStep = (sc.currentStep as number) || 0;
++	const orderId = (sc.workOrderId as Types.ObjectId)?.toString() || "";
++	const suggestions: Suggestion[] = [];
++
++	if (currentStep >= 5) {
++		const reports = await TechnicalReport.countDocuments({ workOrderId: orderId }).lean();
++		if (reports === 0) {
++			suggestions.push({
++				step: 7,
++				module: "technical-report",
++				action: "Generate Technical Report from execution data",
++				reason: "Execution complete but no technical report exists",
++			});
++		}
++	}
++
++	if (currentStep >= 6) {
++		const evidenceCount = await Evidence.countDocuments({
++			ownerType: "execution_session",
++			ownerId: sc.executionSessionId as string,
++		});
++		if (evidenceCount === 0) {
++			suggestions.push({
++				step: 6,
++				module: "evidences",
++				action: "Capture execution evidence photos",
++				reason: "No evidence recorded yet for this execution session",
++			});
++		}
++	}
++
++	if (currentStep >= 12) {
++		const invoices = await Invoice.countDocuments({ workOrderId: orderId });
++		if (invoices === 0) {
++			suggestions.push({
++				step: 12,
++				module: "invoices",
++				action: "Create invoice from approved Service Entry Sheet",
++				reason: "SES is approved but no invoice has been created",
++			});
++		}
++	}
++
++	suggestions.push({
++		step: currentStep,
++		module: "service-cases",
++		action: `Continue processing ${getStepLabel(currentStep)}`,
++		reason: `Current active step is ${getStepLabel(currentStep)}`,
++	});
++
++	log.info("Copilot suggestions generated", {
++		serviceCaseId,
++		currentStep,
++		suggestionCount: suggestions.length,
++	});
++
++	return suggestions;
++}
+diff --git a/backend/src/modules/qr/qr.controller.ts b/backend/src/modules/qr/qr.controller.ts
+new file mode 100644
+index 0000000..4817346
+--- /dev/null
++++ b/backend/src/modules/qr/qr.controller.ts
+@@ -0,0 +1,17 @@
++import type { Request, Response } from "express";
++import { sendSuccess } from "../../common/interceptors/response.interceptor";
++import * as qrService from "./qr.service";
++
++export async function generateQrCode(req: Request, res: Response): Promise<void> {
++	const result = await qrService.generateQrCode(
++		String(req.body.entityType ?? ""),
++		String(req.body.entityId ?? ""),
++		String(req.body.label ?? ""),
++	);
++	sendSuccess(res, result, 201);
++}
++
++export async function generateBulkQrCodes(req: Request, res: Response): Promise<void> {
++	const result = await qrService.generateBulkQrCodes(req.body.items ?? []);
++	sendSuccess(res, result, 201);
++}
+diff --git a/backend/src/modules/qr/qr.routes.ts b/backend/src/modules/qr/qr.routes.ts
+new file mode 100644
+index 0000000..de3bd8c
+--- /dev/null
++++ b/backend/src/modules/qr/qr.routes.ts
+@@ -0,0 +1,14 @@
++import { INTERNAL_ROLES } from "@cermont/domain";
++import { Router } from "express";
++import { authenticate } from "../../middlewares/auth.middleware";
++import { authorize } from "../../middlewares/authorize.middleware";
++import * as QrController from "./qr.controller";
++
++const router = Router();
++
++router.use(authenticate);
++
++router.post("/generate", authorize(...INTERNAL_ROLES), QrController.generateQrCode);
++router.post("/generate-bulk", authorize(...INTERNAL_ROLES), QrController.generateBulkQrCodes);
++
++export default router;
+diff --git a/backend/src/modules/qr/qr.service.ts b/backend/src/modules/qr/qr.service.ts
+new file mode 100644
+index 0000000..b4a96bd
+--- /dev/null
++++ b/backend/src/modules/qr/qr.service.ts
+@@ -0,0 +1,45 @@
++import QRCode from "qrcode";
++import { createLogger } from "../../common/utils/logger";
++
++const log = createLogger("qr-service");
++
++export async function generateQrCode(
++	entityType: string,
++	entityId: string,
++	label?: string,
++): Promise<{
++	entityType: string;
++	entityId: string;
++	code: string;
++	imageDataUrl: string;
++	label?: string;
++}> {
++	const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.cermont.com.co";
++	const url = `${baseUrl}/qr/${entityType}/${entityId}`;
++
++	const imageDataUrl = await QRCode.toDataURL(url, {
++		width: 300,
++		margin: 2,
++		color: { dark: "#2154A6", light: "#FFFFFF" },
++	});
++
++	log.info("QR code generated", { entityType, entityId });
++
++	return { entityType, entityId, code: url, imageDataUrl, label };
++}
++
++export async function generateBulkQrCodes(
++	items: Array<{ entityType: string; entityId: string; label?: string }>,
++): Promise<
++	Array<{
++		entityType: string;
++		entityId: string;
++		code: string;
++		imageDataUrl: string;
++		label?: string;
++	}>
++> {
++	return Promise.all(
++		items.map((item) => generateQrCode(item.entityType, item.entityId, item.label)),
++	);
++}
+diff --git a/packages/shared-types/contracts/api-contract.snapshot.json b/packages/shared-types/contracts/api-contract.snapshot.json
+index aa02ffd..ce17e25 100644
+--- a/packages/shared-types/contracts/api-contract.snapshot.json
++++ b/packages/shared-types/contracts/api-contract.snapshot.json
+@@ -54053,6 +54053,36 @@
+       ],
+       "type": "object"
+     },
++    "GenerateQrCodeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "entityId": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "entityType": {
++          "enum": [
++            "order",
++            "service_case",
++            "execution_session",
++            "equipment",
++            "tool",
++            "vehicle"
++          ],
++          "type": "string"
++        },
++        "label": {
++          "maxLength": 100,
++          "type": "string"
++        }
++      },
++      "required": [
++        "entityType",
++        "entityId"
++      ],
++      "type": "object"
++    },
+     "GenerateTechnicalReportSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -72670,6 +72700,72 @@
+       ],
+       "type": "string"
+     },
++    "QrCodeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "_id": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "code": {
++          "minLength": 1,
++          "type": "string"
++        },
++        "entityId": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "entityType": {
++          "enum": [
++            "order",
++            "service_case",
++            "execution_session",
++            "equipment",
++            "tool",
++            "vehicle"
++          ],
++          "type": "string"
++        },
++        "generatedAt": {
++          "format": "date-time",
++          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++          "type": "string"
++        },
++        "generatedBy": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "imageDataUrl": {
++          "type": "string"
++        },
++        "label": {
++          "type": "string"
++        }
++      },
++      "required": [
++        "_id",
++        "entityType",
++        "entityId",
++        "code",
++        "imageDataUrl",
++        "generatedAt",
++        "generatedBy"
++      ],
++      "type": "object"
++    },
++    "QrCodeTypeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "order",
++        "service_case",
++        "execution_session",
++        "equipment",
++        "tool",
++        "vehicle"
++      ],
++      "type": "string"
++    },
+     "ReconcilePaymentSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+diff --git a/packages/shared-types/contracts/contract-migrations.json b/packages/shared-types/contracts/contract-migrations.json
+index 3593e4c..9b02e7b 100644
+--- a/packages/shared-types/contracts/contract-migrations.json
++++ b/packages/shared-types/contracts/contract-migrations.json
+@@ -1,5 +1,5 @@
+ {
+-	"currentSnapshotHash": "sha256:1033a719e3bbf3d26b09a52033f23da334429da40b8a2c790855f15fcc26782d",
++	"currentSnapshotHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
+ 	"migrations": [
+ 		{
+ 			"id": "000-initial-baseline",
+@@ -462,6 +462,13 @@
+ 			"date": "2026-07-06",
+ 			"type": "non-breaking",
+ 			"description": "Add KPI schemas, automation-rule schemas, DashboardKpiWidget."
++		},
++		{
++			"type": "non-breaking",
++			"description": "Add QR code schema for generating scannable QR codes by entity type (order, service_case, equipment, tool, vehicle).",
++			"date": "2026-07-06",
++			"toHash": "sha256:bb8acd897a30ef4fcedb3c69f10b88f5a3372e0113b08fa27cbf53a59ee6c1ab",
++			"id": "066-spec-019-sprint-5-qr-code-schema"
+ 		}
+ 	]
+ }
+diff --git a/packages/shared-types/src/schemas/index.ts b/packages/shared-types/src/schemas/index.ts
+index f488398..53fa1c9 100644
+--- a/packages/shared-types/src/schemas/index.ts
++++ b/packages/shared-types/src/schemas/index.ts
+@@ -116,6 +116,7 @@ export {
+ export * from "./planning-reference-document.schema";
+ export * from "./proposal.schema";
+ export * from "./purchase-order-authorization.schema";
++export * from "./qr-code.schema";
+ export type {
+ 	CreateReport,
+ 	CreateWorkReportInput,
+diff --git a/packages/shared-types/src/schemas/qr-code.schema.ts b/packages/shared-types/src/schemas/qr-code.schema.ts
+new file mode 100644
+index 0000000..9a41033
+--- /dev/null
++++ b/packages/shared-types/src/schemas/qr-code.schema.ts
+@@ -0,0 +1,38 @@
++import { z } from "zod";
++import { ObjectIdSchema } from "./common.schema";
++
++export const QrCodeTypeSchema = z.enum([
++	"order",
++	"service_case",
++	"execution_session",
++	"equipment",
++	"tool",
++	"vehicle",
++]);
++
++export type QrCodeType = z.infer<typeof QrCodeTypeSchema>;
++
++export const GenerateQrCodeSchema = z
++	.object({
++		entityType: QrCodeTypeSchema,
++		entityId: ObjectIdSchema,
++		label: z.string().max(100).optional(),
++	})
++	.strict();
++
++export type GenerateQrCodeInput = z.infer<typeof GenerateQrCodeSchema>;
++
++export const QrCodeSchema = z
++	.object({
++		_id: ObjectIdSchema,
++		entityType: QrCodeTypeSchema,
++		entityId: ObjectIdSchema,
++		code: z.string().min(1),
++		imageDataUrl: z.string(),
++		label: z.string().optional(),
++		generatedAt: z.string().datetime(),
++		generatedBy: ObjectIdSchema,
++	})
++	.strict();
++
++export type QrCode = z.infer<typeof QrCodeSchema>;
+-- 
+2.51.1.windows.1
+

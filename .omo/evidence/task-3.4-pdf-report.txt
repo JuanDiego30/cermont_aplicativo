@@ -1,0 +1,12 @@
+F3.4 — CERMONT PDF report
+
+Audit and implementation result:
+
+- `pdf-generator.service.ts` generates real PDFs from order, cost, evidence, checklist, and signature data, with CERMONT S.A.S. header/footer, operational summary, findings/evidence sections, checklist signatures, and delivery closing section.
+- Backend PDF generator tests cover technical, delivery, missing-order, and minimal-data cases.
+- Repaired the report detail fallback URL to the canonical order PDF endpoint.
+- Repaired the report sign page to load its WorkReport, use the report order id for PDF export, and persist approve/reject status through the existing report update endpoint.
+- Removed production console logging from that signing flow.
+
+Verification: backend PDF/report tests PASS (9 tests); frontend report query tests PASS (2 tests); frontend typecheck PASS.
+Status: IMPLEMENTED pending root gate.

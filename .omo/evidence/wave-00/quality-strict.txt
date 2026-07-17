@@ -1,0 +1,71 @@
+
+> cermont-monorepo@1.0.0 quality:strict
+> npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size && npm run quality:env && npm run quality:hardcoded-roles
+
+
+> cermont-monorepo@1.0.0 quality:weak-tokens
+> tsx tooling/quality/check-weak-tokens.ts
+
+Weak token quality check: 3086 findings
+- weak-token-a: 73/73 within baseline
+- weak-token-n: 1526/1526 within baseline
+- weak-token-u: 710/714 within baseline
+- weak-token-ud: 777/781 within baseline
+
+> cermont-monorepo@1.0.0 quality:language
+> tsx tooling/quality/check-language.ts
+
+Language quality check: 2753 findings
+- spanish-source-token: 2753/2761 within baseline
+
+> cermont-monorepo@1.0.0 quality:semantics
+> tsx tooling/quality/check-semantics.ts
+
+Semantic markup quality check: 17 findings
+- missing-semantic-landmark: 17/17 within baseline
+
+> cermont-monorepo@1.0.0 quality:routes
+> tsx tooling/quality/check-routes.ts
+
+Backend route quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:dtos
+> tsx tooling/quality/check-dtos.ts
+
+Local DTO quality check: 38 findings
+- local-api-dto: 38/39 within baseline
+
+> cermont-monorepo@1.0.0 quality:zero
+> tsx tooling/quality/check-zero-rules.ts
+
+Zero rules quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:lint-residue
+> tsx tooling/quality/check-lint-residue.ts
+
+Lint residue quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:service-size
+> tsx tooling/quality/check-service-size.ts
+
+Application service size quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:env
+> tsx tooling/quality/check-env-config.ts
+
+
+🔍 Environment Configuration Verification
+
+✅ .env.example: OK
+✅ frontend/next.config.ts: OK
+✅ frontend/src/app/api/backend/[...path]/route.ts: OK
+✅ backend/.env.example: OK
+✅ frontend/.env.example: OK
+
+✅ All environment configuration checks passed.
+
+
+> cermont-monorepo@1.0.0 quality:hardcoded-roles
+> tsx tooling/quality/check-hardcoded-roles.ts
+
+Hardcoded roles checker: 0 violations found ✅

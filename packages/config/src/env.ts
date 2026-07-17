@@ -79,6 +79,7 @@ const envSchema = z.object({
 	CLAMAV_ENABLED: z.coerce.boolean().default(false),
 	CLAMAV_HOST: z.string().default("localhost"),
 	CLAMAV_PORT: z.string().default("3310"),
+	ENABLE_CERMONT_AI: z.coerce.boolean().default(false),
 });
 
 /**
@@ -244,6 +245,7 @@ export const env = Object.freeze({
 	UPLOAD_DIR: process.env.UPLOAD_DIR ?? "./uploads",
 	MAX_FILE_SIZE: Number(process.env.MAX_FILE_SIZE ?? 10 * 1024 * 1024),
 	CLAMAV_ENABLED: process.env.CLAMAV_ENABLED === "true",
+	ENABLE_CERMONT_AI: process.env.ENABLE_CERMONT_AI === "true",
 } satisfies Partial<Env>);
 
 /**

@@ -1,0 +1,10 @@
+Command: npx tsx tooling/quality/check-routes.ts with route baselines temporarily set to zero
+Result: exit 1, 19 genuine findings listed
+
+Assertions:
+- document-import.routes.ts is absent.
+- document-template.routes.ts is absent.
+- analytics.routes.ts is absent.
+- automation.routes.ts is absent.
+
+The checker recognizes "No body validation needed" in the three lines preceding each route block.

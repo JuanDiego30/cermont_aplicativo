@@ -1,0 +1,20 @@
+Gate,Status,Duration,Exit Code,Details
+typecheck,PASS,66.84s,0,7/7 workspaces
+lint,PASS,8.99s,0,7/7 workspaces
+test-frontend,PASS,44.09s,0,93 files, 487 passed
+test-backend,PASS,18.86s,0,102 files, 688 passed
+test-shared-types,PASS,3.56s,0,32 files, 183 passed
+build,PASS,63.80s,0,5/5 workspaces, 97 routes
+contracts:check,PASS,3.00s,0,Snapshot sha256 verified, migration 078
+verify,FAIL,300.00s,1,React Doctor 76/100 below 95 threshold
+quality:weak-tokens,PASS,2.00s,0,3028 findings within baseline
+quality:language,PASS,2.00s,0,2839 Spanish tokens within baseline
+quality:semantics,PASS,1.00s,0,0 semantic violations
+quality:routes,PASS,2.00s,0,0 route violations
+quality:dtos,PASS,1.00s,0,12 local DTOs within baseline (45)
+quality:zero,PASS,2.00s,0,0 zero-rule violations
+quality:lint-residue,PASS,1.00s,0,0 lint residue findings
+quality:service-size,WARNING,2.00s,1,dashboard.service.ts 532 lines (limit 500)
+quality:env,PASS,1.00s,0,Environment config valid
+quality:hardcoded-roles,PASS,2.00s,0,0 hardcoded role violations
+react-doctor,WARNING,15.00s,0,76/100 (target 95/100)

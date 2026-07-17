@@ -1,0 +1,11 @@
+F3.2 — Cost comparison
+
+Implementation:
+
+- Reused the existing shared `CostComparisonSchema` contract.
+- Added `getCostComparison` to the cost service and `GET /api/costs/:orderId/comparison` with the existing authenticated cost role guard and parameter validation.
+- Added `useCostComparison` and connected `CostPanel` to the comparison response while preserving summary fallback and existing loading/error/empty states.
+- Added a service test covering the planned-versus-actual response, variance percentage, and over-budget status.
+
+Verification: backend typecheck PASS; `cost.service.test.ts` PASS (12 tests).
+Status: IMPLEMENTED pending root gate.

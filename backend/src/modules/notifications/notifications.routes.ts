@@ -39,18 +39,10 @@ router.patch(
 );
 
 // POST /api/notifications/read-all — mark all as read
-router.post(
-	"/read-all",
-	authorize(...INTERNAL_ROLES),
-	markAllNotificationsAsRead,
-);
+router.post("/read-all", authorize(...INTERNAL_ROLES), markAllNotificationsAsRead);
 
 // POST /api/notifications/mark-all-read — alias for read-all
-router.post(
-	"/mark-all-read",
-	authorize(...INTERNAL_ROLES),
-	markAllNotificationsAsRead,
-);
+router.post("/mark-all-read", authorize(...INTERNAL_ROLES), markAllNotificationsAsRead);
 
 // GET /api/notifications/outbox/failed — admin: view failed outbox entries
 router.get("/outbox/failed", authorize(...ADMIN_ROLES), getFailedOutboxEntries);

@@ -1,0 +1,5 @@
+
+> cermont-monorepo@1.0.0 quality:semantics
+> tsx tooling/quality/check-semantics.ts
+
+Semantic markup quality check: 0 findings

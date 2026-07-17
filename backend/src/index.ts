@@ -341,6 +341,15 @@ function readinessStatus(payload: ReturnType<typeof buildReadinessPayload>): 200
 	return payload.status === "ok" ? 200 : 503;
 }
 
+// Full component status — MongoDB, Redis, filesystem, AI provider
+import("./modules/observability/observability.service.js").then(({ getFullSystemStatus }) => {
+	app.get("/api/health/status", async (_req, res) => {
+		const status = await getFullSystemStatus();
+		const httpStatus = status.status === "unhealthy" ? 503 : 200;
+		res.status(httpStatus).json(status);
+	});
+});
+
 // Compatibility readiness check
 app.get("/api/health", (_req, res) => {
 	const payload = buildReadinessPayload();

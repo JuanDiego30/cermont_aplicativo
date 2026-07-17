@@ -63,10 +63,12 @@ const STATUS_CONFIG: Record<string, { label: string; className: string; dotClass
 
 interface StatusBadgeProps {
 	status: string;
+	variant?: string;
+	size?: string;
 	className?: string;
 }
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
+export function StatusBadge({ status, variant: _variant, size: _size, className }: StatusBadgeProps) {
 	const normStatus = status?.toLowerCase();
 	const config = STATUS_CONFIG[normStatus] || {
 		label: (STATUS_LABELS_ES as Record<string, string>)[normStatus] || status || "Desconocido",

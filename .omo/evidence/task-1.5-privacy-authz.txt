@@ -1,0 +1,8 @@
+Task 1.5 — Privacy request authorization
+
+All privacy routes now use authenticate -> authorize(...ADMIN_ROLES).
+GET /:id validates PrivacyRequestIdParamsSchema.
+POST / validates CreatePrivacyRequestSchema.
+
+Checker result: privacy-requests.routes.ts is absent from findings.
+Schema QA: route-request.schema.test.ts passed 7/7 tests.

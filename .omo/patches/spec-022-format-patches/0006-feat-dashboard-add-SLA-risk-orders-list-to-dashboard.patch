@@ -1,0 +1,3144 @@
+From 19b50aa65e8c88f128b472b00c824a19b9c82521 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Sat, 4 Jul 2026 02:30:21 -0500
+Subject: [PATCH 06/42] feat(dashboard): add SLA risk orders list to dashboard
+ summary (schema + service + table)
+
+Spec-014 Sprint 2. Adds DashboardSlaRiskOrderSchema and slaRiskOrders to
+DashboardSummarySchema (contract migration 061, non-breaking, default []).
+New dashboard-sla.service computes active cases overdue or within 72h of their
+promised completion date (critical <24h, warning <72h), with a pure mapper unit
+tested. Frontend renders SlaRiskOrdersTable with deep-links to each case cockpit.
+
+Includes the previously uncommitted spec-012/013 dashboard extraction
+(demand/efficiency/financial/readiness sub-services and DashboardCommandCenter)
+as build prerequisites of this vertical.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+---
+ .../dashboard/dashboard-demand.service.ts     |  28 +
+ .../dashboard/dashboard-efficiency.service.ts |  94 ++
+ .../dashboard/dashboard-financial.service.ts  |  69 ++
+ .../dashboard/dashboard-readiness.service.ts  | 101 ++
+ .../dashboard/dashboard-sla.service.ts        | 110 ++
+ .../modules/dashboard/dashboard.service.ts    | 158 ++-
+ .../services/dashboard-sla.service.test.ts    |  66 ++
+ .../dashboard/ui/DashboardCommandCenter.tsx   | 407 +++++++
+ .../dashboard/ui/SlaRiskOrdersTable.tsx       | 137 +++
+ .../dashboard/DashboardCommandCenter.test.tsx |   8 +-
+ .../contracts/api-contract.snapshot.json      | 995 ++++++++++++++++--
+ .../contracts/contract-migrations.json        |  30 +-
+ .../src/schemas/dashboard-summary.schema.ts   |  35 +
+ 13 files changed, 2032 insertions(+), 206 deletions(-)
+ create mode 100644 backend/src/modules/dashboard/dashboard-demand.service.ts
+ create mode 100644 backend/src/modules/dashboard/dashboard-efficiency.service.ts
+ create mode 100644 backend/src/modules/dashboard/dashboard-financial.service.ts
+ create mode 100644 backend/src/modules/dashboard/dashboard-readiness.service.ts
+ create mode 100644 backend/src/modules/dashboard/dashboard-sla.service.ts
+ create mode 100644 backend/tests/services/dashboard-sla.service.test.ts
+ create mode 100644 frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx
+ create mode 100644 frontend/src/modules/dashboard/ui/SlaRiskOrdersTable.tsx
+
+diff --git a/backend/src/modules/dashboard/dashboard-demand.service.ts b/backend/src/modules/dashboard/dashboard-demand.service.ts
+new file mode 100644
+index 0000000..71133b9
+--- /dev/null
++++ b/backend/src/modules/dashboard/dashboard-demand.service.ts
+@@ -0,0 +1,28 @@
++import type { DashboardServiceDemand } from "@cermont/shared-types";
++import { WorkRequest } from "../../models/WorkRequest";
++
++type ServiceDemandRow = { _id: string; count: number };
++
++export function buildServiceDemandSummary(
++	rows: ServiceDemandRow[],
++	periodDays: number,
++): DashboardServiceDemand {
++	const items = rows.map((row) => ({ serviceType: row._id, requests: row.count }));
++	return {
++		periodDays,
++		totalRequests: items.reduce((total, item) => total + item.requests, 0),
++		items,
++	};
++}
++
++export async function buildServiceDemand(periodDays = 30): Promise<DashboardServiceDemand> {
++	const periodStart = new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000);
++	const rows = await WorkRequest.aggregate<ServiceDemandRow>([
++		{ $match: { createdAt: { $gte: periodStart } } },
++		{ $group: { _id: "$serviceType", count: { $sum: 1 } } },
++		{ $sort: { count: -1, _id: 1 } },
++		{ $limit: 8 },
++	]);
++
++	return buildServiceDemandSummary(rows, periodDays);
++}
+diff --git a/backend/src/modules/dashboard/dashboard-efficiency.service.ts b/backend/src/modules/dashboard/dashboard-efficiency.service.ts
+new file mode 100644
+index 0000000..7183fdb
+--- /dev/null
++++ b/backend/src/modules/dashboard/dashboard-efficiency.service.ts
+@@ -0,0 +1,94 @@
++/**
++ * Dashboard Efficiency Service — Maintenance efficiency KPIs (MTTR / MTBF)
++ *
++ * MTTR: Mean Time To Repair — average hours to complete an execution session.
++ * MTBF proxy: average days between execution start and completion
++ * (approximation — real MTBF requires asset-level maintenance history).
++ */
++
++import type { DashboardSummary } from "@cermont/shared-types";
++import { ExecutionSession } from "../../models/ExecutionSession";
++import { Order } from "../../models/Order";
++
++export async function buildMaintenanceEfficiency(): Promise<
++	DashboardSummary["maintenanceEfficiency"]
++> {
++	const [
++		completedExecutionSessions,
++		activeWorkOrders,
++		overdueWorkOrders,
++		executionSessionTimings,
++		serviceCaseDurations,
++	] = await Promise.all([
++		ExecutionSession.countDocuments({ status: "completed" }),
++		Order.countDocuments({ status: { $in: ["open", "in_progress", "assigned"] } }),
++		Order.countDocuments({
++			status: { $in: ["open", "planning"] },
++			createdAt: { $lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
++		}),
++		ExecutionSession.aggregate<{ avgHours: number }>([
++			{
++				$match: {
++					status: "completed",
++					startedAt: { $exists: true },
++					completedAt: { $exists: true },
++				},
++			},
++			{
++				$project: {
++					durationHours: {
++						$divide: [{ $subtract: ["$completedAt", "$startedAt"] }, 1000 * 60 * 60],
++					},
++				},
++			},
++			{
++				$group: {
++					_id: null,
++					avgHours: { $avg: "$durationHours" },
++				},
++			},
++		]),
++		ExecutionSession.aggregate<{ avgDays: number }>([
++			{
++				$match: {
++					status: "completed",
++					startedAt: { $exists: true },
++					completedAt: { $exists: true },
++				},
++			},
++			{
++				$project: {
++					durationDays: {
++						$divide: [{ $subtract: ["$completedAt", "$startedAt"] }, 1000 * 60 * 60 * 24],
++					},
++				},
++			},
++			{
++				$group: {
++					_id: null,
++					avgDays: { $avg: "$durationDays" },
++				},
++			},
++		]),
++	]);
++
++	const avgHours = executionSessionTimings[0]?.avgHours ?? 0;
++	const avgDays = serviceCaseDurations[0]?.avgDays ?? 0;
++	const avgCompletionRate =
++		completedExecutionSessions > 0 && activeWorkOrders > 0
++			? Math.min(
++					Math.round(
++						(completedExecutionSessions / (completedExecutionSessions + activeWorkOrders)) * 100,
++					),
++					100,
++				)
++			: 0;
++
++	return {
++		mttrHours: Math.round(avgHours * 100) / 100,
++		mtbfDays: Math.round(avgDays * 100) / 100,
++		maintenanceCompletionRate: avgCompletionRate,
++		activeWorkOrders,
++		overdueWorkOrders,
++	};
++}
+diff --git a/backend/src/modules/dashboard/dashboard-financial.service.ts b/backend/src/modules/dashboard/dashboard-financial.service.ts
+new file mode 100644
+index 0000000..8560342
+--- /dev/null
++++ b/backend/src/modules/dashboard/dashboard-financial.service.ts
+@@ -0,0 +1,69 @@
++import type { DashboardAgingBucket, DashboardFinancialAging } from "@cermont/shared-types";
++import { Invoice } from "../../models/Invoice";
++
++type AgingBucketDefinition =
++	| { status: "bounded"; minDays: number; maxDays: number; label: string }
++	| { status: "open"; minDays: number; label: string };
++
++const DAY_MS = 24 * 60 * 60 * 1000;
++
++export function buildFinancialAgingSummary(
++	buckets: DashboardAgingBucket[],
++): DashboardFinancialAging {
++	const overdueBuckets = buckets.filter((bucket) => (bucket.minDays ?? 0) >= 31);
++	return {
++		buckets,
++		totalOutstandingAmount: buckets.reduce((total, bucket) => total + bucket.amount, 0),
++		totalOverdueAmount: overdueBuckets.reduce((total, bucket) => total + bucket.amount, 0),
++		overdueInvoiceCount: overdueBuckets.reduce((total, bucket) => total + bucket.count, 0),
++	};
++}
++
++export async function buildFinancialAging(): Promise<DashboardFinancialAging> {
++	const now = new Date();
++	const definitions: AgingBucketDefinition[] = [
++		{ status: "bounded", minDays: 0, maxDays: 30, label: "0-30 días" },
++		{ status: "bounded", minDays: 31, maxDays: 60, label: "31-60 días" },
++		{ status: "bounded", minDays: 61, maxDays: 90, label: "61-90 días" },
++		{ status: "open", minDays: 91, label: "90+ días" },
++	];
++
++	const buckets = await Promise.all(
++		definitions.map(async (definition): Promise<DashboardAgingBucket> => {
++			const dateFilter =
++				definition.status === "bounded"
++					? {
++							$lte: new Date(now.getTime() - definition.minDays * DAY_MS),
++							$gte: new Date(now.getTime() - definition.maxDays * DAY_MS),
++						}
++					: { $lt: new Date(now.getTime() - definition.minDays * DAY_MS) };
++
++			const [aged] = await Invoice.aggregate<{ count: number; amount: number }>([
++				{
++					$match: {
++						status: { $nin: ["paid", "cancelled", "rejected"] },
++						dueDate: dateFilter,
++					},
++				},
++				{
++					$group: {
++						_id: "outstanding",
++						count: { $sum: 1 },
++						amount: { $sum: "$totalAmount" },
++					},
++				},
++			]);
++
++			const base = {
++				bucket: definition.label,
++				count: aged?.count ?? 0,
++				amount: aged?.amount ?? 0,
++				currency: "COP",
++				minDays: definition.minDays,
++			};
++			return definition.status === "bounded" ? { ...base, maxDays: definition.maxDays } : base;
++		}),
++	);
++
++	return buildFinancialAgingSummary(buckets);
++}
+diff --git a/backend/src/modules/dashboard/dashboard-readiness.service.ts b/backend/src/modules/dashboard/dashboard-readiness.service.ts
+new file mode 100644
+index 0000000..352855e
+--- /dev/null
++++ b/backend/src/modules/dashboard/dashboard-readiness.service.ts
+@@ -0,0 +1,101 @@
++import type { DashboardFieldReadiness } from "@cermont/shared-types";
++import { Checklist, Evidence, ExecutionSession, Tool } from "../../models";
++import { VehicleModel } from "../../models/Vehicle";
++
++const DAY_MS = 24 * 60 * 60 * 1000;
++
++type ChecklistResultRow = { _id: "pending" | "failed" | "passed"; count: number };
++type ToolCertificationRiskRow = { expiring: number; expired: number };
++
++function buildVehicleExpiryFilter(from: Date, to: Date) {
++	return {
++		$or: [
++			{ soatExpiry: { $gte: from, $lte: to } },
++			{ technoMechanicalExpiry: { $gte: from, $lte: to } },
++			{ insuranceExpiry: { $gte: from, $lte: to } },
++		],
++	};
++}
++
++export async function buildFieldReadiness(): Promise<DashboardFieldReadiness> {
++	const now = new Date();
++	const next30Days = new Date(now.getTime() + 30 * DAY_MS);
++
++	const [
++		checklistResults,
++		evidencePendingReview,
++		evidenceRejected,
++		totalEvidence,
++		evidenceWithGps,
++		vehicleDocumentsExpiring,
++		vehicleDocumentsExpired,
++		toolCertificationRisk,
++		evidenceSyncPending,
++		evidenceSyncFailed,
++		executionSyncPending,
++		executionSyncFailed,
++	] = await Promise.all([
++		Checklist.aggregate<ChecklistResultRow>([
++			{ $unwind: "$items" },
++			{ $match: { "items.isBlocking": true, "items.result": { $in: ["pending", "failed"] } } },
++			{ $group: { _id: "$items.result", count: { $sum: 1 } } },
++		]),
++		Evidence.countDocuments({ fsmStatus: "pending_review", lifecycleStatus: "active" }),
++		Evidence.countDocuments({ fsmStatus: "rejected", lifecycleStatus: "active" }),
++		Evidence.countDocuments({ lifecycleStatus: "active" }),
++		Evidence.countDocuments({
++			lifecycleStatus: "active",
++			"gpsLocation.lat": { $exists: true },
++			"gpsLocation.lng": { $exists: true },
++		}),
++		VehicleModel.countDocuments(buildVehicleExpiryFilter(now, next30Days)),
++		VehicleModel.countDocuments(buildVehicleExpiryFilter(new Date(0), now)),
++		Tool.aggregate<ToolCertificationRiskRow>([
++			{ $unwind: "$certifications" },
++			{
++				$group: {
++					_id: "certification-risk",
++					expiring: {
++						$sum: {
++							$cond: [
++								{
++									$and: [
++										{ $gte: ["$certifications.expiresAt", now] },
++										{ $lte: ["$certifications.expiresAt", next30Days] },
++									],
++								},
++								1,
++								0,
++							],
++						},
++					},
++					expired: {
++						$sum: { $cond: [{ $lt: ["$certifications.expiresAt", now] }, 1, 0] },
++					},
++				},
++			},
++		]),
++		Evidence.countDocuments({ syncStatus: { $in: ["pending", "syncing"] } }),
++		Evidence.countDocuments({ syncStatus: "failed" }),
++		ExecutionSession.countDocuments({ offlineSyncStatus: { $in: ["pending", "syncing"] } }),
++		ExecutionSession.countDocuments({ offlineSyncStatus: "failed" }),
++	]);
++
++	const checklistCounts = new Map(checklistResults.map((row) => [row._id, row.count]));
++	const toolRisk = toolCertificationRisk[0] ?? { expiring: 0, expired: 0 };
++
++	return {
++		blockingChecklistsPending: checklistCounts.get("pending") ?? 0,
++		blockingChecklistsFailed: checklistCounts.get("failed") ?? 0,
++		evidencePendingReview,
++		evidenceRejected,
++		evidenceGpsCoveragePct:
++			totalEvidence > 0 ? Math.round((evidenceWithGps / totalEvidence) * 100) : 0,
++		vehicleDocumentsExpiring,
++		vehicleDocumentsExpired,
++		toolCertificationsExpiring: toolRisk.expiring,
++		toolCertificationsExpired: toolRisk.expired,
++		offlineSyncPending: evidenceSyncPending + executionSyncPending,
++		offlineSyncFailed: evidenceSyncFailed + executionSyncFailed,
++	};
++}
+diff --git a/backend/src/modules/dashboard/dashboard-sla.service.ts b/backend/src/modules/dashboard/dashboard-sla.service.ts
+new file mode 100644
+index 0000000..a5f0cef
+--- /dev/null
++++ b/backend/src/modules/dashboard/dashboard-sla.service.ts
+@@ -0,0 +1,110 @@
++/**
++ * Dashboard SLA Service — Active cases at risk of missing their target
++ * completion date (order.completedAt is the promised delivery date).
++ *
++ * riskLevel: critical = overdue or less than 24h remaining,
++ *            warning  = less than 72h remaining.
++ */
++
++import { normalizeOperationalStepCode } from "@cermont/domain";
++import type { DashboardSlaRiskOrder } from "@cermont/shared-types";
++import { CERMONT_OPERATIONAL_STEPS } from "@cermont/shared-types";
++import { Order } from "../../models/Order";
++import { ServiceCase } from "../../models/ServiceCase";
++
++const RISK_HORIZON_HOURS = 72;
++const CRITICAL_THRESHOLD_HOURS = 24;
++const MAX_RISK_ORDERS = 20;
++const MS_PER_HOUR = 1000 * 60 * 60;
++
++const TERMINAL_STAGES = ["paid", "archived", "cancelled"] as const;
++
++export interface SlaRiskSourceRow {
++	serviceCaseId: string;
++	code: string;
++	clientName?: string;
++	currentStepCode: string;
++	deadline: Date;
++}
++
++function resolveStepNumber(stepCode: string): number {
++	const normalized = normalizeOperationalStepCode(stepCode);
++	const canonicalCode = normalized.status === "invalid" ? stepCode : normalized.code;
++	const step = CERMONT_OPERATIONAL_STEPS.find((item) => item.code === canonicalCode);
++	return step?.stepNumber ?? 1;
++}
++
++/** Pure mapper — exported for unit tests. */
++export function mapSlaRiskRows(rows: SlaRiskSourceRow[], now: Date): DashboardSlaRiskOrder[] {
++	return rows
++		.map((row) => {
++			const hoursRemaining =
++				Math.round(((row.deadline.getTime() - now.getTime()) / MS_PER_HOUR) * 10) / 10;
++			const riskLevel: DashboardSlaRiskOrder["riskLevel"] =
++				hoursRemaining < CRITICAL_THRESHOLD_HOURS ? "critical" : "warning";
++
++			return {
++				serviceCaseId: row.serviceCaseId,
++				code: row.code,
++				...(row.clientName ? { clientName: row.clientName } : {}),
++				slaDeadline: row.deadline.toISOString(),
++				hoursRemaining,
++				currentStep: resolveStepNumber(row.currentStepCode),
++				riskLevel,
++			};
++		})
++		.sort((a, b) => a.hoursRemaining - b.hoursRemaining)
++		.slice(0, MAX_RISK_ORDERS);
++}
++
++export async function buildSlaRiskOrders(): Promise<DashboardSlaRiskOrder[]> {
++	const now = new Date();
++	const horizon = new Date(now.getTime() + RISK_HORIZON_HOURS * MS_PER_HOUR);
++
++	const activeCases = await ServiceCase.find({
++		currentStage: { $nin: TERMINAL_STAGES },
++		"artifacts.workOrder.id": { $exists: true },
++	})
++		.select("code clientName currentStepCode artifacts.workOrder.id")
++		.lean();
++
++	const orderIds = activeCases.flatMap((serviceCase) => {
++		const workOrderId = serviceCase.artifacts?.workOrder?.id;
++		return workOrderId ? [workOrderId] : [];
++	});
++
++	if (orderIds.length === 0) {
++		return [];
++	}
++
++	const orders = await Order.find({
++		_id: { $in: orderIds },
++		completedAt: { $exists: true, $lte: horizon },
++	})
++		.select("completedAt")
++		.lean();
++
++	const deadlineByOrderId = new Map(
++		orders.flatMap((order) => (order.completedAt ? [[String(order._id), order.completedAt]] : [])),
++	);
++
++	const rows = activeCases.flatMap((serviceCase) => {
++		const workOrderId = serviceCase.artifacts?.workOrder?.id;
++		const deadline = workOrderId ? deadlineByOrderId.get(String(workOrderId)) : void 0;
++		if (!deadline) {
++			return [];
++		}
++
++		return [
++			{
++				serviceCaseId: String(serviceCase._id),
++				code: serviceCase.code,
++				...(serviceCase.clientName ? { clientName: serviceCase.clientName } : {}),
++				currentStepCode: serviceCase.currentStepCode ?? "step_01_work_request",
++				deadline,
++			},
++		];
++	});
++
++	return mapSlaRiskRows(rows, now);
++}
+diff --git a/backend/src/modules/dashboard/dashboard.service.ts b/backend/src/modules/dashboard/dashboard.service.ts
+index b009165..7553e50 100644
+--- a/backend/src/modules/dashboard/dashboard.service.ts
++++ b/backend/src/modules/dashboard/dashboard.service.ts
+@@ -14,14 +14,25 @@ import { Asset } from "../../models/Asset";
+ import { Cost } from "../../models/Cost";
+ import { DeliveryRecord } from "../../models/DeliveryRecord";
+ import { Document } from "../../models/Document";
++import { DocumentExtractionJob } from "../../models/DocumentExtractionJob";
++import { DocumentTemplate } from "../../models/DocumentTemplate";
+ import { Invoice } from "../../models/Invoice";
+-import { MaintenanceKit } from "../../models/MaintenanceKit";
+ import { Order } from "../../models/Order";
+ import { Payment } from "../../models/Payment";
+ import { Proposal } from "../../models/Proposal";
+ import { ServiceCase } from "../../models/ServiceCase";
+ import { ServiceEntrySheet } from "../../models/ServiceEntrySheet";
++import { TemplateResponse } from "../../models/TemplateResponse";
++import { Tool } from "../../models/Tool";
++import { VehicleModel } from "../../models/Vehicle";
+ import { WorkRequest } from "../../models/WorkRequest";
++import { buildServiceDemand, buildServiceDemandSummary } from "./dashboard-demand.service";
++import { buildMaintenanceEfficiency } from "./dashboard-efficiency.service";
++import { buildFinancialAging, buildFinancialAgingSummary } from "./dashboard-financial.service";
++import { buildFieldReadiness } from "./dashboard-readiness.service";
++import { buildSlaRiskOrders } from "./dashboard-sla.service";
++
++export { buildFinancialAgingSummary, buildServiceDemandSummary };
+ 
+ const log = createLogger("dashboard-service");
+ 
+@@ -55,10 +66,16 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
+ 	let nextActions: DashboardSummary["nextActions"];
+ 	let administrativeClosure: DashboardSummary["administrativeClosure"];
+ 	let financialAging: DashboardSummary["financialAging"];
++	let fieldReadiness: DashboardSummary["fieldReadiness"];
++	let serviceDemand: DashboardSummary["serviceDemand"];
+ 	let costVariance: DashboardSummary["costVariance"];
+ 	let documentWorkload: DashboardSummary["documentWorkload"];
+-	let assetMaintenance: DashboardSummary["assetMaintenance"];
+-	let offlineSync: DashboardSummary["offlineSync"];
++	let assetMaintenanceBase: Pick<
++		DashboardSummary["assetMaintenance"],
++		"totalAssets" | "activeMaintenance"
++	>;
++	let maintenanceEfficiency: DashboardSummary["maintenanceEfficiency"];
++	let slaRiskOrders: DashboardSummary["slaRiskOrders"];
+ 	let recentActivity: DashboardSummary["recentActivity"];
+ 	let orderStatuses: DashboardSummary["charts"]["ordersByStatus"];
+ 	let monthlyOrders: DashboardSummary["charts"]["ordersByMonth"];
+@@ -71,11 +88,14 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
+ 			nextActions,
+ 			administrativeClosure,
+ 			financialAging,
++			fieldReadiness,
++			serviceDemand,
+ 			costVariance,
+ 			documentWorkload,
+-			assetMaintenance,
+-			offlineSync,
++			assetMaintenanceBase,
+ 			recentActivity,
++			maintenanceEfficiency,
++			slaRiskOrders,
+ 			orderStatuses,
+ 			monthlyOrders,
+ 			costByCategory,
+@@ -85,11 +105,14 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
+ 			buildNextActions(),
+ 			buildAdministrativeClosure(),
+ 			buildFinancialAging(),
++			buildFieldReadiness(),
++			buildServiceDemand(),
+ 			buildCostVariance(),
+ 			buildDocumentWorkload(),
+ 			buildAssetMaintenance(),
+-			buildOfflineSync(),
+ 			buildRecentActivity(),
++			buildMaintenanceEfficiency(),
++			buildSlaRiskOrders(),
+ 			getOrdersByStatus(),
+ 			getMonthlyOrders(),
+ 			getCostByCategory(),
+@@ -108,10 +131,23 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
+ 		nextActions,
+ 		administrativeClosure,
+ 		financialAging,
++		fieldReadiness,
++		serviceDemand,
+ 		costVariance,
+ 		documentWorkload,
+-		assetMaintenance,
+-		offlineSync,
++		assetMaintenance: {
++			...assetMaintenanceBase,
++			expiringCertificates:
++				fieldReadiness.vehicleDocumentsExpiring + fieldReadiness.toolCertificationsExpiring,
++			overdueMaintenance:
++				fieldReadiness.vehicleDocumentsExpired + fieldReadiness.toolCertificationsExpired,
++		},
++		maintenanceEfficiency,
++		slaRiskOrders,
++		offlineSync: {
++			pendingSyncItems: fieldReadiness.offlineSyncPending,
++			syncErrors: fieldReadiness.offlineSyncFailed,
++		},
+ 		recentActivity,
+ 		charts: {
+ 			ordersByStatus: orderStatuses,
+@@ -246,79 +282,6 @@ async function buildAdministrativeClosure() {
+ 	};
+ }
+ 
+-// ── Financial Aging ───────────────────────────────────────────────────
+-
+-async function buildFinancialAging() {
+-	const now = new Date();
+-	const buckets = [
+-		{ minDays: 0, maxDays: 30, label: "0-30 días" },
+-		{ minDays: 31, maxDays: 60, label: "31-60 días" },
+-		{ minDays: 61, maxDays: 90, label: "61-90 días" },
+-		{ minDays: 91, maxDays: null, label: "90+ días" },
+-	];
+-
+-	const results: Array<{
+-		bucket: string;
+-		count: number;
+-		amount: number;
+-		currency: string;
+-		minDays?: number;
+-		maxDays?: number;
+-	}> = [];
+-
+-	const bucketResults = await Promise.all(
+-		buckets.map(async (bucket) => {
+-			const dateFilter =
+-				bucket.maxDays !== null
+-					? {
+-							$lte: new Date(now.getTime() - bucket.minDays * 24 * 60 * 60 * 1000),
+-							$gte: new Date(now.getTime() - bucket.maxDays * 24 * 60 * 60 * 1000),
+-						}
+-					: {
+-							$lt: new Date(now.getTime() - bucket.minDays * 24 * 60 * 60 * 1000),
+-						};
+-
+-			const [aged] = await Invoice.aggregate<{ count: number; amount: number }>([
+-				{
+-					$match: {
+-						status: { $nin: ["paid", "cancelled", "rejected"] },
+-						dueDate: dateFilter,
+-					},
+-				},
+-				{
+-					$group: {
+-						_id: null,
+-						count: { $sum: 1 },
+-						amount: { $sum: "$totalAmount" },
+-					},
+-				},
+-			]);
+-
+-			return {
+-				bucket: bucket.label,
+-				count: aged?.count ?? 0,
+-				amount: aged?.amount ?? 0,
+-				currency: "COP",
+-				minDays: bucket.minDays,
+-				maxDays: bucket.maxDays ?? undefined,
+-			};
+-		}),
+-	);
+-
+-	results.push(...bucketResults);
+-
+-	const overdueInvoices = await Invoice.countDocuments({
+-		status: { $nin: ["paid", "cancelled", "rejected"] },
+-		dueDate: { $lt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) },
+-	});
+-
+-	return {
+-		buckets: results,
+-		totalOutstanding: results.reduce((sum, b) => sum + b.count, 0),
+-		totalOverdue: overdueInvoices,
+-	};
+-}
+-
+ // ── Cost Variance ─────────────────────────────────────────────────────
+ 
+ async function buildCostVariance() {
+@@ -347,12 +310,19 @@ async function buildCostVariance() {
+ // ── Document Workload ─────────────────────────────────────────────────
+ 
+ async function buildDocumentWorkload() {
+-	const totalDocuments = await Document.countDocuments();
++	const [totalDocuments, pendingImports, pendingTemplates, pendingResponses] = await Promise.all([
++		Document.countDocuments(),
++		DocumentExtractionJob.countDocuments({ status: { $in: ["queued", "processing"] } }),
++		DocumentTemplate.countDocuments({ status: { $in: ["draft", "classified"] } }),
++		TemplateResponse.countDocuments({
++			status: { $in: ["submitted", "rejected", "conflict"] },
++		}),
++	]);
+ 
+ 	return {
+-		pendingImports: 0,
+-		pendingTemplates: 0,
+-		pendingResponses: 0,
++		pendingImports,
++		pendingTemplates,
++		pendingResponses,
+ 		totalDocuments,
+ 	};
+ }
+@@ -360,25 +330,15 @@ async function buildDocumentWorkload() {
+ // ── Assets / Maintenance ──────────────────────────────────────────────
+ 
+ async function buildAssetMaintenance() {
+-	const [totalAssets, activeKits] = await Promise.all([
++	const [totalAssets, toolsInMaintenance, vehiclesInMaintenance] = await Promise.all([
+ 		Asset.countDocuments(),
+-		MaintenanceKit.countDocuments({ is_active: true }),
++		Tool.countDocuments({ status: "maintenance" }),
++		VehicleModel.countDocuments({ status: "maintenance" }),
+ 	]);
+ 
+ 	return {
+ 		totalAssets,
+-		activeMaintenance: activeKits,
+-		expiringCertificates: 0,
+-		overdueMaintenance: 0,
+-	};
+-}
+-
+-// ── Offline Sync ──────────────────────────────────────────────────────
+-
+-async function buildOfflineSync() {
+-	return {
+-		pendingSyncItems: 0,
+-		syncErrors: 0,
++		activeMaintenance: toolsInMaintenance + vehiclesInMaintenance,
+ 	};
+ }
+ 
+diff --git a/backend/tests/services/dashboard-sla.service.test.ts b/backend/tests/services/dashboard-sla.service.test.ts
+new file mode 100644
+index 0000000..8488eda
+--- /dev/null
++++ b/backend/tests/services/dashboard-sla.service.test.ts
+@@ -0,0 +1,66 @@
++import { describe, expect, it } from "vitest";
++import {
++	mapSlaRiskRows,
++	type SlaRiskSourceRow,
++} from "../../src/modules/dashboard/dashboard-sla.service";
++
++const NOW = new Date("2026-07-04T12:00:00.000Z");
++
++function row(overrides: Partial<SlaRiskSourceRow>): SlaRiskSourceRow {
++	return {
++		serviceCaseId: "665f1f77bcf86cd799439011",
++		code: "SC-2026-0001",
++		clientName: "Sierracol Energy",
++		currentStepCode: "step_06_execution",
++		deadline: new Date("2026-07-05T12:00:00.000Z"),
++		...overrides,
++	};
++}
++
++describe("mapSlaRiskRows", () => {
++	it("classifies an overdue deadline as critical with negative hours", () => {
++		const [result] = mapSlaRiskRows([row({ deadline: new Date("2026-07-03T12:00:00.000Z") })], NOW);
++
++		expect(result?.riskLevel).toBe("critical");
++		expect(result?.hoursRemaining).toBe(-24);
++	});
++
++	it("classifies under 24h remaining as critical and under 72h as warning", () => {
++		const results = mapSlaRiskRows(
++			[
++				row({ code: "SC-CRIT", deadline: new Date("2026-07-04T20:00:00.000Z") }),
++				row({ code: "SC-WARN", deadline: new Date("2026-07-06T12:00:00.000Z") }),
++			],
++			NOW,
++		);
++
++		const critical = results.find((item) => item.code === "SC-CRIT");
++		const warning = results.find((item) => item.code === "SC-WARN");
++		expect(critical?.riskLevel).toBe("critical");
++		expect(warning?.riskLevel).toBe("warning");
++	});
++
++	it("sorts by remaining time ascending so the most urgent case is first", () => {
++		const results = mapSlaRiskRows(
++			[
++				row({ code: "SC-LATER", deadline: new Date("2026-07-06T12:00:00.000Z") }),
++				row({ code: "SC-SOONER", deadline: new Date("2026-07-04T18:00:00.000Z") }),
++			],
++			NOW,
++		);
++
++		expect(results.map((item) => item.code)).toEqual(["SC-SOONER", "SC-LATER"]);
++	});
++
++	it("resolves the 14-step number from the canonical step code", () => {
++		const [result] = mapSlaRiskRows([row({ currentStepCode: "step_06_execution" })], NOW);
++
++		expect(result?.currentStep).toBe(6);
++	});
++
++	it("omits clientName when the source row has no client", () => {
++		const [result] = mapSlaRiskRows([row({ clientName: void 0 })], NOW);
++
++		expect(result && "clientName" in result).toBe(false);
++	});
++});
+diff --git a/frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx b/frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx
+new file mode 100644
+index 0000000..1f3ac9a
+--- /dev/null
++++ b/frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx
+@@ -0,0 +1,407 @@
++import type { DashboardSummary } from "@cermont/shared-types";
++import {
++	AlertTriangle,
++	ArrowRight,
++	BadgeCheck,
++	BriefcaseBusiness,
++	ClipboardCheck,
++	Clock,
++	CloudOff,
++	FileCheck2,
++	FileClock,
++	MapPinCheck,
++	ReceiptText,
++	ShieldAlert,
++	Timer,
++	WalletCards,
++	Wrench,
++} from "lucide-react";
++import Link from "next/link";
++import { APP_ROUTES } from "@/lib/routes";
++import { SlaRiskOrdersTable } from "./SlaRiskOrdersTable";
++
++const COP_FORMATTER = new Intl.NumberFormat("es-CO", {
++	style: "currency",
++	currency: "COP",
++	maximumFractionDigits: 0,
++});
++
++function formatCop(value: number): string {
++	return COP_FORMATTER.format(value);
++}
++
++function priorityCardClass(span: string, tone: "brand" | "danger" | "neutral") {
++	const border =
++		tone === "brand"
++			? "border-[var(--color-brand-blue)]"
++			: tone === "danger"
++				? "border-[var(--color-danger)]"
++				: "border-[var(--border-medium)]";
++	return `${span} rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] p-5 ${border}`;
++}
++
++export function DashboardCommandCenter({ summary }: { summary: DashboardSummary }) {
++	const readiness = summary.fieldReadiness;
++	const closure = summary.administrativeClosure;
++	const criticalControls = readiness.blockingChecklistsPending + readiness.blockingChecklistsFailed;
++	const closureBacklog =
++		closure.pendingDeliveryRecords +
++		closure.pendingSES +
++		closure.pendingInvoices +
++		closure.pendingPayments;
++	const maximumDemand = Math.max(...summary.serviceDemand.items.map((item) => item.requests), 1);
++
++	return (
++		<div className="space-y-10">
++			<section aria-labelledby="dashboard-priorities-title" className="space-y-4">
++				<div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
++					<div>
++						<p className="text-sm font-medium text-[var(--color-brand-blue)]">Prioridades de hoy</p>
++						<h2
++							id="dashboard-priorities-title"
++							className="mt-1 text-2xl font-semibold text-[var(--text-primary)]"
++						>
++							Lo que puede detener la operación o el cobro
++						</h2>
++					</div>
++					<time className="text-sm text-[var(--text-tertiary)]" dateTime={summary.generatedAt}>
++						Actualizado {new Date(summary.generatedAt).toLocaleString("es-CO")}
++					</time>
++				</div>
++
++				<div className="grid gap-4 lg:grid-cols-12">
++					<Link
++						href={APP_ROUTES.checklists}
++						className={priorityCardClass("lg:col-span-5", "danger")}
++					>
++						<div className="flex items-start justify-between gap-5">
++							<div className="space-y-3">
++								<span className="flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]">
++									<ShieldAlert className="size-5" aria-hidden="true" />
++								</span>
++								<div>
++									<p className="text-sm font-medium text-[var(--text-secondary)]">
++										Controles críticos por resolver
++									</p>
++									<p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-[var(--text-primary)]">
++										{criticalControls}
++									</p>
++								</div>
++								<p className="text-sm text-[var(--text-secondary)]">
++									{readiness.blockingChecklistsFailed} fallidos ·{" "}
++									{readiness.blockingChecklistsPending} pendientes
++								</p>
++							</div>
++							<ArrowRight className="size-5 text-[var(--text-tertiary)]" aria-hidden="true" />
++						</div>
++					</Link>
++
++					<Link href={APP_ROUTES.evidences} className={priorityCardClass("lg:col-span-3", "brand")}>
++						<FileCheck2 className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
++							Evidencias por validar
++						</p>
++						<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
++							{readiness.evidencePendingReview}
++						</p>
++						<p className="mt-2 text-xs text-[var(--text-tertiary)]">
++							{readiness.evidenceRejected} rechazadas requieren reemplazo
++						</p>
++					</Link>
++
++					<Link
++						href={APP_ROUTES.deliveryRecords}
++						className={priorityCardClass("lg:col-span-2", "neutral")}
++					>
++						<FileClock className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
++							Expedientes por cerrar
++						</p>
++						<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
++							{closureBacklog}
++						</p>
++					</Link>
++
++					<Link
++						href={APP_ROUTES.payments}
++						className={priorityCardClass("lg:col-span-2", "neutral")}
++					>
++						<WalletCards className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">Cartera vencida</p>
++						<p className="mt-1 font-mono text-xl font-semibold tabular-nums text-[var(--text-primary)]">
++							{formatCop(summary.financialAging.totalOverdueAmount)}
++						</p>
++						<p className="mt-2 text-xs text-[var(--text-tertiary)]">
++							{summary.financialAging.overdueInvoiceCount} facturas
++						</p>
++					</Link>
++				</div>
++			</section>
++
++			<SlaRiskOrdersTable orders={summary.slaRiskOrders ?? []} />
++
++			<section aria-labelledby="pipeline-title" className="space-y-4">
++				<div>
++					<p className="text-sm font-medium text-[var(--color-brand-blue)]">Flujo documental</p>
++					<h2 id="pipeline-title" className="mt-1 text-xl font-semibold text-[var(--text-primary)]">
++						Casos distribuidos en el ciclo solicitud → pago
++					</h2>
++				</div>
++				<div className="overflow-x-auto pb-2">
++					<ol className="grid min-w-[920px] grid-flow-col auto-cols-[minmax(8rem,1fr)] gap-px overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--border-subtle)]">
++						{summary.operationalPipeline.stages.map((stage) => (
++							<li key={stage.stage} className="bg-[var(--surface-primary)] p-4">
++								<p className="font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
++									{stage.count}
++								</p>
++								<p className="mt-2 text-xs leading-5 text-[var(--text-secondary)]">{stage.label}</p>
++							</li>
++						))}
++					</ol>
++				</div>
++			</section>
++
++			<div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
++				<section
++					aria-labelledby="field-readiness-title"
++					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 sm:p-6"
++				>
++					<div className="flex items-start gap-3">
++						<ClipboardCheck
++							className="mt-0.5 size-5 text-[var(--color-brand-blue)]"
++							aria-hidden="true"
++						/>
++						<div>
++							<h2
++								id="field-readiness-title"
++								className="text-lg font-semibold text-[var(--text-primary)]"
++							>
++								Preparación de campo
++							</h2>
++							<p className="mt-1 text-sm text-[var(--text-secondary)]">
++								Seguridad, soportes y disponibilidad antes de ejecutar.
++							</p>
++						</div>
++					</div>
++
++					<dl className="mt-6 divide-y divide-[var(--border-subtle)]">
++						<ReadinessRow
++							icon={MapPinCheck}
++							label="Evidencias con geolocalización"
++							value={`${readiness.evidenceGpsCoveragePct}%`}
++						/>
++						<ReadinessRow
++							icon={BadgeCheck}
++							label="Certificados próximos a vencer"
++							value={String(
++								readiness.vehicleDocumentsExpiring + readiness.toolCertificationsExpiring,
++							)}
++						/>
++						<ReadinessRow
++							icon={AlertTriangle}
++							label="Certificados vencidos"
++							value={String(
++								readiness.vehicleDocumentsExpired + readiness.toolCertificationsExpired,
++							)}
++						/>
++						<ReadinessRow
++							icon={CloudOff}
++							label="Sincronizaciones pendientes / fallidas"
++							value={`${readiness.offlineSyncPending} / ${readiness.offlineSyncFailed}`}
++						/>
++					</dl>
++				</section>
++
++				<section
++					aria-labelledby="service-demand-title"
++					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 sm:p-6"
++				>
++					<BriefcaseBusiness className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++					<h2
++						id="service-demand-title"
++						className="mt-3 text-lg font-semibold text-[var(--text-primary)]"
++					>
++						Demanda de servicios · últimos {summary.serviceDemand.periodDays} días
++					</h2>
++					<p className="mt-1 text-sm text-[var(--text-secondary)]">
++						{summary.serviceDemand.totalRequests} solicitudes recibidas
++					</p>
++
++					{summary.serviceDemand.items.length > 0 ? (
++						<ul className="mt-6 space-y-4">
++							{summary.serviceDemand.items.map((item) => (
++								<li key={item.serviceType} className="space-y-2">
++									<div className="flex items-center justify-between gap-4 text-sm">
++										<span className="text-[var(--text-secondary)]">{item.serviceType}</span>
++										<span className="font-mono font-semibold tabular-nums text-[var(--text-primary)]">
++											{item.requests}
++										</span>
++									</div>
++									<progress
++										value={item.requests}
++										max={maximumDemand}
++										className="h-2 w-full overflow-hidden rounded-full accent-[var(--color-brand-blue)]"
++										aria-label={`${item.serviceType}: ${item.requests} solicitudes`}
++									/>
++								</li>
++							))}
++						</ul>
++					) : (
++						<p className="mt-6 rounded-[var(--radius-md)] bg-[var(--surface-secondary)] p-4 text-sm text-[var(--text-secondary)]">
++							Sin solicitudes registradas en este período.
++						</p>
++					)}
++				</section>
++			</div>
++
++			<div className="grid gap-6 lg:grid-cols-2">
++				<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 sm:p-6">
++					<ReceiptText className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++					<h2 className="mt-3 text-lg font-semibold text-[var(--text-primary)]">
++						Cierre administrativo
++					</h2>
++					<dl className="mt-5 grid grid-cols-2 gap-4">
++						<CompactMetric label="Actas pendientes" value={closure.pendingDeliveryRecords} />
++						<CompactMetric label="SES pendientes" value={closure.pendingSES} />
++						<CompactMetric label="Facturas pendientes" value={closure.pendingInvoices} />
++						<CompactMetric label="Pagos pendientes" value={closure.pendingPayments} />
++					</dl>
++				</section>
++
++				<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 sm:p-6">
++					<FileCheck2 className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++					<h2 className="mt-3 text-lg font-semibold text-[var(--text-primary)]">
++						Carga documental
++					</h2>
++					<dl className="mt-5 grid grid-cols-2 gap-4">
++						<CompactMetric
++							label="Importaciones procesando"
++							value={summary.documentWorkload.pendingImports}
++						/>
++						<CompactMetric
++							label="Plantillas por publicar"
++							value={summary.documentWorkload.pendingTemplates}
++						/>
++						<CompactMetric
++							label="Respuestas por validar"
++							value={summary.documentWorkload.pendingResponses}
++						/>
++						<CompactMetric
++							label="Documentos gestionados"
++							value={summary.documentWorkload.totalDocuments}
++						/>
++					</dl>
++				</section>
++			</div>
++
++			{summary.maintenanceEfficiency && (
++				<div className="grid gap-6 lg:grid-cols-2">
++					<section
++						aria-labelledby="mttr-title"
++						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 sm:p-6"
++					>
++						<div className="flex items-start gap-3">
++							<Timer className="mt-0.5 size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++							<div>
++								<h2 id="mttr-title" className="text-lg font-semibold text-[var(--text-primary)]">
++									MTTR — Tiempo medio de reparación
++								</h2>
++								<p className="mt-1 text-sm text-[var(--text-secondary)]">
++									Promedio de horas desde inicio a finalización de ejecuciones.
++								</p>
++							</div>
++						</div>
++						<dl className="mt-5 grid grid-cols-2 gap-4">
++							<CompactMetric label="MTTR (horas)" value={summary.maintenanceEfficiency.mttrHours} />
++							<CompactMetric label="MTBF (días)" value={summary.maintenanceEfficiency.mtbfDays} />
++							<CompactMetric
++								label="Tasa de finalización"
++								value={summary.maintenanceEfficiency.maintenanceCompletionRate}
++							/>
++							<div className="rounded-[var(--radius-md)] bg-[var(--surface-secondary)] p-4">
++								<dt className="flex items-center gap-1 text-xs leading-5 text-[var(--text-secondary)]">
++									<Wrench className="size-3" aria-hidden="true" />
++									Órdenes activas / vencidas
++								</dt>
++								<dd className="mt-2 font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
++									{summary.maintenanceEfficiency.activeWorkOrders} /{" "}
++									{summary.maintenanceEfficiency.overdueWorkOrders}
++								</dd>
++							</div>
++						</dl>
++					</section>
++
++					<section
++						aria-labelledby="clock-title"
++						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 sm:p-6"
++					>
++						<div className="flex items-start gap-3">
++							<Clock className="mt-0.5 size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++							<div>
++								<h2 id="clock-title" className="text-lg font-semibold text-[var(--text-primary)]">
++									Envejecimiento de cartera
++								</h2>
++								<p className="mt-1 text-sm text-[var(--text-secondary)]">
++									Distribución de facturas pendientes por antigüedad.
++								</p>
++							</div>
++						</div>
++
++						{summary.financialAging.buckets.length > 0 ? (
++							<dl className="mt-5 divide-y divide-[var(--border-subtle)]">
++								{summary.financialAging.buckets.map((bucket) => (
++									<div
++										key={bucket.bucket}
++										className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
++									>
++										<dt className="text-sm text-[var(--text-secondary)]">{bucket.bucket}</dt>
++										<dd className="font-mono text-sm font-semibold tabular-nums text-[var(--text-primary)]">
++											{formatCop(bucket.amount)} ({bucket.count})
++										</dd>
++									</div>
++								))}
++							</dl>
++						) : (
++							<p className="mt-5 rounded-[var(--radius-md)] bg-[var(--surface-secondary)] p-4 text-sm text-[var(--text-secondary)]">
++								Sin desglose de cartera disponible.
++							</p>
++						)}
++					</section>
++				</div>
++			)}
++		</div>
++	);
++}
++
++function ReadinessRow({
++	icon: Icon,
++	label,
++	value,
++}: {
++	icon: typeof MapPinCheck;
++	label: string;
++	value: string;
++}) {
++	return (
++		<div className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
++			<dt className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
++				<Icon className="size-4 text-[var(--color-brand-blue)]" aria-hidden="true" />
++				{label}
++			</dt>
++			<dd className="font-mono text-sm font-semibold tabular-nums text-[var(--text-primary)]">
++				{value}
++			</dd>
++		</div>
++	);
++}
++
++function CompactMetric({ label, value }: { label: string; value: number }) {
++	return (
++		<div className="rounded-[var(--radius-md)] bg-[var(--surface-secondary)] p-4">
++			<dt className="text-xs leading-5 text-[var(--text-secondary)]">{label}</dt>
++			<dd className="mt-2 font-mono text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
++				{value}
++			</dd>
++		</div>
++	);
++}
+diff --git a/frontend/src/modules/dashboard/ui/SlaRiskOrdersTable.tsx b/frontend/src/modules/dashboard/ui/SlaRiskOrdersTable.tsx
+new file mode 100644
+index 0000000..f8a4312
+--- /dev/null
++++ b/frontend/src/modules/dashboard/ui/SlaRiskOrdersTable.tsx
+@@ -0,0 +1,137 @@
++"use client";
++
++import type { DashboardSlaRiskOrder } from "@cermont/shared-types";
++import { ArrowRight, TriangleAlert } from "lucide-react";
++import Link from "next/link";
++
++interface SlaRiskOrdersTableProps {
++	orders: DashboardSlaRiskOrder[];
++}
++
++const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
++	dateStyle: "medium",
++	timeStyle: "short",
++});
++
++const RISK_BADGE_CLASSES: Record<DashboardSlaRiskOrder["riskLevel"], string> = {
++	critical:
++		"border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
++	warning: "border-brand-warn bg-warning-bg text-brand-warn",
++};
++
++const RISK_LABEL: Record<DashboardSlaRiskOrder["riskLevel"], string> = {
++	critical: "Crítico",
++	warning: "Alerta",
++};
++
++function formatRemaining(hoursRemaining: number): string {
++	if (hoursRemaining < 0) {
++		const overdue = Math.abs(hoursRemaining);
++		return overdue >= 24
++			? `Vencida hace ${Math.floor(overdue / 24)} d`
++			: `Vencida hace ${Math.round(overdue)} h`;
++	}
++	return hoursRemaining >= 24
++		? `${Math.floor(hoursRemaining / 24)} d restantes`
++		: `${Math.round(hoursRemaining)} h restantes`;
++}
++
++export function SlaRiskOrdersTable({ orders }: SlaRiskOrdersTableProps) {
++	return (
++		<section
++			aria-labelledby="sla-risk-title"
++			className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 sm:p-6"
++		>
++			<div className="flex items-start gap-3">
++				<TriangleAlert className="mt-0.5 size-5 text-[var(--color-danger)]" aria-hidden="true" />
++				<div>
++					<h2 id="sla-risk-title" className="text-lg font-semibold text-[var(--text-primary)]">
++						Órdenes en riesgo de incumplir la fecha prometida
++					</h2>
++					<p className="mt-1 text-sm text-[var(--text-secondary)]">
++						Casos activos vencidos o con menos de 72 horas para su fecha objetivo.
++					</p>
++				</div>
++			</div>
++
++			{orders.length === 0 ? (
++				<p className="mt-5 rounded-[var(--radius-md)] bg-[var(--surface-secondary)] p-4 text-sm text-[var(--text-secondary)]">
++					Sin órdenes en riesgo de SLA en este momento.
++				</p>
++			) : (
++				<div className="mt-5 overflow-x-auto">
++					<table className="w-full min-w-[640px] text-left text-xs">
++						<caption className="sr-only">Órdenes activas en riesgo de SLA</caption>
++						<thead>
++							<tr className="border-b border-[var(--border-subtle)] text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
++								<th scope="col" className="px-3 py-2">
++									Caso
++								</th>
++								<th scope="col" className="px-3 py-2">
++									Cliente
++								</th>
++								<th scope="col" className="px-3 py-2">
++									Fecha objetivo
++								</th>
++								<th scope="col" className="px-3 py-2">
++									Tiempo
++								</th>
++								<th scope="col" className="px-3 py-2">
++									Paso
++								</th>
++								<th scope="col" className="px-3 py-2">
++									Riesgo
++								</th>
++								<th scope="col" className="px-3 py-2">
++									<span className="sr-only">Acciones</span>
++								</th>
++							</tr>
++						</thead>
++						<tbody>
++							{orders.map((order) => (
++								<tr
++									key={order.serviceCaseId}
++									className={`border-b border-[var(--border-subtle)] last:border-b-0 ${
++										order.riskLevel === "critical" ? "bg-[var(--color-danger-bg)]/40" : ""
++									}`}
++								>
++									<td className="px-3 py-2.5 font-mono font-semibold text-[var(--text-primary)]">
++										{order.code}
++									</td>
++									<td className="px-3 py-2.5 text-[var(--text-secondary)]">
++										{order.clientName ?? "Sin cliente"}
++									</td>
++									<td className="px-3 py-2.5 text-[var(--text-secondary)]">
++										{DATE_FORMATTER.format(new Date(order.slaDeadline))}
++									</td>
++									<td className="px-3 py-2.5 font-semibold text-[var(--text-primary)]">
++										{formatRemaining(order.hoursRemaining)}
++									</td>
++									<td className="px-3 py-2.5 text-[var(--text-secondary)]">
++										{order.currentStep} / 14
++									</td>
++									<td className="px-3 py-2.5">
++										<span
++											className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${RISK_BADGE_CLASSES[order.riskLevel]}`}
++										>
++											{RISK_LABEL[order.riskLevel]}
++										</span>
++									</td>
++									<td className="px-3 py-2.5 text-right">
++										<Link
++											href={`/service-cases/${order.serviceCaseId}`}
++											className="inline-flex min-h-11 items-center gap-1 px-1 font-semibold text-[var(--color-brand)] hover:underline"
++										>
++											Ver caso
++											<ArrowRight className="size-3" aria-hidden="true" />
++										</Link>
++									</td>
++								</tr>
++							))}
++						</tbody>
++					</table>
++				</div>
++			)}
++		</section>
++	);
++}
+diff --git a/frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx b/frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx
+index c162c13..3fe0605 100644
+--- a/frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx
++++ b/frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx
+@@ -16,7 +16,12 @@ const summary: DashboardSummary = {
+ 	},
+ 	blockers: { totalBlockers: 4, criticalBlockers: 2, blockedCases: 2 },
+ 	nextActions: [
+-		{ command: "review_request", label: "Revisar solicitudes", requiredRole: "residente", count: 3 },
++		{
++			command: "review_request",
++			label: "Revisar solicitudes",
++			requiredRole: "residente",
++			count: 3,
++		},
+ 	],
+ 	administrativeClosure: {
+ 		pendingDeliveryRecords: 2,
+@@ -70,6 +75,7 @@ const summary: DashboardSummary = {
+ 		expiringCertificates: 7,
+ 		overdueMaintenance: 1,
+ 	},
++	slaRiskOrders: [],
+ 	offlineSync: { pendingSyncItems: 3, syncErrors: 1 },
+ 	recentActivity: { items: [] },
+ 	charts: { ordersByStatus: [], ordersByMonth: [], costByCategory: [] },
+diff --git a/packages/shared-types/contracts/api-contract.snapshot.json b/packages/shared-types/contracts/api-contract.snapshot.json
+index ac17975..838beb2 100644
+--- a/packages/shared-types/contracts/api-contract.snapshot.json
++++ b/packages/shared-types/contracts/api-contract.snapshot.json
+@@ -248,6 +248,7 @@
+                 "KIT_DELETED",
+                 "KIT_DUPLICATED",
+                 "KIT_APPLIED_TO_PLANNING",
++                "COST_CATALOG_ITEM_CREATED",
+                 "TEMPLATE_DRAFT_CREATED",
+                 "TEMPLATE_DRAFT_UPDATED",
+                 "TEMPLATE_DRAFT_APPROVED",
+@@ -481,6 +482,7 @@
+                 "KIT_DELETED",
+                 "KIT_DUPLICATED",
+                 "KIT_APPLIED_TO_PLANNING",
++                "COST_CATALOG_ITEM_CREATED",
+                 "TEMPLATE_DRAFT_CREATED",
+                 "TEMPLATE_DRAFT_UPDATED",
+                 "TEMPLATE_DRAFT_APPROVED",
+@@ -727,6 +729,7 @@
+                   "KIT_DELETED",
+                   "KIT_DUPLICATED",
+                   "KIT_APPLIED_TO_PLANNING",
++                  "COST_CATALOG_ITEM_CREATED",
+                   "TEMPLATE_DRAFT_CREATED",
+                   "TEMPLATE_DRAFT_UPDATED",
+                   "TEMPLATE_DRAFT_APPROVED",
+@@ -11938,6 +11941,7 @@
+             "KIT_DELETED",
+             "KIT_DUPLICATED",
+             "KIT_APPLIED_TO_PLANNING",
++            "COST_CATALOG_ITEM_CREATED",
+             "TEMPLATE_DRAFT_CREATED",
+             "TEMPLATE_DRAFT_UPDATED",
+             "TEMPLATE_DRAFT_APPROVED",
+@@ -12169,6 +12173,7 @@
+             "KIT_DELETED",
+             "KIT_DUPLICATED",
+             "KIT_APPLIED_TO_PLANNING",
++            "COST_CATALOG_ITEM_CREATED",
+             "TEMPLATE_DRAFT_CREATED",
+             "TEMPLATE_DRAFT_UPDATED",
+             "TEMPLATE_DRAFT_APPROVED",
+@@ -20809,6 +20814,69 @@
+       ],
+       "type": "object"
+     },
++    "CreateCostCatalogItemSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "category": {
++          "enum": [
++            "labor",
++            "materials",
++            "equipment",
++            "transport",
++            "subcontract",
++            "overhead",
++            "tax",
++            "other"
++          ],
++          "type": "string"
++        },
++        "code": {
++          "maxLength": 40,
++          "minLength": 1,
++          "type": "string"
++        },
++        "currency": {
++          "default": "COP",
++          "maxLength": 3,
++          "minLength": 3,
++          "type": "string"
++        },
++        "description": {
++          "maxLength": 500,
++          "minLength": 1,
++          "type": "string"
++        },
++        "isActive": {
++          "default": true,
++          "type": "boolean"
++        },
++        "name": {
++          "maxLength": 200,
++          "minLength": 1,
++          "type": "string"
++        },
++        "unit": {
++          "maxLength": 50,
++          "minLength": 1,
++          "type": "string"
++        },
++        "unitPrice": {
++          "minimum": 0,
++          "type": "number"
++        }
++      },
++      "required": [
++        "code",
++        "name",
++        "category",
++        "unit",
++        "unitPrice",
++        "currency",
++        "isActive"
++      ],
++      "type": "object"
++    },
+     "CreateCostControlSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -23273,6 +23341,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -23306,6 +23377,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -23332,6 +23406,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -23410,6 +23487,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -23443,6 +23523,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -23469,6 +23552,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -23506,6 +23592,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -23539,6 +23628,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -23565,6 +23657,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -23606,6 +23701,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -23639,6 +23737,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -23665,6 +23766,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -23702,6 +23806,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -23735,6 +23842,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -23761,6 +23871,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -23801,6 +23914,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -23834,6 +23950,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -23860,6 +23979,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -23897,6 +24019,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -23930,6 +24055,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -23956,6 +24084,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -24109,6 +24240,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -24142,6 +24276,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -24168,6 +24305,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -24208,6 +24348,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -24241,6 +24384,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -24267,6 +24413,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -29638,6 +29787,48 @@
+       ],
+       "type": "object"
+     },
++    "DashboardMaintenanceEfficiencySchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "activeWorkOrders": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "maintenanceCompletionRate": {
++          "maximum": 100,
++          "minimum": 0,
++          "type": "number"
++        },
++        "mtbfDays": {
++          "minimum": 0,
++          "type": "number"
++        },
++        "mttrHours": {
++          "minimum": 0,
++          "type": "number"
++        },
++        "overdueWorkOrders": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "technicianUtilizationPct": {
++          "maximum": 100,
++          "minimum": 0,
++          "type": "number"
++        }
++      },
++      "required": [
++        "mttrHours",
++        "mtbfDays",
++        "maintenanceCompletionRate",
++        "activeWorkOrders",
++        "overdueWorkOrders"
++      ],
++      "type": "object"
++    },
+     "DashboardNextActionSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -29887,6 +30078,50 @@
+       ],
+       "type": "object"
+     },
++    "DashboardSlaRiskOrderSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "clientName": {
++          "type": "string"
++        },
++        "code": {
++          "type": "string"
++        },
++        "currentStep": {
++          "maximum": 14,
++          "minimum": 1,
++          "type": "integer"
++        },
++        "hoursRemaining": {
++          "type": "number"
++        },
++        "riskLevel": {
++          "enum": [
++            "warning",
++            "critical"
++          ],
++          "type": "string"
++        },
++        "serviceCaseId": {
++          "type": "string"
++        },
++        "slaDeadline": {
++          "format": "date-time",
++          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++          "type": "string"
++        }
++      },
++      "required": [
++        "serviceCaseId",
++        "code",
++        "slaDeadline",
++        "hoursRemaining",
++        "currentStep",
++        "riskLevel"
++      ],
++      "type": "object"
++    },
+     "DashboardStageMetricSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -30294,6 +30529,47 @@
+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+           "type": "string"
+         },
++        "maintenanceEfficiency": {
++          "additionalProperties": false,
++          "properties": {
++            "activeWorkOrders": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "maintenanceCompletionRate": {
++              "maximum": 100,
++              "minimum": 0,
++              "type": "number"
++            },
++            "mtbfDays": {
++              "minimum": 0,
++              "type": "number"
++            },
++            "mttrHours": {
++              "minimum": 0,
++              "type": "number"
++            },
++            "overdueWorkOrders": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "technicianUtilizationPct": {
++              "maximum": 100,
++              "minimum": 0,
++              "type": "number"
++            }
++          },
++          "required": [
++            "mttrHours",
++            "mtbfDays",
++            "maintenanceCompletionRate",
++            "activeWorkOrders",
++            "overdueWorkOrders"
++          ],
++          "type": "object"
++        },
+         "nextActions": {
+           "items": {
+             "additionalProperties": false,
+@@ -30487,6 +30763,53 @@
+           ],
+           "type": "object"
+         },
++        "slaRiskOrders": {
++          "default": [],
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "clientName": {
++                "type": "string"
++              },
++              "code": {
++                "type": "string"
++              },
++              "currentStep": {
++                "maximum": 14,
++                "minimum": 1,
++                "type": "integer"
++              },
++              "hoursRemaining": {
++                "type": "number"
++              },
++              "riskLevel": {
++                "enum": [
++                  "warning",
++                  "critical"
++                ],
++                "type": "string"
++              },
++              "serviceCaseId": {
++                "type": "string"
++              },
++              "slaDeadline": {
++                "format": "date-time",
++                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++                "type": "string"
++              }
++            },
++            "required": [
++              "serviceCaseId",
++              "code",
++              "slaDeadline",
++              "hoursRemaining",
++              "currentStep",
++              "riskLevel"
++            ],
++            "type": "object"
++          },
++          "type": "array"
++        },
+         "systemHealth": {
+           "additionalProperties": false,
+           "properties": {
+@@ -30526,6 +30849,7 @@
+         "costVariance",
+         "documentWorkload",
+         "assetMaintenance",
++        "slaRiskOrders",
+         "offlineSync",
+         "recentActivity",
+         "charts"
+@@ -52234,6 +52558,9 @@
+           "maximum": 9007199254740991,
+           "type": "integer"
+         },
++        "catalogItemId": {
++          "type": "string"
++        },
+         "category": {
+           "enum": [
+             "tool",
+@@ -52267,6 +52594,9 @@
+         "inventoryItemId": {
+           "type": "string"
+         },
++        "isBillable": {
++          "type": "boolean"
++        },
+         "isCritical": {
+           "default": false,
+           "type": "boolean"
+@@ -52293,6 +52623,9 @@
+           "default": false,
+           "type": "boolean"
+         },
++        "returnRequired": {
++          "type": "boolean"
++        },
+         "unit": {
+           "maxLength": 50,
+           "minLength": 1,
+@@ -52584,6 +52917,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -52617,6 +52953,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -52643,6 +52982,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -52726,6 +53068,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -52759,6 +53104,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -52785,6 +53133,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -52822,6 +53173,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -52855,6 +53209,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -52881,6 +53238,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -52922,6 +53282,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -52955,6 +53318,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -52981,6 +53347,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -53018,6 +53387,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -53051,6 +53423,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -53077,6 +53452,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -53123,6 +53501,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -53156,6 +53537,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -53182,6 +53566,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -53335,6 +53722,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -53368,6 +53758,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -53394,6 +53787,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -53485,6 +53881,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -53518,6 +53917,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -53544,6 +53946,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -58238,6 +58643,18 @@
+       ],
+       "type": "object"
+     },
++    "NotificationPrefTypeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "state_transition",
++        "approval_required",
++        "document_upload",
++        "deadline_warning",
++        "payment",
++        "system_alert"
++      ],
++      "type": "string"
++    },
+     "NotificationPrioritySchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "enum": [
+@@ -58550,6 +58967,45 @@
+       },
+       "type": "object"
+     },
++    "NotificationTypePreferenceSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "channels": {
++          "items": {
++            "enum": [
++              "in_app",
++              "email",
++              "sms"
++            ],
++            "type": "string"
++          },
++          "minItems": 1,
++          "type": "array"
++        },
++        "enabled": {
++          "default": true,
++          "type": "boolean"
++        },
++        "type": {
++          "enum": [
++            "state_transition",
++            "approval_required",
++            "document_upload",
++            "deadline_warning",
++            "payment",
++            "system_alert"
++          ],
++          "type": "string"
++        }
++      },
++      "required": [
++        "type",
++        "enabled",
++        "channels"
++      ],
++      "type": "object"
++    },
+     "NotificationTypeSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "enum": [
+@@ -66657,6 +67113,100 @@
+       ],
+       "type": "string"
+     },
++    "PlanningReadinessCheckSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "key": {
++          "maxLength": 80,
++          "minLength": 1,
++          "type": "string"
++        },
++        "label": {
++          "maxLength": 200,
++          "minLength": 1,
++          "type": "string"
++        },
++        "passed": {
++          "type": "boolean"
++        }
++      },
++      "required": [
++        "key",
++        "label",
++        "passed"
++      ],
++      "type": "object"
++    },
++    "PlanningReadinessReportSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "blockingReasons": {
++          "items": {
++            "maxLength": 300,
++            "minLength": 1,
++            "type": "string"
++          },
++          "type": "array"
++        },
++        "canExecute": {
++          "type": "boolean"
++        },
++        "checks": {
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "key": {
++                "maxLength": 80,
++                "minLength": 1,
++                "type": "string"
++              },
++              "label": {
++                "maxLength": 200,
++                "minLength": 1,
++                "type": "string"
++              },
++              "passed": {
++                "type": "boolean"
++              }
++            },
++            "required": [
++              "key",
++              "label",
++              "passed"
++            ],
++            "type": "object"
++          },
++          "type": "array"
++        },
++        "generatedAt": {
++          "type": "string"
++        },
++        "planningPacketId": {
++          "type": "string"
++        },
++        "status": {
++          "enum": [
++            "draft",
++            "incomplete",
++            "ready",
++            "blocked",
++            "approved"
++          ],
++          "type": "string"
++        }
++      },
++      "required": [
++        "planningPacketId",
++        "status",
++        "canExecute",
++        "blockingReasons",
++        "checks",
++        "generatedAt"
++      ],
++      "type": "object"
++    },
+     "PlanningResourceLineSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -66738,6 +67288,15 @@
+       ],
+       "type": "object"
+     },
++    "PrefChannelSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "in_app",
++        "email",
++        "sms"
++      ],
++      "type": "string"
++    },
+     "PreviousStepEntitySchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -93659,6 +94218,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -93692,6 +94254,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -93718,6 +94283,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -93796,6 +94364,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -93829,6 +94400,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -93855,6 +94429,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -93892,6 +94469,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -93925,6 +94505,118 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
++              "isCritical": {
++                "default": false,
++                "type": "boolean"
++              },
++              "isOptional": {
++                "default": false,
++                "type": "boolean"
++              },
++              "name": {
++                "maxLength": 200,
++                "minLength": 1,
++                "type": "string"
++              },
++              "notes": {
++                "maxLength": 1000,
++                "type": "string"
++              },
++              "quantity": {
++                "maximum": 9007199254740991,
++                "minimum": 1,
++                "type": "integer"
++              },
++              "requiresCertification": {
++                "default": false,
++                "type": "boolean"
++              },
++              "returnRequired": {
++                "type": "boolean"
++              },
++              "unit": {
++                "maxLength": 50,
++                "minLength": 1,
++                "type": "string"
++              }
++            },
++            "required": [
++              "category",
++              "name",
++              "quantity",
++              "unit",
++              "isCritical",
++              "isOptional",
++              "requiresCertification",
++              "calibrationRequired"
++            ],
++            "type": "object"
++          },
++          "type": "array"
++        },
++        "estimatedDurationHours": {
++          "minimum": 0,
++          "type": "number"
++        },
++        "heightSafetyKit": {
++          "default": [],
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "assetId": {
++                "type": "string"
++              },
++              "calibrationRequired": {
++                "default": false,
++                "type": "boolean"
++              },
++              "calibrationValidityDays": {
++                "exclusiveMinimum": 0,
++                "maximum": 9007199254740991,
++                "type": "integer"
++              },
++              "catalogItemId": {
++                "type": "string"
++              },
++              "category": {
++                "enum": [
++                  "tool",
++                  "electrical_tool",
++                  "construction_equipment",
++                  "height_safety",
++                  "material",
++                  "epp",
++                  "instrument",
++                  "vehicle",
++                  "document",
++                  "checklist"
++                ],
++                "type": "string"
++              },
++              "certificationType": {
++                "maxLength": 100,
++                "type": "string"
++              },
++              "description": {
++                "maxLength": 500,
++                "type": "string"
++              },
++              "estimatedUnitCost": {
++                "minimum": 0,
++                "type": "number"
++              },
++              "id": {
++                "type": "string"
++              },
++              "inventoryItemId": {
++                "type": "string"
++              },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -93951,104 +94643,7 @@
+                 "default": false,
+                 "type": "boolean"
+               },
+-              "unit": {
+-                "maxLength": 50,
+-                "minLength": 1,
+-                "type": "string"
+-              }
+-            },
+-            "required": [
+-              "category",
+-              "name",
+-              "quantity",
+-              "unit",
+-              "isCritical",
+-              "isOptional",
+-              "requiresCertification",
+-              "calibrationRequired"
+-            ],
+-            "type": "object"
+-          },
+-          "type": "array"
+-        },
+-        "estimatedDurationHours": {
+-          "minimum": 0,
+-          "type": "number"
+-        },
+-        "heightSafetyKit": {
+-          "default": [],
+-          "items": {
+-            "additionalProperties": false,
+-            "properties": {
+-              "assetId": {
+-                "type": "string"
+-              },
+-              "calibrationRequired": {
+-                "default": false,
+-                "type": "boolean"
+-              },
+-              "calibrationValidityDays": {
+-                "exclusiveMinimum": 0,
+-                "maximum": 9007199254740991,
+-                "type": "integer"
+-              },
+-              "category": {
+-                "enum": [
+-                  "tool",
+-                  "electrical_tool",
+-                  "construction_equipment",
+-                  "height_safety",
+-                  "material",
+-                  "epp",
+-                  "instrument",
+-                  "vehicle",
+-                  "document",
+-                  "checklist"
+-                ],
+-                "type": "string"
+-              },
+-              "certificationType": {
+-                "maxLength": 100,
+-                "type": "string"
+-              },
+-              "description": {
+-                "maxLength": 500,
+-                "type": "string"
+-              },
+-              "estimatedUnitCost": {
+-                "minimum": 0,
+-                "type": "number"
+-              },
+-              "id": {
+-                "type": "string"
+-              },
+-              "inventoryItemId": {
+-                "type": "string"
+-              },
+-              "isCritical": {
+-                "default": false,
+-                "type": "boolean"
+-              },
+-              "isOptional": {
+-                "default": false,
+-                "type": "boolean"
+-              },
+-              "name": {
+-                "maxLength": 200,
+-                "minLength": 1,
+-                "type": "string"
+-              },
+-              "notes": {
+-                "maxLength": 1000,
+-                "type": "string"
+-              },
+-              "quantity": {
+-                "maximum": 9007199254740991,
+-                "minimum": 1,
+-                "type": "integer"
+-              },
+-              "requiresCertification": {
+-                "default": false,
++              "returnRequired": {
+                 "type": "boolean"
+               },
+               "unit": {
+@@ -94088,6 +94683,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -94121,6 +94719,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -94147,6 +94748,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -94187,6 +94791,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -94220,6 +94827,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -94246,6 +94856,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -94283,6 +94896,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -94316,6 +94932,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -94342,6 +94961,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -94495,6 +95117,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -94528,6 +95153,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -94554,6 +95182,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -94594,6 +95225,9 @@
+                 "maximum": 9007199254740991,
+                 "type": "integer"
+               },
++              "catalogItemId": {
++                "type": "string"
++              },
+               "category": {
+                 "enum": [
+                   "tool",
+@@ -94627,6 +95261,9 @@
+               "inventoryItemId": {
+                 "type": "string"
+               },
++              "isBillable": {
++                "type": "boolean"
++              },
+               "isCritical": {
+                 "default": false,
+                 "type": "boolean"
+@@ -94653,6 +95290,9 @@
+                 "default": false,
+                 "type": "boolean"
+               },
++              "returnRequired": {
++                "type": "boolean"
++              },
+               "unit": {
+                 "maxLength": 50,
+                 "minLength": 1,
+@@ -94837,6 +95477,75 @@
+       },
+       "type": "object"
+     },
++    "UpdateNotificationPreferencesSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "emailDigest": {
++          "enum": [
++            "instant",
++            "daily",
++            "weekly",
++            "never"
++          ],
++          "type": "string"
++        },
++        "pushEnabled": {
++          "type": "boolean"
++        },
++        "quietHoursEnabled": {
++          "type": "boolean"
++        },
++        "quietHoursEnd": {
++          "type": "string"
++        },
++        "quietHoursStart": {
++          "type": "string"
++        },
++        "typePreferences": {
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "channels": {
++                "items": {
++                  "enum": [
++                    "in_app",
++                    "email",
++                    "sms"
++                  ],
++                  "type": "string"
++                },
++                "minItems": 1,
++                "type": "array"
++              },
++              "enabled": {
++                "default": true,
++                "type": "boolean"
++              },
++              "type": {
++                "enum": [
++                  "state_transition",
++                  "approval_required",
++                  "document_upload",
++                  "deadline_warning",
++                  "payment",
++                  "system_alert"
++                ],
++                "type": "string"
++              }
++            },
++            "required": [
++              "type",
++              "enabled",
++              "channels"
++            ],
++            "type": "object"
++          },
++          "type": "array"
++        }
++      },
++      "type": "object"
++    },
+     "UpdateOrderBillingSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -100319,6 +101028,96 @@
+       ],
+       "type": "object"
+     },
++    "UserNotificationPreferencesSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "emailDigest": {
++          "default": "instant",
++          "enum": [
++            "instant",
++            "daily",
++            "weekly",
++            "never"
++          ],
++          "type": "string"
++        },
++        "pushEnabled": {
++          "default": true,
++          "type": "boolean"
++        },
++        "quietHoursEnabled": {
++          "default": false,
++          "type": "boolean"
++        },
++        "quietHoursEnd": {
++          "type": "string"
++        },
++        "quietHoursStart": {
++          "type": "string"
++        },
++        "typePreferences": {
++          "default": [],
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "channels": {
++                "items": {
++                  "enum": [
++                    "in_app",
++                    "email",
++                    "sms"
++                  ],
++                  "type": "string"
++                },
++                "minItems": 1,
++                "type": "array"
++              },
++              "enabled": {
++                "default": true,
++                "type": "boolean"
++              },
++              "type": {
++                "enum": [
++                  "state_transition",
++                  "approval_required",
++                  "document_upload",
++                  "deadline_warning",
++                  "payment",
++                  "system_alert"
++                ],
++                "type": "string"
++              }
++            },
++            "required": [
++              "type",
++              "enabled",
++              "channels"
++            ],
++            "type": "object"
++          },
++          "type": "array"
++        },
++        "updatedAt": {
++          "format": "date-time",
++          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++          "type": "string"
++        },
++        "userId": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        }
++      },
++      "required": [
++        "userId",
++        "quietHoursEnabled",
++        "pushEnabled",
++        "emailDigest",
++        "typePreferences",
++        "updatedAt"
++      ],
++      "type": "object"
++    },
+     "UserRoleParamsSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+diff --git a/packages/shared-types/contracts/contract-migrations.json b/packages/shared-types/contracts/contract-migrations.json
+index 30db524..b412ba1 100644
+--- a/packages/shared-types/contracts/contract-migrations.json
++++ b/packages/shared-types/contracts/contract-migrations.json
+@@ -1,13 +1,6 @@
+ {
+-	"currentSnapshotHash": "sha256:203d499ad6d4b79147cac3c37292ae12389cc4bbf49661c4f665abd109bdb9fe",
++	"currentSnapshotHash": "sha256:374c0919a75d7536d0ef1cff4b45875f590ac93044f5a4c860e5eaf5677566a5",
+ 	"migrations": [
+-		{
+-			"id": "050-business-document-erp-connector-schemas",
+-			"date": "2026-06-14",
+-			"type": "non-breaking",
+-			"description": "Add BusinessDocument and ErpConnector schemas for multi-ERP abstraction and document-driven template engine.",
+-			"toHash": "sha256:59eb68f2aa29d9457537232f2ffc2544a8c80312ef716dd087444f2ac10a4c64"
+-		},
+ 		{
+ 			"id": "000-initial-baseline",
+ 			"date": "2026-04-06",
+@@ -420,6 +413,27 @@
+ 			"type": "non-breaking",
+ 			"description": "Add RecordCalibrationSchema, ToolUsageSchema, and CalibrationsDueQuerySchema for tool calibration and usage tracking endpoints.",
+ 			"toHash": "sha256:203d499ad6d4b79147cac3c37292ae12389cc4bbf49661c4f665abd109bdb9fe"
++		},
++		{
++			"id": "059-spec-012-maintenance-efficiency-notification-preferences",
++			"date": "2026-07-03",
++			"type": "non-breaking",
++			"description": "Add DashboardMaintenanceEfficiencySchema (MTTR/MTBF/completion rate) as optional dashboard summary section and NotificationPreference schemas for per-user notification channel settings.",
++			"toHash": "sha256:d3eeaaaeeb80e86ee34476ec8aca2b537edcb5bbef0a813b454bf82eacd3b5bf"
++		},
++		{
++			"id": "060-spec-013-cost-catalog-create-planning-readiness-report",
++			"date": "2026-07-03",
++			"type": "non-breaking",
++			"description": "Add CreateCostCatalogItemSchema for POST /costs/catalog, PlanningReadinessReportSchema (canExecute + blockingReasons) for GET /planning-packets/:id/readiness, and optional KitItem fields isBillable/catalogItemId/returnRequired linking kits to the cost catalog.",
++			"toHash": "sha256:9af5a04c64d2bf65303dd04ec73d8bb8b972caad3e6efea001df88dd89827c28"
++		},
++		{
++			"id": "061-spec-014-dashboard-sla-risk-orders",
++			"date": "2026-07-04",
++			"type": "non-breaking",
++			"description": "Add DashboardSlaRiskOrderSchema and slaRiskOrders (default []) to DashboardSummarySchema so the dashboard lists active cases that are overdue or within 72h of their promised completion date.",
++			"toHash": "sha256:374c0919a75d7536d0ef1cff4b45875f590ac93044f5a4c860e5eaf5677566a5"
+ 		}
+ 	]
+ }
+diff --git a/packages/shared-types/src/schemas/dashboard-summary.schema.ts b/packages/shared-types/src/schemas/dashboard-summary.schema.ts
+index 811489b..81eaaba 100644
+--- a/packages/shared-types/src/schemas/dashboard-summary.schema.ts
++++ b/packages/shared-types/src/schemas/dashboard-summary.schema.ts
+@@ -151,6 +151,37 @@ export const DashboardAssetMaintenanceSchema = z
+ 	})
+ 	.strict();
+ 
++// ── Maintenance Efficiency (MTTR / MTBF) ───────────────────────────────
++// MTTR: Mean Time To Repair — average hours to complete a work order
++// MTBF: Mean Time Between Failures — average days between maintenance events
++
++export const DashboardMaintenanceEfficiencySchema = z
++	.object({
++		mttrHours: z.number().nonnegative(),
++		mtbfDays: z.number().nonnegative(),
++		maintenanceCompletionRate: z.number().min(0).max(100),
++		activeWorkOrders: z.number().int().nonnegative(),
++		overdueWorkOrders: z.number().int().nonnegative(),
++		technicianUtilizationPct: z.number().min(0).max(100).optional(),
++	})
++	.strict();
++
++// ── SLA Risk Orders ────────────────────────────────────────────────────
++// Active cases whose target completion date is overdue or expiring soon.
++// riskLevel: critical = overdue or under 24h, warning = under 72h.
++
++export const DashboardSlaRiskOrderSchema = z
++	.object({
++		serviceCaseId: z.string(),
++		code: z.string(),
++		clientName: z.string().optional(),
++		slaDeadline: z.string().datetime(),
++		hoursRemaining: z.number(),
++		currentStep: z.number().int().min(1).max(14),
++		riskLevel: z.enum(["warning", "critical"]),
++	})
++	.strict();
++
+ // ── Offline Sync ───────────────────────────────────────────────────────
+ 
+ export const DashboardOfflineSyncSchema = z
+@@ -224,6 +255,8 @@ export const DashboardSummarySchema = z
+ 		costVariance: DashboardCostVarianceSchema,
+ 		documentWorkload: DashboardDocumentWorkloadSchema,
+ 		assetMaintenance: DashboardAssetMaintenanceSchema,
++		maintenanceEfficiency: DashboardMaintenanceEfficiencySchema.optional(),
++		slaRiskOrders: z.array(DashboardSlaRiskOrderSchema).default([]),
+ 		offlineSync: DashboardOfflineSyncSchema,
+ 		recentActivity: DashboardRecentActivitySchema,
+ 		charts: DashboardChartsSchema,
+@@ -245,6 +278,8 @@ export type DashboardServiceDemandItem = z.infer<typeof DashboardServiceDemandIt
+ export type DashboardCostVariance = z.infer<typeof DashboardCostVarianceSchema>;
+ export type DashboardDocumentWorkload = z.infer<typeof DashboardDocumentWorkloadSchema>;
+ export type DashboardAssetMaintenance = z.infer<typeof DashboardAssetMaintenanceSchema>;
++export type DashboardMaintenanceEfficiency = z.infer<typeof DashboardMaintenanceEfficiencySchema>;
++export type DashboardSlaRiskOrder = z.infer<typeof DashboardSlaRiskOrderSchema>;
+ export type DashboardOfflineSync = z.infer<typeof DashboardOfflineSyncSchema>;
+ export type DashboardRecentActivity = z.infer<typeof DashboardRecentActivitySchema>;
+ export type DashboardCharts = z.infer<typeof DashboardChartsSchema>;
+-- 
+2.51.1.windows.1
+

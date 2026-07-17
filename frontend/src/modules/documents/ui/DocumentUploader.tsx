@@ -23,7 +23,13 @@ import {
 import { toast } from "sonner";
 import { z } from "zod";
 import { apiClient } from "@/lib/http/api-client";
-import { useLibraryDocuments } from "../queries";
+import { DOCUMENTS_KEYS, useLibraryDocuments } from "../queries";
+import { SERVICE_CASE_KEYS } from "@/modules/service-cases/queries";
+import { ORDERS_KEYS } from "@/modules/orders/queries";
+import { EXECUTION_KEYS } from "@/modules/execution/queries";
+import { TEMPLATE_KEYS } from "@/modules/templates/queries";
+import { PLANNING_KEYS } from "@/modules/planning/queries";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 
 const PURPOSE_OPTIONS: Array<{
 	description: string;
@@ -393,13 +399,13 @@ function useDocumentUploadMutation({
 		mutationFn: async (data: DocumentFormInput): Promise<UploadOutcome> =>
 			data.mode === "select" ? handleSelectExistingDocument(data) : handleUploadNewDocument(data),
 		onSuccess: ({ document, ingest, mode }) => {
-			void qc.invalidateQueries({ queryKey: ["documents"] });
-			void qc.invalidateQueries({ queryKey: ["service-cases"] });
-			void qc.invalidateQueries({ queryKey: ["orders"] });
-			void qc.invalidateQueries({ queryKey: ["planning-packets"] });
-			void qc.invalidateQueries({ queryKey: ["execution-sessions"] });
-			void qc.invalidateQueries({ queryKey: ["evidences"] });
-			void qc.invalidateQueries({ queryKey: ["document-templates"] });
+			void qc.invalidateQueries({ queryKey: DOCUMENTS_KEYS.all });
+			void qc.invalidateQueries({ queryKey: SERVICE_CASE_KEYS.all });
+			void qc.invalidateQueries({ queryKey: ORDERS_KEYS.all });
+			void qc.invalidateQueries({ queryKey: PLANNING_KEYS.all });
+			void qc.invalidateQueries({ queryKey: EXECUTION_KEYS.all });
+			void qc.invalidateQueries({ queryKey: EVIDENCE_KEYS.all });
+			void qc.invalidateQueries({ queryKey: TEMPLATE_KEYS.all });
 			handleDocumentUploadSuccess({ document, ingest, mode, onUploaded, router });
 		},
 		onError: (error: Error) => {

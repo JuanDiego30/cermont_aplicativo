@@ -1,0 +1,64 @@
+
+Filename                  LineNumber Line
+--------                  ---------- ----
+cost.rules.d.ts                   15     equipmentCosts: number | null;
+index.d.ts                        28 export type { ApplyKitDecision, ArchiveKitDecision, DeleteKitDecision, KitChecklis…
+index.d.ts                        29 export { calculateKitReadiness, canActivateKit, canApplyKitToPlanning, canArchiveK…
+kit.rules.d.ts                    17     tools: KitItemDomainModel[];
+kit.rules.d.ts                    18     electricalTools: KitItemDomainModel[];
+kit.rules.d.ts                    19     constructionEquipment: KitItemDomainModel[];
+kit.rules.d.ts                    92 export type ApplyKitDecision = {
+kit.rules.d.ts                    99 export declare function canApplyKitToPlanning(kit: KitDomainModel, planningHasItem…
+kit.rules.d.ts                   100     tools: number;
+kit.rules.d.ts                   103 }): ApplyKitDecision;
+planning.rules.d.ts               14     hasToolsAssignment: boolean;
+planning.rules.d.ts               15     hasEquipmentAssignment: boolean;
+preflight.rules.d.ts               5  * required tools, equipment, or safety documents. The preflight checklist
+preflight.rules.d.ts               9  *   - eppComplete: personal protective equipment complete
+preflight.rules.d.ts              12  *   - toolsValidated: tools/equipment checked against the planning kit
+preflight.rules.d.ts              26     toolsValidated: boolean;
+spec-015-rules.d.ts               18     toolsValidated: boolean;
+reporters.d.DtoKVV2s.d.ts       3243 	* This option has no effect on browser pool since Vitest preserves original loggi…
+reporters.d.DtoKVV2s.d.ts       3384 	* What tools to use for type checking.
+spec-015-rules.test.ts            17 	toolsValidated: true,
+cost.rules.ts                     17 	equipmentCosts: number | null;
+index.ts                          88 	ApplyKitDecision,
+index.ts                         103 	canApplyKitToPlanning,
+kit.rules.ts                      19 	tools: KitItemDomainModel[];
+kit.rules.ts                      20 	electricalTools: KitItemDomainModel[];
+kit.rules.ts                      21 	constructionEquipment: KitItemDomainModel[];
+kit.rules.ts                     141 export type ApplyKitDecision =
+kit.rules.ts                     145 export function canApplyKitToPlanning(
+kit.rules.ts                     147 	planningHasItems: { tools: number; materials: number; epp: number },
+kit.rules.ts                     148 ): ApplyKitDecision {
+kit.rules.ts                     171 	if (kit.requiredAst && !planningHasItems.tools) {
+kit.rules.ts                     257 		...kit.tools,
+kit.rules.ts                     258 		...kit.electricalTools,
+kit.rules.ts                     259 		...kit.constructionEquipment,
+kit.rules.ts                     304 		...kit.tools,
+kit.rules.ts                     305 		...kit.electricalTools,
+kit.rules.ts                     306 		...kit.constructionEquipment,
+kit.rules.ts                     321 		...kit.tools,
+kit.rules.ts                     322 		...kit.electricalTools,
+kit.rules.ts                     323 		...kit.constructionEquipment,
+kit.rules.ts                     340 		...kit.tools,
+kit.rules.ts                     341 		...kit.electricalTools,
+kit.rules.ts                     342 		...kit.constructionEquipment,
+planning.rules.ts                 24 	hasToolsAssignment: boolean;
+planning.rules.ts                 25 	hasEquipmentAssignment: boolean;
+planning.rules.ts                 65 	if (!readiness.hasToolsAssignment) {
+planning.rules.ts                 67 			code: "MISSING_TOOLS",
+planning.rules.ts                 73 	if (!readiness.hasEquipmentAssignment) {
+planning.rules.ts                 75 			code: "MISSING_EQUIPMENT",
+rbac.ts                          204 	"/.well-known", // Browser internals and Chrome DevTools
+spec-015-rules.ts                 22 	toolsValidated: boolean;
+spec-015-rules.ts                 37 	"toolsValidated",
+index.d.ts                       152                 readonly TOOL_CREATED: "TOOL_CREATED";
+index.d.ts                       153                 readonly TOOL_UPDATED: "TOOL_UPDATED";
+index.d.ts                       154                 readonly TOOL_DELETED: "TOOL_DELETED";
+index.d.ts                       155                 readonly TOOL_CERTIFICATION_ADDED: "TOOL_CERTIFICATION_ADDED";
+index.d.ts                       156                 readonly TOOL_CERTIFICATION_REMOVED: "TOOL_CERTIFICATION_REMOVED";
+index.d.ts                       157                 readonly TOOL_DOCUMENT_ADDED: "TOOL_DOCUMENT_ADDED";
+index.d.ts                       158                 readonly TOOL_DOCUMENT_REMOVED: "TOOL_DOCUMENT_REMOVED";
+index.d.ts                       310                 readonly TOOL_CREATED: "TOOL_CREATED";
+

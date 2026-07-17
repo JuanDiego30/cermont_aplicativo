@@ -83,7 +83,9 @@ export function CustomerForm({ initial, isSaving, onSubmit, onCancel }: Customer
 						</label>
 						<input
 							id={`${formId}-${field.name}`}
-							{...register(field.name)}
+							{...register(field.name, {
+								setValueAs: (v: string) => (v === "" ? undefined : v),
+							})}
 							placeholder={field.placeholder ?? ""}
 							className={inputClasses}
 							aria-invalid={Boolean(errors[field.name])}
@@ -104,7 +106,12 @@ export function CustomerForm({ initial, isSaving, onSubmit, onCancel }: Customer
 				>
 					Notas
 				</label>
-				<textarea id={`${formId}-notes`} {...register("notes")} rows={3} className={inputClasses} />
+				<textarea
+					id={`${formId}-notes`}
+					{...register("notes", { setValueAs: (v: string) => (v === "" ? undefined : v) })}
+					rows={3}
+					className={inputClasses}
+				/>
 			</div>
 
 			<div className="flex justify-end gap-2">

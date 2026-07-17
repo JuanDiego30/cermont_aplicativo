@@ -3,6 +3,7 @@ import {
 	DianConfigurationInputSchema,
 	DianInvoiceParamsSchema,
 	DianReportQuerySchema,
+	ObjectIdSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -39,5 +40,17 @@ router.get(
 	validateQuery(DianReportQuerySchema),
 	DianController.getReport,
 );
+
+// ─── DIAN DLQ & Integration Logs ─────────────────────────────────────────
+
+router.get("/dlq", authorize(...ADMIN_ROLES), DianController.listDlq);
+router.post(
+	"/dlq/:id/retry",
+	authorize(...ADMIN_ROLES),
+	validateParams(ObjectIdSchema),
+	DianController.retryDlqItem,
+);
+router.post("/dlq/retry-all", authorize(...ADMIN_ROLES), DianController.retryAllDlq);
+router.get("/integration-logs", authorize(...ADMIN_ROLES), DianController.getIntegrationLogs);
 
 export default router;

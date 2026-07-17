@@ -1,0 +1,41 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Evidences - Upload, view, and manage field evidence",
+  "description": "Verifies evidence management: upload photos, categorize, view in gallery, and attach to orders",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/evidences"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that evidences page loads with filter options (by order, date range, category) and gallery/list view toggle"
+    },
+    {
+      "type": "action",
+      "description": "Upload a test image file using the upload button and fill in metadata (description, category, order association)"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the uploaded evidence appears in the gallery with correct thumbnail and metadata"
+    },
+    {
+      "type": "action",
+      "description": "Click on an evidence item to open full-screen view with zoom capability"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the evidence detail shows all metadata: upload date, uploader, order ID, category"
+    },
+    {
+      "type": "action",
+      "description": "Test the evidence report generation feature"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that report is generated with selected evidence images and metadata"
+    }
+  ]
+}

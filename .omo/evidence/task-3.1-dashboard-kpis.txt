@@ -1,0 +1,10 @@
+F3.1 — Dashboard KPIs
+
+Audit result: verified against the current canonical implementation.
+
+- Frontend dashboard uses `useDashboardSummary`, `useServiceCaseSummary`, `useOrders`, and `useMaintenanceKits`; no dashboard mock source is used for the KPI cards.
+- Backend exposes authenticated `/api/dashboard/summary`, `/api/dashboard/operational-kpis`, `/api/dashboard/sla-risk`, `/api/dashboard/next-actions`, `/api/dashboard/blockers`, and `/api/dashboard/recent-activity` routes.
+- Operational KPI service computes values from execution sessions, invoices, technical reports, and domain KPI functions.
+- Dashboard page contains loading, error/retry, empty, and offline-like states.
+
+Status: VERIFIED.

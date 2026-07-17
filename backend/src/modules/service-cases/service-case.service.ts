@@ -1625,7 +1625,15 @@ export async function getInvoicePipeline(serviceCaseId: string): Promise<{
 }> {
 	const doc = await ServiceCase.findById(serviceCaseId).lean();
 	if (!doc) {
-		return { invoice: {}, payment: {}, ses: {} } as unknown as { invoice: Record<string, unknown> | null; payment: Record<string, unknown> | null; ses: Record<string, unknown> | null };
+		return { invoice: {}, payment: {}, ses: {} } as unknown as {
+			invoice: Record<string, unknown> | null;
+			payment: Record<string, unknown> | null;
+			ses: Record<string, unknown> | null;
+		};
 	}
-	return { invoice: {}, payment: {}, ses: {} } as unknown as { invoice: Record<string, unknown> | null; payment: Record<string, unknown> | null; ses: Record<string, unknown> | null };
+	return { invoice: {}, payment: {}, ses: {} } as unknown as {
+		invoice: Record<string, unknown> | null;
+		payment: Record<string, unknown> | null;
+		ses: Record<string, unknown> | null;
+	};
 }

@@ -1,4 +1,9 @@
-import { MANAGEMENT_ROLES, PLANNING_ACCESS_ROLES } from "@cermont/domain";
+import {
+	canApprovePlanning,
+	MANAGEMENT_ROLES,
+	PLANNING_ACCESS_ROLES,
+	type PlanningReadiness,
+} from "@cermont/domain";
 import type {
 	AddReferenceDocumentInput,
 	ApprovePlanningPacketInput,
@@ -464,6 +469,148 @@ function computeCostBaseline(packet: {
 }
 
 /**
+ * Build a PlanningReadiness-compatible view from a planning packet document.
+ * Used by domain rules for readiness/approval decisions.
+ */
+function buildReadinessView(packet: {
+	status: string;
+	schedule?: object | null;
+	crew: Array<unknown>;
+	tools: Array<{ available: boolean }>;
+	equipment: Array<{ available: boolean }>;
+	materials: Array<unknown>;
+	safetyElements: Array<unknown>;
+	requiredCertifications: Array<{ verified?: boolean | null }>;
+	supportDocuments: Array<{ documentType: string }>;
+	readinessChecklist: Array<{ checked: boolean }>;
+	astRequired: boolean;
+	ptwRequired: boolean;
+	blockers: Array<unknown>;
+}): PlanningReadiness {
+	return {
+		hasSchedule: Boolean(packet.schedule),
+		hasLaborAssignment: packet.crew.length > 0,
+		hasToolsAssignment: packet.tools.length > 0 && packet.tools.every((t) => t.available),
+		hasEquipmentAssignment:
+			packet.equipment.length > 0 && packet.equipment.every((e) => e.available),
+		hasMaterialsList: packet.materials.length > 0,
+		hasSafetyElements: packet.safetyElements.length > 0,
+		hasCertifications:
+			packet.requiredCertifications.length === 0 ||
+			packet.requiredCertifications.every((c) => c.verified === true),
+		hasReferenceDocuments: packet.supportDocuments.map(
+			(d) => d.documentType,
+		) as PlanningReadiness["hasReferenceDocuments"],
+		missingRequiredDocuments: computeMissingDocs(
+			packet,
+		) as PlanningReadiness["missingRequiredDocuments"],
+		hasChecklists: packet.readinessChecklist.every((item) => item.checked),
+	};
+}
+
+function computeMissingDocs(packet: {
+	supportDocuments: Array<{ documentType: string }>;
+	astRequired: boolean;
+	ptwRequired: boolean;
+}): string[] {
+	const missing: string[] = [];
+	const docTypes = new Set(packet.supportDocuments.map((d) => d.documentType));
+	if (packet.astRequired && !docTypes.has("ats") && !docTypes.has("ast")) {
+		missing.push("ast");
+	}
+	if (packet.ptwRequired && !docTypes.has("ptw")) {
+		missing.push("ptw");
+	}
+	return missing;
+}
+
+/**
+ * F14-T044: Check if planning is ready for execution to start.
+ * Returns specific blocker messages for each deficiency.
+ */
+export async function checkExecutionReadiness(id: string): Promise<{
+	ready: boolean;
+	blockers: Array<{ code: string; message: string }>;
+}> {
+	const planningPacket = await PlanningPacket.findById(id);
+
+	if (!planningPacket) {
+		throw new AppError("PLANNING_PACKET_NOT_FOUND", 404, "Planning packet not found");
+	}
+
+	if (planningPacket.status !== "approved") {
+		return {
+			ready: false,
+			blockers: [
+				{
+					code: "PLANNING_NOT_APPROVED",
+					message: "La planeación debe estar aprobada antes de iniciar la ejecución.",
+				},
+			],
+		};
+	}
+
+	const blockers: Array<{ code: string; message: string }> = [];
+
+	// Check certifications are verified
+	const unverifiedCerts = planningPacket.requiredCertifications.filter((c) => !c.verified);
+	for (const cert of unverifiedCerts) {
+		blockers.push({
+			code: "EXPIRED_CERTIFICATION",
+			message: `Certificación pendiente: ${cert.name || "sin nombre"}. Verifique antes de ejecutar.`,
+		});
+	}
+
+	// Check equipment availability and calibration
+	const unavailableEq = planningPacket.equipment.filter((e) => !e.available);
+	for (const eq of unavailableEq) {
+		blockers.push({
+			code: "MISSING_EQUIPMENT",
+			message: `Equipo no disponible: ${eq.name}. Asegure disponibilidad antes de ejecutar.`,
+		});
+	}
+
+	// Check tool availability
+	const unavailableTools = planningPacket.tools.filter((t) => !t.available);
+	for (const tool of unavailableTools) {
+		blockers.push({
+			code: "MISSING_TOOLS",
+			message: `Herramienta no disponible: ${tool.name}. Asegure disponibilidad antes de ejecutar.`,
+		});
+	}
+
+	// Check support documents are present
+	const missingDocs: string[] = [];
+	if (planningPacket.astRequired) {
+		const hasAst = planningPacket.supportDocuments.some(
+			(d) => (d.documentType === "ats" || d.documentType === "ast") && d.required,
+		);
+		if (!hasAst) {
+			missingDocs.push("AST/ATS");
+		}
+	}
+	if (planningPacket.ptwRequired) {
+		const hasPtw = planningPacket.supportDocuments.some(
+			(d) => d.documentType === "ptw" && d.required,
+		);
+		if (!hasPtw) {
+			missingDocs.push("PTW");
+		}
+	}
+	for (const doc of missingDocs) {
+		blockers.push({
+			code: "MISSING_SUPPORT_DOCUMENT",
+			message: `Documento requerido faltante: ${doc}. Complete antes de ejecutar.`,
+		});
+	}
+
+	return {
+		ready: blockers.length === 0,
+		blockers,
+	};
+}
+
+/**
  * Approve a planning packet
  * @param id - Planning packet ID
  * @param data - Approval data
@@ -483,18 +630,16 @@ export async function approvePlanningPacket(
 		throw new AppError("PLANNING_PACKET_NOT_FOUND", 404, "Planning packet not found");
 	}
 
-	// RBAC: Only gerente, residente can approve
-	if (!hasAllowedRole(userRole, MANAGEMENT_ROLES)) {
-		throw new AppError("FORBIDDEN", 403, "You do not have permission to approve planning packets");
-	}
+	// Use domain rules for approval decision (F14-T044)
+	const approvalDecision = canApprovePlanning(
+		buildReadinessView(planningPacket as unknown as Parameters<typeof buildReadinessView>[0]),
+		planningPacket.status,
+		userRole,
+	);
 
-	// Can only approve if ready
-	if (planningPacket.status !== "ready") {
-		throw new AppError(
-			"INVALID_OPERATION",
-			400,
-			"Can only approve planning packets in 'ready' status",
-		);
+	if (!approvalDecision.allowed) {
+		const messages = approvalDecision.blockers.map((b) => b.message).join("; ");
+		throw new AppError("APPROVAL_BLOCKED", 400, messages);
 	}
 
 	const costBaseline = computeCostBaseline({

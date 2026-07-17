@@ -1,0 +1,49 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Billing - Invoice creation, approval, and payment",
+  "description": "Verifies the full invoice lifecycle: creation from approved SES, approval workflow, payment recording, and status tracking",
+  "priority": "p0",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/billing/invoices"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that invoices list shows with status columns (draft, issued, approved, paid, cancelled)"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New Invoice' and select an approved SES to base the invoice on"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that invoice is pre-populated with SES line items, quantities, and totals"
+    },
+    {
+      "type": "action",
+      "description": "Configure invoice settings: currency, tax percentage, payment terms"
+    },
+    {
+      "type": "action",
+      "description": "Submit the invoice for issuance"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that invoice status changes to 'issued' with unique invoice number"
+    },
+    {
+      "type": "action",
+      "description": "Approve the invoice and then navigate to /dashboard/payments/new to record payment"
+    },
+    {
+      "type": "action",
+      "description": "Enter payment amount, reference number, date, and submit"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that invoice status updates to 'paid' and payment reference is visible"
+    }
+  ]
+}

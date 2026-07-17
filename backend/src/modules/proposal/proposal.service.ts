@@ -23,7 +23,11 @@ import { escapeRegExp } from "../../common/utils/normalization";
 import type { AuthClaims } from "../../common/utils/request";
 import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Counter, Proposal, ServiceCase } from "../../models";
+import { createAuditLog } from "../../modules/audit/audit.service";
+import { freezeProposalBaseline } from "../../modules/cost/cost.service";
+import { notifyRoleGroup } from "../../modules/notifications/notification.service";
 import * as OrderService from "../../modules/order/order.service";
+import { computeStage } from "../../modules/service-cases/service-case.service";
 
 type ProposalOrderInput = Parameters<typeof OrderService.createOrder>[0];
 type ProposalItemInput = CreateProposalInput["items"][number];
@@ -147,7 +151,9 @@ export async function createProposal(data: CreateProposalInput, userId: string) 
 		notes: data.notes,
 		status: "draft",
 		createdBy: userId,
-		...(data.serviceCaseId ? { serviceCaseId: new mongoose.Types.ObjectId(data.serviceCaseId) } : {}),
+		...(data.serviceCaseId
+			? { serviceCaseId: new mongoose.Types.ObjectId(data.serviceCaseId) }
+			: {}),
 	});
 
 	await proposal.save();
@@ -281,8 +287,114 @@ export async function updateProposalStatus(
 	await proposal.save();
 	await proposal.populate(["createdBy", "approvedBy"]);
 
+	if (status === "approved") {
+		if (proposal.serviceCaseId) {
+			await syncServiceCaseOnProposalApproval(proposal, userId);
+		}
+		// F28-T086: Notify residente when proposal is approved
+		await notifyRoleGroup(
+			"PROPOSAL_APPROVED",
+			["residente"],
+			`Propuesta aprobada: ${proposal.code ?? ""}`,
+			`La propuesta ${proposal.code ?? ""} ha sido aprobada.`,
+			proposal.serviceCaseId
+				? { entityType: "ServiceCase", entityId: proposal.serviceCaseId.toString() }
+				: undefined,
+			{ proposalId: String(proposal._id), approvedBy: userId },
+		);
+	}
+
 	log.info("Proposal status updated", { proposalId: id, status });
 	return proposal;
+}
+
+/**
+ * Sync ServiceCase artifacts, stage, and step code when a proposal is approved.
+ * This ensures the cockpit's blocker engine sees the approved status immediately.
+ */
+async function syncServiceCaseOnProposalApproval(
+	proposal: mongoose.Document & {
+		_id: mongoose.Types.ObjectId;
+		code: string;
+		serviceCaseId?: mongoose.Types.ObjectId;
+	},
+	userId: string,
+): Promise<void> {
+	if (!proposal.serviceCaseId) {
+		return;
+	}
+
+	const serviceCase = await ServiceCase.findById(proposal.serviceCaseId);
+	if (!serviceCase) {
+		log.warn("ServiceCase not found for proposal approval sync", {
+			proposalId: String(proposal._id),
+			serviceCaseId: String(proposal.serviceCaseId),
+		});
+		return;
+	}
+
+	const previousStage = serviceCase.currentStage;
+	const previousStepCode = serviceCase.currentStepCode;
+
+	serviceCase.artifacts.proposal = {
+		id: proposal._id,
+		code: proposal.code,
+		status: "approved",
+		updatedAt: new Date(),
+	};
+
+	serviceCase.currentStage = computeStage(serviceCase.artifacts) as typeof serviceCase.currentStage;
+	serviceCase.currentStepCode = "step_04_purchase_order";
+
+	serviceCase.timeline.push({
+		eventId: `evt_${Date.now()}`,
+		stage: serviceCase.currentStage,
+		command: "PROPOSAL_APPROVED",
+		actorId: userId as unknown as mongoose.Types.ObjectId,
+		actorRole: "gerente",
+		occurredAt: new Date(),
+		notes: `Propuesta ${proposal.code} aprobada → avance automático a paso de Orden de Compra`,
+	});
+
+	await serviceCase.save();
+
+	await createAuditLog({
+		userId,
+		entity: "ServiceCase",
+		entityId: serviceCase._id.toString(),
+		action: "PROPOSAL_APPROVED",
+		before: {},
+		after: {},
+		metadata: {
+			proposalId: String(proposal._id),
+			proposalCode: proposal.code,
+			previousStage: String(previousStage ?? ""),
+			previousStepCode: String(previousStepCode ?? ""),
+			newStage: String(serviceCase.currentStage),
+			newStepCode: String(serviceCase.currentStepCode ?? ""),
+		},
+	});
+
+	// F22-T067: Freeze cost baseline on proposal approval
+	try {
+		const { baselineId } = await freezeProposalBaseline(proposal._id.toString(), userId);
+		log.info("Cost baseline frozen on proposal approval", {
+			proposalId: String(proposal._id),
+			baselineId,
+		});
+	} catch (err) {
+		log.error("Failed to freeze cost baseline on proposal approval", {
+			proposalId: String(proposal._id),
+			error: (err as Error).message,
+		});
+	}
+
+	log.info("ServiceCase synced after proposal approval", {
+		serviceCaseId: String(serviceCase._id),
+		proposalId: String(proposal._id),
+		newStage: serviceCase.currentStage,
+		newStepCode: serviceCase.currentStepCode,
+	});
 }
 
 /**
@@ -323,6 +435,22 @@ export async function approveWithSupport(
 	proposal.approvedAt = new Date();
 	await proposal.save();
 	await proposal.populate(["createdBy", "approvedBy"]);
+
+	if (proposal.serviceCaseId) {
+		await syncServiceCaseOnProposalApproval(proposal, userId);
+	}
+
+	// F28-T086: Notify residente when proposal is approved (support bypass)
+	await notifyRoleGroup(
+		"PROPOSAL_APPROVED",
+		["residente"],
+		`Propuesta aprobada: ${proposal.code ?? ""}`,
+		`La propuesta ${proposal.code ?? ""} ha sido aprobada.`,
+		proposal.serviceCaseId
+			? { entityType: "ServiceCase", entityId: proposal.serviceCaseId.toString() }
+			: undefined,
+		{ proposalId: String(proposal._id), approvedBy: userId },
+	);
 
 	log.info("Proposal approved with support bypass", {
 		proposalId: id,

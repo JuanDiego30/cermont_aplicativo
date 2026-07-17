@@ -2,6 +2,8 @@
  * ErpConnectorController — Thin HTTP controller for ERP connector management
  */
 import type { Request, Response } from "express";
+import { requireUser } from "../../common/utils/request";
+import { DlqService } from "../../services/integration";
 import { erpConnectorService } from "./erp-connector.service";
 
 export class ErpConnectorController {
@@ -60,6 +62,68 @@ export class ErpConnectorController {
 	async metrics(_req: Request, res: Response) {
 		const result = await erpConnectorService.getMetrics();
 		res.status(200).json({ success: true, data: result });
+	}
+
+	async listDlq(req: Request, res: Response) {
+		const { status, provider, limit, skip } = req.query as Record<string, string>;
+		const result = await DlqService.listAll({
+			status,
+			provider,
+			limit: limit ? Number(limit) : undefined,
+			skip: skip ? Number(skip) : undefined,
+		});
+		res.status(200).json({ success: true, data: result.entries, meta: { total: result.total } });
+	}
+
+	async retryDlqItem(req: Request, res: Response) {
+		const id = req.params.id as string;
+		const user = requireUser(req);
+		const entry = await DlqService.retryOne(id, user._id);
+		if (!entry) {
+			res.status(404).json({
+				success: false,
+				error: { code: "DLQ_ENTRY_NOT_FOUND", message: "DLQ entry not found" },
+			});
+			return;
+		}
+		res.status(200).json({ success: true, data: entry });
+	}
+
+	async retryAllDlqByProvider(req: Request, res: Response) {
+		const provider = req.params.provider as string;
+		const user = requireUser(req);
+		const count = await DlqService.retryAllByProvider(provider, user._id);
+		res.status(200).json({ success: true, data: { provider, retriedCount: count } });
+	}
+
+	async resolveDlqItem(req: Request, res: Response) {
+		const id = req.params.id as string;
+		const user = requireUser(req);
+		const entry = await DlqService.resolve(id, user._id);
+		if (!entry) {
+			res.status(404).json({
+				success: false,
+				error: { code: "DLQ_ENTRY_NOT_FOUND", message: "DLQ entry not found" },
+			});
+			return;
+		}
+		res.status(200).json({ success: true, data: entry });
+	}
+
+	async getIntegrationLogs(req: Request, res: Response) {
+		const { entityId, provider, operation, success, limit, skip } = req.query as Record<
+			string,
+			string
+		>;
+		const result = await DlqService.getIntegrationLogs({
+			entityId,
+			provider,
+			operation,
+			success: success !== undefined ? success === "true" : undefined,
+			limit: limit ? Number(limit) : undefined,
+			skip: skip ? Number(skip) : undefined,
+		});
+		res.status(200).json({ success: true, data: result.logs, meta: { total: result.total } });
 	}
 }
 

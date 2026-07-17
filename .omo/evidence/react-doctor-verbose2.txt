@@ -1,0 +1,208 @@
+[1mReact Doctor[22m [2mv0.7.1[22m
+
+[32m✔[39m Select projects [2m›[22m @cermont/frontend
+[90m  [39m
+
+  [33m⚠[39m [33mAccessibility: Control missing accessible label[39m
+    Blind users can't tell what this control does because
+    screen readers find no label, so add visible text,
+    `aria-label`, or `aria-labelledby`.
+[2m    → Give every interactive control a label screen readers can[22m
+[2m    read.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/control-has-associated-label[39m
+
+[90m    src/modules/reports/ui/TechnicalReportDraftPage.tsx:88[39m
+
+  [33m⚠[39m [33mAccessibility: Anchor used as a button[39m [90m×3[39m
+    Keyboard users can't reach this link because its `href`
+    goes nowhere (`#`, `javascript:`, or empty), so point it at
+    a real destination.
+[2m    → Give links a real destination. Use `<button>` for in-page[22m
+[2m    actions.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/anchor-is-valid[39m
+
+[90m    src/app/(portal)/portal/service-cases/[id]/page.tsx:26-28[39m
+
+  [33m⚠[39m [33mMaintainability: deslop/unused-file[39m [90m×26[39m
+    Unused file is not reachable from any entry point, so it
+    adds maintenance surface without shipping any code.
+[2m    → Delete the file if it is truly unreachable, or import it[22m
+[2m    from an entry point.[22m
+
+[90m    src/modules/cockpit/hooks/useCockpitMutations.ts[39m
+
+[90m    src/modules/costs/hooks/useCostSuggestion.ts[39m
+
+[90m    src/modules/costs/ui/BaselineCostCard.tsx[39m
+
+[90m    src/modules/costs/ui/BudgetConsumedGauge.tsx[39m
+
+[90m    src/modules/costs/ui/CostDeviationStackedBar.tsx[39m
+
+[90m    src/modules/costs/ui/CostExportButton.tsx[39m
+
+[90m    src/modules/costs/ui/CostProposalAssistant.tsx[39m
+
+[90m    src/modules/costs/ui/CostProposalAssistantForm.tsx[39m
+
+[90m    src/modules/costs/ui/CostProposalAssistantResults.tsx[39m
+
+[90m    src/modules/costs/ui/CostProposalAssistantSummary.tsx[39m
+
+[90m    src/modules/costs/ui/CostProposalSpecialConditions.tsx[39m
+
+[90m    src/modules/costs/ui/MarginSummaryCard.tsx[39m
+
+[90m    src/modules/field-execution/api/field-execution.api.ts[39m
+
+[90m    src/modules/field-execution/ui/EvidenceSlotCard.tsx[39m
+
+[90m    src/modules/field-execution/ui/ExecutionStatusBadge.tsx[39m
+
+[90m    src/modules/field-execution/ui/PreflightGatesForm.tsx[39m
+
+[90m    src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx[39m
+
+[90m    src/modules/field-execution/ui/evidence/StructuredEvidenceCapture.tsx[39m
+
+[90m    src/modules/notifications/ui/NotificationBell.tsx[39m
+
+[90m    src/modules/notifications/ui/NotificationCard.tsx[39m
+
+[90m    src/modules/notifications/ui/NotificationPanel.tsx[39m
+
+[90m    src/modules/portal/ui/PortalDocumentDownload.tsx[39m
+
+[90m    src/modules/portal/ui/PortalServiceCaseDetail.tsx[39m
+
+[90m    src/modules/portal/ui/PortalServiceCaseList.tsx[39m
+
+[90m    src/modules/portal/ui/PortalSignDeliveryRecord.tsx[39m
+
+[90m    src/modules/reports/ui/ReportVersionHistory.tsx[39m
+
+  [33m⚠[39m [33mAccessibility: Role used instead of HTML tag[39m
+    Screen reader users get more reliable semantics from
+    `<progress>` than `role="progressbar"`, so use `<progress>`
+    instead.
+[2m    → Use the matching HTML element when one exists so browsers[22m
+[2m    and assistive tech get native semantics.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/prefer-tag-over-role[39m
+
+[90m    src/modules/field-execution/ui/ExecutionTimer.tsx:67[39m
+
+  [33m⚠[39m [33mAccessibility: Interaction on static element[39m
+    Screen reader users can't tell this click handler is
+    interactive because it has no `role`, so add a `role` or
+    use a button or link.
+[2m    → Give clickable static elements a `role`, or use a button[22m
+[2m    or link.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/no-static-element-interactions[39m
+
+[90m    src/modules/notifications/ui/NotificationPanel.tsx:18[39m
+
+  [33m⚠[39m [33mAccessibility: Click handler missing keyboard handler[39m
+    Keyboard users can't trigger this click handler because
+    there's no keyboard one, so add `onKeyUp`, `onKeyDown`, or
+    `onKeyPress`.
+[2m    → Pair `onClick` with a key handler so keyboard users can[22m
+[2m    trigger it.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/click-events-have-key-events[39m
+
+[90m    src/modules/notifications/ui/NotificationPanel.tsx:18[39m
+
+  [33m⚠[39m [33mAccessibility: Custom modal instead of dialog[39m
+    Keyboard users can tab out of this `role="dialog"` modal
+    because it has no built-in focus trapping, so use the
+    native `<dialog>`, which gives you focus trapping, `Escape`
+    to close, and the backdrop for free.
+[2m    → Replace the wrapper with `<dialog>` and open it with[22m
+[2m    `dialog.showModal()`. For the trigger, prefer `<button[22m
+[2m    commandfor="id" command="show-modal">` (Chrome 135+), or a[22m
+[2m    `useRef` with `dialogRef.current?.showModal()`.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/prefer-html-dialog[39m
+
+[90m    src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx:39[39m
+
+  [33m⚠[39m [33mMaintainability: deslop/unused-export[39m [90m×5[39m
+    Unused export: `useVehicleHistory` is exported but no
+    module imports it, so it expands the public surface and can
+    mislead callers about supported API.
+[2m    → Drop the `export` keyword (or remove the declaration) if[22m
+[2m    no other module uses this symbol.[22m
+
+[90m    src/modules/fleet/queries.ts:59[39m
+
+[90m    src/modules/fleet/queries.ts:67[39m
+
+[90m    src/modules/fleet/queries.ts:75[39m
+
+[90m    src/modules/fleet/queries.ts:93[39m
+
+[90m    src/modules/fleet/queries.ts:109[39m
+
+  [33m⚠[39m [33mMaintainability: Large component is hard to read and change[39m [90m×2[39m
+    Component "CostProposalAssistantForm" is 326 lines long,
+    which is hard to read & change. Split it into a few smaller
+    components.
+[2m    → Pull each section into its own component so the parent is[22m
+[2m    easier to read, test, and change.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/no-giant-component[39m
+
+[90m    src/modules/costs/ui/CostProposalAssistantForm.tsx:48[39m
+
+[90m    src/modules/dashboard/ui/DashboardCommandCenter.tsx:43[39m
+
+  [33m⚠[39m [33mAccessibility: Dialog without accessible name[39m
+    This dialog has no accessible name, so screen readers
+    announce it as just “dialog.” Add `aria-label` or point
+    `aria-labelledby` at its heading.
+[2m    → Give every `<dialog>` / `role="dialog"` an accessible[22m
+[2m    name with `aria-label` or `aria-labelledby` (referencing[22m
+[2m    the dialog's title element).[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/dialog-has-accessible-name[39m
+
+[90m    src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx:39[39m
+
+
+[2m  ────────────────────────────────────────────────────────────[22m
+
+  [1mAll 42 issues[22m
+
+  [1mAccessibility[22m [2m>[22m [33m[2m9 warnings[22m[39m
+  [1mMaintainability[22m [2m>[22m [33m[2m33 warnings[22m[39m
+
+[1mAgent guidance[22m
+[90m  - Treat React Doctor diagnostics as starting hypotheses. Read the relevant code before confirming or suppressing each finding.[39m
+[90m  - For each group, decide true positive, false positive, or needs-human-review, then assign high/medium/low confidence.[39m
+[90m  - Do not suppress a finding without evidence from the file in question. Confidence requires code context.[39m
+[90m  - Understand the root cause before editing. Fix the underlying code instead of changing react-doctor config or suppressing rules unless explicitly asked.[39m
+[90m  - Investigate deeply where relevant: race conditions, security-sensitive flows, state propagation, multi-file refactors, and downstream dependency chains.[39m
+[90m  - Ignore pure style preferences, theoretical issues without real impact, missing features, and unrelated pre-existing code.[39m
+[90m  - Start with high-confidence fixes that preserve behavior. Leave low-confidence or product-dependent changes as notes.[39m
+[90m  - Run `npx react-doctor@latest --verbose --scope changed` before and after changes, plus relevant tests after each focused batch.[39m
+[90m  - When available, spawn subagents or isolated worktrees for independent rule families, then review and merge only the best safe fixes.[39m
+[90m  - Split unrelated, broad, or behavior-changing work into separate PRs/branches instead of one large cleanup.[39m
+[90m  - When one rule spans dozens of files (a migration-scale change), fix a representative sample first, confirm the recipe holds, and get the code owner's sign-off before changing the rest. Don't mass-fix a broad pattern in one unreviewed pass.[39m
+[90m  - For confirmed issues that cannot be fixed now, create GitHub issues with the rule, file/line, confidence, impact, and proposed fix.[39m
+[90m  - If a fix needs an API, UX, or architecture decision, stop and ask before editing.[39m
+
+  [32m┌─────┐[39m  [32m84[39m [2m/ 100[22m [32mNeeds work[39m
+  [32m│ ◠ ◠ │[39m  [32m██████████████████████████████████████████[39m[2m░░░░░░░░[22m
+  [32m│  ▽  │[39m  React Doctor [2m(https://react.doctor)[22m
+  [32m└─────┘[39m
+
+[90m  Full diagnostics written to C:\WINDOWS\TEMP\react-doctor-df3eeb98-f72f-4121-9d8c-fb02ba3fe352[39m
+
+[2m  ────────────────────────────────────────────────────────────[22m
+
+  [1mShare:[22m [36mhttps://react.doctor/share?p=%40cermont%2Ffrontend&s=84&w=42&f=31[39m
+[2m  Tell others how you did on socials[22m
+
+  [1mDocs:[22m [36mhttps://react.doctor/docs[39m
+[2m  Learn more about fixing issues, setting up CI/CD, and[22m
+[2m  configuring rules with a config file[22m
+
+  [1mGitHub:[22m [36mhttps://github.com/millionco/react-doctor[39m
+[2m  Report issues and star the repository![22m
+

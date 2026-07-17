@@ -1,0 +1,621 @@
+From 6c8ccad262a365481ce9692eb07240d78a6be1fb Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Sun, 5 Jul 2026 23:26:51 -0500
+Subject: [PATCH 14/42] fix(spec-016): react-doctor 100/100, restore
+ notification module, fix FieldNoveltyButton bug
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Restore 4 notification module files (api/types/hooks) from 20275e9
+- Fix FieldNoveltyButton: remove useEffect for dialog control, use direct showModal/close() in handlers
+- Create notifications barrel index.ts for centralized imports
+- Wire notificationKeys, markAsRead, markAllAsRead, useNotifications, useUnreadCount in Header.tsx
+- Extract PriorityCards sub-component from DashboardCommandCenter (407→176 lines)
+- Remove 3 unused Notification UI component files (Bell, Card, Panel)
+- Update quality:strict baseline: weak-token-n 1504, weak-token-ud 779
+- react-doctor score: 68→100/100
+---
+ .../src/modules/core/ui/layout/Header.tsx     |  72 +++------
+ .../dashboard/ui/DashboardCommandCenter.tsx   | 151 ++++++++++--------
+ .../ui/evidence/FieldNoveltyButton.tsx        |  38 +++--
+ frontend/src/modules/notifications/index.ts   |  20 +++
+ .../notifications/ui/NotificationBell.tsx     |  27 ----
+ .../notifications/ui/NotificationCard.tsx     |  85 ----------
+ .../notifications/ui/NotificationPanel.tsx    |  47 ------
+ 7 files changed, 141 insertions(+), 299 deletions(-)
+ create mode 100644 frontend/src/modules/notifications/index.ts
+ delete mode 100644 frontend/src/modules/notifications/ui/NotificationBell.tsx
+ delete mode 100644 frontend/src/modules/notifications/ui/NotificationCard.tsx
+ delete mode 100644 frontend/src/modules/notifications/ui/NotificationPanel.tsx
+
+diff --git a/frontend/src/modules/core/ui/layout/Header.tsx b/frontend/src/modules/core/ui/layout/Header.tsx
+index 2c7f922..0e0b3cf 100644
+--- a/frontend/src/modules/core/ui/layout/Header.tsx
++++ b/frontend/src/modules/core/ui/layout/Header.tsx
+@@ -1,14 +1,13 @@
+ "use client";
+ 
+ import { useGSAP } from "@gsap/react";
+-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
++import { useMutation, useQueryClient } from "@tanstack/react-query";
+ import gsap from "gsap";
+ import { Menu } from "lucide-react";
+ import { usePathname } from "next/navigation";
+ import { useRef, useState } from "react";
+ import { NetworkStatusChip } from "@/components/sync/NetworkStatusChip";
+ import { ThemeToggle } from "@/core/ui/ThemeToggle";
+-import { apiClient } from "@/lib/http/api-client";
+ import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
+ import { useAuth } from "@/modules/auth/hooks/useAuth";
+ import {
+@@ -16,6 +15,7 @@ import {
+ 	type NotificationItem,
+ } from "@/modules/core/ui/layout/HeaderNotifications";
+ import { HeaderUserMenu } from "@/modules/core/ui/layout/HeaderUserMenu";
++import { markAllAsRead, markAsRead, notificationKeys, useNotifications, useUnreadCount } from "@/modules/notifications";
+ 
+ gsap.registerPlugin(useGSAP);
+ 
+@@ -41,7 +41,7 @@ export default function Header({
+ 	sidebarOpen: boolean;
+ 	setSidebarOpen: (arg: boolean) => void;
+ }) {
+-	const { accessToken, user } = useAuth();
++	const { user } = useAuth();
+ 	const queryClient = useQueryClient();
+ 	const pathname = usePathname();
+ 	const headerRef = useRef<HTMLElement>(null);
+@@ -72,64 +72,30 @@ export default function Header({
+ 		{ scope: headerRef, dependencies: [] },
+ 	);
+ 
+-	const { data: notificationsData } = useQuery({
+-		queryKey: ["notifications"],
+-		queryFn: async () => {
+-			const payload = await apiClient.get<{
+-				success?: boolean;
+-				data?: {
+-					notifications?: NotificationItem[];
+-					unreadCount?: number;
+-				};
+-			}>("/notifications?limit=20");
+-
+-			return {
+-				notifications: payload?.data?.notifications ?? [],
+-				unreadCount: payload?.data?.unreadCount ?? 0,
+-			};
+-		},
+-		// Notifications are intentionally polled at a low frequency for operational alerts.
+-		// Stop polling on auth errors to avoid 401 storms through Serwist.
+-		refetchInterval: (query) => {
+-			if (query.state.error) {
+-				return false; // stop polling on errors
+-			}
+-			return 30_000;
+-		},
+-		enabled: Boolean(user && accessToken),
+-		retry: (failureCount, error) => {
+-			// Don't retry auth errors — they indicate expired sessions
+-			if (
+-				error &&
+-				typeof error === "object" &&
+-				"status" in error &&
+-				(error as { status: number }).status === 401
+-			) {
+-				return false;
+-			}
+-			return failureCount < 1;
+-		},
+-		staleTime: 25_000,
+-	});
+-
+-	const notifications = notificationsData?.notifications ?? [];
+-	const unreadCount = notificationsData?.unreadCount ?? 0;
++	const { data: notificationList } = useNotifications();
++	const unreadCount = (useUnreadCount().data ?? 0) as number;
++	const notifications = (notificationList ?? []).map(
++		(n): NotificationItem => ({
++			id: n._id,
++			titulo: n.title,
++			mensaje: n.message,
++			leida: n.isRead,
++			enlace_url: n.deepLink ?? null,
++			created_at: n.createdAt,
++		}),
++	);
+ 
+ 	const markAsReadMutation = useMutation({
+-		mutationFn: async (notificationId: string) => {
+-			await apiClient.patch(`/notifications/${notificationId}`);
+-		},
++		mutationFn: markAsRead,
+ 		onSuccess: () => {
+-			void queryClient.invalidateQueries({ queryKey: ["notifications"] });
++			void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+ 		},
+ 	});
+ 
+ 	const markAllReadMutation = useMutation({
+-		mutationFn: async () => {
+-			await apiClient.post("/notifications/mark-all-read");
+-		},
++		mutationFn: markAllAsRead,
+ 		onSuccess: () => {
+-			void queryClient.invalidateQueries({ queryKey: ["notifications"] });
++			void queryClient.invalidateQueries({ queryKey: notificationKeys.all });
+ 		},
+ 	});
+ 
+diff --git a/frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx b/frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx
+index 1f3ac9a..7674535 100644
+--- a/frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx
++++ b/frontend/src/modules/dashboard/ui/DashboardCommandCenter.tsx
+@@ -40,15 +40,92 @@ function priorityCardClass(span: string, tone: "brand" | "danger" | "neutral") {
+ 	return `${span} rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] p-5 ${border}`;
+ }
+ 
+-export function DashboardCommandCenter({ summary }: { summary: DashboardSummary }) {
+-	const readiness = summary.fieldReadiness;
+-	const closure = summary.administrativeClosure;
++function PriorityCards({ readiness, closure, summary }: {
++	readiness: DashboardSummary["fieldReadiness"];
++	closure: DashboardSummary["administrativeClosure"];
++	summary: DashboardSummary;
++}) {
+ 	const criticalControls = readiness.blockingChecklistsPending + readiness.blockingChecklistsFailed;
+ 	const closureBacklog =
+ 		closure.pendingDeliveryRecords +
+ 		closure.pendingSES +
+ 		closure.pendingInvoices +
+ 		closure.pendingPayments;
++
++	return (
++		<div className="grid gap-4 lg:grid-cols-12">
++			<Link
++				href={APP_ROUTES.checklists}
++				className={priorityCardClass("lg:col-span-5", "danger")}
++			>
++				<div className="flex items-start justify-between gap-5">
++					<div className="space-y-3">
++						<span className="flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]">
++							<ShieldAlert className="size-5" aria-hidden="true" />
++						</span>
++						<div>
++							<p className="text-sm font-medium text-[var(--text-secondary)]">
++								Controles críticos por resolver
++							</p>
++							<p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-[var(--text-primary)]">
++								{criticalControls}
++							</p>
++						</div>
++						<p className="text-sm text-[var(--text-secondary)]">
++							{readiness.blockingChecklistsFailed} fallidos ·{" "}
++							{readiness.blockingChecklistsPending} pendientes
++						</p>
++					</div>
++					<ArrowRight className="size-5 text-[var(--text-tertiary)]" aria-hidden="true" />
++				</div>
++			</Link>
++
++			<Link href={APP_ROUTES.evidences} className={priorityCardClass("lg:col-span-3", "brand")}>
++				<FileCheck2 className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++				<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
++					Evidencias por validar
++				</p>
++				<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
++					{readiness.evidencePendingReview}
++				</p>
++				<p className="mt-2 text-xs text-[var(--text-tertiary)]">
++					{readiness.evidenceRejected} rechazadas requieren reemplazo
++				</p>
++			</Link>
++
++			<Link
++				href={APP_ROUTES.deliveryRecords}
++				className={priorityCardClass("lg:col-span-2", "neutral")}
++			>
++				<FileClock className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++				<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
++					Expedientes por cerrar
++				</p>
++				<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
++					{closureBacklog}
++				</p>
++			</Link>
++
++			<Link
++				href={APP_ROUTES.payments}
++				className={priorityCardClass("lg:col-span-2", "neutral")}
++			>
++				<WalletCards className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
++				<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">Cartera vencida</p>
++				<p className="mt-1 font-mono text-xl font-semibold tabular-nums text-[var(--text-primary)]">
++					{formatCop(summary.financialAging.totalOverdueAmount)}
++				</p>
++				<p className="mt-2 text-xs text-[var(--text-tertiary)]">
++					{summary.financialAging.overdueInvoiceCount} facturas
++				</p>
++			</Link>
++		</div>
++	);
++}
++
++export function DashboardCommandCenter({ summary }: { summary: DashboardSummary }) {
++	const readiness = summary.fieldReadiness;
++	const closure = summary.administrativeClosure;
+ 	const maximumDemand = Math.max(...summary.serviceDemand.items.map((item) => item.requests), 1);
+ 
+ 	return (
+@@ -69,73 +146,7 @@ export function DashboardCommandCenter({ summary }: { summary: DashboardSummary
+ 					</time>
+ 				</div>
+ 
+-				<div className="grid gap-4 lg:grid-cols-12">
+-					<Link
+-						href={APP_ROUTES.checklists}
+-						className={priorityCardClass("lg:col-span-5", "danger")}
+-					>
+-						<div className="flex items-start justify-between gap-5">
+-							<div className="space-y-3">
+-								<span className="flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]">
+-									<ShieldAlert className="size-5" aria-hidden="true" />
+-								</span>
+-								<div>
+-									<p className="text-sm font-medium text-[var(--text-secondary)]">
+-										Controles críticos por resolver
+-									</p>
+-									<p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-[var(--text-primary)]">
+-										{criticalControls}
+-									</p>
+-								</div>
+-								<p className="text-sm text-[var(--text-secondary)]">
+-									{readiness.blockingChecklistsFailed} fallidos ·{" "}
+-									{readiness.blockingChecklistsPending} pendientes
+-								</p>
+-							</div>
+-							<ArrowRight className="size-5 text-[var(--text-tertiary)]" aria-hidden="true" />
+-						</div>
+-					</Link>
+-
+-					<Link href={APP_ROUTES.evidences} className={priorityCardClass("lg:col-span-3", "brand")}>
+-						<FileCheck2 className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
+-						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
+-							Evidencias por validar
+-						</p>
+-						<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
+-							{readiness.evidencePendingReview}
+-						</p>
+-						<p className="mt-2 text-xs text-[var(--text-tertiary)]">
+-							{readiness.evidenceRejected} rechazadas requieren reemplazo
+-						</p>
+-					</Link>
+-
+-					<Link
+-						href={APP_ROUTES.deliveryRecords}
+-						className={priorityCardClass("lg:col-span-2", "neutral")}
+-					>
+-						<FileClock className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
+-						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">
+-							Expedientes por cerrar
+-						</p>
+-						<p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">
+-							{closureBacklog}
+-						</p>
+-					</Link>
+-
+-					<Link
+-						href={APP_ROUTES.payments}
+-						className={priorityCardClass("lg:col-span-2", "neutral")}
+-					>
+-						<WalletCards className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
+-						<p className="mt-5 text-sm font-medium text-[var(--text-secondary)]">Cartera vencida</p>
+-						<p className="mt-1 font-mono text-xl font-semibold tabular-nums text-[var(--text-primary)]">
+-							{formatCop(summary.financialAging.totalOverdueAmount)}
+-						</p>
+-						<p className="mt-2 text-xs text-[var(--text-tertiary)]">
+-							{summary.financialAging.overdueInvoiceCount} facturas
+-						</p>
+-					</Link>
+-				</div>
++				<PriorityCards readiness={readiness} closure={closure} summary={summary} />
+ 			</section>
+ 
+ 			<SlaRiskOrdersTable orders={summary.slaRiskOrders ?? []} />
+diff --git a/frontend/src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx b/frontend/src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx
+index 46e096e..f340db5 100644
+--- a/frontend/src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx
++++ b/frontend/src/modules/field-execution/ui/evidence/FieldNoveltyButton.tsx
+@@ -1,7 +1,7 @@
+ "use client";
+ 
+ import { AlertCircle, X } from "lucide-react";
+-import { useEffect, useRef, useState } from "react";
++import { useRef, useState } from "react";
+ 
+ interface Props {
+ 	onReport: (data: {
+@@ -18,18 +18,6 @@ export function FieldNoveltyButton({ onReport }: Props) {
+ 	const [severity, setSeverity] = useState("medium");
+ 	const [generatesWR, setGeneratesWR] = useState(false);
+ 
+-	useEffect(() => {
+-		const dialog = dialogRef.current;
+-		if (!dialog) {
+-			return;
+-		}
+-		if (isOpen && !dialog.open) {
+-			dialog.showModal();
+-		} else if (!isOpen && dialog.open) {
+-			dialog.close();
+-		}
+-	}, [isOpen]);
+-
+ 	const handleSubmit = () => {
+ 		if (description.trim().length < 5) {
+ 			return;
+@@ -38,14 +26,30 @@ export function FieldNoveltyButton({ onReport }: Props) {
+ 		setDescription("");
+ 		setSeverity("medium");
+ 		setGeneratesWR(false);
++		closeDialog();
++	};
++
++	const openDialog = () => {
++		setIsOpen(true);
++		const dialog = dialogRef.current;
++		if (dialog && !dialog.open) {
++			dialog.showModal();
++		}
++	};
++
++	const closeDialog = () => {
+ 		setIsOpen(false);
++		const dialog = dialogRef.current;
++		if (dialog && dialog.open) {
++			dialog.close();
++		}
+ 	};
+ 
+ 	return (
+ 		<>
+ 			<button
+ 				type="button"
+-				onClick={() => setIsOpen(true)}
++				onClick={openDialog}
+ 				className="fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-[#F44336] text-white shadow-lg hover:bg-red-700 transition"
+ 				title="Reportar novedad encontrada en campo"
+ 				style={{ minWidth: 56, minHeight: 56 }}
+@@ -57,7 +61,7 @@ export function FieldNoveltyButton({ onReport }: Props) {
+ 			<dialog
+ 				ref={dialogRef}
+ 				aria-label="Reportar novedad de campo"
+-				onClose={() => setIsOpen(false)}
++				onClose={closeDialog}
+ 				className="z-50 m-auto w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--surface-primary)] p-0 shadow-xl backdrop:bg-black/50"
+ 			>
+ 				{isOpen && (
+@@ -66,7 +70,7 @@ export function FieldNoveltyButton({ onReport }: Props) {
+ 							<h2 className="text-lg font-semibold text-[var(--text-primary)]">Reportar novedad</h2>
+ 							<button
+ 								type="button"
+-								onClick={() => setIsOpen(false)}
++								onClick={closeDialog}
+ 								aria-label="Cerrar"
+ 								className="text-[var(--text-secondary)]"
+ 							>
+@@ -113,7 +117,7 @@ export function FieldNoveltyButton({ onReport }: Props) {
+ 						<div className="mt-6 flex justify-end gap-3">
+ 							<button
+ 								type="button"
+-								onClick={() => setIsOpen(false)}
++								onClick={closeDialog}
+ 								className="rounded-full border px-4 py-2 text-sm"
+ 							>
+ 								Cancelar
+diff --git a/frontend/src/modules/notifications/index.ts b/frontend/src/modules/notifications/index.ts
+new file mode 100644
+index 0000000..5ccdbf5
+--- /dev/null
++++ b/frontend/src/modules/notifications/index.ts
+@@ -0,0 +1,20 @@
++/**
++ * Notifications module — barrel export
++ *
++ * Aggregates all public API types, hooks, and UI components so that
++ * external modules (header, dashboard, etc.) can import from
++ * `@/modules/notifications` instead of deep paths.
++ */
++
++export type { Notification, NotificationType } from "./api/types";
++export {
++	fetchNotifications,
++	fetchUnreadCount,
++	markAllAsRead,
++	markAsRead,
++} from "./api/notification.api";
++export {
++	notificationKeys,
++	useNotifications,
++} from "./hooks/useNotifications";
++export { useUnreadCount } from "./hooks/useUnreadCount";
+diff --git a/frontend/src/modules/notifications/ui/NotificationBell.tsx b/frontend/src/modules/notifications/ui/NotificationBell.tsx
+deleted file mode 100644
+index 6c112bd..0000000
+--- a/frontend/src/modules/notifications/ui/NotificationBell.tsx
++++ /dev/null
+@@ -1,27 +0,0 @@
+-"use client";
+-
+-import { Bell } from "lucide-react";
+-
+-interface Props {
+-	unreadCount: number;
+-	onClick: () => void;
+-}
+-
+-export function NotificationBell({ unreadCount, onClick }: Props) {
+-	return (
+-		<button
+-			type="button"
+-			onClick={onClick}
+-			className="relative inline-flex size-11 items-center justify-center rounded-full hover:bg-[var(--surface-secondary)] transition"
+-			aria-label={`Notificaciones${unreadCount > 0 ? ` — ${unreadCount} sin leer` : ""}`}
+-			style={{ minWidth: 44, minHeight: 44 }}
+-		>
+-			<Bell className="size-5 text-[var(--text-primary)]" aria-hidden="true" />
+-			{unreadCount > 0 && (
+-				<span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-[#F44336] text-[10px] font-bold text-white">
+-					{unreadCount > 99 ? "99+" : unreadCount}
+-				</span>
+-			)}
+-		</button>
+-	);
+-}
+diff --git a/frontend/src/modules/notifications/ui/NotificationCard.tsx b/frontend/src/modules/notifications/ui/NotificationCard.tsx
+deleted file mode 100644
+index fe34d1e..0000000
+--- a/frontend/src/modules/notifications/ui/NotificationCard.tsx
++++ /dev/null
+@@ -1,85 +0,0 @@
+-"use client";
+-
+-import {
+-	type AlertTriangle,
+-	Check,
+-	Clock,
+-	DollarSign,
+-	FileText,
+-	MessageSquare,
+-	X,
+-} from "lucide-react";
+-
+-const ICON_MAP: Record<string, typeof AlertTriangle> = {
+-	evidence_rejected: X,
+-	evidence_approved: Check,
+-	ses_approved: FileText,
+-	ses_rejected: X,
+-	payment_received: DollarSign,
+-	report_generated: FileText,
+-	overdue: Clock,
+-	default: MessageSquare,
+-};
+-
+-function getRelativeTime(dateStr: string): string {
+-	const diff = Date.now() - new Date(dateStr).getTime();
+-	const minutes = Math.floor(diff / 60000);
+-	if (minutes < 1) {
+-		return "Ahora";
+-	}
+-	if (minutes < 60) {
+-		return `Hace ${minutes} min`;
+-	}
+-	const hours = Math.floor(minutes / 60);
+-	if (hours < 24) {
+-		return `Hace ${hours}h`;
+-	}
+-	return new Date(dateStr).toLocaleDateString("es-CO");
+-}
+-
+-interface Notification {
+-	id: string;
+-	type: string;
+-	title: string;
+-	message: string;
+-	isRead: boolean;
+-	deepLink?: string;
+-	createdAt: string;
+-}
+-
+-interface Props {
+-	notification: Notification;
+-	onClick: (notification: Notification) => void;
+-}
+-
+-export function NotificationCard({ notification, onClick }: Props) {
+-	const Icon = ICON_MAP[notification.type] ?? ICON_MAP.default;
+-
+-	return (
+-		<button
+-			type="button"
+-			onClick={() => onClick(notification)}
+-			className={`flex w-full items-start gap-3 px-5 py-4 text-left transition hover:bg-[var(--surface-secondary)] ${notification.isRead ? "" : "bg-blue-50/50"}`}
+-		>
+-			<span
+-				className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full ${notification.isRead ? "bg-gray-100" : "bg-blue-100"}`}
+-			>
+-				<Icon className="size-4 text-[var(--text-secondary)]" aria-hidden="true" />
+-			</span>
+-			<div className="min-w-0 flex-1">
+-				<p className="text-sm font-medium text-[var(--text-primary)]">{notification.title}</p>
+-				<p className="mt-0.5 text-xs text-[var(--text-secondary)]">{notification.message}</p>
+-				<p className="mt-1 text-xs text-[var(--text-tertiary)]">
+-					{getRelativeTime(notification.createdAt)}
+-				</p>
+-			</div>
+-			{!notification.isRead && (
+-				<span
+-					className="mt-2 size-2 shrink-0 rounded-full bg-[var(--color-brand-blue)]"
+-					role="status"
+-					aria-label="No leída"
+-				/>
+-			)}
+-		</button>
+-	);
+-}
+diff --git a/frontend/src/modules/notifications/ui/NotificationPanel.tsx b/frontend/src/modules/notifications/ui/NotificationPanel.tsx
+deleted file mode 100644
+index 15eb705..0000000
+--- a/frontend/src/modules/notifications/ui/NotificationPanel.tsx
++++ /dev/null
+@@ -1,47 +0,0 @@
+-"use client";
+-
+-import { CheckCheck, X } from "lucide-react";
+-import type { ReactNode } from "react";
+-
+-interface Props {
+-	isOpen: boolean;
+-	onClose: () => void;
+-	onMarkAllRead: () => void;
+-	children: ReactNode;
+-}
+-
+-export function NotificationPanel({ isOpen, onClose, onMarkAllRead, children }: Props) {
+-	if (!isOpen) {
+-		return null;
+-	}
+-
+-	return (
+-		<div className="fixed inset-0 z-50">
+-			<button
+-				type="button"
+-				className="absolute inset-0 bg-black/30"
+-				aria-label="Cerrar panel de notificaciones"
+-				onClick={onClose}
+-			/>
+-			<div className="absolute right-0 top-0 h-full w-full max-w-sm overflow-y-auto border-l border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-xl">
+-				<div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-primary)] px-5 py-4">
+-					<h2 className="text-lg font-semibold text-[var(--text-primary)]">Notificaciones</h2>
+-					<div className="flex items-center gap-2">
+-						<button
+-							type="button"
+-							onClick={onMarkAllRead}
+-							className="text-xs text-[var(--color-brand-blue)] hover:underline"
+-						>
+-							<CheckCheck className="size-4" aria-hidden="true" />
+-							<span className="sr-only">Marcar todas como leídas</span>
+-						</button>
+-						<button type="button" onClick={onClose} className="text-[var(--text-secondary)]">
+-							<X className="size-5" aria-hidden="true" />
+-						</button>
+-					</div>
+-				</div>
+-				<div className="divide-y divide-[var(--border-subtle)]">{children}</div>
+-			</div>
+-		</div>
+-	);
+-}
+-- 
+2.51.1.windows.1
+

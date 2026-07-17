@@ -40,9 +40,11 @@ export async function reconcilePayment(req: Request, res: Response): Promise<voi
 }
 
 export async function rejectPayment(req: Request, res: Response): Promise<void> {
+	const actor = requireUser(req);
 	const result = await paymentService.rejectPayment(
 		String(req.params.id),
 		String(req.body.reason ?? ""),
+		actor._id,
 	);
 	sendSuccess(res, result);
 }

@@ -1,0 +1,25 @@
+
+> cermont-monorepo@1.0.0 quality:semantics
+> tsx tooling/quality/check-semantics.ts
+
+Semantic markup quality check: 17 findings
+- missing-semantic-landmark: 17/9 above baseline
+
+Semantic markup quality check failed: new findings exceed the baseline.
+frontend/src/app/(dashboard)/admin/audit/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/billing/invoices/[id]/approve/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/billing/ses/[id]/approve/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/costs/catalog/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/delivery-records/[id]/signature/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/invoices/[id]/pipeline/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/offline-sync/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/reports/[id]/draft/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/reports/[id]/sign/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(dashboard)/settings/notifications/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(portal)/portal/invoices/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(portal)/portal/orders/[id]/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(portal)/portal/orders/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(portal)/portal/proposals/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(portal)/portal/service-cases/[id]/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(portal)/portal/service-cases/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark
+frontend/src/app/(portal)/portal/signatures/[id]/page.tsx:1:1 missing-semantic-landmark Page or layout has no semantic landmark

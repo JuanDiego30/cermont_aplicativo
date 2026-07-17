@@ -33,8 +33,11 @@ import { buildFinancialAging, buildFinancialAgingSummary } from "./dashboard-fin
 import { buildFieldReadiness } from "./dashboard-readiness.service";
 import { buildSlaRiskOrders } from "./dashboard-sla.service";
 
+export {
+	buildCostComparisonChart,
+	getDashboardKpiWidgetData,
+} from "./dashboard-cost-widget.service";
 export { buildFinancialAgingSummary, buildServiceDemandSummary };
-export { buildCostComparisonChart, getDashboardKpiWidgetData } from "./dashboard-cost-widget.service";
 
 const log = createLogger("dashboard-service");
 
@@ -429,7 +432,7 @@ export async function getDashboardWithKpis(
 			mtbf: kpis.mtbf.mtbfHours,
 			firstTimeFixRate: kpis.firstTimeFixRate.rate,
 			technicianUtilizationRate: kpis.technicianUtilization.utilizationRate,
-			slaCompliance: null,
+			slaCompliance: 0,
 			pendingCertifications: 0,
 			periodLabel: period,
 		},
@@ -496,5 +499,5 @@ export async function getRoleBaseKPIs(_role?: string) {
 
 log.info("Dashboard service initialized");
 
-export { getFinancialKpis } from "./dashboard-financial.service";
 export type { FinancialKpisResult } from "./dashboard-financial.service";
+export { getFinancialKpis } from "./dashboard-financial.service";

@@ -1,7 +1,7 @@
 "use client";
 
 import type { Evidence } from "@cermont/shared-types";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	AlertCircle,
 	Camera,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 import {
 	type FormEvent,
 	type ReactNode,
@@ -628,14 +629,14 @@ function EvidencesPageInner() {
 	} = useEvidenceFilters();
 	const orderOptions = ordersResult?.items ?? [];
 	const selectedOrder = orderOptions.find((order) => order._id === selectedOrderId);
-	const [refreshKey, setRefreshKey] = useState(0);
+	const queryClient = useQueryClient();
 
 	const {
 		data: evidences = [],
 		isLoading: isLoadingEvidences,
 		error,
 	} = useQuery({
-		queryKey: ["evidences", selectedOrderId, refreshKey],
+		queryKey: EVIDENCE_KEYS.byOrder(selectedOrderId),
 		queryFn: () => listEvidences(selectedOrderId),
 		enabled: !!selectedOrderId,
 		staleTime: STALE_TIMES.LIST,
@@ -648,8 +649,10 @@ function EvidencesPageInner() {
 	}, [evidences, searchInput]);
 
 	const handleUploadComplete = useCallback(() => {
-		setRefreshKey((k) => k + 1);
-	}, []);
+		if (selectedOrderId) {
+			queryClient.invalidateQueries({ queryKey: EVIDENCE_KEYS.byOrder(selectedOrderId) });
+		}
+	}, [queryClient, selectedOrderId]);
 
 	const buildSearchParams = useCallback(
 		(input: string, orderId: string, mode: EvidenceViewMode) => {

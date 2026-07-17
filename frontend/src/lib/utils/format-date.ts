@@ -29,3 +29,40 @@ export function formatDateTime(
 ): string {
 	return formatDate(date, pattern);
 }
+
+/**
+ * Locale-formatted date string (alias for readability in templates).
+ */
+export function localeDate(
+	date: string | Date | null | undefined,
+	options?: Intl.DateTimeFormatOptions,
+): string {
+	if (!date) {
+		return "—";
+	}
+	const d = new Date(date);
+	if (!isValid(d)) {
+		return "Fecha inválida";
+	}
+	if (options) {
+		return new Intl.DateTimeFormat("es-CO", options).format(d);
+	}
+	return formatDate(date, "dd MMM yyyy");
+}
+
+/**
+ * Locale-formatted date with time.
+ */
+export function localeDateTime(date: string | Date | null | undefined): string {
+	return formatDateTime(date);
+}
+
+/**
+ * Locale-formatted number (uses Intl.NumberFormat).
+ */
+export function localeNumber(value: number, decimals = 0): string {
+	return new Intl.NumberFormat("es-CO", {
+		minimumFractionDigits: decimals,
+		maximumFractionDigits: decimals,
+	}).format(value);
+}

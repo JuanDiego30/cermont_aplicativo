@@ -1,0 +1,11 @@
+Task 1.5 — Auth and AI authorization policies
+
+Auth routes /logout, /me, and /change-password now use authorizeAllAuthenticated().
+AI /status now uses authorize(...INTERNAL_ROLES).
+authorizeAllAuthenticated unit QA includes the cliente role.
+
+Command: npm run test -w backend
+Result: 102 files passed, 681 tests passed.
+
+Command: npx tsx tooling/quality/check-routes.ts
+Result: exit 0, 3 findings remain; auth.routes.ts and ai.routes.ts are absent.

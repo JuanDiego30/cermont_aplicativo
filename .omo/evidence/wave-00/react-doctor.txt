@@ -1,0 +1,126 @@
+[1mReact Doctor[22m [2mv0.7.1[22m
+
+[32m✔[39m Select projects [2m›[22m @cermont/frontend
+[90m  [39m
+
+  [31m✖[39m [31mBugs: Missing key in list[39m [90m×9[39m
+    The `{...spread}` can overwrite this `key` & break React's
+    tracking.
+[2m    → Add a stable `key` prop so React can keep list items[22m
+[2m    matched to the right data when the list changes.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/jsx-key[39m
+
+[90m    src/app/(dashboard)/admin/custom-fields/page.tsx:100[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m  99 |[39m 				[33m<[39m[33mCustomFieldEditor[39m                               [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 100 |[39m 					key[33m=[39m{editing [33m===[39m [32m"new"[39m [33m?[39m [32m"new"[39m [33m:[39m editing[33m.[39m_id}   [2m│[22m
+    [2m│[22m  [90m     |[39m 					[31m[1m^[22m[39m                                               [2m│[22m
+    [2m│[22m  [90m 101 |[39m 					entityType[33m=[39m{entityType}[0m                         [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+[90m    src/landing/components/AboutSection.tsx:60[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m 59 |[39m 						{[33mLANDING_TRUST_POINTS[39m[33m.[39mmap((point) [33m=>[39m (          [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 60 |[39m 							[33m<[39m[33mPrincipleCard[39m key[33m=[39m{point[33m.[39mtitle} {[33m...[39mpoint} [33m/[39m[33m>[39m [2m│[22m
+    [2m│[22m  [90m    |[39m 							               [31m[1m^[22m[39m                               [2m│[22m
+    [2m│[22m  [90m 61 |[39m 						))}[0m                                             [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+[90m    src/landing/components/HeroSection.tsx:131[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m 130 |[39m 							{[33mLANDING_METRICS[39m[33m.[39mmap((metric) [33m=>[39m (            [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 131 |[39m 								[33m<[39m[33mMetricCard[39m key[33m=[39m{metric[33m.[39mlabel} {[33m...[39mmetric} [0m… [2m│[22m
+    [2m│[22m  [90m     |[39m 								            [31m[1m^[22m[39m                                [2m│[22m
+    [2m│[22m  [90m 132 |[39m 							))}[0m                                           [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+[90m    src/landing/components/MethodSection.tsx:30[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m 29 |[39m 						{[33mLANDING_WORKFLOW[39m[33m.[39mmap((step) [33m=>[39m (               [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 30 |[39m 							[33m<[39m[33mWorkflowCard[39m key[33m=[39m{step[33m.[39mstep} {[33m...[39mstep} [33m/[39m[33m>[39m     [2m│[22m
+    [2m│[22m  [90m    |[39m 							              [31m[1m^[22m[39m                                [2m│[22m
+    [2m│[22m  [90m 31 |[39m 						))}[0m                                             [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+[90m    src/landing/components/ResourcesSection.tsx:29[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m 28 |[39m 					{[33mLANDING_RESOURCES[39m[33m.[39mmap((resource) [33m=>[39m (           [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 29 |[39m 						[33m<[39m[33mResourceCard[39m key[33m=[39m{resource[33m.[39mtitle} {[33m...[39mresourc[0m… [2m│[22m
+    [2m│[22m  [90m    |[39m 						              [31m[1m^[22m[39m                                 [2m│[22m
+    [2m│[22m  [90m 30 |[39m 					))}[0m                                              [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+[90m    src/landing/components/ResourcesSection.tsx:35[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m 34 |[39m 					{[33mLANDING_CERTIFICATIONS[39m[33m.[39mmap((certification) [33m=>[39m ( [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 35 |[39m 						[33m<[39m[33mCertificationCard[39m key[33m=[39m{certification[33m.[39mtitle} {[0m… [2m│[22m
+    [2m│[22m  [90m    |[39m 						                   [31m[1m^[22m[39m                            [2m│[22m
+    [2m│[22m  [90m 36 |[39m 					))}[0m                                              [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+[90m    src/landing/components/ServicesSection.tsx:22[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m 21 |[39m 					{[33mLANDING_SERVICES[39m[33m.[39mmap((service) [33m=>[39m (             [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 22 |[39m 						[33m<[39m[33mServiceCard[39m key[33m=[39m{service[33m.[39mtitle} {[33m...[39mservice} [0m… [2m│[22m
+    [2m│[22m  [90m    |[39m 						             [31m[1m^[22m[39m                                  [2m│[22m
+    [2m│[22m  [90m 23 |[39m 					))}[0m                                              [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+[90m    src/landing/components/TrustSection.tsx:25[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m 24 |[39m 							{[33mLANDING_TRUST_POINTS[39m[33m.[39mmap((point) [33m=>[39m (         [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 25 |[39m 								[33m<[39m[33mPrincipleCard[39m key[33m=[39m{point[33m.[39mtitle} {[33m...[39mpoint} [0m… [2m│[22m
+    [2m│[22m  [90m    |[39m 								               [31m[1m^[22m[39m                              [2m│[22m
+    [2m│[22m  [90m 26 |[39m 							))}[0m                                            [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+[90m    src/modules/service-cases/components/CostComparisonPanel.tsx:260[39m
+    [2m┌[22m[2m──────────────────────────────────────────────────────────────[22m[2m┐[22m
+    [2m│[22m [0m [90m 259 |[39m 						{categories[33m.[39mmap((cat) [33m=>[39m (                     [2m│[22m
+    [2m│[22m [31m[1m>[22m[39m[90m 260 |[39m 							[33m<[39m[33mCategoryRow[39m key[33m=[39m{cat[33m.[39mlabel} {[33m...[39mcat} [33m/[39m[33m>[39m      [2m│[22m
+    [2m│[22m  [90m     |[39m 							             [31m[1m^[22m[39m                                [2m│[22m
+    [2m│[22m  [90m 261 |[39m 						))}[0m                                            [2m│[22m
+    [2m└[22m[2m──────────────────────────────────────────────────────────────[22m[2m┘[22m
+
+
+[2m  ────────────────────────────────────────────────────────────[22m
+
+  [1mAll 9 issues[22m
+
+  [1mBugs[22m [2m>[22m [31m9 errors[39m
+
+[1mAgent guidance[22m
+[90m  - Treat React Doctor diagnostics as starting hypotheses. Read the relevant code before confirming or suppressing each finding.[39m
+[90m  - For each group, decide true positive, false positive, or needs-human-review, then assign high/medium/low confidence.[39m
+[90m  - Do not suppress a finding without evidence from the file in question. Confidence requires code context.[39m
+[90m  - Understand the root cause before editing. Fix the underlying code instead of changing react-doctor config or suppressing rules unless explicitly asked.[39m
+[90m  - Investigate deeply where relevant: race conditions, security-sensitive flows, state propagation, multi-file refactors, and downstream dependency chains.[39m
+[90m  - Ignore pure style preferences, theoretical issues without real impact, missing features, and unrelated pre-existing code.[39m
+[90m  - Start with high-confidence fixes that preserve behavior. Leave low-confidence or product-dependent changes as notes.[39m
+[90m  - Run `npx react-doctor@latest --verbose --scope changed` before and after changes, plus relevant tests after each focused batch.[39m
+[90m  - When available, spawn subagents or isolated worktrees for independent rule families, then review and merge only the best safe fixes.[39m
+[90m  - Split unrelated, broad, or behavior-changing work into separate PRs/branches instead of one large cleanup.[39m
+[90m  - When one rule spans dozens of files (a migration-scale change), fix a representative sample first, confirm the recipe holds, and get the code owner's sign-off before changing the rest. Don't mass-fix a broad pattern in one unreviewed pass.[39m
+[90m  - For confirmed issues that cannot be fixed now, create GitHub issues with the rule, file/line, confidence, impact, and proposed fix.[39m
+[90m  - If a fix needs an API, UX, or architecture decision, stop and ask before editing.[39m
+
+  [33m┌─────┐[39m  [33m67[39m [2m/ 100[22m [33mNeeds work[39m
+  [33m│ • • │[39m  [33m██████████████████████████████████[39m[2m[33m▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓[39m[22m[2m[22m
+  [33m│  ─  │[39m  React Doctor [2m(https://react.doctor)[22m
+  [33m└─────┘[39m
+
+[90m  You could improve [39m[32m+33%[39m[90m by fixing the top 3 issues[39m
+[90m  Full diagnostics written to C:\WINDOWS\TEMP\react-doctor-19c0beb3-6915-463a-8cd8-256fb30079b0[39m
+
+[2m  ────────────────────────────────────────────────────────────[22m
+
+  [1mShare:[22m [36mhttps://react.doctor/share?p=%40cermont%2Ffrontend&s=67&e=9&f=8[39m
+[2m  Tell others how you did on socials[22m
+
+  [1mDocs:[22m [36mhttps://react.doctor/docs[39m
+[2m  Learn more about fixing issues, setting up CI/CD, and[22m
+[2m  configuring rules with a config file[22m
+
+  [1mGitHub:[22m [36mhttps://github.com/millionco/react-doctor[39m
+[2m  Report issues and star the repository![22m
+

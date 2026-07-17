@@ -109,11 +109,10 @@ export const KIT_SUGGESTIONS: Record<
 };
 
 export const BUSINESS_UNIT_OPTIONS: Array<{ value: PlanningBusinessUnit; label: string }> = [
-	{ value: "IT", label: "IT" },
-	{ value: "MNT", label: "MNT" },
+	{ value: "IT_MNT", label: "IT-MNT" },
 	{ value: "SC", label: "SC" },
 	{ value: "GEN", label: "GEN" },
-	{ value: "OTHER", label: "Otros" },
+	{ value: "OTROS", label: "Otros" },
 ];
 
 export function emptyMaterial(): PlanningResourceLine {

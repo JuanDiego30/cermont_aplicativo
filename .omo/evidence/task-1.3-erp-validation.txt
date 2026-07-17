@@ -1,0 +1,10 @@
+Task 1.3 — ERP connector sync validation
+
+Implemented middleware order:
+authenticate -> authorize -> validateParams(SyncErpConnectorParamsSchema) -> validateBody(SyncErpConnectorRequestSchema) -> controller
+
+Command: npx tsx tooling/quality/check-routes.ts
+Result: exit 0; erp-connector.routes.ts is absent from findings.
+
+Command: npm run contracts:check
+Result: exit 0; migration 068-spec-020-wave-1-route-request-contracts.

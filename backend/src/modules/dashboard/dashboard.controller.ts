@@ -6,7 +6,12 @@
 
 import type { Request, Response } from "express";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
-import { buildCostComparisonChart, getDashboardSummary, getFinancialKpis as getFinancialKpisData, getRoleBaseKPIs } from "./dashboard.service";
+import {
+	buildCostComparisonChart,
+	getDashboardSummary,
+	getFinancialKpis as getFinancialKpisData,
+	getRoleBaseKPIs,
+} from "./dashboard.service";
 import { getOperationalKPIs } from "./dashboard-operational-kpi.service";
 import { buildSlaRiskOrders } from "./dashboard-sla.service";
 

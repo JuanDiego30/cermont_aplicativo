@@ -165,7 +165,7 @@ const PlanningPacketSchema = new mongoose.Schema(
 		plannedDate: Date,
 		businessUnit: {
 			type: String,
-			enum: ["IT", "MNT", "SC", "GEN", "OTHER"],
+			enum: ["IT_MNT", "SC", "GEN", "OTROS"],
 			index: true,
 		},
 		scope: {

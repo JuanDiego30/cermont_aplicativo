@@ -1,0 +1,5 @@
+
+> @cermont/backend@5.2.1 lint
+> biome lint .
+
+Checked 479 files in 284ms. No fixes applied.

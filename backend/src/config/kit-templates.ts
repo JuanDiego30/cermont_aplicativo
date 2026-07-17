@@ -16,6 +16,32 @@ export interface MaterialItem {
 	delivered?: boolean;
 }
 
+export interface ToolItem {
+	name: string;
+	quantity: number;
+	unit: string;
+	specifications?: string;
+}
+
+export interface EquipmentItem {
+	name: string;
+	quantity: number;
+	unit: string;
+	certificateRequired?: boolean;
+	calibrationRequired?: boolean;
+}
+
+export interface SafetyElementItem {
+	name: string;
+	quantity: number;
+	unit: string;
+}
+
+export interface WorkerCountItem {
+	role: string;
+	quantity: number;
+}
+
 export interface KitTemplate {
 	id: string;
 	name: string;
@@ -28,8 +54,14 @@ export interface KitTemplate {
 		| "decommission"
 		| "cctv"
 		| "lifeline"
+		| "electrical"
+		| "safety"
 		| "other";
 	materials: MaterialItem[];
+	tools?: ToolItem[];
+	equipment?: EquipmentItem[];
+	safetyElements?: SafetyElementItem[];
+	workerCount?: WorkerCountItem[];
 }
 
 /**
@@ -218,6 +250,85 @@ const KIT_LIFELINE: KitTemplate = {
 };
 
 /**
+ * Electrical maintenance kit — Mantenimiento eléctrico industrial
+ * Source: CERMONT field documentation for mantenimiento eléctrico
+ * Includes: tools, equipment, safety elements, and worker count
+ */
+const KIT_ELECTRICAL: KitTemplate = {
+	id: "kit-electrical-001",
+	name: "Kit Mantenimiento Eléctrico Industrial",
+	description:
+		"Herramientas, equipos y EPP para mantenimiento eléctrico industrial en media y baja tensión",
+	type: "electrical",
+	materials: [
+		{ name: "Cinta aislante 3M 33+", quantity: 2, unit: "rollo" },
+		{ name: "Cinta auto-fusionante siliconada", quantity: 1, unit: "rollo" },
+		{ name: "Terminales pre-aislados surtidos", quantity: 1, unit: "juego" },
+		{ name: "Tubo termoencogible 3:1 surtido", quantity: 1, unit: "bolsa" },
+		{ name: "Cable THHN #12 AWG", quantity: 10, unit: "metro" },
+		{ name: "Cable THHN #10 AWG", quantity: 10, unit: "metro" },
+		{ name: "Breaker termomagnético 2x20A", quantity: 1, unit: "unidad" },
+		{ name: "Contacto bipolar 15A 120V", quantity: 2, unit: "unidad" },
+		{ name: "Platina de cobre para conexión a tierra", quantity: 1, unit: "unidad" },
+		{ name: "Grapa conectora a tierra", quantity: 2, unit: "unidad" },
+	],
+	tools: [
+		{
+			name: "Multímetro digital True RMS",
+			quantity: 1,
+			unit: "unidad",
+			specifications: "Cat III 600V",
+		},
+		{ name: "Pinza amperimétrica AC/DC", quantity: 1, unit: "unidad", specifications: "400A" },
+		{
+			name: "Juego de destornilladores aislados VDE",
+			quantity: 1,
+			unit: "juego",
+			specifications: "1000V",
+		},
+		{ name: "Pinzas pelacables automáticas", quantity: 1, unit: "unidad" },
+		{ name: "Pinzas corte diagonal aisladas", quantity: 1, unit: "par", specifications: "1000V" },
+		{ name: 'Llave ajustable 10" aislada', quantity: 1, unit: "unidad" },
+		{ name: "Kit llaves Allen aisladas", quantity: 1, unit: "juego" },
+		{ name: "Probador de voltaje sin contacto", quantity: 1, unit: "unidad" },
+		{ name: "Linterna cabeza recargable", quantity: 1, unit: "unidad" },
+	],
+	equipment: [
+		{ name: "Escalera fibra vidrio 2m", quantity: 1, unit: "unidad" },
+		{
+			name: "Telurómetro / medidor de resistencia tierra",
+			quantity: 1,
+			unit: "unidad",
+			certificateRequired: true,
+			calibrationRequired: true,
+		},
+		{
+			name: "Cámara termográfica",
+			quantity: 1,
+			unit: "unidad",
+			certificateRequired: true,
+			calibrationRequired: true,
+		},
+	],
+	safetyElements: [
+		{ name: "Guantes dieléctricos Clase 0 (1000V)", quantity: 1, unit: "par" },
+		{ name: "Guantes dieléctricos Clase 2 (17000V)", quantity: 1, unit: "par" },
+		{ name: "Casco tipo I con barbiquejo", quantity: 2, unit: "unidad" },
+		{ name: "Gafas de seguridad antiimpacto", quantity: 2, unit: "unidad" },
+		{ name: "Ropa de trabajo ignífuga (FR)", quantity: 2, unit: "juego" },
+		{ name: "Botas dieléctricas", quantity: 2, unit: "par" },
+		{ name: "Careta facial anti-arco eléctrico", quantity: 1, unit: "unidad" },
+		{ name: "Arnés de seguridad con línea de vida", quantity: 1, unit: "juego" },
+		{ name: "Extintor CO2 5lb", quantity: 1, unit: "unidad" },
+	],
+	workerCount: [
+		{ role: "electricista", quantity: 2 },
+		{ role: "tecnico_electricista", quantity: 1 },
+		{ role: "obrero", quantity: 1 },
+	],
+};
+
+/**
  * Registry of all available kit templates
  * Indexed by type and id for easy lookup
  */
@@ -229,6 +340,7 @@ export const KIT_REGISTRY: Record<string, KitTemplate> = {
 	[KIT_DECOMMISSION.id]: KIT_DECOMMISSION,
 	[KIT_CCTV.id]: KIT_CCTV,
 	[KIT_LIFELINE.id]: KIT_LIFELINE,
+	[KIT_ELECTRICAL.id]: KIT_ELECTRICAL,
 };
 
 /**
@@ -258,6 +370,89 @@ export function listAllKits(): KitTemplate[] {
 }
 
 /**
+ * Normalize a kit template into planning packet resource data (F15-T046).
+ * Maps tools, equipment, safetyElements, and workerCount from kit template
+ * to the planning packet's resource arrays.
+ */
+export function applyKitTemplateToPlanningPacketData(kit: KitTemplate): {
+	tools: Array<{ name: string; quantity: number; available: boolean; specifications?: string }>;
+	equipment: Array<{
+		name: string;
+		quantity: number;
+		available: boolean;
+		certificateRequired: boolean;
+	}>;
+	materials: Array<{ description: string; quantity: number; unit: string }>;
+	safetyElements: Array<{ description: string; quantity: number; unit: string }>;
+	workerRequirements: {
+		electricistas: number;
+		tecnicosTelecomunicacion: number;
+		instrumentistas: number;
+		obreros: number;
+	};
+} {
+	return {
+		tools: (kit.tools ?? []).map((t) => ({
+			name: t.name,
+			quantity: t.quantity,
+			available: true,
+			specifications: t.specifications,
+		})),
+		equipment: (kit.equipment ?? []).map((e) => ({
+			name: e.name,
+			quantity: e.quantity,
+			available: true,
+			certificateRequired: e.certificateRequired ?? false,
+		})),
+		materials: kit.materials.map((m) => ({
+			description: m.name,
+			quantity: m.quantity,
+			unit: m.unit,
+		})),
+		safetyElements: (kit.safetyElements ?? []).map((s) => ({
+			description: s.name,
+			quantity: s.quantity,
+			unit: s.unit,
+		})),
+		workerRequirements: normalizeWorkerCount(kit.workerCount ?? []),
+	};
+}
+
+function normalizeWorkerCount(workers: WorkerCountItem[]): {
+	electricistas: number;
+	tecnicosTelecomunicacion: number;
+	instrumentistas: number;
+	obreros: number;
+} {
+	let electricistas = 0;
+	let tecnicosTelecomunicacion = 0;
+	let instrumentistas = 0;
+	let obreros = 0;
+
+	for (const w of workers) {
+		switch (w.role) {
+			case "electricista":
+				electricistas += w.quantity;
+				break;
+			case "tecnico_electricista":
+				electricistas += w.quantity;
+				break;
+			case "tecnico_telecom":
+				tecnicosTelecomunicacion += w.quantity;
+				break;
+			case "instrumentista":
+				instrumentistas += w.quantity;
+				break;
+			case "obrero":
+				obreros += w.quantity;
+				break;
+		}
+	}
+
+	return { electricistas, tecnicosTelecomunicacion, instrumentistas, obreros };
+}
+
+/**
  * Default kit to apply based on order type
  * Used if no explicit kit is specified during order creation
  * Returns not-found status object for unmatched types
@@ -271,6 +466,8 @@ export function getDefaultKitForOrderType(
 		| "decommission"
 		| "cctv"
 		| "lifeline"
+		| "electrical"
+		| "safety"
 		| "other",
 ): KitTemplate | { status: "not_found"; type: string } {
 	switch (orderType) {
@@ -288,6 +485,10 @@ export function getDefaultKitForOrderType(
 			return KIT_CCTV;
 		case "lifeline":
 			return KIT_LIFELINE;
+		case "electrical":
+			return KIT_ELECTRICAL;
+		case "safety":
+			return KIT_INSPECTION;
 		case "other":
 			return { status: "not_found" as const, type: "other" };
 		default:

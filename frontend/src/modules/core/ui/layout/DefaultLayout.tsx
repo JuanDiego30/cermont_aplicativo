@@ -2,11 +2,11 @@
 
 import type { ReactNode } from "react";
 import "@/core/ui/index";
+import { QuickUploadPanel } from "@/components/common/QuickUploadPanel";
 import { ConsentGate } from "@/modules/consents/ui/ConsentGate";
 import { CermontAIDrawer } from "@/modules/core/ui/ai/CermontAIDrawer";
 import Header from "@/modules/core/ui/layout/Header";
 import MobileBottomNav from "@/modules/core/ui/layout/MobileBottomNav";
-import { ModuleQuickActions } from "@/modules/core/ui/layout/ModuleQuickActions";
 import { Sidebar } from "@/modules/core/ui/layout/Sidebar";
 import { PwaInstallPrompt } from "@/modules/core/ui/pwa/PwaInstallPrompt";
 import { useUIStore } from "@/store/ui.store";
@@ -44,7 +44,7 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
 					</main>
 
 					<PwaInstallPrompt />
-					<ModuleQuickActions />
+					<QuickUploadPanel />
 				</div>
 			</div>
 

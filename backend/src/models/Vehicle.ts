@@ -4,6 +4,16 @@ import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRe
 
 export type VehiclePrimaryPhoto = { status: "absent" } | { status: "present"; fileAssetId: string };
 
+export interface VehicleDocumentRecord {
+	documentType: "soat" | "tecnomecanica" | "poliza" | "tarjeta_propiedad";
+	documentNumber: string;
+	issueDate: Date;
+	expiryDate: Date;
+	status: "valid" | "expiring" | "expired" | "missing";
+	fileUrl?: string;
+	verifiedAt?: Date;
+}
+
 export interface AssignmentRecord {
 	driverId: mongoose.Types.ObjectId;
 	driverName: string;
@@ -22,6 +32,7 @@ export interface VehicleRecord {
 	capacity?: string;
 	driverName?: string;
 	driverId?: mongoose.Types.ObjectId;
+	documents: VehicleDocumentRecord[];
 	soatExpiry?: Date;
 	technoMechanicalExpiry?: Date;
 	insuranceExpiry?: Date;
@@ -66,6 +77,27 @@ const vehiclePrimaryPhotoSchema = new Schema<VehiclePrimaryPhoto>(
 	{ _id: false },
 );
 
+const vehicleDocumentSchema = new Schema<VehicleDocumentRecord>(
+	{
+		documentType: {
+			type: String,
+			enum: ["soat", "tecnomecanica", "poliza", "tarjeta_propiedad"],
+			required: true,
+		},
+		documentNumber: { type: String, required: true, maxlength: 60 },
+		issueDate: { type: Date, required: true },
+		expiryDate: { type: Date, required: true },
+		status: {
+			type: String,
+			enum: ["valid", "expiring", "expired", "missing"],
+			required: true,
+		},
+		fileUrl: { type: String, maxlength: 2048 },
+		verifiedAt: { type: Date },
+	},
+	{ _id: false },
+);
+
 const vehicleSchema = new Schema<VehicleRecord>(
 	{
 		plate: {
@@ -87,6 +119,7 @@ const vehicleSchema = new Schema<VehicleRecord>(
 		capacity: { type: String, maxlength: 60 },
 		driverName: { type: String, maxlength: 200 },
 		driverId: { type: Schema.Types.ObjectId, ref: "User" },
+		documents: { type: [vehicleDocumentSchema], default: [] },
 		soatExpiry: { type: Date },
 		technoMechanicalExpiry: { type: Date },
 		insuranceExpiry: { type: Date },

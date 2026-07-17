@@ -1,0 +1,11 @@
+F3.6 — Fleet checkout/checkin
+
+Audit result: verified existing canonical implementation.
+
+- `VehicleAssignmentPanel` uses the real assignment query/mutation hooks.
+- Flow is assign → pending checkout → active checkin → completed history.
+- Checkout/checkin forms capture mileage, fuel level, and notes with range validation.
+- Loading, mutation-error, history-loading, history-error, and empty-history states are present.
+- Existing fleet component tests cover the panel.
+
+Status: VERIFIED.

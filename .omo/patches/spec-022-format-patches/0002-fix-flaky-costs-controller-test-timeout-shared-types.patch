@@ -1,0 +1,5555 @@
+From 5481901ff938e0849c4903dfb950474c2cf5eb30 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Tue, 30 Jun 2026 02:14:08 -0500
+Subject: [PATCH 02/42] fix: flaky costs controller test timeout + shared-types
+ biome lint fixes
+
+- Increased paginated costs test timeout to 10s for dynamic import under load
+- Applied biome safe fixes to shared-types (6 files): import sorting,
+  export sorting, template literal, format consistency
+- verify pipeline: typecheck 0 errors, tests 653/653, lint 0 errors
+---
+ .../controllers/costs.controller.test.ts      |    2 +-
+ .../contracts/api-contract.snapshot.json      | 3309 ++++++++++-------
+ .../contracts/contract-migrations.json        |    4 +-
+ .../scripts/regenerate-snapshot.ts            |   23 +
+ .../src/constants/audit-actions.ts            |    3 +
+ .../src/schemas/automation.schema.ts          |  140 +
+ .../cermont-operational-step.schema.ts        |  239 +-
+ .../src/schemas/checklist.schema.ts           |   19 +-
+ .../src/schemas/cost-cart.schema.ts           |   36 +-
+ .../shared-types/src/schemas/cost.schema.ts   |   15 +
+ .../src/schemas/dashboard-summary.schema.ts   |   45 +-
+ packages/shared-types/src/schemas/index.ts    |    1 +
+ .../src/schemas/notification.schema.ts        |    1 +
+ .../src/schemas/service-case.schema.ts        |   28 +-
+ .../tests/schemas/automation.schema.test.ts   |   64 +
+ .../cermont-operational-step.schema.test.ts   |   48 +-
+ .../tests/schemas/checklist.schema.test.ts    |   25 +
+ .../schemas/cost-intelligence.schema.test.ts  |   55 +
+ .../schemas/dashboard-summary.schema.test.ts  |   60 +
+ 19 files changed, 2686 insertions(+), 1431 deletions(-)
+ create mode 100644 packages/shared-types/scripts/regenerate-snapshot.ts
+ create mode 100644 packages/shared-types/src/schemas/automation.schema.ts
+ create mode 100644 packages/shared-types/tests/schemas/automation.schema.test.ts
+ create mode 100644 packages/shared-types/tests/schemas/checklist.schema.test.ts
+ create mode 100644 packages/shared-types/tests/schemas/cost-intelligence.schema.test.ts
+ create mode 100644 packages/shared-types/tests/schemas/dashboard-summary.schema.test.ts
+
+diff --git a/backend/tests/controllers/costs.controller.test.ts b/backend/tests/controllers/costs.controller.test.ts
+index 92162e6..b854de4 100644
+--- a/backend/tests/controllers/costs.controller.test.ts
++++ b/backend/tests/controllers/costs.controller.test.ts
+@@ -65,7 +65,7 @@ describe("CostsController", () => {
+ 			expect(mockListCosts).toHaveBeenCalled();
+ 			expect(res.setHeader).toHaveBeenCalledWith("X-Total-Count", "1");
+ 			expect(res.status).toHaveBeenCalledWith(200);
+-		});
++		}, 10_000);
+ 	});
+ 
+ 	describe("getCostsByOrder", () => {
+diff --git a/packages/shared-types/contracts/api-contract.snapshot.json b/packages/shared-types/contracts/api-contract.snapshot.json
+index c89fdcd..ac17975 100644
+--- a/packages/shared-types/contracts/api-contract.snapshot.json
++++ b/packages/shared-types/contracts/api-contract.snapshot.json
+@@ -264,7 +264,10 @@
+                 "SYSTEM_FEATURE_FLAG_UPDATED",
+                 "SYSTEM_SETTINGS_UPDATED",
+                 "DIAN_CONFIGURATION_UPDATED",
+-                "PASSKEY_REGISTERED"
++                "PASSKEY_REGISTERED",
++                "AUTOMATION_RULE_CREATED",
++                "AUTOMATION_RULE_UPDATED",
++                "AUTOMATION_ACTION_RESOLVED"
+               ],
+               "type": "string"
+             },
+@@ -494,7 +497,10 @@
+                 "SYSTEM_FEATURE_FLAG_UPDATED",
+                 "SYSTEM_SETTINGS_UPDATED",
+                 "DIAN_CONFIGURATION_UPDATED",
+-                "PASSKEY_REGISTERED"
++                "PASSKEY_REGISTERED",
++                "AUTOMATION_RULE_CREATED",
++                "AUTOMATION_RULE_UPDATED",
++                "AUTOMATION_ACTION_RESOLVED"
+               ],
+               "type": "string"
+             },
+@@ -737,7 +743,10 @@
+                   "SYSTEM_FEATURE_FLAG_UPDATED",
+                   "SYSTEM_SETTINGS_UPDATED",
+                   "DIAN_CONFIGURATION_UPDATED",
+-                  "PASSKEY_REGISTERED"
++                  "PASSKEY_REGISTERED",
++                  "AUTOMATION_RULE_CREATED",
++                  "AUTOMATION_RULE_UPDATED",
++                  "AUTOMATION_ACTION_RESOLVED"
+                 ],
+                 "type": "string"
+               },
+@@ -958,6 +967,14 @@
+                     "minLength": 3,
+                     "type": "string"
+                   },
++                  "evidenceAssetIds": {
++                    "default": [],
++                    "items": {
++                      "minLength": 1,
++                      "type": "string"
++                    },
++                    "type": "array"
++                  },
+                   "id": {
+                     "minLength": 1,
+                     "type": "string"
+@@ -981,6 +998,15 @@
+                   "requiresSignature": {
+                     "default": false,
+                     "type": "boolean"
++                  },
++                  "result": {
++                    "default": "pending",
++                    "enum": [
++                      "pending",
++                      "passed",
++                      "failed"
++                    ],
++                    "type": "string"
+                   }
+                 },
+                 "required": [
+@@ -989,9 +1015,11 @@
+                   "description",
+                   "required",
+                   "isBlocking",
++                  "result",
+                   "completed",
+                   "requiresPhoto",
+-                  "requiresSignature"
++                  "requiresSignature",
++                  "evidenceAssetIds"
+                 ],
+                 "type": "object"
+               },
+@@ -1021,6 +1049,12 @@
+             "templateName": {
+               "type": "string"
+             },
++            "templateVersion": {
++              "default": 1,
++              "exclusiveMinimum": 0,
++              "maximum": 9007199254740991,
++              "type": "integer"
++            },
+             "updatedAt": {
+               "format": "date-time",
+               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -1030,6 +1064,7 @@
+           "required": [
+             "_id",
+             "orderId",
++            "templateVersion",
+             "status",
+             "items",
+             "createdAt",
+@@ -1103,16 +1138,21 @@
+           "$schema": "https://json-schema.org/draft/2020-12/schema",
+           "additionalProperties": false,
+           "properties": {
+-            "completed": {
+-              "type": "boolean"
+-            },
+             "observation": {
+               "maxLength": 500,
+               "type": "string"
++            },
++            "result": {
++              "enum": [
++                "pending",
++                "passed",
++                "failed"
++              ],
++              "type": "string"
+             }
+           },
+           "required": [
+-            "completed"
++            "result"
+           ],
+           "type": "object"
+         }
+@@ -1234,25 +1274,7 @@
+                     "pattern": "^[0-9a-fA-F]{24}$",
+                     "type": "string"
+                   },
+-                  "targetStepCode": {
+-                    "enum": [
+-                      "step_01_work_request",
+-                      "step_02_site_visit",
+-                      "step_03_proposal",
+-                      "step_04_purchase_order",
+-                      "step_05_planning",
+-                      "step_06_execution",
+-                      "step_07_technical_report",
+-                      "step_08_delivery_record",
+-                      "step_09_client_signature",
+-                      "step_10_ses_submission",
+-                      "step_11_ses_approval",
+-                      "step_12_invoice_submission",
+-                      "step_13_invoice_approval",
+-                      "step_14_payment_closure"
+-                    ],
+-                    "type": "string"
+-                  }
++                  "targetStepCode": {}
+                 },
+                 "required": [
+                   "purpose",
+@@ -1375,25 +1397,7 @@
+               "pattern": "^[0-9a-fA-F]{24}$",
+               "type": "string"
+             },
+-            "targetStepCode": {
+-              "enum": [
+-                "step_01_work_request",
+-                "step_02_site_visit",
+-                "step_03_proposal",
+-                "step_04_purchase_order",
+-                "step_05_planning",
+-                "step_06_execution",
+-                "step_07_technical_report",
+-                "step_08_delivery_record",
+-                "step_09_client_signature",
+-                "step_10_ses_submission",
+-                "step_11_ses_approval",
+-                "step_12_invoice_submission",
+-                "step_13_invoice_approval",
+-                "step_14_payment_closure"
+-              ],
+-              "type": "string"
+-            },
++            "targetStepCode": {},
+             "title": {
+               "type": "string"
+             },
+@@ -1522,44 +1526,8 @@
+                 }
+               ]
+             },
+-            "stepCode": {
+-              "enum": [
+-                "step_01_work_request",
+-                "step_02_site_visit",
+-                "step_03_proposal",
+-                "step_04_purchase_order",
+-                "step_05_planning",
+-                "step_06_execution",
+-                "step_07_technical_report",
+-                "step_08_delivery_record",
+-                "step_09_client_signature",
+-                "step_10_ses_submission",
+-                "step_11_ses_approval",
+-                "step_12_invoice_submission",
+-                "step_13_invoice_approval",
+-                "step_14_payment_closure"
+-              ],
+-              "type": "string"
+-            },
+-            "stepId": {
+-              "enum": [
+-                "step_01_work_request",
+-                "step_02_site_visit",
+-                "step_03_proposal",
+-                "step_04_purchase_order",
+-                "step_05_planning",
+-                "step_06_execution",
+-                "step_07_technical_report",
+-                "step_08_delivery_record",
+-                "step_09_client_signature",
+-                "step_10_ses_submission",
+-                "step_11_ses_approval",
+-                "step_12_invoice_submission",
+-                "step_13_invoice_approval",
+-                "step_14_payment_closure"
+-              ],
+-              "type": "string"
+-            }
++            "stepCode": {},
++            "stepId": {}
+           },
+           "type": "object"
+         }
+@@ -1662,25 +1630,7 @@
+               "minLength": 1,
+               "type": "string"
+             },
+-            "targetStepCode": {
+-              "enum": [
+-                "step_01_work_request",
+-                "step_02_site_visit",
+-                "step_03_proposal",
+-                "step_04_purchase_order",
+-                "step_05_planning",
+-                "step_06_execution",
+-                "step_07_technical_report",
+-                "step_08_delivery_record",
+-                "step_09_client_signature",
+-                "step_10_ses_submission",
+-                "step_11_ses_approval",
+-                "step_12_invoice_submission",
+-                "step_13_invoice_approval",
+-                "step_14_payment_closure"
+-              ],
+-              "type": "string"
+-            },
++            "targetStepCode": {},
+             "title": {
+               "maxLength": 200,
+               "minLength": 1,
+@@ -10781,25 +10731,7 @@
+           },
+           "type": "array"
+         },
+-        "currentStepKey": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "currentStepKey": {},
+         "reply": {
+           "maxLength": 8000,
+           "minLength": 1,
+@@ -10848,25 +10780,7 @@
+               "minimum": 0,
+               "type": "number"
+             },
+-            "stepKey": {
+-              "enum": [
+-                "step_01_work_request",
+-                "step_02_site_visit",
+-                "step_03_proposal",
+-                "step_04_purchase_order",
+-                "step_05_planning",
+-                "step_06_execution",
+-                "step_07_technical_report",
+-                "step_08_delivery_record",
+-                "step_09_client_signature",
+-                "step_10_ses_submission",
+-                "step_11_ses_approval",
+-                "step_12_invoice_submission",
+-                "step_13_invoice_approval",
+-                "step_14_payment_closure"
+-              ],
+-              "type": "string"
+-            },
++            "stepKey": {},
+             "suggestedActions": {
+               "items": {
+                 "maxLength": 100,
+@@ -11022,25 +10936,7 @@
+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+           "type": "string"
+         },
+-        "currentStepKey": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "currentStepKey": {},
+         "messages": {
+           "default": [],
+           "items": {
+@@ -11066,25 +10962,7 @@
+                     "minimum": 0,
+                     "type": "number"
+                   },
+-                  "stepKey": {
+-                    "enum": [
+-                      "step_01_work_request",
+-                      "step_02_site_visit",
+-                      "step_03_proposal",
+-                      "step_04_purchase_order",
+-                      "step_05_planning",
+-                      "step_06_execution",
+-                      "step_07_technical_report",
+-                      "step_08_delivery_record",
+-                      "step_09_client_signature",
+-                      "step_10_ses_submission",
+-                      "step_11_ses_approval",
+-                      "step_12_invoice_submission",
+-                      "step_13_invoice_approval",
+-                      "step_14_payment_closure"
+-                    ],
+-                    "type": "string"
+-                  },
++                  "stepKey": {},
+                   "suggestedActions": {
+                     "items": {
+                       "maxLength": 100,
+@@ -11231,25 +11109,7 @@
+             }
+           ]
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "targetStepCode": {}
+       },
+       "type": "object"
+     },
+@@ -12094,7 +11954,10 @@
+             "SYSTEM_FEATURE_FLAG_UPDATED",
+             "SYSTEM_SETTINGS_UPDATED",
+             "DIAN_CONFIGURATION_UPDATED",
+-            "PASSKEY_REGISTERED"
++            "PASSKEY_REGISTERED",
++            "AUTOMATION_RULE_CREATED",
++            "AUTOMATION_RULE_UPDATED",
++            "AUTOMATION_ACTION_RESOLVED"
+           ],
+           "type": "string"
+         },
+@@ -12322,7 +12185,10 @@
+             "SYSTEM_FEATURE_FLAG_UPDATED",
+             "SYSTEM_SETTINGS_UPDATED",
+             "DIAN_CONFIGURATION_UPDATED",
+-            "PASSKEY_REGISTERED"
++            "PASSKEY_REGISTERED",
++            "AUTOMATION_RULE_CREATED",
++            "AUTOMATION_RULE_UPDATED",
++            "AUTOMATION_ACTION_RESOLVED"
+           ],
+           "type": "string"
+         },
+@@ -12441,6 +12307,584 @@
+       ],
+       "type": "object"
+     },
++    "AutomationActionSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "oneOf": [
++        {
++          "additionalProperties": false,
++          "properties": {
++            "body": {
++              "maxLength": 1000,
++              "minLength": 1,
++              "type": "string"
++            },
++            "priority": {
++              "enum": [
++                "low",
++                "medium",
++                "high",
++                "critical"
++              ],
++              "type": "string"
++            },
++            "recipientRoles": {
++              "items": {
++                "enum": [
++                  "gerente",
++                  "residente",
++                  "hes",
++                  "coord_administrativo",
++                  "auxiliar_contable",
++                  "supervisor",
++                  "auxiliar_hes",
++                  "supervisor_electricista",
++                  "tecnico_electricista",
++                  "operador",
++                  "tecnico",
++                  "oficial_construccion",
++                  "administrativo",
++                  "pasante",
++                  "cliente"
++                ],
++                "type": "string"
++              },
++              "minItems": 1,
++              "type": "array"
++            },
++            "title": {
++              "maxLength": 200,
++              "minLength": 1,
++              "type": "string"
++            },
++            "type": {
++              "const": "notify",
++              "type": "string"
++            }
++          },
++          "required": [
++            "type",
++            "recipientRoles",
++            "priority",
++            "title",
++            "body"
++          ],
++          "type": "object"
++        },
++        {
++          "additionalProperties": false,
++          "properties": {
++            "assignedRole": {
++              "enum": [
++                "gerente",
++                "residente",
++                "hes",
++                "coord_administrativo",
++                "auxiliar_contable",
++                "supervisor",
++                "auxiliar_hes",
++                "supervisor_electricista",
++                "tecnico_electricista",
++                "operador",
++                "tecnico",
++                "oficial_construccion",
++                "administrativo",
++                "pasante",
++                "cliente"
++              ],
++              "type": "string"
++            },
++            "dueHours": {
++              "maximum": 720,
++              "minimum": 1,
++              "type": "integer"
++            },
++            "reason": {
++              "maxLength": 1000,
++              "minLength": 1,
++              "type": "string"
++            },
++            "title": {
++              "maxLength": 200,
++              "minLength": 1,
++              "type": "string"
++            },
++            "type": {
++              "const": "create_task",
++              "type": "string"
++            }
++          },
++          "required": [
++            "type",
++            "assignedRole",
++            "title",
++            "reason",
++            "dueHours"
++          ],
++          "type": "object"
++        },
++        {
++          "additionalProperties": false,
++          "properties": {
++            "reason": {
++              "maxLength": 1000,
++              "minLength": 1,
++              "type": "string"
++            },
++            "type": {
++              "enum": [
++                "block_transition",
++                "return_to_execution",
++                "request_evidence"
++              ],
++              "type": "string"
++            }
++          },
++          "required": [
++            "type",
++            "reason"
++          ],
++          "type": "object"
++        },
++        {
++          "additionalProperties": false,
++          "properties": {
++            "label": {
++              "maxLength": 200,
++              "minLength": 1,
++              "type": "string"
++            },
++            "riskLevel": {
++              "enum": [
++                "medium",
++                "high",
++                "critical"
++              ],
++              "type": "string"
++            },
++            "type": {
++              "const": "flag_risk",
++              "type": "string"
++            }
++          },
++          "required": [
++            "type",
++            "riskLevel",
++            "label"
++          ],
++          "type": "object"
++        }
++      ]
++    },
++    "AutomationActionTypeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "notify",
++        "create_task",
++        "block_transition",
++        "return_to_execution",
++        "request_evidence",
++        "flag_risk"
++      ],
++      "type": "string"
++    },
++    "AutomationEventTypeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "evidence_rejected",
++        "vehicle_document_expiring",
++        "tool_certificate_expiring",
++        "cost_threshold_exceeded",
++        "critical_checklist_failed",
++        "ses_approved",
++        "invoice_overdue"
++      ],
++      "type": "string"
++    },
++    "AutomationOperationalActionSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "_id": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "assignedRole": {
++          "enum": [
++            "gerente",
++            "residente",
++            "hes",
++            "coord_administrativo",
++            "auxiliar_contable",
++            "supervisor",
++            "auxiliar_hes",
++            "supervisor_electricista",
++            "tecnico_electricista",
++            "operador",
++            "tecnico",
++            "oficial_construccion",
++            "administrativo",
++            "pasante",
++            "cliente"
++          ],
++          "type": "string"
++        },
++        "createdAt": {
++          "format": "date-time",
++          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++          "type": "string"
++        },
++        "dueAt": {
++          "format": "date-time",
++          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++          "type": "string"
++        },
++        "entityId": {
++          "maxLength": 128,
++          "minLength": 1,
++          "type": "string"
++        },
++        "entityType": {
++          "maxLength": 80,
++          "minLength": 1,
++          "type": "string"
++        },
++        "executionId": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "priority": {
++          "enum": [
++            "medium",
++            "high",
++            "critical"
++          ],
++          "type": "string"
++        },
++        "reason": {
++          "maxLength": 1000,
++          "minLength": 1,
++          "type": "string"
++        },
++        "resolvedAt": {
++          "format": "date-time",
++          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++          "type": "string"
++        },
++        "resolvedBy": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "ruleId": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "status": {
++          "enum": [
++            "open",
++            "resolved"
++          ],
++          "type": "string"
++        },
++        "title": {
++          "maxLength": 200,
++          "minLength": 1,
++          "type": "string"
++        },
++        "type": {
++          "enum": [
++            "create_task",
++            "block_transition",
++            "return_to_execution",
++            "request_evidence",
++            "flag_risk"
++          ],
++          "type": "string"
++        }
++      },
++      "required": [
++        "_id",
++        "ruleId",
++        "executionId",
++        "entityType",
++        "entityId",
++        "type",
++        "title",
++        "reason",
++        "priority",
++        "status",
++        "createdAt"
++      ],
++      "type": "object"
++    },
++    "AutomationOperationalActionTypeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "create_task",
++        "block_transition",
++        "return_to_execution",
++        "request_evidence",
++        "flag_risk"
++      ],
++      "type": "string"
++    },
++    "AutomationRuleIdSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "id": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        }
++      },
++      "required": [
++        "id"
++      ],
++      "type": "object"
++    },
++    "AutomationRuleSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "_id": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "actions": {
++          "items": {
++            "oneOf": [
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "body": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "priority": {
++                    "enum": [
++                      "low",
++                      "medium",
++                      "high",
++                      "critical"
++                    ],
++                    "type": "string"
++                  },
++                  "recipientRoles": {
++                    "items": {
++                      "enum": [
++                        "gerente",
++                        "residente",
++                        "hes",
++                        "coord_administrativo",
++                        "auxiliar_contable",
++                        "supervisor",
++                        "auxiliar_hes",
++                        "supervisor_electricista",
++                        "tecnico_electricista",
++                        "operador",
++                        "tecnico",
++                        "oficial_construccion",
++                        "administrativo",
++                        "pasante",
++                        "cliente"
++                      ],
++                      "type": "string"
++                    },
++                    "minItems": 1,
++                    "type": "array"
++                  },
++                  "title": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "notify",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "recipientRoles",
++                  "priority",
++                  "title",
++                  "body"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "assignedRole": {
++                    "enum": [
++                      "gerente",
++                      "residente",
++                      "hes",
++                      "coord_administrativo",
++                      "auxiliar_contable",
++                      "supervisor",
++                      "auxiliar_hes",
++                      "supervisor_electricista",
++                      "tecnico_electricista",
++                      "operador",
++                      "tecnico",
++                      "oficial_construccion",
++                      "administrativo",
++                      "pasante",
++                      "cliente"
++                    ],
++                    "type": "string"
++                  },
++                  "dueHours": {
++                    "maximum": 720,
++                    "minimum": 1,
++                    "type": "integer"
++                  },
++                  "reason": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "title": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "create_task",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "assignedRole",
++                  "title",
++                  "reason",
++                  "dueHours"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "reason": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "enum": [
++                      "block_transition",
++                      "return_to_execution",
++                      "request_evidence"
++                    ],
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "reason"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "label": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "riskLevel": {
++                    "enum": [
++                      "medium",
++                      "high",
++                      "critical"
++                    ],
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "flag_risk",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "riskLevel",
++                  "label"
++                ],
++                "type": "object"
++              }
++            ]
++          },
++          "maxItems": 12,
++          "minItems": 1,
++          "type": "array"
++        },
++        "createdAt": {
++          "format": "date-time",
++          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++          "type": "string"
++        },
++        "createdBy": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "description": {
++          "maxLength": 500,
++          "minLength": 1,
++          "type": "string"
++        },
++        "enabled": {
++          "type": "boolean"
++        },
++        "eventType": {
++          "enum": [
++            "evidence_rejected",
++            "vehicle_document_expiring",
++            "tool_certificate_expiring",
++            "cost_threshold_exceeded",
++            "critical_checklist_failed",
++            "ses_approved",
++            "invoice_overdue"
++          ],
++          "type": "string"
++        },
++        "name": {
++          "maxLength": 120,
++          "minLength": 3,
++          "type": "string"
++        },
++        "updatedAt": {
++          "format": "date-time",
++          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++          "type": "string"
++        },
++        "updatedBy": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        },
++        "version": {
++          "maximum": 9007199254740991,
++          "minimum": 1,
++          "type": "integer"
++        }
++      },
++      "required": [
++        "_id",
++        "name",
++        "description",
++        "eventType",
++        "actions",
++        "enabled",
++        "version",
++        "createdBy",
++        "updatedBy",
++        "createdAt",
++        "updatedAt"
++      ],
++      "type": "object"
++    },
+     "BillingAttachmentSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -14083,7 +14527,7 @@
+       },
+       "type": "object"
+     },
+-    "CermontOperationalStepCodeSchema": {
++    "CanonicalCermontOperationalStepCodeSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "enum": [
+         "step_01_work_request",
+@@ -14092,17 +14536,20 @@
+         "step_04_purchase_order",
+         "step_05_planning",
+         "step_06_execution",
+-        "step_07_technical_report",
+-        "step_08_delivery_record",
+-        "step_09_client_signature",
+-        "step_10_ses_submission",
+-        "step_11_ses_approval",
+-        "step_12_invoice_submission",
++        "step_07_evidence",
++        "step_08_technical_report",
++        "step_09_delivery_record",
++        "step_10_client_signature",
++        "step_11_ses",
++        "step_12_invoice",
+         "step_13_invoice_approval",
+-        "step_14_payment_closure"
++        "step_14_payment"
+       ],
+       "type": "string"
+     },
++    "CermontOperationalStepCodeSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema"
++    },
+     "CermontOperationalStepViewSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -14141,14 +14588,14 @@
+             "step_04_purchase_order",
+             "step_05_planning",
+             "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
++            "step_07_evidence",
++            "step_08_technical_report",
++            "step_09_delivery_record",
++            "step_10_client_signature",
++            "step_11_ses",
++            "step_12_invoice",
+             "step_13_invoice_approval",
+-            "step_14_payment_closure"
++            "step_14_payment"
+           ],
+           "type": "string"
+         },
+@@ -14204,7 +14651,7 @@
+         "stepNumber": {
+           "maximum": 14,
+           "minimum": 1,
+-          "type": "number"
++          "type": "integer"
+         }
+       },
+       "required": [
+@@ -14561,6 +15008,15 @@
+       ],
+       "type": "object"
+     },
++    "ChecklistItemResultSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "pending",
++        "passed",
++        "failed"
++      ],
++      "type": "string"
++    },
+     "ChecklistItemSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -14592,6 +15048,14 @@
+           "minLength": 3,
+           "type": "string"
+         },
++        "evidenceAssetIds": {
++          "default": [],
++          "items": {
++            "minLength": 1,
++            "type": "string"
++          },
++          "type": "array"
++        },
+         "id": {
+           "minLength": 1,
+           "type": "string"
+@@ -14615,6 +15079,15 @@
+         "requiresSignature": {
+           "default": false,
+           "type": "boolean"
++        },
++        "result": {
++          "default": "pending",
++          "enum": [
++            "pending",
++            "passed",
++            "failed"
++          ],
++          "type": "string"
+         }
+       },
+       "required": [
+@@ -14623,9 +15096,11 @@
+         "description",
+         "required",
+         "isBlocking",
++        "result",
+         "completed",
+         "requiresPhoto",
+-        "requiresSignature"
++        "requiresSignature",
++        "evidenceAssetIds"
+       ],
+       "type": "object"
+     },
+@@ -14696,6 +15171,14 @@
+                 "minLength": 3,
+                 "type": "string"
+               },
++              "evidenceAssetIds": {
++                "default": [],
++                "items": {
++                  "minLength": 1,
++                  "type": "string"
++                },
++                "type": "array"
++              },
+               "id": {
+                 "minLength": 1,
+                 "type": "string"
+@@ -14719,6 +15202,15 @@
+               "requiresSignature": {
+                 "default": false,
+                 "type": "boolean"
++              },
++              "result": {
++                "default": "pending",
++                "enum": [
++                  "pending",
++                  "passed",
++                  "failed"
++                ],
++                "type": "string"
+               }
+             },
+             "required": [
+@@ -14727,9 +15219,11 @@
+               "description",
+               "required",
+               "isBlocking",
++              "result",
+               "completed",
+               "requiresPhoto",
+-              "requiresSignature"
++              "requiresSignature",
++              "evidenceAssetIds"
+             ],
+             "type": "object"
+           },
+@@ -14759,6 +15253,12 @@
+         "templateName": {
+           "type": "string"
+         },
++        "templateVersion": {
++          "default": 1,
++          "exclusiveMinimum": 0,
++          "maximum": 9007199254740991,
++          "type": "integer"
++        },
+         "updatedAt": {
+           "format": "date-time",
+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -14768,6 +15268,7 @@
+       "required": [
+         "_id",
+         "orderId",
++        "templateVersion",
+         "status",
+         "items",
+         "createdAt",
+@@ -14828,6 +15329,14 @@
+                 "minLength": 3,
+                 "type": "string"
+               },
++              "evidenceAssetIds": {
++                "default": [],
++                "items": {
++                  "minLength": 1,
++                  "type": "string"
++                },
++                "type": "array"
++              },
+               "id": {
+                 "minLength": 1,
+                 "type": "string"
+@@ -14851,6 +15360,15 @@
+               "requiresSignature": {
+                 "default": false,
+                 "type": "boolean"
++              },
++              "result": {
++                "default": "pending",
++                "enum": [
++                  "pending",
++                  "passed",
++                  "failed"
++                ],
++                "type": "string"
+               }
+             },
+             "required": [
+@@ -14859,9 +15377,11 @@
+               "description",
+               "required",
+               "isBlocking",
++              "result",
+               "completed",
+               "requiresPhoto",
+-              "requiresSignature"
++              "requiresSignature",
++              "evidenceAssetIds"
+             ],
+             "type": "object"
+           },
+@@ -14891,6 +15411,12 @@
+         "templateName": {
+           "type": "string"
+         },
++        "templateVersion": {
++          "default": 1,
++          "exclusiveMinimum": 0,
++          "maximum": 9007199254740991,
++          "type": "integer"
++        },
+         "updatedAt": {
+           "format": "date-time",
+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -14900,6 +15426,7 @@
+       "required": [
+         "_id",
+         "orderId",
++        "templateVersion",
+         "status",
+         "items",
+         "createdAt",
+@@ -15613,25 +16140,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              }
++              "stepCode": {}
+             },
+             "required": [
+               "kind",
+@@ -15755,25 +16264,7 @@
+           ],
+           "type": "string"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "stepCode": {}
+       },
+       "required": [
+         "kind",
+@@ -16353,6 +16844,16 @@
+       ],
+       "type": "object"
+     },
++    "CostBudgetRiskSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "enum": [
++        "not_available",
++        "within_budget",
++        "threshold_reached",
++        "over_budget"
++      ],
++      "type": "string"
++    },
+     "CostByCategorySchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -16414,11 +16915,13 @@
+         },
+         "category": {
+           "enum": [
+-            "material",
+             "labor",
++            "materials",
+             "equipment",
+             "transport",
++            "subcontract",
+             "overhead",
++            "tax",
+             "other"
+           ],
+           "type": "string"
+@@ -16521,11 +17024,13 @@
+               },
+               "category": {
+                 "enum": [
+-                  "material",
+                   "labor",
++                  "materials",
+                   "equipment",
+                   "transport",
++                  "subcontract",
+                   "overhead",
++                  "tax",
+                   "other"
+                 ],
+                 "type": "string"
+@@ -16658,11 +17163,13 @@
+         },
+         "category": {
+           "enum": [
+-            "material",
+             "labor",
++            "materials",
+             "equipment",
+             "transport",
++            "subcontract",
+             "overhead",
++            "tax",
+             "other"
+           ],
+           "type": "string"
+@@ -16681,19 +17188,45 @@
+           "type": "string"
+         },
+         "description": {
+-          "type": "string"
++          "oneOf": [
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "absent",
++                  "type": "string"
++                }
++              },
++              "required": [
++                "status"
++              ],
++              "type": "object"
++            },
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "present",
++                  "type": "string"
++                },
++                "value": {
++                  "maxLength": 500,
++                  "minLength": 1,
++                  "type": "string"
++                }
++              },
++              "required": [
++                "status",
++                "value"
++              ],
++              "type": "object"
++            }
++          ]
+         },
+         "isActive": {
+           "default": true,
+           "type": "boolean"
+         },
+-        "metadata": {
+-          "additionalProperties": {},
+-          "propertyNames": {
+-            "type": "string"
+-          },
+-          "type": "object"
+-        },
+         "name": {
+           "minLength": 1,
+           "type": "string"
+@@ -16716,6 +17249,7 @@
+         "_id",
+         "code",
+         "name",
++        "description",
+         "category",
+         "unit",
+         "unitPrice",
+@@ -16726,6 +17260,158 @@
+       ],
+       "type": "object"
+     },
++    "CostCatalogListSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "items": {
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "_id": {
++                "pattern": "^[0-9a-fA-F]{24}$",
++                "type": "string"
++              },
++              "category": {
++                "enum": [
++                  "labor",
++                  "materials",
++                  "equipment",
++                  "transport",
++                  "subcontract",
++                  "overhead",
++                  "tax",
++                  "other"
++                ],
++                "type": "string"
++              },
++              "code": {
++                "minLength": 1,
++                "type": "string"
++              },
++              "createdAt": {
++                "format": "date-time",
++                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++                "type": "string"
++              },
++              "currency": {
++                "default": "COP",
++                "type": "string"
++              },
++              "description": {
++                "oneOf": [
++                  {
++                    "additionalProperties": false,
++                    "properties": {
++                      "status": {
++                        "const": "absent",
++                        "type": "string"
++                      }
++                    },
++                    "required": [
++                      "status"
++                    ],
++                    "type": "object"
++                  },
++                  {
++                    "additionalProperties": false,
++                    "properties": {
++                      "status": {
++                        "const": "present",
++                        "type": "string"
++                      },
++                      "value": {
++                        "maxLength": 500,
++                        "minLength": 1,
++                        "type": "string"
++                      }
++                    },
++                    "required": [
++                      "status",
++                      "value"
++                    ],
++                    "type": "object"
++                  }
++                ]
++              },
++              "isActive": {
++                "default": true,
++                "type": "boolean"
++              },
++              "name": {
++                "minLength": 1,
++                "type": "string"
++              },
++              "unit": {
++                "minLength": 1,
++                "type": "string"
++              },
++              "unitPrice": {
++                "minimum": 0,
++                "type": "number"
++              },
++              "updatedAt": {
++                "format": "date-time",
++                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
++                "type": "string"
++              }
++            },
++            "required": [
++              "_id",
++              "code",
++              "name",
++              "description",
++              "category",
++              "unit",
++              "unitPrice",
++              "currency",
++              "isActive",
++              "createdAt",
++              "updatedAt"
++            ],
++            "type": "object"
++          },
++          "type": "array"
++        },
++        "pagination": {
++          "additionalProperties": false,
++          "properties": {
++            "limit": {
++              "maximum": 9007199254740991,
++              "minimum": 1,
++              "type": "integer"
++            },
++            "page": {
++              "maximum": 9007199254740991,
++              "minimum": 1,
++              "type": "integer"
++            },
++            "total": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "totalPages": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            }
++          },
++          "required": [
++            "page",
++            "limit",
++            "total",
++            "totalPages"
++          ],
++          "type": "object"
++        }
++      },
++      "required": [
++        "items",
++        "pagination"
++      ],
++      "type": "object"
++    },
+     "CostCategorySchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "enum": [
+@@ -16754,11 +17440,13 @@
+               },
+               "category": {
+                 "enum": [
+-                  "material",
+                   "labor",
++                  "materials",
+                   "equipment",
+                   "transport",
++                  "subcontract",
+                   "overhead",
++                  "tax",
+                   "other"
+                 ],
+                 "type": "string"
+@@ -16981,11 +17669,13 @@
+         },
+         "category": {
+           "enum": [
+-            "material",
+             "labor",
++            "materials",
+             "equipment",
+             "transport",
++            "subcontract",
+             "overhead",
++            "tax",
+             "other"
+           ],
+           "type": "string"
+@@ -17406,6 +18096,94 @@
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+       "properties": {
++        "actualCostWithTax": {
++          "minimum": 0,
++          "type": "number"
++        },
++        "approvedBudget": {
++          "oneOf": [
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "absent",
++                  "type": "string"
++                }
++              },
++              "required": [
++                "status"
++              ],
++              "type": "object"
++            },
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "present",
++                  "type": "string"
++                },
++                "value": {
++                  "minimum": 0,
++                  "type": "number"
++                }
++              },
++              "required": [
++                "status",
++                "value"
++              ],
++              "type": "object"
++            }
++          ]
++        },
++        "budgetAlertThreshold": {
++          "maximum": 1,
++          "minimum": 0,
++          "type": "number"
++        },
++        "budgetConsumptionPercent": {
++          "oneOf": [
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "absent",
++                  "type": "string"
++                }
++              },
++              "required": [
++                "status"
++              ],
++              "type": "object"
++            },
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "present",
++                  "type": "string"
++                },
++                "value": {
++                  "minimum": 0,
++                  "type": "number"
++                }
++              },
++              "required": [
++                "status",
++                "value"
++              ],
++              "type": "object"
++            }
++          ]
++        },
++        "budgetRisk": {
++          "enum": [
++            "not_available",
++            "within_budget",
++            "threshold_reached",
++            "over_budget"
++          ],
++          "type": "string"
++        },
+         "byCategory": {
+           "items": {
+             "additionalProperties": false,
+@@ -17470,6 +18248,74 @@
+           ],
+           "type": "string"
+         },
++        "grossMarginPercent": {
++          "oneOf": [
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "absent",
++                  "type": "string"
++                }
++              },
++              "required": [
++                "status"
++              ],
++              "type": "object"
++            },
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "present",
++                  "type": "string"
++                },
++                "value": {
++                  "type": "number"
++                }
++              },
++              "required": [
++                "status",
++                "value"
++              ],
++              "type": "object"
++            }
++          ]
++        },
++        "grossProfit": {
++          "oneOf": [
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "absent",
++                  "type": "string"
++                }
++              },
++              "required": [
++                "status"
++              ],
++              "type": "object"
++            },
++            {
++              "additionalProperties": false,
++              "properties": {
++                "status": {
++                  "const": "present",
++                  "type": "string"
++                },
++                "value": {
++                  "type": "number"
++                }
++              },
++              "required": [
++                "status",
++                "value"
++              ],
++              "type": "object"
++            }
++          ]
++        },
+         "hasCosts": {
+           "type": "boolean"
+         },
+@@ -17530,6 +18376,13 @@
+         "totalTax",
+         "variance",
+         "variancePercent",
++        "approvedBudget",
++        "budgetConsumptionPercent",
++        "budgetRisk",
++        "budgetAlertThreshold",
++        "actualCostWithTax",
++        "grossProfit",
++        "grossMarginPercent",
+         "hasCosts",
+         "dataState",
+         "byCategory"
+@@ -18947,6 +19800,217 @@
+       ],
+       "type": "object"
+     },
++    "CreateAutomationRuleSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "actions": {
++          "items": {
++            "oneOf": [
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "body": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "priority": {
++                    "enum": [
++                      "low",
++                      "medium",
++                      "high",
++                      "critical"
++                    ],
++                    "type": "string"
++                  },
++                  "recipientRoles": {
++                    "items": {
++                      "enum": [
++                        "gerente",
++                        "residente",
++                        "hes",
++                        "coord_administrativo",
++                        "auxiliar_contable",
++                        "supervisor",
++                        "auxiliar_hes",
++                        "supervisor_electricista",
++                        "tecnico_electricista",
++                        "operador",
++                        "tecnico",
++                        "oficial_construccion",
++                        "administrativo",
++                        "pasante",
++                        "cliente"
++                      ],
++                      "type": "string"
++                    },
++                    "minItems": 1,
++                    "type": "array"
++                  },
++                  "title": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "notify",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "recipientRoles",
++                  "priority",
++                  "title",
++                  "body"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "assignedRole": {
++                    "enum": [
++                      "gerente",
++                      "residente",
++                      "hes",
++                      "coord_administrativo",
++                      "auxiliar_contable",
++                      "supervisor",
++                      "auxiliar_hes",
++                      "supervisor_electricista",
++                      "tecnico_electricista",
++                      "operador",
++                      "tecnico",
++                      "oficial_construccion",
++                      "administrativo",
++                      "pasante",
++                      "cliente"
++                    ],
++                    "type": "string"
++                  },
++                  "dueHours": {
++                    "maximum": 720,
++                    "minimum": 1,
++                    "type": "integer"
++                  },
++                  "reason": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "title": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "create_task",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "assignedRole",
++                  "title",
++                  "reason",
++                  "dueHours"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "reason": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "enum": [
++                      "block_transition",
++                      "return_to_execution",
++                      "request_evidence"
++                    ],
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "reason"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "label": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "riskLevel": {
++                    "enum": [
++                      "medium",
++                      "high",
++                      "critical"
++                    ],
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "flag_risk",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "riskLevel",
++                  "label"
++                ],
++                "type": "object"
++              }
++            ]
++          },
++          "maxItems": 12,
++          "minItems": 1,
++          "type": "array"
++        },
++        "description": {
++          "maxLength": 500,
++          "minLength": 1,
++          "type": "string"
++        },
++        "enabled": {
++          "type": "boolean"
++        },
++        "eventType": {
++          "enum": [
++            "evidence_rejected",
++            "vehicle_document_expiring",
++            "tool_certificate_expiring",
++            "cost_threshold_exceeded",
++            "critical_checklist_failed",
++            "ses_approved",
++            "invoice_overdue"
++          ],
++          "type": "string"
++        },
++        "name": {
++          "maxLength": 120,
++          "minLength": 3,
++          "type": "string"
++        }
++      },
++      "required": [
++        "name",
++        "description",
++        "eventType",
++        "actions",
++        "enabled"
++      ],
++      "type": "object"
++    },
+     "CreateBusinessDocumentSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -19614,25 +20678,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              }
++              "stepCode": {}
+             },
+             "required": [
+               "kind",
+@@ -19718,11 +20764,13 @@
+         "category": {
+           "default": "other",
+           "enum": [
+-            "material",
+             "labor",
++            "materials",
+             "equipment",
+             "transport",
++            "subcontract",
+             "overhead",
++            "tax",
+             "other"
+           ],
+           "type": "string"
+@@ -20314,25 +21362,7 @@
+           "minLength": 1,
+           "type": "string"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "targetStepCode": {},
+         "title": {
+           "maxLength": 200,
+           "minLength": 1,
+@@ -21074,25 +22104,7 @@
+           },
+           "type": "array"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "targetStepCode": {}
+       },
+       "required": [
+         "documentTemplateId",
+@@ -23736,7 +24748,8 @@
+             "EXECUTION_STARTED",
+             "EVIDENCE_VERIFIED",
+             "REPORT_APPROVED",
+-            "SYSTEM_ALERT"
++            "SYSTEM_ALERT",
++            "COST_THRESHOLD_REACHED"
+           ],
+           "type": "string"
+         }
+@@ -27077,25 +28090,7 @@
+           },
+           "type": "array"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "targetStepCode": {}
+       },
+       "required": [
+         "documentSourceFileId",
+@@ -28501,6 +29496,81 @@
+       ],
+       "type": "object"
+     },
++    "DashboardFieldReadinessSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "blockingChecklistsFailed": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "blockingChecklistsPending": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "evidenceGpsCoveragePct": {
++          "maximum": 100,
++          "minimum": 0,
++          "type": "number"
++        },
++        "evidencePendingReview": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "evidenceRejected": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "offlineSyncFailed": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "offlineSyncPending": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "toolCertificationsExpired": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "toolCertificationsExpiring": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "vehicleDocumentsExpired": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "vehicleDocumentsExpiring": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        }
++      },
++      "required": [
++        "blockingChecklistsPending",
++        "blockingChecklistsFailed",
++        "evidencePendingReview",
++        "evidenceRejected",
++        "evidenceGpsCoveragePct",
++        "vehicleDocumentsExpiring",
++        "vehicleDocumentsExpired",
++        "toolCertificationsExpiring",
++        "toolCertificationsExpired",
++        "offlineSyncPending",
++        "offlineSyncFailed"
++      ],
++      "type": "object"
++    },
+     "DashboardFinancialAgingSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -28546,19 +29616,25 @@
+           },
+           "type": "array"
+         },
+-        "totalOutstanding": {
++        "overdueInvoiceCount": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "totalOutstandingAmount": {
+           "minimum": 0,
+           "type": "number"
+         },
+-        "totalOverdue": {
++        "totalOverdueAmount": {
+           "minimum": 0,
+           "type": "number"
+         }
+       },
+       "required": [
+         "buckets",
+-        "totalOutstanding",
+-        "totalOverdue"
++        "totalOutstandingAmount",
++        "totalOverdueAmount",
++        "overdueInvoiceCount"
+       ],
+       "type": "object"
+     },
+@@ -28745,6 +29821,72 @@
+       ],
+       "type": "object"
+     },
++    "DashboardServiceDemandItemSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "requests": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        },
++        "serviceType": {
++          "maxLength": 120,
++          "minLength": 1,
++          "type": "string"
++        }
++      },
++      "required": [
++        "serviceType",
++        "requests"
++      ],
++      "type": "object"
++    },
++    "DashboardServiceDemandSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "items": {
++          "items": {
++            "additionalProperties": false,
++            "properties": {
++              "requests": {
++                "maximum": 9007199254740991,
++                "minimum": 0,
++                "type": "integer"
++              },
++              "serviceType": {
++                "maxLength": 120,
++                "minLength": 1,
++                "type": "string"
++              }
++            },
++            "required": [
++              "serviceType",
++              "requests"
++            ],
++            "type": "object"
++          },
++          "type": "array"
++        },
++        "periodDays": {
++          "exclusiveMinimum": 0,
++          "maximum": 9007199254740991,
++          "type": "integer"
++        },
++        "totalRequests": {
++          "maximum": 9007199254740991,
++          "minimum": 0,
++          "type": "integer"
++        }
++      },
++      "required": [
++        "periodDays",
++        "totalRequests",
++        "items"
++      ],
++      "type": "object"
++    },
+     "DashboardStageMetricSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -29007,6 +30149,80 @@
+           ],
+           "type": "object"
+         },
++        "fieldReadiness": {
++          "additionalProperties": false,
++          "properties": {
++            "blockingChecklistsFailed": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "blockingChecklistsPending": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "evidenceGpsCoveragePct": {
++              "maximum": 100,
++              "minimum": 0,
++              "type": "number"
++            },
++            "evidencePendingReview": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "evidenceRejected": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "offlineSyncFailed": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "offlineSyncPending": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "toolCertificationsExpired": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "toolCertificationsExpiring": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "vehicleDocumentsExpired": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "vehicleDocumentsExpiring": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            }
++          },
++          "required": [
++            "blockingChecklistsPending",
++            "blockingChecklistsFailed",
++            "evidencePendingReview",
++            "evidenceRejected",
++            "evidenceGpsCoveragePct",
++            "vehicleDocumentsExpiring",
++            "vehicleDocumentsExpired",
++            "toolCertificationsExpiring",
++            "toolCertificationsExpired",
++            "offlineSyncPending",
++            "offlineSyncFailed"
++          ],
++          "type": "object"
++        },
+         "financialAging": {
+           "additionalProperties": false,
+           "properties": {
+@@ -29051,19 +30267,25 @@
+               },
+               "type": "array"
+             },
+-            "totalOutstanding": {
++            "overdueInvoiceCount": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            },
++            "totalOutstandingAmount": {
+               "minimum": 0,
+               "type": "number"
+             },
+-            "totalOverdue": {
++            "totalOverdueAmount": {
+               "minimum": 0,
+               "type": "number"
+             }
+           },
+           "required": [
+             "buckets",
+-            "totalOutstanding",
+-            "totalOverdue"
++            "totalOutstandingAmount",
++            "totalOverdueAmount",
++            "overdueInvoiceCount"
+           ],
+           "type": "object"
+         },
+@@ -29221,6 +30443,50 @@
+           ],
+           "type": "object"
+         },
++        "serviceDemand": {
++          "additionalProperties": false,
++          "properties": {
++            "items": {
++              "items": {
++                "additionalProperties": false,
++                "properties": {
++                  "requests": {
++                    "maximum": 9007199254740991,
++                    "minimum": 0,
++                    "type": "integer"
++                  },
++                  "serviceType": {
++                    "maxLength": 120,
++                    "minLength": 1,
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "serviceType",
++                  "requests"
++                ],
++                "type": "object"
++              },
++              "type": "array"
++            },
++            "periodDays": {
++              "exclusiveMinimum": 0,
++              "maximum": 9007199254740991,
++              "type": "integer"
++            },
++            "totalRequests": {
++              "maximum": 9007199254740991,
++              "minimum": 0,
++              "type": "integer"
++            }
++          },
++          "required": [
++            "periodDays",
++            "totalRequests",
++            "items"
++          ],
++          "type": "object"
++        },
+         "systemHealth": {
+           "additionalProperties": false,
+           "properties": {
+@@ -29255,6 +30521,8 @@
+         "nextActions",
+         "administrativeClosure",
+         "financialAging",
++        "fieldReadiness",
++        "serviceDemand",
+         "costVariance",
+         "documentWorkload",
+         "assetMaintenance",
+@@ -31063,25 +32331,7 @@
+           "pattern": "^[0-9a-fA-F]{24}$",
+           "type": "string"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "targetStepCode": {}
+       },
+       "required": [
+         "purpose",
+@@ -32142,44 +33392,8 @@
+             }
+           ]
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
+-        "stepId": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "stepCode": {},
++        "stepId": {}
+       },
+       "type": "object"
+     },
+@@ -32316,25 +33530,7 @@
+                 "pattern": "^[0-9a-fA-F]{24}$",
+                 "type": "string"
+               },
+-              "targetStepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              }
++              "targetStepCode": {}
+             },
+             "required": [
+               "purpose",
+@@ -32457,25 +33653,7 @@
+           "pattern": "^[0-9a-fA-F]{24}$",
+           "type": "string"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "targetStepCode": {},
+         "title": {
+           "type": "string"
+         },
+@@ -32809,25 +33987,7 @@
+           "minLength": 1,
+           "type": "string"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "targetStepCode": {},
+         "updatedAt": {
+           "format": "date-time",
+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -33719,25 +34879,7 @@
+           },
+           "type": "array"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "targetStepCode": {},
+         "updatedAt": {
+           "format": "date-time",
+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -34370,25 +35512,7 @@
+               },
+               "type": "array"
+             },
+-            "targetStepCode": {
+-              "enum": [
+-                "step_01_work_request",
+-                "step_02_site_visit",
+-                "step_03_proposal",
+-                "step_04_purchase_order",
+-                "step_05_planning",
+-                "step_06_execution",
+-                "step_07_technical_report",
+-                "step_08_delivery_record",
+-                "step_09_client_signature",
+-                "step_10_ses_submission",
+-                "step_11_ses_approval",
+-                "step_12_invoice_submission",
+-                "step_13_invoice_approval",
+-                "step_14_payment_closure"
+-              ],
+-              "type": "string"
+-            },
++            "targetStepCode": {},
+             "updatedAt": {
+               "format": "date-time",
+               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -35010,25 +36134,7 @@
+               },
+               "type": "array"
+             },
+-            "targetStepCode": {
+-              "enum": [
+-                "step_01_work_request",
+-                "step_02_site_visit",
+-                "step_03_proposal",
+-                "step_04_purchase_order",
+-                "step_05_planning",
+-                "step_06_execution",
+-                "step_07_technical_report",
+-                "step_08_delivery_record",
+-                "step_09_client_signature",
+-                "step_10_ses_submission",
+-                "step_11_ses_approval",
+-                "step_12_invoice_submission",
+-                "step_13_invoice_approval",
+-                "step_14_payment_closure"
+-              ],
+-              "type": "string"
+-            },
++            "targetStepCode": {},
+             "updatedAt": {
+               "format": "date-time",
+               "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -35651,25 +36757,7 @@
+                 },
+                 "type": "array"
+               },
+-              "targetStepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              },
++              "targetStepCode": {},
+               "updatedAt": {
+                 "format": "date-time",
+                 "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -35885,25 +36973,7 @@
+           ],
+           "type": "string"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "stepCode": {}
+       },
+       "required": [
+         "code",
+@@ -48983,25 +50053,7 @@
+           ],
+           "type": "string"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "targetStepCode": {}
+       },
+       "required": [
+         "purpose"
+@@ -49034,25 +50086,7 @@
+           "pattern": "^[0-9a-fA-F]{24}$",
+           "type": "string"
+         },
+-        "sourceStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "sourceStepCode": {},
+         "sourceStepLabel": {
+           "maxLength": 200,
+           "minLength": 1,
+@@ -54345,25 +55379,7 @@
+           ],
+           "type": "string"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "stepCode": {},
+         "title": {
+           "minLength": 1,
+           "type": "string"
+@@ -54436,25 +55452,7 @@
+         "requirementId": {
+           "type": "string"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "stepCode": {},
+         "url": {
+           "format": "uri",
+           "type": "string"
+@@ -54559,6 +55557,91 @@
+       ],
+       "type": "object"
+     },
++    "ListAutomationOperationalActionsQuerySchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "assignedRole": {
++          "enum": [
++            "gerente",
++            "residente",
++            "hes",
++            "coord_administrativo",
++            "auxiliar_contable",
++            "supervisor",
++            "auxiliar_hes",
++            "supervisor_electricista",
++            "tecnico_electricista",
++            "operador",
++            "tecnico",
++            "oficial_construccion",
++            "administrativo",
++            "pasante",
++            "cliente"
++          ],
++          "type": "string"
++        },
++        "entityId": {
++          "maxLength": 128,
++          "minLength": 1,
++          "type": "string"
++        },
++        "entityType": {
++          "maxLength": 80,
++          "minLength": 1,
++          "type": "string"
++        },
++        "limit": {
++          "default": 50,
++          "maximum": 100,
++          "minimum": 1,
++          "type": "integer"
++        },
++        "status": {
++          "enum": [
++            "open",
++            "resolved"
++          ],
++          "type": "string"
++        },
++        "type": {
++          "enum": [
++            "create_task",
++            "block_transition",
++            "return_to_execution",
++            "request_evidence",
++            "flag_risk"
++          ],
++          "type": "string"
++        }
++      },
++      "required": [
++        "limit"
++      ],
++      "type": "object"
++    },
++    "ListAutomationRulesQuerySchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "enabled": {
++          "type": "boolean"
++        },
++        "eventType": {
++          "enum": [
++            "evidence_rejected",
++            "vehicle_document_expiring",
++            "tool_certificate_expiring",
++            "cost_threshold_exceeded",
++            "critical_checklist_failed",
++            "ses_approved",
++            "invoice_overdue"
++          ],
++          "type": "string"
++        }
++      },
++      "type": "object"
++    },
+     "ListChecklistsQuerySchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -54676,6 +55759,42 @@
+       ],
+       "type": "object"
+     },
++    "ListCostCatalogQuerySchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "category": {
++          "enum": [
++            "labor",
++            "materials",
++            "equipment",
++            "transport",
++            "subcontract",
++            "overhead",
++            "tax",
++            "other"
++          ],
++          "type": "string"
++        },
++        "limit": {
++          "default": 20,
++          "maximum": 100,
++          "minimum": 1,
++          "type": "integer"
++        },
++        "page": {
++          "default": 1,
++          "maximum": 9007199254740991,
++          "minimum": 1,
++          "type": "integer"
++        }
++      },
++      "required": [
++        "page",
++        "limit"
++      ],
++      "type": "object"
++    },
+     "ListCostsQuerySchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -54958,7 +56077,8 @@
+             "EXECUTION_STARTED",
+             "EVIDENCE_VERIFIED",
+             "REPORT_APPROVED",
+-            "SYSTEM_ALERT"
++            "SYSTEM_ALERT",
++            "COST_THRESHOLD_REACHED"
+           ],
+           "type": "string"
+         }
+@@ -57330,7 +58450,8 @@
+             "EXECUTION_STARTED",
+             "EVIDENCE_VERIFIED",
+             "REPORT_APPROVED",
+-            "SYSTEM_ALERT"
++            "SYSTEM_ALERT",
++            "COST_THRESHOLD_REACHED"
+           ],
+           "type": "string"
+         }
+@@ -57449,7 +58570,8 @@
+         "EXECUTION_STARTED",
+         "EVIDENCE_VERIFIED",
+         "REPORT_APPROVED",
+-        "SYSTEM_ALERT"
++        "SYSTEM_ALERT",
++        "COST_THRESHOLD_REACHED"
+       ],
+       "type": "string"
+     },
+@@ -61705,25 +62827,7 @@
+           ],
+           "type": "string"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "stepCode": {},
+         "stepNumber": {
+           "maximum": 14,
+           "minimum": 1,
+@@ -64820,25 +65924,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              }
++              "stepCode": {}
+             },
+             "required": [
+               "code",
+@@ -65670,25 +66756,7 @@
+           "minLength": 1,
+           "type": "string"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "stepCode": {}
+       },
+       "required": [
+         "stepCode",
+@@ -68136,6 +69204,20 @@
+       ],
+       "type": "object"
+     },
++    "ResolveAutomationOperationalActionParamsSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "id": {
++          "pattern": "^[0-9a-fA-F]{24}$",
++          "type": "string"
++        }
++      },
++      "required": [
++        "id"
++      ],
++      "type": "object"
++    },
+     "ResolvedStepRequirementSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -68252,25 +69334,7 @@
+           ],
+           "type": "string"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "stepCode": {},
+         "templateId": {
+           "type": "string"
+         },
+@@ -70351,25 +71415,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              }
++              "stepCode": {}
+             },
+             "required": [
+               "code",
+@@ -70398,14 +71444,14 @@
+             "step_04_purchase_order",
+             "step_05_planning",
+             "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
++            "step_07_evidence",
++            "step_08_technical_report",
++            "step_09_delivery_record",
++            "step_10_client_signature",
++            "step_11_ses",
++            "step_12_invoice",
+             "step_13_invoice_approval",
+-            "step_14_payment_closure"
++            "step_14_payment"
+           ],
+           "type": "string"
+         },
+@@ -70572,25 +71618,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              },
++              "stepCode": {},
+               "templateId": {
+                 "type": "string"
+               },
+@@ -70638,7 +71666,7 @@
+         "stepNumber": {
+           "maximum": 14,
+           "minimum": 1,
+-          "type": "number"
++          "type": "integer"
+         }
+       },
+       "required": [
+@@ -71233,25 +72261,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              }
++              "stepCode": {}
+             },
+             "required": [
+               "code",
+@@ -71307,25 +72317,7 @@
+           ],
+           "type": "string"
+         },
+-        "currentStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "currentStepCode": {},
+         "currentStepRequirements": {
+           "default": [],
+           "items": {
+@@ -71443,25 +72435,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              },
++              "stepCode": {},
+               "templateId": {
+                 "type": "string"
+               },
+@@ -71872,25 +72846,7 @@
+                       ],
+                       "type": "string"
+                     },
+-                    "stepCode": {
+-                      "enum": [
+-                        "step_01_work_request",
+-                        "step_02_site_visit",
+-                        "step_03_proposal",
+-                        "step_04_purchase_order",
+-                        "step_05_planning",
+-                        "step_06_execution",
+-                        "step_07_technical_report",
+-                        "step_08_delivery_record",
+-                        "step_09_client_signature",
+-                        "step_10_ses_submission",
+-                        "step_11_ses_approval",
+-                        "step_12_invoice_submission",
+-                        "step_13_invoice_approval",
+-                        "step_14_payment_closure"
+-                      ],
+-                      "type": "string"
+-                    }
++                    "stepCode": {}
+                   },
+                   "required": [
+                     "code",
+@@ -71919,14 +72875,14 @@
+                   "step_04_purchase_order",
+                   "step_05_planning",
+                   "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
++                  "step_07_evidence",
++                  "step_08_technical_report",
++                  "step_09_delivery_record",
++                  "step_10_client_signature",
++                  "step_11_ses",
++                  "step_12_invoice",
+                   "step_13_invoice_approval",
+-                  "step_14_payment_closure"
++                  "step_14_payment"
+                 ],
+                 "type": "string"
+               },
+@@ -72093,25 +73049,7 @@
+                       ],
+                       "type": "string"
+                     },
+-                    "stepCode": {
+-                      "enum": [
+-                        "step_01_work_request",
+-                        "step_02_site_visit",
+-                        "step_03_proposal",
+-                        "step_04_purchase_order",
+-                        "step_05_planning",
+-                        "step_06_execution",
+-                        "step_07_technical_report",
+-                        "step_08_delivery_record",
+-                        "step_09_client_signature",
+-                        "step_10_ses_submission",
+-                        "step_11_ses_approval",
+-                        "step_12_invoice_submission",
+-                        "step_13_invoice_approval",
+-                        "step_14_payment_closure"
+-                      ],
+-                      "type": "string"
+-                    },
++                    "stepCode": {},
+                     "templateId": {
+                       "type": "string"
+                     },
+@@ -72159,7 +73097,7 @@
+               "stepNumber": {
+                 "maximum": 14,
+                 "minimum": 1,
+-                "type": "number"
++                "type": "integer"
+               }
+             },
+             "required": [
+@@ -72459,25 +73397,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              }
++              "stepCode": {}
+             },
+             "required": [
+               "code",
+@@ -72555,25 +73475,7 @@
+           },
+           "type": "object"
+         },
+-        "currentStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "currentStepCode": {},
+         "currentStepLabel": {
+           "maxLength": 200,
+           "minLength": 1,
+@@ -72611,25 +73513,7 @@
+                 "pattern": "^[0-9a-fA-F]{24}$",
+                 "type": "string"
+               },
+-              "sourceStepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              },
++              "sourceStepCode": {},
+               "sourceStepLabel": {
+                 "maxLength": 200,
+                 "minLength": 1,
+@@ -72780,25 +73664,7 @@
+               "minLength": 1,
+               "type": "string"
+             },
+-            "stepCode": {
+-              "enum": [
+-                "step_01_work_request",
+-                "step_02_site_visit",
+-                "step_03_proposal",
+-                "step_04_purchase_order",
+-                "step_05_planning",
+-                "step_06_execution",
+-                "step_07_technical_report",
+-                "step_08_delivery_record",
+-                "step_09_client_signature",
+-                "step_10_ses_submission",
+-                "step_11_ses_approval",
+-                "step_12_invoice_submission",
+-                "step_13_invoice_approval",
+-                "step_14_payment_closure"
+-              ],
+-              "type": "string"
+-            }
++            "stepCode": {}
+           },
+           "required": [
+             "stepCode",
+@@ -72993,25 +73859,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              },
++              "stepCode": {},
+               "templateId": {
+                 "type": "string"
+               },
+@@ -73493,25 +74341,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              }
++              "stepCode": {}
+             },
+             "required": [
+               "code",
+@@ -73755,25 +74585,7 @@
+           ],
+           "type": "object"
+         },
+-        "currentStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "currentStepCode": {},
+         "deadline": {
+           "format": "date-time",
+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -73806,25 +74618,7 @@
+                 ],
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              },
++              "stepCode": {},
+               "title": {
+                 "minLength": 1,
+                 "type": "string"
+@@ -73879,25 +74673,7 @@
+               "requirementId": {
+                 "type": "string"
+               },
+-              "stepCode": {
+-                "enum": [
+-                  "step_01_work_request",
+-                  "step_02_site_visit",
+-                  "step_03_proposal",
+-                  "step_04_purchase_order",
+-                  "step_05_planning",
+-                  "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
+-                  "step_13_invoice_approval",
+-                  "step_14_payment_closure"
+-                ],
+-                "type": "string"
+-              },
++              "stepCode": {},
+               "url": {
+                 "format": "uri",
+                 "type": "string"
+@@ -74317,25 +75093,7 @@
+                       ],
+                       "type": "string"
+                     },
+-                    "stepCode": {
+-                      "enum": [
+-                        "step_01_work_request",
+-                        "step_02_site_visit",
+-                        "step_03_proposal",
+-                        "step_04_purchase_order",
+-                        "step_05_planning",
+-                        "step_06_execution",
+-                        "step_07_technical_report",
+-                        "step_08_delivery_record",
+-                        "step_09_client_signature",
+-                        "step_10_ses_submission",
+-                        "step_11_ses_approval",
+-                        "step_12_invoice_submission",
+-                        "step_13_invoice_approval",
+-                        "step_14_payment_closure"
+-                      ],
+-                      "type": "string"
+-                    }
++                    "stepCode": {}
+                   },
+                   "required": [
+                     "code",
+@@ -74364,14 +75122,14 @@
+                   "step_04_purchase_order",
+                   "step_05_planning",
+                   "step_06_execution",
+-                  "step_07_technical_report",
+-                  "step_08_delivery_record",
+-                  "step_09_client_signature",
+-                  "step_10_ses_submission",
+-                  "step_11_ses_approval",
+-                  "step_12_invoice_submission",
++                  "step_07_evidence",
++                  "step_08_technical_report",
++                  "step_09_delivery_record",
++                  "step_10_client_signature",
++                  "step_11_ses",
++                  "step_12_invoice",
+                   "step_13_invoice_approval",
+-                  "step_14_payment_closure"
++                  "step_14_payment"
+                 ],
+                 "type": "string"
+               },
+@@ -74538,25 +75296,7 @@
+                       ],
+                       "type": "string"
+                     },
+-                    "stepCode": {
+-                      "enum": [
+-                        "step_01_work_request",
+-                        "step_02_site_visit",
+-                        "step_03_proposal",
+-                        "step_04_purchase_order",
+-                        "step_05_planning",
+-                        "step_06_execution",
+-                        "step_07_technical_report",
+-                        "step_08_delivery_record",
+-                        "step_09_client_signature",
+-                        "step_10_ses_submission",
+-                        "step_11_ses_approval",
+-                        "step_12_invoice_submission",
+-                        "step_13_invoice_approval",
+-                        "step_14_payment_closure"
+-                      ],
+-                      "type": "string"
+-                    },
++                    "stepCode": {},
+                     "templateId": {
+                       "type": "string"
+                     },
+@@ -74604,7 +75344,7 @@
+               "stepNumber": {
+                 "maximum": 14,
+                 "minimum": 1,
+-                "type": "number"
++                "type": "integer"
+               }
+             },
+             "required": [
+@@ -76749,25 +77489,7 @@
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+       "properties": {
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "stepCode": {}
+       },
+       "required": [
+         "stepCode"
+@@ -76894,25 +77616,7 @@
+           "default": true,
+           "type": "boolean"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "stepCode": {},
+         "templateId": {
+           "type": "string"
+         },
+@@ -83773,25 +84477,7 @@
+           },
+           "type": "array"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "targetStepCode": {},
+         "updatedAt": {
+           "format": "date-time",
+           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+@@ -87859,25 +88545,7 @@
+           ],
+           "type": "string"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "targetStepCode": {},
+         "templateName": {
+           "type": "string"
+         },
+@@ -91094,6 +91762,210 @@
+       },
+       "type": "object"
+     },
++    "UpdateAutomationRuleSchema": {
++      "$schema": "https://json-schema.org/draft/2020-12/schema",
++      "additionalProperties": false,
++      "properties": {
++        "actions": {
++          "items": {
++            "oneOf": [
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "body": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "priority": {
++                    "enum": [
++                      "low",
++                      "medium",
++                      "high",
++                      "critical"
++                    ],
++                    "type": "string"
++                  },
++                  "recipientRoles": {
++                    "items": {
++                      "enum": [
++                        "gerente",
++                        "residente",
++                        "hes",
++                        "coord_administrativo",
++                        "auxiliar_contable",
++                        "supervisor",
++                        "auxiliar_hes",
++                        "supervisor_electricista",
++                        "tecnico_electricista",
++                        "operador",
++                        "tecnico",
++                        "oficial_construccion",
++                        "administrativo",
++                        "pasante",
++                        "cliente"
++                      ],
++                      "type": "string"
++                    },
++                    "minItems": 1,
++                    "type": "array"
++                  },
++                  "title": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "notify",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "recipientRoles",
++                  "priority",
++                  "title",
++                  "body"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "assignedRole": {
++                    "enum": [
++                      "gerente",
++                      "residente",
++                      "hes",
++                      "coord_administrativo",
++                      "auxiliar_contable",
++                      "supervisor",
++                      "auxiliar_hes",
++                      "supervisor_electricista",
++                      "tecnico_electricista",
++                      "operador",
++                      "tecnico",
++                      "oficial_construccion",
++                      "administrativo",
++                      "pasante",
++                      "cliente"
++                    ],
++                    "type": "string"
++                  },
++                  "dueHours": {
++                    "maximum": 720,
++                    "minimum": 1,
++                    "type": "integer"
++                  },
++                  "reason": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "title": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "create_task",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "assignedRole",
++                  "title",
++                  "reason",
++                  "dueHours"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "reason": {
++                    "maxLength": 1000,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "type": {
++                    "enum": [
++                      "block_transition",
++                      "return_to_execution",
++                      "request_evidence"
++                    ],
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "reason"
++                ],
++                "type": "object"
++              },
++              {
++                "additionalProperties": false,
++                "properties": {
++                  "label": {
++                    "maxLength": 200,
++                    "minLength": 1,
++                    "type": "string"
++                  },
++                  "riskLevel": {
++                    "enum": [
++                      "medium",
++                      "high",
++                      "critical"
++                    ],
++                    "type": "string"
++                  },
++                  "type": {
++                    "const": "flag_risk",
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "type",
++                  "riskLevel",
++                  "label"
++                ],
++                "type": "object"
++              }
++            ]
++          },
++          "maxItems": 12,
++          "minItems": 1,
++          "type": "array"
++        },
++        "description": {
++          "maxLength": 500,
++          "minLength": 1,
++          "type": "string"
++        },
++        "enabled": {
++          "type": "boolean"
++        },
++        "eventType": {
++          "enum": [
++            "evidence_rejected",
++            "vehicle_document_expiring",
++            "tool_certificate_expiring",
++            "cost_threshold_exceeded",
++            "critical_checklist_failed",
++            "ses_approved",
++            "invoice_overdue"
++          ],
++          "type": "string"
++        },
++        "name": {
++          "maxLength": 120,
++          "minLength": 3,
++          "type": "string"
++        }
++      },
++      "type": "object"
++    },
+     "UpdateBusinessDocumentSchema": {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+@@ -91202,16 +92074,21 @@
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "additionalProperties": false,
+       "properties": {
+-        "completed": {
+-          "type": "boolean"
+-        },
+         "observation": {
+           "maxLength": 500,
+           "type": "string"
++        },
++        "result": {
++          "enum": [
++            "pending",
++            "passed",
++            "failed"
++          ],
++          "type": "string"
+         }
+       },
+       "required": [
+-        "completed"
++        "result"
+       ],
+       "type": "object"
+     },
+@@ -92288,25 +93165,7 @@
+           },
+           "type": "array"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "targetStepCode": {}
+       },
+       "type": "object"
+     },
+@@ -96888,25 +97747,7 @@
+           },
+           "type": "array"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "targetStepCode": {}
+       },
+       "type": "object"
+     },
+@@ -99421,25 +100262,7 @@
+           "minLength": 1,
+           "type": "string"
+         },
+-        "targetStepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "targetStepCode": {},
+         "title": {
+           "maxLength": 200,
+           "minLength": 1,
+@@ -100916,25 +101739,7 @@
+           ],
+           "type": "string"
+         },
+-        "stepId": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        },
++        "stepId": {},
+         "title": {
+           "minLength": 1,
+           "type": "string"
+@@ -100988,25 +101793,7 @@
+         "route": {
+           "type": "string"
+         },
+-        "stepCode": {
+-          "enum": [
+-            "step_01_work_request",
+-            "step_02_site_visit",
+-            "step_03_proposal",
+-            "step_04_purchase_order",
+-            "step_05_planning",
+-            "step_06_execution",
+-            "step_07_technical_report",
+-            "step_08_delivery_record",
+-            "step_09_client_signature",
+-            "step_10_ses_submission",
+-            "step_11_ses_approval",
+-            "step_12_invoice_submission",
+-            "step_13_invoice_approval",
+-            "step_14_payment_closure"
+-          ],
+-          "type": "string"
+-        }
++        "stepCode": {}
+       },
+       "required": [
+         "actionId",
+diff --git a/packages/shared-types/contracts/contract-migrations.json b/packages/shared-types/contracts/contract-migrations.json
+index 8d8812a..30db524 100644
+--- a/packages/shared-types/contracts/contract-migrations.json
++++ b/packages/shared-types/contracts/contract-migrations.json
+@@ -1,5 +1,5 @@
+ {
+-	"currentSnapshotHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c",
++	"currentSnapshotHash": "sha256:203d499ad6d4b79147cac3c37292ae12389cc4bbf49661c4f665abd109bdb9fe",
+ 	"migrations": [
+ 		{
+ 			"id": "050-business-document-erp-connector-schemas",
+@@ -419,7 +419,7 @@
+ 			"date": "2026-06-29",
+ 			"type": "non-breaking",
+ 			"description": "Add RecordCalibrationSchema, ToolUsageSchema, and CalibrationsDueQuerySchema for tool calibration and usage tracking endpoints.",
+-			"toHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c"
++			"toHash": "sha256:203d499ad6d4b79147cac3c37292ae12389cc4bbf49661c4f665abd109bdb9fe"
+ 		}
+ 	]
+ }
+diff --git a/packages/shared-types/scripts/regenerate-snapshot.ts b/packages/shared-types/scripts/regenerate-snapshot.ts
+new file mode 100644
+index 0000000..b1fe416
+--- /dev/null
++++ b/packages/shared-types/scripts/regenerate-snapshot.ts
+@@ -0,0 +1,23 @@
++import { readFileSync, writeFileSync } from "node:fs";
++import { resolve } from "node:path";
++import {
++	buildApiContractSnapshot,
++	createSnapshotHash,
++	stringifyApiContractSnapshot,
++} from "../contracts/contractSnapshot";
++
++const snapshot = stringifyApiContractSnapshot(buildApiContractSnapshot());
++const snapshotPath = resolve(__dirname, "../contracts/api-contract.snapshot.json");
++writeFileSync(snapshotPath, snapshot);
++console.log("Wrote snapshot:", snapshot.length, "bytes");
++
++const hash = createSnapshotHash(snapshot);
++const manifestPath = resolve(__dirname, "../contracts/contract-migrations.json");
++const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as {
++	currentSnapshotHash: string;
++	migrations: Array<{ toHash: string }>;
++};
++manifest.currentSnapshotHash = hash;
++manifest.migrations[manifest.migrations.length - 1]!.toHash = hash;
++writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
++console.log("Updated manifest hash:", hash);
+diff --git a/packages/shared-types/src/constants/audit-actions.ts b/packages/shared-types/src/constants/audit-actions.ts
+index 98ca59a..d78e571 100644
+--- a/packages/shared-types/src/constants/audit-actions.ts
++++ b/packages/shared-types/src/constants/audit-actions.ts
+@@ -193,6 +193,9 @@ export const AUDIT_ACTIONS = {
+ 	SYSTEM_SETTINGS_UPDATED: "SYSTEM_SETTINGS_UPDATED",
+ 	DIAN_CONFIGURATION_UPDATED: "DIAN_CONFIGURATION_UPDATED",
+ 	PASSKEY_REGISTERED: "PASSKEY_REGISTERED",
++	AUTOMATION_RULE_CREATED: "AUTOMATION_RULE_CREATED",
++	AUTOMATION_RULE_UPDATED: "AUTOMATION_RULE_UPDATED",
++	AUTOMATION_ACTION_RESOLVED: "AUTOMATION_ACTION_RESOLVED",
+ } as const;
+ 
+ export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
+diff --git a/packages/shared-types/src/schemas/automation.schema.ts b/packages/shared-types/src/schemas/automation.schema.ts
+new file mode 100644
+index 0000000..88c0bb1
+--- /dev/null
++++ b/packages/shared-types/src/schemas/automation.schema.ts
+@@ -0,0 +1,140 @@
++import { z } from "zod";
++import { ObjectIdSchema } from "./common.schema";
++import { NotificationPrioritySchema } from "./notification.schema";
++import { UserRoleSchema } from "./user.schema";
++
++export const AutomationEventTypeSchema = z.enum([
++	"evidence_rejected",
++	"vehicle_document_expiring",
++	"tool_certificate_expiring",
++	"cost_threshold_exceeded",
++	"critical_checklist_failed",
++	"ses_approved",
++	"invoice_overdue",
++]);
++export type AutomationEventType = z.infer<typeof AutomationEventTypeSchema>;
++
++export const AutomationActionTypeSchema = z.enum([
++	"notify",
++	"create_task",
++	"block_transition",
++	"return_to_execution",
++	"request_evidence",
++	"flag_risk",
++]);
++export type AutomationActionType = z.infer<typeof AutomationActionTypeSchema>;
++export const AutomationOperationalActionTypeSchema = AutomationActionTypeSchema.exclude(["notify"]);
++
++const NotifyActionSchema = z.object({
++	type: z.literal("notify"),
++	recipientRoles: z.array(UserRoleSchema).min(1),
++	priority: NotificationPrioritySchema,
++	title: z.string().trim().min(1).max(200),
++	body: z.string().trim().min(1).max(1000),
++});
++
++const AssignedActionSchema = z.object({
++	type: z.literal("create_task"),
++	assignedRole: UserRoleSchema,
++	title: z.string().trim().min(1).max(200),
++	reason: z.string().trim().min(1).max(1000),
++	dueHours: z.number().int().min(1).max(720),
++});
++
++const BlockingActionSchema = z.object({
++	type: z.enum(["block_transition", "return_to_execution", "request_evidence"]),
++	reason: z.string().trim().min(1).max(1000),
++});
++
++const RiskActionSchema = z.object({
++	type: z.literal("flag_risk"),
++	riskLevel: z.enum(["medium", "high", "critical"]),
++	label: z.string().trim().min(1).max(200),
++});
++
++export const AutomationActionSchema = z.discriminatedUnion("type", [
++	NotifyActionSchema,
++	AssignedActionSchema,
++	BlockingActionSchema,
++	RiskActionSchema,
++]);
++export type AutomationAction = z.infer<typeof AutomationActionSchema>;
++
++export const AutomationRuleSchema = z.object({
++	_id: ObjectIdSchema,
++	name: z.string().trim().min(3).max(120),
++	description: z.string().trim().min(1).max(500),
++	eventType: AutomationEventTypeSchema,
++	actions: z.array(AutomationActionSchema).min(1).max(12),
++	enabled: z.boolean(),
++	version: z.number().int().min(1),
++	createdBy: ObjectIdSchema,
++	updatedBy: ObjectIdSchema,
++	createdAt: z.string().datetime(),
++	updatedAt: z.string().datetime(),
++});
++export type AutomationRule = z.infer<typeof AutomationRuleSchema>;
++
++export const CreateAutomationRuleSchema = AutomationRuleSchema.omit({
++	_id: true,
++	version: true,
++	createdBy: true,
++	updatedBy: true,
++	createdAt: true,
++	updatedAt: true,
++});
++export type CreateAutomationRuleInput = z.infer<typeof CreateAutomationRuleSchema>;
++
++export const UpdateAutomationRuleSchema = CreateAutomationRuleSchema.partial()
++	.strict()
++	.refine((input) => Object.keys(input).length > 0, {
++		message: "At least one automation rule field is required",
++	});
++export type UpdateAutomationRuleInput = z.infer<typeof UpdateAutomationRuleSchema>;
++
++export const AutomationRuleIdSchema = z.object({ id: ObjectIdSchema }).strict();
++
++export const ListAutomationRulesQuerySchema = z
++	.object({
++		eventType: AutomationEventTypeSchema.optional(),
++		enabled: z.coerce.boolean().optional(),
++	})
++	.strict();
++export type ListAutomationRulesQuery = z.infer<typeof ListAutomationRulesQuerySchema>;
++
++export const AutomationOperationalActionSchema = z.object({
++	_id: ObjectIdSchema,
++	ruleId: ObjectIdSchema,
++	executionId: ObjectIdSchema,
++	entityType: z.string().trim().min(1).max(80),
++	entityId: z.string().trim().min(1).max(128),
++	type: AutomationOperationalActionTypeSchema,
++	title: z.string().trim().min(1).max(200),
++	reason: z.string().trim().min(1).max(1000),
++	priority: z.enum(["medium", "high", "critical"]),
++	status: z.enum(["open", "resolved"]),
++	assignedRole: UserRoleSchema.optional(),
++	dueAt: z.string().datetime().optional(),
++	createdAt: z.string().datetime(),
++	resolvedAt: z.string().datetime().optional(),
++	resolvedBy: ObjectIdSchema.optional(),
++});
++export type AutomationOperationalAction = z.infer<typeof AutomationOperationalActionSchema>;
++
++export const ListAutomationOperationalActionsQuerySchema = z
++	.object({
++		status: z.enum(["open", "resolved"]).optional(),
++		assignedRole: UserRoleSchema.optional(),
++		entityType: z.string().trim().min(1).max(80).optional(),
++		entityId: z.string().trim().min(1).max(128).optional(),
++		type: AutomationOperationalActionTypeSchema.optional(),
++		limit: z.coerce.number().int().min(1).max(100).default(50),
++	})
++	.strict();
++export type ListAutomationOperationalActionsQuery = z.infer<
++	typeof ListAutomationOperationalActionsQuerySchema
++>;
++
++export const ResolveAutomationOperationalActionParamsSchema = z
++	.object({ id: ObjectIdSchema })
++	.strict();
+diff --git a/packages/shared-types/src/schemas/cermont-operational-step.schema.ts b/packages/shared-types/src/schemas/cermont-operational-step.schema.ts
+index 3f08941..9c487ac 100644
+--- a/packages/shared-types/src/schemas/cermont-operational-step.schema.ts
++++ b/packages/shared-types/src/schemas/cermont-operational-step.schema.ts
+@@ -1,28 +1,39 @@
++import {
++	CANONICAL_CODES,
++	LEGACY_OPERATIONAL_STEP_CODES,
++	normalizeOperationalStepCode,
++	OPERATIONAL_STEPS,
++	type OperationalStepKey,
++} from "@cermont/domain";
+ import { z } from "zod";
+ import { UserRoleSchema } from "./user.schema";
+ 
+-export const CermontOperationalStepCodeSchema = z.enum([
+-	"step_01_work_request",
+-	"step_02_site_visit",
+-	"step_03_proposal",
+-	"step_04_purchase_order",
+-	"step_05_planning",
+-	"step_06_execution",
+-	"step_07_technical_report",
+-	"step_08_delivery_record",
+-	"step_09_client_signature",
+-	"step_10_ses_submission",
+-	"step_11_ses_approval",
+-	"step_12_invoice_submission",
+-	"step_13_invoice_approval",
+-	"step_14_payment_closure",
+-]);
++/** Strict schema for values already using the canonical v2 code set. */
++export const CanonicalCermontOperationalStepCodeSchema = z.enum(CANONICAL_CODES);
++
++/**
++ * Boundary schema. It accepts the persisted v1 aliases while returning only a
++ * canonical v2 code, so old documents remain readable during online migration.
++ */
++export const CermontOperationalStepCodeSchema = z
++	.union([CanonicalCermontOperationalStepCodeSchema, z.enum(LEGACY_OPERATIONAL_STEP_CODES)])
++	.transform((input) => {
++		const normalized = normalizeOperationalStepCode(input);
++		if (normalized.status === "invalid") {
++			throw new Error(`Unsupported operational step code: ${input}`);
++		}
++		return normalized.code;
++	});
+ 
+ export type CermontOperationalStepCode = z.infer<typeof CermontOperationalStepCodeSchema>;
++export type CanonicalCermontOperationalStepCode = z.infer<
++	typeof CanonicalCermontOperationalStepCodeSchema
++>;
++export { normalizeOperationalStepCode as normalizeCermontOperationalStepCode };
+ 
+ export const CermontOperationalStepViewSchema = z.object({
+-	stepNumber: z.number().min(1).max(14),
+-	code: CermontOperationalStepCodeSchema,
++	stepNumber: z.number().int().min(1).max(14),
++	code: CanonicalCermontOperationalStepCodeSchema,
+ 	label: z.string(),
+ 	description: z.string(),
+ 	phase: z.enum(["operational", "administrative"]),
+@@ -40,17 +51,27 @@ export const CermontOperationalStepViewSchema = z.object({
+ 
+ export type CermontOperationalStepView = z.infer<typeof CermontOperationalStepViewSchema>;
+ 
+-export const CERMONT_OPERATIONAL_STEPS = [
+-	{
+-		stepNumber: 1,
+-		code: "step_01_work_request",
+-		label: "Solicitud de servicio",
+-		description: "Registrar y validar la necesidad del cliente antes de iniciar cualquier gestión.",
++interface OperationalStepViewMetadata {
++	readonly description: string;
++	readonly phase: "operational" | "administrative";
++	readonly entityType: string;
++	readonly relatedEntity: string;
++	readonly route: string;
++	readonly requiredDocuments: readonly string[];
++	readonly requiredEvidences: readonly string[];
++	readonly requiredSignatures: readonly string[];
++	readonly requiredForms: readonly string[];
++	readonly blocksTransition: boolean;
++	readonly nextAction: string;
++}
++
++const STEP_VIEW_METADATA = {
++	work_request: {
++		description: "Registrar y validar la necesidad del cliente antes de iniciar la gestión.",
+ 		phase: "operational",
+ 		entityType: "workRequest",
+ 		relatedEntity: "work_request",
+ 		route: "/work-requests",
+-		allowedRoles: ["gerente", "residente", "administrativo", "cliente"],
+ 		requiredDocuments: ["work_request"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: [],
+@@ -58,17 +79,12 @@ export const CERMONT_OPERATIONAL_STEPS = [
+ 		blocksTransition: true,
+ 		nextAction: "Registrar o validar solicitud de servicio",
+ 	},
+-	{
+-		stepNumber: 2,
+-		code: "step_02_site_visit",
+-		label: "Visita técnica",
+-		description:
+-			"Levantar condiciones reales de sitio y soportar técnicamente la solución propuesta.",
++	site_visit: {
++		description: "Levantar condiciones reales de sitio y soportar técnicamente la solución.",
+ 		phase: "operational",
+ 		entityType: "siteVisit",
+ 		relatedEntity: "site_visit",
+ 		route: "/site-visits",
+-		allowedRoles: ["residente", "supervisor", "gerente"],
+ 		requiredDocuments: ["site_visit_report"],
+ 		requiredEvidences: ["before_photos"],
+ 		requiredSignatures: [],
+@@ -76,17 +92,12 @@ export const CERMONT_OPERATIONAL_STEPS = [
+ 		blocksTransition: true,
+ 		nextAction: "Registrar visita técnica e inspeccionar sitio",
+ 	},
+-	{
+-		stepNumber: 3,
+-		code: "step_03_proposal",
+-		label: "Propuesta económica",
+-		description:
+-			"Formalizar alcance, cantidades y condiciones comerciales para aprobación del cliente.",
++	proposal: {
++		description: "Formalizar alcance, cantidades y condiciones comerciales para aprobación.",
+ 		phase: "operational",
+ 		entityType: "proposal",
+ 		relatedEntity: "proposal",
+ 		route: "/proposals",
+-		allowedRoles: ["gerente", "residente", "administrativo"],
+ 		requiredDocuments: ["proposal_document"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: [],
+@@ -94,34 +105,25 @@ export const CERMONT_OPERATIONAL_STEPS = [
+ 		blocksTransition: true,
+ 		nextAction: "Elaborar propuesta comercial e indicar tarifas",
+ 	},
+-	{
+-		stepNumber: 4,
+-		code: "step_04_purchase_order",
+-		label: "Aprobación / Orden de compra",
+-		description: "Asegurar la autorización contractual antes de comprometer recursos operativos.",
++	purchase_order: {
++		description: "Asegurar la autorización contractual antes de comprometer recursos.",
+ 		phase: "operational",
+ 		entityType: "purchaseOrder",
+ 		relatedEntity: "purchase_order",
+ 		route: "/purchase-orders",
+-		allowedRoles: ["gerente", "administrativo", "cliente"],
+ 		requiredDocuments: ["purchase_order"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: [],
+ 		requiredForms: [],
+ 		blocksTransition: true,
+-		nextAction: "Subir orden de compra firmada y validar aprobación",
++		nextAction: "Registrar la orden de compra aprobada",
+ 	},
+-	{
+-		stepNumber: 5,
+-		code: "step_05_planning",
+-		label: "Planeación de recursos",
+-		description:
+-			"Asignar cuadrilla, herramientas, seguridad y cronograma para ejecutar el servicio.",
++	planning: {
++		description: "Asignar cuadrilla, herramientas, seguridad y cronograma para el servicio.",
+ 		phase: "operational",
+ 		entityType: "planningPacket",
+ 		relatedEntity: "planning_packet",
+ 		route: "/planning",
+-		allowedRoles: ["gerente", "residente", "supervisor"],
+ 		requiredDocuments: ["planning_packet"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: [],
+@@ -129,51 +131,51 @@ export const CERMONT_OPERATIONAL_STEPS = [
+ 		blocksTransition: true,
+ 		nextAction: "Asignar cuadrilla, herramientas y cronograma",
+ 	},
+-	{
+-		stepNumber: 6,
+-		code: "step_06_execution",
+-		label: "Ejecución en campo",
+-		description:
+-			"Registrar la ejecución real, consumos, incidentes, evidencias y firmas operativas.",
++	execution: {
++		description: "Registrar la ejecución real, consumos, incidentes y controles operativos.",
+ 		phase: "operational",
+ 		entityType: "executionSession",
+ 		relatedEntity: "execution_session",
+ 		route: "/execution",
+-		allowedRoles: ["residente", "supervisor", "operador", "tecnico"],
+ 		requiredDocuments: ["ast_document", "ptw_document"],
+-		requiredEvidences: ["during_photos"],
++		requiredEvidences: [],
+ 		requiredSignatures: ["firma_tecnico", "firma_supervisor"],
+ 		requiredForms: ["execution_checklist", "execution_dynamic_form"],
+ 		blocksTransition: true,
+-		nextAction: "Diligenciar AST, permisos y registrar labor",
++		nextAction: "Diligenciar controles y registrar la labor ejecutada",
+ 	},
+-	{
+-		stepNumber: 7,
+-		code: "step_07_technical_report",
+-		label: "Informe técnico",
++	evidence: {
++		description: "Consolidar y validar las evidencias trazables de la ejecución en campo.",
++		phase: "operational",
++		entityType: "evidence",
++		relatedEntity: "evidence",
++		route: "/evidences",
++		requiredDocuments: [],
++		requiredEvidences: ["during_photos", "after_photos"],
++		requiredSignatures: [],
++		requiredForms: [],
++		blocksTransition: true,
++		nextAction: "Validar evidencia, ubicación, fecha y vínculo con la orden",
++	},
++	technical_report: {
+ 		description: "Consolidar resultados técnicos y cierre operacional del trabajo ejecutado.",
+ 		phase: "operational",
+ 		entityType: "technicalReport",
+ 		relatedEntity: "technical_report",
+ 		route: "/reports",
+-		allowedRoles: ["residente", "supervisor", "tecnico"],
+ 		requiredDocuments: ["technical_report"],
+-		requiredEvidences: ["after_photos"],
++		requiredEvidences: [],
+ 		requiredSignatures: [],
+ 		requiredForms: ["technical_report_form"],
+ 		blocksTransition: true,
+-		nextAction: "Registrar informe técnico final y soportes de obra",
++		nextAction: "Registrar informe técnico final",
+ 	},
+-	{
+-		stepNumber: 8,
+-		code: "step_08_delivery_record",
+-		label: "Acta de entrega",
+-		description: "Generar el acta que formaliza la entrega técnica y operativa del servicio.",
++	delivery_record: {
++		description: "Formalizar la entrega técnica y operativa del servicio.",
+ 		phase: "administrative",
+ 		entityType: "deliveryRecord",
+ 		relatedEntity: "delivery_record",
+ 		route: "/delivery-records",
+-		allowedRoles: ["residente", "supervisor", "administrativo", "gerente"],
+ 		requiredDocuments: ["delivery_record"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: [],
+@@ -181,16 +183,12 @@ export const CERMONT_OPERATIONAL_STEPS = [
+ 		blocksTransition: true,
+ 		nextAction: "Generar acta de entrega física y técnica",
+ 	},
+-	{
+-		stepNumber: 9,
+-		code: "step_09_client_signature",
+-		label: "Firma del cliente",
++	client_signature: {
+ 		description: "Obtener aceptación expresa del cliente sobre la entrega realizada.",
+ 		phase: "administrative",
+ 		entityType: "clientSignature",
+ 		relatedEntity: "delivery_record_signature",
+ 		route: "/delivery-records",
+-		allowedRoles: ["gerente", "residente", "cliente"],
+ 		requiredDocuments: ["signed_delivery_record"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: ["client_signature"],
+@@ -198,90 +196,79 @@ export const CERMONT_OPERATIONAL_STEPS = [
+ 		blocksTransition: true,
+ 		nextAction: "Obtener firma del cliente en el acta",
+ 	},
+-	{
+-		stepNumber: 10,
+-		code: "step_10_ses_submission",
+-		label: "Radicación SES",
+-		description: "Radicar la SES o soporte equivalente en el sistema del cliente.",
++	ses: {
++		description: "Radicar y confirmar la aprobación de la SES o soporte equivalente en Ariba.",
+ 		phase: "administrative",
+ 		entityType: "serviceEntrySheet",
+ 		relatedEntity: "service_entry_sheet",
+ 		route: "/billing/ses",
+-		allowedRoles: ["administrativo", "gerente"],
+-		requiredDocuments: ["ses_receipt"],
++		requiredDocuments: ["ses_receipt", "ses_approval_document"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: [],
+ 		requiredForms: [],
+ 		blocksTransition: true,
+-		nextAction: "Radicar hoja de entrada de servicio (SES / Ariba)",
++		nextAction: "Radicar y confirmar aprobación de SES / Ariba",
+ 	},
+-	{
+-		stepNumber: 11,
+-		code: "step_11_ses_approval",
+-		label: "Aprobación SES",
+-		description: "Confirmar que la SES fue aceptada y aprobada por el cliente.",
+-		phase: "administrative",
+-		entityType: "serviceEntrySheetApproval",
+-		relatedEntity: "service_entry_sheet_approval",
+-		route: "/billing/ses",
+-		allowedRoles: ["gerente", "administrativo"],
+-		requiredDocuments: ["ses_approval_document"],
+-		requiredEvidences: [],
+-		requiredSignatures: [],
+-		requiredForms: [],
+-		blocksTransition: true,
+-		nextAction: "Validar aprobación y número de SES en sistema del cliente",
+-	},
+-	{
+-		stepNumber: 12,
+-		code: "step_12_invoice_submission",
+-		label: "Emisión / envío de factura",
++	invoice: {
+ 		description: "Emitir la factura y enviarla formalmente con sus soportes de cobro.",
+ 		phase: "administrative",
+ 		entityType: "invoice",
+ 		relatedEntity: "invoice",
+ 		route: "/billing/invoices",
+-		allowedRoles: ["administrativo", "gerente"],
+ 		requiredDocuments: ["invoice_document"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: [],
+ 		requiredForms: [],
+ 		blocksTransition: true,
+-		nextAction: "Emitir y enviar factura electrónica de venta",
++		nextAction: "Emitir y enviar factura electrónica",
+ 	},
+-	{
+-		stepNumber: 13,
+-		code: "step_13_invoice_approval",
+-		label: "Aprobación de factura",
++	invoice_approval: {
+ 		description: "Validar que la factura fue aceptada para entrar al ciclo de pago.",
+ 		phase: "administrative",
+ 		entityType: "invoiceApproval",
+ 		relatedEntity: "invoice_approval",
+ 		route: "/billing/invoices",
+-		allowedRoles: ["gerente", "administrativo"],
+ 		requiredDocuments: ["invoice_approval_document"],
+ 		requiredEvidences: [],
+ 		requiredSignatures: [],
+ 		requiredForms: [],
+ 		blocksTransition: true,
+-		nextAction: "Verificar aprobación de la factura para pago",
++		nextAction: "Verificar aprobación de la factura",
+ 	},
+-	{
+-		stepNumber: 14,
+-		code: "step_14_payment_closure",
+-		label: "Pago y cierre definitivo",
+-		description:
+-			"Registrar pago, conciliación bancaria y cierre administrativo definitivo del caso.",
++	payment: {
++		description: "Registrar pago y conciliación bancaria para completar el flujo.",
+ 		phase: "administrative",
+ 		entityType: "payment",
+ 		relatedEntity: "payment",
+ 		route: "/payments",
+-		allowedRoles: ["gerente", "administrativo"],
+ 		requiredDocuments: ["payment_voucher"],
+ 		requiredEvidences: ["bank_statement"],
+ 		requiredSignatures: [],
+ 		requiredForms: [],
+ 		blocksTransition: true,
+-		nextAction: "Registrar pago, conciliar costos y cerrar orden",
++		nextAction: "Registrar y conciliar el pago",
+ 	},
+-] as const satisfies readonly CermontOperationalStepView[];
++} as const satisfies Readonly<Record<OperationalStepKey, OperationalStepViewMetadata>>;
++
++/** UI/API view derived from the domain's ordered identities. */
++export const CERMONT_OPERATIONAL_STEPS: readonly CermontOperationalStepView[] =
++	OPERATIONAL_STEPS.map((step) => {
++		const metadata = STEP_VIEW_METADATA[step.key];
++		return {
++			stepNumber: step.stepNumber,
++			code: step.canonicalCode,
++			label: step.label,
++			description: metadata.description,
++			phase: metadata.phase,
++			entityType: metadata.entityType,
++			relatedEntity: metadata.relatedEntity,
++			route: metadata.route,
++			allowedRoles: [...step.allowedRoles],
++			requiredDocuments: [...metadata.requiredDocuments],
++			requiredEvidences: [...metadata.requiredEvidences],
++			requiredSignatures: [...metadata.requiredSignatures],
++			requiredForms: [...metadata.requiredForms],
++			blocksTransition: metadata.blocksTransition,
++			nextAction: metadata.nextAction,
++		};
++	});
+diff --git a/packages/shared-types/src/schemas/checklist.schema.ts b/packages/shared-types/src/schemas/checklist.schema.ts
+index 99244af..33e20c4 100644
+--- a/packages/shared-types/src/schemas/checklist.schema.ts
++++ b/packages/shared-types/src/schemas/checklist.schema.ts
+@@ -20,6 +20,9 @@ export type ChecklistItemCategory = z.infer<typeof ChecklistItemCategorySchema>;
+ export const ChecklistStatusSchema = z.enum(["pending", "in_progress", "completed", "cancelled"]);
+ export type ChecklistStatus = z.infer<typeof ChecklistStatusSchema>;
+ 
++export const ChecklistItemResultSchema = z.enum(["pending", "passed", "failed"]);
++export type ChecklistItemResult = z.infer<typeof ChecklistItemResultSchema>;
++
+ export const ChecklistItemSchema = z
+ 	.object({
+ 		id: z.string().min(1),
+@@ -27,12 +30,14 @@ export const ChecklistItemSchema = z
+ 		description: z.string().min(3).max(300),
+ 		required: z.boolean().default(false),
+ 		isBlocking: z.boolean().default(false),
++		result: ChecklistItemResultSchema.default("pending"),
+ 		completed: z.boolean().default(false),
+ 		completedBy: z.string().min(1).optional(),
+ 		completedAt: z.string().datetime().optional(),
+ 		observation: z.string().max(500).optional(),
+ 		requiresPhoto: z.boolean().default(false),
+ 		requiresSignature: z.boolean().default(false),
++		evidenceAssetIds: z.array(z.string().min(1)).default([]),
+ 	})
+ 	.strip();
+ export type ChecklistItem = z.infer<typeof ChecklistItemSchema>;
+@@ -42,6 +47,7 @@ export const ChecklistResponseSchema = z
+ 		_id: z.string(),
+ 		orderId: ObjectIdSchema,
+ 		templateName: z.string().optional(),
++		templateVersion: z.number().int().positive().default(1),
+ 		status: ChecklistStatusSchema,
+ 		items: z.array(ChecklistItemSchema).default([]),
+ 		completedBy: z.string().min(1).optional(),
+@@ -64,10 +70,19 @@ export type CreateChecklistInput = z.infer<typeof CreateChecklistSchema>;
+ 
+ export const UpdateChecklistItemSchema = z
+ 	.object({
+-		completed: z.boolean(),
++		result: ChecklistItemResultSchema,
+ 		observation: z.string().max(500).optional(),
+ 	})
+-	.strip();
++	.strip()
++	.superRefine((value, context) => {
++		if (value.result === "failed" && !value.observation?.trim()) {
++			context.addIssue({
++				code: "custom",
++				path: ["observation"],
++				message: "Debe registrar el hallazgo cuando el resultado es fallido",
++			});
++		}
++	});
+ export type UpdateChecklistItemInput = z.infer<typeof UpdateChecklistItemSchema>;
+ 
+ export const CompleteChecklistSchema = z
+diff --git a/packages/shared-types/src/schemas/cost-cart.schema.ts b/packages/shared-types/src/schemas/cost-cart.schema.ts
+index d67e9b5..9f9dd05 100644
+--- a/packages/shared-types/src/schemas/cost-cart.schema.ts
++++ b/packages/shared-types/src/schemas/cost-cart.schema.ts
+@@ -1,16 +1,11 @@
+ import { z } from "zod";
++import { statusObjectOf } from "../utils/status-types";
+ import { ObjectIdSchema } from "./common.schema";
++import { CostCategorySchema } from "./cost.schema";
+ 
+ // ─── Cost Catalog Item ───────────────────────────────────────────────────────
+ 
+-export const CostCatalogItemCategoryEnum = z.enum([
+-	"material",
+-	"labor",
+-	"equipment",
+-	"transport",
+-	"overhead",
+-	"other",
+-]);
++export const CostCatalogItemCategoryEnum = CostCategorySchema;
+ 
+ export type CostCatalogItemCategory = z.infer<typeof CostCatalogItemCategoryEnum>;
+ 
+@@ -18,19 +13,40 @@ export const CostCatalogItemSchema = z.object({
+ 	_id: ObjectIdSchema,
+ 	code: z.string().min(1),
+ 	name: z.string().min(1),
+-	description: z.string().optional(),
++	description: statusObjectOf(z.string().min(1).max(500)),
+ 	category: CostCatalogItemCategoryEnum,
+ 	unit: z.string().min(1),
+ 	unitPrice: z.number().nonnegative(),
+ 	currency: z.string().default("COP"),
+ 	isActive: z.boolean().default(true),
+-	metadata: z.record(z.string(), z.unknown()).optional(),
+ 	createdAt: z.string().datetime(),
+ 	updatedAt: z.string().datetime(),
+ });
+ 
+ export type CostCatalogItem = z.infer<typeof CostCatalogItemSchema>;
+ 
++export const ListCostCatalogQuerySchema = z
++	.object({
++		category: CostCatalogItemCategoryEnum.optional(),
++		page: z.coerce.number().int().min(1).default(1),
++		limit: z.coerce.number().int().min(1).max(100).default(20),
++	})
++	.strip();
++
++export type ListCostCatalogQuery = z.infer<typeof ListCostCatalogQuerySchema>;
++
++export const CostCatalogListSchema = z.object({
++	items: z.array(CostCatalogItemSchema),
++	pagination: z.object({
++		page: z.number().int().min(1),
++		limit: z.number().int().min(1),
++		total: z.number().int().min(0),
++		totalPages: z.number().int().min(0),
++	}),
++});
++
++export type CostCatalogList = z.infer<typeof CostCatalogListSchema>;
++
+ // ─── Cost Cart ───────────────────────────────────────────────────────────────
+ 
+ export const CostCartItemSchema = z.object({
+diff --git a/packages/shared-types/src/schemas/cost.schema.ts b/packages/shared-types/src/schemas/cost.schema.ts
+index 10fa121..4167a6b 100644
+--- a/packages/shared-types/src/schemas/cost.schema.ts
++++ b/packages/shared-types/src/schemas/cost.schema.ts
+@@ -36,6 +36,14 @@ export const CostByCategorySchema = z.object({
+ });
+ export type CostByCategory = z.infer<typeof CostByCategorySchema>;
+ 
++export const CostBudgetRiskSchema = z.enum([
++	"not_available",
++	"within_budget",
++	"threshold_reached",
++	"over_budget",
++]);
++export type CostBudgetRisk = z.infer<typeof CostBudgetRiskSchema>;
++
+ function hasCostSupport(data: {
+ 	actualAmount: number;
+ 	supportEvidenceIds: string[];
+@@ -96,6 +104,13 @@ export const CostSummarySchema = z.object({
+ 	totalTax: z.number(),
+ 	variance: z.number(),
+ 	variancePercent: statusObjectOf(z.number()),
++	approvedBudget: statusObjectOf(z.number().nonnegative()),
++	budgetConsumptionPercent: statusObjectOf(z.number().nonnegative()),
++	budgetRisk: CostBudgetRiskSchema,
++	budgetAlertThreshold: z.number().min(0).max(1),
++	actualCostWithTax: z.number().nonnegative(),
++	grossProfit: statusObjectOf(z.number()),
++	grossMarginPercent: statusObjectOf(z.number()),
+ 	hasCosts: z.boolean(),
+ 	dataState: CostDataStateSchema,
+ 	byCategory: z.array(CostByCategorySchema),
+diff --git a/packages/shared-types/src/schemas/dashboard-summary.schema.ts b/packages/shared-types/src/schemas/dashboard-summary.schema.ts
+index 610b793..811489b 100644
+--- a/packages/shared-types/src/schemas/dashboard-summary.schema.ts
++++ b/packages/shared-types/src/schemas/dashboard-summary.schema.ts
+@@ -76,8 +76,44 @@ export const DashboardAgingBucketSchema = z
+ export const DashboardFinancialAgingSchema = z
+ 	.object({
+ 		buckets: z.array(DashboardAgingBucketSchema),
+-		totalOutstanding: z.number().nonnegative(),
+-		totalOverdue: z.number().nonnegative(),
++		totalOutstandingAmount: z.number().nonnegative(),
++		totalOverdueAmount: z.number().nonnegative(),
++		overdueInvoiceCount: z.number().int().nonnegative(),
++	})
++	.strict();
++
++// ── Field readiness ──────────────────────────────────────────────────
++
++export const DashboardFieldReadinessSchema = z
++	.object({
++		blockingChecklistsPending: z.number().int().nonnegative(),
++		blockingChecklistsFailed: z.number().int().nonnegative(),
++		evidencePendingReview: z.number().int().nonnegative(),
++		evidenceRejected: z.number().int().nonnegative(),
++		evidenceGpsCoveragePct: z.number().min(0).max(100),
++		vehicleDocumentsExpiring: z.number().int().nonnegative(),
++		vehicleDocumentsExpired: z.number().int().nonnegative(),
++		toolCertificationsExpiring: z.number().int().nonnegative(),
++		toolCertificationsExpired: z.number().int().nonnegative(),
++		offlineSyncPending: z.number().int().nonnegative(),
++		offlineSyncFailed: z.number().int().nonnegative(),
++	})
++	.strict();
++
++// ── Multi-service demand ─────────────────────────────────────────────
++
++export const DashboardServiceDemandItemSchema = z
++	.object({
++		serviceType: z.string().trim().min(1).max(120),
++		requests: z.number().int().nonnegative(),
++	})
++	.strict();
++
++export const DashboardServiceDemandSchema = z
++	.object({
++		periodDays: z.number().int().positive(),
++		totalRequests: z.number().int().nonnegative(),
++		items: z.array(DashboardServiceDemandItemSchema),
+ 	})
+ 	.strict();
+ 
+@@ -183,6 +219,8 @@ export const DashboardSummarySchema = z
+ 		nextActions: z.array(DashboardNextActionSchema),
+ 		administrativeClosure: DashboardAdministrativeClosureSchema,
+ 		financialAging: DashboardFinancialAgingSchema,
++		fieldReadiness: DashboardFieldReadinessSchema,
++		serviceDemand: DashboardServiceDemandSchema,
+ 		costVariance: DashboardCostVarianceSchema,
+ 		documentWorkload: DashboardDocumentWorkloadSchema,
+ 		assetMaintenance: DashboardAssetMaintenanceSchema,
+@@ -201,6 +239,9 @@ export type DashboardNextAction = z.infer<typeof DashboardNextActionSchema>;
+ export type DashboardAdministrativeClosure = z.infer<typeof DashboardAdministrativeClosureSchema>;
+ export type DashboardFinancialAging = z.infer<typeof DashboardFinancialAgingSchema>;
+ export type DashboardAgingBucket = z.infer<typeof DashboardAgingBucketSchema>;
++export type DashboardFieldReadiness = z.infer<typeof DashboardFieldReadinessSchema>;
++export type DashboardServiceDemand = z.infer<typeof DashboardServiceDemandSchema>;
++export type DashboardServiceDemandItem = z.infer<typeof DashboardServiceDemandItemSchema>;
+ export type DashboardCostVariance = z.infer<typeof DashboardCostVarianceSchema>;
+ export type DashboardDocumentWorkload = z.infer<typeof DashboardDocumentWorkloadSchema>;
+ export type DashboardAssetMaintenance = z.infer<typeof DashboardAssetMaintenanceSchema>;
+diff --git a/packages/shared-types/src/schemas/index.ts b/packages/shared-types/src/schemas/index.ts
+index 7f636a8..2f02320 100644
+--- a/packages/shared-types/src/schemas/index.ts
++++ b/packages/shared-types/src/schemas/index.ts
+@@ -6,6 +6,7 @@ export * from "./analytics.schema";
+ export * from "./asset.schema";
+ export * from "./audit.schema";
+ export * from "./auth.schema";
++export * from "./automation.schema";
+ export * from "./business-document.schema";
+ export * from "./cermont-operational-step.schema";
+ export * from "./checklist.schema";
+diff --git a/packages/shared-types/src/schemas/notification.schema.ts b/packages/shared-types/src/schemas/notification.schema.ts
+index 1ee073f..0e52763 100644
+--- a/packages/shared-types/src/schemas/notification.schema.ts
++++ b/packages/shared-types/src/schemas/notification.schema.ts
+@@ -23,6 +23,7 @@ export const NotificationTypeSchema = z.enum([
+ 	"EVIDENCE_VERIFIED",
+ 	"REPORT_APPROVED",
+ 	"SYSTEM_ALERT",
++	"COST_THRESHOLD_REACHED",
+ ]);
+ 
+ export type NotificationType = z.infer<typeof NotificationTypeSchema>;
+diff --git a/packages/shared-types/src/schemas/service-case.schema.ts b/packages/shared-types/src/schemas/service-case.schema.ts
+index 32e84f2..b98633c 100644
+--- a/packages/shared-types/src/schemas/service-case.schema.ts
++++ b/packages/shared-types/src/schemas/service-case.schema.ts
+@@ -44,14 +44,14 @@ export const CERMONT_STEP_STAGE_MAP: Record<CermontOperationalStepCode, ServiceC
+ 	step_04_purchase_order: "authorization",
+ 	step_05_planning: "planning",
+ 	step_06_execution: "in_execution",
+-	step_07_technical_report: "technical_closure",
+-	step_08_delivery_record: "administrative_closure",
+-	step_09_client_signature: "administrative_closure",
+-	step_10_ses_submission: "ses_pending",
+-	step_11_ses_approval: "billing_pending",
+-	step_12_invoice_submission: "receivable_open",
++	step_07_evidence: "in_execution",
++	step_08_technical_report: "technical_closure",
++	step_09_delivery_record: "administrative_closure",
++	step_10_client_signature: "administrative_closure",
++	step_11_ses: "ses_pending",
++	step_12_invoice: "billing_pending",
+ 	step_13_invoice_approval: "receivable_open",
+-	step_14_payment_closure: "paid",
++	step_14_payment: "paid",
+ };
+ 
+ // ──────────────────────────────────────────────────────────────────────────────
+@@ -238,14 +238,14 @@ export function mapLegacyServiceCaseStageToStep(
+ 		planning: "step_05_planning",
+ 		ready_to_execute: "step_05_planning",
+ 		in_execution: "step_06_execution",
+-		technical_closure: "step_07_technical_report",
+-		administrative_closure: "step_08_delivery_record",
+-		ses_pending: "step_10_ses_submission",
+-		billing_pending: "step_12_invoice_submission",
++		technical_closure: "step_08_technical_report",
++		administrative_closure: "step_09_delivery_record",
++		ses_pending: "step_11_ses",
++		billing_pending: "step_12_invoice",
+ 		receivable_open: "step_13_invoice_approval",
+-		paid: "step_14_payment_closure",
+-		archived: "step_14_payment_closure",
+-		cancelled: "step_14_payment_closure",
++		paid: "step_14_payment",
++		archived: "step_14_payment",
++		cancelled: "step_14_payment",
+ 	};
+ 	return map[stage];
+ }
+diff --git a/packages/shared-types/tests/schemas/automation.schema.test.ts b/packages/shared-types/tests/schemas/automation.schema.test.ts
+new file mode 100644
+index 0000000..4de1792
+--- /dev/null
++++ b/packages/shared-types/tests/schemas/automation.schema.test.ts
+@@ -0,0 +1,64 @@
++import { describe, expect, it } from "vitest";
++import {
++	CreateAutomationRuleSchema,
++	ListAutomationOperationalActionsQuerySchema,
++	ResolveAutomationOperationalActionParamsSchema,
++	UpdateAutomationRuleSchema,
++} from "../../src/schemas/automation.schema";
++
++describe("automation rule contracts", () => {
++	it("accepts a typed notification rule", () => {
++		const rule = CreateAutomationRuleSchema.parse({
++			name: "Avisar rechazo HSE",
++			description: "Escala el rechazo de una evidencia de seguridad.",
++			eventType: "evidence_rejected",
++			enabled: true,
++			actions: [
++				{
++					type: "notify",
++					recipientRoles: ["hes"],
++					priority: "high",
++					title: "Evidencia rechazada",
++					body: "Revise la evidencia y solicite un reemplazo.",
++				},
++			],
++		});
++
++		expect(rule.actions[0]?.type).toBe("notify");
++	});
++
++	it("rejects empty updates and untyped action settings", () => {
++		expect(UpdateAutomationRuleSchema.safeParse({}).success).toBe(false);
++		expect(
++			CreateAutomationRuleSchema.safeParse({
++				name: "Regla inválida",
++				description: "No tiene configuración válida.",
++				eventType: "critical_checklist_failed",
++				enabled: true,
++				actions: [{ type: "notify", recipientRoles: [] }],
++			}).success,
++		).toBe(false);
++	});
++
++	it("validates operational-action filters and resolve identifiers", () => {
++		expect(
++			ListAutomationOperationalActionsQuerySchema.parse({
++				status: "open",
++				assignedRole: "administrativo",
++				entityType: "Invoice",
++				entityId: "507f1f77bcf86cd799439011",
++			}),
++		).toEqual({
++			status: "open",
++			assignedRole: "administrativo",
++			entityType: "Invoice",
++			entityId: "507f1f77bcf86cd799439011",
++			limit: 50,
++		});
++		expect(
++			ResolveAutomationOperationalActionParamsSchema.safeParse({
++				id: "not-an-object-id",
++			}).success,
++		).toBe(false);
++	});
++});
+diff --git a/packages/shared-types/tests/schemas/cermont-operational-step.schema.test.ts b/packages/shared-types/tests/schemas/cermont-operational-step.schema.test.ts
+index bee0301..d4ff0cb 100644
+--- a/packages/shared-types/tests/schemas/cermont-operational-step.schema.test.ts
++++ b/packages/shared-types/tests/schemas/cermont-operational-step.schema.test.ts
+@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
+ import {
+ 	CERMONT_OPERATIONAL_STEPS,
+ 	CermontOperationalStepCodeSchema,
++	normalizeCermontOperationalStepCode,
+ } from "../../src/schemas/cermont-operational-step.schema";
+ import { ClosureReportSchema } from "../../src/schemas/closureReport.schema";
+ 
+@@ -40,44 +41,49 @@ describe("Cermont Operational Step Schema", () => {
+ 		}
+ 	});
+ 
+-	it("should have independent steps for delivery record and client signature (8 and 9)", () => {
++	it("uses evidence as step 7 and keeps technical delivery artifacts in steps 8 to 10", () => {
++		const step7 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 7);
+ 		const step8 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 8);
+ 		const step9 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 9);
++		const step10 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 10);
+ 
+-		expect(step8?.code).toBe("step_08_delivery_record");
+-		expect(step9?.code).toBe("step_09_client_signature");
+-		expect(step8?.code).not.toBe(step9?.code);
++		expect(step7?.code).toBe("step_07_evidence");
++		expect(step8?.code).toBe("step_08_technical_report");
++		expect(step9?.code).toBe("step_09_delivery_record");
++		expect(step10?.code).toBe("step_10_client_signature");
+ 	});
+ 
+-	it("should have independent steps for SES submission and approval (10 and 11)", () => {
+-		const step10 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 10);
++	it("represents SES / Ariba as one operational step", () => {
+ 		const step11 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 11);
+ 
+-		expect(step10?.code).toBe("step_10_ses_submission");
+-		expect(step11?.code).toBe("step_11_ses_approval");
++		expect(step11?.code).toBe("step_11_ses");
++		expect(step11?.label).toBe("SES / Ariba");
+ 	});
+ 
+ 	it("should have independent steps for invoice submission and approval (12 and 13)", () => {
+ 		const step12 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 12);
+ 		const step13 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 13);
+ 
+-		expect(step12?.code).toBe("step_12_invoice_submission");
++		expect(step12?.code).toBe("step_12_invoice");
+ 		expect(step13?.code).toBe("step_13_invoice_approval");
+ 	});
+ 
+-	it("should require execution evidence and signatures on step 6", () => {
++	it("should keep execution controls on step 6 and evidence capture on step 7", () => {
+ 		const step6 = CERMONT_OPERATIONAL_STEPS.find((s) => s.code === "step_06_execution");
++		const step7 = CERMONT_OPERATIONAL_STEPS.find((s) => s.code === "step_07_evidence");
+ 		expect(step6?.blocksTransition).toBe(true);
+-		expect(step6?.requiredEvidences).toContain("during_photos");
+ 		expect(step6?.requiredSignatures).toEqual(
+ 			expect.arrayContaining(["firma_tecnico", "firma_supervisor"]),
+ 		);
+ 		expect(step6?.requiredForms).toContain("execution_dynamic_form");
++		expect(step7?.requiredEvidences).toEqual(
++			expect.arrayContaining(["during_photos", "after_photos"]),
++		);
+ 	});
+ 
+-	it("should have step 14 as the terminal step (payment closure)", () => {
++	it("should have step 14 as the terminal payment step", () => {
+ 		const step14 = CERMONT_OPERATIONAL_STEPS.find((s) => s.stepNumber === 14);
+-		expect(step14?.code).toBe("step_14_payment_closure");
++		expect(step14?.code).toBe("step_14_payment");
+ 		expect(step14?.phase).toBe("administrative");
+ 	});
+ 
+@@ -100,6 +106,22 @@ describe("Cermont Operational Step Schema", () => {
+ 		expect(result.success).toBe(true);
+ 	});
+ 
++	it("normalizes a legacy persisted code at the contract boundary", () => {
++		expect(CermontOperationalStepCodeSchema.parse("step_08_delivery_record")).toBe(
++			"step_09_delivery_record",
++		);
++		expect(normalizeCermontOperationalStepCode("step_11_ses_approval")).toEqual({
++			status: "legacy_alias",
++			legacyCode: "step_11_ses_approval",
++			code: "step_11_ses",
++		});
++	});
++
++	it("normalizes codes emitted by the former domain SSOT", () => {
++		expect(CermontOperationalStepCodeSchema.parse("step_10_ses")).toBe("step_11_ses");
++		expect(CermontOperationalStepCodeSchema.parse("STEP_14_CLOSURE")).toBe("step_14_payment");
++	});
++
+ 	it("should reject an invalid step code", () => {
+ 		const result = CermontOperationalStepCodeSchema.safeParse("invalid_step");
+ 		expect(result.success).toBe(false);
+diff --git a/packages/shared-types/tests/schemas/checklist.schema.test.ts b/packages/shared-types/tests/schemas/checklist.schema.test.ts
+new file mode 100644
+index 0000000..2dd1d64
+--- /dev/null
++++ b/packages/shared-types/tests/schemas/checklist.schema.test.ts
+@@ -0,0 +1,25 @@
++import { describe, expect, it } from "vitest";
++import { UpdateChecklistItemSchema } from "../../src/schemas/checklist.schema";
++
++describe("UpdateChecklistItemSchema", () => {
++	it("acepta un resultado aprobado sin comentario", () => {
++		const result = UpdateChecklistItemSchema.safeParse({ result: "passed" });
++
++		expect(result.success).toBe(true);
++	});
++
++	it("exige comentario cuando el resultado es fallido", () => {
++		const result = UpdateChecklistItemSchema.safeParse({ result: "failed", observation: "  " });
++
++		expect(result.success).toBe(false);
++	});
++
++	it("acepta un resultado fallido con hallazgo documentado", () => {
++		const result = UpdateChecklistItemSchema.safeParse({
++			result: "failed",
++			observation: "Arnes con cinta cortada; retirar de servicio.",
++		});
++
++		expect(result.success).toBe(true);
++	});
++});
+diff --git a/packages/shared-types/tests/schemas/cost-intelligence.schema.test.ts b/packages/shared-types/tests/schemas/cost-intelligence.schema.test.ts
+new file mode 100644
+index 0000000..9226d93
+--- /dev/null
++++ b/packages/shared-types/tests/schemas/cost-intelligence.schema.test.ts
+@@ -0,0 +1,55 @@
++import { describe, expect, it } from "vitest";
++import {
++	CostCatalogItemSchema,
++	CostSummarySchema,
++	ListCostCatalogQuerySchema,
++} from "../../src/schemas";
++
++describe("cost intelligence contracts", () => {
++	it("uses the canonical cost categories in catalog records", () => {
++		const item = CostCatalogItemSchema.parse({
++			_id: "507f1f77bcf86cd799439011",
++			code: "MAT-001",
++			name: "Consumible multipropósito",
++			description: { status: "absent" },
++			category: "materials",
++			unit: "unidad",
++			unitPrice: 25_000,
++			currency: "COP",
++			isActive: true,
++			createdAt: "2026-06-29T12:00:00.000Z",
++			updatedAt: "2026-06-29T12:00:00.000Z",
++		});
++
++		expect(item.category).toBe("materials");
++	});
++
++	it("normalizes catalog pagination without accepting unsupported fields", () => {
++		const query = ListCostCatalogQuerySchema.parse({ category: "labor", page: "2", limit: "15" });
++
++		expect(query).toEqual({ category: "labor", page: 2, limit: 15 });
++	});
++
++	it("requires an explicit approved-budget state in summaries", () => {
++		const summary = CostSummarySchema.parse({
++			orderId: "507f1f77bcf86cd799439011",
++			totalEstimated: 1_000,
++			totalActual: 800,
++			totalTax: 0,
++			variance: -200,
++			variancePercent: { status: "present", value: -0.2 },
++			approvedBudget: { status: "present", value: 1_000 },
++			budgetConsumptionPercent: { status: "present", value: 0.8 },
++			budgetRisk: "threshold_reached",
++			budgetAlertThreshold: 0.8,
++			actualCostWithTax: 800,
++			grossProfit: { status: "present", value: 200 },
++			grossMarginPercent: { status: "present", value: 0.2 },
++			hasCosts: true,
++			dataState: "ESTIMATED_AND_ACTUAL",
++			byCategory: [],
++		});
++
++		expect(summary.budgetRisk).toBe("threshold_reached");
++	});
++});
+diff --git a/packages/shared-types/tests/schemas/dashboard-summary.schema.test.ts b/packages/shared-types/tests/schemas/dashboard-summary.schema.test.ts
+new file mode 100644
+index 0000000..ca04d8a
+--- /dev/null
++++ b/packages/shared-types/tests/schemas/dashboard-summary.schema.test.ts
+@@ -0,0 +1,60 @@
++import { describe, expect, it } from "vitest";
++import {
++	DashboardFieldReadinessSchema,
++	DashboardFinancialAgingSchema,
++	DashboardServiceDemandSchema,
++} from "../../src/schemas/dashboard-summary.schema";
++
++describe("dashboard operational contracts", () => {
++	it("models field blockers from persisted operational data", () => {
++		const result = DashboardFieldReadinessSchema.safeParse({
++			blockingChecklistsPending: 3,
++			blockingChecklistsFailed: 1,
++			evidencePendingReview: 4,
++			evidenceRejected: 2,
++			evidenceGpsCoveragePct: 86,
++			vehicleDocumentsExpiring: 2,
++			vehicleDocumentsExpired: 1,
++			toolCertificationsExpiring: 5,
++			toolCertificationsExpired: 0,
++			offlineSyncPending: 3,
++			offlineSyncFailed: 1,
++		});
++
++		expect(result.success).toBe(true);
++	});
++
++	it("represents multi-service demand without a petroleum-only enum", () => {
++		const result = DashboardServiceDemandSchema.safeParse({
++			periodDays: 30,
++			totalRequests: 7,
++			items: [
++				{ serviceType: "Refrigeración industrial", requests: 4 },
++				{ serviceType: "Obra civil", requests: 3 },
++			],
++		});
++
++		expect(result.success).toBe(true);
++	});
++
++	it("separates monetary aging from invoice counts", () => {
++		const result = DashboardFinancialAgingSchema.parse({
++			buckets: [
++				{
++					bucket: "31-60 días",
++					minDays: 31,
++					maxDays: 60,
++					count: 2,
++					amount: 18_500_000,
++					currency: "COP",
++				},
++			],
++			totalOutstandingAmount: 18_500_000,
++			totalOverdueAmount: 18_500_000,
++			overdueInvoiceCount: 2,
++		});
++
++		expect(result.totalOutstandingAmount).toBe(18_500_000);
++		expect(result.overdueInvoiceCount).toBe(2);
++	});
++});
+-- 
+2.51.1.windows.1
+

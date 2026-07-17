@@ -1,0 +1,273 @@
+From 20275e908e3bf18c1541f745437c572f1a26fe94 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Sun, 5 Jul 2026 17:38:36 -0500
+Subject: [PATCH 08/42] feat(domain,ui,backend): Sprint 1 - complete partial
+ modules
+
+- T1.1: Add spec-013-rules.ts compatibility shim re-exporting from spec-015-rules.ts (Spec-013 S1.6)
+- T1.2: Add notifications api/hooks module (notification.api.ts, useNotifications, useUnreadCount, types)
+- T1.3: Add portal hooks module (usePortalServiceCases, usePortalServiceCaseDetail)
+- T1.4: Verify invoice-pipeline route already exposed (GET /service-cases/:id/invoice-pipeline)
+- T1.5: Verify NotificationBell already integrated in header via HeaderNotifications
+---
+ .../notifications/api/notification.api.ts     | 31 +++++++++++
+ .../src/modules/notifications/api/types.ts    | 29 ++++++++++
+ .../notifications/hooks/useNotifications.ts   | 23 ++++++++
+ .../notifications/hooks/useUnreadCount.ts     | 18 +++++++
+ .../portal/hooks/usePortalServiceCases.ts     | 54 +++++++++++++++++++
+ packages/domain/src/index.ts                  |  4 ++
+ packages/domain/src/spec-013-rules.ts         | 31 +++++++++++
+ 7 files changed, 190 insertions(+)
+ create mode 100644 frontend/src/modules/notifications/api/notification.api.ts
+ create mode 100644 frontend/src/modules/notifications/api/types.ts
+ create mode 100644 frontend/src/modules/notifications/hooks/useNotifications.ts
+ create mode 100644 frontend/src/modules/notifications/hooks/useUnreadCount.ts
+ create mode 100644 frontend/src/modules/portal/hooks/usePortalServiceCases.ts
+ create mode 100644 packages/domain/src/spec-013-rules.ts
+
+diff --git a/frontend/src/modules/notifications/api/notification.api.ts b/frontend/src/modules/notifications/api/notification.api.ts
+new file mode 100644
+index 0000000..067a150
+--- /dev/null
++++ b/frontend/src/modules/notifications/api/notification.api.ts
+@@ -0,0 +1,31 @@
++/**
++ * Notifications API Service
++ *
++ * Thin wrapper over `apiClient` for the `/api/notifications` endpoints.
++ * Returns unwrapped response `data` fields and throws on non-2xx (handled by apiClient).
++ */
++
++import { apiClient } from "@/lib/http/api-client";
++import type { Notification } from "./types";
++
++const BASE = "/notifications";
++
++export async function fetchNotifications(): Promise<Notification[]> {
++	const envelope = await apiClient.get<{ success: true; data: Notification[] }>(BASE);
++	return envelope.data;
++}
++
++export async function fetchUnreadCount(): Promise<number> {
++	const envelope = await apiClient.get<{ success: true; data: { count: number } }>(
++		`${BASE}/unread-count`,
++	);
++	return envelope.data.count;
++}
++
++export async function markAsRead(id: string): Promise<void> {
++	await apiClient.patch<{ success: true; data: null }>(`${BASE}/${id}/read`);
++}
++
++export async function markAllAsRead(): Promise<void> {
++	await apiClient.post<{ success: true; data: null }>(`${BASE}/mark-all-read`);
++}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/api/types.ts b/frontend/src/modules/notifications/api/types.ts
+new file mode 100644
+index 0000000..a312220
+--- /dev/null
++++ b/frontend/src/modules/notifications/api/types.ts
+@@ -0,0 +1,29 @@
++/**
++ * Notifications module types.
++ *
++ * Local view model for notifications consumed by the UI layer. Aligned with the
++ * backend `Notification` document shape (see `backend/src/models/Notification.ts`).
++ */
++
++export type NotificationType =
++	| "evidence_rejected"
++	| "evidence_approved"
++	| "ses_approved"
++	| "ses_rejected"
++	| "payment_received"
++	| "report_generated"
++	| "overdue"
++	| "kit_reminder"
++	| "invoice_pending"
++	| "general";
++
++export interface Notification {
++	_id: string;
++	type: NotificationType;
++	title: string;
++	message: string;
++	isRead: boolean;
++	createdAt: string;
++	deepLink?: string;
++	userId?: string;
++}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/hooks/useNotifications.ts b/frontend/src/modules/notifications/hooks/useNotifications.ts
+new file mode 100644
+index 0000000..e090050
+--- /dev/null
++++ b/frontend/src/modules/notifications/hooks/useNotifications.ts
+@@ -0,0 +1,23 @@
++/**
++ * useNotifications — TanStack Query hook for the current user's notifications.
++ *
++ * Polls every 30s to surface new alerts in the bell + panel. Query keys are
++ * stable and centralized via `notificationKeys` for cache invalidation.
++ */
++
++import { useQuery } from "@tanstack/react-query";
++import { fetchNotifications } from "../api/notification.api";
++
++export const notificationKeys = {
++	all: ["notifications"] as const,
++	list: () => [...notificationKeys.all, "list"] as const,
++	unreadCount: () => [...notificationKeys.all, "unread-count"] as const,
++};
++
++export function useNotifications() {
++	return useQuery({
++		queryKey: notificationKeys.list(),
++		queryFn: fetchNotifications,
++		refetchInterval: 30_000,
++	});
++}
+\ No newline at end of file
+diff --git a/frontend/src/modules/notifications/hooks/useUnreadCount.ts b/frontend/src/modules/notifications/hooks/useUnreadCount.ts
+new file mode 100644
+index 0000000..3a6a9c0
+--- /dev/null
++++ b/frontend/src/modules/notifications/hooks/useUnreadCount.ts
+@@ -0,0 +1,18 @@
++/**
++ * useUnreadCount — TanStack Query hook for the unread notification count.
++ *
++ * Polls every 30s. Shares the `notificationKeys` namespace so mutations that
++ * mark notifications as read can invalidate both the list and the counter.
++ */
++
++import { useQuery } from "@tanstack/react-query";
++import { fetchUnreadCount } from "../api/notification.api";
++import { notificationKeys } from "./useNotifications";
++
++export function useUnreadCount() {
++	return useQuery({
++		queryKey: notificationKeys.unreadCount(),
++		queryFn: fetchUnreadCount,
++		refetchInterval: 30_000,
++	});
++}
+\ No newline at end of file
+diff --git a/frontend/src/modules/portal/hooks/usePortalServiceCases.ts b/frontend/src/modules/portal/hooks/usePortalServiceCases.ts
+new file mode 100644
+index 0000000..57e7a38
+--- /dev/null
++++ b/frontend/src/modules/portal/hooks/usePortalServiceCases.ts
+@@ -0,0 +1,54 @@
++/**
++ * usePortalServiceCases — TanStack Query hooks for the client portal module.
++ *
++ * Provides read-only access to the authenticated client's service cases and
++ * their detail view. Query keys are stable and centralized via `portalKeys`
++ * for cache invalidation across portal pages.
++ */
++
++import { useQuery } from "@tanstack/react-query";
++import { apiClient } from "@/lib/http/api-client";
++
++const BASE = "/portal/service-cases";
++
++export const portalKeys = {
++	all: ["portal"] as const,
++	serviceCases: () => [...portalKeys.all, "service-cases"] as const,
++	serviceCaseDetail: (id: string) => [...portalKeys.all, "detail", id] as const,
++};
++
++type PortalServiceCase = {
++	_id: string;
++	code?: string;
++	status: string;
++	serviceType?: string;
++	scheduledStartDate?: string;
++};
++
++type PortalServiceCaseDetail = PortalServiceCase & {
++	documents: Array<{ _id: string; originalName: string; url: string }>;
++	stages: Array<{ key: string; label: string; status: string }>;
++};
++
++export function usePortalServiceCases() {
++	return useQuery({
++		queryKey: portalKeys.serviceCases(),
++		queryFn: async () => {
++			const envelope = await apiClient.get<{ success: true; data: PortalServiceCase[] }>(BASE);
++			return envelope.data;
++		},
++	});
++}
++
++export function usePortalServiceCaseDetail(id: string) {
++	return useQuery({
++		queryKey: portalKeys.serviceCaseDetail(id),
++		queryFn: async () => {
++			const envelope = await apiClient.get<{ success: true; data: PortalServiceCaseDetail }>(
++				`${BASE}/${id}`,
++			);
++			return envelope.data;
++		},
++		enabled: !!id,
++	});
++}
+\ No newline at end of file
+diff --git a/packages/domain/src/index.ts b/packages/domain/src/index.ts
+index bf17741..8944f71 100644
+--- a/packages/domain/src/index.ts
++++ b/packages/domain/src/index.ts
+@@ -223,6 +223,10 @@ export {
+ 	evaluateSLARisk,
+ 	SLA_AT_RISK_THRESHOLD_HOURS,
+ } from "./spec-015-rules";
++// ─── Spec-013 Rules (compatibility shim — re-exports from Spec-015) ─────────
++// spec-013-rules.ts exists for direct imports per Spec-013 S1.6; symbols are
++// already re-exported above from spec-015-rules so no additional barrel export
++// is needed here (would cause duplicate identifier errors).
+ export type {
+ 	CermontOperationalStep,
+ 	CermontOperationalStepKey,
+diff --git a/packages/domain/src/spec-013-rules.ts b/packages/domain/src/spec-013-rules.ts
+new file mode 100644
+index 0000000..b6d5ea2
+--- /dev/null
++++ b/packages/domain/src/spec-013-rules.ts
+@@ -0,0 +1,31 @@
++/**
++ * SPEC-013 Rules — Re-exportadas desde spec-015-rules.ts
++ *
++ * Este archivo existe por compatibilidad con el plan Spec-013 S1.6.
++ * Las implementaciones canónicas viven en `./spec-015-rules.ts`.
++ */
++
++export {
++	evaluatePreflightGates,
++	evaluateSLARisk,
++	evaluateCostRisk,
++	evaluateEvidenceCompleteness,
++	computeMTTR,
++	computeMTBF,
++	computeFirstTimeFixRate,
++	computeTechnicianUtilization,
++} from "./spec-015-rules";
++
++export type {
++	PreflightGateItemInput,
++	PreflightBooleanChecks,
++	PreflightResult,
++	SLARiskLevel,
++	CostRiskLevel,
++	EvidenceSlotInput,
++	EvidenceCompletenessResult,
++	CompletedSessionWindow,
++	CompletedOrderWindow,
++	FirstTimeFixOrderInput,
++	TechnicianUtilizationSessionInput,
++} from "./spec-015-rules";
+\ No newline at end of file
+-- 
+2.51.1.windows.1
+

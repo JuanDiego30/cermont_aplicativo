@@ -1,0 +1,45 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Planning - Order planning and resource allocation",
+  "description": "Verifies order planning: resource allocation, crew assignment, timeline scheduling, and planning packet generation",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in as 'residente' and navigate to /dashboard/planning"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that planning dashboard shows orders pending planning approval with their status"
+    },
+    {
+      "type": "action",
+      "description": "Click on an order to open its planning view with timeline, resources, and checklists tabs"
+    },
+    {
+      "type": "action",
+      "description": "Assign crew members to the order from available personnel list"
+    },
+    {
+      "type": "action",
+      "description": "Allocate equipment and tools from the inventory/resource catalog"
+    },
+    {
+      "type": "action",
+      "description": "Set the execution timeline: start/end dates, milestones, and dependencies"
+    },
+    {
+      "type": "action",
+      "description": "Complete the planning checklist and verify all required items are addressed"
+    },
+    {
+      "type": "action",
+      "description": "Submit planning for approval and verify status changes to 'pending_approval'"
+    },
+    {
+      "type": "action",
+      "description": "Approve the planning and navigate to /dashboard/planning-packet/new to generate the planning packet"
+    }
+  ]
+}

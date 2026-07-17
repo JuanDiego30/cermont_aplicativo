@@ -1,0 +1,33 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Costs - Budget vs actual cost tracking",
+  "description": "Verifies cost management: viewing baseline vs actual costs, catalog management, and execution cost tracking",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/costs and select an existing order"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the cost page shows budget vs actual comparison with labor, materials, and equipment breakdowns"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that variance percentages are calculated and color-coded (green for under budget, red for over budget)"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /dashboard/costs/catalog and verify the cost catalog with standard labor rates and material prices"
+    },
+    {
+      "type": "action",
+      "description": "Click on an order with execution data and view the execution cost breakdown"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that execution costs from labor hours and materials are reflected in the actual cost vs budget comparison"
+    }
+  ]
+}

@@ -2,6 +2,7 @@
  * AI Service — Business Logic Layer
  *
  * Provides contextual AI processing for the Cermont AI Assistant.
+ * Uses the provider adapter for LLM calls with security controls.
  */
 
 import { CERMONT_OPERATIONAL_STEPS, getStepRequirements } from "@cermont/domain";
@@ -10,11 +11,20 @@ import type {
 	CermontOperationalStepCode,
 	DomainBlocker,
 } from "@cermont/shared-types";
-import { NotFoundError, ServiceUnavailableError } from "../../common/errors/AppError";
+import { NotFoundError } from "../../common/errors/AppError";
+import { createLogger } from "../../common/utils/logger";
 import { ServiceCase } from "../../models";
 import { canAdvanceToNextStep } from "../../services/cermont-workflow-gate.service";
+import { generateWithProvider, getActiveProviderName, isAiAvailable } from "./ai-provider.adapter";
+import {
+	draftTechnicalReport,
+	findMissingDocuments,
+	summarizeServiceCase,
+} from "./ai-use-cases.service";
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+const _log = createLogger("ai-service");
+
+// ─── System Prompt Builder ──────────────────────────────────────────────────
 
 function buildSystemPrompt(params: {
 	serviceCaseId: string;
@@ -67,70 +77,102 @@ Instrucciones:
 5. Orienta tus respuestas al módulo actual si se proporciona.`;
 }
 
-async function callOpenAI(systemPrompt: string, message: string): Promise<string> {
-	const response = await fetch("https://api.openai.com/v1/chat/completions", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-		},
-		body: JSON.stringify({
-			model: "gpt-4o-mini",
-			messages: [
-				{ role: "system", content: systemPrompt },
-				{ role: "user", content: message },
-			],
-			temperature: 0.7,
-		}),
-	});
+// ─── Intent Detection ───────────────────────────────────────────────────────
 
-	if (!response.ok) {
-		const errText = await response.text();
-		throw new ServiceUnavailableError(
-			`Error en el proveedor de IA: ${errText}`,
-			"AI_SERVICE_UNAVAILABLE",
-		);
+function detectUseCaseIntent(
+	message: string,
+): "summarize" | "missing_docs" | "draft_report" | null {
+	const lower = message.toLowerCase().trim();
+
+	if (
+		lower.includes("resumir") ||
+		lower.includes("resumen") ||
+		lower.includes("estado del caso") ||
+		lower === "resumen del día"
+	) {
+		return "summarize";
 	}
 
-	const data = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
-	return data.choices?.[0]?.message?.content || "";
+	if (
+		lower.includes("faltante") ||
+		lower.includes("falta") ||
+		lower.includes("documentos pendiente") ||
+		lower.includes("qué falta") ||
+		lower.includes("requisitos") ||
+		lower.includes("qué necesito")
+	) {
+		return "missing_docs";
+	}
+
+	if (
+		lower.includes("redactar") ||
+		lower.includes("borrador") ||
+		lower.includes("informe técnico") ||
+		lower === "generar informe técnico"
+	) {
+		return "draft_report";
+	}
+
+	return null;
 }
 
-async function callGemini(systemPrompt: string, message: string): Promise<string> {
-	const response = await fetch(
-		`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-		{
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				contents: [{ role: "user", parts: [{ text: systemPrompt }, { text: message }] }],
-				generationConfig: { temperature: 0.7 },
-			}),
-		},
-	);
+// ─── Rule-Based Chat (Fallback when no AI) ──────────────────────────────────
 
-	if (!response.ok) {
-		const errText = await response.text();
-		throw new ServiceUnavailableError(
-			`Error en el proveedor de IA: ${errText}`,
-			"AI_SERVICE_UNAVAILABLE",
-		);
-	}
+async function handleUseCaseIntent(
+	intent: "summarize" | "missing_docs" | "draft_report",
+	serviceCaseId: string,
+	_userId: string,
+): Promise<{
+	reply: string;
+	suggestedActions: string[];
+}> {
+	switch (intent) {
+		case "summarize": {
+			const summary = await summarizeServiceCase(serviceCaseId);
+			return {
+				reply: `📋 **Resumen del Caso ${summary.code}**\n\n${summary.summary}`,
+				suggestedActions: [
+					"Ver documentos del caso",
+					"Buscar faltantes",
+					"Redactar informe técnico",
+				],
+			};
+		}
 
-	const data = (await response.json()) as {
-		candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-	};
-	return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-}
+		case "missing_docs": {
+			const missing = await findMissingDocuments(serviceCaseId);
+			const incomplete = missing.filter((m) => m.status === "incomplete");
+			if (incomplete.length === 0) {
+				return {
+					reply: "✅ No se encontraron documentos faltantes. Todos los requisitos están cumplidos.",
+					suggestedActions: ["Resumir caso", "Avanzar al siguiente paso"],
+				};
+			}
 
-async function requestCompletion(systemPrompt: string, message: string): Promise<string> {
-	if (process.env.OPENAI_API_KEY) {
-		return callOpenAI(systemPrompt, message);
+			const lines = incomplete.map(
+				(m) => `**${m.stepLabel}**:\n${m.missing.map((d) => `- ${d}`).join("\n")}`,
+			);
+			return {
+				reply: `📄 **Documentos Faltantes**\n\nSe encontraron los siguientes pendientes:\n\n${lines.join("\n\n")}`,
+				suggestedActions: ["Subir documentos", "Resumir caso"],
+			};
+		}
+
+		case "draft_report": {
+			const draft = await draftTechnicalReport(serviceCaseId);
+			return {
+				reply: `📝 **Borrador de Informe Técnico**\n\n${draft.draftContent}`,
+				suggestedActions: ["Editar borrador", "Ver ejecución", "Resumir caso"],
+			};
+		}
+
+		default:
+			return {
+				reply:
+					"No pude identificar la solicitud. Puedes preguntar por: resumen del caso, documentos faltantes, o redactar un informe.",
+				suggestedActions: ["Resumir caso", "Buscar faltantes", "Redactar informe"],
+			};
 	}
-	if (process.env.GEMINI_API_KEY) {
-		return callGemini(systemPrompt, message);
-	}
-	return "";
 }
 
 // ─── Public API ─────────────────────────────────────────────────────────────
@@ -141,19 +183,8 @@ export async function processUserQuery(
 	threadId?: string,
 	currentModule?: string,
 	userRole?: string,
+	userId?: string,
 ): Promise<AssistantChatResponse> {
-	const apiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
-	if (!apiKey) {
-		return {
-			threadId: threadId || `th_degraded_${Date.now()}`,
-			reply:
-				"El asistente no está disponible en este momento. " +
-				"Contacta al administrador del sistema para activar el servicio.",
-			suggestedActions: ["Continuar con el proceso manualmente"],
-			blockers: [],
-		};
-	}
-
 	const serviceCase = await ServiceCase.findById(serviceCaseId);
 	if (!serviceCase) {
 		throw new NotFoundError("ServiceCase", serviceCaseId);
@@ -164,10 +195,39 @@ export async function processUserQuery(
 	const normalizedCurrent = currentStepCode.startsWith("step_")
 		? currentStepCode.split("_").slice(2).join("_")
 		: currentStepCode;
-
 	const currentStepIndex = CERMONT_OPERATIONAL_STEPS.findIndex((s) => s.key === normalizedCurrent);
 
-	// Get real-time blockers and advance status from the Workflow Gate
+	// Detect use case intent first
+	const intent = detectUseCaseIntent(message);
+
+	if (intent) {
+		const result = await handleUseCaseIntent(intent, serviceCaseId, userId || "");
+		return {
+			threadId: threadId || `th_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+			reply: result.reply,
+			suggestedActions: result.suggestedActions,
+			blockers: [],
+			currentStepKey: currentStepCode,
+		};
+	}
+
+	// Check if AI is available via provider
+	if (!isAiAvailable()) {
+		return {
+			threadId: threadId || `th_degraded_${Date.now()}`,
+			reply:
+				"El asistente no está disponible en este momento. " +
+				"Contacta al administrador del sistema para activar el servicio.\n\n" +
+				"Mientras tanto, puedes usar estos comandos:\n" +
+				"- **Resumir caso** — Obtén un resumen del estado actual\n" +
+				"- **Buscar faltantes** — Revisa documentos pendientes\n" +
+				"- **Redactar borrador** — Genera un borrador de informe técnico",
+			suggestedActions: ["Resumir caso", "Buscar faltantes", "Redactar borrador"],
+			blockers: [],
+		};
+	}
+
+	// Build context and call the provider
 	const { canAdvance, blockers } = await canAdvanceToNextStep(serviceCaseId);
 	const requirements = getStepRequirements(currentStepCode);
 
@@ -188,9 +248,14 @@ export async function processUserQuery(
 		canAdvance,
 	});
 
-	const reply = await requestCompletion(systemPrompt, message);
+	const { content: reply } = await generateWithProvider(systemPrompt, message, {
+		serviceCaseId,
+		threadId,
+		currentModule,
+		userRole,
+		userId: userId || "",
+	});
 
-	// Filter suggested actions by role: only show blockers where the user is the owner
 	const suggestedActions = blockers
 		.filter((b: DomainBlocker) => !userRole || b.ownerRole === userRole)
 		.map((b: DomainBlocker) => b.recommendedAction);
@@ -203,3 +268,13 @@ export async function processUserQuery(
 		currentStepKey: currentStepCode,
 	};
 }
+
+export async function processUseCase(
+	useCase: "summarize" | "missing_docs" | "draft_report",
+	serviceCaseId: string,
+	userId: string,
+): Promise<{ reply: string; suggestedActions: string[] }> {
+	return handleUseCaseIntent(useCase, serviceCaseId, userId);
+}
+
+export { getActiveProviderName, isAiAvailable };

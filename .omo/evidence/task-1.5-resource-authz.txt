@@ -1,0 +1,5 @@
+Task 1.5 — Resource document authorization
+
+GET /:resourceId/documents is covered by router.use(authenticate) and now declares authorize(...INTERNAL_ROLES) before listToolDocuments.
+
+Checker result: resource.routes.ts is absent from authorization findings.

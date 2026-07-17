@@ -1,0 +1,6 @@
+
+> cermont-monorepo@1.0.0 quality:language
+> tsx tooling/quality/check-language.ts
+
+Language quality check: 2819 findings
+- spanish-source-token: 2819/2819 within baseline

@@ -1,0 +1,6 @@
+TASK-1.2 verification
+
+- `planning-packet/new/` contains only active `page.tsx` and `CaseSelector.tsx`.
+- `page.tsx` imports the canonical `@/modules/planning/ui/PlanningWizard`.
+- No deleted legacy component is imported by frontend source.
+- Full classification and decision are recorded in `planning-packet-audit.md`.

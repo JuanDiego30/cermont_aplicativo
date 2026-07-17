@@ -1,0 +1,15 @@
+Task 1.3 — Aggregate QA
+
+Command: npx tsx tooling/quality/check-routes.ts
+Result: exit 0
+Backend route quality check: 13 findings
+- route-missing-authorization-policy: 10/10 within baseline
+- route-missing-validation: 3/9 within baseline
+
+Assertions: erp-connector, form-submissions, jobs, and qr modules are absent.
+
+Command: npm run test -w @cermont/shared-types
+Result: 31 files passed, 178 tests passed.
+
+Command: npm run test -w backend
+Result: 102 files passed, 680 tests passed.

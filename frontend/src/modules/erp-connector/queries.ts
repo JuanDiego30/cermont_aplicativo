@@ -24,6 +24,17 @@ export function useErpConnectors() {
 	});
 }
 
+export function useCreateErpConnector() {
+	const qc = useQueryClient();
+	return useMutation({
+		mutationFn: (data: Omit<IErpConnectorConfig, "_id" | "lifecycleStatus" | "createdAt" | "updatedAt">) =>
+			apiClient.post<{ success: boolean; data: IErpConnectorConfig }>("/erp-connectors", data),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: erpConnectorKeys.all });
+		},
+	});
+}
+
 export function useSyncErpConnector() {
 	const qc = useQueryClient();
 	return useMutation({

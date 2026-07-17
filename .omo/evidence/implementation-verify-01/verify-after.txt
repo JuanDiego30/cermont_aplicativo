@@ -1,0 +1,149 @@
+
+> cermont-monorepo@1.0.0 verify
+> npm run verify:shared-types && npm run verify:domain && npm run verify:config && npm run verify:backend && npm run verify:frontend && npm run contracts:check && npm run quality:strict && npm run doctor:verbose -w frontend
+
+
+> cermont-monorepo@1.0.0 verify:shared-types
+> npm run typecheck -w @cermont/shared-types && npm run lint -w @cermont/shared-types && npm run test -w @cermont/shared-types && npm run build -w @cermont/shared-types
+
+
+> @cermont/shared-types@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/shared-types@1.0.0 lint
+> biome check .
+
+Checked 174 files in 222ms. No fixes applied.
+
+> @cermont/shared-types@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types
+
+
+ Test Files  31 passed (31)
+      Tests  181 passed (181)
+   Start at  01:54:33
+   Duration  5.23s (transform 17.71s, setup 0ms, import 41.80s, tests 1.13s, environment 7ms)
+
+
+> @cermont/shared-types@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:domain
+> npm run typecheck -w @cermont/domain && npm run lint -w @cermont/domain && npm run build -w @cermont/domain
+
+
+> @cermont/domain@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/domain@1.0.0 lint
+> biome check .
+
+Checked 30 files in 56ms. No fixes applied.
+
+> @cermont/domain@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:config
+> npm run typecheck -w @cermont/config && npm run lint -w @cermont/config && npm run build -w @cermont/config
+
+
+> @cermont/config@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/config@1.0.0 lint
+> biome check .
+
+Checked 4 files in 17ms. No fixes applied.
+
+> @cermont/config@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:backend
+> npm run typecheck -w backend && npm run lint -w backend && npm run test -w backend && npm run build -w backend
+
+
+> @cermont/backend@5.2.1 typecheck
+> tsc --noEmit
+
+
+> @cermont/backend@5.2.1 lint
+> biome lint .
+
+Checked 479 files in 255ms. No fixes applied.
+
+> @cermont/backend@5.2.1 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend
+
+
+ Test Files  102 passed (102)
+      Tests  686 passed (686)
+   Start at  01:55:16
+   Duration  16.58s (transform 22.40s, setup 2.88s, import 149.74s, tests 10.53s, environment 17ms)
+
+
+> @cermont/backend@5.2.1 build
+> tsc
+
+
+> cermont-monorepo@1.0.0 verify:frontend
+> npm run typecheck -w frontend && npm run lint -w frontend && npm run test -w frontend && npm run build -w frontend
+
+
+> @cermont/frontend@1.2.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/frontend@1.2.0 lint
+> biome lint .
+
+Checked 887 files in 483ms. No fixes applied.
+
+> @cermont/frontend@1.2.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend
+
+
+ Test Files  83 passed (83)
+      Tests  411 passed (411)
+   Start at  01:56:03
+   Duration  45.55s (transform 6.06s, setup 65.26s, import 103.42s, tests 19.48s, environment 409.16s)
+
+
+> @cermont/frontend@1.2.0 build
+> next build --turbopack
+
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local, .env.production
+- Experiments (use with caution):
+  · optimizePackageImports
+  · serverActions
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 12.7s
+  Running TypeScript ...
+  Finished TypeScript in 43s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/96) ...
+  Generating static pages using 15 workers (24/96) 
+⨯ Next.js build worker exited with code: 4294967295 and signal: null
+npm error Lifecycle script `build` failed with error:
+npm error code 4294967295
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next build --turbopack

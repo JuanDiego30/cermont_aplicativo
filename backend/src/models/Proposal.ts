@@ -25,7 +25,7 @@ export interface IProposalDocument extends Document {
 	title: string;
 	clientName: string;
 	clientEmail?: string;
-	status: "draft" | "sent" | "approved" | "rejected" | "expired";
+	status: "draft" | "sent" | "approved" | "rejected" | "expired" | "converted";
 	validUntil: Date;
 	items: Array<{
 		description: string;
@@ -63,7 +63,7 @@ const ProposalSchema = new Schema<IProposalDocument>(
 		clientEmail: { type: String },
 		status: {
 			type: String,
-			enum: ["draft", "sent", "approved", "rejected", "expired"],
+			enum: ["draft", "sent", "approved", "rejected", "expired", "converted"],
 			default: "draft",
 			index: true,
 		},

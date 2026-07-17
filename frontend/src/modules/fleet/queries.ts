@@ -9,6 +9,7 @@ import type {
 	CheckoutVehicleAssignmentInput,
 	CreateVehicleAssignmentInput,
 	CreateVehicleInput,
+	UpdateVehicleInput,
 } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -16,12 +17,13 @@ import {
 	checkinVehicle,
 	checkoutVehicle,
 	createVehicle,
-	type FleetListFilters,
 	getActiveVehicleAssignment,
 	getExpiringVehicleDocuments,
 	getVehicleHistory,
 	listVehicles,
+	updateVehicle,
 } from "./api/fleet-api";
+import type { FleetListFilters } from "./api/fleet-api";
 
 const FLEET_KEYS = {
 	all: ["fleet"] as const,
@@ -50,6 +52,16 @@ export function useCreateVehicle() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: (input: CreateVehicleInput) => createVehicle(input),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: FLEET_KEYS.all });
+		},
+	});
+}
+
+export function useUpdateVehicle() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, input }: { id: string; input: UpdateVehicleInput }) => updateVehicle(id, input),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: FLEET_KEYS.all });
 		},

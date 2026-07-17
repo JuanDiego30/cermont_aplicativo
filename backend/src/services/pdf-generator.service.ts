@@ -12,6 +12,7 @@ import { Checklist } from "../models/Checklist";
 import { Cost } from "../models/Cost";
 import { Evidence } from "../models/Evidence";
 import { Order } from "../models/Order";
+import { Proposal } from "../models/Proposal";
 
 const log = createLogger("pdf-generator");
 
@@ -1193,4 +1194,88 @@ export async function generateOrderPdf(options: GeneratePdfOptions): Promise<Buf
 	log.info("PDF generated successfully", { orderId, type, size: pdfBytes.length });
 
 	return Buffer.from(pdfBytes);
+}
+
+export async function generateProposalCostPdf(proposalId: string): Promise<Buffer> {
+	const proposal = await Proposal.findById(proposalId).lean();
+
+	if (!proposal) {
+		throw new AppError("Proposal not found", 404, "PROPOSAL_NOT_FOUND");
+	}
+
+	const pdfDoc = await PDFDocument.create();
+	const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+	const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+	const state = {
+		page: pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]),
+		cursorY: PAGE_HEIGHT - MARGIN,
+	};
+
+	const drawText = (text: string, size = 10, customFont?: PDFFont) => {
+		state.page.drawText(text, { x: MARGIN, y: state.cursorY, size, font: customFont ?? font });
+		state.cursorY -= size + 4;
+	};
+
+	const bold = (text: string, size = 10) => drawText(text, size, boldFont);
+
+	drawProposalPdfHeader(proposal as unknown as Record<string, unknown>, proposalId, bold, drawText, state);
+	state.cursorY -= 8;
+
+	if (proposal.items && proposal.items.length > 0) {
+		drawProposalPdfItemsSection(proposal as unknown as Record<string, unknown>, pdfDoc, state, drawText, bold);
+	}
+
+	const pdfBytes = await pdfDoc.save();
+	return Buffer.from(pdfBytes);
+}
+
+function drawProposalPdfHeader(
+	proposal: Record<string, unknown>,
+	proposalId: string,
+	bold: (text: string, size?: number) => void,
+	drawText: (text: string, size?: number, font?: PDFFont) => void,
+	state: { cursorY: number },
+): void {
+	bold("DESGLOSE DE COSTOS - PROPUESTA", 16);
+	state.cursorY -= 8;
+	bold(`Propuesta: ${proposal.code || proposalId}`, 11);
+	drawText(`Cliente: ${proposal.clientName}`);
+	drawText(`Titulo: ${proposal.title}`);
+	drawText(`Estado: ${proposal.status}`);
+}
+
+function drawProposalPdfItemsSection(
+	proposal: Record<string, unknown>,
+	pdfDoc: PDFDocument,
+	state: { page: PDFPage; cursorY: number },
+	drawText: (text: string, size?: number, font?: PDFFont) => void,
+	bold: (text: string, size?: number) => void,
+): void {
+	bold("Items:", 11);
+	state.cursorY -= 4;
+
+	const headers = ["Descripcion", "Unidad", "Cant.", "P. Unit.", "Total"];
+	bold(headers.join(" | "), 9);
+	state.cursorY -= 2;
+
+	for (const item of proposal.items as Array<Record<string, unknown>>) {
+		const line = [
+			(item.description as string)?.slice(0, 25) || "",
+			(item.unit as string) || "",
+			String(item.quantity ?? ""),
+			String(item.unitCost ?? ""),
+			String(item.total ?? ""),
+		].join(" | ");
+		drawText(line, 8);
+
+		if (state.cursorY < 60) {
+			state.page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+			state.cursorY = PAGE_HEIGHT - MARGIN;
+		}
+	}
+
+	state.cursorY -= 4;
+	bold(`Subtotal: $${Number(proposal.subtotal ?? 0).toFixed(2)}`, 10);
+	bold(`Total: $${Number(proposal.total ?? 0).toFixed(2)}`, 11);
 }

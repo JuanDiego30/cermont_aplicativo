@@ -1,0 +1,21 @@
+
+Path                                                                                                     LineNumber Line
+----                                                                                                     ---------- ----
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts          2  * DynamicFormTemplate Model — Mongoose schema
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts          9  * Aligned with @cermont/shared-types DynamicFormTemplateSchema
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts         12 import type { DynamicFormTemplate as DynamicFormTemplateType } from "@cermont/shared-types";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts         58 const dynamicFormTemplateSchema = new Schema(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts         82 dynamicFormTemplateSchema.index({ status: 1, updatedAt: -1 });
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts         84 export type DynamicFormTemplateDocument = DynamicFormTemplateType & {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts         91 export const DynamicFormTemplate = model<DynamicFormTemplateDocument>(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts         92 	"DynamicFormTemplate",
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\DynamicFormTemplate.ts         93 	dynamicFormTemplateSchema,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts               2  * FormSubmission Model — Mongoose schema
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts              12 export interface FormSubmissionDocument {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts              37 const formSubmissionSchema = new Schema<FormSubmissionDocument>(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts              72 formSubmissionSchema.index({ serviceCaseId: 1, templateId: 1, submittedAt: -1 });
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts              73 formSubmissionSchema.index({ serviceCaseId: 1, stepCode: 1, status: 1 });
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts              75 export const FormSubmission = model<FormSubmissionDocument>("FormSubmission", formSubmissionSchema);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\index.ts                       47 export { DynamicFormTemplate, type DynamicFormTemplateDocument } from "./DynamicFormTemplate";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\index.ts                       52 export { FormSubmission, type FormSubmissionDocument } from "./FormSubmission";
+

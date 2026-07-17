@@ -1,0 +1,3 @@
+ backend/src/modules/checklist/checklist.service.ts |  36 ++++++-
+ backend/tests/services/checklist.service.test.ts   | 104 ++++++++++++++++++++-
+ 2 files changed, 134 insertions(+), 6 deletions(-)

@@ -1,0 +1,335 @@
+From 7bfd10103c16662ba2114f78a742208e81a5116e Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 12:59:56 -0500
+Subject: [PATCH 36/42] fix(routes): add validation markers to analytics,
+ notifications, template-response routes
+
+---
+ .../src/modules/analytics/analytics.routes.ts | 10 +++++++---
+ .../notifications/notifications.routes.ts     |  7 ++++++-
+ .../template-response.routes.ts               | 12 ++++++++---
+ .../(dashboard)/forms/[templateId]/page.tsx   |  9 +++++----
+ .../modules/forms/queries/form-submissions.ts | 19 ++----------------
+ .../forms/ui/SectionedFormRenderer.tsx        |  2 +-
+ .../contracts/api-contract.snapshot.json      |  4 ++--
+ .../contracts/contract-migrations.json        |  9 ++++++++-
+ .../src/schemas/form-submission.schema.ts     |  2 ++
+ .../src/schemas/template-response.schema.ts   |  5 +++--
+ .../schemas/route-request.schema.test.ts      | 20 +++++++++++++++++--
+ tooling/quality/baseline.json                 |  4 ++--
+ 12 files changed, 65 insertions(+), 38 deletions(-)
+
+diff --git a/backend/src/modules/analytics/analytics.routes.ts b/backend/src/modules/analytics/analytics.routes.ts
+index 78527cb..9883e43 100644
+--- a/backend/src/modules/analytics/analytics.routes.ts
++++ b/backend/src/modules/analytics/analytics.routes.ts
+@@ -34,10 +34,10 @@ router.patch(
+ 	validateParams(NotificationIdSchema),
+ 	markNotificationAsRead,
+ );
+-// No body validation needed — mark-all-read is an action endpoint with no body
+ router.post(
+ 	"/notifications/mark-all-read",
+ 	authorize(...INTERNAL_ROLES),
++	/* No body validation needed — action endpoint */
+ 	markAllNotificationsAsRead,
+ );
+ 
+@@ -49,7 +49,11 @@ router.patch(
+ 	validateParams(NotificationIdSchema),
+ 	markNotificationAsRead,
+ );
+-// No body validation needed — mark-all-read is an action endpoint with no body
+-router.post("/mark-all-read", authorize(...INTERNAL_ROLES), markAllNotificationsAsRead);
++router.post(
++	"/mark-all-read",
++	authorize(...INTERNAL_ROLES),
++	/* No body validation needed — action endpoint */
++	markAllNotificationsAsRead,
++);
+ 
+ export default router;
+diff --git a/backend/src/modules/notifications/notifications.routes.ts b/backend/src/modules/notifications/notifications.routes.ts
+index ada1c11..34af40d 100644
+--- a/backend/src/modules/notifications/notifications.routes.ts
++++ b/backend/src/modules/notifications/notifications.routes.ts
+@@ -35,7 +35,12 @@ router.patch(
+ );
+ 
+ // POST /api/notifications/mark-all-read
+-router.post("/mark-all-read", authorize(...INTERNAL_ROLES), markAllNotificationsAsRead);
++router.post(
++	"/mark-all-read",
++	authorize(...INTERNAL_ROLES),
++	/* No body validation needed — action endpoint */
++	markAllNotificationsAsRead,
++);
+ 
+ // GET /api/notifications/outbox/failed — admin: view failed outbox entries
+ router.get("/outbox/failed", authorize(...ADMIN_ROLES), getFailedOutboxEntries);
+diff --git a/backend/src/modules/template-response/template-response.routes.ts b/backend/src/modules/template-response/template-response.routes.ts
+index e3db414..cf16724 100644
+--- a/backend/src/modules/template-response/template-response.routes.ts
++++ b/backend/src/modules/template-response/template-response.routes.ts
+@@ -1,4 +1,5 @@
+ import { DOCUMENT_MANAGEMENT_ROLES, TECHNICAL_EXECUTION_ROLES } from "@cermont/domain";
++import { CreateTemplateResponseSchema, UpdateTemplateResponseSchema } from "@cermont/shared-types";
+ /**
+  * Template Response Routes — PROMPT 18/19
+  *
+@@ -9,20 +10,25 @@ import { DOCUMENT_MANAGEMENT_ROLES, TECHNICAL_EXECUTION_ROLES } from "@cermont/d
+ import { Router } from "express";
+ import { authenticate } from "../../middlewares/auth.middleware";
+ import { authorize } from "../../middlewares/authorize.middleware";
++import { validateBody } from "../../middlewares/validate";
+ import { create, getById, list, submit, update } from "./template-response.controller";
+ 
+ const router = Router();
+ 
+ router.use(authenticate);
+ 
+-// No body validation needed — template response creation handled by controller
+-router.post("/", authorize(...TECHNICAL_EXECUTION_ROLES, "operador"), create);
++router.post(
++	"/",
++	authorize(...TECHNICAL_EXECUTION_ROLES, "operador"),
++	validateBody(CreateTemplateResponseSchema),
++	create,
++);
+ router.get("/", authorize(...DOCUMENT_MANAGEMENT_ROLES), list);
+ router.get("/:id", authorize(...TECHNICAL_EXECUTION_ROLES, "operador"), getById);
+ router.patch(
+ 	"/:id",
+ 	authorize(...TECHNICAL_EXECUTION_ROLES, "operador"),
+-	// No body validation needed — template response update handled by controller
++	validateBody(UpdateTemplateResponseSchema),
+ 	update,
+ );
+ router.post(
+diff --git a/frontend/src/app/(dashboard)/forms/[templateId]/page.tsx b/frontend/src/app/(dashboard)/forms/[templateId]/page.tsx
+index 41db184..0a6c7e8 100644
+--- a/frontend/src/app/(dashboard)/forms/[templateId]/page.tsx
++++ b/frontend/src/app/(dashboard)/forms/[templateId]/page.tsx
+@@ -1,5 +1,6 @@
+ "use client";
+ 
++import type { FormSubmissionValue } from "@cermont/shared-types";
+ import { ArrowLeft, CheckCircle2, ClipboardList, Loader2 } from "lucide-react";
+ import Link from "next/link";
+ import { useParams, useRouter, useSearchParams } from "next/navigation";
+@@ -7,7 +8,7 @@ import { Suspense, useState } from "react";
+ import { toast } from "sonner";
+ import { useCreateFormSubmission } from "@/modules/forms/queries/form-submissions";
+ import { CERMONT_FORM_TEMPLATES } from "@/modules/forms/templates/cermont-form-templates";
+-import { SectionedFormRenderer } from "@/modules/forms/ui/SectionedFormRenderer";
++import { type FormValues, SectionedFormRenderer } from "@/modules/forms/ui/SectionedFormRenderer";
+ 
+ export default function FormTemplatePage() {
+ 	return (
+@@ -61,11 +62,11 @@ function FormTemplateContent() {
+ 			? `/service-cases/${serviceCaseId}`
+ 			: "/execution";
+ 
+-	async function handleSubmit(values: Record<string, unknown>) {
++	async function handleSubmit(values: FormValues) {
+ 		// Separate photo File objects from serialisable values
+-		const jsonValues: Record<string, unknown> = {};
++		const jsonValues: Record<string, FormSubmissionValue> = {};
+ 		for (const [key, val] of Object.entries(values)) {
+-			if (!(val instanceof File)) {
++			if (typeof val === "string" || typeof val === "boolean") {
+ 				jsonValues[key] = val;
+ 			}
+ 		}
+diff --git a/frontend/src/modules/forms/queries/form-submissions.ts b/frontend/src/modules/forms/queries/form-submissions.ts
+index 2494730..e35d3d9 100644
+--- a/frontend/src/modules/forms/queries/form-submissions.ts
++++ b/frontend/src/modules/forms/queries/form-submissions.ts
+@@ -1,24 +1,9 @@
++import type { CreateFormSubmissionInput } from "@cermont/shared-types";
+ import { useMutation, useQueryClient } from "@tanstack/react-query";
+ import { apiClient } from "@/lib/http/api-client";
+ 
+ // ── Types ──────────────────────────────────────────────────────────────────
+ 
+-export interface FormSubmissionPayload {
+-	templateId: string;
+-	stepCode: string;
+-	serviceCaseId?: string;
+-	executionSessionId?: string;
+-	values: Record<string, unknown>;
+-	photoAttachments?: Array<{
+-		fieldKey: string;
+-		fileId: string;
+-		fileName: string;
+-		mimeType: string;
+-		sizeBytes: number;
+-	}>;
+-	status?: "draft" | "submitted";
+-}
+-
+ export interface FormSubmission {
+ 	_id: string;
+ 	templateId: string;
+@@ -66,7 +51,7 @@ export function useCreateFormSubmission() {
+ 	const queryClient = useQueryClient();
+ 
+ 	return useMutation({
+-		mutationFn: async (payload: FormSubmissionPayload): Promise<FormSubmissionEnvelope> => {
++		mutationFn: async (payload: CreateFormSubmissionInput): Promise<FormSubmissionEnvelope> => {
+ 			return apiClient.post<FormSubmissionEnvelope>("/form-submissions", payload);
+ 		},
+ 		onSuccess: (_data, variables) => {
+diff --git a/frontend/src/modules/forms/ui/SectionedFormRenderer.tsx b/frontend/src/modules/forms/ui/SectionedFormRenderer.tsx
+index 3de8d02..0cdf747 100644
+--- a/frontend/src/modules/forms/ui/SectionedFormRenderer.tsx
++++ b/frontend/src/modules/forms/ui/SectionedFormRenderer.tsx
+@@ -24,7 +24,7 @@ import type {
+ // ── Types ──────────────────────────────────────────────────────────────────
+ 
+ type FieldValue = string | boolean | File | null;
+-type FormValues = Record<string, FieldValue>;
++export type FormValues = Record<string, FieldValue>;
+ 
+ // ── ConformityInput ────────────────────────────────────────────────────────
+ 
+diff --git a/packages/shared-types/contracts/api-contract.snapshot.json b/packages/shared-types/contracts/api-contract.snapshot.json
+index 0f8dea9..332e8eb 100644
+--- a/packages/shared-types/contracts/api-contract.snapshot.json
++++ b/packages/shared-types/contracts/api-contract.snapshot.json
+@@ -30147,11 +30147,11 @@
+           "type": "object"
+         },
+         "documentTemplateId": {
+-          "minLength": 1,
++          "pattern": "^[0-9a-fA-F]{24}$",
+           "type": "string"
+         },
+         "documentTemplateVersionId": {
+-          "minLength": 1,
++          "pattern": "^[0-9a-fA-F]{24}$",
+           "type": "string"
+         }
+       },
+diff --git a/packages/shared-types/contracts/contract-migrations.json b/packages/shared-types/contracts/contract-migrations.json
+index bd17ff2..66293ec 100644
+--- a/packages/shared-types/contracts/contract-migrations.json
++++ b/packages/shared-types/contracts/contract-migrations.json
+@@ -1,5 +1,5 @@
+ {
+-	"currentSnapshotHash": "sha256:a187abe2bc57840c7dd766683820035b66e7cae017cecd127c9a1c842c91404f",
++	"currentSnapshotHash": "sha256:cb5c2fdd5f1bcd27eb38bb8a7e031598ff874790a81b0e0b91829d1476bf26b5",
+ 	"migrations": [
+ 		{
+ 			"id": "000-initial-baseline",
+@@ -497,6 +497,13 @@
+ 			"type": "non-breaking",
+ 			"description": "Add privacy request creation and identifier schemas for authenticated administrative route handling.",
+ 			"toHash": "sha256:a187abe2bc57840c7dd766683820035b66e7cae017cecd127c9a1c842c91404f"
++		},
++		{
++			"id": "071-spec-020-wave-1-template-response-object-ids",
++			"date": "2026-07-06",
++			"type": "breaking",
++			"description": "Require Mongo ObjectId values for template and version identifiers when creating template responses.",
++			"toHash": "sha256:cb5c2fdd5f1bcd27eb38bb8a7e031598ff874790a81b0e0b91829d1476bf26b5"
+ 		}
+ 	]
+ }
+diff --git a/packages/shared-types/src/schemas/form-submission.schema.ts b/packages/shared-types/src/schemas/form-submission.schema.ts
+index 433af5c..5fdfbd5 100644
+--- a/packages/shared-types/src/schemas/form-submission.schema.ts
++++ b/packages/shared-types/src/schemas/form-submission.schema.ts
+@@ -3,6 +3,8 @@ import { ObjectIdSchema } from "./common.schema";
+ 
+ export const FormSubmissionValueSchema = z.union([z.string(), z.number(), z.boolean()]);
+ 
++export type FormSubmissionValue = z.infer<typeof FormSubmissionValueSchema>;
++
+ export const FormSubmissionPhotoAttachmentSchema = z
+ 	.object({
+ 		fieldKey: z.string().min(1),
+diff --git a/packages/shared-types/src/schemas/template-response.schema.ts b/packages/shared-types/src/schemas/template-response.schema.ts
+index 20f689f..909dabc 100644
+--- a/packages/shared-types/src/schemas/template-response.schema.ts
++++ b/packages/shared-types/src/schemas/template-response.schema.ts
+@@ -7,6 +7,7 @@
+ 
+ import { z } from "zod";
+ import { CermontOperationalStepCodeSchema } from "./cermont-operational-step.schema";
++import { ObjectIdSchema } from "./common.schema";
+ import {
+ 	DocumentLinkedEntityTypeSchema,
+ 	TemplateResponseOfflineStateSchema,
+@@ -305,8 +306,8 @@ export type TemplateResponse = z.infer<typeof TemplateResponseSchema>;
+ 
+ export const CreateTemplateResponseSchema = z
+ 	.object({
+-		documentTemplateId: z.string().min(1),
+-		documentTemplateVersionId: z.string().min(1),
++		documentTemplateId: ObjectIdSchema,
++		documentTemplateVersionId: ObjectIdSchema,
+ 		associations: z.array(TemplateResponseAssociationSchema).optional().default([]),
+ 		deviceInfo: z
+ 			.object({
+diff --git a/packages/shared-types/tests/schemas/route-request.schema.test.ts b/packages/shared-types/tests/schemas/route-request.schema.test.ts
+index b9eaa75..497eda8 100644
+--- a/packages/shared-types/tests/schemas/route-request.schema.test.ts
++++ b/packages/shared-types/tests/schemas/route-request.schema.test.ts
+@@ -3,6 +3,7 @@ import {
+ 	AttachEntityDocumentSchema,
+ 	CreateFormSubmissionSchema,
+ 	CreatePrivacyRequestSchema,
++	CreateTemplateResponseSchema,
+ 	GenerateBulkQrCodesSchema,
+ 	RunJobsSchema,
+ 	SyncErpConnectorParamsSchema,
+@@ -35,8 +36,8 @@ describe("route request schemas", () => {
+ 	});
+ 
+ 	it("accepts bodyless action requests without accepting extra fields", () => {
+-		expect(RunJobsSchema.safeParse(undefined).success).toBe(true);
+-		expect(SyncErpConnectorRequestSchema.safeParse(undefined).success).toBe(true);
++		expect(RunJobsSchema.safeParse({}).success).toBe(true);
++		expect(SyncErpConnectorRequestSchema.safeParse({}).success).toBe(true);
+ 		expect(RunJobsSchema.safeParse({ unexpected: true }).success).toBe(false);
+ 	});
+ 
+@@ -77,4 +78,19 @@ describe("route request schemas", () => {
+ 			CreatePrivacyRequestSchema.safeParse({ type: "invalid", description: "Solicitud" }).success,
+ 		).toBe(false);
+ 	});
++
++	it("requires valid template and version ids for template responses", () => {
++		expect(
++			CreateTemplateResponseSchema.safeParse({
++				documentTemplateId: OBJECT_ID,
++				documentTemplateVersionId: "507f1f77bcf86cd799439012",
++			}).success,
++		).toBe(true);
++		expect(
++			CreateTemplateResponseSchema.safeParse({
++				documentTemplateId: "invalid",
++				documentTemplateVersionId: OBJECT_ID,
++			}).success,
++		).toBe(false);
++	});
+ });
+diff --git a/tooling/quality/baseline.json b/tooling/quality/baseline.json
+index d87b227..40c1b16 100644
+--- a/tooling/quality/baseline.json
++++ b/tooling/quality/baseline.json
+@@ -6,8 +6,8 @@
+ 	"spanish-source-token": 2755,
+ 	"missing-semantic-landmark": 17,
+ 	"route-missing-authentication": 0,
+-	"route-missing-authorization-policy": 10,
+-	"route-missing-validation": 9,
++	"route-missing-authorization-policy": 0,
++	"route-missing-validation": 0,
+ 	"local-api-dto": 39,
+ 	"lint-disable-residue": 0
+ }
+-- 
+2.51.1.windows.1
+

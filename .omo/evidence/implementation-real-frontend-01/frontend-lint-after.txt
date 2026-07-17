@@ -1,0 +1,144 @@
+
+> @cermont/frontend@1.2.0 lint
+> biome lint .
+
+src\modules\planning\ui\steps\CertificationsStep.tsx:148:15 lint/suspicious/noArrayIndexKey ━━━━━━━━━━
+
+  × Avoid using the index of an array as key property in an element.
+  
+    146 │ 							{certifications.map((cert, i) => (
+    147 │ 								<div
+  > 148 │ 									key={i}
+        │ 									     ^
+    149 │ 									className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
+    150 │ 								>
+  
+  i This is the source of the key value.
+  
+    144 │ 					) : (
+    145 │ 						<div className="divide-y divide-[var(--border-subtle)]">
+  > 146 │ 							{certifications.map((cert, i) => (
+        │ 							                           ^
+    147 │ 								<div
+    148 │ 									key={i}
+  
+  i The order of the items may change, and this also affects performances and component state.
+  
+  i Check the React documentation. 
+  
+
+src\modules\planning\ui\steps\ResourcesStep.tsx:164:20 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━
+
+  × Avoid using the index of an array as key property in an element.
+  
+    162 │ 							<div className="space-y-3">
+    163 │ 								{materials.map((mat, i) => (
+  > 164 │ 									<div key={i} className="flex items-center gap-3">
+        │ 									          ^
+    165 │ 										<input
+    166 │ 											type="text"
+  
+  i This is the source of the key value.
+  
+    161 │ 						) : (
+    162 │ 							<div className="space-y-3">
+  > 163 │ 								{materials.map((mat, i) => (
+        │ 								                     ^
+    164 │ 									<div key={i} className="flex items-center gap-3">
+    165 │ 										<input
+  
+  i The order of the items may change, and this also affects performances and component state.
+  
+  i Check the React documentation. 
+  
+
+src\modules\planning\ui\steps\ResourcesStep.tsx:234:20 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━
+
+  × Avoid using the index of an array as key property in an element.
+  
+    232 │ 							<div className="space-y-3">
+    233 │ 								{tools.map((tool, i) => (
+  > 234 │ 									<div key={i} className="flex items-center gap-3">
+        │ 									          ^
+    235 │ 										<input
+    236 │ 											type="text"
+  
+  i This is the source of the key value.
+  
+    231 │ 						) : (
+    232 │ 							<div className="space-y-3">
+  > 233 │ 								{tools.map((tool, i) => (
+        │ 								                  ^
+    234 │ 									<div key={i} className="flex items-center gap-3">
+    235 │ 										<input
+  
+  i The order of the items may change, and this also affects performances and component state.
+  
+  i Check the React documentation. 
+  
+
+src\modules\planning\ui\steps\ResourcesStep.tsx:313:20 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━
+
+  × Avoid using the index of an array as key property in an element.
+  
+    311 │ 							<div className="space-y-3">
+    312 │ 								{equipment.map((eq, i) => (
+  > 313 │ 									<div key={i} className="flex items-center gap-3">
+        │ 									          ^
+    314 │ 										<input
+    315 │ 											type="text"
+  
+  i This is the source of the key value.
+  
+    310 │ 						) : (
+    311 │ 							<div className="space-y-3">
+  > 312 │ 								{equipment.map((eq, i) => (
+        │ 								                    ^
+    313 │ 									<div key={i} className="flex items-center gap-3">
+    314 │ 										<input
+  
+  i The order of the items may change, and this also affects performances and component state.
+  
+  i Check the React documentation. 
+  
+
+src\modules\planning\ui\steps\ResourcesStep.tsx:402:20 lint/suspicious/noArrayIndexKey ━━━━━━━━━━━━━
+
+  × Avoid using the index of an array as key property in an element.
+  
+    400 │ 							<div className="space-y-3">
+    401 │ 								{safetyElements.map((saf, i) => (
+  > 402 │ 									<div key={i} className="flex items-center gap-3">
+        │ 									          ^
+    403 │ 										<input
+    404 │ 											type="text"
+  
+  i This is the source of the key value.
+  
+    399 │ 						) : (
+    400 │ 							<div className="space-y-3">
+  > 401 │ 								{safetyElements.map((saf, i) => (
+        │ 								                          ^
+    402 │ 									<div key={i} className="flex items-center gap-3">
+    403 │ 										<input
+  
+Checked 877 files in 598ms. No fixes applied.
+Found 5 errors.
+  i The order of the items may change, and this also affects performances and component state.
+  
+  i Check the React documentation. 
+  
+
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+
+npm error Lifecycle script `lint` failed with error:
+npm error code 1
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c biome lint .
+

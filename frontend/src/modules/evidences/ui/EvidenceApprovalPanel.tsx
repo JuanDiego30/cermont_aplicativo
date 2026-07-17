@@ -9,6 +9,7 @@ import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/http/api-client";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 
 interface EvidenceApprovalPanelProps {
 	evidenceId: string;
@@ -25,7 +26,7 @@ export function EvidenceApprovalPanel({ evidenceId, onComplete }: EvidenceApprov
 		},
 		onSuccess: () => {
 			toast.success("Evidencia aprobada");
-			queryClient.invalidateQueries({ queryKey: ["evidence", evidenceId] });
+			queryClient.invalidateQueries({ queryKey: EVIDENCE_KEYS.detail(evidenceId) });
 			onComplete?.();
 		},
 		onError: (err: Error) => toast.error(err.message),
@@ -37,7 +38,7 @@ export function EvidenceApprovalPanel({ evidenceId, onComplete }: EvidenceApprov
 		},
 		onSuccess: () => {
 			toast.success("Evidencia rechazada");
-			queryClient.invalidateQueries({ queryKey: ["evidence", evidenceId] });
+			queryClient.invalidateQueries({ queryKey: EVIDENCE_KEYS.detail(evidenceId) });
 			onComplete?.();
 		},
 		onError: (err: Error) => toast.error(err.message),

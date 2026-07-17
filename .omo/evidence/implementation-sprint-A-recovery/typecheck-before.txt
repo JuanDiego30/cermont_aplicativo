@@ -1,0 +1,61 @@
+
+> cermont-monorepo@1.0.0 typecheck
+> turbo run typecheck
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running typecheck in 5 packages
+   • Remote caching disabled
+
+@cermont/config:typecheck: cache hit, replaying logs eb156ad986cee32e
+@cermont/domain:typecheck: cache hit, replaying logs 0c57df23bf0de886
+@cermont/config:typecheck: 
+@cermont/config:typecheck: > @cermont/config@1.0.0 typecheck
+@cermont/config:typecheck: > tsc --noEmit
+@cermont/config:typecheck: 
+@cermont/domain:typecheck: 
+@cermont/domain:typecheck: > @cermont/domain@1.0.0 typecheck
+@cermont/domain:typecheck: > tsc --noEmit
+@cermont/domain:typecheck: 
+@cermont/domain:build: cache hit, replaying logs 7adef73b384b74cc
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:typecheck: cache hit, replaying logs 254e29bf3288538b
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:typecheck: > @cermont/shared-types@1.0.0 typecheck
+@cermont/shared-types:typecheck: > tsc --noEmit
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:build: cache hit, replaying logs f1e351eb5567f810
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:typecheck: cache miss, executing 72a3d857445ca5cc
+@cermont/frontend:typecheck: cache miss, executing c9f4f1bbde88f54b
+@cermont/backend:typecheck: 
+@cermont/backend:typecheck: > @cermont/backend@5.2.1 typecheck
+@cermont/backend:typecheck: > tsc --noEmit
+@cermont/backend:typecheck: 
+@cermont/frontend:typecheck: 
+@cermont/frontend:typecheck: > @cermont/frontend@1.2.0 typecheck
+@cermont/frontend:typecheck: > tsc --noEmit
+@cermont/frontend:typecheck: 
+@cermont/frontend:typecheck: tests/modules/planning/planning-readiness-gate.test.ts(97,11): error TS2741: Property 'certificationIds' is missing in type '{ userId: string; name: string; role: string; }' but required in type '{ userId: string; name: string; role: string; certificationIds: string[]; }'.
+@cermont/frontend:typecheck: npm error Lifecycle script `typecheck` failed with error:
+@cermont/frontend:typecheck: npm error code 1
+@cermont/frontend:typecheck: npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+@cermont/frontend:typecheck: npm error workspace @cermont/frontend@1.2.0
+@cermont/frontend:typecheck: npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+@cermont/frontend:typecheck: npm error command failed
+@cermont/frontend:typecheck: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit
+ ERROR  @cermont/frontend#typecheck: command (C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend) C:\Program Files\nodejs\npm.cmd run typecheck exited (1)
+
+ Tasks:    5 successful, 7 total
+Cached:    5 cached, 7 total
+  Time:    5.887s 
+Failed:    @cermont/frontend#typecheck
+
+ ERROR  run failed: command  exited (1)

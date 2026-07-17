@@ -1,0 +1,45 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Offline - Field work offline sync capability",
+  "description": "Verifies offline mode: queue management, IndexedDB storage, sync status indicators, and automatic recovery",
+  "priority": "p2",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/execution while connected"
+    },
+    {
+      "type": "action",
+      "description": "Use browser devtools to simulate offline mode (Network tab → Offline)"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that an offline banner appears indicating the app is in offline mode"
+    },
+    {
+      "type": "action",
+      "description": "Attempt to start an execution session offline"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the action is queued locally and shows 'pending sync' indicator"
+    },
+    {
+      "type": "action",
+      "description": "Re-enable network connectivity"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the sync queue processes automatically and items show 'synced' status"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /dashboard/offline-sync to view the sync history and status"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the offline sync page shows queued, syncing, and synced items with timestamps"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+
+Filename                     LineNumber Line
+--------                     ---------- ----
+index.d.ts                           42 	constructor(sample: Record<string, unknown>, inverse?: boolean);
+index.d.ts                          662 	* @param failIfNoFirstInvocation - Fail if the first mock was never called
+index.d.ts                          677 	* @param failIfNoFirstInvocation - Fail if the first mock was never called
+tasks.d-DEYaIMIu.d.ts               202 type UserFixtures = Record<string, unknown>;
+tasks.d-DEYaIMIu.d.ts              1487 *   data: Record<string, unknown>
+index.d.ts                          114 	* This array will be empty if the function was never resolved or rejected.
+reporters.d.DtoKVV2s.d.ts           694 type CoverageReporterWithOptions<ReporterName extends CoverageReporter = Covera…
+reporters.d.DtoKVV2s.d.ts          1559 	getCommandsContext: (sessionId: string) => Record<string, unknown>;
+reporters.d.DtoKVV2s.d.ts          2725 type ReporterWithOptions<Name extends ReporterName = ReporterName> = Name exten…
+worker.d.ZpHpO4yb.d.ts               74 interface EventOptions<RemoteFunctions extends object = Record<string, unknown>…
+worker.d.ZpHpO4yb.d.ts              128 type BirpcOptions<RemoteFunctions extends object = Record<string, unknown>, Loc…
+worker.d.ZpHpO4yb.d.ts              135 interface BirpcReturnBuiltin<RemoteFunctions, LocalFunctions = Record<string, u…
+worker.d.ZpHpO4yb.d.ts              179 type ProxifiedRemoteFunctions<RemoteFunctions extends object = Record<string, u…
+worker.d.ZpHpO4yb.d.ts              180 type BirpcReturn<RemoteFunctions extends object = Record<string, unknown>, Loca…
+index.d.ts                          214 type ESModuleExports = Record<string, unknown>;
+module-evaluator.d.ts                53 	viteClientModule: Record<string, unknown>;
+contractSnapshot.ts                  17 function isPlainObject(value: unknown): value is Record<string, unknown> {
+contractSnapshot.ts                  32 		def?: Record<string, unknown>;
+invoice-approval.schema.d.ts        134     metadata?: Record<string, unknown>;
+invoice-approval.schema.ts          140 	metadata?: Record<string, unknown>;
+api-docs.ts                          74 		const stack = (router as unknown as { stack?: RouteLayer[] }).stack ?? [];
+sanitize.middleware.ts                9 				req as Request & { log?: { warn: (msg: string, meta?: Record<string, unknow…
+sanitize.middleware.ts               15 export function sanitizeStrings(obj: Record<string, unknown>): Record<string, u…
+sanitize.middleware.ts               16 	const result: Record<string, unknown> = {};
+sanitize.middleware.ts               24 			result[key] = sanitizeStrings(value as Record<string, unknown>);
+sanitize.middleware.ts               38 			req.query as unknown as Record<string, unknown>,
+sanitize.middleware.ts               42 		req.params = sanitizeStrings(req.params as Record<string, unknown>) as Reques…
+optimistic-concurrency.ts            50 			const current = (this as unknown as Record<string, number>)[fieldName];
+optimistic-concurrency.ts            52 				(this as unknown as Record<string, number>)[fieldName] = current + 1;
+optimistic-concurrency.ts            59 		const update = this.getUpdate() as Record<string, unknown>;
+Document.ts                         217 				const json = ret as Record<string, unknown>;
+FormSubmission.ts                    21 	values: Record<string, unknown>;
+Inspection.ts                       133 				const json = ret as Record<string, unknown>;
+MaintenanceKit.ts                   127 				const json = ret as Record<string, unknown>;
+Notification.ts                      32 	templateVariables?: Record<string, unknown>;
+Notification.ts                      38 	metadata?: Record<string, unknown>;
+Report.ts                            96 				const json = ret as Record<string, unknown>;
+Resource.ts                          74 	certifications?: Record<string, unknown>[];
+Resource.ts                          75 	documents?: Record<string, unknown>[];
+Resource.ts                          76 	evidenceRequirements?: Record<string, unknown>[];
+Resource.ts                         174 				const json = ret as Record<string, unknown>;
+TemplateDraft.ts                    115 type TemplateDraftValidationRule = Record<string, unknown>;
+TemplateResponse.ts                 150 	values?: Record<string, unknown>;
+TemplateResponse.ts                 173 		serverVersion?: Record<string, unknown>;
+TemplateResponse.ts                 174 		localVersion?: Record<string, unknown>;
+admin-backup.service.ts              61 	const filter: Record<string, unknown> = {};
+ai-copilot.service.ts                45 	const sc = serviceCase as Record<string, unknown>;
+analytics-report.service.ts          53 	const base: Record<string, unknown> = createdAt ? { createdAt } : {};
+asset.service.ts                     64 	const filter: Record<string, unknown> = {};
+automation.service.ts               465 	facts: Record<string, unknown>,
+automation.service.ts               479 		const r = rule as unknown as Record<string, unknown>;
+automation.service.ts               480 		const conditions = (r.conditions as Array<Record<string, unknown>>) || [];
+automation.service.ts               481 		const actions = (r.actions as Array<Record<string, unknown>>) || [];
+automation.service.ts               490 				all: conditions.map((c: Record<string, unknown>) => ({
+automation.service.ts               503 	engine.on("success", (eventData: { type: string; params: Record<string, unknow…
+automation.service.ts               512 	actions: Array<{ type: string; config?: Record<string, unknown> }>,
+business-document.service.ts         13 		const filter: Record<string, unknown> = { lifecycleStatus: "active" };
+checklist.service.ts                277 	const query: Record<string, unknown> = {};
+client.service.ts                    26 	const filter: Record<string, unknown> = {};
+client-signature.service.ts          80 	const filter: Record<string, unknown> = {};
+custom-field.service.ts              17 	const filter: Record<string, unknown> = {};
+delivery-record.service.ts            6 type DrDoc = Record<string, unknown>;
+delivery-record.service.ts           32 	const filter: Record<string, unknown> = {};
+delivery-record.service.ts           46 	return { data: data as unknown as DrDoc[], total, page, limit, pages: Math.cei…
+delivery-record.service.ts           54 	return doc as unknown as DrDoc;
+delivery-record.service.ts           69 	return JSON.parse(JSON.stringify(doc)) as unknown as DrDoc;
+delivery-record.service.ts           82 	return JSON.parse(JSON.stringify(doc)) as unknown as DrDoc;
+delivery-record.service.ts          102 	return JSON.parse(JSON.stringify(doc)) as unknown as DrDoc;
+delivery-record.service.ts          120 	return JSON.parse(JSON.stringify(doc)) as unknown as DrDoc;
+delivery-record.service.ts          131 	return JSON.parse(JSON.stringify(doc)) as unknown as DrDoc;
+document.service.ts                  64 ): Record<string, unknown> {
+document.service.ts                  65 	const association: Record<string, unknown> = {
+document.service.ts                  95 	const payload: Record<string, unknown> = {
+document.service.ts                 155 	const conditions: Record<string, unknown>[] = [];
+document.service.ts                 241 	const association: Record<string, unknown> = {
+evidence.service.ts                 154 ): Promise<Record<string, unknown>> {
+evidence.service.ts                 252 	return existing as unknown as IEvidenceDocument | null;
+evidence.service.ts                 735 	const conditions: Record<string, unknown>[] = [];
+fleet.service.ts                    102 	const filter: Record<string, unknown> = {};
+form-submission.service.ts           11 	values: Record<string, unknown>;
+form-submission.service.ts           60 	const query: Record<string, unknown> = {};
+inspection.service.ts                92 	const updateData: Record<string, unknown> = { status };
+inventory.service.ts                 55 	const filter: Record<string, unknown> = {};
+invoice.service.ts                    6 type InvDoc = Record<string, unknown>;
+invoice.service.ts                   32 	const filter: Record<string, unknown> = {};
+invoice.service.ts                   49 	return { data: data as unknown as InvDoc[], total, page, limit, pages: Math.ce…
+invoice.service.ts                   57 	return doc as unknown as InvDoc;
+invoice.service.ts                   61 	input: Record<string, unknown>,
+invoice.service.ts                   69 	return JSON.parse(JSON.stringify(doc)) as unknown as InvDoc;
+invoice.service.ts                   80 	return JSON.parse(JSON.stringify(doc)) as unknown as InvDoc;
+invoice.service.ts                   93 	return doc.toObject() as unknown as InvDoc;
+invoice.service.ts                  105 	return doc.toObject() as unknown as InvDoc;
+invoice.service.ts                  116 	return JSON.parse(JSON.stringify(doc)) as unknown as InvDoc;
+invoice.service.ts                  127 	return doc.toObject() as unknown as InvDoc;
+kit.service.ts                      225 function buildKitDocument(data: CreateKitCommand, userId: string): Record<strin…
+kit.service.ts                      297 	const query: Record<string, unknown> = {};
+kit.service.ts                      396 			(kit as unknown as Record<string, unknown>)[field] = data[field];
+kpi.service.ts                       19 	const totalRepairHours = (sessions as Array<Record<string, unknown>>).reduce(
+kpi.service.ts                       20 		(sum: number, s: Record<string, unknown>) => {
+kpi.service.ts                       66 	const firstTimeFixes = (orders as Array<Record<string, unknown>>).filter(
+

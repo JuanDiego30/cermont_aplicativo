@@ -1,0 +1,64 @@
+
+Filename                           LineNumber Line
+--------                           ---------- ----
+step-requirements.d.ts                      3 export type StepRequirementKind = "document" | "evidence" | "approval" | …
+step-requirements.d.ts                     18     availableEvidences: readonly string[];
+execution.d.ts                              2 export type ExecutionBlockerCode = "planning_not_approved" | "work_order_…
+execution.d.ts                              3 export type ExecutionNextActionCode = "start_execution" | "complete_requi…
+execution.d.ts                              7     evidenceCount: number;
+execution.d.ts                             37 export declare function validateRequiredEvidence(session: ExecutionReadMo…
+index.d.ts                                 25 export { calculateExecutionBlockers, calculateExecutionNextActions, canCa…
+index.d.ts                                 38 export { ADMIN_PLUS_RESIDENTE, ADMIN_ROLES, AI_ASSISTANT_ROLES, ALL_AUTHE…
+index.d.ts                                 39 export type { CompletedOrderWindow, CompletedSessionWindow, CostRiskLevel…
+index.d.ts                                 40 export { COST_AT_RISK_THRESHOLD_PERCENT, COST_ON_BUDGET_THRESHOLD_PERCENT…
+operational-steps.d.ts                     15     readonly requiresEvidence: boolean;
+operational-steps.d.ts                     27     readonly requiresEvidence: false;
+operational-steps.d.ts                     38     readonly requiresEvidence: true;
+operational-steps.d.ts                     49     readonly requiresEvidence: false;
+operational-steps.d.ts                     60     readonly requiresEvidence: false;
+operational-steps.d.ts                     71     readonly requiresEvidence: false;
+operational-steps.d.ts                     82     readonly requiresEvidence: false;
+operational-steps.d.ts                     85     readonly nextActions: readonly ["evidence"];
+operational-steps.d.ts                     89     readonly key: "evidence";
+operational-steps.d.ts                     90     readonly canonicalCode: "step_07_evidence";
+operational-steps.d.ts                     92     readonly entityName: "Evidence";
+operational-steps.d.ts                     93     readonly requiresEvidence: true;
+operational-steps.d.ts                    104     readonly requiresEvidence: false;
+operational-steps.d.ts                    106     readonly preconditions: readonly ["evidence"];
+operational-steps.d.ts                    115     readonly requiresEvidence: false;
+operational-steps.d.ts                    126     readonly requiresEvidence: true;
+operational-steps.d.ts                    137     readonly requiresEvidence: false;
+operational-steps.d.ts                    148     readonly requiresEvidence: false;
+operational-steps.d.ts                    159     readonly requiresEvidence: false;
+operational-steps.d.ts                    170     readonly requiresEvidence: false;
+permissions.d.ts                           30 export type PermissionResource = "users" | "orders" | "maintenance" | "ev…
+permissions.d.ts                           58 export type Permission = "users:create" | "users:read" | "users:update" |…
+rbac.d.ts                                  61     readonly prefix: "/evidences";
+roles.d.ts                                 61 export declare const EVIDENCE_ACCESS_ROLES: readonly ["gerente", "residen…
+spec-013-rules.d.ts                         7 export type { CompletedOrderWindow, CompletedSessionWindow, CostRiskLevel…
+spec-013-rules.d.ts                         8 export { computeFirstTimeFixRate, computeMTBF, computeMTTR, computeTechni…
+spec-015-rules.d.ts                         2  * Spec-015 Rules — Preflight gates, SLA/cost risk, evidence completeness
+spec-015-rules.d.ts                        49 export interface EvidenceSlotInput {
+spec-015-rules.d.ts                        55 export interface EvidenceCompletenessResult {
+spec-015-rules.d.ts                        67 export declare function evaluateEvidenceCompleteness(slots: readonly Evid…
+operational-steps.test.ts                  29 			expect(typeof step.requiresEvidence).toBe("boolean");
+operational-steps.test.ts                  56 			"step_07_evidence",
+operational-steps.test.ts                  76 			"evidence",
+operational-steps.test.ts                 165 		expect(normalizeOperationalStepCode("step_07_evidence")).toEqual({
+operational-steps.test.ts                 167 			code: "step_07_evidence",
+spec-015-rules.test.ts                      8 	evaluateEvidenceCompleteness,
+spec-015-rules.test.ts                     83 describe("evaluateEvidenceCompleteness", () => {
+spec-015-rules.test.ts                     85 		const result = evaluateEvidenceCompleteness([
+spec-015-rules.test.ts                     95 		const result = evaluateEvidenceCompleteness([
+service-case-state-machine.test.ts         45 	availableEvidences: ["visit_evidence", "execution_evidence"],
+step-requirements.test.ts                  40 	availableEvidences: [],
+step-requirements.test.ts                  59 	availableEvidences: ["visit_evidence", "execution_evidence"],
+step-requirements.test.ts                 108 	it("should require evidence for site_visit", () => {
+step-requirements.test.ts                 111 		expect(blockers.some((b) => b.code === "missing_visit_evidence")).toBe(…
+step-requirements.ts                       10 export type StepRequirementKind = "document" | "evidence" | "approval" | …
+step-requirements.ts                       28 	availableEvidences: readonly string[];
+step-requirements.ts                       49 	availableEvidences: [],
+step-requirements.ts                       62 	evidences: "Subir evidencia",
+step-requirements.ts                       83 		{ id: "visit_evidence", label: "Evidencia de visita", kind: "evidence",…
+step-requirements.ts                      106 	evidences: [
+

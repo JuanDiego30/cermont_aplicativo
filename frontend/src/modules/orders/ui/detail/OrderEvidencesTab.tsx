@@ -5,6 +5,7 @@ import { Camera } from "lucide-react";
 import Image from "next/image";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { formatDate } from "@/lib/utils/format-date";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 import { listEvidences } from "@/modules/evidences/queries";
 import { EvidenceUploader } from "@/modules/evidences/ui/EvidenceUploader";
 
@@ -23,7 +24,7 @@ interface OrderEvidencesTabProps {
 
 export function OrderEvidencesTab({ orderId }: OrderEvidencesTabProps) {
 	const { data, isLoading, error } = useQuery({
-		queryKey: ["evidences", orderId],
+		queryKey: EVIDENCE_KEYS.byOrder(orderId),
 		queryFn: () => listEvidences(orderId),
 		staleTime: STALE_TIMES.DETAIL,
 	});

@@ -1,0 +1,89 @@
+
+Filename                 LineNumber Line
+--------                 ---------- ----
+page.tsx                         30 			"rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error",
+page.tsx                         36 			"rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error",
+page.tsx                        142 					className="rounded-lg border border-red-200 bg-danger-bg p-4 text-sm text-brand-error dark:border-red-900 dark:bg-red-950/30 dark:text-brand-error"
+page.tsx                         90 			<div className="p-4 bg-red-50 text-brand-error rounded-lg dark:bg-red-900/20 dark:text-brand-error">
+user-detail-constants.ts          6 	gerente: "bg-purple-100 text-purple-700 ring-purple-200",
+user-detail-constants.ts          8 	hes: "bg-yellow-100 text-yellow-700 ring-yellow-200",
+user-detail-constants.ts         12 	administrativo: "bg-orange-100 text-orange-700 ring-orange-200",
+error.tsx                        21 			className="flex h-[50vh] flex-col items-center justify-center gap-y-4 rounded-xl border border-red-100 bg-danger-bg p-6 text-center"
+error.tsx                        43 					className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+page.tsx                         52 		rejected: "bg-danger-bg text-brand-error dark:bg-red-900/20 dark:text-brand-error",
+page.tsx                         75 				<div className="rounded-[var(--radius-xl)] border border-red-200 bg-danger-bg p-6 text-brand-error dark:border-red-900/30 dark:bg-red-900/10 dark:t…
+page.tsx                        221 				<div className="rounded-[var(--radius-lg)] border border-red-200 bg-red-50 p-4 text-sm text-[var(--color-danger)]">
+page.tsx                        130 			<div className="rounded-lg border border-red-200 bg-red-50 p-4 text-brand-error dark:border-red-900/20 dark:bg-red-900/20 dark:text-brand-error">
+kanban-constants.ts              42 	on_hold: "bg-warning-bg/50 border-yellow-100 dark:bg-yellow-900/10 dark:border-yellow-900/30",
+page.tsx                        251 					className="rounded-[var(--radius-lg)] border border-red-200 bg-danger-bg px-4 py-3 text-sm text-brand-error"
+error.tsx                        22 			className="flex h-[50vh] flex-col items-center justify-center gap-y-4 rounded-xl border border-red-100 bg-danger-bg p-6 text-center"
+error.tsx                        42 				className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ri…
+page.tsx                        154 					className="rounded-2xl border border-red-200 bg-danger-bg p-4 text-sm text-brand-error dark:border-red-800 dark:bg-red-950/30 dark:text-brand-erro…
+page.tsx                        131 			<div className="p-4 bg-red-50 text-brand-error rounded-lg dark:bg-red-900/20 dark:text-brand-error">
+page.tsx                        132 			<div className="p-4 bg-red-50 text-brand-error rounded-lg dark:bg-red-900/20 dark:text-brand-error">
+page.tsx                        183 													: "bg-red-50 text-red-700"
+page.tsx                         43 	proposal_pending: "bg-purple-50 text-purple-700",
+page.tsx                         84 											className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${inv.status === "paid" ? "bg-success-bg text-brand-annot…
+page.tsx                        177 	pending: "bg-yellow-100 text-brand-warn",
+BarcodeScanner.tsx              267 				<div className="rounded-lg bg-danger-bg px-4 py-3 dark:bg-red-900/10">
+OfflineBanner.tsx                18 		? "bg-red-500"
+QRCodeButton.tsx                155 								className="flex h-56 w-56 items-center justify-center rounded-lg bg-danger-bg p-5 text-center text-sm text-brand-error dark:bg-red-900/10 dark:…
+SyncBanner.tsx                   60 				"bg-danger-bg text-brand-error border-red-200 dark:bg-red-900/20 dark:text-brand-error dark:border-red-800",
+env-validator.ts                 25 		console.error("\n❌ Frontend environment validation failed:\n");
+AuditLogViewer.tsx              105 						<BadgePill dotClassName={event.status === "success" ? "bg-emerald-500" : "bg-red-500"}>
+ForgotPasswordContent.t…         66 					className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error"
+ResetPasswordContent.tsx         88 					className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error"
+checklist-constants.ts           25 		"border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/10 dark:text-emerald-300",
+HeaderNotifications.tsx          66 						className="absolute -right-1 -top-1 z-10 min-w-[18px] rounded-full bg-red-500 px-1 text-center text-[10px] font-semibold text-white"
+ModuleQuickActions.tsx          318 				<p className="rounded-xl border border-red-200 bg-danger-bg px-3 py-2 text-xs text-brand-error">
+ServiceCaseDashboardPan…        230 							{recentOrdersCount.toLocaleString("es-CO")} órdenes recientes alimentan el pulso de
+DocumentGallery.tsx             266 											? "border-red-300 opacity-60 dark:border-red-700"
+DocumentGallery.tsx             300 												<span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2 py-0.5 text-[11px] font-medium text-brand-error dark:bg-red-…
+EvidenceStatusBadge.tsx          44 		className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+EvidenceStatusBadge.tsx          48 		className: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+EvidenceStatusBadge.tsx          52 		className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+FieldNoveltyButton.tsx           53 				className="fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-[#F44336] text-white shadow-lg hover:bg-red-700 tra…
+ExecutionStatusBadge.tsx         19 	paused: { label: "Pausado", className: "bg-orange-100 text-orange-700" },
+ExecutionStatusBadge.tsx         21 	cancelled: { label: "Cancelado", className: "bg-[#F44336]/20 text-red-700" },
+ExecutionStatusBadge.tsx         22 	sync_pending: { label: "Sync pendiente", className: "bg-purple-100 text-purple-700" },
+ExecutionStatusBadge.tsx         23 	sync_failed: { label: "Sync fallida", className: "bg-[#F44336]/20 text-red-700" },
+AttachmentList.tsx              174 				className={`rounded-xl border border-red-200 bg-danger-bg p-4 text-sm text-brand-error ${className}`}
+OfflineUploadQueueStatu…         95 		tone = "border-red-200 bg-danger-bg text-brand-error";
+cermont-form-templates.…        639 			description: "Verificar el sistema de alimentación y puesta a tierra",
+cermont-form-templates.…        642 					key: "alimentacion_ac",
+cermont-form-templates.…        643 					label: "Alimentación AC 110 VAC",
+cermont-form-templates.…        648 					key: "alimentacion_ac_hallazgo",
+cermont-form-templates.…        649 					label: "Alimentación AC — Hallazgo",
+SectionedFormRenderer.t…        392 		signature: { icon: Signature, bg: "bg-purple-50", text: "text-purple-600" },
+InvoiceStatusBadge.tsx            8 	rejected: "bg-[#F44336]/20 text-red-700",
+InvoiceStatusBadge.tsx           10 	cancelled: "bg-red-100 text-red-800",
+KitDetailHero.tsx               117 							className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-red-400/30 bg-red-500/10 px-5 py-3 text-sm font-semibold te…
+OfflineRecoveryCenter.t…         90 					: "bg-danger-bg text-brand-error ring-red-200 dark:bg-red-950/30 dark:text-brand-error dark:ring-red-800"
+OfflineRecoveryCenter.t…         92 			dotClassName={isConflict ? "bg-amber-500" : "bg-red-500"}
+OfflineRecoveryCenter.t…        258 							className="bg-danger-bg text-brand-error ring-red-200 dark:bg-red-950/30 dark:text-brand-error dark:ring-red-800"
+OfflineRecoveryCenter.t…        259 							dotClassName="bg-red-500"
+OfflineRecoveryCenter.t…        274 			<output className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-red-200 bg-danger-bg p-4 text-sm text-brand-error dark:border-red…
+OrderClosureTab.tsx             571 		<div className="rounded-xl border border-red-200 bg-danger-bg p-6 dark:border-red-900/30 dark:bg-red-900/10">
+OrderDetailHeader.tsx            54 			<header className="rounded-xl border border-red-200 bg-danger-bg p-6 dark:border-red-900/30 dark:bg-red-900/10">
+OrderDetailsTab.tsx              72 		<div className="rounded-xl border border-red-200 bg-danger-bg p-6 dark:border-red-900/30 dark:bg-red-900/10">
+OrderDocumentsTab.tsx            33 				className="rounded-xl border border-red-200 bg-danger-bg p-6 dark:border-red-900 dark:bg-red-950/20"
+OrderEvidencesTab.tsx            54 				className="rounded-xl border border-red-200 bg-danger-bg p-6 dark:border-red-900 dark:bg-red-950/20"
+OrderExecutionTab.tsx            52 		<div className="flex items-start gap-3 rounded-xl border border-red-200 bg-danger-bg px-4 py-3 dark:border-red-900/30 dark:bg-red-900/10">
+OrderInspectionsTab.tsx          34 			<div className="flex items-start gap-3 rounded-xl border border-red-200 bg-danger-bg px-4 py-3 dark:border-red-900/30 dark:bg-red-900/10">
+OrderInspectionsTab.tsx         105 	failed: "border-red-200 bg-danger-bg dark:border-red-900/30 dark:bg-red-900/10",
+OrderInspectionsTab.tsx         117 	failed: "bg-red-500 dark:bg-red-400",
+OrderPlanningTab.tsx             31 			<div className="flex items-start gap-3 rounded-xl border border-red-200 bg-danger-bg px-4 py-3 dark:border-red-900/30 dark:bg-red-900/10">
+EditOrderForm.tsx                64 			<div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-brand-error">
+PlanningReadinessGate.t…        208 						<div className="mt-3 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3">
+PlanningReadinessGate.t…        209 							<AlertTriangle className="mt-0.5 size-4 shrink-0 text-red-500" aria-hidden="true" />
+PlanningReadinessGate.t…        210 							<p className="text-xs text-red-700">{approveError}</p>
+ProposalActions.tsx              29 	danger: "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400",
+ReportPanel.tsx                 134 			<div className="rounded-xl border border-red-200 bg-danger-bg p-4 text-sm text-brand-error dark:border-red-900/30 dark:bg-red-900/10 dark:text-brand…
+ReportPanel.tsx                 426 					className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-danger-bg px-4 py-2 text-sm font-medium text-brand-er…
+ReportPanel.tsx                 475 		<div className="space-y-3 rounded-lg border border-red-200 bg-danger-bg p-4 dark:border-red-900/30 dark:bg-red-900/10">
+ResourceImageEditor.tsx         150 								className="absolute right-1.5 top-1.5 flex size-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity …
+CostComparisonPanel.tsx          52 		<span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-danger-bg px-2.5 py-1 text-[10px] font-bold uppercase text-bran…
+StepBreadcrumb.tsx               94 					⚠️{" "}
+auth.store.ts                     3 // ⚠️  SECURITY: accessToken kept in memory only, NEVER persisted to localStorage
+
+

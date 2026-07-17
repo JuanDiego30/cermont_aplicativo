@@ -14,6 +14,7 @@ import type { ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { FormField, Select, TextArea, TextField } from "@/modules/core";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 import { listEvidences } from "@/modules/evidences/queries";
 import { useCreateCost, useUpdateCost } from "../queries";
 import { COST_CATEGORY_LABELS, COST_CATEGORY_OPTIONS } from "../utils";
@@ -62,7 +63,7 @@ export function CostForm({ orderId, cost, readOnly = false, onSuccess, onCancel 
 	});
 
 	const { data: evidencesData = [], isLoading: isEvidencesLoading } = useQuery({
-		queryKey: ["evidences", orderId],
+		queryKey: EVIDENCE_KEYS.byOrder(orderId),
 		queryFn: () => listEvidences(orderId),
 		enabled: !!orderId,
 	});

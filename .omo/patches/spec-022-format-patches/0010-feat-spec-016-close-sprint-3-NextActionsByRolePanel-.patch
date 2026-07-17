@@ -1,0 +1,358 @@
+From 628ac058fea04e6d29ecd0e0131244fdd4ac74c1 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Sun, 5 Jul 2026 19:12:54 -0500
+Subject: [PATCH 10/42] feat(spec-016): close sprint 3 -
+ NextActionsByRolePanel, planning-packet enrichment, fix TS18048 in
+ administrative-workflow
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+---
+ .../order/administrative-workflow.service.ts  |  40 ++++++
+ .../planning-packet.service.ts                |  81 ++++++++++++
+ .../dashboard/ui/NextActionsByRolePanel.tsx   | 118 ++++++++++++++++++
+ packages/domain/src/spec-013-rules.ts         |  37 +++---
+ 4 files changed, 257 insertions(+), 19 deletions(-)
+ create mode 100644 frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx
+
+diff --git a/backend/src/modules/order/administrative-workflow.service.ts b/backend/src/modules/order/administrative-workflow.service.ts
+index 3f9d350..1170f4b 100644
+--- a/backend/src/modules/order/administrative-workflow.service.ts
++++ b/backend/src/modules/order/administrative-workflow.service.ts
+@@ -52,6 +52,7 @@ import {
+ 	type TechnicalReportDocument,
+ } from "../../models";
+ import { assertInvoiceMatchesServiceEntrySheet } from "../../services/invoice-integrity.service";
++import { createNotification } from "../notifications/notification.service";
+ 
+ type ListEnvelope<T> = {
+ 	data: T[];
+@@ -912,6 +913,10 @@ export async function signDeliveryRecord(
+ 			},
+ 		],
+ 	);
++	const scId = record.serviceCaseId;
++	if (scId) {
++		await notifyInvoicePending(scId.toString());
++	}
+ 	return formatDeliveryRecord(record);
+ }
+ 
+@@ -1563,3 +1568,38 @@ function collectObservationDeviations(
+ 		);
+ 	}
+ }
++
++async function notifyInvoicePending(serviceCaseId: string): Promise<void> {
++	const ADMIN_ROLE = "administrativo";
++	const adminUsers = await Order.db
++		.collection("users")
++		.find({ role: ADMIN_ROLE, isActive: true })
++		.project({ _id: 1 })
++		.toArray();
++	const adminUserIds = adminUsers
++		.map((doc) => String(doc._id))
++		.filter((id): id is string => Boolean(id));
++	if (adminUserIds.length === 0) {
++		return;
++	}
++	const serviceCase = await ServiceCase.findById(serviceCaseId)
++		.select("code")
++		.lean<{ _id: Types.ObjectId; code?: string }>();
++	const serviceCaseCode = serviceCase?.code ?? serviceCaseId;
++	for (const recipientUserId of adminUserIds) {
++		await createNotification({
++			recipientUserId,
++			type: "invoice_pending",
++			priority: "high",
++			title: "Acta firmada — Pendiente facturación",
++			body: `La orden ${serviceCaseCode} tiene acta firmada. Continuar con SES → Factura → Pago`,
++			relatedEntity: { entityType: "ServiceCase", entityId: serviceCaseId },
++			channels: ["in_app"],
++			metadata: { serviceCaseId },
++		}).catch((error: unknown) => {
++			if (error instanceof Error && isTransientDatabaseError(error)) {
++				throw new ServiceUnavailableError("Notification service unavailable");
++			}
++		});
++	}
++}
+diff --git a/backend/src/modules/planning-packet/planning-packet.service.ts b/backend/src/modules/planning-packet/planning-packet.service.ts
+index e9e6f25..608f7e8 100644
+--- a/backend/src/modules/planning-packet/planning-packet.service.ts
++++ b/backend/src/modules/planning-packet/planning-packet.service.ts
+@@ -15,6 +15,7 @@ import { Kit } from "../../models/Kit";
+ import { MaintenanceKit } from "../../models/MaintenanceKit";
+ import { PlanningPacket } from "../../models/PlanningPacket";
+ import { createAuditLog } from "../audit/audit.service";
++import { createNotification } from "../notifications/notification.service";
+ 
+ const PLANNING_READINESS_ROLES = [...PLANNING_ACCESS_ROLES, "hes"] as const;
+ const REQUIRED_PLANNING_RESPONSIBLE_ROLES = [
+@@ -542,9 +543,89 @@ export async function approvePlanningPacket(
+ 		},
+ 	});
+ 
++	await scheduleKitReminder(updatedPlanningPacket, id);
++
+ 	return updatedPlanningPacket;
+ }
+ 
++async function scheduleKitReminder(
++	packet: {
++		_id: unknown;
++		kitTemplateId?: unknown;
++		scheduledStartDate?: Date | null;
++		serviceCaseCode?: string;
++		crew: ReadonlyArray<{ userId?: unknown }>;
++	} | null,
++	fallbackId: string,
++): Promise<void> {
++	if (!packet) {
++		return;
++	}
++	const crewUserIds = extractCrewUserIds(packet.crew);
++	if (crewUserIds.length === 0) {
++		return;
++	}
++
++	const startDate = parseScheduledStartDate(packet.scheduledStartDate);
++	if (!startDate || Number.isNaN(startDate.getTime())) {
++		return;
++	}
++
++	const reminderDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
++	const packetId = String(packet._id ?? fallbackId);
++
++	const kitItemSummary = resolveKitItemSummary(packet.kitTemplateId);
++	const serviceCaseCode = packet.serviceCaseCode ?? packetId;
++
++	for (const recipientUserId of crewUserIds) {
++		await createNotification({
++			recipientUserId,
++			type: "kit_reminder",
++			priority: "high",
++			title: "Recordatorio: Kit de herramientas",
++			body: `Recuerda verificar el kit para la orden ${serviceCaseCode}: ${kitItemSummary}`,
++			relatedEntity: { entityType: "PlanningPacket", entityId: packetId },
++			channels: ["in_app"],
++			metadata: { scheduledFor: reminderDate.toISOString(), packetId },
++		}).catch((error: unknown) => {
++			if (error instanceof Error && isTransientDatabaseError(error)) {
++				throw new ServiceUnavailableError("Notification service unavailable");
++			}
++		});
++	}
++}
++
++function extractCrewUserIds(crew: ReadonlyArray<{ userId?: unknown }> | undefined): string[] {
++	const crewUserIds: string[] = [];
++	for (const member of crew ?? []) {
++		const raw = member?.userId;
++		if (typeof raw === "string") {
++			crewUserIds.push(raw);
++		} else if (raw && typeof raw === "object" && "_id" in raw && raw._id) {
++			crewUserIds.push(String(raw._id));
++		}
++	}
++	return crewUserIds;
++}
++
++function parseScheduledStartDate(value: Date | null | undefined): Date | null {
++	if (value instanceof Date) {
++		return value;
++	}
++	return value ? new Date(String(value)) : null;
++}
++
++function resolveKitItemSummary(kitTemplateId: unknown): string {
++	if (!kitTemplateId) {
++		return "herramientas asignadas";
++	}
++	const template = getKitTemplate(String(kitTemplateId));
++	if (template && "materials" in template && Array.isArray(template.materials)) {
++		return template.materials.map((item) => item.name).join(", ");
++	}
++	return "herramientas asignadas";
++}
++
+ /**
+  * Reopen a planning packet
+  * @param id - Planning packet ID
+diff --git a/frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx b/frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx
+new file mode 100644
+index 0000000..19d98d9
+--- /dev/null
++++ b/frontend/src/modules/dashboard/ui/NextActionsByRolePanel.tsx
+@@ -0,0 +1,118 @@
++"use client";
++
++import { useAuthStore } from "@/store/auth.store";
++
++export type ActionUrgency = "normal" | "urgent" | "overdue";
++
++export interface ActionItem {
++	id: string;
++	description: string;
++	orderCode: string;
++	deadline?: string;
++	deepLink: string;
++	urgency: ActionUrgency;
++}
++
++interface Props {
++	actions: ActionItem[];
++}
++
++const URGENCY_ICON_CLASS: Record<ActionUrgency, string> = {
++	overdue: "text-[#F44336]",
++	urgent: "text-[#FF9800]",
++	normal: "text-[var(--color-brand-blue)]",
++};
++
++const URGENCY_LABEL: Record<ActionUrgency, string> = {
++	overdue: "Vencida",
++	urgent: "Urgente",
++	normal: "Pendiente",
++};
++
++function shouldShowAction(role: string, action: ActionItem): boolean {
++	const description = action.description.toLowerCase();
++	if (role === "gerente") {
++		return description.includes("aprobar") || description.includes("pago");
++	}
++	if (role === "administrativo") {
++		return description.includes("factura") || description.includes("ses");
++	}
++	if (role === "tecnico" || role === "operador") {
++		return (
++			description.includes("ejecutar") ||
++			description.includes("evidencia") ||
++			description.includes("checklist")
++		);
++	}
++	if (role === "supervisor") {
++		return description.includes("supervisar") || description.includes("revisar");
++	}
++	if (role === "residente") {
++		return description.includes("asignar") || description.includes("planificar");
++	}
++	return true;
++}
++
++export function NextActionsByRolePanel({ actions }: Props) {
++	const userState = useAuthStore((state) => state.user);
++	const role = userState.status === "present" ? userState.value.role : "cliente";
++
++	const roleActions = actions.filter((action) => shouldShowAction(role, action));
++
++	if (roleActions.length === 0) {
++		return (
++			<section
++				aria-label="Próximas acciones por rol"
++				className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5"
++			>
++				<h3 className="text-sm font-semibold text-[var(--text-primary)]">Próximas acciones</h3>
++				<p className="mt-2 text-sm text-[var(--text-secondary)]">
++					No hay acciones pendientes para tu rol
++				</p>
++			</section>
++		);
++	}
++
++	return (
++		<section
++			aria-label="Próximas acciones por rol"
++			className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5"
++		>
++			<header className="mb-4 flex items-center justify-between">
++				<h3 className="text-sm font-semibold text-[var(--text-primary)]">Próximas acciones</h3>
++				<span className="rounded-full bg-[var(--color-brand-blue)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--color-brand-blue)]">
++					{roleActions.length}
++				</span>
++			</header>
++			<ul className="space-y-3" aria-label="Lista de acciones pendientes">
++				{roleActions.map((action) => (
++					<li key={action.id}>
++						<a
++							href={action.deepLink}
++							className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] p-3 transition hover:border-[var(--color-brand-blue)]/30 hover:bg-[var(--surface-secondary)]"
++							aria-label={`${action.description} — Orden ${action.orderCode} — ${URGENCY_LABEL[action.urgency]}`}
++						>
++							<span
++								className={`mt-1 size-2 shrink-0 rounded-full ${URGENCY_ICON_CLASS[
++									action.urgency
++								].replace("text-", "bg-")}`}
++								aria-hidden="true"
++							/>
++							<div className="min-w-0 flex-1 space-y-1">
++								<p className="text-sm font-medium text-[var(--text-primary)]">
++									{action.description}
++								</p>
++								<p className="text-xs text-[var(--text-secondary)]">Orden: {action.orderCode}</p>
++								{action.deadline && (
++									<p className="text-xs text-[var(--text-tertiary)]">
++										{URGENCY_LABEL[action.urgency]} · {action.deadline}
++									</p>
++								)}
++							</div>
++						</a>
++					</li>
++				))}
++			</ul>
++		</section>
++	);
++}
+diff --git a/packages/domain/src/spec-013-rules.ts b/packages/domain/src/spec-013-rules.ts
+index b6d5ea2..10dafff 100644
+--- a/packages/domain/src/spec-013-rules.ts
++++ b/packages/domain/src/spec-013-rules.ts
+@@ -5,27 +5,26 @@
+  * Las implementaciones canónicas viven en `./spec-015-rules.ts`.
+  */
+ 
+-export {
+-	evaluatePreflightGates,
+-	evaluateSLARisk,
+-	evaluateCostRisk,
+-	evaluateEvidenceCompleteness,
+-	computeMTTR,
+-	computeMTBF,
+-	computeFirstTimeFixRate,
+-	computeTechnicianUtilization,
+-} from "./spec-015-rules";
+-
+ export type {
+-	PreflightGateItemInput,
+-	PreflightBooleanChecks,
+-	PreflightResult,
+-	SLARiskLevel,
++	CompletedOrderWindow,
++	CompletedSessionWindow,
+ 	CostRiskLevel,
+-	EvidenceSlotInput,
+ 	EvidenceCompletenessResult,
+-	CompletedSessionWindow,
+-	CompletedOrderWindow,
++	EvidenceSlotInput,
+ 	FirstTimeFixOrderInput,
++	PreflightBooleanChecks,
++	PreflightGateItemInput,
++	PreflightResult,
++	SLARiskLevel,
+ 	TechnicianUtilizationSessionInput,
+-} from "./spec-015-rules";
+\ No newline at end of file
++} from "./spec-015-rules";
++export {
++	computeFirstTimeFixRate,
++	computeMTBF,
++	computeMTTR,
++	computeTechnicianUtilization,
++	evaluateCostRisk,
++	evaluateEvidenceCompleteness,
++	evaluatePreflightGates,
++	evaluateSLARisk,
++} from "./spec-015-rules";
+-- 
+2.51.1.windows.1
+

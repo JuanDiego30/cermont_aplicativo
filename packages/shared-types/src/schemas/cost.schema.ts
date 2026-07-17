@@ -66,6 +66,8 @@ const CostInputBaseSchema = z.object({
 	notes: z.string().max(500).optional(),
 	supportEvidenceIds: z.array(z.string().min(1)).max(20).default([]),
 	supportDocumentIds: z.array(z.string().min(1)).max(20).default([]),
+	clientMutationId: z.string().uuid().optional(),
+	workerId: z.string().optional(),
 });
 
 export const CreateCostSchema = CostInputBaseSchema.refine(hasCostSupport, {
@@ -232,4 +234,127 @@ export const CostSummaryEnrichedSchema = CostSummarySchema.extend({
 	isAtRisk: z.boolean().optional(),
 	isCritical: z.boolean().optional(),
 });
+
+// ─────────────────────────────────────────────────────────────────────────
+// F22 — Cost Line, Variance Report, and Category Registration Contracts
+// ─────────────────────────────────────────────────────────────────────────
+
+export const CostLineSchema = z.object({
+	serviceCaseId: z.string().min(1),
+	category: CostCategorySchema,
+	description: z.string().min(1).max(300),
+	quantity: z.number().min(0),
+	unitPrice: z.number().min(0),
+	total: z.number().min(0),
+	evidenceId: z.string().optional(),
+	documentId: z.string().optional(),
+	registeredBy: z.string(),
+	registeredAt: z.string().datetime(),
+	clientMutationId: z.string().uuid().optional(),
+	workerId: z.string().optional(),
+	materialId: z.string().optional(),
+	equipmentId: z.string().optional(),
+	taxType: z.string().optional(),
+	notes: z.string().max(500).optional(),
+});
+export type CostLine = z.infer<typeof CostLineSchema>;
+
+export const RegisterLaborCostSchema = z.object({
+	orderId: z.string().min(1),
+	hours: z.number().positive(),
+	rate: z.number().min(0),
+	workerId: z.string().min(1),
+	description: z.string().min(1).max(200).optional(),
+	supportEvidenceIds: z.array(z.string().min(1)).max(20).default([]),
+	supportDocumentIds: z.array(z.string().min(1)).max(20).default([]),
+	clientMutationId: z.string().uuid().optional(),
+	recordedAt: z.string().datetime().optional(),
+});
+export type RegisterLaborCostInput = z.infer<typeof RegisterLaborCostSchema>;
+
+export const RegisterMaterialCostSchema = z.object({
+	orderId: z.string().min(1),
+	materialId: z.string().min(1),
+	quantity: z.number().positive(),
+	unitPrice: z.number().min(0),
+	description: z.string().min(1).max(200).optional(),
+	supportEvidenceIds: z.array(z.string().min(1)).max(20).default([]),
+	supportDocumentIds: z.array(z.string().min(1)).max(20).default([]),
+	clientMutationId: z.string().uuid().optional(),
+	recordedAt: z.string().datetime().optional(),
+});
+export type RegisterMaterialCostInput = z.infer<typeof RegisterMaterialCostSchema>;
+
+export const RegisterEquipmentCostSchema = z.object({
+	orderId: z.string().min(1),
+	equipmentId: z.string().min(1),
+	hours: z.number().positive(),
+	rate: z.number().min(0),
+	description: z.string().min(1).max(200).optional(),
+	supportEvidenceIds: z.array(z.string().min(1)).max(20).default([]),
+	supportDocumentIds: z.array(z.string().min(1)).max(20).default([]),
+	clientMutationId: z.string().uuid().optional(),
+	recordedAt: z.string().datetime().optional(),
+});
+export type RegisterEquipmentCostInput = z.infer<typeof RegisterEquipmentCostSchema>;
+
+export const RegisterTransportCostSchema = z.object({
+	orderId: z.string().min(1),
+	description: z.string().min(1).max(300),
+	amount: z.number().min(0),
+	supportEvidenceIds: z.array(z.string().min(1)).max(20).default([]),
+	supportDocumentIds: z.array(z.string().min(1)).max(20).default([]),
+	clientMutationId: z.string().uuid().optional(),
+	recordedAt: z.string().datetime().optional(),
+});
+export type RegisterTransportCostInput = z.infer<typeof RegisterTransportCostSchema>;
+
+export const RegisterSubcontractorCostSchema = z.object({
+	orderId: z.string().min(1),
+	description: z.string().min(1).max(300),
+	amount: z.number().min(0),
+	supportEvidenceIds: z.array(z.string().min(1)).max(20).default([]),
+	supportDocumentIds: z.array(z.string().min(1)).max(20).default([]),
+	clientMutationId: z.string().uuid().optional(),
+	recordedAt: z.string().datetime().optional(),
+});
+export type RegisterSubcontractorCostInput = z.infer<typeof RegisterSubcontractorCostSchema>;
+
+export const RegisterTaxCostSchema = z.object({
+	orderId: z.string().min(1),
+	taxType: z.string().min(1).max(50),
+	amount: z.number().min(0),
+	description: z.string().min(1).max(200).optional(),
+	supportEvidenceIds: z.array(z.string().min(1)).max(20).default([]),
+	supportDocumentIds: z.array(z.string().min(1)).max(20).default([]),
+	clientMutationId: z.string().uuid().optional(),
+	recordedAt: z.string().datetime().optional(),
+});
+export type RegisterTaxCostInput = z.infer<typeof RegisterTaxCostSchema>;
+
+export const CostVarianceItemSchema = z.object({
+	category: CostCategorySchema,
+	description: z.string(),
+	budgeted: z.number(),
+	actual: z.number(),
+	variance: z.number(),
+	variancePercent: z.number(),
+});
+export type CostVarianceItem = z.infer<typeof CostVarianceItemSchema>;
+
+export const CostVarianceReportSchema = z.object({
+	serviceCaseId: z.string(),
+	serviceCaseCode: z.string().optional(),
+	generatedAt: z.string().datetime(),
+	totalBudgeted: z.number(),
+	totalActual: z.number(),
+	totalInvoiced: z.number().default(0),
+	totalPaid: z.number().default(0),
+	variance: z.number(),
+	variancePercent: z.number(),
+	byCategory: z.array(CostVarianceItemSchema),
+	significantVariances: z.array(CostVarianceItemSchema),
+	unregisteredCategories: z.array(CostCategorySchema),
+});
+export type CostVarianceReport = z.infer<typeof CostVarianceReportSchema>;
 export type CostSummaryEnriched = z.infer<typeof CostSummaryEnrichedSchema>;

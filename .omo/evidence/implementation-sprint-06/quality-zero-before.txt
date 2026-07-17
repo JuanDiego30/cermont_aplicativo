@@ -1,0 +1,7 @@
+
+> cermont-monorepo@1.0.0 quality:zero
+> tsx tooling/quality/check-zero-rules.ts
+
+Zero rules quality check: 2 findings
+backend/src/modules/service-entry-sheet/service-entry-sheet.service.ts:62:7 zero-any-production Production TypeScript must not use explicit any.
+backend/src/modules/technical-report/technical-report.service.ts:71:7 zero-any-production Production TypeScript must not use explicit any.

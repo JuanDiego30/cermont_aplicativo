@@ -1,0 +1,11 @@
+F3.8 — Planning visual summary
+
+Implementation result:
+
+- `ScheduleStep` now receives the typed reducer state for materials, tools, equipment, safety elements, workers, AST, PTW, and signature count.
+- The step renders five live counters (Materiales, Herramientas, Equipos, EPP, Personal), AST/PTW requirement chips, and the required-signature count.
+- The summary is derived from the same state later submitted by `PlanningWizard`; no duplicate schema or endpoint was introduced.
+- Existing planning step tests remain green after the new required props were added.
+
+Verification: planning tests PASS (10 tests); frontend typecheck PASS.
+Status: IMPLEMENTED pending root gate.

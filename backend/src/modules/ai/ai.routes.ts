@@ -4,23 +4,24 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody } from "../../middlewares/validate";
-import { chatHandler } from "./ai.controller";
+import { chatHandler, statusHandler, useCaseHandler } from "./ai.controller";
 
 const router = Router();
 
 /**
  * GET /api/ai/status
- * Documenta el estado actual y evolución futura del módulo IA (Pasos v2.0).
- * No body validation needed — status check is GET-only
+ * Current AI module status with provider and capability info
  */
-router.get("/status", authenticate, authorize(...INTERNAL_ROLES), (_req, res) => {
+router.get("/status", authenticate, authorize(...INTERNAL_ROLES), statusHandler);
+
+/**
+ * GET /api/ai/health
+ * Lightweight health check — no auth required for frontend polling
+ */
+router.get("/health", (_req, res) => {
 	res.json({
 		success: true,
-		status: "implemented_v1",
-		version: "1.0",
-		capabilities: ["assistant_chat"],
-		roadmap: ["OCR_form_extraction", "document_data_mining", "evidence_auto_classification"],
-		message: "Módulo AI v1.0 activo. Funcionalidades avanzadas planificadas para v2.0.",
+		enabled: process.env.ENABLE_CERMONT_AI === "true",
 	});
 });
 
@@ -32,5 +33,11 @@ router.post(
 	validateBody(AssistantChatRequestSchema),
 	chatHandler,
 );
+
+/**
+ * POST /api/ai/use-cases
+ * Low-risk, read-only use cases: summarize, missing-docs, draft-report
+ */
+router.post("/use-cases", authenticate, authorize(...SUPERVISORY_ROLES), useCaseHandler);
 
 export default router;

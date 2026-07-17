@@ -1,0 +1,55 @@
+
+> cermont-monorepo@1.0.0 lint
+> turbo run lint
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running lint in 5 packages
+   • Remote caching disabled
+
+@cermont/config:lint: cache hit, replaying logs 6a5be924bf5897dd
+@cermont/config:lint: 
+@cermont/config:lint: > @cermont/config@1.0.0 lint
+@cermont/config:lint: > biome check .
+@cermont/config:lint: 
+@cermont/config:lint: Checked 4 files in 21ms. No fixes applied.
+@cermont/domain:lint: cache hit, replaying logs 031c9400b96ff0f8
+@cermont/domain:lint: 
+@cermont/domain:lint: > @cermont/domain@1.0.0 lint
+@cermont/domain:lint: > biome check .
+@cermont/domain:lint: 
+@cermont/domain:lint: Checked 28 files in 49ms. No fixes applied.
+@cermont/domain:build: cache hit, replaying logs a7d7b2b134cb798e
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:lint: cache hit, replaying logs 5847b08f2e9075bb
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: > @cermont/shared-types@1.0.0 lint
+@cermont/shared-types:lint: > biome check .
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: Checked 174 files in 343ms. No fixes applied.
+@cermont/shared-types:build: cache hit, replaying logs cca7ab70a01052a6
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/frontend:lint: cache hit, replaying logs 3f8ea4035a285645
+@cermont/frontend:lint: 
+@cermont/frontend:lint: > @cermont/frontend@1.2.0 lint
+@cermont/frontend:lint: > biome lint .
+@cermont/frontend:lint: 
+@cermont/frontend:lint: Checked 855 files in 633ms. No fixes applied.
+@cermont/backend:lint: cache hit, replaying logs c1159f93e52e80ba
+@cermont/backend:lint: 
+@cermont/backend:lint: > @cermont/backend@5.2.1 lint
+@cermont/backend:lint: > biome lint .
+@cermont/backend:lint: 
+@cermont/backend:lint: Checked 479 files in 301ms. No fixes applied.
+
+ Tasks:    7 successful, 7 total
+Cached:    7 cached, 7 total
+  Time:    107ms >>> FULL TURBO
+

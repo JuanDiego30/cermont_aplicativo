@@ -1,0 +1,5 @@
+TASK-1.4 verification
+
+- No frontend source imports the removed category style section or `getStepCategory`.
+- `STATUS_STYLES` remains available for `FourteenStepProgressBar`.
+- Frontend typecheck, lint, tests, and build passed.

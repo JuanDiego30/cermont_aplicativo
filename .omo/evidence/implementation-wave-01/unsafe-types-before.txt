@@ -1,0 +1,42 @@
+
+Path                                                                                                                     LineNumber Line
+----                                                                                                                     ---------- ----
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\config\kit-templates.ts                              294 			return { status: "not_found" as const, type: String(orderType) as unknown as string };
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\audit-log.middleware.ts                   11 	metadata: Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\audit-log.middleware.ts                   62 	metadata: Record<string, unknown> = {},
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\audit-log.middleware.ts                   66 		res.json = (body: Record<string, unknown>) => {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\audit-log.middleware.ts                   68 		const user = (req as unknown as { user?: Record<string, unknown> }).user;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\audit-log.middleware.ts                   73 						String(req.params.id || "") || ((body?.data as Record<string, unknown>)?._id as string),
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\audit-log.middleware.ts                   76 					requestId: ((req as unknown as Record<string, unknown>).requestId as string) || "not_provided",
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\sanitize.middleware.ts                     9 				req as Request & { log?: { warn: (msg: string, meta?: Record<string, unknown>) => void } }
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\sanitize.middleware.ts                    15 export function sanitizeStrings(obj: Record<string, unknown>): Record<string, unknown> {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\sanitize.middleware.ts                    16 	const result: Record<string, unknown> = {};
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\sanitize.middleware.ts                    24 			result[key] = sanitizeStrings(value as Record<string, unknown>);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\sanitize.middleware.ts                    38 			req.query as unknown as Record<string, unknown>,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\middlewares\sanitize.middleware.ts                    42 		req.params = sanitizeStrings(req.params as Record<string, unknown>) as Request["params"];
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Document.ts                                   217 				const json = ret as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\EvidenceCollection.ts                         125 		const serialized = ret as unknown as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FileAsset.ts                                  125 		const obj = ret as unknown as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\FormSubmission.ts                              21 	values: Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Inspection.ts                                 133 				const json = ret as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Kit.ts                                        386 		const result = ret as unknown as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\MaintenanceKit.ts                             127 				const json = ret as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Notification.ts                                32 	templateVariables?: Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Notification.ts                                38 	metadata?: Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Order.ts                                      151 		const obj = ret as unknown as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Proposal.ts                                    92 		const obj = ret as unknown as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Report.ts                                      96 				const json = ret as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Resource.ts                                    74 	certifications?: Record<string, unknown>[];
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Resource.ts                                    75 	documents?: Record<string, unknown>[];
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Resource.ts                                    76 	evidenceRequirements?: Record<string, unknown>[];
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\Resource.ts                                   174 				const json = ret as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\TemplateDraft.ts                              115 type TemplateDraftValidationRule = Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\TemplateResponse.ts                           150 	values?: Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\TemplateResponse.ts                           173 		serverVersion?: Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\TemplateResponse.ts                           174 		localVersion?: Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\TokenBlacklist.ts                              38 		const obj = ret as unknown as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\User.ts                                       130 		const obj = ret as unknown as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\WorkReport.ts                                  49 		const obj = ret as unknown as Record<string, unknown>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\scripts\seed-business-documents.ts                   244 			await BusinessDocument.create(tpl as unknown as Record<string, unknown>);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\service-case-step-context.service.ts         35 	step_01_work_request: NIL as never,
+

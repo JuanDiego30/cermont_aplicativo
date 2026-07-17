@@ -1,0 +1,86 @@
+{
+  "plan": "implementation-masterplan-v7.md",
+  "source": ".omo/plans/implementation-masterplan-v7.md",
+  "phases": 5,
+  "tasks": 38,
+  "analyzed_at": "2026-07-12T10:31:35-05:00",
+  "tasks": {
+    "phase_1": {
+      "name": "Dead Code Removal & Structural Cleanup",
+      "tasks": [
+        {"id": "1.1", "name": "Delete KpiCard.tsx dead code", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "1.2", "name": "Audit planning-packet/new/ vs modules/planning/", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "1.3", "name": "Move stepHeaders to module scope", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "1.4", "name": "Clean unused exports in flow-categories.ts", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "1.5", "name": "Audit planning/ui/steps/shared-types.ts", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "1.6", "name": "Create erp-connectors/new/page.tsx placeholder", "status": "VERIFIED", "confidence": "ALTA"}
+      ]
+    },
+    "phase_2": {
+      "name": "React Quality Refactors",
+      "tasks": [
+        {"id": "2.1", "name": "Migrate PlanningWizard 15 useState to useReducer", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "2.2", "name": "Split ResourcesStep into 5 sub-components", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "2.3", "name": "Add ARIA labels to numeric inputs", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "2.4", "name": "Fix KPICard accessibility (article to button)", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "2.5", "name": "Verify stepHeaders moved", "status": "VERIFIED", "confidence": "ALTA"}
+      ]
+    },
+    "phase_3": {
+      "name": "Product Features (P1)",
+      "tasks": [
+        {"id": "3.1", "name": "Dashboard KPIs connected to backend", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "3.2", "name": "Costs Dashboard comparativo", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "3.3", "name": "Billing Timeline SES→Invoice→Payment", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "3.4", "name": "Reports PDF post-ejecución", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "3.5", "name": "Offline Sync Status UI", "status": "PARTIAL", "confidence": "MEDIA"},
+        {"id": "3.6", "name": "Fleet UI checkout/checkin completo", "status": "PARTIAL", "confidence": "MEDIA"},
+        {"id": "3.7", "name": "Portal Cliente verify all routes", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "3.8", "name": "Planning Wizard cronograma visual", "status": "VERIFIED", "confidence": "ALTA"}
+      ]
+    },
+    "phase_4": {
+      "name": "E2E Tests",
+      "tasks": [
+        {"id": "4.1", "name": "E2E offline execution flow", "status": "MISSING", "confidence": "NINGUNA"},
+        {"id": "4.2", "name": "E2E full 14-step workflow", "status": "MISSING", "confidence": "NINGUNA"}
+      ]
+    },
+    "phase_5": {
+      "name": "Tech Debt & Architecture",
+      "tasks": [
+        {"id": "5.1", "name": "Migrate 10 DTOs to shared-types", "status": "VERIFIED", "confidence": "ALTA"},
+        {"id": "5.2", "name": "Migrate Spanish symbols to English", "status": "PARTIAL", "confidence": "MEDIA"},
+        {"id": "5.3", "name": "Evidence gallery metadata enrichment", "status": "PARTIAL", "confidence": "MEDIA"},
+        {"id": "5.4", "name": "Update quality baselines", "status": "VERIFIED", "confidence": "ALTA"}
+      ]
+    },
+    "additional_sprints_from_evidence": {
+      "sprint_0": {"name": "Baseline and Foundation", "status": "VERIFIED", "tasks_completed": 5},
+      "sprint_1": {"name": "Dead Code & Cleanup", "status": "COMPLETED", "tasks_completed": 6},
+      "sprint_2": {"name": "React Quality Refactors", "status": "COMPLETED", "tasks_completed": 5},
+      "sprint_3": {"name": "Core Product Features", "status": "PARTIAL", "tasks_completed": 6},
+      "sprint_4": {"name": "E2E and QA", "status": "PARTIAL", "tasks_completed": 0},
+      "sprint_5": {"name": "Tech Debt Reduction", "status": "PARTIAL", "tasks_completed": 2},
+      "sprint_6": {"name": "UI/UX Premium & Stabilization", "status": "VERIFIED", "tasks_completed": 4}
+    }
+  },
+  "gates_summary": {
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "test_frontend": "93 files, 487 passed",
+    "test_backend": "102 files, 688 passed",
+    "test_shared_types": "32 files, 183 passed",
+    "build": "PASS (97 routes)",
+    "contracts_check": "PASS",
+    "quality_strict": "PASS (10/10, 1 warning)",
+    "react_doctor": "76/100 (target 95)",
+    "verify": "FAIL (doctor step)"
+  },
+  "runtime_status": {
+    "backend": "RUNNING (4000)",
+    "frontend": "RUNNING (3000)",
+    "mongodb": "CONNECTED",
+    "proxy": "WORKING"
+  }
+}

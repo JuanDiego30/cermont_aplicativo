@@ -1,0 +1,35 @@
+{
+  "cookies": [
+    {
+      "name": "refreshToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTU3ZjA2MDkxNmM0YzVkM2VjZTRhODUiLCJyb2xlIjoidGVjbmljbyIsInRva2VuVmVyc2lvbiI6MCwianRpIjoiYjI5OGIyMTAtNzYyOS00YTc0LWI0MGQtOWJkZjIzZjNkYjM5IiwiZmFtaWx5SWQiOiIzM2FhYTdlYS0wNWM2LTRlNGEtOGE3ZS04MzEyZjI2NmVjYTAiLCJ0b2tlblR5cGUiOiJyZWZyZXNoIiwiaWF0IjoxNzg0MTQ4MDY0LCJleHAiOjE3ODQ3NTI4NjR9.QEy7iLEKO9jec2BgSEbfQ4budic9wihSYQflYgOSkI8",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1784752864,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "userRole",
+      "value": "tecnico",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1784752864,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "cermontFileAccess",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTU3ZjA2MDkxNmM0YzVkM2VjZTRhODUiLCJyb2xlIjoidGVjbmljbyIsInRva2VuVmVyc2lvbiI6MCwianRpIjoiOWY4MWY5OTUtNGNlYi00ZGJiLTlmODEtNDU0ZjgwNTUxYWUxIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaWF0IjoxNzg0MTQ4MDY0LCJleHAiOjE3ODQxNDg5NjR9.biPbQ2Gj4-Jmp2Sk9nOTV6KOHcxedJimQhwzfq4WWPM",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

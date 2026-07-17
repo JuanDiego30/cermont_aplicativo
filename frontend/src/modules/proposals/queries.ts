@@ -13,7 +13,7 @@ import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
 export type { Proposal } from "@cermont/shared-types";
 
 // ── Query Keys ────────────────────────────────────────────────
-const PROPOSALS_KEYS = {
+export const PROPOSALS_KEYS = {
 	all: ["proposals"] as const,
 	list: (status: string, limit: number, offset: number) =>
 		[...PROPOSALS_KEYS.all, "list", status, limit, offset] as const,
@@ -93,6 +93,7 @@ export function useApproveProposal(id: string) {
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: PROPOSALS_KEYS.detail(id) });
 			qc.invalidateQueries({ queryKey: PROPOSALS_KEYS.all });
+			qc.invalidateQueries({ queryKey: ["service-cases"] });
 		},
 	});
 }

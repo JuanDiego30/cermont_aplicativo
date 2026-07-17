@@ -8,6 +8,7 @@ import { createLogger } from "@/lib/monitoring/logger";
 import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
 import { hasIndexedDBSupport, nowIso, offlineDb } from "@/lib/offline/offline-db";
 import { enqueue, type SyncQueueEntry } from "@/lib/offline/sync-queue";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 import { useOfflineStore } from "@/store/offline.store";
 
 const logger = createLogger("offline-sync:evidences");
@@ -178,7 +179,7 @@ export function useOfflineEvidence() {
 			return body;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["evidences"] });
+			queryClient.invalidateQueries({ queryKey: EVIDENCE_KEYS.all });
 		},
 	});
 

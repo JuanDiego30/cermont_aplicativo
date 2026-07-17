@@ -1,0 +1,33 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Auth - Register new user",
+  "description": "Verifies the user registration flow including form validation, successful account creation, and role assignment",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to /register and verify the registration form is displayed with all fields (name, email, password, confirm password, role selection)"
+    },
+    {
+      "type": "action",
+      "description": "Submit with empty fields and verify form validation error messages appear"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that password confirmation mismatch shows validation error"
+    },
+    {
+      "type": "action",
+      "description": "Fill in valid registration data: name='Test User', email='testuser@cermont.com', password='StrongPass123!', confirm password, select role 'operador'"
+    },
+    {
+      "type": "action",
+      "description": "Submit the form and wait for success confirmation"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that registration succeeds and user is redirected to /login with success message"
+    }
+  ]
+}

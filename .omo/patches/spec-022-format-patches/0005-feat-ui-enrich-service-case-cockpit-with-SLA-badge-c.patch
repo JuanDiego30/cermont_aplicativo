@@ -1,0 +1,940 @@
+From 00b8c95ca9b57e653d524d2bc4f1efcaee8d7749 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Sat, 4 Jul 2026 01:58:07 -0500
+Subject: [PATCH 05/42] feat(ui): enrich service-case cockpit with SLA badge,
+ closure pipeline, evidence gallery, documents table, and tabs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Spec-014 Sprint 1. Audit-first: cockpit already existed as ServiceCaseWorkflowCockpit
+(contract ServiceCaseWorkflowViewSchema) — enriched instead of duplicating a module.
+Renders previously unused view-model data: deadline (SLA countdown), closure
+(SES->Invoice->Payment pipeline, FALLA 4), documents[] and evidences[] (galleries).
+Audit table at specs/014-frontend-profesionalizacion/audit-endpoints.md.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+---
+ .../AdministrativeClosurePipeline.tsx         | 189 ++++++++++++++++++
+ .../service-cases/components/CockpitTabs.tsx  | 112 +++++++++++
+ .../components/EvidenceGallerySection.tsx     | 141 +++++++++++++
+ .../components/LinkedDocumentsSection.tsx     | 103 ++++++++++
+ .../components/ServiceCaseWorkflowCockpit.tsx |  69 ++++++-
+ .../components/SlaDeadlineBadge.tsx           |  70 +++++++
+ .../__tests__/CockpitEnrichment.test.tsx      |  94 +++++++++
+ .../audit-endpoints.md                        |  34 ++++
+ 8 files changed, 801 insertions(+), 11 deletions(-)
+ create mode 100644 frontend/src/modules/service-cases/components/AdministrativeClosurePipeline.tsx
+ create mode 100644 frontend/src/modules/service-cases/components/CockpitTabs.tsx
+ create mode 100644 frontend/src/modules/service-cases/components/EvidenceGallerySection.tsx
+ create mode 100644 frontend/src/modules/service-cases/components/LinkedDocumentsSection.tsx
+ create mode 100644 frontend/src/modules/service-cases/components/SlaDeadlineBadge.tsx
+ create mode 100644 frontend/src/modules/service-cases/components/__tests__/CockpitEnrichment.test.tsx
+ create mode 100644 specs/014-frontend-profesionalizacion/audit-endpoints.md
+
+diff --git a/frontend/src/modules/service-cases/components/AdministrativeClosurePipeline.tsx b/frontend/src/modules/service-cases/components/AdministrativeClosurePipeline.tsx
+new file mode 100644
+index 0000000..0c904b4
+--- /dev/null
++++ b/frontend/src/modules/service-cases/components/AdministrativeClosurePipeline.tsx
+@@ -0,0 +1,189 @@
++"use client";
++
++import type { ClosureWorkflowSummary, CostTraceabilitySummary } from "@cermont/shared-types";
++import {
++	Banknote,
++	CircleCheck,
++	CircleDashed,
++	Clock3,
++	FileSignature,
++	Receipt,
++	ScrollText,
++} from "lucide-react";
++import type { ComponentType } from "react";
++
++type StageStatus = "completed" | "in_progress" | "pending";
++
++interface PipelineStage {
++	key: string;
++	label: string;
++	detail: string;
++	status: StageStatus;
++	icon: ComponentType<{ className?: string }>;
++	amount?: number;
++}
++
++interface AdministrativeClosurePipelineProps {
++	closure: ClosureWorkflowSummary;
++	billing: CostTraceabilitySummary["billing"];
++}
++
++const CURRENCY_FORMATTER = new Intl.NumberFormat("es-CO", {
++	style: "currency",
++	currency: "COP",
++	maximumFractionDigits: 0,
++});
++
++const STATUS_LABEL: Record<StageStatus, string> = {
++	completed: "Completado",
++	in_progress: "En trámite",
++	pending: "Pendiente",
++};
++
++const STATUS_CLASSES: Record<StageStatus, string> = {
++	completed: "border-brand-annotate text-brand-annotate",
++	in_progress: "border-brand-warn text-brand-warn",
++	pending: "border-hairline text-steel",
++};
++
++function stageStatus(approved: boolean, submitted: boolean): StageStatus {
++	if (approved) {
++		return "completed";
++	}
++	if (submitted) {
++		return "in_progress";
++	}
++	return "pending";
++}
++
++function buildStages(
++	closure: ClosureWorkflowSummary,
++	billing: CostTraceabilitySummary["billing"],
++): PipelineStage[] {
++	return [
++		{
++			key: "delivery",
++			label: "Acta de entrega",
++			detail: closure.deliveryRecordSigned ? "Firmada por el cliente" : "Sin firma del cliente",
++			status: closure.deliveryRecordSigned ? "completed" : "pending",
++			icon: FileSignature,
++		},
++		{
++			key: "ses",
++			label: "SES / Ariba",
++			detail: closure.sesApproved
++				? "Aprobada por el cliente"
++				: closure.sesSubmitted
++					? "Radicada, esperando aprobación"
++					: "Sin radicar en Ariba",
++			status: stageStatus(closure.sesApproved, closure.sesSubmitted),
++			icon: ScrollText,
++			amount: billing.sesValue,
++		},
++		{
++			key: "invoice",
++			label: "Factura",
++			detail: closure.invoiceApproved
++				? "Aprobada por el cliente"
++				: closure.invoiceSubmitted
++					? "Radicada, esperando aprobación"
++					: "Sin emitir",
++			status: stageStatus(closure.invoiceApproved, closure.invoiceSubmitted),
++			icon: Receipt,
++			amount: billing.invoiceValue,
++		},
++		{
++			key: "payment",
++			label: "Pago",
++			detail: closure.paymentReconciled ? "Conciliado" : "Sin registrar",
++			status: closure.paymentReconciled ? "completed" : "pending",
++			icon: Banknote,
++			amount: billing.paidValue,
++		},
++	];
++}
++
++function StageIcon({ stage }: { stage: PipelineStage }) {
++	if (stage.status === "completed") {
++		return <CircleCheck className="size-4" aria-hidden="true" />;
++	}
++	if (stage.status === "in_progress") {
++		return <Clock3 className="size-4" aria-hidden="true" />;
++	}
++	return <CircleDashed className="size-4" aria-hidden="true" />;
++}
++
++export function AdministrativeClosurePipeline({
++	closure,
++	billing,
++}: AdministrativeClosurePipelineProps) {
++	const stages = buildStages(closure, billing);
++	const isOverdue = closure.daysOverdue > 0;
++
++	return (
++		<section
++			aria-label="Cierre administrativo"
++			className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card"
++		>
++			<div className="flex flex-wrap items-center justify-between gap-2">
++				<p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
++					Cierre administrativo — SES → Factura → Pago
++				</p>
++				{closure.caseClosed ? (
++					<span className="rounded-full border border-brand-annotate px-2.5 py-1 text-[10px] font-bold uppercase text-brand-annotate">
++						Caso cerrado
++					</span>
++				) : closure.closingPackageReady ? (
++					<span className="rounded-full border border-[var(--color-brand)] px-2.5 py-1 text-[10px] font-bold uppercase text-[var(--color-brand)]">
++						Paquete de cierre listo
++					</span>
++				) : null}
++			</div>
++
++			{isOverdue && (
++				<div
++					role="alert"
++					className="mt-3 rounded-[var(--radius-md)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] px-3 py-2 text-xs font-semibold text-[var(--color-danger)]"
++				>
++					Cierre vencido hace {closure.daysOverdue === 1 ? "1 día" : `${closure.daysOverdue} días`}{" "}
++					— priorizar radicación y cobro (FALLA 4).
++				</div>
++			)}
++
++			<ol className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
++				{stages.map((stage) => (
++					<li
++						key={stage.key}
++						className={`rounded-[var(--radius-md)] border bg-[var(--surface-secondary)] p-3 ${STATUS_CLASSES[stage.status]}`}
++					>
++						<div className="flex items-center justify-between gap-2">
++							<span className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-primary)]">
++								<stage.icon className="size-3.5" aria-hidden="true" />
++								{stage.label}
++							</span>
++							<span className="flex items-center gap-1 text-[10px] font-semibold uppercase">
++								<StageIcon stage={stage} />
++								{STATUS_LABEL[stage.status]}
++							</span>
++						</div>
++						<p className="mt-2 text-[11px] text-[var(--text-secondary)]">{stage.detail}</p>
++						{typeof stage.amount === "number" && stage.amount > 0 && (
++							<p className="mt-1 font-mono text-[11px] font-semibold text-[var(--text-primary)]">
++								{CURRENCY_FORMATTER.format(stage.amount)}
++							</p>
++						)}
++					</li>
++				))}
++			</ol>
++
++			{billing.pendingValue > 0 && (
++				<p className="mt-3 text-[11px] text-[var(--text-secondary)]">
++					Pendiente por cobrar:{" "}
++					<span className="font-mono font-semibold text-[var(--text-primary)]">
++						{CURRENCY_FORMATTER.format(billing.pendingValue)}
++					</span>
++				</p>
++			)}
++		</section>
++	);
++}
+diff --git a/frontend/src/modules/service-cases/components/CockpitTabs.tsx b/frontend/src/modules/service-cases/components/CockpitTabs.tsx
+new file mode 100644
+index 0000000..09ddd23
+--- /dev/null
++++ b/frontend/src/modules/service-cases/components/CockpitTabs.tsx
+@@ -0,0 +1,112 @@
++"use client";
++
++import { type KeyboardEvent, type ReactNode, useId, useRef, useState } from "react";
++
++export interface CockpitTabDefinition {
++	id: string;
++	label: string;
++	badge?: number;
++	content: ReactNode;
++}
++
++interface CockpitTabsProps {
++	tabs: CockpitTabDefinition[];
++	ariaLabel: string;
++}
++
++export function CockpitTabs({ tabs, ariaLabel }: CockpitTabsProps) {
++	const baseId = useId();
++	const [activeId, setActiveId] = useState(tabs[0]?.id ?? "");
++	const tabRefs = useRef<Array<HTMLButtonElement>>([]);
++	const activeTab = tabs.find((tab) => tab.id === activeId) ?? tabs[0];
++
++	if (tabs.length === 0) {
++		return <div className="sr-only">Sin contenido disponible</div>;
++	}
++
++	const focusTabAt = (index: number) => {
++		const total = tabs.length;
++		const nextIndex = (index + total) % total;
++		const nextTab = tabs[nextIndex];
++		if (nextTab) {
++			setActiveId(nextTab.id);
++			tabRefs.current[nextIndex]?.focus();
++		}
++	};
++
++	const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
++		if (event.key === "ArrowRight") {
++			event.preventDefault();
++			focusTabAt(index + 1);
++		} else if (event.key === "ArrowLeft") {
++			event.preventDefault();
++			focusTabAt(index - 1);
++		} else if (event.key === "Home") {
++			event.preventDefault();
++			focusTabAt(0);
++		} else if (event.key === "End") {
++			event.preventDefault();
++			focusTabAt(tabs.length - 1);
++		}
++	};
++
++	return (
++		<section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-card">
++			<div
++				role="tablist"
++				aria-label={ariaLabel}
++				className="flex gap-1 overflow-x-auto border-b border-[var(--border-subtle)] px-2 pt-2 no-scrollbar"
++			>
++				{tabs.map((tab, index) => {
++					const isActive = tab.id === activeTab?.id;
++					return (
++						<button
++							key={tab.id}
++							ref={(element) => {
++								if (element) {
++									tabRefs.current[index] = element;
++								}
++							}}
++							type="button"
++							role="tab"
++							id={`${baseId}-tab-${tab.id}`}
++							aria-selected={isActive}
++							aria-controls={`${baseId}-panel-${tab.id}`}
++							tabIndex={isActive ? 0 : -1}
++							onClick={() => setActiveId(tab.id)}
++							onKeyDown={(event) => handleKeyDown(event, index)}
++							className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-t-[var(--radius-md)] border-b-2 px-4 py-2 text-xs font-semibold transition-colors ${
++								isActive
++									? "border-[var(--color-brand)] text-[var(--color-brand)]"
++									: "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
++							}`}
++						>
++							{tab.label}
++							{typeof tab.badge === "number" && tab.badge > 0 && (
++								<span
++									className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
++										isActive
++											? "bg-[var(--color-brand-blue-bg)] text-[var(--color-brand)]"
++											: "bg-[var(--surface-secondary)] text-[var(--text-secondary)]"
++									}`}
++								>
++									{tab.badge}
++								</span>
++							)}
++						</button>
++					);
++				})}
++			</div>
++			{activeTab && (
++				<div
++					role="tabpanel"
++					id={`${baseId}-panel-${activeTab.id}`}
++					aria-labelledby={`${baseId}-tab-${activeTab.id}`}
++					className="p-5"
++				>
++					{activeTab.content}
++				</div>
++			)}
++		</section>
++	);
++}
+diff --git a/frontend/src/modules/service-cases/components/EvidenceGallerySection.tsx b/frontend/src/modules/service-cases/components/EvidenceGallerySection.tsx
+new file mode 100644
+index 0000000..ce8da90
+--- /dev/null
++++ b/frontend/src/modules/service-cases/components/EvidenceGallerySection.tsx
+@@ -0,0 +1,141 @@
++"use client";
++
++import type { EvidenceType, LinkedEvidenceSummary } from "@cermont/shared-types";
++import { CERMONT_OPERATIONAL_STEPS } from "@cermont/shared-types";
++import { Camera, MapPin } from "lucide-react";
++import Image from "next/image";
++
++interface EvidenceGallerySectionProps {
++	evidences: LinkedEvidenceSummary[];
++}
++
++const TYPE_LABEL: Record<EvidenceType, string> = {
++	before: "Antes",
++	during: "Durante",
++	after: "Después",
++	defect: "Hallazgo",
++	safety: "Seguridad",
++	signature: "Firma",
++};
++
++const TYPE_CLASSES: Record<EvidenceType, string> = {
++	before: "border-[var(--color-brand)] text-[var(--color-brand)]",
++	during: "border-brand-warn text-brand-warn",
++	after: "border-brand-annotate text-brand-annotate",
++	defect: "border-[var(--color-danger-border)] text-[var(--color-danger)]",
++	safety: "border-brand-warn text-brand-warn",
++	signature: "border-hairline text-steel",
++};
++
++const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
++	dateStyle: "medium",
++	timeStyle: "short",
++});
++
++const GENERAL_GROUP_KEY = "general";
++
++function groupLabel(stepCode: string): string {
++	if (stepCode === GENERAL_GROUP_KEY) {
++		return "Sin paso asignado";
++	}
++	const step = CERMONT_OPERATIONAL_STEPS.find((item) => item.code === stepCode);
++	return step ? `Paso ${step.stepNumber} — ${step.label}` : stepCode;
++}
++
++function groupByStep(evidences: LinkedEvidenceSummary[]): Map<string, LinkedEvidenceSummary[]> {
++	const groups = new Map<string, LinkedEvidenceSummary[]>();
++	for (const evidence of evidences) {
++		const key = evidence.stepCode ?? GENERAL_GROUP_KEY;
++		const bucket = groups.get(key) ?? [];
++		bucket.push(evidence);
++		groups.set(key, bucket);
++	}
++	return groups;
++}
++
++function EvidenceThumbnail({ evidence }: { evidence: LinkedEvidenceSummary }) {
++	if (evidence.url) {
++		return (
++			<div className="relative h-24 w-full overflow-hidden rounded-t-[var(--radius-md)]">
++				<Image
++					src={evidence.url}
++					alt={`Evidencia ${TYPE_LABEL[evidence.evidenceType]}: ${evidence.filename}`}
++					fill
++					unoptimized
++					sizes="(max-width: 640px) 50vw, 160px"
++					className="object-cover"
++				/>
++			</div>
++		);
++	}
++	return (
++		<div className="flex h-24 w-full items-center justify-center rounded-t-[var(--radius-md)] bg-[var(--surface-secondary)]">
++			<Camera className="size-6 text-[var(--text-muted)]" aria-hidden="true" />
++		</div>
++	);
++}
++
++export function EvidenceGallerySection({ evidences }: EvidenceGallerySectionProps) {
++	if (evidences.length === 0) {
++		return (
++			<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
++				Sin evidencias capturadas para este caso todavía.
++			</div>
++		);
++	}
++
++	const groups = groupByStep(evidences);
++
++	return (
++		<div className="space-y-5">
++			{[...groups.entries()].map(([stepCode, items]) => (
++				<section key={stepCode} aria-label={groupLabel(stepCode)}>
++					<div className="flex items-center justify-between">
++						<h4 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
++							{groupLabel(stepCode)}
++						</h4>
++						<span className="text-[11px] font-semibold text-[var(--text-secondary)]">
++							{items.length === 1 ? "1 evidencia" : `${items.length} evidencias`}
++						</span>
++					</div>
++					<div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
++						{items.map((evidence) => (
++							<figure
++								key={evidence.evidenceId}
++								className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-primary)]"
++							>
++								<EvidenceThumbnail evidence={evidence} />
++								<figcaption className="space-y-1 p-2">
++									<div className="flex items-center justify-between gap-1">
++										<span
++											className={`inline-flex rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_CLASSES[evidence.evidenceType]}`}
++										>
++											{TYPE_LABEL[evidence.evidenceType]}
++										</span>
++										{evidence.hasGps && (
++											<MapPin
++												className="size-3 text-[var(--color-brand)]"
++												aria-label="Con ubicación GPS"
++											/>
++										)}
++									</div>
++									<p
++										className="truncate text-[10px] text-[var(--text-secondary)]"
++										title={evidence.filename}
++									>
++										{evidence.filename}
++									</p>
++									{evidence.capturedAt && (
++										<p className="text-[9px] text-[var(--text-muted)]">
++											{DATE_FORMATTER.format(new Date(evidence.capturedAt))}
++										</p>
++									)}
++								</figcaption>
++							</figure>
++						))}
++					</div>
++				</section>
++			))}
++		</div>
++	);
++}
+diff --git a/frontend/src/modules/service-cases/components/LinkedDocumentsSection.tsx b/frontend/src/modules/service-cases/components/LinkedDocumentsSection.tsx
+new file mode 100644
+index 0000000..4777d5b
+--- /dev/null
++++ b/frontend/src/modules/service-cases/components/LinkedDocumentsSection.tsx
+@@ -0,0 +1,103 @@
++"use client";
++
++import type { LinkedDocumentSummary } from "@cermont/shared-types";
++import { CERMONT_OPERATIONAL_STEPS } from "@cermont/shared-types";
++import { ExternalLink, FileText } from "lucide-react";
++
++interface LinkedDocumentsSectionProps {
++	documents: LinkedDocumentSummary[];
++}
++
++const PURPOSE_LABEL: Record<LinkedDocumentSummary["purpose"], string> = {
++	library: "Biblioteca",
++	evidence: "Evidencia",
++	form_source: "Formato fuente",
++	closure_support: "Soporte de cierre",
++	report_attachment: "Anexo de informe",
++};
++
++const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" });
++
++function stepLabel(stepCode: string): string {
++	const step = CERMONT_OPERATIONAL_STEPS.find((item) => item.code === stepCode);
++	return step ? `${step.stepNumber}. ${step.label}` : stepCode;
++}
++
++export function LinkedDocumentsSection({ documents }: LinkedDocumentsSectionProps) {
++	if (documents.length === 0) {
++		return (
++			<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
++				Sin documentos vinculados a este caso todavía.
++			</div>
++		);
++	}
++
++	return (
++		<div className="overflow-x-auto">
++			<table className="w-full min-w-[560px] text-left text-xs">
++				<caption className="sr-only">Documentos vinculados al caso</caption>
++				<thead>
++					<tr className="border-b border-[var(--border-subtle)] text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
++						<th scope="col" className="px-3 py-2">
++							Documento
++						</th>
++						<th scope="col" className="px-3 py-2">
++							Propósito
++						</th>
++						<th scope="col" className="px-3 py-2">
++							Paso
++						</th>
++						<th scope="col" className="px-3 py-2">
++							Cargado
++						</th>
++						<th scope="col" className="px-3 py-2">
++							<span className="sr-only">Acciones</span>
++						</th>
++					</tr>
++				</thead>
++				<tbody>
++					{documents.map((document) => (
++						<tr
++							key={document.documentId}
++							className="border-b border-[var(--border-subtle)] last:border-b-0"
++						>
++							<td className="px-3 py-2.5">
++								<span className="flex items-center gap-2 font-semibold text-[var(--text-primary)]">
++									<FileText
++										className="size-3.5 shrink-0 text-[var(--color-brand)]"
++										aria-hidden="true"
++									/>
++									{document.title}
++								</span>
++							</td>
++							<td className="px-3 py-2.5 text-[var(--text-secondary)]">
++								{PURPOSE_LABEL[document.purpose]}
++							</td>
++							<td className="px-3 py-2.5 text-[var(--text-secondary)]">
++								{document.stepCode ? stepLabel(document.stepCode) : "General"}
++							</td>
++							<td className="px-3 py-2.5 text-[var(--text-secondary)]">
++								{document.uploadedAt
++									? DATE_FORMATTER.format(new Date(document.uploadedAt))
++									: "Sin fecha"}
++							</td>
++							<td className="px-3 py-2.5 text-right">
++								{document.fileUrl && (
++									<a
++										href={document.fileUrl}
++										target="_blank"
++										rel="noopener noreferrer"
++										className="inline-flex items-center gap-1 font-semibold text-[var(--color-brand)] hover:underline"
++									>
++										Ver
++										<ExternalLink className="size-3" aria-hidden="true" />
++									</a>
++								)}
++							</td>
++						</tr>
++					))}
++				</tbody>
++			</table>
++		</div>
++	);
++}
+diff --git a/frontend/src/modules/service-cases/components/ServiceCaseWorkflowCockpit.tsx b/frontend/src/modules/service-cases/components/ServiceCaseWorkflowCockpit.tsx
+index 88224b9..cee9cc8 100644
+--- a/frontend/src/modules/service-cases/components/ServiceCaseWorkflowCockpit.tsx
++++ b/frontend/src/modules/service-cases/components/ServiceCaseWorkflowCockpit.tsx
+@@ -7,9 +7,14 @@ import type {
+ import { FileText, LayoutDashboard } from "lucide-react";
+ import Link from "next/link";
+ import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
++import { AdministrativeClosurePipeline } from "./AdministrativeClosurePipeline";
++import { CockpitTabs } from "./CockpitTabs";
+ import { CostComparisonPanel } from "./CostComparisonPanel";
++import { EvidenceGallerySection } from "./EvidenceGallerySection";
++import { LinkedDocumentsSection } from "./LinkedDocumentsSection";
+ import { NextActionPanel } from "./NextActionPanel";
+ import { OperationalStepProgress } from "./OperationalStepProgress";
++import { SlaDeadlineBadge } from "./SlaDeadlineBadge";
+ import { StepRequirementPanel } from "./StepRequirementPanel";
+ import { WorkflowBlockerList } from "./WorkflowBlockerList";
+ 
+@@ -111,6 +116,7 @@ export function ServiceCaseWorkflowCockpit({
+ 				currentStepNumber={currentStep?.stepNumber}
+ 				currentStepCode={currentStepCode}
+ 				daysInCurrentStep={operationalSummary?.daysInCurrentStep}
++				deadline={serviceCase.deadline}
+ 				orderId={orderId}
+ 				serviceCaseId={serviceCase.serviceCaseId}
+ 				updatedAt={serviceCase.updatedAt}
+@@ -141,17 +147,55 @@ export function ServiceCaseWorkflowCockpit({
+ 						operationalSummary={operationalSummary}
+ 					/>
+ 
+-					{/* Cost comparison panel — shown when there is at least some cost data */}
+-					{(serviceCase.costs.estimated.estimatedTotalCost > 0 ||
+-						serviceCase.costs.actual.actualTotalCost > 0 ||
+-						serviceCase.costs.billing.invoiceValue > 0) && (
+-						<CostComparisonPanel
+-							costs={serviceCase.costs}
+-							serviceCaseId={serviceCase.serviceCaseId}
+-						/>
+-					)}
+-
+-					<ArtifactsSection artifacts={serviceCase.artifacts ?? {}} />
++					<CockpitTabs
++						ariaLabel="Contenido del caso por categoría"
++						tabs={[
++							{
++								id: "documents",
++								label: "Documentos",
++								badge: (serviceCase.documents ?? []).length,
++								content: (
++									<div className="space-y-5">
++										<ArtifactsSection artifacts={serviceCase.artifacts ?? {}} />
++										<LinkedDocumentsSection documents={serviceCase.documents ?? []} />
++									</div>
++								),
++							},
++							{
++								id: "evidences",
++								label: "Evidencias",
++								badge: (serviceCase.evidences ?? []).length,
++								content: <EvidenceGallerySection evidences={serviceCase.evidences ?? []} />,
++							},
++							{
++								id: "costs",
++								label: "Costos",
++								content:
++									serviceCase.costs.estimated.estimatedTotalCost > 0 ||
++									serviceCase.costs.actual.actualTotalCost > 0 ||
++									serviceCase.costs.billing.invoiceValue > 0 ? (
++										<CostComparisonPanel
++											costs={serviceCase.costs}
++											serviceCaseId={serviceCase.serviceCaseId}
++										/>
++									) : (
++										<div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-5 text-center text-sm text-[var(--text-secondary)]">
++											Sin datos de costos registrados para este caso todavía.
++										</div>
++									),
++							},
++							{
++								id: "closure",
++								label: "Cierre admin",
++								content: (
++									<AdministrativeClosurePipeline
++										closure={serviceCase.closure}
++										billing={serviceCase.costs.billing}
++									/>
++								),
++							},
++						]}
++					/>
+ 				</div>
+ 
+ 				<div className="space-y-6">
+@@ -176,6 +220,7 @@ function WorkflowHeader({
+ 	currentStepCode,
+ 	currentStepNumber,
+ 	daysInCurrentStep,
++	deadline,
+ 	orderId,
+ 	serviceCaseId,
+ 	updatedAt,
+@@ -186,6 +231,7 @@ function WorkflowHeader({
+ 	currentStepCode: CermontOperationalStepCode;
+ 	currentStepNumber?: number;
+ 	daysInCurrentStep?: number;
++	deadline?: string;
+ 	orderId?: string;
+ 	serviceCaseId: string;
+ 	updatedAt: string;
+@@ -233,6 +279,7 @@ function WorkflowHeader({
+ 							<span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-1">
+ 								Actualizado: {formatDate(updatedAt)}
+ 							</span>
++							{deadline && <SlaDeadlineBadge deadline={deadline} />}
+ 						</div>
+ 					</div>
+ 				</div>
+diff --git a/frontend/src/modules/service-cases/components/SlaDeadlineBadge.tsx b/frontend/src/modules/service-cases/components/SlaDeadlineBadge.tsx
+new file mode 100644
+index 0000000..f35f8cc
+--- /dev/null
++++ b/frontend/src/modules/service-cases/components/SlaDeadlineBadge.tsx
+@@ -0,0 +1,70 @@
++"use client";
++
++import { CalendarClock, TriangleAlert } from "lucide-react";
++
++const AT_RISK_THRESHOLD_HOURS = 48;
++const HOURS_PER_DAY = 24;
++
++interface SlaDeadlineBadgeProps {
++	deadline: string;
++}
++
++type SlaState = "overdue" | "at_risk" | "on_track";
++
++function formatSpan(hoursTotal: number): string {
++	const hours = Math.floor(Math.abs(hoursTotal));
++	if (hours < HOURS_PER_DAY) {
++		return hours === 1 ? "1 hora" : `${hours} horas`;
++	}
++	const days = Math.floor(hours / HOURS_PER_DAY);
++	return days === 1 ? "1 día" : `${days} días`;
++}
++
++function resolveState(hoursRemaining: number): SlaState {
++	if (hoursRemaining < 0) {
++		return "overdue";
++	}
++	if (hoursRemaining <= AT_RISK_THRESHOLD_HOURS) {
++		return "at_risk";
++	}
++	return "on_track";
++}
++
++const STATE_CLASSES: Record<SlaState, string> = {
++	overdue:
++		"border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
++	at_risk: "border-brand-warn bg-warning-bg text-brand-warn",
++	on_track:
++		"border-[var(--border-subtle)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]",
++};
++
++export function SlaDeadlineBadge({ deadline }: SlaDeadlineBadgeProps) {
++	const deadlineMs = new Date(deadline).getTime();
++	if (Number.isNaN(deadlineMs)) {
++		return <span className="sr-only">Fecha límite inválida</span>;
++	}
++
++	const hoursRemaining = (deadlineMs - Date.now()) / (1000 * 60 * 60);
++	const state = resolveState(hoursRemaining);
++	const label =
++		state === "overdue"
++			? `SLA vencido hace ${formatSpan(hoursRemaining)}`
++			: `SLA vence en ${formatSpan(hoursRemaining)}`;
++
++	return (
++		<span
++			className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${STATE_CLASSES[state]}`}
++			title={new Intl.DateTimeFormat("es-CO", {
++				dateStyle: "medium",
++				timeStyle: "short",
++			}).format(deadlineMs)}
++		>
++			{state === "on_track" ? (
++				<CalendarClock className="size-3" aria-hidden="true" />
++			) : (
++				<TriangleAlert className="size-3" aria-hidden="true" />
++			)}
++			{label}
++		</span>
++	);
++}
+diff --git a/frontend/src/modules/service-cases/components/__tests__/CockpitEnrichment.test.tsx b/frontend/src/modules/service-cases/components/__tests__/CockpitEnrichment.test.tsx
+new file mode 100644
+index 0000000..5605270
+--- /dev/null
++++ b/frontend/src/modules/service-cases/components/__tests__/CockpitEnrichment.test.tsx
+@@ -0,0 +1,94 @@
++import type { ClosureWorkflowSummary, CostTraceabilitySummary } from "@cermont/shared-types";
++import { fireEvent, render, screen } from "@testing-library/react";
++import { describe, expect, it } from "vitest";
++import { AdministrativeClosurePipeline } from "../AdministrativeClosurePipeline";
++import { CockpitTabs } from "../CockpitTabs";
++import { SlaDeadlineBadge } from "../SlaDeadlineBadge";
++
++const BILLING: CostTraceabilitySummary["billing"] = {
++	sesValue: 1_000_000,
++	invoiceValue: 1_000_000,
++	paidValue: 0,
++	pendingValue: 1_000_000,
++};
++
++function buildClosure(overrides: Partial<ClosureWorkflowSummary>): ClosureWorkflowSummary {
++	return {
++		deliveryRecordSigned: false,
++		sesSubmitted: false,
++		sesApproved: false,
++		invoiceSubmitted: false,
++		invoiceApproved: false,
++		paymentReconciled: false,
++		caseClosed: false,
++		daysOverdue: 0,
++		closingPackageReady: false,
++		...overrides,
++	};
++}
++
++describe("AdministrativeClosurePipeline", () => {
++	it("renders the four closure stages with their status", () => {
++		render(
++			<AdministrativeClosurePipeline
++				closure={buildClosure({ deliveryRecordSigned: true, sesSubmitted: true })}
++				billing={BILLING}
++			/>,
++		);
++
++		expect(screen.getByText("Acta de entrega")).toBeDefined();
++		expect(screen.getByText("SES / Ariba")).toBeDefined();
++		expect(screen.getByText("Factura")).toBeDefined();
++		expect(screen.getByText("Pago")).toBeDefined();
++		expect(screen.getByText("Radicada, esperando aprobación")).toBeDefined();
++	});
++
++	it("shows an overdue alert when the closure is late", () => {
++		render(
++			<AdministrativeClosurePipeline
++				closure={buildClosure({ daysOverdue: 12 })}
++				billing={BILLING}
++			/>,
++		);
++
++		expect(screen.getByRole("alert").textContent).toContain("12 días");
++	});
++});
++
++describe("CockpitTabs", () => {
++	it("renders only the active panel and switches on click", () => {
++		render(
++			<CockpitTabs
++				ariaLabel="Contenido del caso"
++				tabs={[
++					{ id: "one", label: "Documentos", badge: 3, content: <p>Panel documentos</p> },
++					{ id: "two", label: "Evidencias", content: <p>Panel evidencias</p> },
++				]}
++			/>,
++		);
++
++		expect(screen.getByText("Panel documentos")).toBeDefined();
++		expect(screen.queryByText("Panel evidencias")).toBeNull();
++
++		fireEvent.click(screen.getByRole("tab", { name: /evidencias/i }));
++
++		expect(screen.getByText("Panel evidencias")).toBeDefined();
++		expect(screen.queryByText("Panel documentos")).toBeNull();
++	});
++});
++
++describe("SlaDeadlineBadge", () => {
++	it("marks an expired deadline as overdue", () => {
++		const past = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
++		render(<SlaDeadlineBadge deadline={past} />);
++
++		expect(screen.getByText(/SLA vencido hace/i)).toBeDefined();
++	});
++
++	it("shows remaining time for a future deadline", () => {
++		const future = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
++		render(<SlaDeadlineBadge deadline={future} />);
++
++		expect(screen.getByText(/SLA vence en/i)).toBeDefined();
++	});
++});
+diff --git a/specs/014-frontend-profesionalizacion/audit-endpoints.md b/specs/014-frontend-profesionalizacion/audit-endpoints.md
+new file mode 100644
+index 0000000..1b22480
+--- /dev/null
++++ b/specs/014-frontend-profesionalizacion/audit-endpoints.md
+@@ -0,0 +1,34 @@
++# Spec-014 — Auditoría previa: endpoints existentes vs UI necesaria
++
++> Fecha: 2026-07-04 · Verificado físicamente contra el checkout principal
++> (rama `implement/spec-010-modulos-14-pasos` + WIP de spec-012/013 sin commitear).
++> Regla aplicada (memoria spec-013): *no confiar en claims externos de "falta X" — verificar nombres canónicos*.
++
++## Tabla de auditoría (sección 1.2 del plan)
++
++| Endpoint (plan Spec-014) | ¿Existe? | Nombre canónico real | UI existente | Acción Spec-014 |
++|---|---|---|---|---|
++| `GET /service-cases/:id/cockpit` | ✅ | `service-case.routes.ts:53` — contrato `ServiceCaseWorkflowViewSchema` (`service-case-workflow.schema.ts`: `OperationalStepProgressItem`, `WorkflowNextAction`, `ClosureWorkflowSummary`, `CostTraceabilitySummary`) | `frontend/src/modules/service-cases/components/ServiceCaseWorkflowCockpit.tsx` | **Enriquecer** (progress bar 14 pasos, tabs, blockers) — NO crear módulo `cockpit/` duplicado |
++| `GET /planning-packets/:id/readiness` | ✅ | `planning-packet.routes.ts:102` + `planning-readiness.service.ts` + hook `usePlanningReadiness` | Panel parcial | Completar `ReadinessGatesPanel` visual |
++| `POST /planning-packets/:id/approve` | ✅ | `planning-packet.routes.ts:129` — ya gated por readiness (spec-013) | — | Nada backend |
++| `POST /execution-sessions/:id/preflight` | ❌ | No existe ruta ni `PreflightChecklistSchema` en shared-types | No existe | **Crear** schema + endpoint + `PreflightGatesForm` (Sprint 3) |
++| `GET /costs/:orderId/intelligence` | △ | `GET /costs/order/:orderId/summary` — `CostSummarySchema` ya tiene `budgetRisk`, `grossMarginPercent`, `budgetConsumptionPercent` | `CostComparisonChart` wired | UI: gauge + desviación por categoría sobre summary existente |
++| `GET /costs/catalog` | ✅ | `cost.routes.ts:42` + `cost-catalog.service.ts` | `CostCatalogPanel` | Nada backend |
++| `POST /costs/catalog` | ✅ | `cost.routes.ts:51` (MANAGEMENT_ROLES, audit COST_CATALOG_ITEM_CREATED) | Form en `CostCatalogPanel` | Nada |
++| `GET /dashboard/operational-kpis` | △ | Embebido en `GET /dashboard/summary` → `maintenanceEfficiency` (`mttrHours`, `mtbfDays`, `maintenanceCompletionRate`, `technicianUtilizationPct`) vía `dashboard-efficiency.service.ts` | Sin widgets MTTR/MTBF | UI: `MTTRMTBFCards`, gauge FTR (falta `firstTimeFixRate` en schema — agregar opcional) |
++| `GET /dashboard/sla-risk` | ❌ | No hay lista de órdenes en riesgo SLA; existen `blockers`, `nextActions`, `financialAging` en summary | `DashboardSlaWidget` (agregados) | Evaluar: extender summary con `slaRiskOrders` opcional (Sprint 2) |
++| `GET /execution-sessions/:id` | ✅ | `execution-session.routes.ts:48` + start/pause/resume/complete/evidences/materials/labor/signatures/sync | Módulo `execution` | UI field mode: timer + slots evidencia (Sprint 3) |
++| `GET /reports/:serviceCaseId/auto-draft` | △ | `POST /technical-reports/:id/generate` + `execution-technical-report.routes.ts` (GET+POST) generan desde datos | Página reports | Verificar cobertura; completar draft editable (Sprint 4) |
++| `POST /evidence/:id/review` | ✅ | FSM spec-009: `POST /evidence/:id/verify` + `POST /evidence/:id/replace` + gallery `GET /evidence/order/:orderId/gallery` | Galería evidencias | UI review panel + badges FSM (Sprint 3) |
++| `GET /notifications` | ✅ | `notifications.routes.ts:19` + `PATCH /:id/read` + `POST /mark-all-read` | Módulo `notifications` básico | UI bell+panel (Sprint 5) |
++| `GET /notifications/unread-count` | ❌ | No existe | — | **Crear** endpoint (Sprint 5) |
++| `GET /service-cases/:id/invoice-pipeline` | ❌ | Invoice tiene workflow (submit/approve/reject/payment) pero no vista pipeline agregada | — | **Crear** o derivar de `administrativeClosure`/`financialAging` (Sprint 4) |
++| `POST /reports/:id/sign` | △ | `technical-report` submit/approve; firma acta: `POST /portal/delivery-records/:id/sign` + módulo `client-signature` | `delivery-records/[id]/signature` page | Completar firma técnica (Sprint 4) |
++| `GET /portal/service-cases` | ✅ | `portal.routes.ts`: `/dashboard`, `/orders`, `/orders/:id`, `/invoices`, `/proposals`, `/delivery-records/:id/sign` | Módulo `portal` frontend | Completar vistas (Sprint 5) |
++
++## Hallazgos estructurales
++
++1. **El worktree de Claude está desactualizado** — el WIP de spec-012/013 (dependencia dura de Spec-014) vive sin commitear en el checkout principal. Todo Spec-014 se ejecuta sobre el checkout principal.
++2. **El plan Spec-014 asume nombres que no son los canónicos.** El cockpit ya existe como `ServiceCaseWorkflowView` / `ServiceCaseWorkflowCockpit`. Crear `frontend/src/modules/cockpit/` violaría la regla "no módulos duplicados" (REGLAS_DESARROLLO §2). Se enriquece lo existente.
++3. **Frontend ya tiene 44 módulos** — dashboard, costs, evidences, execution, notifications, portal, reports existen. Spec-014 = enriquecimiento, no creación.
++4. Gaps reales confirmados a crear: `PreflightChecklistSchema` + endpoint preflight, `unread-count`, `firstTimeFixRate`, lista SLA-risk, pipeline visual facturación, UI de campo (timer/slots), bell de notificaciones.
+-- 
+2.51.1.windows.1
+

@@ -1,0 +1,14 @@
+
+> @cermont/frontend@1.2.0 typecheck
+> tsc --noEmit
+
+src/app/(dashboard)/dashboard/page.tsx(556,10): error TS6133: 'DashboardStatusSummary' is declared but its value is never read.
+src/app/(dashboard)/planning/[id]/page.tsx(48,7): error TS2304: Cannot find name 'AlertTriangle'.
+src/app/(dashboard)/planning/[id]/page.tsx(61,7): error TS2304: Cannot find name 'AlertTriangle'.
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 2
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit

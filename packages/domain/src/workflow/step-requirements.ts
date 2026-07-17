@@ -87,6 +87,12 @@ const STEP_REQUIREMENTS: Readonly<Record<string, readonly StepRequirement[]>> = 
 	],
 	purchase_order: [
 		{ id: "client_po", label: "Orden de compra aprobada", kind: "approval", required: true },
+		{
+			id: "proposal_approved",
+			label: "Propuesta aprobada por el cliente",
+			kind: "approval",
+			required: true,
+		},
 	],
 	planning: [
 		{ id: "ats", label: "ATS", kind: "document", required: true },
@@ -102,6 +108,12 @@ const STEP_REQUIREMENTS: Readonly<Record<string, readonly StepRequirement[]>> = 
 			kind: "approval",
 			required: true,
 		},
+		{
+			id: "planning_approved",
+			label: "Planeación aprobada sin bloqueos críticos",
+			kind: "approval",
+			required: true,
+		},
 	],
 	evidences: [
 		{
@@ -111,12 +123,24 @@ const STEP_REQUIREMENTS: Readonly<Record<string, readonly StepRequirement[]>> = 
 			required: true,
 		},
 		{ id: "actual_costs", label: "Costos reales registrados", kind: "cost", required: true },
+		{
+			id: "session_completed",
+			label: "Sesión de ejecución completada",
+			kind: "approval",
+			required: true,
+		},
 	],
 	technical_report: [
 		{ id: "technical_report", label: "Informe técnico", kind: "document", required: true },
 	],
 	delivery_record: [
 		{ id: "delivery_record", label: "Acta de entrega", kind: "document", required: true },
+		{
+			id: "report_approved",
+			label: "Informe técnico aprobado",
+			kind: "approval",
+			required: true,
+		},
 	],
 	client_signature: [
 		{
@@ -126,12 +150,36 @@ const STEP_REQUIREMENTS: Readonly<Record<string, readonly StepRequirement[]>> = 
 			required: true,
 		},
 	],
-	ses: [{ id: "ses_approved", label: "SES / Ariba aprobada", kind: "approval", required: true }],
-	invoice: [{ id: "invoice", label: "Factura emitida", kind: "document", required: true }],
+	ses: [
+		{ id: "ses_approved", label: "SES / Ariba aprobada", kind: "approval", required: true },
+		{
+			id: "acceptance_registered",
+			label: "Aceptación del servicio registrada por el cliente",
+			kind: "approval",
+			required: true,
+		},
+	],
+	invoice: [
+		{ id: "invoice", label: "Factura emitida", kind: "document", required: true },
+		{
+			id: "ses_approved",
+			label: "SES / Ariba aprobada",
+			kind: "approval",
+			required: true,
+		},
+	],
 	invoice_approval: [
 		{ id: "invoice_approved", label: "Factura aprobada", kind: "approval", required: true },
 	],
-	payment: [{ id: "payment_record", label: "Pago registrado", kind: "approval", required: true }],
+	payment: [
+		{ id: "payment_record", label: "Pago registrado", kind: "approval", required: true },
+		{
+			id: "invoice_approved",
+			label: "Factura aprobada para pago",
+			kind: "approval",
+			required: true,
+		},
+	],
 };
 
 function normalizeStepKey(stepKey: string): string {

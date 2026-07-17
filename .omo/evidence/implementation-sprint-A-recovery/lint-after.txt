@@ -1,0 +1,207 @@
+
+> cermont-monorepo@1.0.0 lint
+> turbo run lint
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running lint in 5 packages
+   • Remote caching disabled
+
+@cermont/config:lint: cache hit, replaying logs 6a5be924bf5897dd
+@cermont/config:lint: 
+@cermont/config:lint: > @cermont/config@1.0.0 lint
+@cermont/config:lint: > biome check .
+@cermont/config:lint: 
+@cermont/config:lint: Checked 4 files in 21ms. No fixes applied.
+@cermont/domain:lint: cache hit, replaying logs d32870e1519dc150
+@cermont/domain:lint: 
+@cermont/domain:lint: > @cermont/domain@1.0.0 lint
+@cermont/domain:lint: > biome check .
+@cermont/domain:lint: 
+@cermont/domain:lint: Checked 30 files in 36ms. No fixes applied.
+@cermont/domain:build: cache hit, replaying logs 7adef73b384b74cc
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:lint: cache hit, replaying logs cac74099f3d22320
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: > @cermont/shared-types@1.0.0 lint
+@cermont/shared-types:lint: > biome check .
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: Checked 174 files in 178ms. No fixes applied.
+@cermont/shared-types:build: cache hit, replaying logs f1e351eb5567f810
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:lint: cache hit, replaying logs b1eb77ee7386ac4b
+@cermont/frontend:lint: cache miss, executing 1b6fae0801d3a4e2
+@cermont/backend:lint: 
+@cermont/backend:lint: > @cermont/backend@5.2.1 lint
+@cermont/backend:lint: > biome lint .
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\payment\payment.service.ts:7:15 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   ! Unexpected any. Specify a different type.
+@cermont/backend:lint:   
+@cermont/backend:lint:     5 │ import { Payment as PaymentModel } from "../../models/Payment";
+@cermont/backend:lint:     6 │ 
+@cermont/backend:lint:   > 7 │ type PayDoc = any;
+@cermont/backend:lint:       │               ^^^
+@cermont/backend:lint:     8 │ 
+@cermont/backend:lint:     9 │ const VALID_TRANSITIONS: Record<string, string[]> = {
+@cermont/backend:lint:   
+@cermont/backend:lint:   i any disables many type checking rules. Its use should be avoided.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\payment\payment.service.ts:33:16 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   ! Unexpected any. Specify a different type.
+@cermont/backend:lint:   
+@cermont/backend:lint:     31 │ 	query: ListQuery,
+@cermont/backend:lint:     32 │ ): Promise<{ data: PayDoc[]; total: number; page: number; limit: number; pages: number }> {
+@cermont/backend:lint:   > 33 │ 	const filter: any = {};
+@cermont/backend:lint:        │ 	              ^^^
+@cermont/backend:lint:     34 │ 	if (query.orderId) {
+@cermont/backend:lint:     35 │ 		filter.workOrderId = new Types.ObjectId(query.orderId);
+@cermont/backend:lint:   
+@cermont/backend:lint:   i any disables many type checking rules. Its use should be avoided.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\service-entry-sheet\service-entry-sheet.service.ts:6:15 lint/suspicious/noExplicitAny ━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   ! Unexpected any. Specify a different type.
+@cermont/backend:lint:   
+@cermont/backend:lint:     4 │ import { ServiceEntrySheet as ServiceEntrySheetModel } from "../../models/ServiceEntrySheet";
+@cermont/backend:lint:     5 │ 
+@cermont/backend:lint:   > 6 │ type SesDoc = any;
+@cermont/backend:lint:       │               ^^^
+@cermont/backend:lint:     7 │ 
+@cermont/backend:lint:     8 │ const VALID_TRANSITIONS: Record<string, string[]> = {
+@cermont/backend:lint:   
+@cermont/backend:lint:   i any disables many type checking rules. Its use should be avoided.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\service-entry-sheet\service-entry-sheet.service.ts:33:16 lint/suspicious/noExplicitAny ━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   ! Unexpected any. Specify a different type.
+@cermont/backend:lint:   
+@cermont/backend:lint:     31 │ 	query: ListQuery,
+@cermont/backend:lint:     32 │ ): Promise<{ data: SesDoc[]; total: number; page: number; limit: number; pages: number }> {
+@cermont/backend:lint:   > 33 │ 	const filter: any = {};
+@cermont/backend:lint:        │ 	              ^^^
+@cermont/backend:lint:     34 │ 	if (query.orderId) {
+@cermont/backend:lint:     35 │ 		filter.workOrderId = new Types.ObjectId(query.orderId);
+@cermont/backend:lint:   
+@cermont/backend:lint:   i any disables many type checking rules. Its use should be avoided.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\service-entry-sheet\service-entry-sheet.service.ts:62:9 lint/suspicious/noExplicitAny ━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   ! Unexpected any. Specify a different type.
+@cermont/backend:lint:   
+@cermont/backend:lint:     61 │ export async function createServiceEntrySheet(
+@cermont/backend:lint:   > 62 │ 	input: any,
+@cermont/backend:lint:        │ 	       ^^^
+@cermont/backend:lint:     63 │ 	actor: string,
+@cermont/backend:lint:     64 │ ): Promise<SesDoc> {
+@cermont/backend:lint:   
+@cermont/backend:lint:   i any disables many type checking rules. Its use should be avoided.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\technical-report\technical-report.service.ts:6:22 lint/suspicious/noExplicitAny ━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   ! Unexpected any. Specify a different type.
+@cermont/backend:lint:   
+@cermont/backend:lint:     4 │ import { TechnicalReport as TechnicalReportModel } from "../../models/TechnicalReport";
+@cermont/backend:lint:     5 │ 
+@cermont/backend:lint:   > 6 │ type TechReportDoc = any;
+@cermont/backend:lint:       │                      ^^^
+@cermont/backend:lint:     7 │ 
+@cermont/backend:lint:     8 │ const VALID_TRANSITIONS: Record<string, string[]> = {
+@cermont/backend:lint:   
+@cermont/backend:lint:   i any disables many type checking rules. Its use should be avoided.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\technical-report\technical-report.service.ts:32:16 lint/suspicious/noExplicitAny ━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   ! Unexpected any. Specify a different type.
+@cermont/backend:lint:   
+@cermont/backend:lint:     30 │ 	query: ListQuery,
+@cermont/backend:lint:     31 │ ): Promise<{ data: TechReportDoc[]; total: number; page: number; limit: number; pages: number }> {
+@cermont/backend:lint:   > 32 │ 	const filter: any = {};
+@cermont/backend:lint:        │ 	              ^^^
+@cermont/backend:lint:     33 │ 	if (query.orderId) {
+@cermont/backend:lint:     34 │ 		filter.workOrderId = new Types.ObjectId(query.orderId);
+@cermont/backend:lint:   
+@cermont/backend:lint:   i any disables many type checking rules. Its use should be avoided.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\technical-report\technical-report.service.ts:71:9 lint/suspicious/noExplicitAny ━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   ! Unexpected any. Specify a different type.
+@cermont/backend:lint:   
+@cermont/backend:lint:     70 │ export async function createTechnicalReport(
+@cermont/backend:lint:   > 71 │ 	input: any,
+@cermont/backend:lint:        │ 	       ^^^
+@cermont/backend:lint:     72 │ 	actor: string,
+@cermont/backend:lint:     73 │ ): Promise<TechReportDoc> {
+@cermont/backend:lint:   
+@cermont/backend:lint:   i any disables many type checking rules. Its use should be avoided.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/backend:lint: Checked 479 files in 333ms. No fixes applied.
+@cermont/backend:lint: Found 8 warnings.
+@cermont/frontend:lint: 
+@cermont/frontend:lint: > @cermont/frontend@1.2.0 lint
+@cermont/frontend:lint: > biome lint .
+@cermont/frontend:lint: 
+@cermont/frontend:lint: src\modules\planning\ui\PlanningResourcesSummary.tsx:121:36 lint/suspicious/noArrayIndexKey ━━━━━━━━━━
+@cermont/frontend:lint: 
+@cermont/frontend:lint:   × Avoid using the index of an array as key property in an element.
+@cermont/frontend:lint:   
+@cermont/frontend:lint:     119 │ 								{section.items.map((item, idx) => (
+@cermont/frontend:lint:     120 │ 									<li
+@cermont/frontend:lint:   > 121 │ 										key={`${section.label}-${idx}`}
+@cermont/frontend:lint:         │ 										                         ^^^
+@cermont/frontend:lint:     122 │ 										className="rounded-[var(--radius-sm)] bg-[var(--surface-secondary)] px-2.5 py-1.5 text-[11px] text-[var(--text-primary)]"
+@cermont/frontend:lint:     123 │ 									>
+@cermont/frontend:lint:   
+@cermont/frontend:lint:   i This is the source of the key value.
+@cermont/frontend:lint:   
+@cermont/frontend:lint:     117 │ 						{section.items.length > 0 ? (
+@cermont/frontend:lint:     118 │ 							<ul className="space-y-1">
+@cermont/frontend:lint:   > 119 │ 								{section.items.map((item, idx) => (
+@cermont/frontend:lint:         │ 								                          ^^^
+@cermont/frontend:lint:     120 │ 									<li
+@cermont/frontend:lint:     121 │ 										key={`${section.label}-${idx}`}
+@cermont/frontend:lint:   
+@cermont/frontend:lint:   i The order of the items may change, and this also affects performances and component state.
+@cermont/frontend:lint:   
+@cermont/frontend:lint:   i Check the React documentation. 
+@cermont/frontend:lint:   
+@cermont/frontend:lint: 
+@cermont/frontend:lint: Checked 880 files in 489ms. No fixes applied.
+@cermont/frontend:lint: Found 1 error.
+@cermont/frontend:lint: lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/frontend:lint: 
+@cermont/frontend:lint:   × Some errors were emitted while running checks.
+@cermont/frontend:lint:   
+@cermont/frontend:lint: 
+@cermont/frontend:lint: npm error Lifecycle script `lint` failed with error:
+@cermont/frontend:lint: npm error code 1
+@cermont/frontend:lint: npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+@cermont/frontend:lint: npm error workspace @cermont/frontend@1.2.0
+@cermont/frontend:lint: npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+@cermont/frontend:lint: npm error command failed
+@cermont/frontend:lint: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c biome lint .
+ ERROR  @cermont/frontend#lint: command (C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend) C:\Program Files\nodejs\npm.cmd run lint exited (1)
+
+ Tasks:    6 successful, 7 total
+Cached:    6 cached, 7 total
+  Time:    1.48s 
+Failed:    @cermont/frontend#lint
+
+ ERROR  run failed: command  exited (1)

@@ -1,3 +1,14 @@
+export interface DashboardSummaryData {
+	pipeline?: { totalActive?: number; totalClosed?: number; [key: string]: unknown };
+	financialAging?: DashboardFinancialAging;
+	blockers?: DashboardBlockerSummary;
+	assetMaintenance?: DashboardAssetMaintenance;
+	costVariance?: DashboardCostVariance;
+	charts?: DashboardCharts;
+	documentWorkload?: DashboardDocumentWorkload;
+	administrativeClosure?: DashboardAdministrativeClosure;
+}
+
 /**
  * Dashboard hooks — TanStack Query for business KPIs
  *
@@ -126,3 +137,5 @@ export function useDashboardSlaRisk() {
 		staleTime: 30_000,
 	});
 }
+
+

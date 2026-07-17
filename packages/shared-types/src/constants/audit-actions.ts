@@ -102,6 +102,7 @@ export const AUDIT_ACTIONS = {
 	// ── Authentication & Users ───────────────────────────────────────
 	LOGIN_SUCCESS: "LOGIN_SUCCESS",
 	LOGOUT: "LOGOUT",
+	SESSION_REVOKED: "SESSION_REVOKED",
 	REFRESH_TOKEN_REUSE_DETECTED: "REFRESH_TOKEN_REUSE_DETECTED",
 	USER_CREATED: "USER_CREATED",
 	USER_UPDATED: "USER_UPDATED",
@@ -203,6 +204,12 @@ export const AUDIT_ACTIONS = {
 
 	// ── Field execution preflight (Spec-015) ─────────────────────────
 	PREFLIGHT_SUBMITTED: "PREFLIGHT_SUBMITTED",
+
+	// ── AI (F29) ─────────────────────────────────────────────────────
+	AI_CHAT_COMPLETION: "AI_CHAT_COMPLETION",
+
+	// ── Integrations (F30) ─────────────────────────────────────────────
+	INTEGRATION_FAILED: "INTEGRATION_FAILED",
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

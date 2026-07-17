@@ -1,0 +1,457 @@
+
+> cermont-monorepo@1.0.0 verify
+> npm run verify:shared-types && npm run verify:domain && npm run verify:config && npm run verify:backend && npm run verify:frontend && npm run contracts:check && npm run quality:strict && npm run doctor:verbose -w frontend
+
+
+> cermont-monorepo@1.0.0 verify:shared-types
+> npm run typecheck -w @cermont/shared-types && npm run lint -w @cermont/shared-types && npm run test -w @cermont/shared-types && npm run build -w @cermont/shared-types
+
+
+> @cermont/shared-types@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/shared-types@1.0.0 lint
+> biome check .
+
+Checked 174 files in 432ms. No fixes applied.
+
+> @cermont/shared-types@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types
+
+
+ Test Files  31 passed (31)
+      Tests  181 passed (181)
+   Start at  10:56:04
+   Duration  3.16s (transform 9.69s, setup 0ms, import 25.91s, tests 778ms, environment 4ms)
+
+
+> @cermont/shared-types@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:domain
+> npm run typecheck -w @cermont/domain && npm run lint -w @cermont/domain && npm run build -w @cermont/domain
+
+
+> @cermont/domain@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/domain@1.0.0 lint
+> biome check .
+
+Checked 30 files in 63ms. No fixes applied.
+
+> @cermont/domain@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:config
+> npm run typecheck -w @cermont/config && npm run lint -w @cermont/config && npm run build -w @cermont/config
+
+
+> @cermont/config@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/config@1.0.0 lint
+> biome check .
+
+Checked 4 files in 26ms. No fixes applied.
+
+> @cermont/config@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:backend
+> npm run typecheck -w backend && npm run lint -w backend && npm run test -w backend && npm run build -w backend
+
+
+> @cermont/backend@5.2.1 typecheck
+> tsc --noEmit
+
+
+> @cermont/backend@5.2.1 lint
+> biome lint .
+
+Checked 479 files in 860ms. No fixes applied.
+
+> @cermont/backend@5.2.1 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend
+
+
+ Test Files  102 passed (102)
+      Tests  686 passed (686)
+   Start at  10:56:42
+   Duration  15.80s (transform 18.47s, setup 2.80s, import 148.12s, tests 10.40s, environment 19ms)
+
+
+> @cermont/backend@5.2.1 build
+> tsc
+
+
+> cermont-monorepo@1.0.0 verify:frontend
+> npm run typecheck -w frontend && npm run lint -w frontend && npm run test -w frontend && npm run build -w frontend
+
+
+> @cermont/frontend@1.2.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/frontend@1.2.0 lint
+> biome lint .
+
+Checked 863 files in 499ms. No fixes applied.
+
+> @cermont/frontend@1.2.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend
+
+
+ Test Files  83 passed (83)
+      Tests  411 passed (411)
+   Start at  10:57:24
+   Duration  31.68s (transform 7.82s, setup 30.68s, import 70.06s, tests 16.87s, environment 292.50s)
+
+
+> @cermont/frontend@1.2.0 build
+> next build --turbopack
+
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local, .env.production
+- Experiments (use with caution):
+  · optimizePackageImports
+  · serverActions
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.0s
+  Running TypeScript ...
+  Finished TypeScript in 16.4s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/96) ...
+  Generating static pages using 15 workers (24/96) 
+  Generating static pages using 15 workers (48/96) 
+  Generating static pages using 15 workers (72/96) 
+○ (serwist) Using esbuild to bundle the service worker.
+✓ (serwist) 242 precache entries (6701.89 KiB)
+✓ Generating static pages using 15 workers (96/96) in 1396ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /~offline
+├ ƒ /admin
+├ ƒ /admin/audit
+├ ƒ /admin/backups
+├ ƒ /admin/custom-fields
+├ ƒ /admin/erp-connectors
+├ ƒ /admin/personnel
+├ ƒ /admin/settings
+├ ƒ /admin/users
+├ ƒ /admin/users/[id]
+├ ƒ /admin/users/[id]/edit
+├ ƒ /admin/users/new
+├ ƒ /api/auth/forgot-password
+├ ƒ /api/auth/login
+├ ƒ /api/auth/refresh
+├ ƒ /api/auth/register-client
+├ ƒ /api/backend/[...path]
+├ ƒ /api/files/[id]/content
+├ ƒ /api/health
+├ ƒ /assets
+├ ƒ /assets/[id]
+├ ƒ /billing
+├ ƒ /billing/invoices
+├ ƒ /billing/invoices/[id]
+├ ƒ /billing/invoices/[id]/approve
+├ ƒ /billing/invoices/new
+├ ƒ /billing/ses
+├ ƒ /billing/ses/[id]
+├ ƒ /billing/ses/[id]/approve
+├ ƒ /billing/ses/new
+├ ƒ /business-documents
+├ ƒ /business-documents/[id]
+├ ƒ /checklists
+├ ○ /consent
+├ ƒ /costs
+├ ƒ /costs/[orderId]
+├ ƒ /costs/[orderId]/ejecucion
+├ ƒ /costs/catalog
+├ ƒ /customers
+├ ƒ /customers/[id]
+├ ƒ /customers/new
+├ ƒ /dashboard
+├ ƒ /delivery-records
+├ ƒ /delivery-records/[id]
+├ ƒ /delivery-records/[id]/signature
+├ ƒ /delivery-records/new
+├ ƒ /dispatch
+├ ƒ /documents
+├ ƒ /documents/ingestion/[id]
+├ ƒ /documents/templates
+├ ƒ /documents/templates/new
+├ ƒ /erp-connector
+├ ƒ /evidences
+├ ƒ /evidences/[id]
+├ ƒ /evidences/report
+├ ƒ /execution
+├ ƒ /execution-sessions/[id]
+├ ƒ /execution/[id]
+├ ƒ /execution/new
+├ ƒ /fleet
+├ ƒ /fleet/[id]
+├ ○ /forgot-password
+├ ƒ /forms
+├ ƒ /forms/[templateId]
+├ ƒ /inventory
+├ ƒ /inventory/scan
+├ ƒ /invoices/[id]/pipeline
+├ ○ /login
+├ ƒ /maintenance
+├ ƒ /maintenance/[id]
+├ ƒ /maintenance/[id]/edit
+├ ƒ /maintenance/new
+├ ƒ /maintenance/schedules
+├ ƒ /notifications
+├ ƒ /offline-sync
+├ ƒ /orders
+├ ƒ /orders/[id]
+├ ƒ /orders/[id]/asts
+├ ƒ /orders/[id]/costs
+├ ƒ /orders/[id]/edit
+├ ƒ /orders/[id]/execution
+├ ƒ /orders/[id]/inspections/[inspectionId]
+├ ƒ /orders/[id]/invoice
+├ ƒ /orders/[id]/planning
+├ ƒ /orders/kanban
+├ ƒ /orders/new
+├ ƒ /payments
+├ ƒ /payments/[id]
+├ ƒ /payments/new
+├ ƒ /planning
+├ ƒ /planning-packet/new
+├ ƒ /planning/[id]
+├ ○ /portal
+├ ○ /portal/invoices
+├ ○ /portal/orders
+├ ƒ /portal/orders/[id]
+├ ○ /portal/proposals
+├ ○ /portal/service-cases
+├ ƒ /portal/service-cases/[id]
+├ ƒ /portal/signatures/[id]
+├ ○ /privacy
+├ ƒ /profile
+├ ƒ /profile/privacy
+├ ƒ /proposals
+├ ƒ /proposals/[id]
+├ ƒ /proposals/new
+├ ƒ /purchase-orders
+├ ƒ /purchase-orders/[id]
+├ ƒ /purchase-orders/new
+├ ƒ /register
+├ ƒ /reports
+├ ƒ /reports/[id]
+├ ƒ /reports/[id]/draft
+├ ƒ /reports/[id]/sign
+├ ƒ /reports/analytics
+├ ƒ /reports/archive
+├ ƒ /reports/new
+├ ○ /reset-password
+├ ƒ /resources
+├ ƒ /resources/[id]
+├ ƒ /resources/kits
+├ ƒ /resources/kits/new
+├ ○ /robots.txt
+├ ƒ /service-cases
+├ ƒ /service-cases/[id]
+├ ƒ /serwist
+├ ● /serwist/[path]
+│ ├ /serwist/sw.js.map
+│ └ /serwist/sw.js
+├ ƒ /settings/notifications
+├ ƒ /site-visits
+├ ƒ /site-visits/[id]
+├ ƒ /site-visits/new
+├ ○ /sitemap.xml
+├ ƒ /sla
+├ ƒ /templates
+├ ƒ /templates/[id]
+├ ○ /terms
+├ ƒ /tools
+├ ○ /unauthorized
+├ ƒ /work-requests
+├ ƒ /work-requests/[id]
+└ ƒ /work-requests/new
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+> cermont-monorepo@1.0.0 contracts:check
+> tsx tooling/contracts/check-contract-guard.ts
+
+✅ API contracts guard passed.
+   Snapshot hash: sha256:034404b932a789d1461a8261996b910e4024993cbca99b15c8497e72cd5a6c5a
+   Latest migration: 073-query-helpers-filterquery-type
+
+> cermont-monorepo@1.0.0 quality:strict
+> npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size && npm run quality:env && npm run quality:hardcoded-roles
+
+
+> cermont-monorepo@1.0.0 quality:weak-tokens
+> tsx tooling/quality/check-weak-tokens.ts
+
+Weak token quality check: 3013 findings
+- weak-token-a: 83/85 within baseline
+- weak-token-n: 1519/1546 within baseline
+- weak-token-u: 636/638 within baseline
+- weak-token-ud: 775/783 within baseline
+
+> cermont-monorepo@1.0.0 quality:language
+> tsx tooling/quality/check-language.ts
+
+Language quality check: 2804 findings
+- spanish-source-token: 2804/2821 within baseline
+
+> cermont-monorepo@1.0.0 quality:semantics
+> tsx tooling/quality/check-semantics.ts
+
+Semantic markup quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:routes
+> tsx tooling/quality/check-routes.ts
+
+Backend route quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:dtos
+> tsx tooling/quality/check-dtos.ts
+
+Local DTO quality check: 43 findings
+- local-api-dto: 43/44 within baseline
+
+> cermont-monorepo@1.0.0 quality:zero
+> tsx tooling/quality/check-zero-rules.ts
+
+Zero rules quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:lint-residue
+> tsx tooling/quality/check-lint-residue.ts
+
+Lint residue quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:service-size
+> tsx tooling/quality/check-service-size.ts
+
+Application service size quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:env
+> tsx tooling/quality/check-env-config.ts
+
+
+🔍 Environment Configuration Verification
+
+✅ .env.example: OK
+✅ frontend/next.config.ts: OK
+✅ frontend/src/app/api/backend/[...path]/route.ts: OK
+✅ backend/.env.example: OK
+✅ frontend/.env.example: OK
+
+✅ All environment configuration checks passed.
+
+
+> cermont-monorepo@1.0.0 quality:hardcoded-roles
+> tsx tooling/quality/check-hardcoded-roles.ts
+
+Hardcoded roles checker: 0 violations found ✅
+
+> @cermont/frontend@1.2.0 doctor:verbose
+> react-doctor --verbose
+
+[1mReact Doctor[22m [2mv0.5.1[22m
+
+[90m  [39m
+
+  [33m⚠[39m [33mBugs: Derived value copied into state[39m
+    Storing "expandedSteps" in state when you can derive it
+    from other values costs an extra render.
+[2m    → Work out the value while rendering (or with useMemo if[22m
+[2m    it's expensive) instead of copying it into useState through[22m
+[2m    a useEffect. See[22m
+[2m    https://react.dev/learn/you-might-not-need-an-effect#updating-state-based-on-props-or-state[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/no-derived-state[39m
+
+[90m    src/modules/service-cases/components/OperationalStepProgress.tsx:135[39m
+
+  [33m⚠[39m [33mBugs: Event logic handled in an effect[39m [90m×2[39m
+    Faking an event handler with a prop plus a useEffect costs
+    an extra render & runs late.
+[2m    → Run the side effect in the event handler that triggers[22m
+[2m    it, instead of watching its state from a useEffect. See[22m
+[2m    https://react.dev/learn/you-might-not-need-an-effect#sharing-logic-between-event-handlers[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/no-event-handler[39m
+
+[90m    src/modules/service-cases/components/OperationalStepProgress.tsx:124-126[39m
+
+  [33m⚠[39m [33mMaintainability: Large component is hard to read and change[39m
+    Component "OperationalStepProgress" is 330 lines long,
+    which is hard to read & change. Split it into a few smaller
+    components.
+[2m    → Pull each section into its own component so the parent is[22m
+[2m    easier to read, test, and change.[22m
+[90m    Curl with no cache & follow the canonical fix and false positive check recipe before fixing: https://react.doctor/docs/rules/react-doctor/no-giant-component[39m
+
+[90m    src/modules/service-cases/components/OperationalStepProgress.tsx:115[39m
+
+
+[2m  ────────────────────────────────────────────────────────────[22m
+
+  [1mAll 4 issues[22m
+
+  [1mBugs[22m [2m>[22m [33m[2m3 warnings[22m[39m
+  [1mMaintainability[22m [2m>[22m [33m[2m1 warning[22m[39m
+
+[1mAgent guidance[22m
+[90m  - Treat React Doctor diagnostics as starting hypotheses. Read the relevant code before confirming or suppressing each finding.[39m
+[90m  - For each group, decide true positive, false positive, or needs-human-review, then assign high/medium/low confidence.[39m
+[90m  - Do not suppress a finding without evidence from the file in question. Confidence requires code context.[39m
+[90m  - Understand the root cause before editing. Fix the underlying code instead of changing react-doctor config or suppressing rules unless explicitly asked.[39m
+[90m  - Investigate deeply where relevant: race conditions, security-sensitive flows, state propagation, multi-file refactors, and downstream dependency chains.[39m
+[90m  - Ignore pure style preferences, theoretical issues without real impact, missing features, and unrelated pre-existing code.[39m
+[90m  - Start with high-confidence fixes that preserve behavior. Leave low-confidence or product-dependent changes as notes.[39m
+[90m  - Run `npx react-doctor@latest --verbose --diff` before and after changes, plus relevant tests after each focused batch.[39m
+[90m  - When available, spawn subagents or isolated worktrees for independent rule families, then review and merge only the best safe fixes.[39m
+[90m  - Split unrelated, broad, or behavior-changing work into separate PRs/branches instead of one large cleanup.[39m
+[90m  - For confirmed issues that cannot be fixed now, create GitHub issues with the rule, file/line, confidence, impact, and proposed fix.[39m
+[90m  - If a fix needs an API, UX, or architecture decision, stop and ask before editing.[39m
+
+  [32m┌─────┐[39m  [32m90[39m [2m/ 100[22m [32mGreat[39m
+  [32m│ ◠ ◠ │[39m  [32m█████████████████████████████████████████████[39m[2m░░░░░[22m
+  [32m│  ▽  │[39m  React Doctor [2m(https://react.doctor)[22m
+  [32m└─────┘[39m
+
+[90m  Full diagnostics written to C:\WINDOWS\TEMP\react-doctor-0ab3c461-992a-4ffa-9fa8-e5ae254cc20c[39m
+
+[2m  ────────────────────────────────────────────────────────────[22m
+
+  [1mShare:[22m [36mhttps://react.doctor/share?p=%40cermont%2Ffrontend&s=90&w=4&f=1[39m
+[2m  Tell others how you did on socials[22m
+
+  [1mDocs:[22m [36mhttps://react.doctor/docs[39m
+[2m  Learn more about fixing issues, setting up CI/CD, and[22m
+[2m  configuring rules with a config file[22m
+
+  [1mGitHub:[22m [36mhttps://github.com/millionco/react-doctor[39m
+[2m  Report issues and star the repository![22m
+

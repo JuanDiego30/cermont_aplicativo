@@ -22,6 +22,7 @@ export type ServiceCaseState =
 	| "purchase_order"
 	| "planning"
 	| "execution"
+	| "evidence"
 	| "technical_report"
 	| "delivery_record"
 	| "client_signature"
@@ -38,6 +39,7 @@ export type ServiceCaseEvent =
 	| { type: "PURCHASE_ORDER_APPROVED" }
 	| { type: "PLANNING_APPROVED" }
 	| { type: "EXECUTION_COMPLETED" }
+	| { type: "EVIDENCE_COMPLETED" }
 	| { type: "TECHNICAL_REPORT_APPROVED" }
 	| { type: "DELIVERY_RECORD_GENERATED" }
 	| { type: "CLIENT_SIGNATURE_REGISTERED" }
@@ -66,7 +68,8 @@ const TRANSITIONS: Readonly<
 	proposal: { PURCHASE_ORDER_APPROVED: "purchase_order" },
 	purchase_order: { PLANNING_APPROVED: "planning" },
 	planning: { EXECUTION_COMPLETED: "execution" },
-	execution: { TECHNICAL_REPORT_APPROVED: "technical_report" },
+	execution: { EVIDENCE_COMPLETED: "evidence" },
+	evidence: { TECHNICAL_REPORT_APPROVED: "technical_report" },
 	technical_report: { DELIVERY_RECORD_GENERATED: "delivery_record" },
 	delivery_record: { CLIENT_SIGNATURE_REGISTERED: "client_signature" },
 	client_signature: { SES_APPROVED: "ses" },

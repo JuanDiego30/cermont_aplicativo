@@ -1,0 +1,142 @@
+
+> cermont-monorepo@1.0.0 verify
+> npm run verify:shared-types && npm run verify:domain && npm run verify:config && npm run verify:backend && npm run verify:frontend && npm run contracts:check && npm run quality:strict && npm run doctor:verbose -w frontend
+
+
+> cermont-monorepo@1.0.0 verify:shared-types
+> npm run typecheck -w @cermont/shared-types && npm run lint -w @cermont/shared-types && npm run test -w @cermont/shared-types && npm run build -w @cermont/shared-types
+
+
+> @cermont/shared-types@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/shared-types@1.0.0 lint
+> biome check .
+
+Checked 174 files in 177ms. No fixes applied.
+
+> @cermont/shared-types@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types
+
+
+ Test Files  31 passed (31)
+      Tests  181 passed (181)
+   Start at  01:12:22
+   Duration  3.95s (transform 13.39s, setup 0ms, import 33.41s, tests 1.18s, environment 6ms)
+
+
+> @cermont/shared-types@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:domain
+> npm run typecheck -w @cermont/domain && npm run lint -w @cermont/domain && npm run build -w @cermont/domain
+
+
+> @cermont/domain@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/domain@1.0.0 lint
+> biome check .
+
+Checked 30 files in 36ms. No fixes applied.
+
+> @cermont/domain@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:config
+> npm run typecheck -w @cermont/config && npm run lint -w @cermont/config && npm run build -w @cermont/config
+
+
+> @cermont/config@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @cermont/config@1.0.0 lint
+> biome check .
+
+Checked 4 files in 13ms. No fixes applied.
+
+> @cermont/config@1.0.0 build
+> tsc --project tsconfig.json
+
+
+> cermont-monorepo@1.0.0 verify:backend
+> npm run typecheck -w backend && npm run lint -w backend && npm run test -w backend && npm run build -w backend
+
+
+> @cermont/backend@5.2.1 typecheck
+> tsc --noEmit
+
+
+> @cermont/backend@5.2.1 lint
+> biome lint .
+
+src\modules\service-entry-sheet\service-entry-sheet.service.ts:62:9 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    61 │ export async function createServiceEntrySheet(
+  > 62 │ 	input: any,
+       │ 	       ^^^
+    63 │ 	actor: string,
+    64 │ ): Promise<SesDoc> {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\modules\technical-report\technical-report.service.ts:71:9 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    70 │ export async function createTechnicalReport(
+  > 71 │ 	input: any,
+       │ 	       ^^^
+    72 │ 	actor: string,
+    73 │ ): Promise<TechReportDoc> {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+Checked 479 files in 294ms. No fixes applied.
+Found 2 warnings.
+
+> @cermont/backend@5.2.1 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend
+
+
+ Test Files  102 passed (102)
+      Tests  686 passed (686)
+   Start at  01:13:01
+   Duration  17.85s (transform 24.43s, setup 3.11s, import 170.10s, tests 11.20s, environment 20ms)
+
+
+> @cermont/backend@5.2.1 build
+> tsc
+
+
+> cermont-monorepo@1.0.0 verify:frontend
+> npm run typecheck -w frontend && npm run lint -w frontend && npm run test -w frontend && npm run build -w frontend
+
+
+> @cermont/frontend@1.2.0 typecheck
+> tsc --noEmit
+
+src/app/(dashboard)/planning/[id]/page.tsx(48,7): error TS2304: Cannot find name 'AlertTriangle'.
+src/app/(dashboard)/planning/[id]/page.tsx(61,7): error TS2304: Cannot find name 'AlertTriangle'.
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 2
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit

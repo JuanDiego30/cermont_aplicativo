@@ -129,6 +129,90 @@ describe("notification.service — getRolesToNotifyForStep", () => {
 	});
 });
 
+describe("notification.service — getUnreadCount (F28-T087)", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it("returns count of unread notifications for a given user", async () => {
+		const { getUnreadCount } = await import("../../src/modules/notifications/notification.service");
+
+		const mockCountDocuments = vi.fn().mockResolvedValue(5);
+		const Notification = (await import("../../src/models")).Notification;
+		(Notification as Record<string, unknown>).countDocuments = mockCountDocuments;
+
+		const count = await getUnreadCount("507f1f77bcf86cd799439011");
+
+		expect(count).toBe(5);
+		expect(mockCountDocuments).toHaveBeenCalledWith({
+			recipientUserId: expect.anything(),
+			isRead: false,
+		});
+	});
+
+	it("returns 0 when there are no unread notifications", async () => {
+		const { getUnreadCount } = await import("../../src/modules/notifications/notification.service");
+
+		const mockCountDocuments = vi.fn().mockResolvedValue(0);
+		const Notification = (await import("../../src/models")).Notification;
+		(Notification as Record<string, unknown>).countDocuments = mockCountDocuments;
+
+		const count = await getUnreadCount("507f1f77bcf86cd799439099");
+
+		expect(count).toBe(0);
+	});
+});
+
+describe("notification.service — notifyRoleGroup (F28-T087)", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it("creates notifications for all users with the specified role", async () => {
+		const { notifyRoleGroup } = await import(
+			"../../src/modules/notifications/notification.service"
+		);
+
+		mocks.userFind.mockReturnValue({
+			lean: vi.fn().mockResolvedValue([
+				{ _id: "user1", role: "residente", email: "res1@test.com" },
+				{ _id: "user2", role: "residente", email: "res2@test.com" },
+			]),
+		});
+
+		await notifyRoleGroup(
+			"PROPOSAL_APPROVED",
+			["residente"],
+			"Propuesta aprobada: PROP-001",
+			"La propuesta PROP-001 ha sido aprobada.",
+			{ entityType: "ServiceCase", entityId: "507f1f77bcf86cd799439011" },
+			{ proposalId: "prop1" },
+		);
+
+		expect(mocks.notificationInsertMany).toHaveBeenCalled();
+		const notifications = mocks.notificationInsertMany.mock.calls[0][0];
+		expect(notifications).toHaveLength(2);
+		expect(notifications[0].recipientRole).toBe("residente");
+		expect(notifications[1].recipientRole).toBe("residente");
+		expect(notifications[0].type).toBe("PROPOSAL_APPROVED");
+		expect(notifications[1].type).toBe("PROPOSAL_APPROVED");
+	});
+
+	it("does nothing when no users have the specified role", async () => {
+		const { notifyRoleGroup } = await import(
+			"../../src/modules/notifications/notification.service"
+		);
+
+		mocks.userFind.mockReturnValue({
+			lean: vi.fn().mockResolvedValue([]),
+		});
+
+		await notifyRoleGroup("EVIDENCE_UPLOADED", ["residente"], "Test", "Test body");
+
+		expect(mocks.notificationInsertMany).not.toHaveBeenCalled();
+	});
+});
+
 describe("notification.service — notifyStateTransition", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -167,6 +251,47 @@ describe("notification.service — notifyStateTransition", () => {
 			notifyStateTransition("bad-id", "step_01", "step_02", "user1"),
 		).resolves.toBeUndefined();
 		expect(mocks.notificationInsertMany).not.toHaveBeenCalled();
+	});
+
+	it("does not create notifications when no user has the matching role (authorization boundary)", async () => {
+		mocks.serviceCaseFindById.mockResolvedValue({
+			_id: "507f1f77bcf86cd799439011",
+			code: "SC-003",
+		});
+		mocks.userFind.mockReturnValue({
+			lean: vi.fn().mockResolvedValue([]),
+		});
+
+		await notifyStateTransition(
+			"507f1f77bcf86cd799439011",
+			"step_05_planning",
+			"step_06_execution",
+			"user1",
+		);
+
+		expect(mocks.notificationInsertMany).not.toHaveBeenCalled();
+	});
+
+	it("queries User.find with the correct role filter for each step (authorization boundary)", async () => {
+		const userFindSpy = mocks.userFind;
+		mocks.serviceCaseFindById.mockResolvedValue({
+			_id: "507f1f77bcf86cd799439011",
+			code: "SC-004",
+		});
+		userFindSpy.mockReturnValue({
+			lean: vi.fn().mockResolvedValue([{ _id: "gerente1", role: "gerente" }]),
+		});
+
+		await notifyStateTransition(
+			"507f1f77bcf86cd799439011",
+			"step_03_proposal",
+			"step_05_planning",
+			"user1",
+		);
+
+		expect(userFindSpy).toHaveBeenCalledWith({
+			role: { $in: ["residente", "supervisor", "gerente"] },
+		});
 	});
 
 	it("propagates database insertion failure — caught by Express global error handler", async () => {

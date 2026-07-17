@@ -1,0 +1,13 @@
+Task 1.6 — Work request authorization
+
+POST /api/work-requests now uses:
+authenticate -> authorize(...INTERNAL_ROLES) -> validateBody -> controller
+
+PATCH /api/work-requests/:id now uses:
+authenticate -> authorize(...FIELD_MANAGEMENT_ROLES) -> validateParams -> validateBody -> controller
+
+Command: npx tsx tooling/quality/check-routes.ts
+Result: exit 0; one validation finding remains and no authorization category is reported.
+
+Command: npm run test -w backend
+Result: 102 files passed, 681 tests passed.

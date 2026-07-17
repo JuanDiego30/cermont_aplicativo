@@ -1,0 +1,45 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Proposals - Create, approve, and convert proposals",
+  "description": "Verifies the commercial proposal flow: creation with line items, PDF generation, approval workflow, and conversion to order",
+  "priority": "p0",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in and navigate to /dashboard/proposals"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that proposals list loads with status columns (draft, sent, approved, rejected, converted)"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New Proposal' and verify the creation form loads with sections: client info, line items, terms"
+    },
+    {
+      "type": "action",
+      "description": "Add line items: description, quantity, unit price, and verify the total auto-calculates correctly"
+    },
+    {
+      "type": "action",
+      "description": "Set proposal terms (validity period, payment terms) and save as draft"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that proposal is saved as 'draft' and the total matches expected calculation"
+    },
+    {
+      "type": "action",
+      "description": "Submit proposal for approval and verify status changes to 'sent'"
+    },
+    {
+      "type": "action",
+      "description": "Approve the proposal and verify status changes to 'approved' with option to convert to order"
+    },
+    {
+      "type": "action",
+      "description": "Click 'Generate PDF' and verify a PDF preview/download is available"
+    }
+  ]
+}

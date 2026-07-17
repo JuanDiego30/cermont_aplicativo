@@ -19,7 +19,7 @@ const PLANNING_PACKET_STATUS_VALUES = [
 export const PlanningPacketStatusSchema = z.enum(PLANNING_PACKET_STATUS_VALUES);
 export type PlanningPacketStatus = z.infer<typeof PlanningPacketStatusSchema>;
 
-const PLANNING_BUSINESS_UNIT_VALUES = ["IT", "MNT", "SC", "GEN", "OTHER"] as const;
+const PLANNING_BUSINESS_UNIT_VALUES = ["IT_MNT", "SC", "GEN", "OTROS"] as const;
 
 export const PlanningBusinessUnitSchema = z.enum(PLANNING_BUSINESS_UNIT_VALUES);
 export type PlanningBusinessUnit = z.infer<typeof PlanningBusinessUnitSchema>;

@@ -253,3 +253,11 @@ export const LANDING_CERTIFICATIONS: LandingCertification[] = [
 		badge: "HSE",
 	},
 ];
+
+export const CLIENT_LOGOS = [{ name: 'Cermont', logo: '/icons/logo-cermont.png' }];
+
+export const LANDING_STATS: Array<{ value: number; suffix: string; label: string }> = [];
+
+
+export const LANDING_TESTIMONIALS: Array<{ name: string; company: string; role: string; text: string; initials: string }> = [];
+

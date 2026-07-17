@@ -1,0 +1,15 @@
+Command: npx tsx tooling/quality/check-routes.ts
+Result: exit 0 after checker fix
+
+Backend route quality check: 19 findings
+- route-missing-authorization-policy: 10/15 within baseline
+- route-missing-validation: 9/15 within baseline
+
+Assertion: no route-missing-authentication category is reported and automation.routes.ts is absent.
+
+Command: npm run test -w backend
+Result: exit 0
+
+Test Files  102 passed (102)
+Tests       680 passed (680)
+Duration    19.54s

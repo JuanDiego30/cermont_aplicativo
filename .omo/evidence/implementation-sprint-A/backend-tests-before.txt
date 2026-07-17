@@ -1,0 +1,13 @@
+
+> @cermont/backend@5.2.1 test
+> vitest run
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend
+
+
+ Test Files  102 passed (102)
+      Tests  681 passed (681)
+   Start at  23:51:36
+   Duration  23.22s (transform 22.47s, setup 2.92s, import 222.79s, tests 14.13s, environment 19ms)
+

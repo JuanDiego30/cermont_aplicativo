@@ -12,6 +12,7 @@ import { Loader2, RotateCcw, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/http/api-client";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 
 interface EvidenceReplacementDialogProps {
 	evidenceId: string;
@@ -47,8 +48,7 @@ export function EvidenceReplacementDialog({
 		},
 		onSuccess: () => {
 			toast.success("Evidencia reemplazada exitosamente");
-			queryClient.invalidateQueries({ queryKey: ["evidence"] });
-			queryClient.invalidateQueries({ queryKey: ["evidences"] });
+			queryClient.invalidateQueries({ queryKey: EVIDENCE_KEYS.all });
 			setOpen(false);
 			setFile(null);
 		},

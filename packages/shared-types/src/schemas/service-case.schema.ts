@@ -227,6 +227,35 @@ export const ServiceCaseSchema = z
 
 export type ServiceCase = z.infer<typeof ServiceCaseSchema>;
 
+export const SERVICE_CASE_SUMMARY_STAGE_GROUPS = {
+	active: [
+		"step_01_work_request",
+		"step_02_site_visit",
+		"step_03_proposal",
+		"step_04_purchase_order",
+		"step_05_planning",
+		"step_06_execution",
+		"step_07_evidence",
+		"step_08_technical_report",
+		"step_09_delivery_record",
+		"step_10_client_signature",
+		"step_11_ses",
+		"step_12_invoice",
+		"step_13_invoice_approval",
+	] as const,
+	pendingApproval: [
+		"step_03_proposal",
+		"step_04_purchase_order",
+		"step_13_invoice_approval",
+	] as const,
+	inProgress: ["step_06_execution", "step_07_evidence", "step_08_technical_report"] as const,
+	inPlanning: ["step_01_work_request", "step_02_site_visit", "step_05_planning"] as const,
+	readyToBill: ["step_11_ses", "step_12_invoice"] as const,
+	readyToClose: ["step_13_invoice_approval", "step_14_payment"] as const,
+} as const;
+
+export type ServiceCaseSummaryStageGroups = typeof SERVICE_CASE_SUMMARY_STAGE_GROUPS;
+
 export function mapLegacyServiceCaseStageToStep(
 	stage: ServiceCaseStage,
 ): CermontOperationalStepCode {

@@ -21,6 +21,8 @@ export interface ICostDocument extends Document {
 	voidReason?: string;
 	recordedBy: Types.ObjectId;
 	recordedAt: Date;
+	clientMutationId?: string;
+	workerId?: string;
 	variance?: number;
 	variancePercent?: number;
 	createdAt: Date;
@@ -57,6 +59,8 @@ const CostSchema = new Schema<ICostDocument>(
 		voidReason: { type: String, maxlength: 500 },
 		recordedBy: { type: Types.ObjectId, ref: "User", required: true, index: true },
 		recordedAt: { type: Date, required: true, default: Date.now, index: true },
+		clientMutationId: { type: String, maxlength: 64, sparse: true, index: true },
+		workerId: { type: String, maxlength: 64 },
 	},
 	{
 		timestamps: true,

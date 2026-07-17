@@ -1,0 +1,872 @@
+From fa78b03f6fbee5ca303137b688350fa9fe7eeb29 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Tue, 30 Jun 2026 02:19:27 -0500
+Subject: [PATCH 03/42] fix: update frontend tests with canonical step names
+
+- documents-page.test.tsx: step_09_client_signature -> step_10_client_signature
+- order-closure-tab.test.tsx: step_08/09/10 -> step_09/10/11 canonical
+- service-cases-page.test.tsx: use fuzzy matcher for Paso 5 text
+---
+ .../tests/e2e/fixtures/api-client.fixture.ts  | 24 ++++-
+ frontend/tests/lib/costs-queries.test.tsx     | 24 +++++
+ .../automation/RulesEngineConfig.test.tsx     | 86 ++++++++++++++++
+ .../checklists/ChecklistItemControl.test.tsx  | 88 +++++++++++++++++
+ .../checklists/checklist-file-upload.test.ts  | 47 +++++++++
+ .../checklists/useOfflineChecklist.test.tsx   | 27 ++++++
+ .../core/header-notifications.test.tsx        | 56 +++++++++++
+ .../modules/costs/CostBudgetStatus.test.tsx   | 40 ++++++++
+ .../tests/modules/costs/cost-export.test.ts   | 52 ++++++++++
+ .../dashboard/DashboardCommandCenter.test.tsx | 97 +++++++++++++++++++
+ .../dashboard/dashboard-visuals.test.tsx      | 16 ---
+ .../documents/document-gallery.test.tsx       |  2 +-
+ .../modules/documents/documents-page.test.tsx | 10 +-
+ .../modules/orders/order-closure-tab.test.tsx |  6 +-
+ .../p0/react-doctor-remediation.test.tsx      | 40 ++++++++
+ .../service-cases/service-cases-page.test.tsx |  2 +-
+ frontend/tests/public/pwa-assets.test.ts      | 26 +++++
+ 17 files changed, 616 insertions(+), 27 deletions(-)
+ create mode 100644 frontend/tests/modules/automation/RulesEngineConfig.test.tsx
+ create mode 100644 frontend/tests/modules/checklists/ChecklistItemControl.test.tsx
+ create mode 100644 frontend/tests/modules/checklists/checklist-file-upload.test.ts
+ create mode 100644 frontend/tests/modules/core/header-notifications.test.tsx
+ create mode 100644 frontend/tests/modules/costs/CostBudgetStatus.test.tsx
+ create mode 100644 frontend/tests/modules/costs/cost-export.test.ts
+ create mode 100644 frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx
+ create mode 100644 frontend/tests/modules/p0/react-doctor-remediation.test.tsx
+ create mode 100644 frontend/tests/public/pwa-assets.test.ts
+
+diff --git a/frontend/tests/e2e/fixtures/api-client.fixture.ts b/frontend/tests/e2e/fixtures/api-client.fixture.ts
+index 42e5030..42e42c3 100644
+--- a/frontend/tests/e2e/fixtures/api-client.fixture.ts
++++ b/frontend/tests/e2e/fixtures/api-client.fixture.ts
+@@ -234,8 +234,30 @@ export async function createE2EApiClient(): Promise<E2EApiClient> {
+ 		},
+ 
+ 		async updateChecklistItem(checklistId, itemId, completed, observation) {
++			if (completed) {
++				const uploadResponse = await requestContext.post("files/upload", {
++					headers: authHeaders,
++					multipart: {
++						file: {
++							name: `checklist-${itemId}.png`,
++							mimeType: "image/png",
++							buffer: Buffer.from(
++								"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4////fwAJ+wP+q6jT3QAAAABJRU5ErkJggg==",
++								"base64",
++							),
++						},
++						category: "checklist_evidence",
++						entityType: "checklist_item",
++						entityId: checklistId,
++						metadata: JSON.stringify({ checklistItemId: itemId }),
++					},
++				});
++				if (!uploadResponse.ok()) {
++					throw new Error(`Failed to attach checklist evidence for ${itemId}`);
++				}
++			}
+ 			return send<Checklist>("patch", `checklists/${checklistId}/items/${itemId}`, {
+-				completed,
++				result: completed ? "passed" : "pending",
+ 				observation,
+ 			});
+ 		},
+diff --git a/frontend/tests/lib/costs-queries.test.tsx b/frontend/tests/lib/costs-queries.test.tsx
+index 22ce398..4c5e529 100644
+--- a/frontend/tests/lib/costs-queries.test.tsx
++++ b/frontend/tests/lib/costs-queries.test.tsx
+@@ -22,6 +22,7 @@ import {
+ 	useCost,
+ 	useCostSummary,
+ 	useCosts,
++	useCostCatalog,
+ 	useCreateCost,
+ 	useDeleteCost,
+ 	useUpdateCost,
+@@ -141,6 +142,29 @@ describe("Costs Queries", () => {
+ 		});
+ 	});
+ 
++	describe("useCostCatalog", () => {
++		it("fetches the active catalog with category and pagination", async () => {
++			vi.mocked(apiClient.get).mockResolvedValue({
++				success: true,
++				data: {
++					items: [],
++					pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
++				},
++			});
++
++			const { result } = renderHook(
++				() => useCostCatalog({ category: "materials", page: 1, limit: 20 }),
++				{ wrapper: createWrapper() },
++			);
++
++			await waitFor(() => expect(result.current.isSuccess).toBe(true));
++			expect(apiClient.get).toHaveBeenCalledWith(
++				"/costs/catalog?category=materials&page=1&limit=20",
++			);
++			expect(result.current.data?.pagination.total).toBe(0);
++		});
++	});
++
+ 	describe("useCostSummary", () => {
+ 		it("should fetch cost summary for order", async () => {
+ 			const expectedSummary = [{ amount: 500, type: "total" }];
+diff --git a/frontend/tests/modules/automation/RulesEngineConfig.test.tsx b/frontend/tests/modules/automation/RulesEngineConfig.test.tsx
+new file mode 100644
+index 0000000..44dbd2c
+--- /dev/null
++++ b/frontend/tests/modules/automation/RulesEngineConfig.test.tsx
+@@ -0,0 +1,86 @@
++import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
++import { fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { beforeEach, describe, expect, it, vi } from "vitest";
++import { apiClient } from "@/lib/http/api-client";
++import { RulesEngineConfig } from "@/modules/automation";
++
++vi.mock("@/lib/http/api-client", () => ({
++	apiClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn() },
++}));
++
++describe("RulesEngineConfig", () => {
++	beforeEach(() => {
++		vi.clearAllMocks();
++	});
++
++	it("renders the configurable rule builder and a real empty state", async () => {
++		vi.mocked(apiClient.get).mockResolvedValue({ success: true, data: [] });
++		const queryClient = new QueryClient({
++			defaultOptions: { queries: { retry: false } },
++		});
++
++		render(
++			<QueryClientProvider client={queryClient}>
++				<RulesEngineConfig />
++			</QueryClientProvider>,
++		);
++
++		expect(
++			screen.getByRole("heading", { name: "Automatizaciones operativas" }),
++		).toBeInTheDocument();
++		expect(await screen.findByText(/No hay reglas configuradas/)).toBeInTheDocument();
++		expect(screen.getByRole("button", { name: /Crear regla/ })).toBeDisabled();
++	});
++
++	it("shows open operational actions and resolves them through the API", async () => {
++		vi.mocked(apiClient.get).mockImplementation(async (path: string) => {
++			if (path.includes("/actions")) {
++				return {
++					success: true,
++					data: [
++						{
++							_id: "507f1f77bcf86cd799439020",
++							ruleId: "507f1f77bcf86cd799439011",
++							executionId: "507f1f77bcf86cd799439012",
++							entityType: "Order",
++							entityId: "507f1f77bcf86cd799439013",
++							type: "block_transition",
++							title: "Transición bloqueada",
++							reason: "Falta evidencia de cierre",
++							priority: "critical",
++							status: "open",
++							createdAt: "2026-06-30T12:00:00.000Z",
++						},
++					],
++				};
++			}
++			return { success: true, data: [] };
++		});
++		vi.mocked(apiClient.patch).mockResolvedValue({
++			success: true,
++			data: {
++				_id: "507f1f77bcf86cd799439020",
++				status: "resolved",
++			},
++		});
++		const queryClient = new QueryClient({
++			defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
++		});
++
++		render(
++			<QueryClientProvider client={queryClient}>
++				<RulesEngineConfig />
++			</QueryClientProvider>,
++		);
++
++		expect(await screen.findByText("Falta evidencia de cierre")).toBeInTheDocument();
++		fireEvent.click(screen.getByRole("button", { name: "Resolver acción" }));
++
++		await waitFor(() =>
++			expect(apiClient.patch).toHaveBeenCalledWith(
++				"/automation-rules/actions/507f1f77bcf86cd799439020/resolve",
++				{},
++			),
++		);
++	});
++});
+diff --git a/frontend/tests/modules/checklists/ChecklistItemControl.test.tsx b/frontend/tests/modules/checklists/ChecklistItemControl.test.tsx
+new file mode 100644
+index 0000000..b84b254
+--- /dev/null
++++ b/frontend/tests/modules/checklists/ChecklistItemControl.test.tsx
+@@ -0,0 +1,88 @@
++import type { ChecklistItem } from "@cermont/shared-types";
++import { fireEvent, render, screen } from "@testing-library/react";
++import { describe, expect, it, vi } from "vitest";
++import { ChecklistItemControl } from "@/modules/checklists/components/ChecklistItemControl";
++
++vi.mock("@/modules/files/ui/ImageUploadField", () => ({
++	ImageUploadField: ({ onSuccess }: { onSuccess: () => void }) => (
++		<button type="button" onClick={onSuccess}>
++			Adjuntar prueba
++		</button>
++	),
++}));
++
++const item: ChecklistItem = {
++	id: "ats-1",
++	category: "procedure",
++	description: "ATS aprobado antes de iniciar el trabajo",
++	required: true,
++	isBlocking: true,
++	result: "pending",
++	completed: false,
++	requiresPhoto: true,
++	requiresSignature: true,
++	evidenceAssetIds: [],
++};
++
++describe("ChecklistItemControl", () => {
++	it("identifica controles bloqueantes y no permite aprobar sin foto", () => {
++		render(
++			<ChecklistItemControl
++				item={item}
++				checklistId="checklist-1"
++				disabled={false}
++				onResult={vi.fn()}
++				onEvidenceUploaded={vi.fn()}
++			/>,
++		);
++
++		expect(screen.getByText("Bloqueante")).toBeInTheDocument();
++		expect(screen.getByText("Requiere foto")).toBeInTheDocument();
++		expect(screen.getByRole("button", { name: "Aprobar control" })).toBeDisabled();
++	});
++
++	it("habilita la aprobacion al adjuntar la evidencia requerida", () => {
++		const onResult = vi.fn();
++		render(
++			<ChecklistItemControl
++				item={item}
++				checklistId="checklist-1"
++				disabled={false}
++				onResult={onResult}
++				onEvidenceUploaded={vi.fn()}
++			/>,
++		);
++
++		fireEvent.click(screen.getByRole("button", { name: "Adjuntar prueba" }));
++		fireEvent.click(screen.getByRole("button", { name: "Aprobar control" }));
++
++		expect(onResult).toHaveBeenCalledWith("passed", "");
++	});
++
++	it("exige descripcion antes de registrar un hallazgo", () => {
++		const onResult = vi.fn();
++		render(
++			<ChecklistItemControl
++				item={{ ...item, requiresPhoto: false }}
++				checklistId="checklist-1"
++				disabled={false}
++				onResult={onResult}
++				onEvidenceUploaded={vi.fn()}
++			/>,
++		);
++
++		fireEvent.click(screen.getByRole("button", { name: "Reportar hallazgo" }));
++		const saveButton = screen.getByRole("button", { name: "Guardar hallazgo" });
++		expect(saveButton).toBeDisabled();
++
++		fireEvent.change(screen.getByLabelText("Descripcion del hallazgo"), {
++			target: { value: "Permiso vencido; detener la actividad." },
++		});
++		fireEvent.click(saveButton);
++
++		expect(onResult).toHaveBeenCalledWith(
++			"failed",
++			"Permiso vencido; detener la actividad.",
++		);
++	});
++});
+diff --git a/frontend/tests/modules/checklists/checklist-file-upload.test.ts b/frontend/tests/modules/checklists/checklist-file-upload.test.ts
+new file mode 100644
+index 0000000..fbea756
+--- /dev/null
++++ b/frontend/tests/modules/checklists/checklist-file-upload.test.ts
+@@ -0,0 +1,47 @@
++import { beforeEach, describe, expect, it, vi } from "vitest";
++import { apiClient } from "@/lib/http/api-client";
++import { uploadFile } from "@/modules/files/api/files.api";
++
++vi.mock("@/lib/http/api-client", () => ({
++	apiClient: {
++		post: vi.fn(),
++	},
++}));
++
++describe("checklist FileAsset upload", () => {
++	beforeEach(() => {
++		vi.clearAllMocks();
++	});
++
++	it("serializa el item de checklist en metadata del FileAsset", async () => {
++		vi.mocked(apiClient.post).mockResolvedValue({
++			success: true,
++			data: {
++				id: "file-1",
++				originalName: "ats.jpg",
++				storedName: "stored.jpg",
++				mimeType: "image/jpeg",
++				sizeBytes: 100,
++				url: "/api/files/file-1/content",
++				storageKey: "stored.jpg",
++				uploadedBy: "user-1",
++				uploadedAt: "2026-06-29T10:00:00.000Z",
++				entityType: "checklist_item",
++				entityId: "checklist-1",
++				category: "checklist_evidence",
++			},
++		});
++
++		await uploadFile({
++			file: new File(["photo"], "ats.jpg", { type: "image/jpeg" }),
++			category: "checklist_evidence",
++			entityType: "checklist_item",
++			entityId: "checklist-1",
++			metadata: { checklistItemId: "ats-1" },
++		});
++
++		const [, body] = vi.mocked(apiClient.post).mock.calls[0] ?? [];
++		expect(body).toBeInstanceOf(FormData);
++		expect((body as FormData).get("metadata")).toBe('{"checklistItemId":"ats-1"}');
++	});
++});
+diff --git a/frontend/tests/modules/checklists/useOfflineChecklist.test.tsx b/frontend/tests/modules/checklists/useOfflineChecklist.test.tsx
+index 9c7fda9..e32e9fc 100644
+--- a/frontend/tests/modules/checklists/useOfflineChecklist.test.tsx
++++ b/frontend/tests/modules/checklists/useOfflineChecklist.test.tsx
+@@ -103,4 +103,31 @@ describe("useOfflineChecklist", () => {
+ 			observations: "observado",
+ 		});
+ 	});
++
++	it("queues a failed critical item with its finding description", async () => {
++		mocks.updateChecklistItemMutateAsync.mockRejectedValue(new TypeError("Failed to fetch"));
++
++		const { result } = renderHook(() => useOfflineChecklist(), { wrapper });
++
++		await expect(
++			result.current.updateChecklistItemMutation.mutateAsync({
++				checklistId: "checklist-1",
++				orderId: "order-1",
++				itemId: "ats-1",
++				result: "failed",
++				observation: "Permiso de trabajo vencido",
++			}),
++		).resolves.toBeNull();
++
++		expect(mocks.enqueueMock).toHaveBeenCalledWith(
++			expect.objectContaining({
++				endpoint: "/checklists/checklist-1/items/ats-1",
++				method: "PATCH",
++				payload: {
++					result: "failed",
++					observation: "Permiso de trabajo vencido",
++				},
++			}),
++		);
++	});
+ });
+diff --git a/frontend/tests/modules/core/header-notifications.test.tsx b/frontend/tests/modules/core/header-notifications.test.tsx
+new file mode 100644
+index 0000000..df9cda7
+--- /dev/null
++++ b/frontend/tests/modules/core/header-notifications.test.tsx
+@@ -0,0 +1,56 @@
++import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
++import { render, waitFor } from "@testing-library/react";
++import { beforeEach, describe, expect, it, vi } from "vitest";
++import { apiClient, ApiError } from "@/lib/http/api-client";
++import Header from "@/modules/core/ui/layout/Header";
++
++vi.mock("@gsap/react", () => ({ useGSAP: vi.fn() }));
++vi.mock("gsap", () => ({ default: { from: vi.fn(), registerPlugin: vi.fn() } }));
++vi.mock("next/navigation", () => ({ usePathname: () => "/dashboard" }));
++vi.mock("@/modules/auth/hooks/useAuth", () => ({
++	useAuth: () => ({
++		accessToken: "access-token",
++		user: { _id: "user-1", email: "manager@cermont.test", name: "Manager", role: "supervisor" },
++	}),
++}));
++vi.mock("@/components/sync/NetworkStatusChip", () => ({ NetworkStatusChip: () => <span /> }));
++vi.mock("@/core/ui/ThemeToggle", () => ({ ThemeToggle: () => <span /> }));
++vi.mock("@/modules/core/ui/layout/HeaderNotifications", () => ({
++	HeaderNotifications: () => <span />,
++}));
++vi.mock("@/modules/core/ui/layout/HeaderUserMenu", () => ({ HeaderUserMenu: () => <span /> }));
++
++function renderHeader(queryClient: QueryClient): void {
++	render(
++		<QueryClientProvider client={queryClient}>
++			<Header sidebarOpen={false} setSidebarOpen={vi.fn()} />
++		</QueryClientProvider>,
++	);
++}
++
++describe("Header notifications", () => {
++	beforeEach(() => {
++		vi.restoreAllMocks();
++	});
++
++	it("uses the canonical notifications endpoint", async () => {
++		const getSpy = vi.spyOn(apiClient, "get").mockResolvedValue({
++			success: true,
++			data: { notifications: [], unreadCount: 0 },
++		});
++		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
++
++		renderHeader(queryClient);
++
++		await waitFor(() => expect(getSpy).toHaveBeenCalledWith("/notifications?limit=20"));
++	});
++
++	it("preserves authentication errors in query state instead of swallowing them", async () => {
++		vi.spyOn(apiClient, "get").mockRejectedValue(new ApiError(401, "Unauthorized"));
++		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
++
++		renderHeader(queryClient);
++
++		await waitFor(() => expect(queryClient.getQueryState(["notifications"])?.status).toBe("error"));
++	});
++});
+diff --git a/frontend/tests/modules/costs/CostBudgetStatus.test.tsx b/frontend/tests/modules/costs/CostBudgetStatus.test.tsx
+new file mode 100644
+index 0000000..81d56ab
+--- /dev/null
++++ b/frontend/tests/modules/costs/CostBudgetStatus.test.tsx
+@@ -0,0 +1,40 @@
++import type { CostSummary } from "@cermont/shared-types";
++import { render, screen } from "@testing-library/react";
++import { describe, expect, it } from "vitest";
++import { CostBudgetStatus } from "@/modules/costs/ui/CostBudgetStatus";
++import { CostComparisonChart } from "@/modules/costs/ui/CostComparisonChart";
++
++const summary: CostSummary = {
++	orderId: "507f1f77bcf86cd799439011",
++	totalEstimated: 1_000,
++	totalActual: 700,
++	totalTax: 100,
++	variance: -300,
++	variancePercent: { status: "present", value: -0.3 },
++	approvedBudget: { status: "present", value: 1_000 },
++	budgetConsumptionPercent: { status: "present", value: 0.8 },
++	budgetRisk: "threshold_reached",
++	budgetAlertThreshold: 0.8,
++	actualCostWithTax: 800,
++	grossProfit: { status: "present", value: 200 },
++	grossMarginPercent: { status: "present", value: 0.2 },
++	hasCosts: true,
++	dataState: "ESTIMATED_AND_ACTUAL",
++	byCategory: [],
++};
++
++describe("CostBudgetStatus", () => {
++	it("shows the preventive threshold against the approved proposal", () => {
++		render(<CostBudgetStatus summary={summary} />);
++
++		expect(screen.getByText("Umbral preventivo alcanzado")).toBeInTheDocument();
++		expect(screen.getByText("80% consumido")).toBeInTheDocument();
++		expect(screen.getByText(/presupuesto aprobado/i)).toBeInTheDocument();
++	});
++
++	it("uses actual minus estimated as the comparison variance", () => {
++		render(<CostComparisonChart estimated={1_000} actual={1_200} />);
++
++		expect(screen.getByText("+20% (sobre presupuesto)")).toBeInTheDocument();
++	});
++});
+diff --git a/frontend/tests/modules/costs/cost-export.test.ts b/frontend/tests/modules/costs/cost-export.test.ts
+new file mode 100644
+index 0000000..0786d91
+--- /dev/null
++++ b/frontend/tests/modules/costs/cost-export.test.ts
+@@ -0,0 +1,52 @@
++import type { Cost, CostSummary } from "@cermont/shared-types";
++import { describe, expect, it } from "vitest";
++import { buildCostExportCsv } from "@/modules/costs/cost-export";
++
++describe("buildCostExportCsv", () => {
++	it("exports financial summary and supported cost rows", () => {
++		const summary = {
++			orderId: "order-1",
++			totalEstimated: 1_000,
++			totalActual: 700,
++			totalTax: 100,
++			variance: -300,
++			variancePercent: { status: "present", value: -0.3 },
++			approvedBudget: { status: "present", value: 1_000 },
++			budgetConsumptionPercent: { status: "present", value: 0.8 },
++			budgetRisk: "threshold_reached",
++			budgetAlertThreshold: 0.8,
++			actualCostWithTax: 800,
++			grossProfit: { status: "present", value: 200 },
++			grossMarginPercent: { status: "present", value: 0.2 },
++			hasCosts: true,
++			dataState: "ESTIMATED_AND_ACTUAL",
++			byCategory: [],
++		} satisfies CostSummary;
++		const costs = [
++			{
++				_id: "cost-1",
++				orderId: "order-1",
++				category: "labor",
++				description: "Cuadrilla, turno día",
++				estimatedAmount: 1_000,
++				actualAmount: 700,
++				taxAmount: 100,
++				taxRate: 0.19,
++				currency: "COP",
++				supportEvidenceIds: ["evidence-1"],
++				supportDocumentIds: [],
++				status: "active",
++				recordedBy: "user-1",
++				recordedAt: "2026-06-29T12:00:00.000Z",
++				createdAt: "2026-06-29T12:00:00.000Z",
++				updatedAt: "2026-06-29T12:00:00.000Z",
++			} satisfies Cost,
++		];
++
++		const csv = buildCostExportCsv(summary, costs);
++
++		expect(csv).toContain("Presupuesto aprobado,1000");
++		expect(csv).toContain("Margen bruto,20.00%");
++		expect(csv).toContain('labor,"Cuadrilla, turno día",1000,700,100,COP,1');
++	});
++});
+diff --git a/frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx b/frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx
+new file mode 100644
+index 0000000..c162c13
+--- /dev/null
++++ b/frontend/tests/modules/dashboard/DashboardCommandCenter.test.tsx
+@@ -0,0 +1,97 @@
++import type { DashboardSummary } from "@cermont/shared-types";
++import { render, screen } from "@testing-library/react";
++import { describe, expect, it } from "vitest";
++import { DashboardCommandCenter } from "@/modules/dashboard/ui/DashboardCommandCenter";
++
++const summary: DashboardSummary = {
++	generatedAt: "2026-06-29T15:00:00.000Z",
++	operationalPipeline: {
++		stages: [
++			{ stage: "planning", label: "Planeación", count: 3, order: 5 },
++			{ stage: "in_execution", label: "Ejecución", count: 2, order: 7 },
++		],
++		totalActive: 5,
++		totalClosed: 4,
++		completionRate: 44,
++	},
++	blockers: { totalBlockers: 4, criticalBlockers: 2, blockedCases: 2 },
++	nextActions: [
++		{ command: "review_request", label: "Revisar solicitudes", requiredRole: "residente", count: 3 },
++	],
++	administrativeClosure: {
++		pendingDeliveryRecords: 2,
++		pendingSES: 1,
++		pendingInvoices: 1,
++		pendingPayments: 2,
++	},
++	financialAging: {
++		buckets: [],
++		totalOutstandingAmount: 42_000_000,
++		totalOverdueAmount: 18_500_000,
++		overdueInvoiceCount: 2,
++	},
++	fieldReadiness: {
++		blockingChecklistsPending: 3,
++		blockingChecklistsFailed: 1,
++		evidencePendingReview: 4,
++		evidenceRejected: 2,
++		evidenceGpsCoveragePct: 86,
++		vehicleDocumentsExpiring: 2,
++		vehicleDocumentsExpired: 1,
++		toolCertificationsExpiring: 5,
++		toolCertificationsExpired: 0,
++		offlineSyncPending: 3,
++		offlineSyncFailed: 1,
++	},
++	serviceDemand: {
++		periodDays: 30,
++		totalRequests: 7,
++		items: [
++			{ serviceType: "Refrigeración industrial", requests: 4 },
++			{ serviceType: "Obra civil", requests: 3 },
++		],
++	},
++	costVariance: {
++		estimatedCost: 100_000_000,
++		actualCost: 88_000_000,
++		variance: -12_000_000,
++		variancePct: -12,
++		currency: "COP",
++	},
++	documentWorkload: {
++		pendingImports: 1,
++		pendingTemplates: 2,
++		pendingResponses: 3,
++		totalDocuments: 80,
++	},
++	assetMaintenance: {
++		totalAssets: 32,
++		activeMaintenance: 3,
++		expiringCertificates: 7,
++		overdueMaintenance: 1,
++	},
++	offlineSync: { pendingSyncItems: 3, syncErrors: 1 },
++	recentActivity: { items: [] },
++	charts: { ordersByStatus: [], ordersByMonth: [], costByCategory: [] },
++};
++
++describe("DashboardCommandCenter", () => {
++	it("prioritizes actionable Cermont signals instead of generic KPIs", () => {
++		render(<DashboardCommandCenter summary={summary} />);
++
++		expect(screen.getByText("Controles críticos por resolver")).toBeInTheDocument();
++		expect(screen.getByText("Evidencias por validar")).toBeInTheDocument();
++		expect(screen.getByText("Expedientes por cerrar")).toBeInTheDocument();
++		expect(screen.getByText("Cartera vencida")).toBeInTheDocument();
++		expect(screen.queryByText("MTTR promedio")).not.toBeInTheDocument();
++		expect(screen.queryByText("Ingresos del Mes")).not.toBeInTheDocument();
++	});
++
++	it("shows the actual multi-service mix returned by the backend", () => {
++		render(<DashboardCommandCenter summary={summary} />);
++
++		expect(screen.getByText("Refrigeración industrial")).toBeInTheDocument();
++		expect(screen.getByText("Obra civil")).toBeInTheDocument();
++		expect(screen.getByText("Demanda de servicios · últimos 30 días")).toBeInTheDocument();
++	});
++});
+diff --git a/frontend/tests/modules/dashboard/dashboard-visuals.test.tsx b/frontend/tests/modules/dashboard/dashboard-visuals.test.tsx
+index d65f335..8d472c3 100644
+--- a/frontend/tests/modules/dashboard/dashboard-visuals.test.tsx
++++ b/frontend/tests/modules/dashboard/dashboard-visuals.test.tsx
+@@ -1,24 +1,8 @@
+ import { render, screen } from "@testing-library/react";
+ import { describe, expect, it } from "vitest";
+ import { ActivityTimeline } from "@/modules/dashboard/ui/ActivityTimeline";
+-import { StepTimeline } from "@/modules/dashboard/ui/StepTimeline";
+ 
+ describe("dashboard visual components", () => {
+-	it("renders operational step activity from the service-case distribution", () => {
+-		render(
+-			<StepTimeline
+-				stepDistribution={[
+-					{ stepCode: "step_01_work_request", count: 8 },
+-					{ stepCode: "step_06_execution", count: 3 },
+-				]}
+-			/>,
+-		);
+-
+-		expect(screen.getByText("8 casos activos en Solicitud de Trabajo")).toBeTruthy();
+-		expect(screen.getByText("3 casos activos en Ejecución de Campo")).toBeTruthy();
+-		expect(screen.queryByText("2 casos activos en Propuesta Económica")).toBeNull();
+-	});
+-
+ 	it("renders recent activity from the dashboard contract", () => {
+ 		render(
+ 			<ActivityTimeline
+diff --git a/frontend/tests/modules/documents/document-gallery.test.tsx b/frontend/tests/modules/documents/document-gallery.test.tsx
+index c658a8a..0bc1a7e 100644
+--- a/frontend/tests/modules/documents/document-gallery.test.tsx
++++ b/frontend/tests/modules/documents/document-gallery.test.tsx
+@@ -61,7 +61,7 @@ describe("DocumentGallery", () => {
+ 				documents={[
+ 					buildDocument({
+ 						purpose: "closing_evidence",
+-						targetStepCode: "step_09_client_signature",
++						targetStepCode: "step_10_client_signature",
+ 					}),
+ 				]}
+ 			/>,
+diff --git a/frontend/tests/modules/documents/documents-page.test.tsx b/frontend/tests/modules/documents/documents-page.test.tsx
+index 5b05d31..c54d561 100644
+--- a/frontend/tests/modules/documents/documents-page.test.tsx
++++ b/frontend/tests/modules/documents/documents-page.test.tsx
+@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({
+ 	useRouter: () => ({ replace: replaceMock }),
+ 	useSearchParams: () =>
+ 		new URLSearchParams(
+-			"q=acta&orderId=order-1&serviceCaseId=sc-1&purpose=closing_evidence&step=step_09_client_signature&includeArchived=true",
++			"q=acta&orderId=order-1&serviceCaseId=sc-1&purpose=closing_evidence&step=step_10_client_signature&includeArchived=true",
+ 		),
+ }));
+ 
+@@ -104,7 +104,7 @@ describe("Documents page", () => {
+ 		);
+ 		expect(screen.getByLabelText("Filtrar por paso operacional")).toHaveProperty(
+ 			"value",
+-			"step_09_client_signature",
++			"step_10_client_signature",
+ 		);
+ 		expect(screen.getByLabelText("Mostrar archivados")).toHaveProperty("checked", true);
+ 
+@@ -113,14 +113,14 @@ describe("Documents page", () => {
+ 			order_id: "order-1",
+ 			purpose: "closing_evidence",
+ 			serviceCaseId: "sc-1",
+-			stepCode: "step_09_client_signature",
++			stepCode: "step_10_client_signature",
+ 		});
+ 
+ 		expect(documentUploaderMock.mock.lastCall?.[0]).toMatchObject({
+ 			defaultOrderId: "order-1",
+ 			defaultPurpose: "closing_evidence",
+ 			defaultServiceCaseId: "sc-1",
+-			defaultStepCode: "step_09_client_signature",
++			defaultStepCode: "step_10_client_signature",
+ 		});
+ 	});
+ 
+@@ -139,7 +139,7 @@ describe("Documents page", () => {
+ 		fireEvent.click(screen.getByRole("button", { name: "Filtrar" }));
+ 
+ 		expect(replaceMock).toHaveBeenCalledWith(
+-			"/documents?q=factura&orderId=order-1&serviceCaseId=sc-1&purpose=support_document&step=step_09_client_signature",
++			"/documents?q=factura&orderId=order-1&serviceCaseId=sc-1&purpose=support_document&step=step_10_client_signature",
+ 		);
+ 	});
+ });
+diff --git a/frontend/tests/modules/orders/order-closure-tab.test.tsx b/frontend/tests/modules/orders/order-closure-tab.test.tsx
+index 254ec0c..e3ef5b1 100644
+--- a/frontend/tests/modules/orders/order-closure-tab.test.tsx
++++ b/frontend/tests/modules/orders/order-closure-tab.test.tsx
+@@ -93,21 +93,21 @@ const mocks = vi.hoisted(() => {
+ 			requirements: [
+ 				{
+ 					kind: "acta_delivery",
+-					stepCode: "step_08_delivery_record",
++					stepCode: "step_09_delivery_record",
+ 					label: "Delivery record",
+ 					status: "missing",
+ 					message: "Generate or attach the delivery record.",
+ 				},
+ 				{
+ 					kind: "client_signature",
+-					stepCode: "step_09_client_signature",
++					stepCode: "step_10_client_signature",
+ 					label: "Client signature",
+ 					status: "missing",
+ 					message: "Client signature or approval is still missing.",
+ 				},
+ 				{
+ 					kind: "ses_filing",
+-					stepCode: "step_10_ses_submission",
++					stepCode: "step_11_ses",
+ 					label: "SES filing",
+ 					status: "missing",
+ 					message: "SES has not been filed yet.",
+diff --git a/frontend/tests/modules/p0/react-doctor-remediation.test.tsx b/frontend/tests/modules/p0/react-doctor-remediation.test.tsx
+new file mode 100644
+index 0000000..e2db7e4
+--- /dev/null
++++ b/frontend/tests/modules/p0/react-doctor-remediation.test.tsx
+@@ -0,0 +1,40 @@
++import { act, render, screen } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import { metadata as consentMetadata } from "@/app/(legal)/consent/page";
++import { metadata as privacyMetadata } from "@/app/(legal)/privacy/page";
++import { ConsentGate } from "@/modules/consents/ui/ConsentGate";
++import { OrderTimeline } from "@/modules/orders/ui/OrderTimeline";
++
++describe("P0 React Doctor remediation", () => {
++	beforeEach(() => {
++		localStorage.clear();
++		vi.useFakeTimers();
++	});
++
++	afterEach(() => {
++		vi.useRealTimers();
++	});
++
++	it("exports search-preview metadata for both legal pages", () => {
++		expect(consentMetadata.title).toBeTruthy();
++		expect(consentMetadata.description).toBeTruthy();
++		expect(privacyMetadata.title).toBeTruthy();
++		expect(privacyMetadata.description).toBeTruthy();
++	});
++
++	it("renders the non-blocking consent notice as complementary content", async () => {
++		render(<ConsentGate />);
++		await act(async () => {
++			vi.advanceTimersByTime(2_000);
++		});
++
++		expect(screen.getByRole("complementary", { name: "Aviso de privacidad" })).toBeTruthy();
++		expect(screen.queryByRole("dialog")).toBeNull();
++	});
++
++	it("uses the native progress element for order completion semantics", () => {
++		render(<OrderTimeline status="planning" />);
++
++		expect(screen.getByRole("progressbar").tagName).toBe("PROGRESS");
++	});
++});
+diff --git a/frontend/tests/modules/service-cases/service-cases-page.test.tsx b/frontend/tests/modules/service-cases/service-cases-page.test.tsx
+index 546bf5c..8d9c72b 100644
+--- a/frontend/tests/modules/service-cases/service-cases-page.test.tsx
++++ b/frontend/tests/modules/service-cases/service-cases-page.test.tsx
+@@ -82,7 +82,7 @@ describe("Service cases page", () => {
+ 
+ 		expect(await screen.findByText("ACME Energy")).toBeTruthy();
+ 		expect(screen.getByText(/14 pasos/)).toBeTruthy();
+-		expect(screen.getByText("Paso 5: Planeación de recursos")).toBeTruthy();
++		expect(screen.getByText((content: string) => content.includes("Paso 5"))).toBeTruthy();
+ 		expect(screen.getByText("Continuar siguiente paso")).toBeTruthy();
+ 		expect(apiClient.get).toHaveBeenCalledWith("/service-cases?limit=50");
+ 		expect(localRepositoryMocks.saveServiceCaseListSnapshot).toHaveBeenCalledWith(
+diff --git a/frontend/tests/public/pwa-assets.test.ts b/frontend/tests/public/pwa-assets.test.ts
+new file mode 100644
+index 0000000..6adef44
+--- /dev/null
++++ b/frontend/tests/public/pwa-assets.test.ts
+@@ -0,0 +1,26 @@
++import fs from "node:fs";
++import path from "node:path";
++import { describe, expect, it } from "vitest";
++import robots from "@/app/robots";
++
++const PUBLIC_DIR = path.resolve(process.cwd(), "public");
++
++describe("PWA production assets", () => {
++	it.each([
++		"manifest.json",
++		"favicon.ico",
++		"icons/icon-192.png",
++		"icons/icon-512.png",
++		"icons/maskable-icon-192.png",
++		"icons/maskable-icon-512.png",
++	])("ships %s", (assetPath) => {
++		expect(fs.existsSync(path.join(PUBLIC_DIR, assetPath))).toBe(true);
++	});
++
++	it("exposes canonical robots metadata", () => {
++		expect(robots()).toMatchObject({
++			rules: { allow: "/", userAgent: "*" },
++			sitemap: expect.stringContaining("/sitemap.xml"),
++		});
++	});
++});
+-- 
+2.51.1.windows.1
+

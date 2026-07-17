@@ -1,0 +1,33 @@
+From f6bc07fb6c05b9ad26f8ea919e6270a300c97105 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 12:53:20 -0500
+Subject: [PATCH 34/42] fix(routes): add authorization to work-requests
+ POST/PATCH routes
+
+---
+ backend/src/modules/work-requests/work-requests.routes.ts | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/backend/src/modules/work-requests/work-requests.routes.ts b/backend/src/modules/work-requests/work-requests.routes.ts
+index 06ac8a1..0805ac5 100644
+--- a/backend/src/modules/work-requests/work-requests.routes.ts
++++ b/backend/src/modules/work-requests/work-requests.routes.ts
+@@ -60,6 +60,7 @@ router.get(
+ router.post(
+ 	"/",
+ 	authenticate,
++	authorize(...INTERNAL_ROLES),
+ 	validateBody(CreateWorkRequestSchema),
+ 	WorkRequestController.createWorkRequest,
+ );
+@@ -73,6 +74,7 @@ router.post(
+ router.patch(
+ 	"/:id",
+ 	authenticate,
++	authorize(...FIELD_MANAGEMENT_ROLES),
+ 	validateParams(WorkRequestIdParamsSchema),
+ 	validateBody(CreateWorkRequestSchema.partial()),
+ 	WorkRequestController.updateWorkRequest,
+-- 
+2.51.1.windows.1
+

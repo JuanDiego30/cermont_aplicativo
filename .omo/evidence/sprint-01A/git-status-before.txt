@@ -1,0 +1,122 @@
+## implement/spec-024-post-spec022-continuation
+ M .github/PULL_REQUEST_TEMPLATE.md
+ M .github/copilot-instructions.md
+ M backend/src/common/docs/api-docs.ts
+ M backend/src/config/env.ts
+ M backend/src/index.ts
+ M backend/src/middlewares/audit-log.middleware.ts
+ M backend/src/middlewares/idempotency.middleware.ts
+ M backend/src/modules/fleet/fleet.controller.ts
+ M backend/src/modules/fleet/fleet.routes.ts
+ M backend/src/modules/notifications/notification.controller.ts
+ M backend/src/modules/notifications/notification.service.ts
+ M backend/src/modules/notifications/notifications.routes.ts
+ M backend/src/modules/service-cases/service-case.service.ts
+ M frontend/src/app/(dashboard)/admin/custom-fields/page.tsx
+ M frontend/src/app/(dashboard)/dashboard/page.tsx
+ M frontend/src/app/(dashboard)/fleet/[id]/page.tsx
+ M frontend/src/app/(dashboard)/service-cases/[id]/cockpit/page.tsx
+ M frontend/src/landing/components/AboutSection.tsx
+ M frontend/src/landing/components/HeroSection.tsx
+ M frontend/src/landing/components/MethodSection.tsx
+ M frontend/src/landing/components/ResourcesSection.tsx
+ M frontend/src/landing/components/ServicesSection.tsx
+ M frontend/src/landing/components/TrustSection.tsx
+ M frontend/src/modules/cockpit/model/cockpit.types.ts
+ D frontend/src/modules/cockpit/ui/AuditTimeline.tsx
+ M frontend/src/modules/core/ui/layout/Header.tsx
+ M frontend/src/modules/core/ui/layout/HeaderNotifications.tsx
+ M frontend/src/modules/core/ui/layout/HeaderUserMenu.tsx
+ D frontend/src/modules/dashboard/hooks/useDashboardKpis.ts
+ D frontend/src/modules/dashboard/ui/KpiWidgetGrid.tsx
+ D frontend/src/modules/evidences/ui/EvidenceGallery.tsx
+ D frontend/src/modules/evidences/ui/EvidenceReplacementDialog.tsx
+ M frontend/src/modules/fleet/api/fleet-api.ts
+ M frontend/src/modules/fleet/queries.ts
+ M frontend/src/modules/fleet/ui/NewVehicleDrawer.tsx
+ M frontend/src/modules/notifications/api/notification.api.ts
+ M frontend/src/modules/service-cases/components/CostComparisonPanel.tsx
+ M frontend/src/modules/service-cases/hooks/useServiceCase.ts
+ M frontend/src/modules/service-cases/queries.ts
+ D frontend/src/modules/service-cases/ui/CockpitPanel.tsx
+ D frontend/src/modules/service-cases/ui/FourteenStepProgress.tsx
+ D frontend/src/modules/service-cases/ui/NextActionsPanel.tsx
+ M frontend/tests/modules/core/header-notifications.test.tsx
+ M packages/shared-types/src/schemas/service-case.schema.ts
+ M tooling/quality/baseline.json
+?? .omo/evidence/audit-react-doctor.txt
+?? .omo/evidence/audit-todo-fixme-list.txt
+?? .omo/evidence/backend-tests.txt
+?? .omo/evidence/build-output.txt
+?? .omo/evidence/current-quality-snapshot.md
+?? .omo/evidence/fleet/
+?? .omo/evidence/frontend-tests.txt
+?? .omo/evidence/implementation-progress.md
+?? .omo/evidence/product-execution-reality-check.md
+?? .omo/evidence/quality-strict-after.txt
+?? .omo/evidence/quality-strict-after2.txt
+?? .omo/evidence/quality-strict-baseline.txt
+?? .omo/evidence/react-doctor-baseline.txt
+?? .omo/evidence/react-doctor-verbose.txt
+?? .omo/evidence/react-doctor-verbose2.txt
+?? .omo/evidence/spec019/
+?? .omo/evidence/sprint3-build.txt
+?? .omo/evidence/sprint3-lint.txt
+?? .omo/evidence/sprint3-tests.txt
+?? .omo/evidence/sprint3-typecheck-final.txt
+?? .omo/evidence/sprint4-build.txt
+?? .omo/evidence/sprint4-contracts.txt
+?? .omo/evidence/sprint4-lint.txt
+?? .omo/evidence/sprint4-quality-strict.txt
+?? .omo/evidence/sprint4-react-doctor.txt
+?? .omo/evidence/sprint4-tests.txt
+?? .omo/evidence/sprint4-typecheck.txt
+?? .omo/evidence/sprint4-verify.txt
+?? .omo/evidence/task-1.1-comment-detection.txt
+?? .omo/evidence/task-1.1-compound-use.txt
+?? .omo/evidence/task-1.1-domain-rules.txt
+?? .omo/evidence/task-1.1-genuine-violations.txt
+?? .omo/evidence/task-1.2-baseline-pass.txt
+?? .omo/evidence/task-1.3-all-clear.txt
+?? .omo/evidence/task-1.3-erp-validation.txt
+?? .omo/evidence/task-1.3-qr-validation.txt
+?? .omo/evidence/task-1.4-inline-comments.txt
+?? .omo/evidence/task-1.5-auth-authz.txt
+?? .omo/evidence/task-1.5-privacy-authz.txt
+?? .omo/evidence/task-1.5-resource-authz.txt
+?? .omo/evidence/task-1.6-wr-authz.txt
+?? .omo/evidence/task-1.7-resource-auth.txt
+?? .omo/evidence/task-1.8-all-clear.txt
+?? .omo/evidence/wave-00/
+?? .omo/evidence/wave-01/
+?? .omo/evidence/wave-02/
+?? .omo/evidence/wave-1-final-verification.txt
+?? .omo/issues/
+?? .omo/locks/
+?? .omo/patches/
+?? .omo/plans/PROMPT_SPEC_021_MODO_EJECUCION_DIRECTA_CERMONT.md
+?? .omo/plans/PROMPT_SPEC_022_COORDINACION_MULTIAGENTE_CONTINUACION_CERMONT.md
+?? .omo/plans/PROMPT_SPEC_023_MULTIAGENTE_PARALELO_CERMONT.md
+?? .omo/plans/PROMPT_SPEC_024_REVISION_GITHUB_PUSH_CONTINUACION_CERMONT.md
+?? .omo/plans/cermont-functional-refactor-masterplan-v4.md
+?? .omo/plans/cermont-product-implementation-masterplan.md
+?? .omo/plans/cermont-product-implementation-masterplan.v3.md
+?? .omo/plans/cermont-spec-020-master-remediation-and-innovation.md
+?? .omo/plans/implementation-quality-roadmap.md
+?? .omo/plans/quality-remediation.md
+?? .omo/plans/spec-014-completion.md
+?? .omo/plans/spec-015-auditoria-cierre-brechas.md
+?? .omo/plans/spec-016-audit-integral-plan-continuidad.md
+?? .omo/plans/spec-016-ejecucion-final.md
+?? .omo/plans/spec-016-implementacion-directa.md
+?? .omo/plans/spec-016-updated-implementation-plan.md
+?? .omo/plans/spec-017-auditoria-integral-innovacion.md
+?? .omo/plans/spec-019-implementacion-masiva.md
+?? frontend/doctor.config.json
+?? frontend/src/lib/utils/lazy-operational-kpi-section.tsx
+?? frontend/src/modules/dashboard/ui/OperationalKpiSection.tsx
+?? frontend/src/modules/fleet/ui/MaintenanceTab.tsx
+?? frontend/src/modules/service-cases/model/
+?? frontend/tests/modules/fleet/MaintenanceTab.test.tsx
+?? frontend/tests/modules/fleet/NewVehicleDrawer.test.tsx
+?? frontend/tests/modules/fleet/VehicleAssignmentPanel.test.tsx

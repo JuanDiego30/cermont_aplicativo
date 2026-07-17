@@ -40,7 +40,11 @@ router.get("/recent-activity", authorize(...ALL_AUTHENTICATED_ROLES), getRecentA
 router.get("/kpis", authorize(...ALL_AUTHENTICATED_ROLES), getRoleKPIs);
 
 // GET /api/dashboard/charts/cost-comparison — Cost comparison chart data
-router.get("/charts/cost-comparison", authorize(...ALL_AUTHENTICATED_ROLES), getCostComparisonChart);
+router.get(
+	"/charts/cost-comparison",
+	authorize(...ALL_AUTHENTICATED_ROLES),
+	getCostComparisonChart,
+);
 
 // GET /api/dashboard/financial-kpis — Financial KPIs (conversion rate, pipeline, margin)
 router.get("/financial-kpis", authorize(...ALL_AUTHENTICATED_ROLES), getFinancialKpis);

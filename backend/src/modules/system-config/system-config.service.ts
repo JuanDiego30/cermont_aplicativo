@@ -27,6 +27,13 @@ const DEFAULT_FLAGS: FeatureFlag[] = [
 		category: "billing",
 	},
 	{
+		key: "enable_erp_integration",
+		label: "Integracion ERP",
+		description: "Habilita el envio de datos a sistemas ERP externos",
+		enabled: false,
+		category: "billing",
+	},
+	{
 		key: "enable_email_notifications",
 		label: "Notificaciones por email",
 		description: "Envia notificaciones por correo electronico",

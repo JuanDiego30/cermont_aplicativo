@@ -198,9 +198,7 @@ async function resolveSiteVisitBlockers({
 	return blockers;
 }
 
-function resolveProposalBlockers({
-	serviceCase,
-}: BlockerResolverContext): DomainBlocker[] {
+function resolveProposalBlockers({ serviceCase }: BlockerResolverContext): DomainBlocker[] {
 	const p = serviceCase.artifacts.proposal;
 	if (p?.id && p.status === "approved") {
 		return [];

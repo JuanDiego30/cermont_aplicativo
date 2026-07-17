@@ -1,4 +1,5 @@
 import {
+	AddVehicleDocumentSchema,
 	CheckinVehicleAssignmentSchema,
 	CheckoutVehicleAssignmentSchema,
 	CreateVehicleAssignmentSchema,
@@ -40,6 +41,26 @@ export async function getExpiringDocuments(req: Request, res: Response): Promise
 		Number.isFinite(days) && days > 0 ? days : 30,
 	);
 	sendSuccess(res, alerts);
+}
+
+export async function getBlockerDocuments(req: Request, res: Response): Promise<void> {
+	requireUser(req);
+	const blockers = await FleetService.getBlockerDocuments();
+	sendSuccess(res, blockers);
+}
+
+export async function getFleetReadiness(req: Request, res: Response): Promise<void> {
+	requireUser(req);
+	const readiness = await FleetService.getFleetReadiness();
+	sendSuccess(res, readiness);
+}
+
+export async function addVehicleDocument(req: Request, res: Response): Promise<void> {
+	const _user = requireUser(req);
+	const { id } = VehicleIdParamsSchema.parse(req.params);
+	const input = AddVehicleDocumentSchema.parse(req.body);
+	const result = await FleetService.addVehicleDocument(id, input);
+	sendSuccess(res, result);
 }
 
 export async function getVehicle(req: Request, res: Response): Promise<void> {

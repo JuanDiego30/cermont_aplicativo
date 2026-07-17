@@ -1,0 +1,37 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Dashboard - KPI overview and navigation",
+  "description": "Verifies the main dashboard page loads with KPI cards, charts, and correct role-based navigation",
+  "priority": "p0",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in with gerente credentials and navigate to /dashboard"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that dashboard loads with KPI metric cards (active orders, pending proposals, open costs, etc.)"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the sidebar navigation shows all menu items: Dashboard, Work Requests, Orders, Proposals, Planning, Execution, Evidences, Reports, Billing, Admin"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the notification bell icon is present in the top bar"
+    },
+    {
+      "type": "action",
+      "description": "Click on each sidebar navigation link and verify the corresponding page loads without error"
+    },
+    {
+      "type": "action",
+      "description": "Resize browser to mobile width (375px) and verify sidebar becomes a hamburger drawer menu"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that mobile drawer can be opened and closed, and navigation still works"
+    }
+  ]
+}

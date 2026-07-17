@@ -1,0 +1,8 @@
+Command: npx tsx tooling/quality/check-routes.ts with route baselines temporarily set to zero
+Result: exit 1
+
+Relevant output:
+backend/src/modules/privacy-requests/privacy-requests.routes.ts:7:1 route-missing-authorization-policy Route does not declare an authorization policy
+backend/src/modules/resource/resource.routes.ts:111:1 route-missing-authorization-policy Route does not declare an authorization policy
+
+Assertion: genuine authorization gaps remain detectable after the checker fix.

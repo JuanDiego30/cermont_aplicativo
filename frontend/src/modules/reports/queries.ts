@@ -8,6 +8,7 @@ import type {
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CACHE_CONFIG } from "@/lib/constants/query-config";
 import { apiClient, isOfflineLikeError, toApiUrl } from "@/lib/http/api-client";
+import { ORDERS_KEYS } from "@/modules/orders/queries";
 import { enqueue } from "@/lib/offline/sync-queue";
 import { useOfflineStore } from "@/store/offline.store";
 
@@ -235,7 +236,7 @@ export function useCreateReport() {
 					};
 
 					queryClient.setQueryData(REPORTS_KEYS.order(data.orderId), mockReport);
-					queryClient.invalidateQueries({ queryKey: ["orders", data.orderId] });
+					queryClient.invalidateQueries({ queryKey: ORDERS_KEYS.detail(data.orderId) });
 
 					return mockReport;
 				}
@@ -244,7 +245,7 @@ export function useCreateReport() {
 		},
 		onSuccess: (report) => {
 			queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.all });
-			queryClient.invalidateQueries({ queryKey: ["orders", report.orderId] });
+			queryClient.invalidateQueries({ queryKey: ORDERS_KEYS.detail(report.orderId) });
 		},
 	});
 }
@@ -336,7 +337,7 @@ export function useUpdateReport(id: string) {
 					}
 
 					if (orderId) {
-						queryClient.invalidateQueries({ queryKey: ["orders", orderId] });
+						queryClient.invalidateQueries({ queryKey: ORDERS_KEYS.detail(orderId) });
 					}
 
 					const currentCached =
@@ -436,7 +437,7 @@ export function useCreateTechnicalReport(executionSessionId: string) {
 				data,
 			),
 		onSuccess: () => {
-			void queryClient.invalidateQueries({ queryKey: ["technical-reports"] });
+			void queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.all });
 		},
 	});
 }

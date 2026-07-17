@@ -1,0 +1,12 @@
+Task 1.7 — Explicit resource document authentication
+
+GET /api/resources/:resourceId/documents now declares:
+authenticate -> authorize(...INTERNAL_ROLES) -> validateParams(ResourceDocumentParamsSchema) -> listToolDocuments
+
+This remains defense in depth in addition to router.use(authenticate).
+
+Command: npx tsx tooling/quality/check-routes.ts
+Result: exit 0; resource.routes.ts is absent from findings.
+
+Command: npm run test -w backend
+Result: 102 files passed, 681 tests passed.

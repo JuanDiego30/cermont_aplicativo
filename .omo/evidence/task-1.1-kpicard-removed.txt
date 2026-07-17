@@ -1,0 +1,5 @@
+TASK-1.1 verification
+
+- `frontend/src/components/common/KpiCard.tsx`: absent after cleanup.
+- Search for the old component found no import; `PortalKpiCard` is an unrelated local component.
+- Active `frontend/src/core/ui/KPICard.tsx` and `frontend/src/components/ui/KPICard.tsx` were preserved.

@@ -1,0 +1,9 @@
+
+> cermont-monorepo@1.0.0 quality:weak-tokens
+> tsx tooling/quality/check-weak-tokens.ts
+
+Weak token quality check: 3041 findings
+- weak-token-a: 85/85 within baseline
+- weak-token-n: 1543/1543 within baseline
+- weak-token-u: 636/636 within baseline
+- weak-token-ud: 777/777 within baseline

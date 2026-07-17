@@ -1,0 +1,105 @@
+
+File                                                                                                                                     Line Text
+----                                                                                                                                     ---- ----
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\User.ts                                                  41 // Métodos de instancia
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\models\User.ts                                                 122 // Método de instancia para comparar contraseñas
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\ai\ai.service.ts                                        39 : "- Ninguno. Todos los requisitos están cumplidos para avanzar.";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\asset\asset.controller.ts                               30 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\asset\asset.controller.ts                               44 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\asset\asset.controller.ts                              129 * Roles: Todos
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\asset\asset.controller.ts                              184 * Roles: Todos
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\asset\asset.routes.ts                                   35 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\asset\asset.routes.ts                                   48 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\asset\asset.routes.ts                                  134 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\asset\asset.routes.ts                                  179 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\documents\document.service.ts                          267 function applyAssociationToDocument(
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\documents\document.service.ts                          314 applyAssociationToDocument(document, association, input);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\documents\file.service.ts                                8 * - ClamAV integration placeholder (TODO)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\documents\file.service.ts                               57 * 5. TODO: ClamAV scan before commit
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\evidence\evidence.routes.ts                             30 // Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\evidence\evidence.routes.ts                             34 // Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\evidence\evidence.routes.ts                             44 // Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\evidence\evidence.routes.ts                             99 // Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\evidence\evidence.routes.ts                            109 // Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\evidence\evidence.routes.ts                            119 // Roles: Todos
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.service.ts                                     109 function toDomainModel(kit: IKitDocument): KitDomainModel {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.service.ts                                     456 const domainModel = toDomainModel(kit);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.service.ts                                     490 const domainModel = toDomainModel(kit);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.service.ts                                     519 const domainModel = toDomainModel(kit);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\kit\kit.service.ts                                     624 const domainModel = toDomainModel(kit);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\notifications\notification.service.ts                   69 export function dbStepToDomainState(dbStep: string): string {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\notifications\notification.service.ts                   76 const state = stepCode.startsWith("step_") ? dbStepToDomainState(stepCode) : stepCode;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\order\order.routes.ts                                   10 * Note: "Todos" (all roles) means all authenticated users.
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\order\order.routes.ts                                   36 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\order\order.routes.ts                                   42 // Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\order\order.routes.ts                                   49 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\order\order.routes.ts                                   83 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\order\order.routes.ts                                  112 * Roles: Todos (but service validates role permissions per transition)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\planning-packet\planning-packet.controller.ts           41 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\planning-packet\planning-packet.controller.ts           55 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\planning-packet\planning-packet.routes.ts               46 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\planning-packet\planning-packet.routes.ts              141 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\service-cases\service-case.service.ts                 1439 function dbStepToDomainState(dbStep: string): ServiceCaseState {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\service-cases\service-case.service.ts                 1496 const currentState = dbStepToDomainState(currentStepCode);
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\work-requests\work-requests.controller.ts               16 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\work-requests\work-requests.controller.ts               31 * Roles: Todos (all authenticated users, service applies RBAC filtering)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\work-requests\work-requests.controller.ts               53 * Roles: Todos (all authenticated users, service applies RBAC)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\work-requests\work-requests.routes.ts                   30 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\work-requests\work-requests.routes.ts                   44 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\modules\work-requests\work-requests.routes.ts                   58 * Roles: Todos (all authenticated users)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\messaging\sms.gateway.ts                               35 // TODO: Integrate with Twilio or SMS provider
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\cermont-workflow-gate.service.ts                      325 recommendedAction: "Completar todos los elementos de la lista de chequeo.",
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\closure-report.test.ts                                160 it("debe aceptar pago con todos los campos", () => {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend\src\services\closure-report.test.ts                                196 it("debe aceptar reporte de cierre completo con todos los sub-schemas", () => {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\admin\backups\page.tsx                         40 const [month, setMonth] = useState(0); // 0 = todo el histórico
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\admin\backups\page.tsx                        101 <option value={0}>Todo el histórico</option>
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\delivery-records\[id]\page.tsx                300 <FieldCard title="M&eacute;todo de firma" value={record.signatureMethod || "Sin firmar"} />
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\delivery-records\[id]\page.tsx                452 M&eacute;todo de firma *
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\documents\templates\new\page.tsx               46 toast.error("Todos los campos son requeridos");
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\documents\page.tsx                            400 <option value="">Todos los casos</option>
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\documents\page.tsx                            423 <option value="">Todos los propósitos</option>
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\documents\page.tsx                            446 <option value="">Todos los pasos</option>
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\fleet\page.tsx                                 96 { value: "", label: "Todos los estados" },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\fleet\page.tsx                                103 { value: "", label: "Todos los tipos" },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\maintenance\page.tsx                          264 <option value="all">Todos los estados</option>
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\maintenance\page.tsx                          300 <option value="all">Todos</option>
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\orders\[id]\planning\page.tsx                  17 ListTodo,
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\orders\[id]\planning\page.tsx                 741 <ListTodo aria-hidden="true" className="size-5 text-brand-green" />
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\orders\OrdersPageSelectionBar.tsx              44 {allSelected ? "Deseleccionar todo" : "Seleccionar todo"}
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\payments\[id]\page.tsx                        227 title="M&eacute;todo de pago"
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\payments\new\page.tsx                         290 Método de pago
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\resources\kits\page.tsx                       152 Todos
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(dashboard)\resources\page.tsx                             63 { value: "all", label: "Todos" },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(legal)\terms\page.tsx                                    111 Todo el contenido, diseño, código fuente, bases de datos, logotipos, marcas, nombres
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\app\(legal)\terms\page.tsx                                    174 {COMPANY_NAME} no garantiza que la Plataforma sea compatible con todos los dispositivos
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\landing\components\LandingFooter.tsx                          130 &copy; {new Date().getFullYear()} {CORPORATE_NAME}. Todos los derechos reservados.
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\landing\components\MethodSection.tsx                            8 id="metodo"
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\landing\components\MethodSection.tsx                           15 eyebrow="Método"
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\landing\components\MissionVisionSection.tsx                    26 Prestar un servicio eficiente en todo el territorio nacional.
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\landing\components\MissionVisionSection.tsx                    29 Prestar en todo el territorio nacional un servicio eficiente, contando con un recurso
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\landing\components\MissionVisionSection.tsx                    32 ambiental y sobre todo respeto por sus trabajadores y la comunidad.
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\landing\landing-constants.ts                                   17 { label: "Metodo", href: "#metodo" },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\landing\landing-data.ts                                       106 description: "Prestamos servicio en todo el territorio nacional con disciplina y trazabilidad.",
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\lib\http\api-client.ts                                          2 // ÚNICO cliente HTTP del frontend — todos los módulos usan este
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\auth\ui\ResetPasswordContent.tsx                       23 return { ...initialState, error: "Todos los campos son requeridos" };
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\checklists\components\ChecklistPanel.tsx              569 La firma solo se envia cuando todos los items requeridos esten completados.
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\dashboard\ui\StepTimeline.tsx                         152 label="Todos"
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\evidences\hooks\useEvidenceUpload.ts                  177 toast.error("Completa todos los títulos requeridos");
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\evidences\ui\EvidenceSubmitBar.tsx                     50 Cancelar todo
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\src\modules\proposals\ui\ProposalFilters.tsx                       10 { value: "", label: "Todos los estados" },
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\@vitest\runner\dist\tasks.d-DEYaIMIu.d.ts     417 type RunMode = "run" | "skip" | "only" | "todo" | "queued";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\@vitest\runner\dist\tasks.d-DEYaIMIu.d.ts     469 * - **todo**: task is marked as a todo, alias for `skip`
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\@vitest\runner\dist\tasks.d-DEYaIMIu.d.ts     720 type ChainableTestContextMap = Pick<Required<TestOptions>, "concurrent" | "sequential" | "only" | "skip" | "todo" | "fails">;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\@vitest\runner\dist\tasks.d-DEYaIMIu.d.ts     816 * Whether the test should be skipped and marked as a todo.
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\@vitest\runner\dist\tasks.d-DEYaIMIu.d.ts     818 todo?: boolean;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\@vitest\runner\dist\tasks.d-DEYaIMIu.d.ts    1203 type ChainableSuiteContextMap = Pick<Required<SuiteOptions>, "concurrent" | "sequential" | "only" | "skip" | "todo" | "shuffle">;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\vitest\dist\chunks\benchmark.d.DAaHLpsq.d.ts   18 type ChainableBenchmarkAPI = ChainableFunction<"skip" | "only" | "todo", (name: string | Function, fn?: BenchFunction, options?: Options) => void>;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\vitest\dist\chunks\reporters.d.DtoKVV2s.d.ts  349 readonly mode: "run" | "only" | "skip" | "todo";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\vitest\dist\chunks\reporters.d.DtoKVV2s.d.ts  389 * The test was skipped with `only` (on another test), `skip` or `todo` flag.
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\vitest\dist\chunks\reporters.d.DtoKVV2s.d.ts 2291 type Status = "passed" | "failed" | "skipped" | "pending" | "todo" | "disabled";
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\node_modules\vitest\dist\chunks\reporters.d.DtoKVV2s.d.ts 2323 numTodoTests: number;
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\domain\src\__tests__\checklist.rules.test.ts                       66 it("queda listo cuando todos los controles bloqueantes tienen soporte", () => {
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\src\schemas\user.schema.ts                           124 // Schema para actualizar (todos los campos opcionales)
+C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\tests\workflow\closure-readiness.test.ts              41 it("habilita cierre cuando todos los requisitos administrativos están completos", () => {
+
+

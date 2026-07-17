@@ -157,7 +157,7 @@ export async function getCaseClosingStatus(req: Request, res: Response): Promise
  * GET /api/service-cases/:id/proposal
  * Returns the proposal linked to this service case (if one exists)
  */
-export async function getServiceCaseLinkedProposal(req: Request, res: Response): Promise<void> {
+export async function getLinkedProposal(req: Request, res: Response): Promise<void> {
 	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
 	const proposal = await Proposal.findOne({ serviceCaseId: id }).lean();
 

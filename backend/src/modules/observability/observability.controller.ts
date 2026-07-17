@@ -25,3 +25,8 @@ export const getEndpointHealth = async (_req: Request, res: Response) => {
 	const health = ObservabilityService.getSystemHealth();
 	return sendSuccess(res, health);
 };
+
+export const getFullStatus = async (_req: Request, res: Response) => {
+	const status = await ObservabilityService.getFullSystemStatus();
+	return sendSuccess(res, status);
+};

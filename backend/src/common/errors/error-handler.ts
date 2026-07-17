@@ -50,6 +50,7 @@ function handleDatabaseError(
 		error: {
 			code: errorCode,
 			message,
+			requestId,
 		},
 	});
 }
@@ -84,7 +85,9 @@ export function errorHandler(
 			requestId,
 		});
 
-		res.status(err.statusCode).json(err.toJSON());
+		const body = err.toJSON() as { success: false; error: Record<string, unknown> };
+		body.error.requestId = requestId;
+		res.status(err.statusCode).json(body);
 		return;
 	}
 
@@ -102,6 +105,7 @@ export function errorHandler(
 			error: {
 				code: ERROR_CODES.VALIDATION_FAILED,
 				message: "Validation failed",
+				requestId,
 				details,
 			},
 		});
@@ -134,6 +138,7 @@ export function errorHandler(
 		error: {
 			code: ERROR_CODES.INTERNAL_ERROR,
 			message: env.NODE_ENV === "production" ? "Internal server error" : err.message,
+			requestId,
 			...(env.NODE_ENV !== "production" && { stack: err.stack }),
 		},
 	});

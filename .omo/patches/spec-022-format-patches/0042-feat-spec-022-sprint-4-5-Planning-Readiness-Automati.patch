@@ -1,0 +1,46 @@
+From b332b6d86061be21a6bd839fafc65d736ea30fd4 Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 16:12:31 -0500
+Subject: [PATCH 42/42] feat(spec-022): sprint 4+5 - Planning Readiness +
+ Automation Rules MVP
+
+Sprint 4 - Planning Readiness:
+- ReadinessGate labels updated to Spanish (checklist, evidence slots,
+  certifications, safety, tools, proposal)
+- Backend already has planning-readiness.service.ts with validation
+- Frontend already has ReadinessGate (loading/pass/fail states) + queries
+
+Sprint 5 - Automation Rules MVP:
+- Backend: automation.service.ts with CRUD, routes with GET/POST/PATCH
+- Frontend: RulesEngineConfig.tsx (261 lines) with full CRUD UI,
+  OperationalActionsPanel.tsx, queries with TanStack Query
+---
+ frontend/src/modules/planning/ui/ReadinessGate.tsx | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/frontend/src/modules/planning/ui/ReadinessGate.tsx b/frontend/src/modules/planning/ui/ReadinessGate.tsx
+index 974bda8..cb3bfcd 100644
+--- a/frontend/src/modules/planning/ui/ReadinessGate.tsx
++++ b/frontend/src/modules/planning/ui/ReadinessGate.tsx
+@@ -16,12 +16,12 @@ interface ReadinessGateProps {
+ }
+ 
+ const CHECK_LABELS: Record<string, string> = {
+-	approvedProposalExists: "Approved proposal",
+-	allTechsHaveValidCerts: "Technician certifications",
+-	allVehiclesDocumentsOk: "Vehicle documents",
+-	allToolsCalibrated: "Tool calibration",
+-	safetyChecklistComplete: "Safety checklist",
+-	evidenceSlotsComplete: "Evidence slots",
++	approvedProposalExists: "Propuesta aprobada",
++	allTechsHaveValidCerts: "Certificaciones técnicas",
++	allVehiclesDocumentsOk: "Documentos vehículos",
++	allToolsCalibrated: "Calibración herramientas",
++	safetyChecklistComplete: "Checklist de seguridad",
++	evidenceSlotsComplete: "Slots de evidencia",
+ };
+ 
+ export function ReadinessGate({ checks, canExecute, loading }: ReadinessGateProps) {
+-- 
+2.51.1.windows.1
+

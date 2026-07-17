@@ -1,0 +1,21 @@
+Wave,Name,Objective,Gaps,PaidDependencies,Effort,Order
+Wave 0,KPI Schemas CERMONT,Create 7 Zod schemas for domain-specific KPIs (lifeline,cctv,anchor,hse,execution,cost,dashboard),S1.1,0,40h,1
+Wave 1,KPI Backend Endpoints,Create 7 aggregation endpoints using existing data,S1.2,0,50h,2
+Wave 2,KPI UI Components,Build KpiCard,KpiGrid,KpiTrend,KpiProgress,KpiAlert with CERMONT colors,S1.3,0,60h,3
+Wave 3,Dashboard Sections,Organize KPIs by domain (Lifeline,HSE,CCTV,Anchor,Execution,Cost),S1.4,0,50h,4
+Wave 4,Design Tokens v4.0,Implement DESIGN.md tokens (dark mode, surfaces, text, borders, semantic),S2.1,0,30h,5
+Wave 5,Bottom Nav + Sidebar,Responsive navigation (bottom nav mobile + sidebar desktop),S2.2,0,30h,6
+Wave 6,Cards + Layout,Refactor all cards to DESIGN.md specs (24px radius, responsive grid),S2.3,0,40h,7
+Wave 7,UI States All Pages,Implement loading/error/empty/offline/forbidden on 10 critical pages,S2.4,0,60h,8
+Wave 8,Iconography Audit,Replace all emojis with Lucide unicolor icons + fix currentColor,S2.5,0,20h,9
+Wave 9,Button Refactor,Convert all buttons to pill shape (999px radius) per DESIGN.md,S2.6,0,20h,10
+Wave 10,14-Step Flow Commercial,Sprint 3.1 - Improve steps 1-4 (WorkRequest,SiteVisit,Proposal,PO),S3.1,0,40h,11
+Wave 11,14-Step Flow Planning,Sprint 3.2 - Improve step 5 with CERMONT categories,S3.2,0,40h,12
+Wave 12,14-Step Flow Execution,Sprint 3.3 - Improve step 6 (timer,checklist,categories),S3.3,0,40h,13
+Wave 13,14-Step Flow Evidence+Report,Sprint 3.4-3.5 - Improve steps 7-10 (gallery,report,signature),S3.4 S3.5,0,50h,14
+Wave 14,14-Step Flow Closure,Sprint 3.6 - Improve steps 11-14 (SES,invoice,payment),S3.6,0,30h,15
+Wave 15,React Doctor Fix,Resolve all issues to raise score from 76 to >=90,S4.1,0,60h,16
+Wave 16,Dead Code Removal,Remove unused components and exports,S4.2,0,30h,17
+Wave 17,Spanish Symbol Migration,Renamed internal symbols from Spanish to English,S4.3,0,40h,18
+Wave 18,Missing Tests,Add tests for billing modules and KPI components,S4.4,0,40h,19
+Wave 19,Type Quality,Fix any/unknown/null violations + add missing Zod schemas,S4.5,0,30h,20

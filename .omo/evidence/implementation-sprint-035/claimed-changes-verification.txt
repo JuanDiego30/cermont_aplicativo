@@ -1,0 +1,49 @@
+CLAIMED CHANGES VERIFICATION
+=============================
+Date: 2026-07-08 21:50 COT
+
+Pattern search: canApprovePlanning|buildPlanningReadiness|FormSectionSchema|formSectionSchema|requiresPhotoPerItem|requiresEvaluation|FormSubmissionValue
+
+Files searched: packages/, backend/src/, frontend/src/
+
+RESULTS BY PATTERN:
+
+1. canApprovePlanning — FOUND in source code
+   - packages/domain/src/planning.rules.ts:149 (function definition)
+   - packages/domain/src/index.ts:147 (export)
+   - packages/domain/src/__tests__/planning.rules.test.ts:3,83,85,91,96,103,109,116 (tests)
+   - backend/src/modules/planning-packet/planning-packet.service.ts:4 (import), 538 (usage)
+   VERIFIED: YES
+
+2. buildPlanningReadiness — FOUND in source code
+   - backend/src/modules/planning-packet/planning-packet.service.ts:474 (function definition)
+   - backend/src/modules/planning-packet/planning-readiness.service.ts:280,307 (separate service)
+   VERIFIED: YES
+
+3. FormSectionSchema — FOUND in source code
+   - packages/shared-types/src/schemas/dynamic-form-template.schema.ts:57 (schema definition), 69 (type export)
+   VERIFIED: YES
+
+4. formSectionSchema (Mongoose) — FOUND in source code
+   - backend/src/models/DynamicFormTemplate.ts:58 (sub-schema definition), 92 (usage in array)
+   VERIFIED: YES
+
+5. requiresPhotoPerItem — FOUND in source code
+   - packages/shared-types/src/schemas/dynamic-form-template.schema.ts:65
+   - backend/src/models/DynamicFormTemplate.ts:73
+   VERIFIED: YES
+
+6. requiresEvaluation — FOUND in source code
+   - packages/shared-types/src/schemas/dynamic-form-template.schema.ts:66 (enum: none|pass_fail|c_nc_na)
+   - backend/src/models/DynamicFormTemplate.ts:74-80
+   VERIFIED: YES
+
+7. FormSubmissionValue — FOUND in source code
+   - packages/shared-types/src/schemas/form-submission.schema.ts:4,6 (definition)
+   - backend/src/modules/form-submissions/form-submission.service.ts:1 (import), 20 (usage)
+   - frontend/src/app/(dashboard)/forms/[templateId]/page.tsx:3 (import), 67 (usage)
+   VERIFIED: YES
+
+CONCLUSION:
+All claimed changes from Sprint 2 and Sprint 3 were confirmed as REAL code changes
+in source files. They are not limited to Markdown evidence.

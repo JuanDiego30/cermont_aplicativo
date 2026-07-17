@@ -1,0 +1,94 @@
+From 5aab1a6de011372d1192c8ee9514d7dd1d087f2f Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 00:18:26 -0500
+Subject: [PATCH 16/42] docs(spec-018): add spec kit with revised scope and
+ slice-01 report
+
+Corrects Spec-017 audit finding: 6 modules have centralized service in administrative-workflow.service.ts (1605 lines). Real gaps: kpi (empty), media (empty), observability (no service), documentation.
+---
+ .../slices/slice-01-fix-checklist-test.md     | 26 +++++++++++++
+ specs/018-cierre-flujo-documental/spec.md     | 39 +++++++++++++++++++
+ 2 files changed, 65 insertions(+)
+ create mode 100644 specs/018-cierre-flujo-documental/slices/slice-01-fix-checklist-test.md
+ create mode 100644 specs/018-cierre-flujo-documental/spec.md
+
+diff --git a/specs/018-cierre-flujo-documental/slices/slice-01-fix-checklist-test.md b/specs/018-cierre-flujo-documental/slices/slice-01-fix-checklist-test.md
+new file mode 100644
+index 0000000..3531767
+--- /dev/null
++++ b/specs/018-cierre-flujo-documental/slices/slice-01-fix-checklist-test.md
+@@ -0,0 +1,26 @@
++# Slice 01 — Fix Header Notifications Tests
++
++**Status:** ✅ COMPLETED (commit `20414e6`)
++**Date:** 2026-07-06
++
++## Issue
++2 failing tests in `header-notifications.test.tsx`:
++1. Expected `getSpy` to be called with `/notifications?limit=20` — component now calls `/notifications` and `/notifications/unread-count`
++2. Expected query key `["notifications"]` — actual key is `["notifications", "list"]`
++
++## Root Cause
++- Module-level mock (`vi.mock`) replaced `apiClient` with only `{ post: vi.fn() }` — missing `get`, `patch`, `put`, `delete`
++- Mock response returned OLD API shape `{ notifications: [], unreadCount: 0 }` (object), but `useNotifications()` now returns `Notification[]` array
++- `(notificationList ?? []).map(...)` failed because notificationList was an object, not an array
++
++## Fix
++- Added full apiClient mock with all HTTP methods
++- Updated mock response to return `[]` (array) matching current Notification[] return type
++- Updated assertion from `/notifications?limit=20` to `/notifications`
++- Updated query key from `["notifications"]` to `["notifications", "list"]`
++
++## Tests
++- `npm run test -w frontend`: 260/260 passing (64/64 files)
++- `npm run typecheck`: PASS
++- `npm run lint`: PASS (1 pre-existing warning)
++- `npm run build`: PASS
+diff --git a/specs/018-cierre-flujo-documental/spec.md b/specs/018-cierre-flujo-documental/spec.md
+new file mode 100644
+index 0000000..9ac805e
+--- /dev/null
++++ b/specs/018-cierre-flujo-documental/spec.md
+@@ -0,0 +1,39 @@
++# Spec 018 — Cierre del Flujo Documental: Pasos 8-14
++
++**Status:** IN PROGRESS
++**Branch:** `implement/spec-018-cierre-flujo-documental`
++**Baseline commit:** `6c8ccad` (pre-Spec-018)  
++**Slice 01 commit:** `20414e6` (header-notifications test fix)
++
++## Correction to Spec-017 Audit
++
++The Spec-017 audit classified 6 modules (delivery-record, technical-report, service-entry-sheet, invoice, payment, observability) as "only routes" with maturity level 1. This classification was INACCURATE for modules 1-5:
++
++**Actual architecture:** The administrative workflow (pasos 8-14) uses a centralized pattern:
++- Routes: `backend/src/modules/{module}/*.routes.ts` (thin wiring)
++- Controllers: `backend/src/modules/order/administrative-workflow.controller.ts` (453 lines, complete)
++- Service: `backend/src/modules/order/administrative-workflow.service.ts` (1,605 lines, real logic)
++- Models: `backend/src/models/{Module}.ts` (DeliveryRecord, TechnicalReport, ServiceEntrySheet, Invoice, Payment, ClientSignature)
++
++**True gaps:**
++- `backend/src/modules/kpi/` — EMPTY directory (confirmed)
++- `backend/src/modules/media/` — EMPTY directory (confirmed - may be duplicative of FileAsset)
++- `backend/src/modules/observability/` — has controller + routes, needs service file
++- Documentation: API_ROUTE_MAP.md missing, API_ENDPOINT_MATRIX.md outdated
++- Tests: No tests for administrative workflow service
++
++## Revised Scope
++
++| Slice | Module | Original Assessment | Corrected Assessment | Action |
++|-------|--------|-------------------|---------------------|--------|
++| 01 | header-notifications tests | 2 failing tests | Fixed ✅ | Complete |
++| 02 | delivery-record | "only routes" | Centralized controller+service exist | Add tests + verify endpoints |
++| 03 | technical-report | "only routes" | Centralized controller+service exist | Add tests |
++| 04 | service-entry-sheet | "only routes" | Centralized controller+service exist | Add tests |
++| 05 | invoice | "only routes" | Centralized controller+service exist | Add tests |
++| 06 | payment | "only routes" | Centralized controller+service exist | Add tests |
++| 07 | observability | controller+routes, no service | Confirmed | Implement service |
++| 08 | kpi | Empty directory | Confirmed | Implement module |
++| 09 | media | Empty directory | Confirmed | Evaluate if FileAsset covers it |
++| 10 | digital signature | Not implemented | react-esign integration | Implement signature component |
++| 11 | documentation | Multiple docs outdated | Confirmed | Regenerate docs + API route map |
+-- 
+2.51.1.windows.1
+

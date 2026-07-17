@@ -1,0 +1,60 @@
+From 3c6ed0fe783d0c343a871ab8fdbae29757923bea Mon Sep 17 00:00:00 2001
+From: Juan Diego Arevalo <JuanDiego30@users.noreply.github.com>
+Date: Mon, 6 Jul 2026 12:35:13 -0500
+Subject: [PATCH 30/42] fix(tooling): detect compound router.use() and
+ pre-route comments in check-routes.ts
+
+---
+ tooling/quality/baseline.json   | 6 +++---
+ tooling/quality/check-routes.ts | 9 ++++++---
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/tooling/quality/baseline.json b/tooling/quality/baseline.json
+index 9e6a7d9..d87b227 100644
+--- a/tooling/quality/baseline.json
++++ b/tooling/quality/baseline.json
+@@ -5,9 +5,9 @@
+ 	"weak-token-ud": 780,
+ 	"spanish-source-token": 2755,
+ 	"missing-semantic-landmark": 17,
+-	"route-missing-authentication": 5,
+-	"route-missing-authorization-policy": 15,
+-	"route-missing-validation": 15,
++	"route-missing-authentication": 0,
++	"route-missing-authorization-policy": 10,
++	"route-missing-validation": 9,
+ 	"local-api-dto": 39,
+ 	"lint-disable-residue": 0
+ }
+diff --git a/tooling/quality/check-routes.ts b/tooling/quality/check-routes.ts
+index 3205e0d..2280820 100644
+--- a/tooling/quality/check-routes.ts
++++ b/tooling/quality/check-routes.ts
+@@ -29,10 +29,12 @@ for (const filePath of listTextFiles(["backend/src"])) {
+ 	}
+ 
+ 	const text = readText(filePath);
+-	const usesRouterAuth = /router\.use\s*\(\s*authenticate\s*\)/.test(text);
+-	const usesRouterAuthz = /router\.use\s*\(\s*authorize\s*\(/.test(text);
++	const usesRouterAuth = /router\.use\s*\([^)]*authenticate\s*[,)]/.test(text);
++	const usesRouterAuthz = /router\.use\s*\([^)]*authorize\s*\(/.test(text);
+ 	for (const match of text.matchAll(ROUTE_PATTERN)) {
+ 		const routeBlock = match[0];
++		const precedingLines = text.slice(0, match.index).split(/\r?\n/).slice(-3).join("\n");
++		const hasPrecedingNoValidationComment = /No body validation needed/.test(precedingLines);
+ 		const routePath = getRoutePath(routeBlock);
+ 		const location = lineColumnAt(text, match.index);
+ 		const isOpen = routePath !== "" && OPEN_AUTH_ROUTES.includes(routePath);
+@@ -46,7 +48,8 @@ for (const filePath of listTextFiles(["backend/src"])) {
+ 		const needsBodyValidation = /router\.(post|patch|put)\s*\(/.test(routeBlock) && !isOpen;
+ 		const hasValidation =
+ 			/\bvalidate(Body|Query|Params)?\s*\(/.test(routeBlock) ||
+-			/No body validation needed/.test(routeBlock);
++			/No body validation needed/.test(routeBlock) ||
++			hasPrecedingNoValidationComment;
+ 
+ 		if (!isOpen && !hasAuth) {
+ 			findings.push({
+-- 
+2.51.1.windows.1
+

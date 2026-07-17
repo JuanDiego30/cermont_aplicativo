@@ -1,0 +1,375 @@
+
+> cermont-monorepo@1.0.0 lint
+> turbo run lint
+
+• turbo 2.9.16
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running lint in 5 packages
+   • Remote caching disabled
+
+@cermont/config:lint: cache miss, executing 29d01c21c2869ee2
+@cermont/domain:lint: cache miss, executing a543d7edce386177
+@cermont/domain:build: cache hit, replaying logs 686deffeb50a1d0b
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:lint: cache miss, executing ddbf13fb3e27e063
+@cermont/shared-types:build: cache hit, replaying logs b3b7ac056302630f
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:lint: cache miss, executing ba3bae295865126e
+@cermont/frontend:lint: cache miss, executing e8b58ec466a52026
+@cermont/config:lint: 
+@cermont/config:lint: > @cermont/config@1.0.0 lint
+@cermont/config:lint: > biome check .
+@cermont/config:lint: 
+@cermont/domain:lint: 
+@cermont/domain:lint: > @cermont/domain@1.0.0 lint
+@cermont/domain:lint: > biome check .
+@cermont/domain:lint: 
+@cermont/config:lint: Checked 4 files in 33ms. No fixes applied.
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: > @cermont/shared-types@1.0.0 lint
+@cermont/shared-types:lint: > biome check .
+@cermont/shared-types:lint: 
+@cermont/domain:lint: Checked 28 files in 61ms. No fixes applied.
+@cermont/backend:lint: 
+@cermont/backend:lint: > @cermont/backend@5.2.1 lint
+@cermont/backend:lint: > biome lint .
+@cermont/backend:lint: 
+@cermont/frontend:lint: 
+@cermont/frontend:lint: > @cermont/frontend@1.2.0 lint
+@cermont/frontend:lint: > biome lint .
+@cermont/frontend:lint: 
+@cermont/shared-types:lint: src\schemas\automation-rule.schema.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint:   × Formatter would have printed the following content:
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint:      2  2 │   
+@cermont/shared-types:lint:      3  3 │   export const RuleConditionOperatorSchema = z.enum([
+@cermont/shared-types:lint:      4    │ - → "equal",·"notEqual",·"lessThan",·"lessThanInclusive",
+@cermont/shared-types:lint:      5    │ - → "greaterThan",·"greaterThanInclusive",·"in",·"notIn",
+@cermont/shared-types:lint:      6    │ - → "contains",·"doesNotContain",
+@cermont/shared-types:lint:         4 │ + → "equal",
+@cermont/shared-types:lint:         5 │ + → "notEqual",
+@cermont/shared-types:lint:         6 │ + → "lessThan",
+@cermont/shared-types:lint:         7 │ + → "lessThanInclusive",
+@cermont/shared-types:lint:         8 │ + → "greaterThan",
+@cermont/shared-types:lint:         9 │ + → "greaterThanInclusive",
+@cermont/shared-types:lint:        10 │ + → "in",
+@cermont/shared-types:lint:        11 │ + → "notIn",
+@cermont/shared-types:lint:        12 │ + → "contains",
+@cermont/shared-types:lint:        13 │ + → "doesNotContain",
+@cermont/shared-types:lint:      7 14 │   ]);
+@cermont/shared-types:lint:      8 15 │   
+@cermont/shared-types:lint:      9 16 │   export type RuleConditionOperator = z.infer<typeof RuleConditionOperatorSchema>;
+@cermont/shared-types:lint:     10 17 │   
+@cermont/shared-types:lint:     11    │ - export·const·RuleConditionSchema·=·z.object({
+@cermont/shared-types:lint:     12    │ - → fact:·z.string().min(1).max(100),
+@cermont/shared-types:lint:     13    │ - → operator:·RuleConditionOperatorSchema,
+@cermont/shared-types:lint:     14    │ - → value:·z.union([z.string(),·z.number(),·z.boolean(),·z.array(z.string())]),
+@cermont/shared-types:lint:     15    │ - }).strict();
+@cermont/shared-types:lint:        18 │ + export·const·RuleConditionSchema·=·z
+@cermont/shared-types:lint:        19 │ + → .object({
+@cermont/shared-types:lint:        20 │ + → → fact:·z.string().min(1).max(100),
+@cermont/shared-types:lint:        21 │ + → → operator:·RuleConditionOperatorSchema,
+@cermont/shared-types:lint:        22 │ + → → value:·z.union([z.string(),·z.number(),·z.boolean(),·z.array(z.string())]),
+@cermont/shared-types:lint:        23 │ + → })
+@cermont/shared-types:lint:        24 │ + → .strict();
+@cermont/shared-types:lint:     16 25 │   
+@cermont/shared-types:lint:     17 26 │   export type RuleCondition = z.infer<typeof RuleConditionSchema>;
+@cermont/shared-types:lint:     18 27 │   
+@cermont/shared-types:lint:     19 28 │   export const RuleActionTypeSchema = z.enum([
+@cermont/shared-types:lint:     20    │ - → "notify",·"block_transition",·"create_task",
+@cermont/shared-types:lint:     21    │ - → "request_evidence",·"send_email",·"update_field",
+@cermont/shared-types:lint:        29 │ + → "notify",
+@cermont/shared-types:lint:        30 │ + → "block_transition",
+@cermont/shared-types:lint:        31 │ + → "create_task",
+@cermont/shared-types:lint:        32 │ + → "request_evidence",
+@cermont/shared-types:lint:        33 │ + → "send_email",
+@cermont/shared-types:lint:        34 │ + → "update_field",
+@cermont/shared-types:lint:     22 35 │   ]);
+@cermont/shared-types:lint:     23 36 │   
+@cermont/shared-types:lint:     24 37 │   export type RuleActionType = z.infer<typeof RuleActionTypeSchema>;
+@cermont/shared-types:lint:     25 38 │   
+@cermont/shared-types:lint:     26    │ - export·const·RuleActionSchema·=·z.object({
+@cermont/shared-types:lint:     27    │ - → type:·RuleActionTypeSchema,
+@cermont/shared-types:lint:     28    │ - → config:·z.record(z.string(),·z.unknown()).default({}),
+@cermont/shared-types:lint:     29    │ - }).strict();
+@cermont/shared-types:lint:        39 │ + export·const·RuleActionSchema·=·z
+@cermont/shared-types:lint:        40 │ + → .object({
+@cermont/shared-types:lint:        41 │ + → → type:·RuleActionTypeSchema,
+@cermont/shared-types:lint:        42 │ + → → config:·z.record(z.string(),·z.unknown()).default({}),
+@cermont/shared-types:lint:        43 │ + → })
+@cermont/shared-types:lint:        44 │ + → .strict();
+@cermont/shared-types:lint:     30 45 │   
+@cermont/shared-types:lint:     31 46 │   export type RuleAction = z.infer<typeof RuleActionSchema>;
+@cermont/shared-types:lint:     32 47 │   
+@cermont/shared-types:lint:     33    │ - export·const·AutomationRuleSchema·=·z.object({
+@cermont/shared-types:lint:     34    │ - → _id:·z.string().optional(),
+@cermont/shared-types:lint:     35    │ - → name:·z.string().min(1).max(200),
+@cermont/shared-types:lint:     36    │ - → description:·z.string().max(1000).optional(),
+@cermont/shared-types:lint:     37    │ - → module:·z.string().min(1).max(80),
+@cermont/shared-types:lint:     38    │ - → event:·z.string().min(1).max(80),
+@cermont/shared-types:lint:     39    │ - → conditions:·z.array(RuleConditionSchema).min(1),
+@cermont/shared-types:lint:     40    │ - → actions:·z.array(RuleActionSchema).min(1),
+@cermont/shared-types:lint:     41    │ - → isActive:·z.boolean().default(true),
+@cermont/shared-types:lint:     42    │ - → priority:·z.number().int().min(0).max(100).default(50),
+@cermont/shared-types:lint:     43    │ - → createdBy:·z.string(),
+@cermont/shared-types:lint:     44    │ - → createdAt:·z.string().datetime(),
+@cermont/shared-types:lint:     45    │ - → updatedAt:·z.string().datetime(),
+@cermont/shared-types:lint:     46    │ - }).strict();
+@cermont/shared-types:lint:        48 │ + export·const·AutomationRuleSchema·=·z
+@cermont/shared-types:lint:        49 │ + → .object({
+@cermont/shared-types:lint:        50 │ + → → _id:·z.string().optional(),
+@cermont/shared-types:lint:        51 │ + → → name:·z.string().min(1).max(200),
+@cermont/shared-types:lint:        52 │ + → → description:·z.string().max(1000).optional(),
+@cermont/shared-types:lint:        53 │ + → → module:·z.string().min(1).max(80),
+@cermont/shared-types:lint:        54 │ + → → event:·z.string().min(1).max(80),
+@cermont/shared-types:lint:        55 │ + → → conditions:·z.array(RuleConditionSchema).min(1),
+@cermont/shared-types:lint:        56 │ + → → actions:·z.array(RuleActionSchema).min(1),
+@cermont/shared-types:lint:        57 │ + → → isActive:·z.boolean().default(true),
+@cermont/shared-types:lint:        58 │ + → → priority:·z.number().int().min(0).max(100).default(50),
+@cermont/shared-types:lint:        59 │ + → → createdBy:·z.string(),
+@cermont/shared-types:lint:        60 │ + → → createdAt:·z.string().datetime(),
+@cermont/shared-types:lint:        61 │ + → → updatedAt:·z.string().datetime(),
+@cermont/shared-types:lint:        62 │ + → })
+@cermont/shared-types:lint:        63 │ + → .strict();
+@cermont/shared-types:lint:     47 64 │   
+@cermont/shared-types:lint:     48 65 │   export type AutomationRule = z.infer<typeof AutomationRuleSchema>;
+@cermont/shared-types:lint:     49 66 │   
+@cermont/shared-types:lint:     50 67 │   export const CreateAutomationRuleSchema = AutomationRuleSchema.omit({
+@cermont/shared-types:lint:     51    │ - → _id:·true,·createdAt:·true,·updatedAt:·true,
+@cermont/shared-types:lint:        68 │ + → _id:·true,
+@cermont/shared-types:lint:        69 │ + → createdAt:·true,
+@cermont/shared-types:lint:        70 │ + → updatedAt:·true,
+@cermont/shared-types:lint:     52 71 │   });
+@cermont/shared-types:lint:     53 72 │   
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: src\schemas\dashboard-summary.schema.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint:   × Formatter would have printed the following content:
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint:     320 320 │   
+@cermont/shared-types:lint:     321 321 │   // Sprint 2 — KPI Widget extension
+@cermont/shared-types:lint:     322     │ - export·const·DashboardKpiWidgetSchema·=·z.object({
+@cermont/shared-types:lint:     323     │ - → mttr:·z.number().nonnegative(),
+@cermont/shared-types:lint:     324     │ - → mtbf:·z.number().nonnegative(),
+@cermont/shared-types:lint:     325     │ - → firstTimeFixRate:·z.number().min(0).max(100),
+@cermont/shared-types:lint:     326     │ - → technicianUtilizationRate:·z.number().min(0).max(100),
+@cermont/shared-types:lint:     327     │ - → slaCompliance:·z.number().min(0).max(100),
+@cermont/shared-types:lint:     328     │ - → pendingCertifications:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:     329     │ - → periodLabel:·z.string(),
+@cermont/shared-types:lint:     330     │ - }).strict();
+@cermont/shared-types:lint:         322 │ + export·const·DashboardKpiWidgetSchema·=·z
+@cermont/shared-types:lint:         323 │ + → .object({
+@cermont/shared-types:lint:         324 │ + → → mttr:·z.number().nonnegative(),
+@cermont/shared-types:lint:         325 │ + → → mtbf:·z.number().nonnegative(),
+@cermont/shared-types:lint:         326 │ + → → firstTimeFixRate:·z.number().min(0).max(100),
+@cermont/shared-types:lint:         327 │ + → → technicianUtilizationRate:·z.number().min(0).max(100),
+@cermont/shared-types:lint:         328 │ + → → slaCompliance:·z.number().min(0).max(100),
+@cermont/shared-types:lint:         329 │ + → → pendingCertifications:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:         330 │ + → → periodLabel:·z.string(),
+@cermont/shared-types:lint:         331 │ + → })
+@cermont/shared-types:lint:         332 │ + → .strict();
+@cermont/shared-types:lint:     331 333 │   
+@cermont/shared-types:lint:     332 334 │   export type DashboardKpiWidget = z.infer<typeof DashboardKpiWidgetSchema>;
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: src\schemas\index.ts:4:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint:   × Sort these exports.
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint:      2 │ // Reference: DOC-09 Section SSOT (Single Source of Truth)
+@cermont/shared-types:lint:      3 │ 
+@cermont/shared-types:lint:    > 4 │ export * from "./ai.schema";
+@cermont/shared-types:lint:        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@cermont/shared-types:lint:    > 5 │ export * from "./analytics.schema";
+@cermont/shared-types:lint:         ...
+@cermont/shared-types:lint:   > 60 │ export * from "./kpi.schema";
+@cermont/shared-types:lint:   > 61 │ export * from "./kit.schema";
+@cermont/shared-types:lint:        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@cermont/shared-types:lint:     62 │ export * from "./maintenance-plan.schema";
+@cermont/shared-types:lint:     63 │ export * from "./maintenanceKit.schema";
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint:   i Safe fix: Organize imports and exports (Biome)
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint:      58  58 │   export * from "./invoice.schema";
+@cermont/shared-types:lint:      59  59 │   export * from "./invoice-approval.schema";
+@cermont/shared-types:lint:      60     │ - export·*·from·"./kpi.schema";
+@cermont/shared-types:lint:      61     │ - export·*·from·"./kit.schema";
+@cermont/shared-types:lint:          60 │ + export·*·from·"./kit.schema";
+@cermont/shared-types:lint:          61 │ + export·*·from·"./kpi.schema";
+@cermont/shared-types:lint:      62  62 │   export * from "./maintenance-plan.schema";
+@cermont/shared-types:lint:      63  63 │   export * from "./maintenanceKit.schema";
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: src\schemas\kpi.schema.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint:   × Formatter would have printed the following content:
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint:      4  4 │   export type KpiTimeRange = z.infer<typeof KpiTimeRangeSchema>;
+@cermont/shared-types:lint:      5  5 │   
+@cermont/shared-types:lint:      6    │ - export·const·MttrKpiSchema·=·z.object({
+@cermont/shared-types:lint:      7    │ - → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:      8    │ - → totalRepairHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:      9    │ - → totalRepairEvents:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:     10    │ - → mttrHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:     11    │ - → trend:·z.number(),
+@cermont/shared-types:lint:     12    │ - }).strict();
+@cermont/shared-types:lint:         6 │ + export·const·MttrKpiSchema·=·z
+@cermont/shared-types:lint:         7 │ + → .object({
+@cermont/shared-types:lint:         8 │ + → → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:         9 │ + → → totalRepairHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:        10 │ + → → totalRepairEvents:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:        11 │ + → → mttrHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:        12 │ + → → trend:·z.number(),
+@cermont/shared-types:lint:        13 │ + → })
+@cermont/shared-types:lint:        14 │ + → .strict();
+@cermont/shared-types:lint:     13 15 │   
+@cermont/shared-types:lint:     14    │ - export·const·MtbfKpiSchema·=·z.object({
+@cermont/shared-types:lint:     15    │ - → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:     16    │ - → totalOperationalHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:     17    │ - → totalFailures:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:     18    │ - → mtbfHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:     19    │ - → trend:·z.number(),
+@cermont/shared-types:lint:     20    │ - }).strict();
+@cermont/shared-types:lint:        16 │ + export·const·MtbfKpiSchema·=·z
+@cermont/shared-types:lint:        17 │ + → .object({
+@cermont/shared-types:lint:        18 │ + → → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:        19 │ + → → totalOperationalHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:        20 │ + → → totalFailures:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:        21 │ + → → mtbfHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:        22 │ + → → trend:·z.number(),
+@cermont/shared-types:lint:        23 │ + → })
+@cermont/shared-types:lint:        24 │ + → .strict();
+@cermont/shared-types:lint:     21 25 │   
+@cermont/shared-types:lint:     22    │ - export·const·FirstTimeFixRateKpiSchema·=·z.object({
+@cermont/shared-types:lint:     23    │ - → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:     24    │ - → totalJobs:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:     25    │ - → firstTimeFixes:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:     26    │ - → rate:·z.number().min(0).max(100),
+@cermont/shared-types:lint:     27    │ - → trend:·z.number(),
+@cermont/shared-types:lint:     28    │ - }).strict();
+@cermont/shared-types:lint:        26 │ + export·const·FirstTimeFixRateKpiSchema·=·z
+@cermont/shared-types:lint:        27 │ + → .object({
+@cermont/shared-types:lint:        28 │ + → → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:        29 │ + → → totalJobs:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:        30 │ + → → firstTimeFixes:·z.number().int().nonnegative(),
+@cermont/shared-types:lint:        31 │ + → → rate:·z.number().min(0).max(100),
+@cermont/shared-types:lint:        32 │ + → → trend:·z.number(),
+@cermont/shared-types:lint:        33 │ + → })
+@cermont/shared-types:lint:        34 │ + → .strict();
+@cermont/shared-types:lint:     29 35 │   
+@cermont/shared-types:lint:     30    │ - export·const·TechnicianUtilizationKpiSchema·=·z.object({
+@cermont/shared-types:lint:     31    │ - → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:     32    │ - → totalAvailableHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:     33    │ - → totalBilledHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:     34    │ - → utilizationRate:·z.number().min(0).max(100),
+@cermont/shared-types:lint:     35    │ - → trend:·z.number(),
+@cermont/shared-types:lint:     36    │ - }).strict();
+@cermont/shared-types:lint:        36 │ + export·const·TechnicianUtilizationKpiSchema·=·z
+@cermont/shared-types:lint:        37 │ + → .object({
+@cermont/shared-types:lint:        38 │ + → → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:        39 │ + → → totalAvailableHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:        40 │ + → → totalBilledHours:·z.number().nonnegative(),
+@cermont/shared-types:lint:        41 │ + → → utilizationRate:·z.number().min(0).max(100),
+@cermont/shared-types:lint:        42 │ + → → trend:·z.number(),
+@cermont/shared-types:lint:        43 │ + → })
+@cermont/shared-types:lint:        44 │ + → .strict();
+@cermont/shared-types:lint:     37 45 │   
+@cermont/shared-types:lint:     38    │ - export·const·DashboardKpiSummarySchema·=·z.object({
+@cermont/shared-types:lint:     39    │ - → mttr:·MttrKpiSchema,
+@cermont/shared-types:lint:     40    │ - → mtbf:·MtbfKpiSchema,
+@cermont/shared-types:lint:     41    │ - → firstTimeFixRate:·FirstTimeFixRateKpiSchema,
+@cermont/shared-types:lint:     42    │ - → technicianUtilization:·TechnicianUtilizationKpiSchema,
+@cermont/shared-types:lint:     43    │ - → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:     44    │ - → calculatedAt:·z.string().datetime(),
+@cermont/shared-types:lint:     45    │ - }).strict();
+@cermont/shared-types:lint:        46 │ + export·const·DashboardKpiSummarySchema·=·z
+@cermont/shared-types:lint:        47 │ + → .object({
+@cermont/shared-types:lint:        48 │ + → → mttr:·MttrKpiSchema,
+@cermont/shared-types:lint:        49 │ + → → mtbf:·MtbfKpiSchema,
+@cermont/shared-types:lint:        50 │ + → → firstTimeFixRate:·FirstTimeFixRateKpiSchema,
+@cermont/shared-types:lint:        51 │ + → → technicianUtilization:·TechnicianUtilizationKpiSchema,
+@cermont/shared-types:lint:        52 │ + → → period:·KpiTimeRangeSchema,
+@cermont/shared-types:lint:        53 │ + → → calculatedAt:·z.string().datetime(),
+@cermont/shared-types:lint:        54 │ + → })
+@cermont/shared-types:lint:        55 │ + → .strict();
+@cermont/shared-types:lint:     46 56 │   
+@cermont/shared-types:lint:     47 57 │   export type DashboardKpiSummary = z.infer<typeof DashboardKpiSummarySchema>;
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: Checked 168 files in 312ms. No fixes applied.
+@cermont/shared-types:lint: Found 4 errors.
+@cermont/shared-types:lint: check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint:   × Some errors were emitted while running checks.
+@cermont/shared-types:lint:   
+@cermont/shared-types:lint: 
+@cermont/backend:lint: src\modules\automation\automation.service.ts:474:2 lint/style/useBlockStatements  FIXABLE  ━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   × Block statements are preferred in this position.
+@cermont/backend:lint:   
+@cermont/backend:lint:     472 │ 		.lean();
+@cermont/backend:lint:     473 │ 
+@cermont/backend:lint:   > 474 │ 	if (rules.length === 0) return [];
+@cermont/backend:lint:         │ 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@cermont/backend:lint:     475 │ 
+@cermont/backend:lint:     476 │ 	const triggered: unknown[] = [];
+@cermont/backend:lint:   
+@cermont/backend:lint:   i Unsafe fix: Wrap the statement with a `JsBlockStatement`
+@cermont/backend:lint:   
+@cermont/backend:lint:     474 │ → if·(rules.length·===·0)·{·return·[];·}
+@cermont/backend:lint:         │                           ++          ++
+@cermont/backend:lint: 
+@cermont/backend:lint: src\modules\automation\automation.service.ts:483:3 lint/style/useBlockStatements  FIXABLE  ━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   × Block statements are preferred in this position.
+@cermont/backend:lint:   
+@cermont/backend:lint:     481 │ 		const actions = (r.actions as Array<Record<string, unknown>>) || [];
+@cermont/backend:lint:     482 │ 
+@cermont/backend:lint:   > 483 │ 		if (conditions.length === 0) continue;
+@cermont/backend:lint:         │ 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@cermont/backend:lint:     484 │ 
+@cermont/backend:lint:     485 │ 		engine.addRule({
+@cermont/backend:lint:   
+@cermont/backend:lint:   i Unsafe fix: Wrap the statement with a `JsBlockStatement`
+@cermont/backend:lint:   
+@cermont/backend:lint:     483 │ → → if·(conditions.length·===·0)·{·continue;·}
+@cermont/backend:lint:         │                                  ++         ++
+@cermont/backend:lint: 
+@cermont/backend:lint: Checked 467 files in 420ms. No fixes applied.
+@cermont/backend:lint: Found 2 errors.
+@cermont/backend:lint: lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@cermont/backend:lint: 
+@cermont/backend:lint:   × Some errors were emitted while running checks.
+@cermont/backend:lint:   
+@cermont/backend:lint: 
+@cermont/shared-types:lint: npm error Lifecycle script `lint` failed with error:
+@cermont/shared-types:lint: npm error code 1
+@cermont/shared-types:lint: npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types
+@cermont/shared-types:lint: npm error workspace @cermont/shared-types@1.0.0
+@cermont/shared-types:lint: npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types
+@cermont/shared-types:lint: npm error command failed
+@cermont/shared-types:lint: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c biome check .
+@cermont/backend:lint: npm error Lifecycle script `lint` failed with error:
+@cermont/backend:lint: npm error code 1
+@cermont/backend:lint: npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend
+@cermont/backend:lint: npm error workspace @cermont/backend@5.2.1
+@cermont/backend:lint: npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\backend
+@cermont/backend:lint: npm error command failed
+@cermont/backend:lint: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c biome lint .
+ ERROR  @cermont/shared-types#lint: command (C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types) C:\Program Files\nodejs\npm.cmd run lint exited (1)
+
+ Tasks:    4 successful, 7 total
+Cached:    2 cached, 7 total
+  Time:    1.945s 
+Failed:    @cermont/shared-types#lint
+
+ ERROR  run failed: command  exited (1)

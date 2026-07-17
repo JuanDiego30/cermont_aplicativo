@@ -137,8 +137,16 @@ export {
 	ROLE_PERMISSIONS,
 } from "./permissions";
 // ─── Planning Rules ─────────────────────────────────────────────────────────
-export type { PlanningBlocker, PlanningDocumentType, PlanningReadiness } from "./planning.rules";
+export type {
+	ApprovalDecision,
+	PlanningBlocker,
+	PlanningDocumentType,
+	PlanningReadiness,
+	ReadinessReport,
+} from "./planning.rules";
 export {
+	calculateReadiness,
+	canApprovePlanning,
 	getMaxBlockerSeverity,
 	getPlanningBlockers,
 	isPlanningReady,

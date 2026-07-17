@@ -1,0 +1,49 @@
+{
+  "projectId": "<run: testsprite project list>",
+  "type": "frontend",
+  "name": "Admin - User and role management",
+  "description": "Verifies the admin panel: user CRUD, role assignment, audit log, and system settings",
+  "priority": "p1",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Log in as 'gerente' (admin) and navigate to /dashboard/admin/users"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that users list shows all registered users with columns: name, email, role, status, last login"
+    },
+    {
+      "type": "action",
+      "description": "Click 'New User' and fill in: name, email, password, select role from dropdown (gerente, residente, HES, supervisor, operador, tecnico, administrativo, cliente)"
+    },
+    {
+      "type": "action",
+      "description": "Submit and verify the new user appears in the list with correct role badge"
+    },
+    {
+      "type": "action",
+      "description": "Click on a user to edit their profile and change their role"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that the role change is reflected immediately"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /dashboard/admin/audit to view the audit trail"
+    },
+    {
+      "type": "assertion",
+      "description": "Assert that recent admin actions (user creation, role changes) are recorded in the audit log"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to /dashboard/admin/settings and modify a system setting"
+    },
+    {
+      "type": "action",
+      "description": "Verify that settings changes persist after page reload"
+    }
+  ]
+}
