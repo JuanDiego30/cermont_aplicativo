@@ -15,6 +15,7 @@ const getSnapshotMotion = () => window.matchMedia("(prefers-reduced-motion: redu
 const getServerSnapshotMotion = () => false;
 
 import { AboutSection } from "./AboutSection";
+import { ClientsMarquee } from "./ClientsMarquee";
 import { ContactSection } from "./ContactSection";
 import { CtaSection } from "./CtaSection";
 import { FeaturesSection } from "./FeaturesSection";
@@ -25,7 +26,10 @@ import { MethodSection } from "./MethodSection";
 import { MissionVisionSection } from "./MissionVisionSection";
 import { ResourcesSection } from "./ResourcesSection";
 import { ServicesSection } from "./ServicesSection";
+import { StatsBar } from "./StatsBar";
+import { TestimonialsSection } from "./TestimonialsSection";
 import { TrustSection } from "./TrustSection";
+import { WhatsAppFAB } from "./WhatsAppFAB";
 
 const BLOB_CONFIG = [
 	{ attr: "one", x: 54, y: 36, scale: 1.08, duration: 24 },
@@ -150,9 +154,13 @@ export function PublicLandingContent() {
 					<CtaSection />
 					<ResourcesSection />
 					<MethodSection />
+					<StatsBar />
+					<TestimonialsSection />
+					<ClientsMarquee />
 					<MissionVisionSection />
 					<ContactSection />
 				</div>
+				<WhatsAppFAB />
 			</main>
 
 			<LandingFooter />
