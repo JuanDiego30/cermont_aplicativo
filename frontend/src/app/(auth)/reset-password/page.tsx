@@ -14,14 +14,18 @@ function ResetPasswordFallback() {
 	);
 }
 
-export default function ResetPasswordPage() {
+export default async function ResetPasswordPage(props: {
+	searchParams: Promise<{ token?: string }>;
+}) {
+	const { token } = await props.searchParams;
+
 	return (
 		<AuthPageShell>
 			<section className="relative z-10 w-full max-w-sm" aria-label="Restablecer contraseña">
 				<AuthBrandHeader screenReaderTitle="Restablecer contraseña" />
 
 				<Suspense fallback={<ResetPasswordFallback />}>
-					<ResetPasswordContent />
+					<ResetPasswordContent token={token} />
 				</Suspense>
 			</section>
 		</AuthPageShell>

@@ -39,7 +39,7 @@ export function ForgotPasswordContent() {
 		return (
 			<div className="mt-2 text-center">
 				<div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-6 text-brand-annotate">
-					<p className="text-lg font-semibold">Correo enviado</p>
+					<p className="text-lg font-semibold">Solicitud recibida</p>
 					<p className="mt-2 text-sm text-brand-annotate">
 						Si la cuenta existe y está habilitada, recibirás un mensaje con las instrucciones para restablecer la contraseña.
 					</p>
@@ -95,4 +95,5 @@ export function ForgotPasswordContent() {
 		</form>
 	);
 }
+
 
