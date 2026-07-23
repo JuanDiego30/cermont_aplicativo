@@ -1,0 +1,46 @@
+# AGENTS.md — Cermont S.A.S. (Constitution)
+
+## Purpose
+
+Document-driven operational platform for multi-service contractor workflows. 14-step flow: WorkRequest → SiteVisit → Proposal → PurchaseOrder → Planning → Execution → Evidence → TechnicalReport → DeliveryRecord → ClientSignature → SES → Invoice → InvoiceApproval → Payment.
+
+## Invariants (Never Break)
+
+- No mocks as functionality — every button must have a real backend operation
+- No orphan routes, dead components, or 404 sidebar links
+- No UI before contract — Contract-First: Zod schema → type → domain → backend → frontend
+- No declaring done without tests, gates passing, and evidence
+- No removing code without migrating all consumers first
+- No starting a new vertical slice while another is active
+- No business logic in UI components → domain helpers only
+- No direct `fetch` in components → TanStack Query
+- No hardcoded roles or routes → `@cermont/domain`
+- No `console.log` / `debugger` / `alert` in production
+- No silent catches or swallowed errors
+- No mock data in production code
+- No `any`, `as any`, `@ts-ignore`, `@ts-expect-error`
+- No `null`/`undefined` for business absence — use `StatusObject`
+- No commit, push, reset, or deploy without explicit authorization
+- ✅ `git status`, `git diff`, `git log`, and read-only history inspection are allowed
+
+## Stack
+
+Express 5.2.1 | Mongoose + MongoDB | JWT + Zustand | npm | Zod 4.x | apiClient | proxy.ts
+
+## Required Reading (Before Coding)
+
+- `docs/CURRENT_IMPLEMENTATION_STATUS.md`
+- `docs/domain/SERVICE_CASE_WORKFLOW.md`
+- `docs/security/RBAC_MATRIX.md`
+- `AGENTS.md` in packages/domain, backend, frontend, and modules being modified
+- PRD, DESIGN.md for the active module
+
+## Gates
+
+```bash
+npm run typecheck && npm run lint && npm run test && npm run build && npm run verify
+```
+
+## Design
+
+Token palette: `#0F2C59` (navy), `#2154A6` (blue), `#4CAF50` (green). See `docs/design/CERMONT_UIUX_GUIDE.md`.
