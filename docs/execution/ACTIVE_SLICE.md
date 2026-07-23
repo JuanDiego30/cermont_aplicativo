@@ -1,49 +1,26 @@
-# Active Slice — Repository Integration Baseline
+# ACTIVE_SLICE.md
 
-**Phase:** 00.6
-**Module:** Repository Integration Baseline
-**Status:** in_progress
-**Started:** 2026-07-23
-**Based on:** origin/deploy/vps-clean (1541906)
+Phase: 01
+Module: Authentication / Password Recovery
+Status: in_progress
+Next allowed phase: TBD (after Auth verified)
 
-## Objective
+## Scope
 
-Create a clean, verified integration baseline from deploy/vps-clean,
-selectively importing valid governance documentation from the rescue
-snapshot (497ab94), correcting unsubstantiated claims, excluding
-duplicated vendor skills, and establishing verified gates.
+- Complete password recovery flow (backend service + controller + frontend)
+- Email delivery adapter (SMTP, Mailpit, Log)
+- Token lifecycle (CSPRNG, hash storage, expiry, single use, session revocation)
+- Tests: 17 service + 10 controller tests
+- Gates: typecheck, lint, test
 
-## In Scope
+## Out of scope (remaining for verification)
 
-- Import governance files from rescue (AGENTS.md, docs/ governance)
-- Correct DEF-001 from erified to partial
-- Document agent instruction inventory and skill duplication
-- Execute and document real gate results
-- Create clean commits and Draft PR
+- E2E with Mailpit sandbox (requires running backend + frontend)
+- Sandbox delivery screenshot
+- Production smoke test
 
-## Out of Scope
+## Branch
 
-- Auth password recovery implementation
-- Any feature code
-- Dashboard, planning, execution modules
-- Installing nodemailer or SMTP configuration
-- E2E test execution
-
-## Next Allowed Phase
-
-**Phase:** 01 — Authentication / Password Recovery
-**Branch:** fix/auth-password-recovery
-**Base:** integration/baseline-20260723
-
-## Acceptance Evidence
-
-- [x] Worktree based on deploy/vps-clean (not main)
-- [x] Rescue branch untouched
-- [x] Selective import of governance docs
-- [x] DEF-001 corrected to partial
-- [x] Skills duplication documented
-- [ ] Gates executed and documented
-- [ ] Clean commits created
-- [ ] Branch pushed to GitHub
-- [ ] Draft PR created with real number
-- [ ] Remote SHA verified
+- Worktree: `../cermont-integration`
+- Branch: `fix/auth-password-recovery`
+- Base: `origin/integration/documentation-baseline`
