@@ -15,7 +15,7 @@ vi.mock("uuid", () => ({
 		.mockReturnValueOnce("refresh-jti")
 		.mockReturnValue("next-jti"),
 }));
-function mockFindOneSelectable<T>(value: T) {
+function _mockFindOneSelectable<T>(value: T) {
 	return vi.fn().mockReturnValue({ select: vi.fn().mockResolvedValue(value) });
 }
 
@@ -529,9 +529,9 @@ describe("AuthService password recovery", () => {
 				select: vi.fn().mockResolvedValue(null),
 			});
 
-			await expect(
-				authService.resetPassword("invalid-token", mockNewPassword),
-			).rejects.toThrow("inválido");
+			await expect(authService.resetPassword("invalid-token", mockNewPassword)).rejects.toThrow(
+				"inválido",
+			);
 		});
 
 		it("rejects expired token", async () => {
@@ -549,9 +549,9 @@ describe("AuthService password recovery", () => {
 					select: vi.fn().mockResolvedValueOnce(mockExpiredUser), // Second query (check expired) returns user
 				});
 
-			await expect(
-				authService.resetPassword(mockRawToken, mockNewPassword),
-			).rejects.toThrow("expirado");
+			await expect(authService.resetPassword(mockRawToken, mockNewPassword)).rejects.toThrow(
+				"expirado",
+			);
 		});
 
 		it("rejects empty token", async () => {
