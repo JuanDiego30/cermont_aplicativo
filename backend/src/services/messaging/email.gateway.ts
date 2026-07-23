@@ -35,8 +35,8 @@ function getTransporter(): nodemailer.Transporter {
 		port,
 		secure,
 		auth: {
-			user: env.EMAIL_USER!,
-			pass: env.EMAIL_PASS!,
+			user: env.EMAIL_USER ?? "",
+			pass: env.EMAIL_PASS ?? "",
 		},
 	});
 }
@@ -46,7 +46,9 @@ function getTransporter(): nodemailer.Transporter {
  */
 async function sendTransportEmail(payload: MessagePayload): Promise<MessageResult> {
 	const transporter = getTransporter();
-	const fromName = env.EMAIL_FROM ? `Cermont S.A.S. <${env.EMAIL_FROM}>` : `"Cermont S.A.S." <noreply@cermont.com.co>`;
+	const fromName = env.EMAIL_FROM
+		? `Cermont S.A.S. <${env.EMAIL_FROM}>`
+		: `"Cermont S.A.S." <noreply@cermont.com.co>`;
 
 	const info = await transporter.sendMail({
 		from: fromName,
@@ -103,7 +105,7 @@ export const emailGateway: MessageGateway = {
 			log.info("Email sent via provider", {
 				provider,
 				to: payload.to,
-				messageId: result.messageId,
+				messageId: result.messageId ?? "",
 			});
 			return result;
 		} catch (error) {
@@ -121,4 +123,3 @@ export const emailGateway: MessageGateway = {
 		}
 	},
 };
-

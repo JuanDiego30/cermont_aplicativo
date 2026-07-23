@@ -56,9 +56,6 @@ function getReadableRoleCookieOptions(req: Request) {
 	};
 }
 
-/**
- * POST /api/auth/login
- */
 export async function login(req: Request, res: Response): Promise<void> {
 	const { email, password } = req.body;
 	const { accessToken, refreshToken, user } = await AuthService.login(email, password);
@@ -78,9 +75,6 @@ export async function login(req: Request, res: Response): Promise<void> {
 	});
 }
 
-/**
- * POST /api/auth/refresh
- */
 export async function refresh(req: Request, res: Response): Promise<void> {
 	const refreshToken = req.cookies?.refreshToken;
 
@@ -110,9 +104,6 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 	});
 }
 
-/**
- * POST /api/auth/logout
- */
 export async function logout(req: Request, res: Response): Promise<void> {
 	const authHeader = req.headers.authorization;
 	const refreshToken = req.cookies?.refreshToken;
@@ -136,9 +127,6 @@ export async function logout(req: Request, res: Response): Promise<void> {
 	});
 }
 
-/**
- * GET /api/auth/me
- */
 export async function getMe(req: Request, res: Response): Promise<void> {
 	const userContext = requireUser(req);
 	const user = await UserService.getUserById(userContext._id);
@@ -149,9 +137,6 @@ export async function getMe(req: Request, res: Response): Promise<void> {
 	});
 }
 
-/**
- * PATCH /api/auth/change-password
- */
 export async function changePassword(req: Request, res: Response): Promise<void> {
 	const userContext = requireUser(req);
 	const payload = ChangePasswordSchema.parse(req.body);
@@ -171,48 +156,28 @@ export async function changePassword(req: Request, res: Response): Promise<void>
 	sendSuccess(res, { message: "Password updated successfully" });
 }
 
-/**
- * POST /api/auth/forgot-password
- *
- * Solicita restablecimiento de contraseña.
- *
- * Security: Siempre devuelve 200, no revela si el email existe o no.
- * Internally: genera token CSPRNG, persiste hash, envía email vía gateway,
- * registra resultado de entrega.
- */
 export async function forgotPassword(req: Request, res: Response): Promise<void> {
 	const { email } = ForgotPasswordSchema.parse(req.body);
 
-	// Generar token — anti-enumeration: devuelve "" si usuario no existe
 	const rawToken = await AuthService.generateResetToken(email);
 
 	if (rawToken) {
-		// Enviar email — registrar resultado pero no exponerlo al cliente
 		const deliveryResult = await AuthService.sendResetPasswordEmail(email, rawToken);
 		if (!deliveryResult.success) {
-			// Log ya hecho en service. Respondemos igual para no filtrar info.
-			// El fallo queda registrado en auditoría.
+			// log already done in service, respond generically
 		}
 	}
 
-	// Siempre responder igual — anti-enumeration
 	sendSuccess(res, {
 		message:
-			"Si la cuenta existe y está habilitada, recibirás instrucciones para restablecer la contraseña.",
+			"Si la cuenta existe y esta habilitada, recibiras instrucciones para restablecer la contrasena.",
 	});
 }
 
-/**
- * POST /api/auth/reset-password
- *
- * Restablece la contraseña usando el token de reset.
- * Valida token (timing-safe), verifica expiración, actualiza password,
- * revoca sesiones, invalida token.
- */
 export async function resetPassword(req: Request, res: Response): Promise<void> {
 	const { token, password } = ResetPasswordSchema.parse(req.body);
 
 	await AuthService.resetPassword(token, password);
 
-	sendSuccess(res, { message: "Contraseña restablecida exitosamente" });
+	sendSuccess(res, { message: "Contrasena restablecida exitosamente" });
 }

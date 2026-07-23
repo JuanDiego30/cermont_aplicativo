@@ -11,8 +11,8 @@ import {
 } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
 import { env } from "../../config/env";
-import { emailGateway } from "../../services/messaging/email.gateway";
 import { RefreshToken, TokenBlacklist, User } from "../../models";
+import { emailGateway } from "../../services/messaging/email.gateway";
 import { createAuditLog } from "../audit/audit.service";
 
 const log = createLogger("auth-service");
@@ -27,7 +27,7 @@ const REFRESH_TOKEN_RETENTION_SECONDS = 7 * 24 * 60 * 60;
 const REFRESH_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 const PASSWORD_RESET_TOKEN_BYTES = 32; // 256 bits
-const PASSWORD_RESET_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 min
+// const PASSWORD_RESET_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 min — reserved for future use
 
 // ─── Exported Interfaces ────────────────────────────────────────────────────
 
@@ -665,7 +665,8 @@ export async function sendResetPasswordEmail(
 	if (!result.success) {
 		log.error("Password reset email delivery failed", {
 			email,
-			error: result.error ?? "", provider: env.EMAIL_PROVIDER,
+			error: result.error ?? "",
+			provider: env.EMAIL_PROVIDER,
 		});
 
 		await createAuditLog({
@@ -674,7 +675,8 @@ export async function sendResetPasswordEmail(
 			entityId: email,
 			userId: email,
 			metadata: {
-				error: result.error ?? "", provider: env.EMAIL_PROVIDER,
+				error: result.error ?? "",
+				provider: env.EMAIL_PROVIDER,
 			},
 		});
 
@@ -683,7 +685,7 @@ export async function sendResetPasswordEmail(
 
 	log.info("Password reset email sent", {
 		email,
-		messageId: result.messageId,
+		messageId: result.messageId ?? "",
 		provider: env.EMAIL_PROVIDER,
 	});
 
@@ -693,7 +695,9 @@ export async function sendResetPasswordEmail(
 		entityId: email,
 		userId: email,
 		metadata: {
-			messageId: result.messageId ?? "", provider: env.EMAIL_PROVIDER,},
+			messageId: result.messageId ?? "",
+			provider: env.EMAIL_PROVIDER,
+		},
 	});
 
 	return { success: true, messageId: result.messageId };
@@ -747,17 +751,26 @@ export async function resetPassword(token: string, newPassword: string): Promise
 				metadata: {},
 			});
 
-			throw new BadRequestError("El enlace de recuperación ha expirado", "PASSWORD_RESET_TOKEN_EXPIRED");
+			throw new BadRequestError(
+				"El enlace de recuperación ha expirado",
+				"PASSWORD_RESET_TOKEN_EXPIRED",
+			);
 		}
 
 		// Token is completely invalid (never existed or already used)
-		throw new BadRequestError("El enlace de recuperación es inválido", "PASSWORD_RESET_TOKEN_INVALID");
+		throw new BadRequestError(
+			"El enlace de recuperación es inválido",
+			"PASSWORD_RESET_TOKEN_INVALID",
+		);
 	}
 
 	// Timing-safe comparison (redundant because MongoDB matched the exact hash,
 	// but kept as defense-in-depth)
 	if (!timingSafeEqual(tokenHash, user.resetPasswordToken ?? "")) {
-		throw new BadRequestError("El enlace de recuperación es inválido", "PASSWORD_RESET_TOKEN_INVALID");
+		throw new BadRequestError(
+			"El enlace de recuperación es inválido",
+			"PASSWORD_RESET_TOKEN_INVALID",
+		);
 	}
 
 	// Token is valid — update password and revoke sessions
@@ -795,5 +808,3 @@ export async function resetPassword(token: string, newPassword: string): Promise
 }
 
 export { timingSafeEqual };
-
-

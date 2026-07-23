@@ -12,6 +12,40 @@ const BackendRequiredEnvSchema = z
 
 type BackendRequiredEnv = z.infer<typeof BackendRequiredEnvSchema>;
 
+function validateEmailConfig(env: SharedEnv): void {
+	const provider = env.EMAIL_PROVIDER ?? "log";
+
+	if (provider !== "smtp") {
+		// Production forbids "log" provider
+		if (provider === "log" && env.NODE_ENV === "production") {
+			throw new Error(
+				"EMAIL_PROVIDER='log' is not allowed in production. Configure EMAIL_PROVIDER=smtp or EMAIL_PROVIDER=mailpit.",
+			);
+		}
+		return;
+	}
+
+	// SMTP provider: validate required vars
+	const required = [
+		["EMAIL_HOST", env.EMAIL_HOST],
+		["EMAIL_PORT", env.EMAIL_PORT],
+		["EMAIL_USER", env.EMAIL_USER],
+		["EMAIL_PASS", env.EMAIL_PASS],
+	] as const;
+	const missing = required.filter(([, v]) => !v).map(([k]) => k);
+	if (missing.length > 0) {
+		throw new Error(
+			`EMAIL_PROVIDER is 'smtp' but required variables are missing: ${missing.join(", ")}`,
+		);
+	}
+}
+
+function validateProductionUrl(env: SharedEnv): void {
+	if (env.NODE_ENV === "production" && env.FRONTEND_URL?.includes("localhost")) {
+		throw new Error("FRONTEND_URL must not point to localhost in production");
+	}
+}
+
 export function validateBackendEnv(
 	input: Record<string, string | undefined> = process.env,
 ): SharedEnv & BackendRequiredEnv {
@@ -23,32 +57,8 @@ export function validateBackendEnv(
 		FRONTEND_URL: sharedEnv.FRONTEND_URL,
 	});
 
-	// Validate email config when provider is smtp
-	const provider = sharedEnv.EMAIL_PROVIDER ?? "log";
-	if (provider === "smtp") {
-		const missing: string[] = [];
-		if (!sharedEnv.EMAIL_HOST) missing.push("EMAIL_HOST");
-		if (!sharedEnv.EMAIL_PORT) missing.push("EMAIL_PORT");
-		if (!sharedEnv.EMAIL_USER) missing.push("EMAIL_USER");
-		if (!sharedEnv.EMAIL_PASS) missing.push("EMAIL_PASS");
-		if (missing.length > 0) {
-			throw new Error(
-				`EMAIL_PROVIDER is 'smtp' but required variables are missing: ${missing.join(", ")}`,
-			);
-		}
-	}
-
-	// In production, "log" provider is not allowed
-	if (provider === "log" && sharedEnv.NODE_ENV === "production") {
-		throw new Error(
-			"EMAIL_PROVIDER='log' is not allowed in production. Configure EMAIL_PROVIDER=smtp or EMAIL_PROVIDER=mailpit.",
-		);
-	}
-
-	// FRONTEND_URL must not be localhost in production
-	if (sharedEnv.NODE_ENV === "production" && sharedEnv.FRONTEND_URL?.includes("localhost")) {
-		throw new Error("FRONTEND_URL must not point to localhost in production");
-	}
+	validateEmailConfig(sharedEnv);
+	validateProductionUrl(sharedEnv);
 
 	return {
 		...sharedEnv,

@@ -57,7 +57,10 @@ const envSchema = z.object({
 	EMAIL_PROVIDER: emailProviderSchema,
 	EMAIL_FROM: z.string().default("noreply@cermont.com.co"),
 	EMAIL_HOST: optionalString(z.string().min(1)),
-	EMAIL_PORT: z.preprocess((v) => (v === "" || v === undefined ? undefined : Number(v)), z.number().int().positive().optional()),
+	EMAIL_PORT: z.preprocess(
+		(v) => (v === "" || v === undefined ? undefined : Number(v)),
+		z.number().int().positive().optional(),
+	),
 	EMAIL_SECURE: z.coerce.boolean().default(false),
 	EMAIL_USER: optionalString(z.string().min(1)),
 	EMAIL_PASS: optionalString(z.string().min(1)),
@@ -130,4 +133,3 @@ export default {
 	getEnvVar,
 	env,
 } as const;
-
