@@ -6,7 +6,7 @@ const BackendRequiredEnvSchema = z
 		MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
 		JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
 		REFRESH_TOKEN_SECRET: z.string().min(32, "REFRESH_TOKEN_SECRET must be at least 32 characters"),
-		FRONTEND_URL: z.url("FRONTEND_URL must be a valid URL"),
+		FRONTEND_URL: z.string().url("FRONTEND_URL must be a valid URL"),
 	})
 	.strict();
 
@@ -22,6 +22,33 @@ export function validateBackendEnv(
 		REFRESH_TOKEN_SECRET: sharedEnv.REFRESH_TOKEN_SECRET,
 		FRONTEND_URL: sharedEnv.FRONTEND_URL,
 	});
+
+	// Validate email config when provider is smtp
+	const provider = sharedEnv.EMAIL_PROVIDER ?? "log";
+	if (provider === "smtp") {
+		const missing: string[] = [];
+		if (!sharedEnv.EMAIL_HOST) missing.push("EMAIL_HOST");
+		if (!sharedEnv.EMAIL_PORT) missing.push("EMAIL_PORT");
+		if (!sharedEnv.EMAIL_USER) missing.push("EMAIL_USER");
+		if (!sharedEnv.EMAIL_PASS) missing.push("EMAIL_PASS");
+		if (missing.length > 0) {
+			throw new Error(
+				`EMAIL_PROVIDER is 'smtp' but required variables are missing: ${missing.join(", ")}`,
+			);
+		}
+	}
+
+	// In production, "log" provider is not allowed
+	if (provider === "log" && sharedEnv.NODE_ENV === "production") {
+		throw new Error(
+			"EMAIL_PROVIDER='log' is not allowed in production. Configure EMAIL_PROVIDER=smtp or EMAIL_PROVIDER=mailpit.",
+		);
+	}
+
+	// FRONTEND_URL must not be localhost in production
+	if (sharedEnv.NODE_ENV === "production" && sharedEnv.FRONTEND_URL?.includes("localhost")) {
+		throw new Error("FRONTEND_URL must not point to localhost in production");
+	}
 
 	return {
 		...sharedEnv,

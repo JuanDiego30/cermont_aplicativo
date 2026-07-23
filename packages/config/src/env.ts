@@ -5,23 +5,6 @@
  * This package is shared between frontend and backend, so variables that are
  * specific to one runtime are modeled as optional here. Use {@link validateEnv}
  * at application startup to ensure all required variables are present.
- *
- * @example
- * ```typescript
- * // Backend startup validation
- * import { validateEnv } from '@cermont/config';
- *
- * const env = validateEnv(); // Throws on missing/invalid vars
- * await mongoose.connect(env.MONGODB_URI!);
- * ```
- *
- * @example
- * ```typescript
- * // Frontend safe access
- * import { env } from '@cermont/config';
- *
- * const apiUrl = env.NEXT_PUBLIC_API_URL; // Typed as string | undefined
- * ```
  */
 
 import { z } from "zod";
@@ -32,20 +15,10 @@ const emptyStringToUndefined = (value: unknown): unknown =>
 const optionalString = (schema: z.ZodString) =>
 	z.preprocess(emptyStringToUndefined, schema.optional());
 
+const emailProviderSchema = z.enum(["smtp", "mailpit", "log"]).default("log");
+
 /**
  * Environment variable schema for the entire monorepo.
- *
- * Variables are optional by default to support both frontend and backend.
- * Each application should validate the subset of variables it requires.
- *
- * @remarks
- * - Use `.min(1)` for required strings to catch empty values
- * - Use `.coerce.number()` for numeric vars (e.g., PORT)
- * - Use `.url()` for URL validation with protocol check
- * - Backend-only vars: MONGODB_URI, JWT_SECRET, REFRESH_TOKEN_SECRET, FRONTEND_URL
- * - Frontend-only vars: NEXT_PUBLIC_API_URL
- *
- * @see {@link validateEnv} for runtime validation
  */
 const envSchema = z.object({
 	NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -79,35 +52,19 @@ const envSchema = z.object({
 	CLAMAV_ENABLED: z.coerce.boolean().default(false),
 	CLAMAV_HOST: z.string().default("localhost"),
 	CLAMAV_PORT: z.string().default("3310"),
+
+	// Email configuration — shared vars
+	EMAIL_PROVIDER: emailProviderSchema,
+	EMAIL_FROM: z.string().default("noreply@cermont.com.co"),
+	EMAIL_HOST: optionalString(z.string().min(1)),
+	EMAIL_PORT: z.preprocess((v) => (v === "" || v === undefined ? undefined : Number(v)), z.number().int().positive().optional()),
+	EMAIL_SECURE: z.coerce.boolean().default(false),
+	EMAIL_USER: optionalString(z.string().min(1)),
+	EMAIL_PASS: optionalString(z.string().min(1)),
 });
 
-/**
- * Inferred TypeScript type for validated environment variables.
- *
- * @example
- * ```typescript
- * const env: Env = validateEnv();
- * const port: number = env.PORT; // Typed correctly
- * const dbUri: string | undefined = env.MONGODB_URI; // Optional
- * ```
- */
 export type Env = z.infer<typeof envSchema>;
 
-/**
- * Format Zod validation issues into human-readable error messages.
- *
- * @param issues - Array of Zod validation errors
- * @returns Multi-line formatted string with each issue on a separate line
- *
- * @internal
- *
- * @example
- * ```typescript
- * // Output example:
- * // - JWT_SECRET: JWT_SECRET must be at least 32 characters
- * // - MONGODB_URI: MONGODB_URI is required
- * ```
- */
 function formatIssues(issues: z.ZodIssue[]): string {
 	return issues
 		.map((issue) => {
@@ -118,30 +75,6 @@ function formatIssues(issues: z.ZodIssue[]): string {
 		.join("\n");
 }
 
-/**
- * Validate environment variables and return a typed object.
- *
- * Throws an error with formatted validation issues if validation fails.
- * Use this function at application startup to fail fast on misconfiguration.
- *
- * @param input - Environment variables to validate (defaults to `process.env`)
- * @returns Validated and typed environment object
- * @throws {Error} If validation fails, with detailed error messages
- *
- * @example
- * ```typescript
- * // Backend app.ts - validate at startup
- * import { validateEnv } from '@cermont/config';
- *
- * try {
- *   const env = validateEnv();
- *   console.log(`Starting server on port ${env.PORT}`);
- * } catch (error) {
- *   console.error('Environment validation failed:', error.message);
- *   process.exit(1);
- * }
- * ```
- */
 export function validateEnv(input: Record<string, string | undefined> = process.env): Env {
 	const result = envSchema.safeParse(input);
 	if (!result.success) {
@@ -150,82 +83,19 @@ export function validateEnv(input: Record<string, string | undefined> = process.
 	return result.data;
 }
 
-/**
- * Get validated environment variables (alias for {@link validateEnv}).
- *
- * @param input - Environment variables to validate
- * @returns Validated environment object
- * @throws {Error} If validation fails
- *
- * @example
- * ```typescript
- * const env = getEnv();
- * const port = env.PORT; // number
- * ```
- */
 export function getEnv(input: Record<string, string | undefined> = process.env): Env {
 	return validateEnv(input);
 }
 
-/**
- * Check if the application is running in production mode.
- *
- * @param input - Environment variables (defaults to `process.env`)
- * @returns `true` if NODE_ENV is 'production', `false` otherwise
- *
- * @example
- * ```typescript
- * if (isProduction()) {
- *   // Enable production optimizations
- *   app.use(compression());
- * }
- * ```
- */
 export function isProduction(input: Record<string, string | undefined> = process.env): boolean {
 	return (input.NODE_ENV ?? "development") === "production";
 }
 
-/**
- * Get a single environment variable with optional fallback.
- *
- * @param key - Environment variable name
- * @param fallback - Default value if the variable is undefined (default: '')
- * @returns The variable value or fallback
- *
- * @deprecated Prefer using {@link validateEnv} for type-safe access
- *
- * @example
- * ```typescript
- * const logLevel = getEnvVar('LOG_LEVEL', 'info');
- * ```
- */
 export function getEnvVar(key: string, fallback = ""): string {
 	const value = process.env[key];
 	return value ?? fallback;
 }
 
-/**
- * Non-throwing snapshot for read-only access to environment variables.
- *
- * **WARNING**: This object does NOT validate the environment at runtime.
- * Values may be `undefined` if not set. Use {@link validateEnv} when strict
- * validation is required (e.g., at application startup).
- *
- * @remarks
- * - Frozen object with type-safe access
- * - Useful for configuration that has fallback defaults
- * - Backend should call `validateEnv()` before using this
- *
- * @example
- * ```typescript
- * // Safe read-only access
- * const logLevel = env.LOG_LEVEL; // 'error' | 'warn' | 'info' | 'debug'
- * const port = env.PORT; // number
- *
- * // Optional values may be undefined
- * const dbUri = env.MONGODB_URI; // string | undefined
- * ```
- */
 export const env = Object.freeze({
 	NODE_ENV: (process.env.NODE_ENV ?? "development") as Env["NODE_ENV"],
 	PORT: Number(process.env.PORT ?? 4000),
@@ -244,19 +114,15 @@ export const env = Object.freeze({
 	UPLOAD_DIR: process.env.UPLOAD_DIR ?? "./uploads",
 	MAX_FILE_SIZE: Number(process.env.MAX_FILE_SIZE ?? 10 * 1024 * 1024),
 	CLAMAV_ENABLED: process.env.CLAMAV_ENABLED === "true",
+	EMAIL_PROVIDER: (process.env.EMAIL_PROVIDER ?? "log") as Env["EMAIL_PROVIDER"],
+	EMAIL_FROM: process.env.EMAIL_FROM ?? "noreply@cermont.com.co",
+	EMAIL_HOST: process.env.EMAIL_HOST,
+	EMAIL_PORT: process.env.EMAIL_PORT ? Number(process.env.EMAIL_PORT) : undefined,
+	EMAIL_SECURE: process.env.EMAIL_SECURE === "true",
+	EMAIL_USER: process.env.EMAIL_USER,
+	EMAIL_PASS: process.env.EMAIL_PASS,
 } satisfies Partial<Env>);
 
-/**
- * Default export for convenience imports.
- *
- * @example
- * ```typescript
- * import config from '@cermont/config';
- *
- * const env = config.validateEnv();
- * const isProd = config.isProduction();
- * ```
- */
 export default {
 	validateEnv,
 	getEnv,
@@ -264,3 +130,4 @@ export default {
 	getEnvVar,
 	env,
 } as const;
+
