@@ -9,7 +9,7 @@
 
 | ID | Módulo | Defecto | Severidad | Estado | Reproducción | Impacto |
 |----|--------|---------|-----------|--------|-------------|---------|
-| DEF-001 | Auth | Flujo de recuperación de contraseña no verificable E2E | Crítico | `review` | Backend completo, frontend completo, 27 tests pasando. Falta: E2E con sandbox, verificación de entrega real | Implementación completa pero no verificada E2E con sandbox SMTP |
+| DEF-001 | Auth | Flujo de recuperación de contraseña no verificable E2E | Crítico | `review` | Backend: generateResetToken CSPRNG, resetPassword timing-safe, email gateway smtp/mailpit/log, env validation. Frontend: anti-enumeration. Tests: auth controller 7/7 pass. Falta: E2E con sandbox Mailpit | Código completo, verificación E2E pendiente de infraestructura Mailpit |
 | DEF-002 | Offline | Cola offline puede perder mutaciones si service worker se detiene abruptamente | Alto | `open` | Desconectar red, hacer acción, cerrar pestaña | Pérdida de datos de campo |
 
 ## Altos (P1)
