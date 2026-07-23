@@ -65,6 +65,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.16",
 		"@types/node": "^25.9.2",
+		"@types/nodemailer": "^8.0.1",
 		"husky": "^9.1.7",
 		"lint-staged": "^17.0.7",
 		"react-doctor": "^0.5.1",
@@ -95,6 +96,7 @@
 	},
 	"dependencies": {
 		"html5-qrcode": "^2.3.8",
+		"nodemailer": "^6.9.16",
 		"superpowers": "^0.0.2"
 	}
 }

@@ -6,13 +6,6 @@
  * - Receives request → calls service → returns response
  * - All validation happens BEFORE controller (via middleware)
  * - Sets HttpOnly cookies for refresh token
- *
- * Flow:
- *   1. Middleware validates request body (Zod)
- *   2. Controller calls service
- *   3. Service throws AppError on failure
- *   4. Global error handler catches it (no try/catch needed)
- *   5. Response sent with correct status code
  */
 
 import {
@@ -63,37 +56,13 @@ function getReadableRoleCookieOptions(req: Request) {
 	};
 }
 
-/**
- * POST /api/auth/login
- *
- * Request body (validated by middleware):
- *   { email: string, password: string }
- *
- * Response 200:
- *   {
- *     success: true,
- *     data: {
- *       accessToken: "eyJhbGci...",
- *       user: { _id, name, email, role, isActive }
- *     }
- *   }
- *
- * Response 401:
- *   {
- *     success: false,
- *     error: { code: "UNAUTHORIZED", message: "Invalid email or password" }
- *   }
- */
 export async function login(req: Request, res: Response): Promise<void> {
 	const { email, password } = req.body;
-
-	// Service throws if credentials invalid
 	const { accessToken, refreshToken, user } = await AuthService.login(email, password);
 
-	// Set HttpOnly secure refresh token cookie (cannot be accessed by JavaScript)
 	res.cookie("refreshToken", refreshToken, {
 		...getRefreshTokenCookieOptions(req),
-		maxAge: getRefreshTokenMaxAge() * 1000, // in ms
+		maxAge: getRefreshTokenMaxAge() * 1000,
 	});
 	res.cookie("userRole", user.role, {
 		...getReadableRoleCookieOptions(req),
@@ -102,30 +71,10 @@ export async function login(req: Request, res: Response): Promise<void> {
 
 	res.status(200).json({
 		success: true,
-		data: {
-			accessToken,
-			user,
-		},
+		data: { accessToken, user },
 	});
 }
 
-/**
- * POST /api/auth/refresh
- *
- * No request body. Reads refreshToken from HttpOnly cookie automatically.
- *
- * Response 200:
- *   {
- *     success: true,
- *     data: { accessToken: "eyJhbGci..." }
- *   }
- *
- * Response 401:
- *   {
- *     success: false,
- *     error: { code: "UNAUTHORIZED", message: "Refresh token expired" }
- *   }
- */
 export async function refresh(req: Request, res: Response): Promise<void> {
 	const refreshToken = req.cookies?.refreshToken;
 
@@ -133,14 +82,6 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 		throw new UnauthorizedError("Refresh token not found in cookies");
 	}
 
-	// CRITICAL: clear stale cookies before throwing so the browser does not
-	// loop on an invalid refreshToken indefinitely.  This covers three cases:
-	//   1. Token was issued before the auth-service refactor (missing claims)
-	//   2. Token was revoked (logout, password change, reuse detection)
-	//   3. Token has expired
-	// The try/catch is intentional — Express 5 auto-propagates unhandled async
-	// rejections, but we need to clear the cookies BEFORE rethrowing so the
-	// browser discards the stale cookie even when the error response is sent.
 	let accessToken: string;
 	let rotatedRefreshToken: string;
 	try {
@@ -163,15 +104,6 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 	});
 }
 
-/**
- * POST /api/auth/logout
- *
- * Requires authentication (Bearer token in Authorization header).
- * Revokes both access and refresh tokens.
- *
- * Response 200:
- *   { success: true, message: "Logout successful" }
- */
 export async function logout(req: Request, res: Response): Promise<void> {
 	const authHeader = req.headers.authorization;
 	const refreshToken = req.cookies?.refreshToken;
@@ -182,12 +114,10 @@ export async function logout(req: Request, res: Response): Promise<void> {
 
 	const accessToken = authHeader.slice(7);
 
-	// Revoke tokens (no error thrown if this fails — logout succeeds anyway)
 	if (accessToken && refreshToken) {
 		await AuthService.logout(accessToken, refreshToken);
 	}
 
-	// Clear cookie
 	res.clearCookie("refreshToken", getRefreshTokenCookieOptions(req));
 	res.clearCookie("userRole", getReadableRoleCookieOptions(req));
 
@@ -197,24 +127,8 @@ export async function logout(req: Request, res: Response): Promise<void> {
 	});
 }
 
-/**
- * GET /api/auth/me
- *
- * Returns authenticated user's own profile.
- * Requires authentication.
- *
- * FIX (ISSUE-034): Use UserService.getUserById() instead of direct User.findById()
- *
- * Response 200:
- *   {
- *     success: true,
- *     data: { _id, name, email, role, isActive, phone, avatarUrl }
- *   }
- */
 export async function getMe(req: Request, res: Response): Promise<void> {
 	const userContext = requireUser(req);
-
-	// Use UserService instead of direct User model access per ISSUE-034
 	const user = await UserService.getUserById(userContext._id);
 
 	res.status(200).json({
@@ -223,16 +137,6 @@ export async function getMe(req: Request, res: Response): Promise<void> {
 	});
 }
 
-/**
- * PATCH /api/auth/change-password
- *
- * Cambia la contraseña del usuario autenticado.
- * Request body:
- *   { currentPassword: string, newPassword: string }
- *
- * Response 200:
- *   { success: true, data: { message: "Password updated successfully" } }
- */
 export async function changePassword(req: Request, res: Response): Promise<void> {
 	const userContext = requireUser(req);
 	const payload = ChangePasswordSchema.parse(req.body);
@@ -252,45 +156,28 @@ export async function changePassword(req: Request, res: Response): Promise<void>
 	sendSuccess(res, { message: "Password updated successfully" });
 }
 
-/**
- * POST /api/auth/forgot-password
- *
- * Solicita restablecimiento de contraseña.
- * Request body:
- *   { email: string }
- *
- * Response 200:
- *   { success: true, message: "If the email exists, a reset link has been sent" }
- *
- * Security: Siempre devuelve 200, no revela si el email existe o no.
- */
 export async function forgotPassword(req: Request, res: Response): Promise<void> {
 	const { email } = ForgotPasswordSchema.parse(req.body);
 
-	// Generar token de reset (en producción, enviar email)
-	// Para desarrollo: devolver el token en la respuesta
-	AuthService.generateResetToken(email);
+	const rawToken = await AuthService.generateResetToken(email);
 
-	// En producción, esto enviaría un email con el enlace de reset
-	// sendResetPasswordEmail(email, resetToken);
+	if (rawToken) {
+		const deliveryResult = await AuthService.sendResetPasswordEmail(email, rawToken);
+		if (!deliveryResult.success) {
+			// log already done in service, respond generically
+		}
+	}
 
-	sendSuccess(res, { message: "If the email exists, a reset link has been sent" });
+	sendSuccess(res, {
+		message:
+			"Si la cuenta existe y esta habilitada, recibiras instrucciones para restablecer la contrasena.",
+	});
 }
 
-/**
- * POST /api/auth/reset-password
- *
- * Restablece la contraseña usando el token de reset.
- * Request body:
- *   { token: string, password: string }
- *
- * Response 200:
- *   { success: true, message: "Password reset successfully" }
- */
 export async function resetPassword(req: Request, res: Response): Promise<void> {
 	const { token, password } = ResetPasswordSchema.parse(req.body);
 
 	await AuthService.resetPassword(token, password);
 
-	sendSuccess(res, { message: "Password reset successfully" });
+	sendSuccess(res, { message: "Contrasena restablecida exitosamente" });
 }

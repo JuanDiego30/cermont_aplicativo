@@ -15,6 +15,10 @@ vi.mock("uuid", () => ({
 		.mockReturnValueOnce("refresh-jti")
 		.mockReturnValue("next-jti"),
 }));
+function _mockFindOneSelectable<T>(value: T) {
+	return vi.fn().mockReturnValue({ select: vi.fn().mockResolvedValue(value) });
+}
+
 vi.mock("../../src/models", () => ({
 	User: {
 		findOne: vi.fn(),
@@ -43,6 +47,12 @@ vi.mock("../../src/common/utils/logger", () => ({
 		warn: vi.fn(),
 		error: vi.fn(),
 	}),
+}));
+vi.mock("../../src/services/messaging/email.gateway", () => ({
+	emailGateway: {
+		channel: "email",
+		send: vi.fn(),
+	},
 }));
 
 function hashToken(token: string): string {
@@ -372,5 +382,184 @@ describe("AuthService refresh token rotation", () => {
 			expect.any(String),
 			{ expiresIn: "7d" },
 		);
+	});
+});
+
+describe("AuthService password recovery", () => {
+	const mockUserId = "507f1f77bcf86cd799439011";
+	const userObjectId = new Types.ObjectId(mockUserId);
+	const mockEmail = "test@cermont.com";
+	const mockRawToken = crypto.randomBytes(32).toString("hex");
+	const mockNewPassword = "NewSecurePass123!";
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(User.updateOne).mockResolvedValue({
+			acknowledged: true,
+			matchedCount: 1,
+			modifiedCount: 1,
+			upsertedCount: 0,
+			upsertedId: null,
+		});
+		vi.mocked(RefreshToken.updateMany).mockResolvedValue({
+			acknowledged: true,
+			matchedCount: 1,
+			modifiedCount: 1,
+			upsertedCount: 0,
+			upsertedId: null,
+		});
+	});
+
+	describe("generateResetToken", () => {
+		it("generates a reset token and stores SHA-256 hash on user", async () => {
+			vi.mocked(User.findOne).mockReturnValue({
+				select: vi.fn().mockResolvedValue({
+					_id: userObjectId,
+				}),
+			});
+
+			const rawToken = await authService.generateResetToken(mockEmail);
+
+			expect(rawToken).toBeTruthy();
+			expect(typeof rawToken).toBe("string");
+			expect(rawToken.length).toBe(64); // 32 bytes = 64 hex chars
+			expect(User.updateOne).toHaveBeenCalledWith(
+				{ _id: userObjectId },
+				expect.objectContaining({
+					$set: expect.objectContaining({
+						resetPasswordToken: hashToken(rawToken),
+						resetPasswordExpires: expect.any(Date),
+					}),
+				}),
+			);
+		});
+
+		it("returns empty string for non-existent user (anti-enumeration)", async () => {
+			vi.mocked(User.findOne).mockReturnValue({
+				select: vi.fn().mockResolvedValue(null),
+			});
+
+			const result = await authService.generateResetToken("nonexistent@test.com");
+
+			expect(result).toBe("");
+			expect(User.updateOne).not.toHaveBeenCalled();
+		});
+
+		it("returns empty string for inactive user (anti-enumeration)", async () => {
+			vi.mocked(User.findOne).mockReturnValue({
+				select: vi.fn().mockResolvedValue(null),
+			});
+
+			const result = await authService.generateResetToken("inactive@test.com");
+
+			expect(result).toBe("");
+		});
+	});
+
+	describe("sendResetPasswordEmail", () => {
+		it("sends email via gateway and returns success", async () => {
+			const { emailGateway } = await import("../../src/services/messaging/email.gateway");
+			vi.mocked(emailGateway.send).mockResolvedValue({
+				success: true,
+				messageId: "test-msg-123",
+				sentAt: new Date(),
+			});
+
+			const result = await authService.sendResetPasswordEmail(mockEmail, mockRawToken);
+
+			expect(result.success).toBe(true);
+			expect(result.messageId).toBe("test-msg-123");
+			expect(emailGateway.send).toHaveBeenCalledWith(
+				expect.objectContaining({
+					to: mockEmail,
+					subject: expect.stringContaining("Restablece tu contraseña"),
+				}),
+			);
+		});
+
+		it("returns failure when gateway fails", async () => {
+			const { emailGateway } = await import("../../src/services/messaging/email.gateway");
+			vi.mocked(emailGateway.send).mockResolvedValue({
+				success: false,
+				error: "Connection refused",
+				sentAt: new Date(),
+			});
+
+			const result = await authService.sendResetPasswordEmail(mockEmail, mockRawToken);
+
+			expect(result.success).toBe(false);
+			expect(result.error).toBe("Connection refused");
+		});
+	});
+
+	describe("resetPassword", () => {
+		it("resets password with valid token and revokes sessions", async () => {
+			const tokenHash = hashToken(mockRawToken);
+			const mockUser = {
+				_id: userObjectId,
+				resetPasswordToken: tokenHash,
+				resetPasswordExpires: new Date(Date.now() + 3600000),
+				password: "old-hashed-password",
+				tokenVersion: 0,
+				save: vi.fn().mockResolvedValue(undefined),
+			};
+			vi.mocked(User.findOne).mockReturnValue({
+				select: vi.fn().mockResolvedValue(mockUser),
+			});
+
+			await authService.resetPassword(mockRawToken, mockNewPassword);
+
+			expect(mockUser.password).toBe(mockNewPassword);
+			expect(mockUser.tokenVersion).toBe(1);
+			expect(mockUser.resetPasswordToken).toBeUndefined();
+			expect(mockUser.resetPasswordExpires).toBeUndefined();
+			expect(mockUser.save).toHaveBeenCalled();
+			expect(RefreshToken.updateMany).toHaveBeenCalledWith(
+				{ userId: userObjectId, "status.state": "active" },
+				expect.objectContaining({
+					$set: expect.objectContaining({
+						status: expect.objectContaining({ state: "revoked", reason: "password_change" }),
+					}),
+				}),
+			);
+		});
+
+		it("rejects invalid token", async () => {
+			vi.mocked(User.findOne).mockReturnValue({
+				select: vi.fn().mockResolvedValue(null),
+			});
+
+			await expect(authService.resetPassword("invalid-token", mockNewPassword)).rejects.toThrow(
+				"inválido",
+			);
+		});
+
+		it("rejects expired token", async () => {
+			const tokenHash = hashToken(mockRawToken);
+			const mockExpiredUser = {
+				_id: userObjectId,
+				resetPasswordToken: tokenHash,
+				resetPasswordExpires: new Date(Date.now() - 3600000),
+			};
+			vi.mocked(User.findOne)
+				.mockReturnValueOnce({
+					select: vi.fn().mockResolvedValueOnce(null), // First query (valid + non-expired) returns null
+				})
+				.mockReturnValueOnce({
+					select: vi.fn().mockResolvedValueOnce(mockExpiredUser), // Second query (check expired) returns user
+				});
+
+			await expect(authService.resetPassword(mockRawToken, mockNewPassword)).rejects.toThrow(
+				"expirado",
+			);
+		});
+
+		it("rejects empty token", async () => {
+			vi.mocked(User.findOne).mockReturnValue({
+				select: vi.fn().mockResolvedValue(null),
+			});
+
+			await expect(authService.resetPassword("", mockNewPassword)).rejects.toThrow();
+		});
 	});
 });

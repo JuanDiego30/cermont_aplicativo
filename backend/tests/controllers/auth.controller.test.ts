@@ -12,12 +12,18 @@ const mockLogin = vi.fn();
 const mockRefreshAccessToken = vi.fn();
 const mockLogout = vi.fn();
 const mockGetRefreshTokenMaxAge = vi.fn();
+const mockGenerateResetToken = vi.fn();
+const mockSendResetPasswordEmail = vi.fn();
+const mockResetPassword = vi.fn();
 
 vi.mock("../../src/modules/auth/auth.service", () => ({
 	login: mockLogin,
 	refreshAccessToken: mockRefreshAccessToken,
 	logout: mockLogout,
 	getRefreshTokenMaxAge: () => mockGetRefreshTokenMaxAge(),
+	generateResetToken: (...args: unknown[]) => mockGenerateResetToken(...args),
+	sendResetPasswordEmail: (...args: unknown[]) => mockSendResetPasswordEmail(...args),
+	resetPassword: (...args: unknown[]) => mockResetPassword(...args),
 }));
 
 vi.mock("../../src/modules/user/user.service", () => ({
@@ -190,6 +196,110 @@ describe("AuthController", () => {
 			expect(mockLogout).toHaveBeenCalledWith("access-token-123", "refresh-token-123");
 			expect(res.clearCookie).toHaveBeenCalledTimes(2);
 			expect(res.status).toHaveBeenCalledWith(200);
+		});
+	});
+
+	describe("forgotPassword", () => {
+		it("should generate reset token and send email", async () => {
+			mockGenerateResetToken.mockResolvedValue("raw-token-123");
+			mockSendResetPasswordEmail.mockResolvedValue({ success: true, messageId: "msg-1" });
+
+			const req = mockReq({
+				body: { email: "user@test.com" },
+			});
+			const res = mockRes();
+			const { forgotPassword } = controller;
+
+			await forgotPassword(req, res);
+
+			expect(mockGenerateResetToken).toHaveBeenCalledWith("user@test.com");
+			expect(mockSendResetPasswordEmail).toHaveBeenCalledWith("user@test.com", "raw-token-123");
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					data: expect.objectContaining({
+						message: expect.stringContaining("instrucciones"),
+					}),
+				}),
+			);
+		});
+
+		it("should not send email for non-existent user (anti-enumeration)", async () => {
+			mockGenerateResetToken.mockResolvedValue("");
+
+			const req = mockReq({
+				body: { email: "unknown@test.com" },
+			});
+			const res = mockRes();
+			const { forgotPassword } = controller;
+
+			await forgotPassword(req, res);
+
+			expect(mockGenerateResetToken).toHaveBeenCalledWith("unknown@test.com");
+			expect(mockSendResetPasswordEmail).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(200);
+		});
+
+		it("should return generic success even when email fails", async () => {
+			mockGenerateResetToken.mockResolvedValue("raw-token-456");
+			mockSendResetPasswordEmail.mockResolvedValue({ success: false, error: "SMTP down" });
+
+			const req = mockReq({
+				body: { email: "user@test.com" },
+			});
+			const res = mockRes();
+			const { forgotPassword } = controller;
+
+			await forgotPassword(req, res);
+
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					data: expect.objectContaining({
+						message: expect.stringContaining("instrucciones"),
+					}),
+				}),
+			);
+		});
+	});
+
+	describe("resetPassword", () => {
+		it("should reset password with valid token", async () => {
+			mockResetPassword.mockResolvedValue(undefined);
+
+			const req = mockReq({
+				body: { token: "valid-token", password: "NewSecurePass123!" },
+			});
+			const res = mockRes();
+			const { resetPassword } = controller;
+
+			await resetPassword(req, res);
+
+			expect(mockResetPassword).toHaveBeenCalledWith("valid-token", "NewSecurePass123!");
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					data: expect.objectContaining({
+						message: expect.stringContaining("restablecida"),
+					}),
+				}),
+			);
+		});
+
+		it("should propagate BadRequestError for invalid token", async () => {
+			const { BadRequestError } = await import("../../src/common/errors/AppError");
+			mockResetPassword.mockRejectedValue(new BadRequestError("PASSWORD_RESET_TOKEN_INVALID", "Invalid token"));
+
+			const req = mockReq({
+				body: { token: "bad-token", password: "NewSecurePass123!" },
+			});
+			const res = mockRes();
+			const { resetPassword } = controller;
+
+			await expect(resetPassword(req, res)).rejects.toThrow(BadRequestError);
 		});
 	});
 });

@@ -12,9 +12,12 @@ import {
 import { createLogger } from "../../common/utils/logger";
 import { env } from "../../config/env";
 import { RefreshToken, TokenBlacklist, User } from "../../models";
+import { emailGateway } from "../../services/messaging/email.gateway";
 import { createAuditLog } from "../audit/audit.service";
 
 const log = createLogger("auth-service");
+
+// ─── Constants ──────────────────────────────────────────────────────────────
 
 const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL = "7d";
@@ -22,6 +25,11 @@ const ACCESS_EXPIRES_IN = 15 * 60;
 const REFRESH_EXPIRES_IN = 7 * 24 * 60 * 60;
 const REFRESH_TOKEN_RETENTION_SECONDS = 7 * 24 * 60 * 60;
 const REFRESH_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
+const PASSWORD_RESET_TOKEN_BYTES = 32; // 256 bits
+// const PASSWORD_RESET_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 min — reserved for future use
+
+// ─── Exported Interfaces ────────────────────────────────────────────────────
 
 export interface TokenPair {
 	accessToken: string;
@@ -54,6 +62,13 @@ export interface RefreshContract {
 	refreshToken: string;
 }
 
+export interface PasswordResetTokenResult {
+	token: string;
+	email: string;
+}
+
+// ─── Internal Types ─────────────────────────────────────────────────────────
+
 interface JwtClaims extends JwtPayload {
 	sub?: string;
 	_id?: string;
@@ -84,6 +99,8 @@ interface RefreshSessionRecord {
 		replacedByJti: string;
 	};
 }
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function getJwtSecret(): string {
 	if (!env.JWT_SECRET) {
@@ -138,26 +155,37 @@ function buildTokenPair(
 	};
 }
 
-function hashRefreshToken(token: string): string {
+function hashToken(token: string): string {
 	return crypto.createHash("sha256").update(token).digest("hex");
 }
 
-function tokenHashesMatch(rawToken: string, expectedHash: string): boolean {
-	const actual = Buffer.from(hashRefreshToken(rawToken), "hex");
-	const expected = Buffer.from(expectedHash, "hex");
-	return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+function timingSafeEqual(a: string, b: string): boolean {
+	const bufA = Buffer.from(a, "hex");
+	const bufB = Buffer.from(b, "hex");
+	if (bufA.length !== bufB.length) {
+		// Use timingSafeEqual even on mismatched lengths to avoid timing leaks
+		const maxLen = Math.max(bufA.length, bufB.length);
+		const paddedA = Buffer.alloc(maxLen);
+		const paddedB = Buffer.alloc(maxLen);
+		bufA.copy(paddedA);
+		bufB.copy(paddedB);
+		return crypto.timingSafeEqual(paddedA, paddedB);
+	}
+	return crypto.timingSafeEqual(bufA, bufB);
 }
 
 function buildRefreshDeleteAt(expiresAt: Date): Date {
 	return new Date(expiresAt.getTime() + REFRESH_TOKEN_RETENTION_SECONDS * 1000);
 }
 
+// ─── Token Persistence ──────────────────────────────────────────────────────
+
 async function persistRefreshToken(pair: PersistableTokenPair, userId: string): Promise<void> {
 	await RefreshToken.create({
 		jti: pair.refreshJti,
 		userId: new Types.ObjectId(userId),
 		familyId: pair.familyId,
-		tokenHash: hashRefreshToken(pair.refreshToken),
+		tokenHash: hashToken(pair.refreshToken),
 		tokenVersion: pair.tokenVersion,
 		expiresAt: pair.refreshExpiresAt,
 		deleteAt: buildRefreshDeleteAt(pair.refreshExpiresAt),
@@ -231,6 +259,8 @@ async function handleRefreshTokenReuse(session: RefreshSessionRecord): Promise<v
 	});
 }
 
+// ─── Token Parsing ──────────────────────────────────────────────────────────
+
 function parseRefreshToken(refreshToken: string): JwtClaims {
 	try {
 		return jwt.verify(refreshToken, getRefreshTokenSecret()) as JwtClaims;
@@ -245,6 +275,8 @@ function parseRefreshToken(refreshToken: string): JwtClaims {
 	}
 }
 
+// ─── Session Types ──────────────────────────────────────────────────────────
+
 interface SessionUser {
 	_id: Types.ObjectId;
 	name: string;
@@ -254,11 +286,8 @@ interface SessionUser {
 	tokenVersion?: number;
 }
 
-/**
- * Issue a token pair + audit log for an already-verified user. Shared tail
- * for password login and passkey (WebAuthn) login — both authenticate the
- * user through different means but issue identical sessions.
- */
+// ─── Login / Session ────────────────────────────────────────────────────────
+
 export async function issueLoginSession(
 	user: SessionUser,
 	loginMethod: "password" | "passkey" = "password",
@@ -345,9 +374,6 @@ export async function changePassword(userId: string, payload: ChangePasswordInpu
 
 export async function refreshAccessToken(refreshToken: string): Promise<RefreshContract> {
 	const payload = parseRefreshToken(refreshToken);
-	// Tokens issued before the auth-service refactor lack tokenType / familyId /
-	// tokenVersion. Treat them as session-expired so the client shows a clean
-	// "please re-login" message rather than a generic auth error.
 	const isMissingNewClaims =
 		payload.tokenType !== "refresh" ||
 		!payload.jti ||
@@ -366,7 +392,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<RefreshC
 		.select("+tokenHash")
 		.lean<RefreshSessionRecord>()
 		.exec();
-	if (!session || !tokenHashesMatch(refreshToken, session.tokenHash)) {
+	if (!session || !timingSafeEqual(hashToken(refreshToken), session.tokenHash)) {
 		throw new UnauthorizedError("Refresh token session not found");
 	}
 
@@ -536,12 +562,249 @@ export function startRefreshTokenCleanupWorker(): () => void {
 	return () => clearInterval(timer);
 }
 
-export function generateResetToken(_email: string): string {
-	return "";
+// ═══════════════════════════════════════════════════════════════════════════════
+// PASSWORD RESET — Implementación completa del ciclo de recuperación
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Generate a cryptographically-secure password reset token.
+ *
+ * Steps:
+ * 1. Find user by email (silent no-op if not found — anti-enumeration)
+ * 2. Generate CSPRNG token (32 bytes → 64 hex chars)
+ * 3. Hash the token with SHA-256
+ * 4. Store hash + expiry in User document
+ * 5. Invalidate any previous reset token (overwrite)
+ *
+ * @returns The raw token (NOT persisted) that must be included in the reset URL.
+ *          Returns empty string if user not found (anti-enumeration).
+ */
+export async function generateResetToken(email: string): Promise<string> {
+	const user = await User.findOne({ email, isActive: true }).select("_id");
+
+	// Anti-enumeration: no-op if user doesn't exist
+	if (!user) {
+		log.info("Reset requested for non-existent or inactive user (anti-enumeration)", { email });
+		return "";
+	}
+
+	// Generate CSPRNG token
+	const rawToken = crypto.randomBytes(PASSWORD_RESET_TOKEN_BYTES).toString("hex");
+	const tokenHash = hashToken(rawToken);
+	const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_TTL_MS);
+
+	// Persist hash only — never store raw token
+	// This also invalidates any previous reset token by overwriting
+	await User.updateOne(
+		{ _id: user._id },
+		{
+			$set: {
+				resetPasswordToken: tokenHash,
+				resetPasswordExpires: expiresAt,
+			},
+		},
+	);
+
+	log.info("Password reset token generated", {
+		userId: user._id.toString(),
+		expiresAt: expiresAt.toISOString(),
+	});
+
+	await createAuditLog({
+		action: "PASSWORD_RESET_REQUESTED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		metadata: { expiresAt: expiresAt.toISOString() },
+	});
+
+	return rawToken;
 }
 
-export async function resetPassword(_token: string, _newPassword: string): Promise<void> {
-	throw new BadRequestError(
-		"Password reset requires database token validation. Implement user.resetPasswordToken field.",
-	);
+/**
+ * Send password reset email using the configured provider.
+ *
+ * @returns delivery result from the email gateway
+ */
+export async function sendResetPasswordEmail(
+	email: string,
+	rawToken: string,
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+	const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${rawToken}`;
+
+	const result = await emailGateway.send({
+		to: email,
+		subject: "Restablece tu contraseña — Cermont S.A.S.",
+		body: [
+			"Has solicitado restablecer tu contraseña.",
+			"",
+			`Para continuar, abre este enlace: ${resetUrl}`,
+			"",
+			"Este enlace expira en 1 hora.",
+			"",
+			"Si no solicitaste este cambio, ignora este mensaje.",
+			"",
+			"— Cermont S.A.S.",
+		].join("\n"),
+		htmlBody: [
+			"<!DOCTYPE html>",
+			"<html><body style='font-family: Arial, sans-serif; padding: 24px; max-width: 600px; margin: 0 auto;'>",
+			"<div style='background: #0F2C59; padding: 24px; border-radius: 8px; margin-bottom: 24px;'>",
+			"<h1 style='color: #ffffff; margin: 0; font-size: 20px;'>Cermont S.A.S.</h1>",
+			"</div>",
+			"<p>Has solicitado restablecer tu contraseña.</p>",
+			`<p style='margin: 24px 0;'><a href='${resetUrl}' style='background: #16a34a; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block; font-weight: bold;'>Restablecer contraseña</a></p>`,
+			"<p style='color: #666; font-size: 14px;'>Este enlace expira en 1 hora.</p>",
+			"<p style='color: #666; font-size: 14px;'>Si no solicitaste este cambio, ignora este mensaje.</p>",
+			"<hr style='border: none; border-top: 1px solid #eee; margin: 24px 0;' />",
+			"<p style='color: #999; font-size: 12px;'>Cermont S.A.S. — Este es un mensaje automático.</p>",
+			"</body></html>",
+		].join("\n"),
+	});
+
+	if (!result.success) {
+		log.error("Password reset email delivery failed", {
+			email,
+			error: result.error ?? "",
+			provider: env.EMAIL_PROVIDER,
+		});
+
+		await createAuditLog({
+			action: "PASSWORD_RESET_EMAIL_FAILED",
+			entity: "User",
+			entityId: email,
+			userId: email,
+			metadata: {
+				error: result.error ?? "",
+				provider: env.EMAIL_PROVIDER,
+			},
+		});
+
+		return { success: false, error: result.error };
+	}
+
+	log.info("Password reset email sent", {
+		email,
+		messageId: result.messageId ?? "",
+		provider: env.EMAIL_PROVIDER,
+	});
+
+	await createAuditLog({
+		action: "PASSWORD_RESET_EMAIL_SENT",
+		entity: "User",
+		entityId: email,
+		userId: email,
+		metadata: {
+			messageId: result.messageId ?? "",
+			provider: env.EMAIL_PROVIDER,
+		},
+	});
+
+	return { success: true, messageId: result.messageId };
 }
+
+/**
+ * Validate a reset token and update the password.
+ *
+ * Steps:
+ * 1. Find user by stored hash (search by token hash)
+ * 2. Verify token hasn't expired
+ * 3. Verify tokens match (timing-safe comparison)
+ * 4. Update password + increment tokenVersion
+ * 5. Clear reset token fields (prevent reuse)
+ * 6. Revoke all active refresh tokens
+ * 7. Audit log
+ *
+ * @throws BadRequestError if token is invalid, expired, or already used
+ */
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+	const tokenHash = hashToken(token);
+
+	// Find user whose stored hash matches AND token hasn't expired
+	// This is an atomic check — if the hash doesn't match any user, fail
+	const user = await User.findOne({
+		resetPasswordToken: tokenHash,
+		resetPasswordExpires: { $gt: new Date() },
+	}).select("+resetPasswordToken +resetPasswordExpires +password +tokenVersion");
+
+	if (!user) {
+		// Check if token exists but is expired (for better error message)
+		const expiredUser = await User.findOne({
+			resetPasswordToken: tokenHash,
+			resetPasswordExpires: { $lte: new Date() },
+		}).select("+resetPasswordToken +resetPasswordExpires");
+
+		if (expiredUser) {
+			// Clear the expired token
+			await User.updateOne(
+				{ _id: expiredUser._id },
+				{
+					$unset: { resetPasswordToken: "", resetPasswordExpires: "" },
+				},
+			);
+
+			await createAuditLog({
+				action: "PASSWORD_RESET_TOKEN_EXPIRED",
+				entity: "User",
+				entityId: expiredUser._id.toString(),
+				userId: expiredUser._id.toString(),
+				metadata: {},
+			});
+
+			throw new BadRequestError(
+				"El enlace de recuperación ha expirado",
+				"PASSWORD_RESET_TOKEN_EXPIRED",
+			);
+		}
+
+		// Token is completely invalid (never existed or already used)
+		throw new BadRequestError(
+			"El enlace de recuperación es inválido",
+			"PASSWORD_RESET_TOKEN_INVALID",
+		);
+	}
+
+	// Timing-safe comparison (redundant because MongoDB matched the exact hash,
+	// but kept as defense-in-depth)
+	if (!timingSafeEqual(tokenHash, user.resetPasswordToken ?? "")) {
+		throw new BadRequestError(
+			"El enlace de recuperación es inválido",
+			"PASSWORD_RESET_TOKEN_INVALID",
+		);
+	}
+
+	// Token is valid — update password and revoke sessions
+	user.password = newPassword;
+	user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+	// Clear reset token fields (prevent reuse)
+	user.resetPasswordToken = undefined;
+	user.resetPasswordExpires = undefined;
+	await user.save();
+
+	// Revoke all active refresh tokens for this user
+	await RefreshToken.updateMany(
+		{ userId: user._id, "status.state": "active" },
+		{
+			$set: {
+				status: {
+					state: "revoked",
+					changedAt: new Date(),
+					reason: "password_change",
+					replacedByJti: "",
+				},
+			},
+		},
+	);
+
+	log.info("Password reset successful", { userId: user._id.toString() });
+
+	await createAuditLog({
+		action: "PASSWORD_RESET_SUCCESS",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		metadata: {},
+	});
+}
+
+export { timingSafeEqual };

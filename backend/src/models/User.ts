@@ -29,6 +29,8 @@ export interface IWebAuthnCredential {
 export type UserDocumentFields = Omit<UserDto, "_id" | "createdAt" | "updatedAt"> & {
 	password: string; // Not in UserDto (backend only)
 	tokenVersion: number;
+	resetPasswordToken?: string; // SHA-256 hash of reset token (backend only, select: false)
+	resetPasswordExpires?: Date; // Expiration for reset token (backend only, select: false)
 	webauthnCredentials: IWebAuthnCredential[]; // Not in UserDto (backend only)
 	webauthnChallenge?: string; // Not in UserDto (backend only) — pending registration/auth ceremony
 	createdAt: Date;
@@ -61,6 +63,9 @@ const UserSchema = new Schema<IUserDocument, UserModel, IUserMethods>(
 		// SEGURIDAD: select:false — password nunca se incluye en queries por defecto
 		password: { type: String, required: true, select: false },
 		tokenVersion: { type: Number, default: 0, min: 0, select: false },
+		// Password reset — solo se acceden via .select("+resetPasswordToken +resetPasswordExpires")
+		resetPasswordToken: { type: String, select: false },
+		resetPasswordExpires: { type: Date, select: false },
 		role: {
 			type: String,
 			enum: Array.from(USER_ROLES),
@@ -70,8 +75,6 @@ const UserSchema = new Schema<IUserDocument, UserModel, IUserMethods>(
 		isActive: { type: Boolean, default: true, index: true },
 		phone: { type: String, maxlength: 20 },
 		avatarUrl: { type: String },
-		// Certificaciones de personal (alturas, espacios confinados, eléctrico, etc.)
-		// Las fechas se guardan como ISO strings para alinear con el contrato compartido.
 		certifications: {
 			type: [
 				new Schema(
