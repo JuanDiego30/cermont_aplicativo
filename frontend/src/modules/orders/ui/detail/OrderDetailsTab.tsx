@@ -2,6 +2,7 @@
 
 import { PriorityBadge } from "@/core/ui/PriorityBadge";
 import { StatusBadge } from "@/core/ui/StatusBadge";
+import { formatLocaleDateTime } from "@/lib/utils/format-date";
 
 import { useOrder } from "@/modules/orders/queries";
 
@@ -31,17 +32,14 @@ function formatDate(dateStr: string | undefined): string {
 	if (!dateStr) {
 		return ",";
 	}
-	try {
-		return new Date(dateStr).toLocaleDateString("es-CO", {
-			day: "2-digit",
-			month: "long",
-			year: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	} catch {
-		return ",";
-	}
+	const formatted = formatLocaleDateTime(dateStr, {
+		day: "2-digit",
+		month: "long",
+		year: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
+	return formatted === "Fecha inválida" ? "," : formatted;
 }
 
 function LoadingSkeleton() {

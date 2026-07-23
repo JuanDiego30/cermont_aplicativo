@@ -32,10 +32,10 @@ export function CashFlowFunnel({ stages }: Props) {
 			{stages.map((stage, index) => {
 				const widthPct = Math.max((stage.count / maxCount) * 100, 15);
 				const colors = [
-					"bg-[var(--color-brand-blue)]",
-					"bg-blue-400",
-					"bg-indigo-300",
-					"bg-[#4CAF50]",
+					"bg-brand-blue/20 text-brand-blue",
+					"bg-brand-blue-light/20 text-brand-blue-light",
+					"bg-brand-warn/20 text-brand-warn",
+					"bg-brand-annotate/20 text-brand-annotate",
 				];
 
 				return (
@@ -45,7 +45,7 @@ export function CashFlowFunnel({ stages }: Props) {
 						style={{ paddingLeft: `${index * 2}rem`, paddingRight: `${index * 2}rem` }}
 					>
 						<div
-							className="flex h-10 items-center justify-between rounded-md px-4 text-white"
+							className="flex h-10 items-center justify-between rounded-md px-4"
 							style={{ width: `${widthPct}%` }}
 						>
 							<div

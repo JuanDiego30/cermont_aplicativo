@@ -625,12 +625,104 @@ export function startRefreshTokenCleanupWorker(): () => void {
 	return () => clearInterval(timer);
 }
 
-export function generateResetToken(_email: string): string {
-	return "";
+/**
+ * Generate a password reset token, store its hash on the user document,
+ * and return the raw token (to be sent via email).
+ *
+ * Always returns success to prevent email enumeration.
+ * If no user is found, returns empty string (no token generated).
+ * The raw token MUST be sent to the user via email — it is not stored.
+ */
+export async function generateResetToken(email: string): Promise<string> {
+	const user = await User.findOne({ email, isActive: true }).select("_id email");
+
+	if (!user) {
+		// Do not reveal whether the email exists
+		return "";
+	}
+
+	const rawToken = crypto.randomBytes(32).toString("hex");
+	const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+	const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+	await User.updateOne(
+		{ _id: user._id },
+		{
+			$set: {
+				resetPasswordToken: tokenHash,
+				resetPasswordExpires: expiresAt,
+			},
+		},
+	);
+
+	await createAuditLog({
+		action: "PASSWORD_RESET_REQUESTED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		userEmail: email,
+		metadata: { expiresAt: expiresAt.toISOString() },
+	});
+
+	return rawToken;
 }
 
-export async function resetPassword(_token: string, _newPassword: string): Promise<void> {
-	throw new BadRequestError(
-		"Password reset requires database token validation. Implement user.resetPasswordToken field.",
+/**
+ * Validate a password reset token and update the password.
+ *
+ * 1. Hash the provided token
+ * 2. Find user with matching hash + unexpired
+ * 3. Hash + salt new password
+ * 4. Update password + increment tokenVersion (invalidates active sessions)
+ * 5. Clear reset token fields
+ */
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+	if (!token) {
+		throw new BadRequestError("Reset token is required");
+	}
+
+	const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+	const user = await User.findOne({
+		resetPasswordToken: tokenHash,
+		resetPasswordExpires: { $gt: new Date() },
+	}).select("+resetPasswordToken +resetPasswordExpires +password +tokenVersion");
+
+	if (!user) {
+		throw new BadRequestError("Invalid or expired reset token");
+	}
+
+	// Let the model pre-save hook handle bcrypt hashing
+	user.password = newPassword;
+	user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+	user.resetPasswordToken = undefined;
+	user.resetPasswordExpires = undefined;
+
+	await user.save();
+	// Revoke all active refresh sessions for this user
+	await RefreshToken.updateMany(
+		{ userId: user._id, "status.state": "active" },
+		{
+			$set: {
+				status: {
+					state: "revoked",
+					changedAt: new Date(),
+					reason: "password_change",
+					replacedByJti: "",
+				},
+			},
+		},
 	);
+
+	await createAuditLog({
+		action: "PASSWORD_RESET_COMPLETED",
+		entity: "User",
+		entityId: user._id.toString(),
+		userId: user._id.toString(),
+		userEmail: user.email,
+		metadata: { tokenVersion: user.tokenVersion },
+	});
+
+	log.info("Password reset successful", { userId: user._id.toString() });
 }
+

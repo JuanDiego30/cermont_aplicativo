@@ -128,7 +128,7 @@ function NewInvoiceForm() {
 					Volver
 				</Link>
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 12 / Factura</p>
+					<p className="text-sm font-medium text-slate">Paso 12 / Factura</p>
 					<h1
 						id="new-invoice-title"
 						className="mt-1 text-2xl font-semibold text-[var(--text-primary)]"

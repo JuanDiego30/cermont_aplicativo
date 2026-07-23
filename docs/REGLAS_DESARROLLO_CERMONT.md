@@ -291,24 +291,40 @@ Prohibido introducir `any` explícito.
 const payload: any = data;
 ```
 
-### Zero Unknown
+### Zero Unknown (con excepción controlada)
 
-Prohibido introducir `unknown` explícito salvo que exista una política aprobada de refinamiento seguro.
+`unknown` solo se permite en fronteras externas (API responses, JSON.parse, uploads) y debe refinarse inmediatamente mediante Zod schema o guardia de tipo.
+
+**Regla:** No usar `unknown` en lógica interna, dominio, servicios o componentes. En fronteras externas, el refinamiento debe ocurrir en la misma función o antes de propagar el valor.
 
 **Incorrecto:**
 
 ```ts
-function parse(value: unknown) {}
+function parse(value: unknown) {}  // Sin refinamiento
+function process(data: unknown) {  // unknown en dominio
+  // lógica que no refina
+}
+```
+
+**Correcto:**
+
+```ts
+function parse(value: unknown): { success: true; data: T } | { success: false; error: string } {
+  const result = schema.safeParse(value);
+  // refinamiento inmediato
+}
 ```
 
 ### Zero Null
 
-Prohibido introducir `null` explícito para representar ausencia.
+Prohibido introducir `null` explícito para representar ausencia en lógica de negocio interna.
+
+**Regla:** `null` no debe usarse como estado de negocio ambiguo en dominio, servicios, hooks o componentes. Sin embargo, puede aceptarse en interfaces externas (API responses, bibliotecas de terceros, contratos legacy) cuando el contrato lo modele explícitamente.
 
 **Incorrecto:**
 
 ```ts
-serviceSheetId: null
+serviceSheetId: null  // estado de negocio ambiguo
 ```
 
 **Correcto:**
@@ -321,12 +337,14 @@ serviceEntrySheet: {
 
 ### Zero Undefined
 
-Prohibido introducir `undefined` explícito para representar ausencia.
+Prohibido introducir `undefined` explícito para representar ausencia en lógica de negocio interna.
+
+**Regla:** `undefined` no debe usarse como estado de negocio en dominio, servicios, hooks o componentes. Puede aceptarse en interfaces externas (parámetros opcionales, bibliotecas de terceros, contratos legacy) cuando el contrato lo modele explícitamente.
 
 **Incorrecto:**
 
 ```ts
-paymentReference: undefined
+paymentReference: undefined  // estado de negocio ambiguo
 ```
 
 **Correcto:**
@@ -802,7 +820,7 @@ Está prohibido introducir:
 - Datos sensibles en logs.
 - Secretos en repositorio.
 - Dependencias grandes sin justificación.
-- Refactors masivos sin pruebas.
+- Refactorizaciones profundas sin: (1) pruebas de caracterización del comportamiento actual, (2) mapa completo de consumidores, (3) estrategia de migración con compatibilidad temporal, (4) verificación E2E post-migración y (5) eliminación de deuda técnica del refactor.
 
 ---
 

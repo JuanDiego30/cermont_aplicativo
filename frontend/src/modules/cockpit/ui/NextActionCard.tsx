@@ -2,6 +2,7 @@
 
 import { ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
+import { formatLocaleDate } from "@/lib/utils/format-date";
 import type { NextExpectedAction } from "../model/cockpit.types";
 
 const URGENCY_STYLES: Record<string, string> = {
@@ -30,10 +31,10 @@ export function NextActionCard({ action }: Props) {
 					<div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--text-secondary)]">
 						<span>Roles: {action.assignedRoles.join(", ")}</span>
 						{action.deadline && (
-							<span className="inline-flex items-center gap-1">
-								<Clock className="size-3" aria-hidden="true" />
-								{new Date(action.deadline).toLocaleDateString("es-CO")}
-							</span>
+						<span className="inline-flex items-center gap-1">
+							<Clock className="size-3" aria-hidden="true" />
+							{formatLocaleDate(action.deadline, { dateStyle: "medium" })}
+						</span>
 						)}
 					</div>
 				</div>

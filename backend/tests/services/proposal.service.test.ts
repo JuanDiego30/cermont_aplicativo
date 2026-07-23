@@ -36,9 +36,8 @@ const { loggerInfoMock, createOrderMock, proposalModelMock, counterMock } = vi.h
 vi.mock("../../src/models", () => ({
 	Proposal: proposalModelMock,
 	Counter: counterMock,
-	User: {
-		find: vi.fn().mockResolvedValue([]),
-	},
+	User: { find: vi.fn().mockReturnValue({ lean: vi.fn().mockResolvedValue([]) }) },
+	AuditLog: { create: vi.fn().mockResolvedValue({}) },
 }));
 
 vi.mock("../../src/modules/order/order.service", () => ({

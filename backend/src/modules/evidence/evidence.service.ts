@@ -344,6 +344,71 @@ export async function getEvidenceStats(actor: EvidenceActor): Promise<{
 	};
 }
 
+export async function getEvidenceSummary(actor: EvidenceActor): Promise<{
+	totalCount: number;
+	byCategory: Record<string, number>;
+	byOrder: Array<{ orderId: string; orderCode: string; count: number; categories: string[] }>;
+	missingRequired: Array<{ orderId: string; orderCode: string; missingTypes: string[] }>;
+}> {
+	const visibilityFilter = await buildEvidenceVisibilityFilter(actor);
+	const evidence = await Evidence.find({
+		$and: [visibilityFilter, { lifecycleStatus: { $ne: "deleted" } }],
+	})
+		.select("orderId workOrderId category phase type")
+		.lean<
+			Array<{
+				orderId?: Types.ObjectId;
+				workOrderId?: Types.ObjectId;
+				category?: string;
+				phase?: string;
+				type?: string;
+			}>
+		>();
+	const orderIds = Array.from(
+		new Set(
+			evidence
+				.map((item) => item.workOrderId ?? item.orderId)
+				.filter((value): value is Types.ObjectId => value instanceof Types.ObjectId)
+				.map((value) => String(value)),
+		),
+	).map((value) => new Types.ObjectId(value));
+	const orders = await Order.find({ _id: { $in: orderIds } })
+		.select("_id code")
+		.lean<Array<{ _id: Types.ObjectId; code: string }>>();
+	const orderCodes = new Map(orders.map((order) => [String(order._id), order.code]));
+	const byCategory: Record<string, number> = {};
+	const byOrderMap = new Map<string, { orderId: string; orderCode: string; count: number; categories: Set<string> }>();
+	for (const item of evidence) {
+		const category = item.category ?? item.phase ?? item.type ?? "general";
+		byCategory[category] = (byCategory[category] ?? 0) + 1;
+		const orderId = String(item.workOrderId ?? item.orderId ?? "unlinked");
+		const current = byOrderMap.get(orderId);
+		if (current) {
+			current.count += 1;
+			current.categories.add(category);
+			continue;
+		}
+		byOrderMap.set(orderId, {
+			orderId,
+			orderCode: orderCodes.get(orderId) ?? orderId,
+			count: 1,
+			categories: new Set([category]),
+		});
+	}
+
+	return {
+		totalCount: evidence.length,
+		byCategory,
+		byOrder: Array.from(byOrderMap.values()).map((item) => ({
+			orderId: item.orderId,
+			orderCode: item.orderCode,
+			count: item.count,
+			categories: Array.from(item.categories),
+		})),
+		missingRequired: [],
+	};
+}
+
 /**
  * Create evidence entry (V1 - legacy, for backward compatibility)
  *

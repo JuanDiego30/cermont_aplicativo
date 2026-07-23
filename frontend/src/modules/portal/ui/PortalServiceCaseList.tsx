@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { formatLocaleDate } from "@/lib/utils/format-date";
 
 interface OrderSummary {
 	id: string;
@@ -43,7 +44,7 @@ export function PortalServiceCaseList({ orders }: Props) {
 								</span>
 							</td>
 							<td className="px-5 py-4 text-[var(--text-secondary)]">
-								{new Date(order.date).toLocaleDateString("es-CO")}
+								{formatLocaleDate(order.date, { dateStyle: "medium" })}
 							</td>
 							<td className="px-5 py-4">
 								<Link

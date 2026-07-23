@@ -53,7 +53,7 @@ function WorkRequestList() {
 			{isOfflineSnapshot ? (
 				<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
 					Mostrando solicitudes guardadas localmente. Última actualización:{" "}
-					{new Date(data.source.updatedAt).toLocaleString("es-CO")}
+					{new Date(data.source.updatedAt).toLocaleString("es-CO", { timeZone: "America/Bogota" })}
 				</div>
 			) : (
 				false

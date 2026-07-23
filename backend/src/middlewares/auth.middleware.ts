@@ -35,6 +35,23 @@ interface AccessTokenPayload {
 	tokenType?: "access" | "refresh";
 }
 
+interface AccessTokenCacheEntry {
+	payload: AccessTokenPayload;
+	expiresAt: number;
+}
+
+const accessTokenCache = new Map<string, AccessTokenCacheEntry>();
+const ACCESS_TOKEN_CACHE_TTL = 30_000;
+const ACCESS_TOKEN_CACHE_LIMIT = 500;
+
+function cleanupAccessTokenCache(now: number): void {
+	for (const [token, entry] of accessTokenCache) {
+		if (entry.expiresAt <= now) {
+			accessTokenCache.delete(token);
+		}
+	}
+}
+
 function verifyAccessToken(token: string, jwtSecret: string): AccessTokenPayload {
 	try {
 		return jwt.verify(token, jwtSecret) as AccessTokenPayload;
@@ -47,6 +64,25 @@ function verifyAccessToken(token: string, jwtSecret: string): AccessTokenPayload
 		}
 		throw new UnauthorizedError("Authentication failed");
 	}
+}
+
+function verifyAccessTokenCached(token: string, jwtSecret: string): AccessTokenPayload {
+	const now = Date.now();
+	const cached = accessTokenCache.get(token);
+	if (cached && cached.expiresAt > now) {
+		return cached.payload;
+	}
+
+	cleanupAccessTokenCache(now);
+	const payload = verifyAccessToken(token, jwtSecret);
+	if (accessTokenCache.size >= ACCESS_TOKEN_CACHE_LIMIT) {
+		const oldestToken = accessTokenCache.keys().next().value;
+		if (oldestToken) {
+			accessTokenCache.delete(oldestToken);
+		}
+	}
+	accessTokenCache.set(token, { payload, expiresAt: now + ACCESS_TOKEN_CACHE_TTL });
+	return payload;
 }
 
 function normalizeAccessClaims(verifiedPayload: AccessTokenPayload): AuthClaims {
@@ -96,7 +132,7 @@ export async function authenticate(
 		throw new AppError("JWT_SECRET is not configured", 500, "CONFIG_ERROR");
 	}
 
-	const payload = normalizeAccessClaims(verifyAccessToken(token, jwtSecret));
+	const payload = normalizeAccessClaims(verifyAccessTokenCached(token, jwtSecret));
 
 	if (payload.jti) {
 		const blacklisted = await TokenBlacklist.findOne({ jti: payload.jti }).lean();

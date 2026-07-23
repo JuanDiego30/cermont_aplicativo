@@ -1,5 +1,5 @@
 export interface DashboardSummaryData {
-	pipeline?: { totalActive?: number; totalClosed?: number; [key: string]: unknown };
+	pipeline?: DashboardPipelineSummary;
 	financialAging?: DashboardFinancialAging;
 	blockers?: DashboardBlockerSummary;
 	assetMaintenance?: DashboardAssetMaintenance;
@@ -7,6 +7,9 @@ export interface DashboardSummaryData {
 	charts?: DashboardCharts;
 	documentWorkload?: DashboardDocumentWorkload;
 	administrativeClosure?: DashboardAdministrativeClosure;
+	fieldReadiness?: DashboardFieldReadiness;
+	serviceDemand?: DashboardServiceDemand;
+	generatedAt?: string;
 }
 
 /**
@@ -23,12 +26,14 @@ import type {
 	DashboardCharts,
 	DashboardCostVariance,
 	DashboardDocumentWorkload,
+	DashboardFieldReadiness,
 	DashboardFinancialAging,
 	DashboardNextAction,
 	DashboardOfflineSync,
 	DashboardOperationalKPI,
 	DashboardPipelineSummary,
 	DashboardRecentActivity,
+	DashboardServiceDemand,
 	DashboardSlaRiskOrder,
 	DashboardSummary,
 	DashboardSystemHealth,
@@ -65,6 +70,8 @@ function mapDashboardSummary(data: DashboardSummary) {
 		nextActions: data.nextActions ?? [],
 		administrativeClosure: data.administrativeClosure ?? null,
 		financialAging: data.financialAging ?? null,
+		fieldReadiness: data.fieldReadiness,
+		serviceDemand: data.serviceDemand,
 		costVariance: data.costVariance ?? null,
 		documentWorkload: data.documentWorkload ?? null,
 		assetMaintenance: data.assetMaintenance ?? null,
@@ -72,6 +79,7 @@ function mapDashboardSummary(data: DashboardSummary) {
 		recentActivity: data.recentActivity ?? null,
 		charts: data.charts ?? null,
 		systemHealth: data.systemHealth ?? null,
+		generatedAt: data.generatedAt,
 		isLoading: false,
 		isError: false,
 		errorMessage: null,
@@ -85,6 +93,8 @@ export function useDashboardSummary() {
 		nextActions: DashboardNextAction[] | null;
 		administrativeClosure: DashboardAdministrativeClosure | null;
 		financialAging: DashboardFinancialAging | null;
+		fieldReadiness: DashboardFieldReadiness;
+		serviceDemand: DashboardServiceDemand;
 		costVariance: DashboardCostVariance | null;
 		documentWorkload: DashboardDocumentWorkload | null;
 		assetMaintenance: DashboardAssetMaintenance | null;
@@ -92,6 +102,7 @@ export function useDashboardSummary() {
 		recentActivity: DashboardRecentActivity | null;
 		charts: DashboardCharts | null;
 		systemHealth: DashboardSystemHealth | null;
+		generatedAt: string;
 		isLoading: boolean;
 		isError: boolean;
 		errorMessage: string | null;
@@ -137,5 +148,3 @@ export function useDashboardSlaRisk() {
 		staleTime: 30_000,
 	});
 }
-
-

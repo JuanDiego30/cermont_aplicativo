@@ -23,14 +23,16 @@ interface OrderEvidencesTabProps {
 }
 
 export function OrderEvidencesTab({ orderId }: OrderEvidencesTabProps) {
-	const { data, isLoading, error } = useQuery({
+	const { data: paginatedData, isLoading, error } = useQuery({
 		queryKey: EVIDENCE_KEYS.byOrder(orderId),
 		queryFn: () => listEvidences(orderId),
 		staleTime: STALE_TIMES.DETAIL,
 	});
 
-	const evidencesByPhase = PHASES.reduce<Record<string, typeof data>>((acc, phase) => {
-		acc[phase.key] = data?.filter((e) => e.type === phase.key) ?? [];
+	const evidences = paginatedData?.items ?? [];
+
+	const evidencesByPhase = PHASES.reduce<Record<string, typeof evidences>>((acc, phase) => {
+		acc[phase.key] = evidences.filter((e) => e.type === phase.key);
 		return acc;
 	}, {});
 
@@ -61,7 +63,7 @@ export function OrderEvidencesTab({ orderId }: OrderEvidencesTabProps) {
 		);
 	}
 
-	const totalEvidences = data?.length ?? 0;
+	const totalEvidences = evidences.length;
 
 	return (
 		<section

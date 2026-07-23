@@ -1,0 +1,559 @@
+- generic [active] [ref=f4e1]:
+  - main [ref=f4e97]:
+    - generic [ref=f4e98]:
+      - link "Saltar al contenido principal" [ref=f4e99] [cursor=pointer]:
+        - /url: "#main-content"
+      - generic [ref=f4e100]:
+        - complementary "Barra de navegación lateral" [ref=f4e101]:
+          - generic [ref=f4e103]:
+            - img [ref=f4e104]:
+              - generic [ref=f4e110]: CERMONT
+            - generic [ref=f4e111]: Cermont S.A.S.
+          - button "Colapsar" [ref=f4e113]
+          - navigation "Navegación principal" [ref=f4e116]:
+            - generic [ref=f4e117]:
+              - heading "Principal" [level=3] [ref=f4e118]
+              - list [ref=f4e119]:
+                - listitem [ref=f4e120]:
+                  - link "Dashboard" [ref=f4e121] [cursor=pointer]:
+                    - /url: /dashboard
+                - listitem [ref=f4e128]:
+                  - link "Casos de Servicio" [ref=f4e129] [cursor=pointer]:
+                    - /url: /service-cases
+            - generic [ref=f4e136]:
+              - heading "Comercial" [level=3] [ref=f4e137]
+              - list [ref=f4e138]:
+                - listitem [ref=f4e139]:
+                  - link "Clientes" [ref=f4e140] [cursor=pointer]:
+                    - /url: /customers
+                - listitem [ref=f4e146]:
+                  - link "Solicitudes 1 pendientes" [ref=f4e147] [cursor=pointer]:
+                    - /url: /work-requests
+                    - generic [ref=f4e151]: Solicitudes
+                    - status "1 pendientes" [ref=f4e152]: "1"
+                - listitem [ref=f4e153]:
+                  - link "Visitas" [ref=f4e154] [cursor=pointer]:
+                    - /url: /site-visits
+                - listitem [ref=f4e159]:
+                  - link "Propuestas" [ref=f4e160] [cursor=pointer]:
+                    - /url: /proposals
+                - listitem [ref=f4e167]:
+                  - link "PO aprobada" [ref=f4e168] [cursor=pointer]:
+                    - /url: /purchase-orders
+            - generic [ref=f4e173]:
+              - heading "Operación de campo" [level=3] [ref=f4e174]
+              - list [ref=f4e175]:
+                - listitem [ref=f4e176]:
+                  - link "Órdenes" [ref=f4e177] [cursor=pointer]:
+                    - /url: /orders
+                - listitem [ref=f4e182]:
+                  - link "Planeación" [ref=f4e183] [cursor=pointer]:
+                    - /url: /planning
+                - listitem [ref=f4e188]:
+                  - link "Ejecución" [ref=f4e189] [cursor=pointer]:
+                    - /url: /execution
+                - listitem [ref=f4e196]:
+                  - link "Evidencias" [ref=f4e197] [cursor=pointer]:
+                    - /url: /evidences
+                - listitem [ref=f4e202]:
+                  - link "Despacho" [ref=f4e203] [cursor=pointer]:
+                    - /url: /dispatch
+                - listitem [ref=f4e209]:
+                  - link "Mantenimiento" [ref=f4e210] [cursor=pointer]:
+                    - /url: /maintenance
+                - listitem [ref=f4e214]:
+                  - link "SLA" [ref=f4e215] [cursor=pointer]:
+                    - /url: /sla
+            - generic [ref=f4e220]:
+              - heading "Cierre técnico" [level=3] [ref=f4e221]
+              - list [ref=f4e222]:
+                - listitem [ref=f4e223]:
+                  - link "Informes" [ref=f4e224] [cursor=pointer]:
+                    - /url: /reports
+                - listitem [ref=f4e228]:
+                  - link "Analitica" [ref=f4e229] [cursor=pointer]:
+                    - /url: /reports/analytics
+                - listitem [ref=f4e234]:
+                  - link "Actas" [ref=f4e235] [cursor=pointer]:
+                    - /url: /delivery-records
+            - generic [ref=f4e240]:
+              - heading "Cierre administrativo" [level=3] [ref=f4e241]
+              - list [ref=f4e242]:
+                - listitem [ref=f4e243]:
+                  - link "Cierre" [ref=f4e244] [cursor=pointer]:
+                    - /url: /billing
+                - listitem [ref=f4e249]:
+                  - link "SES / Ariba" [ref=f4e250] [cursor=pointer]:
+                    - /url: /billing/ses
+                - listitem [ref=f4e255]:
+                  - link "Facturas" [ref=f4e256] [cursor=pointer]:
+                    - /url: /billing/invoices
+                - listitem [ref=f4e260]:
+                  - link "Pagos" [ref=f4e261] [cursor=pointer]:
+                    - /url: /payments
+                - listitem [ref=f4e266]:
+                  - link "Costos" [ref=f4e267] [cursor=pointer]:
+                    - /url: /costs
+            - generic [ref=f4e272]:
+              - heading "Transversales" [level=3] [ref=f4e273]
+              - list [ref=f4e274]:
+                - listitem [ref=f4e275]:
+                  - link "Documentos" [ref=f4e276] [cursor=pointer]:
+                    - /url: /documents
+                - listitem [ref=f4e281]:
+                  - link "Formularios" [ref=f4e282] [cursor=pointer]:
+                    - /url: /templates
+                - listitem [ref=f4e289]:
+                  - link "Recursos & Kits" [ref=f4e290] [cursor=pointer]:
+                    - /url: /resources
+                - listitem [ref=f4e296]:
+                  - link "Inventario" [ref=f4e297] [cursor=pointer]:
+                    - /url: /inventory
+                - listitem [ref=f4e303]:
+                  - link "Escanear activos" [ref=f4e304] [cursor=pointer]:
+                    - /url: /inventory/scan
+                - listitem [ref=f4e311]:
+                  - link "Vehículos" [ref=f4e312] [cursor=pointer]:
+                    - /url: /fleet
+                - listitem [ref=f4e319]:
+                  - link "Activos" [ref=f4e320] [cursor=pointer]:
+                    - /url: /assets
+            - generic [ref=f4e326]:
+              - heading "Administración" [level=3] [ref=f4e327]
+              - list [ref=f4e328]:
+                - listitem [ref=f4e329]:
+                  - link "Usuarios" [ref=f4e330] [cursor=pointer]:
+                    - /url: /admin/users
+                - listitem [ref=f4e337]:
+                  - link "Campos personalizados" [ref=f4e338] [cursor=pointer]:
+                    - /url: /admin/custom-fields
+                - listitem [ref=f4e343]:
+                  - link "Personal y certificaciones" [ref=f4e344] [cursor=pointer]:
+                    - /url: /admin/personnel
+                - listitem [ref=f4e351]:
+                  - link "Respaldos" [ref=f4e352] [cursor=pointer]:
+                    - /url: /admin/backups
+                - listitem [ref=f4e357]:
+                  - link "Auditoría" [ref=f4e358] [cursor=pointer]:
+                    - /url: /admin/audit
+                - listitem [ref=f4e363]:
+                  - link "Configuracion" [ref=f4e364] [cursor=pointer]:
+                    - /url: /admin/settings
+                - listitem [ref=f4e369]:
+                  - link "Conectores ERP" [ref=f4e370] [cursor=pointer]:
+                    - /url: /admin/erp-connectors
+          - button [ref=f4e375]:
+            - generic [ref=f4e380]:
+              - paragraph [ref=f4e381]: Cermont AI
+              - paragraph [ref=f4e382]: Asistente
+        - generic [ref=f4e383]:
+          - generic [ref=f4e384]:
+            - generic [ref=f4e386]:
+              - generic [ref=f4e387]:
+                - paragraph [ref=f4e388]: Panel de Control
+                - generic [ref=f4e389]: •
+                - paragraph [ref=f4e390]: Arauca
+              - heading "Panel de Control" [level=1] [ref=f4e391]
+            - generic [ref=f4e392]:
+              - 'button "Cambiar tema. Actual: system" [ref=f4e394]'
+              - listitem [ref=f4e398]:
+                - button "Notificaciones" [ref=f4e399]
+              - button "Menú de usuario de Gerencia General" [ref=f4e404]:
+                - generic [ref=f4e405]:
+                  - generic [ref=f4e406]: Gerencia General
+                  - generic [ref=f4e407]: Gerente
+                - generic [ref=f4e408]: GG
+          - main [ref=f4e411]:
+            - main [ref=f4e413]:
+              - generic [ref=f4e414]:
+                - generic [ref=f4e415]:
+                  - generic [ref=f4e416]:
+                    - heading "Panel de Control" [level=1] [ref=f4e417]
+                    - paragraph [ref=f4e418]: 20 de julio, 2026
+                  - generic [ref=f4e421]:
+                    - generic [ref=f4e422]:
+                      - generic [ref=f4e423]: Desde
+                      - textbox "Desde" [ref=f4e424]
+                    - generic [ref=f4e425]:
+                      - generic [ref=f4e426]: Hasta
+                      - textbox "Hasta" [ref=f4e427]
+                    - generic [ref=f4e428]:
+                      - generic [ref=f4e429]: Cliente
+                      - textbox "Cliente" [ref=f4e430]:
+                        - /placeholder: Buscar por cliente…
+                    - button "Filtrar" [ref=f4e432]
+                - generic [ref=f4e437]:
+                  - generic [ref=f4e438]:
+                    - time [ref=f4e442]: 20 de julio, 2026
+                    - heading "Bienvenido de vuelta, Gerencia General" [level=1] [ref=f4e443]
+                    - paragraph [ref=f4e444]:
+                      - generic [ref=f4e450]: gerente
+                  - generic [ref=f4e451]:
+                    - generic [ref=f4e457]:
+                      - paragraph [ref=f4e458]: "0"
+                      - paragraph [ref=f4e459]: Órdenes activas
+                    - generic [ref=f4e465]:
+                      - paragraph [ref=f4e466]: "0"
+                      - paragraph [ref=f4e467]: Mant. abiertos
+                    - generic [ref=f4e473]:
+                      - paragraph [ref=f4e474]: "0"
+                      - paragraph [ref=f4e475]: Completados (mes)
+                - generic [ref=f4e476]:
+                  - generic [ref=f4e477]:
+                    - generic [ref=f4e478]:
+                      - heading "Flujo Operativo de 14 Pasos" [level=3] [ref=f4e479]
+                      - paragraph [ref=f4e480]: Casos activos según el paso real del flujo.
+                    - group "Filtrar pasos por categoría" [ref=f4e481]:
+                      - button "Todos" [pressed] [ref=f4e483]
+                      - button "comercial" [ref=f4e484]
+                      - button "operativo" [ref=f4e485]
+                      - button "cierre" [ref=f4e486]
+                      - button "financiero" [ref=f4e487]
+                  - generic [ref=f4e488]:
+                    - article [ref=f4e489]:
+                      - generic [ref=f4e490]:
+                        - generic [ref=f4e491]:
+                          - generic [ref=f4e492]: Paso 01
+                          - generic [ref=f4e493]:
+                            - generic [ref=f4e494]: "1"
+                            - generic [ref=f4e495]: 1 casos activos en Solicitud de Trabajo
+                        - heading "Solicitud de Trabajo" [level=4] [ref=f4e496]
+                        - paragraph [ref=f4e497]: Solicitud formal del cliente.
+                      - generic [ref=f4e498]:
+                        - generic [ref=f4e499]: comercial
+                        - generic [ref=f4e500]: Activo
+                    - article [ref=f4e503]:
+                      - generic [ref=f4e504]:
+                        - generic [ref=f4e505]: Paso 02
+                        - heading "Visita Técnica" [level=4] [ref=f4e509]
+                        - paragraph [ref=f4e510]: Mediciones y registro fotográfico en sitio.
+                      - generic [ref=f4e511]: operativo
+                    - article [ref=f4e513]:
+                      - generic [ref=f4e514]:
+                        - generic [ref=f4e515]: Paso 03
+                        - heading "Propuesta Económica" [level=4] [ref=f4e519]
+                        - paragraph [ref=f4e520]: Análisis de costos y oferta comercial.
+                      - generic [ref=f4e521]: comercial
+                    - article [ref=f4e523]:
+                      - generic [ref=f4e524]:
+                        - generic [ref=f4e525]: Paso 04
+                        - heading "Aprobación PO" [level=4] [ref=f4e529]
+                        - paragraph [ref=f4e530]: Orden de compra aprobada por el cliente.
+                      - generic [ref=f4e531]: comercial
+                    - article [ref=f4e533]:
+                      - generic [ref=f4e534]:
+                        - generic [ref=f4e535]: Paso 05
+                        - heading "Planeación" [level=4] [ref=f4e539]
+                        - paragraph [ref=f4e540]: Asignación de personal, herramientas y kits.
+                      - generic [ref=f4e541]: operativo
+                    - article [ref=f4e543]:
+                      - generic [ref=f4e544]:
+                        - generic [ref=f4e545]: Paso 06
+                        - heading "Ejecución de Campo" [level=4] [ref=f4e549]
+                        - paragraph [ref=f4e550]: Permisos, AST, checklists y evidencias fotográficas.
+                      - generic [ref=f4e551]: operativo
+                    - article [ref=f4e553]:
+                      - generic [ref=f4e554]:
+                        - generic [ref=f4e555]: Paso 07
+                        - heading "Evidencias" [level=4] [ref=f4e559]
+                        - paragraph [ref=f4e560]: Registro fotográfico y soportes de la ejecución.
+                      - generic [ref=f4e561]: operativo
+                    - article [ref=f4e563]:
+                      - generic [ref=f4e564]:
+                        - generic [ref=f4e565]: Paso 08
+                        - heading "Informe Técnico" [level=4] [ref=f4e569]
+                        - paragraph [ref=f4e570]: Documentación de ejecución y recursos usados.
+                      - generic [ref=f4e571]: operativo
+                    - article [ref=f4e573]:
+                      - generic [ref=f4e574]:
+                        - generic [ref=f4e575]: Paso 09
+                        - heading "Acta de Entrega" [level=4] [ref=f4e579]
+                        - paragraph [ref=f4e580]: Generación del acta y sus soportes.
+                      - generic [ref=f4e581]: cierre
+                    - article [ref=f4e583]:
+                      - generic [ref=f4e584]:
+                        - generic [ref=f4e585]: Paso 10
+                        - heading "Firma del Cliente" [level=4] [ref=f4e589]
+                        - paragraph [ref=f4e590]: Aceptación formal de la entrega por el cliente.
+                      - generic [ref=f4e591]: cierre
+                    - article [ref=f4e593]:
+                      - generic [ref=f4e594]:
+                        - generic [ref=f4e595]: Paso 11
+                        - heading "SES / Ariba" [level=4] [ref=f4e599]
+                        - paragraph [ref=f4e600]: Registro, envío y aprobación de la hoja de entrada de servicio.
+                      - generic [ref=f4e601]: cierre
+                    - article [ref=f4e603]:
+                      - generic [ref=f4e604]:
+                        - generic [ref=f4e605]: Paso 12
+                        - heading "Facturación" [level=4] [ref=f4e609]
+                        - paragraph [ref=f4e610]: Emisión de factura electrónica con soportes.
+                      - generic [ref=f4e611]: financiero
+                    - article [ref=f4e613]:
+                      - generic [ref=f4e614]:
+                        - generic [ref=f4e615]: Paso 13
+                        - heading "Aprobación Factura" [level=4] [ref=f4e619]
+                        - paragraph [ref=f4e620]: Revisión fiscal y contable del cliente.
+                      - generic [ref=f4e621]: financiero
+                    - article [ref=f4e623]:
+                      - generic [ref=f4e624]:
+                        - generic [ref=f4e625]: Paso 14
+                        - heading "Pago y Cierre" [level=4] [ref=f4e629]
+                        - paragraph [ref=f4e630]: Recibo de fondos y cierre del ciclo.
+                      - generic [ref=f4e631]: financiero
+                - region [ref=f4e633]:
+                  - generic [ref=f4e634]:
+                    - generic [ref=f4e635]:
+                      - generic [ref=f4e642]:
+                        - paragraph [ref=f4e643]: ServiceCase operativo
+                        - heading "Flujo Cermont de punta a punta" [level=2] [ref=f4e644]
+                        - paragraph [ref=f4e645]: Solicitudes, visitas, propuestas, órdenes, planeación, ejecución, evidencias, informes, actas, SES, facturación y pagos bajo el mismo caso de servicio.
+                      - generic [ref=f4e646]:
+                        - generic [ref=f4e647]:
+                          - paragraph [ref=f4e648]: Pipeline
+                          - paragraph [ref=f4e649]: "0"
+                          - paragraph [ref=f4e650]: casos derivados de KPIs
+                        - generic [ref=f4e651]:
+                          - paragraph [ref=f4e652]: Kits activos
+                          - paragraph [ref=f4e653]: "0"
+                          - paragraph [ref=f4e654]: herramientas y equipos
+                        - generic [ref=f4e655]:
+                          - paragraph [ref=f4e656]: Presupuesto
+                          - paragraph [ref=f4e657]: $ 0
+                          - paragraph [ref=f4e658]: aprobado en órdenes
+                      - generic [ref=f4e660]:
+                        - generic [ref=f4e661]: Cierre operativo
+                        - generic [ref=f4e662]: 0%
+                    - generic [ref=f4e664]:
+                      - generic [ref=f4e665]:
+                        - link "0 Casos activos" [ref=f4e666] [cursor=pointer]:
+                          - /url: /service-cases
+                          - generic [ref=f4e667]: "0"
+                          - paragraph [ref=f4e673]: Casos activos
+                        - link "0 En planeación / ejecución" [ref=f4e674] [cursor=pointer]:
+                          - /url: /execution
+                          - generic [ref=f4e675]: "0"
+                          - paragraph [ref=f4e680]: En planeación / ejecución
+                        - link "0 Bloqueados" [ref=f4e681] [cursor=pointer]:
+                          - /url: /service-cases
+                          - generic [ref=f4e682]: "0"
+                          - paragraph [ref=f4e687]: Bloqueados
+                        - link "0 Listos para facturar" [ref=f4e688] [cursor=pointer]:
+                          - /url: /billing/ses
+                          - generic [ref=f4e689]: "0"
+                          - paragraph [ref=f4e696]: Listos para facturar
+                      - generic [ref=f4e697]:
+                        - paragraph [ref=f4e702]: Cadena documental
+                        - generic [ref=f4e703]:
+                          - list [ref=f4e704]:
+                            - listitem [ref=f4e705]:
+                              - generic [ref=f4e706]: "1"
+                              - text: Solicitud
+                            - listitem [ref=f4e707]:
+                              - generic [ref=f4e708]: "2"
+                              - text: Visita
+                            - listitem [ref=f4e709]:
+                              - generic [ref=f4e710]: "3"
+                              - text: Propuesta
+                            - listitem [ref=f4e711]:
+                              - generic [ref=f4e712]: "4"
+                              - text: Aprobación
+                            - listitem [ref=f4e713]:
+                              - generic [ref=f4e714]: "5"
+                              - text: Orden
+                            - listitem [ref=f4e715]:
+                              - generic [ref=f4e716]: "6"
+                              - text: Planeación
+                          - list [ref=f4e717]:
+                            - listitem [ref=f4e718]:
+                              - generic [ref=f4e719]: "7"
+                              - text: Ejecución
+                            - listitem [ref=f4e720]:
+                              - generic [ref=f4e721]: "8"
+                              - text: Informe
+                            - listitem [ref=f4e722]:
+                              - generic [ref=f4e723]: "9"
+                              - text: Acta
+                            - listitem [ref=f4e724]:
+                              - generic [ref=f4e725]: "10"
+                              - text: SES
+                            - listitem [ref=f4e726]:
+                              - generic [ref=f4e727]: "11"
+                              - text: Factura
+                            - listitem [ref=f4e728]:
+                              - generic [ref=f4e729]: "12"
+                              - text: Pago
+                        - paragraph [ref=f4e730]: 0 órdenes recientes alimentan el pulso de este flujo.
+                - region "Próximas acciones por rol" [ref=f4e731]:
+                  - generic [ref=f4e732]:
+                    - heading "Próximas acciones" [level=3] [ref=f4e733]
+                    - generic [ref=f4e734]: "1"
+                  - list "Lista de acciones pendientes" [ref=f4e735]:
+                    - listitem [ref=f4e736]:
+                      - link "Revisar solicitudes — 1 pendiente — Pendiente" [ref=f4e737] [cursor=pointer]:
+                        - /url: /work-requests
+                        - generic [ref=f4e739]:
+                          - paragraph [ref=f4e740]: Revisar solicitudes
+                          - paragraph [ref=f4e741]: 1 pendiente
+                - region [ref=f4e742]:
+                  - generic [ref=f4e743]:
+                    - heading "Inteligencia operativa" [level=2] [ref=f4e744]
+                    - paragraph [ref=f4e745]: MTTR, MTBF, resolución inicial, utilización y riesgos financieros.
+                  - generic [ref=f4e746]:
+                    - 'generic "Mean Time To Repair: tiempo promedio para resolver una orden desde que se reporta" [ref=f4e747]':
+                      - generic [ref=f4e748]: +10%
+                      - paragraph [ref=f4e754]: 0 min
+                      - paragraph [ref=f4e755]: MTTR — Tiempo medio de reparación
+                    - 'generic "Mean Time Between Failures: días promedio entre intervenciones correctivas" [ref=f4e756]':
+                      - paragraph [ref=f4e761]: 0 días
+                      - paragraph [ref=f4e762]: MTBF — Tiempo medio entre fallos
+                    - generic "Porcentaje de órdenes resueltas en la primera visita, sin retornos" [ref=f4e763]:
+                      - generic [ref=f4e764]: 5%
+                      - paragraph [ref=f4e771]: 0%
+                      - paragraph [ref=f4e772]: FTR — First Time Fix Rate
+                    - generic "Porcentaje de tiempo productivo del equipo técnico sobre el total disponible" [ref=f4e773]:
+                      - paragraph [ref=f4e781]: 0%
+                      - paragraph [ref=f4e782]: Utilización de técnicos
+                  - generic [ref=f4e783]:
+                    - generic [ref=f4e784]:
+                      - generic [ref=f4e789]:
+                        - paragraph [ref=f4e790]: 0 min
+                        - paragraph [ref=f4e791]: MTTR
+                      - generic [ref=f4e798]:
+                        - paragraph [ref=f4e799]: 0 días
+                        - paragraph [ref=f4e800]: MTBF
+                    - generic [ref=f4e801]:
+                      - generic [ref=f4e802]:
+                        - img "Porcentaje de resolución en primera visita" [ref=f4e803]
+                        - generic [ref=f4e806]: 0%
+                      - paragraph [ref=f4e807]: First Time Fix Rate
+                      - paragraph [ref=f4e808]: Órdenes resueltas en primera visita
+                  - generic [ref=f4e809]:
+                    - generic [ref=f4e812]:
+                      - text: Ejecutado
+                      - generic [ref=f4e813]: 1 órdenes
+                      - text: $ 0
+                    - generic [ref=f4e816]:
+                      - text: SES
+                      - generic [ref=f4e817]: 0 órdenes
+                      - text: $ 0
+                    - generic [ref=f4e820]:
+                      - text: Factura
+                      - generic [ref=f4e821]: 0 órdenes
+                      - text: $ 0
+                    - generic [ref=f4e824]:
+                      - text: Pago
+                      - generic [ref=f4e825]: 0 órdenes
+                      - text: $ 0
+                  - region [ref=f4e826]:
+                    - generic [ref=f4e830]:
+                      - heading "Órdenes en riesgo de incumplir la fecha prometida" [level=2] [ref=f4e831]
+                      - paragraph [ref=f4e832]: Casos activos vencidos o con menos de 72 horas para su fecha objetivo.
+                    - paragraph [ref=f4e833]: Sin órdenes en riesgo de SLA en este momento.
+                - region "Indicadores clave de rendimiento" [ref=f4e834]:
+                  - generic [ref=f4e835]:
+                    - article [ref=f4e836]:
+                      - generic [ref=f4e843]:
+                        - heading "Órdenes Activas" [level=3] [ref=f4e844]
+                        - paragraph [ref=f4e845]: "0"
+                        - paragraph [ref=f4e846]: 1 órdenes en total
+                    - article [ref=f4e847]:
+                      - generic [ref=f4e853]:
+                        - heading "Mantenimientos Abiertos" [level=3] [ref=f4e854]
+                        - paragraph [ref=f4e855]: "0"
+                        - paragraph [ref=f4e856]: Mantenimientos preventivos/correctivos
+                    - article [ref=f4e857]:
+                      - generic [ref=f4e863]:
+                        - heading "Recursos en Uso" [level=3] [ref=f4e864]
+                        - paragraph [ref=f4e865]: "0"
+                        - paragraph [ref=f4e866]: Recursos asignados a órdenes
+                    - article [ref=f4e867]:
+                      - generic [ref=f4e873]:
+                        - heading "Ingresos del Mes" [level=3] [ref=f4e874]
+                        - paragraph [ref=f4e875]: $0
+                        - paragraph [ref=f4e876]: Presupuesto aprobado
+                - region "Gráficas de tendencias" [ref=f4e877]:
+                  - region [ref=f4e879]:
+                    - generic [ref=f4e881]:
+                      - heading "Tendencia mensual" [level=3] [ref=f4e882]
+                      - paragraph [ref=f4e883]: Órdenes creadas vs completadas
+                    - generic [ref=f4e884]: Sin datos disponibles
+                  - generic [ref=f4e886]:
+                    - region [ref=f4e887]:
+                      - generic [ref=f4e889]:
+                        - heading "Órdenes por estado" [level=3] [ref=f4e890]
+                        - paragraph [ref=f4e891]: Distribución actual
+                      - generic [ref=f4e892]: Sin datos disponibles
+                    - link "Cumplimiento SLA % 1 Activos 0 Incumplidos 0 En riesgo 0 Resueltos" [ref=f4e894] [cursor=pointer]:
+                      - /url: /sla
+                      - generic [ref=f4e895]:
+                        - heading "Cumplimiento SLA" [level=3] [ref=f4e900]
+                        - generic [ref=f4e901]: "%"
+                      - generic [ref=f4e902]:
+                        - generic [ref=f4e903]:
+                          - paragraph [ref=f4e904]: "1"
+                          - paragraph [ref=f4e905]: Activos
+                        - generic [ref=f4e906]:
+                          - paragraph [ref=f4e907]: "0"
+                          - paragraph [ref=f4e908]: Incumplidos
+                        - generic [ref=f4e909]:
+                          - paragraph [ref=f4e910]: "0"
+                          - paragraph [ref=f4e911]: En riesgo
+                        - generic [ref=f4e912]:
+                          - paragraph [ref=f4e913]: "0"
+                          - paragraph [ref=f4e914]: Resueltos
+                - generic [ref=f4e915]:
+                  - region [ref=f4e916]:
+                    - generic [ref=f4e917]:
+                      - heading "Órdenes Recientes" [level=3] [ref=f4e918]
+                      - link "Ver todas" [ref=f4e919] [cursor=pointer]:
+                        - /url: /orders
+                    - paragraph [ref=f4e924]: No hay órdenes recientes registradas
+                  - region [ref=f4e925]:
+                    - generic [ref=f4e931]:
+                      - heading "Actividad reciente" [level=3] [ref=f4e932]
+                      - paragraph [ref=f4e933]: Eventos operativos confirmados
+                    - paragraph [ref=f4e934]: No hay actividad reciente.
+                  - region [ref=f4e935]:
+                    - region [ref=f4e936]:
+                      - heading "Kits Típicos Recientes" [level=3] [ref=f4e939]
+                      - paragraph [ref=f4e941]: Sin kits típicos registrados
+                - region "Resumen de estados" [ref=f4e942]:
+                  - generic [ref=f4e948]:
+                    - paragraph [ref=f4e949]: "0"
+                    - paragraph [ref=f4e950]: Órdenes abiertas
+                  - generic [ref=f4e956]:
+                    - paragraph [ref=f4e957]: "0"
+                    - paragraph [ref=f4e958]: Completadas
+                  - generic [ref=f4e963]:
+                    - paragraph [ref=f4e964]: "0"
+                    - paragraph [ref=f4e965]: Con alerta
+                  - generic [ref=f4e970]:
+                    - paragraph [ref=f4e971]: "0"
+                    - paragraph [ref=f4e972]: Kits activos
+          - generic [ref=f4e973]:
+            - generic [ref=f4e974]:
+              - generic [ref=f4e980]:
+                - paragraph [ref=f4e981]: Instalar Cermont Campo
+                - paragraph [ref=f4e982]: Acceso rápido, interfaz completa y mejor continuidad cuando la señal falla.
+              - button "Cerrar aviso de instalación" [ref=f4e983]
+            - paragraph [ref=f4e993]: Instálala para abrir órdenes, evidencias e inspecciones con experiencia móvil más estable.
+            - generic [ref=f4e994]:
+              - button "Instalar ahora" [ref=f4e995]
+              - button "Más tarde" [ref=f4e996]
+          - button "Abrir carga rápida para Módulo" [ref=f4e997]:
+            - generic [ref=f4e1002]: Carga rápida
+      - complementary "Aviso de privacidad" [ref=f4e1003]:
+        - generic [ref=f4e1004]:
+          - generic [ref=f4e1009]:
+            - paragraph [ref=f4e1010]: Aviso de privacidad
+            - paragraph [ref=f4e1011]:
+              - text: Utilizamos tus datos únicamente para la operación del sistema. Consulta nuestra
+              - link "Política de Privacidad" [ref=f4e1012] [cursor=pointer]:
+                - /url: /privacy
+              - text: "y"
+              - link "términos de consentimiento" [ref=f4e1013] [cursor=pointer]:
+                - /url: /consent
+              - text: .
+          - button "Aceptar" [ref=f4e1014]
+  - region "Notifications alt+T"
+  - alert [ref=f4e96]: Cermont S.A.S. | Plataforma Operativa

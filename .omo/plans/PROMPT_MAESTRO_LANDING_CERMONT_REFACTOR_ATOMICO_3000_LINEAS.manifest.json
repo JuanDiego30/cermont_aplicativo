@@ -1,0 +1,11 @@
+{
+  "file": "PROMPT_MAESTRO_LANDING_CERMONT_REFACTOR_ATOMICO_3000_LINEAS.md",
+  "line_count": 3000,
+  "sha256": "4d3c612e08d636f006afa13e4fd551aa46ca14817ecff2ceebdae8d5087b20cb",
+  "scope": "CERMONT public landing page",
+  "shell": "bash",
+  "git_policy": "no_git_commands",
+  "atomic_tasks": 108,
+  "granular_acceptance_criteria": 221,
+  "complete_phases": "00-26"
+}

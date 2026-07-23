@@ -1,6 +1,6 @@
 {
 	"schema_version": 2,
-	"active_work_id": "spec-012-escalamiento-profesional",
+	"active_work_id": "plan-completo-3000l-refactor-20260721",
 	"works": {
 		"007-codebase-memory-innovation-improved": {
 			"work_id": "007-codebase-memory-innovation-improved",
@@ -10,13 +10,29 @@
 			"status": "paused",
 			"worktree_path": null
 		},
-		"spec-012-escalamiento-profesional": {
+    "spec-012-escalamiento-profesional": {
 			"work_id": "spec-012-escalamiento-profesional",
 			"active_plan": ".omo/plans/spec-012-escalamiento-profesional.md",
 			"plan_name": "spec-012-escalamiento-profesional",
 			"session_ids": ["codex:current"],
 			"status": "active",
-			"worktree_path": "C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\.codex\\worktrees\\spec-012-escalamiento-profesional"
+      "worktree_path": "C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\.codex\\worktrees\\spec-012-escalamiento-profesional"
+    },
+    "deploy-ready-remediation-20260716": {
+      "work_id": "deploy-ready-remediation-20260716",
+      "active_plan": ".omo/plans/deploy-ready-remediation-20260716.md",
+      "plan_name": "deploy-ready-remediation-20260716",
+      "session_ids": ["codex:current"],
+      "status": "active",
+      "worktree_path": "C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\.codex\\worktrees\\spec-012-escalamiento-profesional"
+		},
+		"plan-completo-3000l-refactor-20260721": {
+			"work_id": "plan-completo-3000l-refactor-20260721",
+			"active_plan": ".sisyphus/plans/plan-completo-3000l-refactor-corregir-madurar-escalar.md",
+			"plan_name": "plan-completo-3000l-refactor-corregir-madurar-escalar",
+			"session_ids": ["codex:current"],
+			"status": "active",
+			"worktree_path": null
 		}
 	}
 }

@@ -8,6 +8,7 @@ import { QRCodeButton } from "@/components/common/QRCodeButton";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { StatusBadge } from "@/core/ui/StatusBadge";
 import { apiClient } from "@/lib/http/api-client";
+import { formatLocaleDate } from "@/lib/utils/format-date";
 import { buildAssetRoute } from "@/lib/routes";
 
 type AssetDetail = {
@@ -43,11 +44,7 @@ function formatDate(dateStr: string | undefined): string {
 	if (!dateStr) {
 		return "—";
 	}
-	const date = new Date(dateStr);
-	if (Number.isNaN(date.getTime())) {
-		return "—";
-	}
-	return date.toLocaleDateString("es-CO", {
+	return formatLocaleDate(dateStr, {
 		day: "2-digit",
 		month: "long",
 		year: "numeric",

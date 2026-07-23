@@ -1196,9 +1196,56 @@ export async function generateOrderPdf(options: GeneratePdfOptions): Promise<Buf
 	return Buffer.from(pdfBytes);
 }
 
+function drawProposalItems(
+	proposal: Record<string, unknown>,
+	pdfDoc: PDFDocument,
+	font: PDFFont,
+	boldFont: PDFFont,
+	page: PDFPage,
+	cursorY: number,
+): { page: PDFPage; cursorY: number } {
+	let p = page;
+	let cy = cursorY;
+	const items = proposal.items as Array<Record<string, unknown>> | undefined;
+	if (!items || items.length === 0) {
+		return { page: p, cursorY: cy };
+	}
+
+	const drawText = (text: string, size = 10, customFont?: PDFFont) => {
+		p.drawText(text, { x: MARGIN, y: cy, size, font: customFont ?? font });
+		cy -= size + 4;
+	};
+	const bold = (text: string, size = 10) => drawText(text, size, boldFont);
+
+	bold("Items:", 11);
+	cy -= 4;
+	const headers = ["Descripcion", "Unidad", "Cant.", "P. Unit.", "Total"];
+	bold(headers.join(" | "), 9);
+	cy -= 2;
+
+	for (const item of items) {
+		const line = [
+			String(item.description ?? "").slice(0, 25),
+			String(item.unit ?? ""),
+			String(item.quantity ?? ""),
+			String(item.unitCost ?? ""),
+			String(item.total ?? ""),
+		].join(" | ");
+		drawText(line, 8);
+		if (cy < 60) {
+			p = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+			cy = PAGE_HEIGHT - MARGIN;
+		}
+	}
+
+	cy -= 4;
+	bold(`Subtotal: $${((proposal.subtotal as number) ?? 0).toFixed(2)}`, 10);
+	bold(`Total: $${((proposal.total as number) ?? 0).toFixed(2)}`, 11);
+	return { page: p, cursorY: cy };
+}
+
 export async function generateProposalCostPdf(proposalId: string): Promise<Buffer> {
 	const proposal = await Proposal.findById(proposalId).lean();
-
 	if (!proposal) {
 		throw new AppError("Proposal not found", 404, "PROPOSAL_NOT_FOUND");
 	}
@@ -1206,76 +1253,34 @@ export async function generateProposalCostPdf(proposalId: string): Promise<Buffe
 	const pdfDoc = await PDFDocument.create();
 	const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 	const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-	const state = {
-		page: pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]),
-		cursorY: PAGE_HEIGHT - MARGIN,
-	};
+	let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+	let cursorY = PAGE_HEIGHT - MARGIN;
 
 	const drawText = (text: string, size = 10, customFont?: PDFFont) => {
-		state.page.drawText(text, { x: MARGIN, y: state.cursorY, size, font: customFont ?? font });
-		state.cursorY -= size + 4;
+		page.drawText(text, { x: MARGIN, y: cursorY, size, font: customFont ?? font });
+		cursorY -= size + 4;
 	};
-
 	const bold = (text: string, size = 10) => drawText(text, size, boldFont);
 
-	drawProposalPdfHeader(proposal as unknown as Record<string, unknown>, proposalId, bold, drawText, state);
-	state.cursorY -= 8;
-
-	if (proposal.items && proposal.items.length > 0) {
-		drawProposalPdfItemsSection(proposal as unknown as Record<string, unknown>, pdfDoc, state, drawText, bold);
-	}
-
-	const pdfBytes = await pdfDoc.save();
-	return Buffer.from(pdfBytes);
-}
-
-function drawProposalPdfHeader(
-	proposal: Record<string, unknown>,
-	proposalId: string,
-	bold: (text: string, size?: number) => void,
-	drawText: (text: string, size?: number, font?: PDFFont) => void,
-	state: { cursorY: number },
-): void {
 	bold("DESGLOSE DE COSTOS - PROPUESTA", 16);
-	state.cursorY -= 8;
+	cursorY -= 8;
 	bold(`Propuesta: ${proposal.code || proposalId}`, 11);
 	drawText(`Cliente: ${proposal.clientName}`);
 	drawText(`Titulo: ${proposal.title}`);
 	drawText(`Estado: ${proposal.status}`);
-}
+	cursorY -= 8;
 
-function drawProposalPdfItemsSection(
-	proposal: Record<string, unknown>,
-	pdfDoc: PDFDocument,
-	state: { page: PDFPage; cursorY: number },
-	drawText: (text: string, size?: number, font?: PDFFont) => void,
-	bold: (text: string, size?: number) => void,
-): void {
-	bold("Items:", 11);
-	state.cursorY -= 4;
+	const result = drawProposalItems(
+		proposal as unknown as Record<string, unknown>,
+		pdfDoc,
+		font,
+		boldFont,
+		page,
+		cursorY,
+	);
+	page = result.page;
+	cursorY = result.cursorY;
 
-	const headers = ["Descripcion", "Unidad", "Cant.", "P. Unit.", "Total"];
-	bold(headers.join(" | "), 9);
-	state.cursorY -= 2;
-
-	for (const item of proposal.items as Array<Record<string, unknown>>) {
-		const line = [
-			(item.description as string)?.slice(0, 25) || "",
-			(item.unit as string) || "",
-			String(item.quantity ?? ""),
-			String(item.unitCost ?? ""),
-			String(item.total ?? ""),
-		].join(" | ");
-		drawText(line, 8);
-
-		if (state.cursorY < 60) {
-			state.page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-			state.cursorY = PAGE_HEIGHT - MARGIN;
-		}
-	}
-
-	state.cursorY -= 4;
-	bold(`Subtotal: $${Number(proposal.subtotal ?? 0).toFixed(2)}`, 10);
-	bold(`Total: $${Number(proposal.total ?? 0).toFixed(2)}`, 11);
+	const pdfBytes = await pdfDoc.save();
+	return Buffer.from(pdfBytes);
 }

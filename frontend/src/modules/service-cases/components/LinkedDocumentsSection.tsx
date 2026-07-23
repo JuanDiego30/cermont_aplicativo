@@ -16,7 +16,7 @@ const PURPOSE_LABEL: Record<LinkedDocumentSummary["purpose"], string> = {
 	report_attachment: "Anexo de informe",
 };
 
-const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" });
+const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeZone: "America/Bogota" });
 
 function stepLabel(stepCode: string): string {
 	const step = CERMONT_OPERATIONAL_STEPS.find((item) => item.code === stepCode);

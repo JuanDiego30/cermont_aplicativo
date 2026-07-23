@@ -14,6 +14,10 @@ import {
 } from "./dashboard.service";
 import { getOperationalKPIs } from "./dashboard-operational-kpi.service";
 import { buildSlaRiskOrders } from "./dashboard-sla.service";
+import {
+	getPredictiveAlerts,
+	getHealthScore,
+} from "./dashboard-predictive.service";
 
 export async function getSummary(_req: Request, res: Response): Promise<void> {
 	const summary = await getDashboardSummary();
@@ -61,4 +65,14 @@ export async function getCostComparisonChart(_req: Request, res: Response): Prom
 export async function getFinancialKpis(_req: Request, res: Response): Promise<void> {
 	const kpis = await getFinancialKpisData();
 	sendSuccess(res, kpis);
+}
+
+export async function getPredictiveAlertsHandler(_req: Request, res: Response): Promise<void> {
+	const alerts = await getPredictiveAlerts();
+	sendSuccess(res, alerts);
+}
+
+export async function getHealthScoreHandler(_req: Request, res: Response): Promise<void> {
+	const score = await getHealthScore();
+	sendSuccess(res, score);
 }

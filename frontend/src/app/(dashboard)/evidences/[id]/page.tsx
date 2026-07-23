@@ -13,6 +13,7 @@ import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { apiClient } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { formatLocaleDateTime } from "@/lib/utils/format-date";
 import { EvidenceApprovalPanel } from "@/modules/evidences/ui/EvidenceApprovalPanel";
 
 const SUPERVISORY_ROLE_LIST: readonly string[] = SUPERVISORY_ROLES;
@@ -164,11 +165,11 @@ export default function EvidenceDetailPage() {
 				{evidence.capturedAt && (
 					<InfoCard
 						label="Capturada"
-						value={new Date(evidence.capturedAt).toLocaleString("es-CO")}
+						value={formatLocaleDateTime(evidence.capturedAt)}
 					/>
 				)}
 				{evidence.uploadedAt && (
-					<InfoCard label="Subida" value={new Date(evidence.uploadedAt).toLocaleString("es-CO")} />
+					<InfoCard label="Subida" value={new Date(evidence.uploadedAt).toLocaleString("es-CO", { timeZone: "America/Bogota" })} />
 				)}
 			</div>
 

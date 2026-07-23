@@ -46,7 +46,9 @@ export function useEvidenceUpload(orderId?: string): UseEvidenceUploadReturn {
 
 	// Keep a ref to latest photos for the unmount cleanup
 	const photosRef = useRef(state.photos);
-	photosRef.current = state.photos;
+	useEffect(() => {
+		photosRef.current = state.photos;
+	}, [state.photos]);
 
 	// Cleanup all blob URLs on unmount
 	useEffect(() => {

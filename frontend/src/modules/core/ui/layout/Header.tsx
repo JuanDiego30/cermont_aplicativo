@@ -5,9 +5,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import gsap from "gsap";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NetworkStatusChip } from "@/components/sync/NetworkStatusChip";
 import { ThemeToggle } from "@/core/ui/ThemeToggle";
+import { Breadcrumb } from "@/core/ui/Breadcrumb";
+import { getBreadcrumbItems, getBreadcrumbLabel } from "@/lib/navigation/breadcrumbs";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import {
@@ -25,21 +27,6 @@ import {
 
 gsap.registerPlugin(useGSAP);
 
-const ROUTE_TITLES: Record<string, string> = {
-	"/dashboard": "Panel de Control",
-	"/orders": "Órdenes de Trabajo",
-	"/maintenance": "Mantenimientos",
-	"/resources": "Recursos & Kits",
-	"/proposals": "Propuestas",
-	"/documents": "Documentos",
-	"/evidences": "Evidencias",
-	"/costs": "Costos",
-	"/reports": "Reportes",
-	"/admin": "Administración",
-	"/admin/audit": "Registro de Auditoría",
-	"/profile": "Mi Perfil",
-};
-
 export default function Header({
 	sidebarOpen,
 	setSidebarOpen,
@@ -56,11 +43,14 @@ export default function Header({
 	const [showNotifications, setShowNotifications] = useState(false);
 
 	const cleanPath = pathname?.split("?")[0] || "";
-	const pageTitle =
-		ROUTE_TITLES[cleanPath] || ROUTE_TITLES[`/${cleanPath.split("/")[1]}`] || "Cermont";
+	const pageTitle = getBreadcrumbLabel(cleanPath);
 
 	const section = cleanPath.split("/").filter(Boolean)[0];
-	const moduleTitle = section ? ROUTE_TITLES[`/${section}`] || section : "Cermont";
+	const moduleTitle = section ? getBreadcrumbLabel(`/${section}`) : "Cermont";
+
+	useEffect(() => {
+		document.title = `${pageTitle} | Cermont S.A.S.`;
+	}, [pageTitle]);
 
 	// Entrance animation
 	useGSAP(
@@ -126,7 +116,7 @@ export default function Header({
 					<Menu className="size-5" aria-hidden="true" />
 				</button>
 
-				<div className="flex flex-col">
+				<div className="flex min-w-0 flex-col">
 					<div className="flex items-center gap-2">
 						<p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand font-mono">
 							{moduleTitle}
@@ -139,6 +129,7 @@ export default function Header({
 					<h1 className="mt-1 text-sm font-semibold leading-none text-foreground [text-wrap:balance]">
 						{pageTitle}
 					</h1>
+					<Breadcrumb items={getBreadcrumbItems(cleanPath).map((item, index, arr) => index < arr.length - 1 ? item : { ...item, href: undefined })} />
 				</div>
 			</div>
 

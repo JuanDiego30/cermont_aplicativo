@@ -2,11 +2,19 @@
 
 import type { PaymentAgingEntry, PaymentDashboard } from "@cermont/shared-types";
 import { AlertTriangle, Banknote, Clock, DollarSign, Percent, TrendingUp } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { ApiErrorBoundary } from "@/components/common/ApiErrorBoundary";
 import { Skeleton } from "@/core/ui/Skeleton";
-import { usePaymentAgingReport, usePaymentDashboard, usePaymentsList } from "@/modules/billing/queries";
+import { formatCOP } from "@/lib/format/currency";
+import { useRelativeTime } from "@/lib/format/useFormattedDate";
 import { localeDate } from "@/lib/utils/format-date";
+import {
+	usePaymentAgingReport,
+	usePaymentDashboard,
+	usePaymentsList,
+} from "@/modules/billing/queries";
 import {
 	WorkflowRecordsPage,
 	WorkflowRecordsPageLoadingState,
@@ -37,15 +45,17 @@ const BUCKET_BG: Record<string, string> = {
 	"90+": "bg-red-700",
 };
 
-function formatCOP(amount: number): string {
-	return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(amount);
-}
-
 function formatPercent(value: number): string {
 	return `${value.toFixed(1)}%`;
 }
 
-function KPICard({ icon: Icon, label, value, subtitle, color }: {
+function KPICard({
+	icon: Icon,
+	label,
+	value,
+	subtitle,
+	color,
+}: {
 	icon: React.ElementType;
 	label: string;
 	value: string;
@@ -53,7 +63,7 @@ function KPICard({ icon: Icon, label, value, subtitle, color }: {
 	color?: string;
 }) {
 	return (
-		<div className="rounded-xl border border-[var(--border-subtle)] bg-white p-5 shadow-sm">
+		<div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-sm">
 			<div className="flex items-start justify-between">
 				<div>
 					<p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
@@ -68,34 +78,57 @@ function KPICard({ icon: Icon, label, value, subtitle, color }: {
 	);
 }
 
-function AgingBucketsCard({ buckets, total }: { buckets: PaymentDashboard["agingBuckets"]; total: number }) {
+function AgingBucketsCard({
+	buckets,
+	total,
+}: {
+	buckets: PaymentDashboard["agingBuckets"];
+	total: number;
+}) {
 	const maxTotal = Math.max(...buckets.map((b) => b.total), 1);
 
 	return (
 		<div className="rounded-xl border border-[var(--border-subtle)] bg-white p-5 shadow-sm">
 			<h3 className="mb-4 text-sm font-semibold text-gray-900">Distribución por antigüedad</h3>
-			<div className="space-y-3">
-				{buckets.map((bucket) => {
-					const pct = total > 0 ? (bucket.total / total) * 100 : 0;
-					const barWidth = total > 0 ? (bucket.total / maxTotal) * 100 : 0;
-					return (
-						<div key={bucket.bucket}>
-							<div className="mb-1 flex items-center justify-between text-xs">
-								<span className="font-medium text-gray-700">{BUCKET_LABELS[bucket.bucket] ?? bucket.bucket}</span>
-								<span className="text-gray-500">
-									{formatCOP(bucket.total)} ({pct.toFixed(1)}%)
-								</span>
+			{buckets.length === 0 ? (
+				<div className="rounded-xl border border-dashed border-[var(--border-subtle)] p-5 text-sm text-gray-500">
+					<p>
+						No hay saldos pendientes. Las facturas aprobadas aparecerán aquí cuando requieran
+						seguimiento de recaudo.
+					</p>
+					<Link
+						href="/billing/invoices"
+						className="mt-3 inline-flex font-semibold text-brand-green hover:underline"
+					>
+						Ver facturas
+					</Link>
+				</div>
+			) : (
+				<div className="space-y-3">
+					{buckets.map((bucket) => {
+						const pct = total > 0 ? (bucket.total / total) * 100 : 0;
+						const barWidth = total > 0 ? (bucket.total / maxTotal) * 100 : 0;
+						return (
+							<div key={bucket.bucket}>
+								<div className="mb-1 flex items-center justify-between text-xs">
+									<span className="font-medium text-gray-700">
+										{BUCKET_LABELS[bucket.bucket] ?? bucket.bucket}
+									</span>
+									<span className="text-gray-500">
+										{formatCOP(bucket.total)} ({pct.toFixed(1)}%)
+									</span>
+								</div>
+								<div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+									<div
+										className={`h-full rounded-full transition-all ${BUCKET_BG[bucket.bucket] ?? "bg-gray-400"}`}
+										style={{ width: `${barWidth}%` }}
+									/>
+								</div>
 							</div>
-							<div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-								<div
-									className={`h-full rounded-full transition-all ${BUCKET_BG[bucket.bucket] ?? "bg-gray-400"}`}
-									style={{ width: `${barWidth}%` }}
-								/>
-							</div>
-						</div>
-					);
-				})}
-			</div>
+						);
+					})}
+				</div>
+			)}
 		</div>
 	);
 }
@@ -127,18 +160,26 @@ function AgingTable({ entries }: { entries: PaymentAgingEntry[] }) {
 				<tbody className="divide-y divide-gray-100">
 					{entries.map((entry) => (
 						<tr key={entry.invoiceId} className="hover:bg-gray-50">
-							<td className="px-4 py-3 font-medium text-gray-900">{entry.invoiceNumber ?? entry.invoiceId.slice(-8)}</td>
+							<td className="px-4 py-3 font-medium text-gray-900">
+								{entry.invoiceNumber ?? entry.invoiceId.slice(-8)}
+							</td>
 							<td className="px-4 py-3 text-gray-500">{localeDate(entry.issueDate)}</td>
 							<td className="px-4 py-3 text-gray-500">{localeDate(entry.dueDate)}</td>
 							<td className="px-4 py-3 text-gray-900">{formatCOP(entry.total)}</td>
-							<td className="px-4 py-3 font-medium text-gray-900">{formatCOP(entry.pendingAmount)}</td>
+							<td className="px-4 py-3 font-medium text-gray-900">
+								{formatCOP(entry.pendingAmount)}
+							</td>
 							<td className="px-4 py-3">
-								<span className={entry.daysOverdue > 0 ? "font-semibold text-red-600" : "text-gray-400"}>
+								<span
+									className={entry.daysOverdue > 0 ? "font-semibold text-red-600" : "text-gray-400"}
+								>
 									{entry.daysOverdue > 0 ? `${entry.daysOverdue} días` : "Al día"}
 								</span>
 							</td>
 							<td className="px-4 py-3">
-								<span className={`inline-block rounded-md border px-2 py-0.5 text-xs font-medium ${BUCKET_COLORS[entry.agingBucket] ?? "text-gray-500"}`}>
+								<span
+									className={`inline-block rounded-md border px-2 py-0.5 text-xs font-medium ${BUCKET_COLORS[entry.agingBucket] ?? "text-gray-500"}`}
+								>
 									{BUCKET_LABELS[entry.agingBucket] ?? entry.agingBucket}
 								</span>
 							</td>
@@ -153,12 +194,17 @@ function AgingTable({ entries }: { entries: PaymentAgingEntry[] }) {
 function DashboardSection() {
 	const dashboardQuery = usePaymentDashboard();
 	const agingQuery = usePaymentAgingReport();
+	const updatedAt = useRelativeTime(
+		Math.max(dashboardQuery.dataUpdatedAt, agingQuery.dataUpdatedAt),
+	);
 
 	if (dashboardQuery.isLoading || agingQuery.isLoading) {
 		return (
 			<div className="space-y-4">
 				<div className="grid gap-4 sm:grid-cols-4">
-					{[0, 1, 2, 3].map((i) => <Skeleton key={`kpi-skeleton-${i}`} className="h-28 rounded-xl" />)}
+					{[0, 1, 2, 3].map((i) => (
+						<Skeleton key={`kpi-skeleton-${i}`} className="h-28 rounded-xl" />
+					))}
 				</div>
 				<Skeleton className="h-64 rounded-xl" />
 			</div>
@@ -167,20 +213,29 @@ function DashboardSection() {
 
 	if (dashboardQuery.isError || agingQuery.isError) {
 		return (
-			<div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-				<AlertTriangle className="mx-auto mb-2 size-8 text-red-400" aria-hidden="true" />
-				<p className="text-sm text-red-600">No se pudo cargar el dashboard de pagos</p>
-			</div>
+			<ApiErrorBoundary
+				error={dashboardQuery.error ?? agingQuery.error}
+				onRetry={() => {
+					void dashboardQuery.refetch();
+					void agingQuery.refetch();
+				}}
+			/>
 		);
 	}
 
-	const dashboard = dashboardQuery.data;
-	if (!dashboard) {
-		return null;
-	}
+	const dashboard = dashboardQuery.data ?? {
+		totalInvoiced: 0,
+		totalCollected: 0,
+		totalPending: 0,
+		totalOverdue: 0,
+		collectionRate: 0,
+		averagePaymentDays: 0,
+		agingBuckets: [],
+	};
 
 	return (
 		<div className="space-y-6">
+			{updatedAt ? <p className="text-xs text-gray-500">Datos actualizados {updatedAt}</p> : null}
 			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				<KPICard
 					icon={DollarSign}
@@ -192,7 +247,11 @@ function DashboardSection() {
 					icon={Banknote}
 					label="Total cobrado"
 					value={formatCOP(dashboard.totalCollected)}
-					subtitle={dashboard.totalInvoiced > 0 ? `${formatPercent(dashboard.collectionRate)} recaudo` : undefined}
+					subtitle={
+						dashboard.totalInvoiced > 0
+							? `${formatPercent(dashboard.collectionRate)} recaudo`
+							: undefined
+					}
 					color="text-green-600"
 				/>
 				<KPICard
@@ -205,26 +264,34 @@ function DashboardSection() {
 					icon={AlertTriangle}
 					label="Vencido"
 					value={formatCOP(dashboard.totalOverdue)}
-					subtitle={dashboard.averagePaymentDays > 0 ? `Promedio: ${dashboard.averagePaymentDays} días` : undefined}
+					subtitle={
+						dashboard.averagePaymentDays > 0
+							? `Promedio: ${dashboard.averagePaymentDays} días`
+							: undefined
+					}
 					color="text-red-600"
 				/>
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-2">
-				<AgingBucketsCard buckets={dashboard.agingBuckets} total={dashboard.totalInvoiced} />
+				<AgingBucketsCard buckets={dashboard.agingBuckets} total={dashboard.totalPending} />
 				<div className="rounded-xl border border-[var(--border-subtle)] bg-white p-5 shadow-sm">
 					<div className="flex items-center gap-3">
-						<div className="rounded-lg bg-blue-50 p-2.5">
-							<Percent className="size-5 text-blue-600" aria-hidden="true" />
+						<div className="rounded-lg bg-brand-green/10 p-2.5">
+							<Percent className="size-5 text-brand-green" aria-hidden="true" />
 						</div>
 						<div>
-							<p className="text-xs font-medium uppercase tracking-wide text-gray-500">Tasa de recaudo</p>
-							<p className="text-3xl font-bold text-blue-600">{formatPercent(dashboard.collectionRate)}</p>
+							<p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+								Tasa de recaudo
+							</p>
+							<p className="text-3xl font-bold text-brand-green">
+								{formatPercent(dashboard.collectionRate)}
+							</p>
 						</div>
 					</div>
 					<div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-gray-100">
 						<div
-							className="h-full rounded-full bg-blue-500 transition-all"
+							className="h-full rounded-full bg-brand-green transition-all"
 							style={{ width: `${Math.min(dashboard.collectionRate, 100)}%` }}
 						/>
 					</div>

@@ -1,59 +1,121 @@
-# Estado del Desarrollo — CERMONT S.A.S.
+# Estado Actual de Implementación — CERMONT S.A.S.
 
-**Fecha:** 2026-06-24  
-**Versión:** 1.1  
-**Última actualización:** Migración de envelope de paginación completada (Spec 002 Stage 1)  
+> **Propósito:** Línea base verificable del estado actual.
+> **Estados:** `missing` | `mock` | `broken` | `partial` | `implemented` | `verified` | `blocked_external`
+> **Regla:** Ningún módulo usa `done`. `verified` solo con evidencia E2E + gates aprobados.
+
+**Última actualización:** 2026-07-23
+
+---
+
+## Resumen Ejecutivo
+
+| Métrica | Valor |
+|---------|-------|
+| Módulos totales | 40+ |
+| `verified` | 0 |
+| `implemented` | ~30 |
+| `partial` | 6 |
+| `broken` | 0 |
+| `missing` | 2 |
+| `mock` | 0 |
+| Tests unitarios | ~991 (Vitest) |
+| Tests E2E | Login + demo (insuficiente para flujo crítico) |
+| Quality gates | 9 configurados |
+| Build | 83 rutas estáticas |
 
 ---
 
 ## Mapa de Estados por Módulo
 
-| Módulo | Estado | Frontend | Backend | Contrato | Tests | Docs | Observaciones |
-|--------|--------|----------|---------|----------|-------|------|-------------|
-| **Auth** | `done` | ✅ | ✅ | ✅ | ⚠️ | ✅ | Rotación de tokens, cookies httpOnly, rate limiting |
-| **Usuarios** | `done` | ✅ | ✅ | ✅ | ⚠️ | ✅ | CRUD completo, certificaciones, skills |
-| **Roles/RBAC** | `done` | ✅ | ✅ | ✅ | ⚠️ | ✅ | 15 roles (8 docs + 7 reales), canAccessPath, canPerformAction |
-| **Dashboard/KPIs** | `done` | ✅ | ✅ | ✅ | ✅ | ✅ | DashboardSummary implementado, envelope conforme (sendSuccess), test en dashboard.controller.test.ts |
-| **Work Requests** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + visits + status transitions |
-| **Site Visits** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + schedule |
-| **Proposals** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + send/approve/reject |
-| **Purchase Orders** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Adjuntar PO a propuesta |
-| **Orders** | `done` | ✅ | ✅ | ✅ | ⚠️ | ✅ | CRUD + kanban + status machine + asignación |
-| **Planning** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Planning packet + approve |
-| **Execution** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Sessions + pause/complete + materials/labor |
-| **Evidence** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Upload multipart + verify + reject + GPS |
-| **Files** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Subida segura, UUID renaming, magic bytes |
-| **Camara** | `done` | ✅ | — | ✅ | ❌ | ⚠️ | Captura desde frontend, procesamiento backend |
-| **Documents/PDF** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + templates + generación PDF |
-| **Checklists** | `done` | ⚠️ | ✅ | ✅ | ❌ | ✅ | Backend implementado, UI por verificar |
-| **Reports** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + submit/approve |
-| **Delivery Records** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + client signature |
-| **Service Entry Sheet** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + submit/approve + invoice link |
-| **Invoicing** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Desde SES + submit/approve/reject |
-| **Payments** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + status |
-| **Costs** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Dashboard + catalog + actual costs |
-| **Fleet** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD |
-| **Assets** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + maintenance link |
-| **Maintenance** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + planes |
-| **Inventory** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + scan |
-| **Notifications** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Backend + frontend |
-| **Offline/PWA** | `partial` | ✅ | ✅ | — | ✅ | ⚠️ | IndexedDB queue, sync, service worker |
-| **Audit** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Logging inmutable, queryable |
-| **Templates** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD + builder + responses |
-| **SLA** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD |
-| **Dispatch** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | CRUD |
-| **Service Cases** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Cockpit 14 pasos |
-| **Safety Analysis** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | AST/HSE |
-| **Portal Cliente** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Portal + vistas cliente |
-| **Sync** | `done` | — | ✅ | ✅ | ❌ | ✅ | Offline sync endpoint |
-| **System Config** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Configuración del sistema |
-| **DIAN** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Facturación electrónica |
-| **ERP Connector** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Integración ERP |
-| **AI** | `done` | — | ✅ | ✅ | ❌ | ✅ | Asistente IA |
-| **Observability** | `done` | — | ✅ | — | — | — | Health checks, métricas |
-| **Admin/Backups** | `done` | ✅ | ✅ | ✅ | ❌ | ✅ | Admin panel + backups |
-| **Legal/Privacidad** | `not-started` | ❌ | ❌ | ❌ | ❌ | ❌ | Sin implementación legal |
-| **SSL/Deploy** | `done` | ✅ | ✅ | — | ❌ | ✅ | nginx + Certbot + PM2 |
+### Infraestructura Transversal
+
+| Módulo | Estado | Frontend | Backend | Contrato | Tests | Observaciones |
+|--------|--------|----------|---------|----------|-------|-------------|
+| **Auth (login/refresh/logout)** | `implemented` | ✅ | ✅ | ✅ | ⚠️ | Rotación de tokens, cookies httpOnly, rate limiting. Falta E2E de refresh. |
+| **Auth (recuperación contraseña)** | `implemented` | ✅ | ✅ | ✅ | ✅ | Token criptográfico, hash SHA-256, expiración 1h, uso único, timing-safe, sesiones revocadas, auditoría. Email vía gateway (nodemailer/dev logger). |
+| **Usuarios CRUD** | `implemented` | ✅ | ✅ | ✅ | ⚠️ | CRUD completo, certificaciones, skills. Sin test de desactivación. |
+| **Roles/RBAC** | `implemented` | ✅ | ✅ | ✅ | ⚠️ | 15 roles. Sin prueba de permiso negativo en backend. |
+| **Auditoría** | `implemented` | ✅ | ✅ | ✅ | ❌ | Logging inmutable, queryable. Sin E2E de eventos críticos. |
+| **Offline/PWA** | `partial` | ✅ | ✅ | — | ⚠️ | IndexedDB queue, sync, service worker. Sin lectura offline garantizada. |
+| **Observabilidad** | `implemented` | — | ✅ | — | — | Health checks, métricas. |
+| **Notificaciones** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba de duplicación. |
+
+### Flujo Operativo (14 pasos)
+
+| Módulo | Estado | Frontend | Backend | Contrato | Tests | Observaciones |
+|--------|--------|----------|---------|----------|-------|-------------|
+| **ServiceCase/WorkOrder Cockpit** | `partial` | ✅ | ✅ | ✅ | ❌ | Cockpit existe pero no centraliza blockers, próxima acción, readiness integrado. |
+| **Work Requests** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba de idempotencia. |
+| **Site Visits** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba de omisión justificada. |
+| **Proposals** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin recálculo de totales probado en backend. |
+| **Purchase Orders** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba de conversión idempotente. |
+| **Planning** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin readiness blockers calculados por backend. |
+| **Execution** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba offline real. |
+| **Evidence** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba de hash/integridad. |
+| **Reports** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin versionado probado. |
+| **Delivery Records** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba de firma rechazada. |
+| **Service Entry Sheet** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin E2E administrativo completo. |
+| **Invoicing** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin DIAN real. |
+| **Payments** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba de duplicación. |
+| **Costs** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin fórmula probada en backend. |
+
+### Módulos de Apoyo
+
+| Módulo | Estado | Frontend | Backend | Contrato | Tests | Observaciones |
+|--------|--------|----------|---------|----------|-------|-------------|
+| **Dashboard/KPIs** | `implemented` | ✅ | ✅ | ✅ | ✅ | DashboardSummary, envelope conforme. |
+| **Files** | `implemented` | ✅ | ✅ | ✅ | ❌ | Subida segura, UUID renaming, magic bytes. |
+| **Camara** | `partial` | ✅ | — | ✅ | ❌ | Captura frontend, backend pendiente. |
+| **Documents/PDF** | `implemented` | ✅ | ✅ | ✅ | ❌ | CRUD + templates + PDF. |
+| **Checklists** | `partial` | ⚠️ | ✅ | ✅ | ❌ | Backend OK, UI por verificar. |
+| **Fleet** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba de disponibilidad. |
+| **Assets** | `implemented` | ✅ | ✅ | ✅ | ❌ | CRUD + maintenance link. |
+| **Inventory** | `implemented` | ✅ | ✅ | ✅ | ❌ | CRUD + scan. |
+| **Templates** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin versionado de respuestas. |
+| **Portal Cliente** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin prueba IDOR. |
+| **Sync** | `implemented` | — | ✅ | ✅ | ❌ | Offline sync endpoint. |
+| **DIAN** | `blocked_external` | ✅ | ✅ | ✅ | ❌ | Dependencia externa, integración no verificada. |
+| **ERP Connector** | `blocked_external` | ✅ | ✅ | ✅ | ❌ | Dependencia externa. |
+| **Admin/Backups** | `implemented` | ✅ | ✅ | ✅ | ❌ | Sin restore probado. |
+| **Legal/Privacidad** | `missing` | ❌ | ❌ | ❌ | ❌ | Sin implementación Ley 1581. |
+| **SSL/Deploy** | `implemented` | ✅ | ✅ | — | ❌ | nginx + Certbot + PM2. |
+
+---
+
+## Áreas que Requieren Atención Prioritaria
+
+| # | Área | Riesgo | Acción |
+|---|------|--------|--------|
+| 1 | **Tests ausentes** en 35/40 módulos | Alto | Crear tests de integración y flujo negativo |
+| 2 | **Recuperación de contraseña** sin sandbox | Crítico | Validar sandbox de correo y expiración de token |
+| 3 | **ServiceCase Cockpit** no centraliza | Alto | Refactorizar para mostrar blockers, próxima acción, costos |
+| 4 | **Offline** sin prueba de conflicto | Alto | E2E con simulación de desconexión |
+| 5 | **Legal/Privacidad** | Alto | Implementar consentimiento y derechos ARCO |
+| 6 | **API_ENDPOINT_MATRIX** desactualizado | Medio | 100 documentados vs 389+ reales |
+| 7 | **Backup** sin restore probado | Alto | Probar restore en staging |
+
+---
+
+## Flujos P0 — Estado de Verificación
+
+| Flujo | Estado | Evidencia |
+|-------|--------|-----------|
+| Login | `implemented` | Formulario + API + JWT + cookie |
+| Refresh + persistencia | `implemented` | Refresh token en cookie HttpOnly |
+| Logout + revocación | `implemented` | Invalidación de token |
+| Recuperación de contraseña | `partial` | Sin sandbox verificado |
+| Envío de correo | `partial` | SMTP configurado, entrega no validada |
+| Cambio de contraseña | `implemented` | Token + nueva contraseña |
+| Creación de solicitud | `implemented` | CRUD funcional |
+| Conversión a orden | `implemented` | Flujo proposal → order |
+| Planeación | `implemented` | Planning packet + approve |
+| Inicio de ejecución | `implemented` | Execution session |
+| Captura de evidencia | `implemented` | Upload + GPS + metadatos |
+| Informe y acta | `implemented` | Technical report + delivery record |
+| SES | `implemented` | Service entry sheet + approve |
+| Factura | `implemented` | Invoice desde SES |
+| Pago y cierre | `implemented` | Payment + status |
 
 ---
 

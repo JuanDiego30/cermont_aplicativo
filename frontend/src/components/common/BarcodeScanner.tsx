@@ -44,6 +44,12 @@ export function BarcodeScanner({
 			return "checking";
 		}
 		if (window.BarcodeDetector) {
+			return "supported";
+		}
+		return "unsupported";
+	});
+	useEffect(() => {
+		if (typeof window !== "undefined" && window.BarcodeDetector && !detectorRef.current) {
 			detectorRef.current = new window.BarcodeDetector({
 				formats: [
 					"qr_code",
@@ -56,10 +62,8 @@ export function BarcodeScanner({
 					"upc_e",
 				],
 			});
-			return "supported";
 		}
-		return "unsupported";
-	});
+	}, []);
 	const [errorMessage, setErrorMessage] = useState("");
 
 	const releaseCamera = useCallback(() => {
@@ -97,9 +101,11 @@ export function BarcodeScanner({
 
 	// Use refs to avoid effect re-subscribing on callback changes
 	const onDetectedRef = useRef(onDetected);
-	onDetectedRef.current = onDetected;
 	const releaseCameraRef = useRef(releaseCamera);
-	releaseCameraRef.current = releaseCamera;
+	useEffect(() => {
+		onDetectedRef.current = onDetected;
+		releaseCameraRef.current = releaseCamera;
+	}, [onDetected, releaseCamera]);
 
 	// Continuous scanning loop
 	useEffect(() => {

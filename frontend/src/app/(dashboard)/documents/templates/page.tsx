@@ -5,6 +5,7 @@ import { Loader2, Plus } from "lucide-react";
 import Link from "next/link";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { apiClient } from "@/lib/http/api-client";
+import { formatLocaleDate } from "@/lib/utils/format-date";
 
 type TemplateDraft = {
 	_id: string;
@@ -133,9 +134,9 @@ export default function TemplatesPage() {
 											{template.status}
 										</span>
 									</td>
-									<td className="px-4 py-3 text-[var(--text-tertiary)]">
-										{new Date(template.updatedAt).toLocaleDateString("es-CO")}
-									</td>
+								<td className="px-4 py-3 text-[var(--text-tertiary)]">
+									{formatLocaleDate(template.updatedAt, { dateStyle: "medium" })}
+								</td>
 									<td className="px-4 py-3 text-right">
 										<button
 											type="button"

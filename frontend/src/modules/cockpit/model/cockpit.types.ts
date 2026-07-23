@@ -52,9 +52,6 @@ export interface CockpitDocument {
 	fileUrl?: string;
 }
 
-export function toDocStatus(fileUrl?: string): CockpitDocument["status"] {
-	return fileUrl ? "ready" : "pending";
-}
 
 export interface CockpitData {
 	serviceCaseId: string;

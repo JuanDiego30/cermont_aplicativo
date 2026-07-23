@@ -6,11 +6,24 @@ import * as paymentService from "./payment.service";
 export async function listPayments(req: Request, res: Response): Promise<void> {
 	const result = await paymentService.listPayments({
 		orderId: String(req.query.orderId ?? ""),
+		workOrderId: String(req.query.workOrderId ?? ""),
+		invoiceId: String(req.query.invoiceId ?? ""),
+		clientId: String(req.query.clientId ?? ""),
 		status: String(req.query.status ?? ""),
 		page: Number(req.query.page) || 1,
 		limit: Number(req.query.limit) || 20,
 	});
 	sendPaginated(res, result.data, result.total, result.page, result.limit);
+}
+
+export async function getPaymentDashboard(_req: Request, res: Response): Promise<void> {
+	const result = await paymentService.getPaymentDashboard();
+	sendSuccess(res, result);
+}
+
+export async function getPaymentAging(_req: Request, res: Response): Promise<void> {
+	const result = await paymentService.getPaymentAging();
+	sendSuccess(res, result);
 }
 
 export async function getPayment(req: Request, res: Response): Promise<void> {

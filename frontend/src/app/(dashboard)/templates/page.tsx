@@ -4,7 +4,7 @@ import { FileText, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useTemplates } from "@/modules/templates/queries";
 
-const dateFormatter = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" });
+const dateFormatter = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeZone: "America/Bogota" });
 
 export default function TemplatesPage() {
 	const { data, isLoading, isError, refetch } = useTemplates();
@@ -20,7 +20,7 @@ export default function TemplatesPage() {
 					<h1 id="templates-title" className="mt-2 text-2xl font-semibold text-primary">
 						Plantillas documentales
 					</h1>
-					<p className="mt-1 max-w-3xl text-sm leading-6 text-secondary">
+					<p className="mt-1 max-w-3xl whitespace-normal break-words text-sm leading-6 text-secondary">
 						Plantillas y formularios dinámicos derivados de documentos para planeación, ejecución y
 						cierre.
 					</p>
@@ -55,7 +55,7 @@ export default function TemplatesPage() {
 			{isOfflineSnapshot && (
 				<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
 					Mostrando plantillas guardadas localmente. Última actualización:{" "}
-					{new Date(data.source.updatedAt).toLocaleString("es-CO")}
+					{new Date(data.source.updatedAt).toLocaleString("es-CO", { timeZone: "America/Bogota" })}
 				</div>
 			)}
 

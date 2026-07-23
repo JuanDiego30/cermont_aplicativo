@@ -57,6 +57,7 @@ const ARTIFACT_NAMES: Record<string, string> = {
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
 	timeStyle: "short",
+	timeZone: "America/Bogota",
 });
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("es-CO", {

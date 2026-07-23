@@ -49,6 +49,10 @@ function TestimonialCard({
 }
 
 export function TestimonialsSection() {
+	if (LANDING_TESTIMONIALS.length === 0) {
+		return null;
+	}
+
 	return (
 		<section
 			data-landing-section
@@ -56,10 +60,10 @@ export function TestimonialsSection() {
 			className={cn("bg-[var(--surface-secondary)] py-16 sm:py-20 lg:py-24")}
 		>
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<SectionHeading
-					eyebrow="Testimonios"
-					title="Lo que dicen nuestros clientes."
-					description="La confianza de nuestros aliados es el reflejo de nuestro compromiso con la excelencia."
+						<SectionHeading
+							eyebrow="Compromisos documentados"
+							title="La operación también se respalda con evidencia."
+							description="Estos referentes internos muestran cómo Cermont convierte sus compromisos en prácticas operativas verificables."
 					align="center"
 				/>
 

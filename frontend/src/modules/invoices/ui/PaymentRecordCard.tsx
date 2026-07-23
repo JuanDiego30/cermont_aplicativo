@@ -10,6 +10,7 @@ const COP_FORMATTER = new Intl.NumberFormat("es-CO", {
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
+	timeZone: "America/Bogota",
 });
 
 interface PaymentRecordCardProps {

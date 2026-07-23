@@ -67,9 +67,9 @@ import { createOrderSchema } from '@cermont/shared-types';
 ## domain (`packages/domain/`)
 
 ### RBAC SSOT
-The 8 valid role strings live ONLY here:
+The 15 valid role strings live ONLY here:
 ```
-gerente | residente | HES | supervisor | operador | tecnico | administrativo | cliente
+gerente | residente | coord_administrativo | supervisor | hes | auxiliar_contable | supervisor_electricista | tecnico_electricista | operador | tecnico | auxiliar_hes | oficial_construccion | administrativo | pasante | cliente
 ```
 
 ### Correct Usage

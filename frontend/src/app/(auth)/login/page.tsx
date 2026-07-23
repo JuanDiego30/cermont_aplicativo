@@ -1,7 +1,10 @@
 import { Loader2 } from "lucide-react";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoginCarousel } from "@/modules/auth/ui/LoginCarousel";
 import { LoginForm } from "@/modules/auth/ui/LoginForm";
+
+export const metadata: Metadata = { title: "Acceso corporativo" };
 
 export default function LoginPage() {
 	return (

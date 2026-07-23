@@ -1,148 +1,120 @@
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
-import { useId } from "react";
-import { StatusBadge } from "@/core/ui/StatusBadge";
-import { cn } from "@/lib/utils";
-import { formatOrderDate } from "@/modules/orders/ui/order-helpers";
+"use client";
 
-// ── Types (aligned with @cermont/shared-types Order) ──
-type RecentOrder = {
-	_id: string;
-	code: string;
-	assetName: string;
-	status: string;
-	createdAt: string;
-};
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import Link from "next/link";
+import { ExternalLink, ClipboardList } from "lucide-react";
+import { StatusBadge } from "./StatusBadge";
+import { EmptyStateCard } from "./EmptyStateCard";
+import { SectionHeader } from "./SectionHeader";
+import type { RecentOrder } from "../model/types";
+import { RECENT_ORDER_ESTADO_MAP } from "../model/types";
 
 interface RecentOrdersTableProps {
-	orders: RecentOrder[];
-	className?: string;
+  orders: RecentOrder[];
+  isLoading: boolean;
+  viewAllHref?: string;
 }
 
-export function RecentOrdersTable({ orders, className }: RecentOrdersTableProps) {
-	const headingId = useId();
+function TableSkeleton() {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 5 }, (_, idx) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loader
+        <div key={idx} className="h-12 bg-[var(--bg-muted)] rounded-lg animate-pulse" />
+      ))}
+    </div>
+  );
+}
 
-	if (!orders || orders.length === 0) {
-		return (
-			<div
-				className={cn(
-					"flex h-64 flex-col items-center justify-center rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-center p-8",
-					className,
-				)}
-			>
-				<p className="text-sm font-medium text-[var(--text-tertiary)]">
-					No hay órdenes recientes registradas
-				</p>
-			</div>
-		);
-	}
-
-	return (
-		<section
-			aria-labelledby={headingId}
-			className={cn(
-				"overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-card transition-all hover:shadow-md",
-				className,
-			)}
-		>
-			<div className="flex items-center justify-between px-8 pt-8 pb-4">
-				<h3
-					id={headingId}
-					className="text-lg font-semibold tracking-tight text-[var(--text-primary)]"
-				>
-					Órdenes Recientes
-				</h3>
-				<Link
-					href="/orders"
-					className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand)] hover:underline underline-offset-4 font-mono"
-				>
-					Ver todas
-				</Link>
-			</div>
-
-			<div className="overflow-x-auto">
-				<table className="w-full text-sm">
-					<caption className="sr-only">
-						Listado de órdenes recientes con acceso rápido al detalle.
-					</caption>
-					<thead>
-						<tr className="bg-[var(--surface-secondary)]/50 text-left border-y border-[var(--border-subtle)]">
-							<th
-								scope="col"
-								className="px-8 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
-							>
-								N° OT
-							</th>
-							<th
-								scope="col"
-								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
-							>
-								Activo
-							</th>
-							<th
-								scope="col"
-								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
-							>
-								Estado
-							</th>
-							<th
-								scope="col"
-								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
-							>
-								Fecha
-							</th>
-							<th scope="col" className="px-8 py-4 text-right" aria-label="Acciones" />
-						</tr>
-					</thead>
-					<tbody className="divide-y divide-[var(--border-subtle)]">
-						{orders.map((order) => {
-							const orderNumber = order.code || "-";
-							const createdAt = order.createdAt;
-							const assetName = order.assetName || "-";
-							const status = order.status || "open";
-
-							return (
-								<tr
-									key={order._id}
-									className="group transition-colors hover:bg-[var(--color-brand-blue-bg)]/20"
-								>
-									<td className="px-8 py-5">
-										<span className="font-mono text-sm font-bold text-[var(--color-brand)]">
-											{orderNumber}
-										</span>
-									</td>
-
-									<td className="px-6 py-5">
-										<p className="max-w-[240px] truncate font-medium text-[var(--text-primary)]">
-											{assetName}
-										</p>
-									</td>
-
-									<td className="px-6 py-5">
-										<StatusBadge status={status} />
-									</td>
-
-									<td className="px-6 py-5">
-										<p className="text-sm text-[var(--text-secondary)]">
-											{createdAt ? formatOrderDate(createdAt) : "-"}
-										</p>
-									</td>
-
-									<td className="px-8 py-5 text-right">
-										<Link
-											href={`/orders/${order._id}`}
-											className="inline-flex size-9 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--text-tertiary)] transition-all group-hover:bg-[var(--color-brand)] group-hover:text-white group-hover:shadow-lg"
-											aria-label={`Ver orden ${orderNumber}`}
-										>
-											<ChevronRight className="size-4.5" />
-										</Link>
-									</td>
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-			</div>
-		</section>
-	);
+export function RecentOrdersTable({ orders, isLoading, viewAllHref }: RecentOrdersTableProps) {
+  return (
+    <div className="bg-[var(--card)] border border-[var(--line)] rounded-xl p-5 shadow-soft">
+      <SectionHeader
+        title="Órdenes Recientes"
+        subtitle="Últimas órdenes registradas en el sistema"
+        action={
+          viewAllHref ? (
+            <Link href={viewAllHref} className="text-xs font-medium text-[var(--cermont-blue)] hover:underline">
+              Ver todas &rarr;
+            </Link>
+          ) : undefined
+        }
+        className="mb-4"
+      />
+      {isLoading && <TableSkeleton />}
+      {!isLoading && orders.length === 0 && (
+        <EmptyStateCard
+          icon={<ClipboardList className="w-5 h-5" />}
+          title="Sin órdenes recientes"
+          description="Cuando se creen nuevas órdenes, aparecerán aquí."
+          action={
+            <Link
+              href="/ordenes/nueva"
+              className="text-xs font-semibold text-[var(--cermont-blue)] hover:underline"
+            >
+              + Crear orden
+            </Link>
+          }
+          className="border-none shadow-none py-6"
+        />
+      )}
+      {!isLoading && orders.length > 0 && (
+        <div className="overflow-x-auto -mx-1">
+          <table className="w-full min-w-[600px]">
+            <thead>
+              <tr className="border-b border-[var(--line)]">
+                {["Código", "Cliente", "Etapa", "Estado", "Fecha", ""].map((h) => (
+                  <th
+                    key={h}
+                    className="text-left text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider pb-3 px-2 first:pl-0 last:pr-0"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--line)]">
+              {orders.map((order) => {
+                const statusConfig = RECENT_ORDER_ESTADO_MAP[order.estado];
+                return (
+                  <tr key={order.id} className="hover:bg-[var(--bg-soft)] transition-colors">
+                    <td className="py-2.5 px-2 pl-0">
+                      <span className="text-xs font-mono font-semibold text-[var(--cermont-blue-light)]">
+                        {order.codigo}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-2">
+                      <span className="text-sm text-[var(--text)] truncate max-w-[140px] block">
+                        {order.cliente}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-2">
+                      <span className="text-sm text-[var(--text-soft)]">{order.etapa}</span>
+                    </td>
+                    <td className="py-2.5 px-2">
+                      <StatusBadge variant={statusConfig.variant} label={statusConfig.label} />
+                    </td>
+                    <td className="py-2.5 px-2">
+                      <span className="text-xs text-[var(--text-muted)]">
+                        {format(new Date(order.fecha), "d MMM", { locale: es })}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-2 pr-0 text-right">
+                      <Link
+                        href={`/ordenes/${order.id}`}
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--cermont-blue)] transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }

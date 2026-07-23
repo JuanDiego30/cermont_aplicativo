@@ -7,6 +7,15 @@ const mocks = vi.hoisted(() => ({
 	paymentFindOne: vi.fn(),
 }));
 
+vi.mock("../../src/modules/payment/payment.service", () => ({
+	registerPaymentForInvoice: vi.fn().mockRejectedValue(
+		Object.assign(new Error("La factura debe estar aprobada antes de registrar un pago"), {
+			code: "PAYMENT_INVOICE_NOT_APPROVED",
+		}),
+	),
+	getRecordedPaymentTotal: vi.fn().mockResolvedValue(0),
+}));
+
 vi.mock("../../src/models", () => ({
 	DeliveryRecord: { findById: vi.fn() },
 	ExecutionSession: { findById: vi.fn(), findOne: vi.fn() },
@@ -15,10 +24,13 @@ vi.mock("../../src/models", () => ({
 	Payment: Object.assign(vi.fn(), {
 		findById: vi.fn(),
 		findOne: mocks.paymentFindOne,
+		aggregate: vi.fn().mockResolvedValue([{ paidTotal: 0 }]),
 	}),
 	ServiceCase: { findByIdAndUpdate: vi.fn() },
 	ServiceEntrySheet: { findById: vi.fn() },
 	TechnicalReport: { findById: vi.fn() },
+	User: { find: vi.fn().mockReturnValue({ lean: vi.fn().mockResolvedValue([]) }) },
+	AuditLog: { create: vi.fn().mockResolvedValue({}) },
 }));
 
 import { registerPaymentForInvoice } from "../../src/modules/order/administrative-workflow.service";

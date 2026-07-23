@@ -20,6 +20,12 @@ export async function getStats(req: Request, res: Response): Promise<void> {
 	res.status(200).json({ success: true, data: stats });
 }
 
+export async function getSummary(req: Request, res: Response): Promise<void> {
+	const user = requireUser(req);
+	const summary = await EvidenceService.getEvidenceSummary(user);
+	res.status(200).json({ success: true, data: summary });
+}
+
 export async function listEvidences(req: Request, res: Response): Promise<void> {
 	const { page, limit } = PaginationQuerySchema.parse(req.query);
 	const user = requireUser(req);

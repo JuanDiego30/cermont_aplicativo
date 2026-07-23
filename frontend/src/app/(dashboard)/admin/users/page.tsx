@@ -11,7 +11,7 @@ import { apiClient } from "@/lib/http/api-client";
 import { normalizePagination } from "@/lib/pagination";
 import { formatDateTime } from "@/lib/utils/format-date";
 import { readSearchParam } from "@/lib/utils/search-params";
-import type { User, UserList } from "@/modules/users/types";
+import type { User } from "@/modules/users/types";
 
 const ROLE_COLORS: Record<string, string> = {
 	gerente: "bg-[var(--color-purple-bg)] text-[var(--color-purple)] ring-[var(--color-purple)]/15",
@@ -35,6 +35,22 @@ interface UsersQueryParams {
 	role?: string;
 }
 
+interface UserPaginationMeta {
+	total: number;
+	page: number;
+	limit: number;
+	pages?: number;
+	totalPages?: number;
+}
+
+interface UserListResponse {
+	success: boolean;
+	data: User[];
+	total?: number;
+	meta?: UserPaginationMeta;
+	pagination?: UserPaginationMeta;
+}
+
 function setOptionalQueryParam(query: URLSearchParams, key: string, value?: string): void {
 	if (value) {
 		query.set(key, value);
@@ -49,15 +65,23 @@ function buildUsersPath({ page, limit, search, role }: UsersQueryParams): string
 	return `/users?${query.toString()}`;
 }
 
-async function fetchUsers(params: UsersQueryParams): Promise<{ users: User[]; total: number }> {
-	const body = await apiClient.get<UserList>(buildUsersPath(params));
+async function fetchUsers(
+	params: UsersQueryParams,
+): Promise<{ users: User[]; total: number; totalPages: number }> {
+	const body = await apiClient.get<UserListResponse>(buildUsersPath(params));
 	if (!body?.success) {
 		throw new Error("Error al cargar usuarios");
 	}
+	const pagination = body.meta ?? body.pagination;
+	const total = pagination?.total ?? body.total ?? body.data.length;
 
 	return {
-		users: body.data ?? [],
-		total: body.total ?? body.data?.length ?? 0,
+		users: body.data,
+		total,
+		totalPages:
+			pagination?.pages ??
+			pagination?.totalPages ??
+			Math.ceil(total / params.limit),
 	};
 }
 
@@ -99,7 +123,7 @@ function AdminUsersPageInner() {
 
 	const users = data?.users ?? [];
 	const total = data?.total ?? 0;
-	const totalPages = Math.ceil(total / limit);
+	const totalPages = data?.totalPages ?? Math.ceil(total / limit);
 
 	const buildHref = (targetPage: number) => {
 		const query = new URLSearchParams();
@@ -143,7 +167,7 @@ function AdminUsersPageInner() {
 
 				<Link
 					href="/admin/users/new"
-					className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-brand)] transition-colors hover:bg-[var(--color-brand-blue-hover)]"
+					className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-brand-green)] px-4 py-2 text-sm font-medium text-on-dark shadow-[var(--shadow-brand)] transition-opacity hover:opacity-90"
 				>
 					<Plus aria-hidden="true" className="size-4" />
 					Nuevo usuario
@@ -250,7 +274,7 @@ function AdminUsersPagination({
 					<li>
 						<Link
 							href={buildHref(page - 1)}
-							className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 hover:bg-[var(--surface-secondary)]"
+							className="inline-flex min-h-11 items-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-1.5 hover:bg-[var(--surface-secondary)]"
 						>
 							Anterior
 						</Link>
@@ -261,7 +285,7 @@ function AdminUsersPagination({
 					<li>
 						<Link
 							href={buildHref(page + 1)}
-							className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 hover:bg-[var(--surface-secondary)]"
+							className="inline-flex min-h-11 items-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-1.5 hover:bg-[var(--surface-secondary)]"
 						>
 							Siguiente
 						</Link>
@@ -280,7 +304,7 @@ function UserRow({ user }: { user: User }) {
 					href={`/admin/users/${user._id}`}
 					className="font-medium text-[var(--text-primary)] hover:text-[var(--color-brand-blue)] hover:underline"
 				>
-					{user.name || ","}
+					{user.name || "Sin nombre"}
 				</Link>
 				{user.phone ? <p className="text-xs text-[var(--text-tertiary)]">{user.phone}</p> : null}
 			</td>
@@ -311,7 +335,7 @@ function UserRow({ user }: { user: User }) {
 			</td>
 
 			<td className="whitespace-nowrap px-5 py-3.5 text-[var(--text-secondary)]">
-				{user.updatedAt ? formatDateTime(user.updatedAt) : ","}
+				{user.updatedAt ? formatDateTime(user.updatedAt) : "—"}
 			</td>
 
 			<td className="px-5 py-3.5">

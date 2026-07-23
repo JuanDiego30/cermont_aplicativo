@@ -53,6 +53,9 @@ describe("AuditLogViewer", () => {
 		expect(screen.getByText("gerencia@cermont.com")).toBeTruthy();
 		expect(screen.getByText("Request: trace-123")).toBeTruthy();
 		expect(screen.getAllByText("Service Case Step Advanced")).toHaveLength(2);
+		expect(screen.getByText("gerencia@cermont.com").closest("article")?.className).toContain(
+			"border-[var(--color-info)]/30",
+		);
 
 		fireEvent.click(screen.getByText("Ver cambios y contexto"));
 		expect(screen.getByText(/step_05_planning/)).toBeTruthy();

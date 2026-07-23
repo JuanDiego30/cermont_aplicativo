@@ -231,7 +231,7 @@ export default function MaintenanceSchedulesPage() {
 									{FREQ_LABELS[s.frequency] ?? s.frequency} —{" "}
 									{s.assetId?.name ?? s.assetId?.code ?? "—"}
 									{s.nextDueAt
-										? ` — Próximo: ${new Date(s.nextDueAt).toLocaleDateString("es-CO")}`
+										? ` — Próximo: ${new Date(s.nextDueAt).toLocaleDateString("es-CO", { timeZone: "America/Bogota" })}`
 										: ""}
 								</p>
 							</div>

@@ -26,9 +26,18 @@ vi.mock("../../src/models/Invoice", () => ({
 		find: vi.fn(),
 	},
 }));
+vi.mock("../../src/models/User", () => ({
+	User: { find: vi.fn().mockReturnValue({ lean: vi.fn().mockResolvedValue([]) }) },
+}));
 
 vi.mock("../../src/modules/audit/audit.service", () => ({
 	createAuditLog: mocks.createAuditLog,
+}));
+
+vi.mock("../../src/modules/system-config/system-config.service", () => ({
+	SystemConfigService: {
+		isFeatureEnabled: vi.fn().mockResolvedValue(false),
+	},
 }));
 
 const { DianService } = await import("../../src/modules/dian/dian.service");

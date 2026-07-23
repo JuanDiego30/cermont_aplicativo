@@ -1,0 +1,240 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" fill="none" role="img" aria-label="Evidencias fotográficas de trabajo en campo">
+	<defs>
+		<linearGradient id="ev-bg" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#1a1a1a" />
+			<stop offset="1" stop-color="#0a0a0a" />
+		</linearGradient>
+		<linearGradient id="ev-frame" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#2e2e2e" />
+			<stop offset="1" stop-color="#0a0a0a" />
+		</linearGradient>
+		<linearGradient id="ev-sky" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#f59e0b" />
+			<stop offset="0.6" stop-color="#ea580c" />
+			<stop offset="1" stop-color="#7c2d12" />
+		</linearGradient>
+		<radialGradient id="ev-sun" cx="0.5" cy="0.5" r="0.5">
+			<stop offset="0" stop-color="#fef3c7" />
+			<stop offset="0.5" stop-color="#fbbf24" stop-opacity="0.6" />
+			<stop offset="1" stop-color="#fbbf24" stop-opacity="0" />
+		</radialGradient>
+	</defs>
+
+	<rect width="800" height="480" fill="url(#ev-bg)" />
+
+	<g>
+		<g transform="translate(60 60)">
+			<rect x="0" y="0" width="220" height="160" rx="3" fill="url(#ev-frame)" />
+			<rect x="6" y="6" width="208" height="148" rx="1" fill="url(#ev-sky)" />
+			<circle cx="160" cy="40" r="20" fill="url(#ev-sun)" />
+			<circle cx="160" cy="40" r="10" fill="#fef3c7" />
+			<g opacity="0.4">
+				<path d="M0 110 L40 100 L80 105 L120 95 L160 100 L200 90 L220 95 L220 154 L0 154 Z" fill="#1e293b" />
+				<path d="M0 130 L60 120 L120 125 L180 115 L220 120 L220 154 L0 154 Z" fill="#0f172a" />
+			</g>
+			<g>
+				<g transform="translate(80 80)">
+					<rect x="0" y="0" width="4" height="40" fill="#0f172a" />
+					<rect x="-4" y="0" width="12" height="6" fill="#0f172a" />
+				</g>
+				<g transform="translate(120 70)">
+					<path d="M0 0 L4 50 L8 0 Z" fill="#0f172a" />
+				</g>
+			</g>
+			<rect x="0" y="0" width="220" height="20" fill="#000" opacity="0.6" />
+			<text x="6" y="14" font-family="ui-monospace, monospace" font-size="9" fill="#fbbf24" font-weight="700">EV-001 · 14:08</text>
+			<text x="214" y="14" text-anchor="end" font-family="ui-monospace, monospace" font-size="9" fill="#f5f5f5">LV-T204</text>
+			<rect x="0" y="148" width="220" height="12" fill="#000" opacity="0.6" />
+			<g transform="translate(6 150)">
+				<rect x="0" y="0" width="14" height="8" rx="1" fill="#4caf50" />
+				<text x="7" y="6.5" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="6" fill="#ffffff" font-weight="700">OK</text>
+			</g>
+			<g transform="translate(24 150)">
+				<rect x="0" y="0" width="60" height="8" rx="1" fill="#1e293b" />
+				<text x="30" y="6.5" text-anchor="middle" font-family="ui-monospace, monospace" font-size="6" fill="#94a3b8">GPS 10.4°N 75.5°W</text>
+			</g>
+		</g>
+
+		<g transform="translate(290 60)">
+			<rect x="0" y="0" width="220" height="160" rx="3" fill="url(#ev-frame)" />
+			<rect x="6" y="6" width="208" height="148" rx="1" fill="#0c1426" />
+			<g opacity="0.5">
+				<path d="M6 80 L40 60 L80 70 L120 50 L160 60 L200 45 L214 55" stroke="#3a78d8" stroke-width="1.5" fill="none" />
+				<rect x="40" y="60" width="6" height="6" fill="#3a78d8" />
+				<rect x="120" y="50" width="6" height="6" fill="#3a78d8" />
+				<rect x="200" y="45" width="6" height="6" fill="#3a78d8" />
+			</g>
+			<g transform="translate(80 40)">
+				<rect x="0" y="0" width="60" height="80" rx="3" fill="#0f172a" />
+				<rect x="4" y="4" width="52" height="72" rx="1" fill="#000" />
+				<circle cx="30" cy="20" r="6" fill="#1e293b" />
+				<rect x="22" y="30" width="16" height="4" fill="#1e293b" />
+				<rect x="20" y="40" width="20" height="3" fill="#1e293b" />
+				<rect x="22" y="48" width="16" height="3" fill="#1e293b" />
+				<rect x="4" y="60" width="52" height="16" fill="#1e293b" />
+				<rect x="6" y="62" width="48" height="3" fill="#3a78d8" />
+				<rect x="6" y="68" width="32" height="3" fill="#1e3a8a" />
+				<rect x="6" y="73" width="40" height="3" fill="#1e3a8a" />
+			</g>
+			<rect x="0" y="0" width="220" height="20" fill="#000" opacity="0.6" />
+			<text x="6" y="14" font-family="ui-monospace, monospace" font-size="9" fill="#3a78d8" font-weight="700">EV-002 · 14:14</text>
+			<text x="214" y="14" text-anchor="end" font-family="ui-monospace, monospace" font-size="9" fill="#f5f5f5">CCTV-CAM04</text>
+			<rect x="0" y="148" width="220" height="12" fill="#000" opacity="0.6" />
+			<g transform="translate(6 150)">
+				<rect x="0" y="0" width="14" height="8" rx="1" fill="#fbbf24" />
+				<text x="7" y="6.5" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="6" fill="#000" font-weight="700">!</text>
+			</g>
+			<g transform="translate(24 150)">
+				<rect x="0" y="0" width="80" height="8" rx="1" fill="#1e293b" />
+				<text x="40" y="6.5" text-anchor="middle" font-family="ui-monospace, monospace" font-size="6" fill="#94a3b8">Detección movimiento</text>
+			</g>
+		</g>
+
+		<g transform="translate(520 60)">
+			<rect x="0" y="0" width="220" height="160" rx="3" fill="url(#ev-frame)" />
+			<rect x="6" y="6" width="208" height="148" rx="1" fill="#0a1f3d" />
+			<g>
+				<rect x="20" y="40" width="80" height="80" rx="2" fill="#1e3a8a" opacity="0.4" />
+				<rect x="120" y="50" width="80" height="70" rx="2" fill="#1e3a8a" opacity="0.4" />
+				<text x="60" y="80" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#fbbf24" font-weight="700">ANTES</text>
+				<text x="160" y="86" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#4ade80" font-weight="700">DESPUÉS</text>
+				<path d="M104 80 L116 80" stroke="#fbbf24" stroke-width="2" />
+				<polygon points="116 80 110 76 110 84" fill="#fbbf24" />
+			</g>
+			<rect x="0" y="0" width="220" height="20" fill="#000" opacity="0.6" />
+			<text x="6" y="14" font-family="ui-monospace, monospace" font-size="9" fill="#4ade80" font-weight="700">EV-003 · 16:42</text>
+			<text x="214" y="14" text-anchor="end" font-family="ui-monospace, monospace" font-size="9" fill="#f5f5f5">COMPARATIVA</text>
+			<rect x="0" y="148" width="220" height="12" fill="#000" opacity="0.6" />
+			<g transform="translate(6 150)">
+				<rect x="0" y="0" width="14" height="8" rx="1" fill="#4caf50" />
+				<path d="M3 4 L6 7 L11 2" stroke="#ffffff" stroke-width="1.5" fill="none" />
+			</g>
+			<g transform="translate(24 150)">
+				<rect x="0" y="0" width="60" height="8" rx="1" fill="#1e293b" />
+				<text x="30" y="6.5" text-anchor="middle" font-family="ui-monospace, monospace" font-size="6" fill="#94a3b8">3/3 firmas</text>
+			</g>
+		</g>
+
+		<g transform="translate(60 240)">
+			<rect x="0" y="0" width="220" height="160" rx="3" fill="url(#ev-frame)" />
+			<rect x="6" y="6" width="208" height="148" rx="1" fill="#0c1426" />
+			<g transform="translate(40 50)">
+				<rect x="0" y="0" width="140" height="60" rx="2" fill="#1e293b" />
+				<rect x="6" y="6" width="128" height="48" rx="1" fill="#000" />
+				<g opacity="0.6">
+					<line x1="10" y1="14" x2="130" y2="14" stroke="#3a78d8" stroke-width="0.5" />
+					<line x1="10" y1="20" x2="130" y2="20" stroke="#3a78d8" stroke-width="0.5" />
+					<line x1="10" y1="26" x2="130" y2="26" stroke="#3a78d8" stroke-width="0.5" />
+					<line x1="10" y1="32" x2="130" y2="32" stroke="#3a78d8" stroke-width="0.5" />
+					<line x1="10" y1="38" x2="130" y2="38" stroke="#3a78d8" stroke-width="0.5" />
+					<line x1="10" y1="44" x2="130" y2="44" stroke="#3a78d8" stroke-width="0.5" />
+					<path d="M14 40 L30 30 L50 35 L70 25 L90 30 L120 18" stroke="#4caf50" stroke-width="1.5" fill="none" />
+				</g>
+			</g>
+			<rect x="0" y="0" width="220" height="20" fill="#000" opacity="0.6" />
+			<text x="6" y="14" font-family="ui-monospace, monospace" font-size="9" fill="#4caf50" font-weight="700">EV-004 · 17:05</text>
+			<text x="214" y="14" text-anchor="end" font-family="ui-monospace, monospace" font-size="9" fill="#f5f5f5">TELEMETRÍA</text>
+			<rect x="0" y="148" width="220" height="12" fill="#000" opacity="0.6" />
+			<g transform="translate(6 150)">
+				<rect x="0" y="0" width="14" height="8" rx="1" fill="#4caf50" />
+				<text x="7" y="6.5" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="6" fill="#ffffff" font-weight="700">OK</text>
+			</g>
+			<g transform="translate(24 150)">
+				<rect x="0" y="0" width="80" height="8" rx="1" fill="#1e293b" />
+				<text x="40" y="6.5" text-anchor="middle" font-family="ui-monospace, monospace" font-size="6" fill="#94a3b8">Carga 240m → 0%</text>
+			</g>
+		</g>
+
+		<g transform="translate(290 240)">
+			<rect x="0" y="0" width="220" height="160" rx="3" fill="url(#ev-frame)" />
+			<rect x="6" y="6" width="208" height="148" rx="1" fill="#0c1426" />
+			<g transform="translate(40 40)">
+				<rect x="0" y="0" width="140" height="80" rx="3" fill="#1e293b" />
+				<rect x="6" y="6" width="128" height="68" rx="1" fill="#000" />
+				<g transform="translate(10 14)">
+					<rect x="0" y="0" width="20" height="20" rx="2" fill="#1e40af" />
+					<rect x="24" y="0" width="20" height="20" rx="2" fill="#1e40af" />
+					<rect x="48" y="0" width="20" height="20" rx="2" fill="#0e7490" />
+					<rect x="72" y="0" width="20" height="20" rx="2" fill="#1e40af" />
+					<rect x="96" y="0" width="20" height="20" rx="2" fill="#1e40af" />
+					<rect x="0" y="24" width="20" height="20" rx="2" fill="#1e40af" />
+					<rect x="24" y="24" width="20" height="20" rx="2" fill="#0e7490" />
+					<rect x="48" y="24" width="20" height="20" rx="2" fill="#1e40af" />
+					<rect x="72" y="24" width="20" height="20" rx="2" fill="#1e40af" />
+					<rect x="96" y="24" width="20" height="20" rx="2" fill="#0e7490" />
+				</g>
+			</g>
+			<rect x="0" y="0" width="220" height="20" fill="#000" opacity="0.6" />
+			<text x="6" y="14" font-family="ui-monospace, monospace" font-size="9" fill="#4caf50" font-weight="700">EV-005 · 17:21</text>
+			<text x="214" y="14" text-anchor="end" font-family="ui-monospace, monospace" font-size="9" fill="#f5f5f5">HEATMAP</text>
+			<rect x="0" y="148" width="220" height="12" fill="#000" opacity="0.6" />
+			<g transform="translate(6 150)">
+				<rect x="0" y="0" width="14" height="8" rx="1" fill="#4caf50" />
+				<path d="M3 4 L6 7 L11 2" stroke="#ffffff" stroke-width="1.5" fill="none" />
+			</g>
+			<g transform="translate(24 150)">
+				<rect x="0" y="0" width="80" height="8" rx="1" fill="#1e293b" />
+				<text x="40" y="6.5" text-anchor="middle" font-family="ui-monospace, monospace" font-size="6" fill="#94a3b8">Cobertura 96%</text>
+			</g>
+		</g>
+
+		<g transform="translate(520 240)">
+			<rect x="0" y="0" width="220" height="160" rx="3" fill="url(#ev-frame)" />
+			<rect x="6" y="6" width="208" height="148" rx="1" fill="#0c1426" />
+			<g transform="translate(40 30)">
+				<rect x="0" y="0" width="140" height="100" rx="3" fill="#1e293b" />
+				<rect x="6" y="6" width="128" height="88" rx="1" fill="#000" />
+				<g transform="translate(10 14)" opacity="0.9">
+					<rect x="0" y="0" width="116" height="6" rx="1" fill="#3a78d8" />
+					<rect x="0" y="10" width="80" height="3" rx="1" fill="#1e3a8a" />
+					<rect x="0" y="16" width="100" height="3" rx="1" fill="#1e3a8a" />
+					<rect x="0" y="22" width="60" height="3" rx="1" fill="#1e3a8a" />
+					<rect x="0" y="32" width="116" height="6" rx="1" fill="#4caf50" />
+					<rect x="0" y="42" width="90" height="3" rx="1" fill="#1e3a8a" />
+					<rect x="0" y="48" width="110" height="3" rx="1" fill="#1e3a8a" />
+					<rect x="0" y="54" width="70" height="3" rx="1" fill="#1e3a8a" />
+					<rect x="0" y="64" width="116" height="6" rx="1" fill="#fbbf24" />
+					<rect x="0" y="74" width="50" height="3" rx="1" fill="#1e3a8a" />
+				</g>
+			</g>
+			<rect x="0" y="0" width="220" height="20" fill="#000" opacity="0.6" />
+			<text x="6" y="14" font-family="ui-monospace, monospace" font-size="9" fill="#fbbf24" font-weight="700">EV-006 · 17:38</text>
+			<text x="214" y="14" text-anchor="end" font-family="ui-monospace, monospace" font-size="9" fill="#f5f5f5">INFORME</text>
+			<rect x="0" y="148" width="220" height="12" fill="#000" opacity="0.6" />
+			<g transform="translate(6 150)">
+				<rect x="0" y="0" width="14" height="8" rx="1" fill="#fbbf24" />
+				<text x="7" y="6.5" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="6" fill="#000" font-weight="700">!</text>
+			</g>
+			<g transform="translate(24 150)">
+				<rect x="0" y="0" width="80" height="8" rx="1" fill="#1e293b" />
+				<text x="40" y="6.5" text-anchor="middle" font-family="ui-monospace, monospace" font-size="6" fill="#94a3b8">Pendiente firma</text>
+			</g>
+		</g>
+	</g>
+
+	<g>
+		<rect x="0" y="420" width="800" height="60" fill="#020617" />
+		<g transform="translate(40 432)">
+			<rect x="0" y="0" width="50" height="32" rx="3" fill="#1e293b" />
+			<text x="25" y="20" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#4caf50" font-weight="700">6</text>
+			<text x="60" y="14" font-family="ui-sans-serif, system-ui" font-size="10" font-weight="700" fill="#f5f5f5">Evidencias hoy</text>
+			<text x="60" y="28" font-family="ui-monospace, monospace" font-size="9" fill="#4ade80">+12% vs. ayer</text>
+		</g>
+		<g transform="translate(220 432)">
+			<rect x="0" y="0" width="50" height="32" rx="3" fill="#1e293b" />
+			<text x="25" y="20" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#fbbf24" font-weight="700">2</text>
+			<text x="60" y="14" font-family="ui-sans-serif, system-ui" font-size="10" font-weight="700" fill="#f5f5f5">Requieren atención</text>
+			<text x="60" y="28" font-family="ui-monospace, monospace" font-size="9" fill="#fbbf24">Validar firma</text>
+		</g>
+		<g transform="translate(450 432)">
+			<rect x="0" y="0" width="50" height="32" rx="3" fill="#1e293b" />
+			<text x="25" y="20" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#3a78d8" font-weight="700">14</text>
+			<text x="60" y="14" font-family="ui-sans-serif, system-ui" font-size="10" font-weight="700" fill="#f5f5f5">Slots preflight</text>
+			<text x="60" y="28" font-family="ui-monospace, monospace" font-size="9" fill="#94a3b8">checklist cumplido</text>
+		</g>
+		<g transform="translate(680 432)">
+			<rect x="0" y="0" width="80" height="32" rx="16" fill="#1e293b" stroke="#3a78d8" />
+			<text x="40" y="20" text-anchor="middle" font-family="ui-monospace, monospace" font-size="9" fill="#94a3b8">EVIDENCIA · LIVE</text>
+		</g>
+	</g>
+</svg>

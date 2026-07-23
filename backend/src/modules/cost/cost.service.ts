@@ -36,6 +36,7 @@ import {
 	ServiceCase,
 } from "../../models";
 import type { ICostDocument } from "../../models/Cost";
+import type { ICostBaselineDocument } from "../../models/CostBaseline";
 
 export type CostDashboard = {
 	generatedAt: string;
@@ -1039,67 +1040,8 @@ export async function registerTaxCost(
 // F22-T069: Variance calculation and cost dashboard
 // ═══════════════════════════════════════════════════════════════════════════
 
-export async function calculateVariance(serviceCaseId: string): Promise<CostVarianceReport> {
-	const serviceCaseObjectId = parseObjectId(serviceCaseId, "serviceCaseId");
-
-	const serviceCase = await ServiceCase.findById(serviceCaseObjectId)
-		.select("code orderIds")
-		.lean<{ _id: Types.ObjectId; code?: string; orderIds?: Types.ObjectId[] }>();
-	if (!serviceCase) {
-		throw new NotFoundError("ServiceCase", serviceCaseId);
-	}
-
-	const baseline = await CostBaseline.findOne({
-		serviceCaseId: serviceCaseObjectId,
-		status: "active",
-	}).lean();
-
-	const orderIds = (serviceCase.orderIds ?? []).map((id) =>
-		typeof id === "string" ? new Types.ObjectId(id) : id,
-	);
-
-	const { totalsResult, categoryResult, invoiceTotals } = await aggregateVarianceCosts(orderIds);
-
-	const totals = totalsResult[0] ?? { totalEstimated: 0, totalActual: 0 };
-	const invoiceTotalsRow = invoiceTotals[0] ?? { totalInvoiced: 0, totalPaid: 0 };
-
-	const totalBudgeted = baseline?.total ?? totals.totalEstimated;
-	const totalActual = totals.totalActual;
-	const totalVariance = totalActual - totalBudgeted;
-	const variancePercent = totalBudgeted > 0 ? (totalVariance / totalBudgeted) * 100 : 0;
-
-	const { baselineByCategory, actualByCategory } = buildVarianceCategoryMaps(baseline, categoryResult);
-
-	const allCategories = new Set([
-		...baselineByCategory.keys(),
-		...actualByCategory.keys(),
-		"labor", "materials", "equipment", "transport",
-		"subcontract", "tax", "overhead", "other",
-	]);
-
-	const UNREGISTERED_THRESHOLD_PERCENT = 20;
-	const { byCategory, significantVariances, unregisteredCategories } = processVarianceCategoryEntries(
-		allCategories, baselineByCategory, actualByCategory, UNREGISTERED_THRESHOLD_PERCENT,
-	);
-
-	return {
-		serviceCaseId,
-		serviceCaseCode: serviceCase.code,
-		generatedAt: new Date().toISOString(),
-		totalBudgeted,
-		totalActual,
-		totalInvoiced: invoiceTotalsRow.totalInvoiced,
-		totalPaid: invoiceTotalsRow.totalPaid,
-		variance: totalVariance,
-		variancePercent: Math.round(variancePercent * 100) / 100,
-		byCategory,
-		significantVariances,
-		unregisteredCategories: unregisteredCategories as CostCategory[],
-	};
-}
-
-async function aggregateVarianceCosts(orderIds: Types.ObjectId[]) {
-	const [totalsResult, categoryResult, invoiceTotals] = await Promise.all([
+async function fetchCostAggregates(orderIds: Types.ObjectId[]) {
+	return Promise.all([
 		Cost.aggregate<{ totalEstimated: number; totalActual: number }>([
 			{ $match: { orderId: { $in: orderIds }, status: { $ne: "voided" } } },
 			{
@@ -1110,12 +1052,7 @@ async function aggregateVarianceCosts(orderIds: Types.ObjectId[]) {
 				},
 			},
 		]),
-		Cost.aggregate<{
-			category: string;
-			description: string;
-			estimated: number;
-			actual: number;
-		}>([
+		Cost.aggregate<{ category: string; description: string; estimated: number; actual: number }>([
 			{ $match: { orderId: { $in: orderIds }, status: { $ne: "voided" } } },
 			{
 				$group: {
@@ -1141,27 +1078,25 @@ async function aggregateVarianceCosts(orderIds: Types.ObjectId[]) {
 					_id: null,
 					totalInvoiced: { $sum: "$total" },
 					totalPaid: {
-						$sum: {
-							$cond: [{ $in: ["$status", ["paid", "partially_paid"]] }, "$total", 0],
-						},
+						$sum: { $cond: [{ $in: ["$status", ["paid", "partially_paid"]] }, "$total", 0] },
 					},
 				},
 			},
 		]),
 	]);
-	return { totalsResult, categoryResult, invoiceTotals };
 }
 
-function buildVarianceCategoryMaps(
-	baseline: { items?: Array<{ category: string; total: number }> } | null,
-	categoryResult: Array<{ category: string; description: string; estimated: number; actual: number }>,
-) {
+function buildCategoryMaps(
+	baseline: ICostBaselineDocument | null,
+	categoryResult: Array<{ category: string; actual: number }>,
+): { baselineByCategory: Map<string, number>; actualByCategory: Map<string, number> } {
 	const baselineByCategory = new Map<string, number>();
 	if (baseline) {
-		const items = baseline.items ?? [];
-		for (const item of items) {
-			const cat = item.category;
-			baselineByCategory.set(cat, (baselineByCategory.get(cat) ?? 0) + item.total);
+		for (const item of baseline.items) {
+			baselineByCategory.set(
+				item.category,
+				(baselineByCategory.get(item.category) ?? 0) + item.total,
+			);
 		}
 	}
 	const actualByCategory = new Map<string, number>();
@@ -1171,56 +1106,136 @@ function buildVarianceCategoryMaps(
 	return { baselineByCategory, actualByCategory };
 }
 
-function computeCategoryVariancePercent(budgeted: number, actual: number, variance: number): number {
-	if (budgeted > 0) {
-		return (variance / budgeted) * 100;
-	}
-	if (actual > 0) {
-		return 100;
-	}
-	return 0;
+function processCategoryEntry(
+	cat: string,
+	budgeted: number,
+	actual: number,
+	thresholdPercent: number,
+): {
+	entry: {
+		category: CostCategory;
+		description: string;
+		budgeted: number;
+		actual: number;
+		variance: number;
+		variancePercent: number;
+	};
+	isSignificant: boolean;
+	isUnregistered: boolean;
+} {
+	const variance = actual - budgeted;
+	const catVariancePercent = budgeted > 0 ? (variance / budgeted) * 100 : actual > 0 ? 100 : 0;
+	const entry = {
+		category: cat as CostCategory,
+		description: "",
+		budgeted,
+		actual,
+		variance,
+		variancePercent: Math.round(catVariancePercent * 100) / 100,
+	};
+	return {
+		entry,
+		isSignificant: budgeted > 0 && Math.abs(catVariancePercent) >= thresholdPercent,
+		isUnregistered: actual === 0 && cat !== "other",
+	};
 }
 
-function processVarianceCategoryEntries(
-	allCategories: Set<string>,
+function computeCategoryBreakdown(
 	baselineByCategory: Map<string, number>,
 	actualByCategory: Map<string, number>,
 	thresholdPercent: number,
-) {
+	skipCategories: string[],
+): {
+	byCategory: CostVarianceReport["byCategory"];
+	significantVariances: CostVarianceReport["byCategory"];
+	unregisteredCategories: string[];
+} {
+	const allCategories = new Set([
+		...baselineByCategory.keys(),
+		...actualByCategory.keys(),
+		"labor",
+		"materials",
+		"equipment",
+		"transport",
+		"subcontract",
+		"tax",
+		"overhead",
+		"other",
+	]);
 	const byCategory: CostVarianceReport["byCategory"] = [];
 	const significantVariances: CostVarianceReport["byCategory"] = [];
 	const unregisteredCategories: string[] = [];
+	const filtered = Array.from(allCategories).filter((c) => !skipCategories.includes(c));
 
-	for (const cat of allCategories) {
-		if (cat === "overhead") {
-			continue;
-		}
+	for (const cat of filtered) {
 		const budgeted = baselineByCategory.get(cat) ?? 0;
 		const actual = actualByCategory.get(cat) ?? 0;
-		const variance = actual - budgeted;
-		const catVariancePercent = computeCategoryVariancePercent(budgeted, actual, variance);
-
-		const entry = {
-			category: cat as CostCategory,
-			description: "",
+		const { entry, isSignificant, isUnregistered } = processCategoryEntry(
+			cat,
 			budgeted,
 			actual,
-			variance,
-			variancePercent: Math.round(catVariancePercent * 100) / 100,
-		};
-
+			thresholdPercent,
+		);
 		byCategory.push(entry);
-
-		if (budgeted > 0 && Math.abs(catVariancePercent) >= thresholdPercent) {
+		if (isSignificant) {
 			significantVariances.push(entry);
 		}
-
-		if (actual === 0 && cat !== "other") {
+		if (isUnregistered) {
 			unregisteredCategories.push(cat);
 		}
 	}
-
 	return { byCategory, significantVariances, unregisteredCategories };
+}
+
+function resolveOrderIds(serviceCase: { orderIds?: Types.ObjectId[] }): Types.ObjectId[] {
+	return (serviceCase.orderIds ?? []).map((id) =>
+		typeof id === "string" ? new Types.ObjectId(id) : id,
+	);
+}
+
+export async function calculateVariance(serviceCaseId: string): Promise<CostVarianceReport> {
+	const serviceCaseObjectId = parseObjectId(serviceCaseId, "serviceCaseId");
+
+	const serviceCase = await ServiceCase.findById(serviceCaseObjectId)
+		.select("code orderIds")
+		.lean<{ _id: Types.ObjectId; code?: string; orderIds?: Types.ObjectId[] }>();
+	if (!serviceCase) {
+		throw new NotFoundError("ServiceCase", serviceCaseId);
+	}
+
+	const orderIds = resolveOrderIds(serviceCase);
+	const [baseline, [totalsResult, categoryResult, invoiceTotals]] = await Promise.all([
+		CostBaseline.findOne({ serviceCaseId: serviceCaseObjectId, status: "active" }).lean(),
+		fetchCostAggregates(orderIds),
+	]);
+
+	const totals = totalsResult[0] ?? { totalEstimated: 0, totalActual: 0 };
+	const invoiceTotalsRow = invoiceTotals[0] ?? { totalInvoiced: 0, totalPaid: 0 };
+
+	const totalBudgeted = baseline?.total ?? totals.totalEstimated;
+	const totalActual = totals.totalActual;
+	const variance = totalActual - totalBudgeted;
+	const variancePercent = totalBudgeted > 0 ? (variance / totalBudgeted) * 100 : 0;
+
+	const { baselineByCategory, actualByCategory } = buildCategoryMaps(baseline, categoryResult);
+	const breakdown = computeCategoryBreakdown(baselineByCategory, actualByCategory, 20, [
+		"overhead",
+	]);
+
+	return {
+		serviceCaseId,
+		serviceCaseCode: serviceCase.code,
+		generatedAt: new Date().toISOString(),
+		totalBudgeted,
+		totalActual,
+		totalInvoiced: invoiceTotalsRow.totalInvoiced,
+		totalPaid: invoiceTotalsRow.totalPaid,
+		variance,
+		variancePercent: Math.round(variancePercent * 100) / 100,
+		byCategory: breakdown.byCategory,
+		significantVariances: breakdown.significantVariances,
+		unregisteredCategories: breakdown.unregisteredCategories as CostCategory[],
+	};
 }
 
 export async function getServiceCaseCostDashboard(
@@ -1235,57 +1250,15 @@ export async function getServiceCaseCostDashboard(
 		throw new NotFoundError("ServiceCase", serviceCaseId);
 	}
 
-	const baseline = await CostBaseline.findOne({
-		serviceCaseId: serviceCaseObjectId,
-		status: "active",
-	}).lean();
-
-	const orderIds = (serviceCase.orderIds ?? []).map((id) =>
-		typeof id === "string" ? new Types.ObjectId(id) : id,
-	);
-
-	const { totalsResult, categoryResult, invoiceTotals } = await aggregateDashboardCosts(orderIds);
-
-	const totals = totalsResult[0] ?? { totalEstimated: 0, totalActual: 0, totalTax: 0 };
-	const invoiceTotalsRow = invoiceTotals[0] ?? { totalInvoiced: 0, totalPaid: 0 };
-
-	const totalBudgeted = baseline?.total ?? totals.totalEstimated;
-	const totalActual = totals.totalActual + totals.totalTax;
-	const totalVariance = totalActual - totalBudgeted;
-	const variancePercent = totalBudgeted > 0 ? (totalVariance / totalBudgeted) * 100 : 0;
-
-	const { baselineByCategory, actualByCategory } = buildDashboardCategoryMaps(baseline, categoryResult);
-
-	const allCategories = new Set([
-		...baselineByCategory.keys(),
-		...actualByCategory.keys(),
-		"labor", "materials", "equipment", "transport",
-		"subcontract", "tax", "overhead", "other",
+	const [baseline, orderIds] = await Promise.all([
+		CostBaseline.findOne({ serviceCaseId: serviceCaseObjectId, status: "active" }).lean(),
+		Promise.resolve(
+			(serviceCase.orderIds ?? []).map((id) =>
+				typeof id === "string" ? new Types.ObjectId(id) : id,
+			),
+		),
 	]);
 
-	const VARIANCE_THRESHOLD_PERCENT = 20;
-	const { byCategory, significantVariances, unregisteredCategories } = processDashboardCategoryEntries(
-		allCategories, baselineByCategory, actualByCategory, VARIANCE_THRESHOLD_PERCENT,
-	);
-
-	return {
-		serviceCaseId,
-		serviceCaseCode: serviceCase.code,
-		generatedAt: new Date().toISOString(),
-		totalBudgeted,
-		totalActual,
-		totalInvoiced: invoiceTotalsRow.totalInvoiced,
-		totalPaid: invoiceTotalsRow.totalPaid,
-		variance: totalVariance,
-		variancePercent: Math.round(variancePercent * 100) / 100,
-		byCategory,
-		significantVariances,
-		unregisteredCategories: unregisteredCategories as CostCategory[],
-		baselineId: baseline ? baseline._id.toString() : null,
-	};
-}
-
-async function aggregateDashboardCosts(orderIds: Types.ObjectId[]) {
 	const [totalsResult, categoryResult, invoiceTotals] = await Promise.all([
 		Cost.aggregate<{ totalEstimated: number; totalActual: number; totalTax: number }>([
 			{ $match: { orderId: { $in: orderIds }, status: { $ne: "voided" } } },
@@ -1307,14 +1280,7 @@ async function aggregateDashboardCosts(orderIds: Types.ObjectId[]) {
 					actual: { $sum: "$actualAmount" },
 				},
 			},
-			{
-				$project: {
-					_id: 0,
-					category: "$_id",
-					estimated: 1,
-					actual: 1,
-				},
-			},
+			{ $project: { _id: 0, category: "$_id", estimated: 1, actual: 1 } },
 		]),
 		Invoice.aggregate<{ totalInvoiced: number; totalPaid: number }>([
 			{ $match: { workOrderId: { $in: orderIds } } },
@@ -1323,74 +1289,40 @@ async function aggregateDashboardCosts(orderIds: Types.ObjectId[]) {
 					_id: null,
 					totalInvoiced: { $sum: "$total" },
 					totalPaid: {
-						$sum: {
-							$cond: [{ $in: ["$status", ["paid", "partially_paid"]] }, "$total", 0],
-						},
+						$sum: { $cond: [{ $in: ["$status", ["paid", "partially_paid"]] }, "$total", 0] },
 					},
 				},
 			},
 		]),
 	]);
-	return { totalsResult, categoryResult, invoiceTotals };
-}
 
-function buildDashboardCategoryMaps(
-	baseline: { items?: Array<{ category: string; total: number }> } | null,
-	categoryResult: Array<{ category: string; estimated: number; actual: number }>,
-) {
-	const baselineByCategory = new Map<string, number>();
-	if (baseline) {
-		const items = baseline.items ?? [];
-		for (const item of items) {
-			const cat = item.category;
-			baselineByCategory.set(cat, (baselineByCategory.get(cat) ?? 0) + item.total);
-		}
-	}
-	const actualByCategory = new Map<string, number>();
-	for (const item of categoryResult) {
-		actualByCategory.set(item.category, (actualByCategory.get(item.category) ?? 0) + item.actual);
-	}
-	return { baselineByCategory, actualByCategory };
-}
+	const totals = totalsResult[0] ?? { totalEstimated: 0, totalActual: 0, totalTax: 0 };
+	const invoiceTotalsRow = invoiceTotals[0] ?? { totalInvoiced: 0, totalPaid: 0 };
 
-function processDashboardCategoryEntries(
-	allCategories: Set<string>,
-	baselineByCategory: Map<string, number>,
-	actualByCategory: Map<string, number>,
-	thresholdPercent: number,
-) {
-	const byCategory: CostVarianceReport["byCategory"] = [];
-	const significantVariances: CostVarianceReport["byCategory"] = [];
-	const unregisteredCategories: string[] = [];
+	const totalBudgeted = baseline?.total ?? totals.totalEstimated;
+	const totalActual = totals.totalActual + totals.totalTax;
+	const variance = totalActual - totalBudgeted;
+	const variancePercent = totalBudgeted > 0 ? (variance / totalBudgeted) * 100 : 0;
 
-	for (const cat of allCategories) {
-		if (cat === "overhead" || cat === "other") {
-			continue;
-		}
-		const budgeted = baselineByCategory.get(cat) ?? 0;
-		const actual = actualByCategory.get(cat) ?? 0;
-		const variance = actual - budgeted;
-		const catVariancePercent = computeCategoryVariancePercent(budgeted, actual, variance);
+	const { baselineByCategory, actualByCategory } = buildCategoryMaps(baseline, categoryResult);
+	const breakdown = computeCategoryBreakdown(baselineByCategory, actualByCategory, 20, [
+		"overhead",
+		"other",
+	]);
 
-		const entry = {
-			category: cat as CostCategory,
-			description: "",
-			budgeted,
-			actual,
-			variance,
-			variancePercent: Math.round(catVariancePercent * 100) / 100,
-		};
-
-		byCategory.push(entry);
-
-		if (budgeted > 0 && Math.abs(catVariancePercent) >= thresholdPercent) {
-			significantVariances.push(entry);
-		}
-
-		if (actual === 0) {
-			unregisteredCategories.push(cat);
-		}
-	}
-
-	return { byCategory, significantVariances, unregisteredCategories };
+	return {
+		serviceCaseId,
+		serviceCaseCode: serviceCase.code,
+		generatedAt: new Date().toISOString(),
+		totalBudgeted,
+		totalActual,
+		totalInvoiced: invoiceTotalsRow.totalInvoiced,
+		totalPaid: invoiceTotalsRow.totalPaid,
+		variance,
+		variancePercent: Math.round(variancePercent * 100) / 100,
+		byCategory: breakdown.byCategory,
+		significantVariances: breakdown.significantVariances,
+		unregisteredCategories: breakdown.unregisteredCategories as CostCategory[],
+		baselineId: baseline ? baseline._id.toString() : null,
+	};
 }

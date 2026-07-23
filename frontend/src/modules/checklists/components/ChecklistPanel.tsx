@@ -283,7 +283,11 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 					hasSignature={signature.length > 0}
 					observations={observations}
 					onObservationsChange={setObservations}
-					onSignatureChange={(s) => { if (s !== null) setSignature(s); }}
+					onSignatureChange={(s) => {
+						if (s !== null) {
+							setSignature(s);
+						}
+					}}
 					onComplete={handleCompleteChecklist}
 				/>
 			)}

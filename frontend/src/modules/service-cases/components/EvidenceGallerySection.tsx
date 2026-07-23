@@ -30,6 +30,7 @@ const TYPE_CLASSES: Record<EvidenceType, string> = {
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
 	timeStyle: "short",
+	timeZone: "America/Bogota",
 });
 
 const GENERAL_GROUP_KEY = "general";

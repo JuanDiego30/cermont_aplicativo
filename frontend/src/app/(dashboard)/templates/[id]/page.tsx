@@ -7,7 +7,7 @@ import { Suspense } from "react";
 import type { DocumentTemplateItem } from "@/modules/templates/queries";
 import { useTemplate } from "@/modules/templates/queries";
 
-const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
+const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Bogota" });
 const fmtDate = (v: string) => DATE_FMT.format(new Date(v));
 
 export default function TemplateDetailPage() {

@@ -6,19 +6,13 @@ import type {
 	PlanningPacket,
 } from "@cermont/shared-types";
 import { useQuery } from "@tanstack/react-query";
-import {
-	CalendarClock,
-	CheckCircle2,
-	FileSpreadsheet,
-	Loader2,
-	PackageCheck,
-	Upload,
-} from "lucide-react";
+import { CalendarClock, CheckCircle2, Loader2, PackageCheck, Upload } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/core/ui/Button";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { apiClient } from "@/lib/http/api-client";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
+import { ExcelUploadCard } from "./ExcelUploadCard";
 
 type PlanningListContract = {
 	success: boolean;
@@ -54,7 +48,7 @@ export default function PlanningPage() {
 	return (
 		<section className="space-y-6" aria-labelledby="planning-title">
 			<header className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]">
-				<p className="text-sm font-medium text-[var(--color-brand)]">Paso 5 / Planeacion</p>
+				<p className="text-sm font-medium text-slate">Paso 5 / Planeacion</p>
 				<h1 id="planning-title" className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
 					Paquetes de planeacion
 				</h1>
@@ -71,13 +65,7 @@ export default function PlanningPage() {
 			</div>
 
 			<div className="grid gap-3 lg:grid-cols-2">
-				<DocumentLink
-					icon={FileSpreadsheet}
-					title="Subir Excel de recursos"
-					description="Convierte listas de materiales, herramientas o certificaciones en datos revisables."
-					defaultPurpose="template_source"
-					defaultStepCode="step_05_planning"
-				/>
+				<ExcelUploadCard />
 				<DocumentLink
 					icon={Upload}
 					title="Adjuntar AST/PTW/soportes"
@@ -150,7 +138,7 @@ function Metric({
 					<p className="text-sm text-[var(--text-secondary)]">{label}</p>
 					<p className="mt-1 text-2xl font-semibold text-[var(--text-primary)]">{value}</p>
 				</div>
-				<Icon className="size-6 text-[var(--color-brand)]" aria-hidden="true" />
+				<Icon className="size-6 text-slate" aria-hidden="true" />
 			</div>
 		</article>
 	);
@@ -181,7 +169,7 @@ function DocumentLink({
 				className="w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 text-left shadow-card transition-colors hover:border-[var(--color-brand)]"
 			>
 				<div className="flex gap-3">
-					<Icon className="mt-0.5 size-5 text-[var(--color-brand)]" aria-hidden="true" />
+					<Icon className="mt-0.5 size-5 text-slate" aria-hidden="true" />
 					<div>
 						<h2 className="text-sm font-semibold text-[var(--text-primary)]">{title}</h2>
 						<p className="mt-1 text-sm text-[var(--text-secondary)]">{description}</p>

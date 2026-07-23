@@ -1,4 +1,8 @@
-import type { PaginationQuery } from "@cermont/shared-types";
+import type {
+	PaginationQuery,
+	PaymentAgingEntry,
+	PaymentDashboard,
+} from "@cermont/shared-types";
 import { Types } from "mongoose";
 import { NotFoundError, UnprocessableError } from "../../common/errors/AppError";
 import { Invoice as InvoiceModel } from "../../models/Invoice";
@@ -35,6 +39,179 @@ interface ListQuery extends PaginationQuery {
 	workOrderId?: string;
 	invoiceId?: string;
 	clientId?: string;
+}
+
+interface PaymentAggregation {
+	_id: Types.ObjectId;
+	paidAmount: number;
+	lastPaidAt?: Date;
+}
+
+interface InvoiceAgingDocument {
+	_id: Types.ObjectId;
+	code: string;
+	clientName: string;
+	invoiceNumber?: string;
+	totalAmount: number;
+	amount?: number;
+	total?: number;
+	issueDate?: Date;
+	issuedAt?: Date;
+	dueDate?: Date;
+	paidAt?: Date;
+	createdAt: Date;
+}
+
+const DAY_IN_MS = 86_400_000;
+
+function getInvoiceTotal(invoice: InvoiceAgingDocument): number {
+	return Math.max(invoice.totalAmount ?? invoice.total ?? invoice.amount ?? 0, 0);
+}
+
+function getAgingBucket(daysOverdue: number): string {
+	if (daysOverdue <= 0) {
+		return "current";
+	}
+	if (daysOverdue <= 30) {
+		return "0-30";
+	}
+	if (daysOverdue <= 60) {
+		return "31-60";
+	}
+	if (daysOverdue <= 90) {
+		return "61-90";
+	}
+	return "90+";
+}
+
+async function getAgingEntries(): Promise<PaymentAgingEntry[]> {
+	const invoices = await InvoiceModel.find({ status: { $nin: ["draft", "cancelled", "rejected"] } })
+		.select("_id code clientName invoiceNumber totalAmount amount total issueDate issuedAt dueDate paidAt createdAt")
+		.lean<InvoiceAgingDocument[]>();
+	const paymentTotals = await PaymentModel.aggregate<PaymentAggregation>([
+		{ $match: { status: { $nin: ["rejected", "cancelled"] } } },
+		{
+			$group: {
+				_id: "$invoiceId",
+				paidAmount: { $sum: "$amount" },
+				lastPaidAt: { $max: "$paidAt" },
+			},
+		},
+	]);
+	const totalsByInvoice = new Map(
+		paymentTotals.map((payment) => [String(payment._id), payment]),
+	);
+	const now = new Date();
+
+	return invoices.flatMap((invoice) => {
+		const totalAmount = getInvoiceTotal(invoice);
+		const paidAmount = Math.min(totalsByInvoice.get(String(invoice._id))?.paidAmount ?? 0, totalAmount);
+		const outstanding = Math.max(totalAmount - paidAmount, 0);
+		if (outstanding === 0) {
+			return [];
+		}
+		const issueDate = invoice.issueDate ?? invoice.issuedAt ?? invoice.createdAt;
+		const dueDate = invoice.dueDate ?? issueDate;
+		const daysOverdue = Math.max(Math.floor((now.getTime() - dueDate.getTime()) / DAY_IN_MS), 0);
+		const bucket = getAgingBucket(daysOverdue);
+		return [
+			{
+				invoiceId: String(invoice._id),
+				clientName: invoice.clientName,
+				...(invoice.invoiceNumber ? { invoiceNumber: invoice.invoiceNumber } : {}),
+				totalAmount,
+				paidAmount,
+				outstanding,
+				pendingAmount: outstanding,
+				total: totalAmount,
+				bucket,
+				agingBucket: bucket,
+				issueDate: issueDate.toISOString(),
+				dueDate: dueDate.toISOString(),
+				daysOverdue,
+				invoiceCode: invoice.code,
+			},
+		];
+	});
+}
+
+export async function getPaymentAging(): Promise<PaymentAgingEntry[]> {
+	return getAgingEntries();
+}
+
+export async function getPaymentDashboard(): Promise<PaymentDashboard> {
+	const invoices = await InvoiceModel.find({ status: { $nin: ["draft", "cancelled", "rejected"] } })
+		.select("_id totalAmount amount total issueDate issuedAt createdAt paidAt")
+		.lean<InvoiceAgingDocument[]>();
+	const paymentTotals = await PaymentModel.aggregate<PaymentAggregation>([
+		{ $match: { status: { $nin: ["rejected", "cancelled"] } } },
+		{
+			$group: {
+				_id: "$invoiceId",
+				paidAmount: { $sum: "$amount" },
+				lastPaidAt: { $max: "$paidAt" },
+			},
+		},
+	]);
+	const totalsByInvoice = new Map(
+		paymentTotals.map((payment) => [String(payment._id), payment]),
+	);
+	const totalInvoiced = invoices.reduce((sum, invoice) => sum + getInvoiceTotal(invoice), 0);
+	const totalCollected = invoices.reduce(
+		(sum, invoice) => sum + Math.min(totalsByInvoice.get(String(invoice._id))?.paidAmount ?? 0, getInvoiceTotal(invoice)),
+		0,
+	);
+	const aging = await getAgingEntries();
+	const totalPending = aging.reduce((sum, entry) => sum + entry.outstanding, 0);
+	const totalOverdue = aging
+		.filter((entry) => entry.daysOverdue > 0)
+		.reduce((sum, entry) => sum + entry.outstanding, 0);
+	const paymentDays = invoices.flatMap((invoice) => {
+		const total = getInvoiceTotal(invoice);
+		const payment = totalsByInvoice.get(String(invoice._id));
+		if (!payment || payment.paidAmount < total) {
+			return [];
+		}
+		const issueDate = invoice.issueDate ?? invoice.issuedAt ?? invoice.createdAt;
+		const paidAt = payment.lastPaidAt ?? invoice.paidAt ?? issueDate;
+		return [Math.max(Math.floor((paidAt.getTime() - issueDate.getTime()) / DAY_IN_MS), 0)];
+	});
+	const bucketMap = new Map<string, PaymentAgingEntry>();
+	for (const entry of aging) {
+		const current = bucketMap.get(entry.agingBucket);
+		if (current) {
+			current.total += entry.outstanding;
+			current.totalAmount += entry.totalAmount;
+			current.outstanding += entry.outstanding;
+			current.pendingAmount += entry.pendingAmount;
+			current.count = (current.count ?? 0) + 1;
+			continue;
+		}
+		bucketMap.set(entry.agingBucket, {
+			...entry,
+			invoiceId: `bucket-${entry.agingBucket}`,
+			clientName: "Todas las facturas",
+			paidAmount: 0,
+			total: entry.outstanding,
+			totalAmount: entry.outstanding,
+			outstanding: entry.outstanding,
+			pendingAmount: entry.outstanding,
+			count: 1,
+		});
+	}
+
+	return {
+		totalInvoiced,
+		totalCollected,
+		totalPending,
+		totalOverdue,
+		collectionRate: totalInvoiced > 0 ? Math.min((totalCollected / totalInvoiced) * 100, 100) : 0,
+		averagePaymentDays:
+			paymentDays.length > 0
+				? Math.round(paymentDays.reduce((sum, days) => sum + days, 0) / paymentDays.length)
+				: 0,
+		agingBuckets: Array.from(bucketMap.values()),
+	};
 }
 
 export async function listPayments(

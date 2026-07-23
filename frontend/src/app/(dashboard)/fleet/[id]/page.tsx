@@ -361,7 +361,7 @@ function FleetDetailPageInner() {
 								<InfoRow
 									icon={CalendarClock}
 									label="Último mantenimiento"
-									value={new Date(data.lastMaintenanceAt).toLocaleDateString("es-CO")}
+									value={new Date(data.lastMaintenanceAt).toLocaleDateString("es-CO", { timeZone: "America/Bogota" })}
 								/>
 							)}
 							{data.nextMaintenanceKm && (

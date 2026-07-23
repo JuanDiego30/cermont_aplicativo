@@ -19,18 +19,18 @@ import {
 } from "@/modules/erp-connector/queries";
 
 const PROVIDER_LABELS: Record<string, string> = {
-	fssm: "Field Service Management",
-	gmao_csm: "GMAO / CSM Maintenance",
+	fssm: "Gestión de Servicio en Campo",
+	gmao_csm: "GMAO / CSM Mantenimiento",
 	sap: "SAP",
 	ariba: "SAP Ariba",
 	dian: "DIAN",
-	custom: "Custom Adapter",
+	custom: "Adaptador personalizado",
 };
 
 const createErpSchema = z.object({
 	provider: ErpProviderTypeEnum,
-	name: z.string().min(1, "Name is required"),
-	baseUrl: z.url("Must be a valid URL").optional().or(z.literal("")),
+	name: z.string().min(1, "El nombre es requerido"),
+	baseUrl: z.url("Debe ser una URL válida").optional().or(z.literal("")),
 	authType: ErpAuthTypeEnum,
 	enabled: z.boolean().default(true),
 	syncInterval: z.number().int().min(0).default(300),

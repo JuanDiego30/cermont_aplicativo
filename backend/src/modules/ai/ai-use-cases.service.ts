@@ -245,87 +245,23 @@ export async function findMissingDocuments(serviceCaseId: string): Promise<Missi
 
 // ─── Use Case 3: Redactar Borrador ─────────────────────────────────────────
 
-export async function draftTechnicalReport(
-	serviceCaseId: string,
-	executionSessionId?: string,
-): Promise<DraftReport> {
-	const serviceCase = await ServiceCase.findById(serviceCaseId).lean();
-	if (!serviceCase) {
-		throw new NotFoundError("ServiceCase", serviceCaseId);
-	}
-
-	const sc = serviceCase as unknown as Record<string, unknown>;
-	const orderId = (sc.workOrderId as { toString?: () => string })?.toString?.() || "";
-
-	const execution = await resolveExecutionSession(serviceCaseId, executionSessionId, orderId);
-
-	const existingReport = await checkExistingTechnicalReport(serviceCaseId);
-	if (existingReport && !executionSessionId) {
-		return existingReport;
-	}
-
-	if (!execution) {
-		return {
-			executionSession: { code: "", status: "" },
-			activitiesPerformed: [],
-			findings: [],
-			deviations: [],
-			evidenceSummary: "",
-			draftContent: buildDraftTemplate(sc),
-		};
-	}
-
-	const exec = execution as unknown as Record<string, unknown>;
-	const extracted = extractExecutionDraftData(exec);
-	const draftContent = buildDraftReportContent(sc, exec, extracted);
-
-	return {
-		executionSession: {
-			code: (exec.code as string) || "",
-			status: (exec.status as string) || "",
-			startedAt: exec.startedAt as Date | undefined,
-			completedAt: exec.completedAt as Date | undefined,
-		},
-		...extracted,
-		draftContent,
-	};
-}
-
-async function resolveExecutionSession(
+function buildExecutionQuery(
 	serviceCaseId: string,
 	executionSessionId?: string,
 	orderId?: string,
-): Promise<Record<string, unknown> | null> {
-	const executionQuery: Record<string, unknown> = {};
+): Record<string, unknown> {
 	if (executionSessionId) {
-		executionQuery._id = executionSessionId;
-	} else if (orderId) {
-		executionQuery.workOrderId = orderId;
-	} else {
-		executionQuery.serviceCaseId = serviceCaseId;
+		return { _id: executionSessionId };
 	}
-	return ExecutionSession.findOne(
-		executionQuery as unknown as Record<string, unknown>,
-	)
-		.sort({ createdAt: -1 })
-		.lean() as unknown as Promise<Record<string, unknown> | null>;
+	if (orderId) {
+		return { workOrderId: orderId };
+	}
+	return { serviceCaseId };
 }
 
-async function checkExistingTechnicalReport(
-	serviceCaseId: string,
-): Promise<DraftReport | null> {
-	const existingReport = await TechnicalReport.findOne({ serviceCaseId })
-		.sort({ createdAt: -1 })
-		.lean();
-	if (!existingReport) {
-		return null;
-	}
-	const report = existingReport as unknown as Record<string, unknown>;
+function buildExistingReportResponse(report: Record<string, unknown>): DraftReport {
 	return {
-		executionSession: {
-			code: "",
-			status: "",
-		},
+		executionSession: { code: "", status: "" },
 		activitiesPerformed: (report.activitiesPerformed as string[]) || [],
 		findings: (report.findings as string[]) || [],
 		deviations: (report.deviations as string[]) || [],
@@ -334,15 +270,14 @@ async function checkExistingTechnicalReport(
 	};
 }
 
-function extractExecutionDraftData(exec: Record<string, unknown>): {
-	activitiesPerformed: string[];
-	findings: string[];
-	deviations: string[];
-	evidenceSummary: string;
-} {
+function buildDraftFromExecution(
+	exec: Record<string, unknown>,
+	sc: Record<string, unknown>,
+): DraftReport {
 	const activities = (exec.checklistResponses as Array<Record<string, unknown>>) || [];
 	const incidents = (exec.incidents as Array<Record<string, unknown>>) || [];
 	const observations = (exec.observations as Array<Record<string, unknown>>) || [];
+	const materials = (exec.materialsUsed as Array<Record<string, unknown>>) || [];
 
 	const activitiesPerformed = activities
 		.filter(
@@ -361,26 +296,7 @@ function extractExecutionDraftData(exec: Record<string, unknown>): {
 	const evidenceCount = (exec.evidenceIds as Array<unknown>)?.length || 0;
 	const evidenceSummary = `${evidenceCount} registro(s) de evidencia adjunto(s) durante la ejecución.`;
 
-	return { activitiesPerformed, findings, deviations, evidenceSummary };
-}
-
-function extractDraftMaterials(exec: Record<string, unknown>): string[] {
-	const materials = (exec.materialsUsed as Array<Record<string, unknown>>) || [];
-	if (materials.length === 0) {
-		return ["- Sin materiales registrados."];
-	}
-	return materials.map(
-		(m: Record<string, unknown>) =>
-			`- ${(m.name as string) || ""}: ${String(m.quantityUsed ?? "")} ${(m.unit as string) || ""}`,
-	);
-}
-
-function buildDraftReportContent(
-	sc: Record<string, unknown>,
-	exec: Record<string, unknown>,
-	data: { activitiesPerformed: string[]; findings: string[]; deviations: string[]; evidenceSummary: string },
-): string {
-	return [
+	const draftContent = [
 		`# INFORME TÉCNICO — Borrador`,
 		``,
 		`**Caso:** ${(sc.code as string) || ""}`,
@@ -391,30 +307,90 @@ function buildDraftReportContent(
 		`${buildExecutionSummary(exec)}`,
 		``,
 		`## Actividades Realizadas`,
-		...(data.activitiesPerformed.length > 0
-			? data.activitiesPerformed.map((a: string) => `- ${a}`)
+		...(activitiesPerformed.length > 0
+			? activitiesPerformed.map((a: string) => `- ${a}`)
 			: ["- No se registraron actividades específicas."]),
 		``,
 		`## Hallazgos y Observaciones`,
-		...(data.findings.length > 0
-			? data.findings.map((f: string) => `- ${f}`)
+		...(findings.length > 0
+			? findings.map((f: string) => `- ${f}`)
 			: ["- Sin observaciones registradas."]),
 		``,
 		`## Desviaciones / Incidentes`,
-		...(data.deviations.length > 0
-			? data.deviations.map((d: string) => `- ${d}`)
+		...(deviations.length > 0
+			? deviations.map((d: string) => `- ${d}`)
 			: ["- Sin desviaciones reportadas."]),
 		``,
 		`## Materiales Utilizados`,
-		...(extractDraftMaterials(exec)),
+		...(materials.length > 0
+			? materials.map(
+					(m: Record<string, unknown>) =>
+						`- ${(m.name as string) || ""}: ${String(m.quantityUsed ?? "")} ${(m.unit as string) || ""}`,
+				)
+			: ["- Sin materiales registrados."]),
 		``,
 		`## Evidencias`,
-		`${data.evidenceSummary}`,
+		`${evidenceSummary}`,
 		``,
 		`---`,
 		`*Borrador generado por Cermont AI el ${new Date().toLocaleDateString("es-CO")}.*`,
 		`*Este es un borrador automático. Revisa y ajusta antes de finalizar.*`,
 	].join("\n");
+
+	return {
+		executionSession: {
+			code: (exec.code as string) || "",
+			status: (exec.status as string) || "",
+			startedAt: exec.startedAt as Date | undefined,
+			completedAt: exec.completedAt as Date | undefined,
+		},
+		activitiesPerformed,
+		findings,
+		deviations,
+		evidenceSummary,
+		draftContent,
+	};
+}
+
+export async function draftTechnicalReport(
+	serviceCaseId: string,
+	executionSessionId?: string,
+): Promise<DraftReport> {
+	const serviceCase = await ServiceCase.findById(serviceCaseId).lean();
+	if (!serviceCase) {
+		throw new NotFoundError("ServiceCase", serviceCaseId);
+	}
+
+	const sc = serviceCase as unknown as Record<string, unknown>;
+	const orderId = (sc.workOrderId as { toString?: () => string })?.toString?.() || "";
+
+	const executionQuery = buildExecutionQuery(serviceCaseId, executionSessionId, orderId);
+	const execution = await ExecutionSession.findOne(
+		executionQuery as unknown as Record<string, unknown>,
+	)
+		.sort({ createdAt: -1 })
+		.lean();
+
+	const existingReport = await TechnicalReport.findOne({ serviceCaseId })
+		.sort({ createdAt: -1 })
+		.lean();
+
+	if (existingReport && !executionSessionId) {
+		return buildExistingReportResponse(existingReport as unknown as Record<string, unknown>);
+	}
+
+	if (!execution) {
+		return {
+			executionSession: { code: "", status: "" },
+			activitiesPerformed: [],
+			findings: [],
+			deviations: [],
+			evidenceSummary: "",
+			draftContent: buildDraftTemplate(sc),
+		};
+	}
+
+	return buildDraftFromExecution(execution as unknown as Record<string, unknown>, sc);
 }
 
 function buildExecutionSummary(exec: Record<string, unknown>): string {

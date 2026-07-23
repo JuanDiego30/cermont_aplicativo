@@ -1,6 +1,6 @@
 "use client";
 
-import { Filter, X } from "lucide-react";
+import { Filter, Loader2, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { readSearchParam } from "@/lib/utils/search-params";
@@ -33,9 +33,18 @@ function DashboardFiltersInner() {
 	const [startDate, setStartDate] = useState(getSearchParam("startDate") ?? "");
 	const [endDate, setEndDate] = useState(getSearchParam("endDate") ?? "");
 	const [client, setClient] = useState(getSearchParam("client") ?? "");
+	const [isFiltering, setIsFiltering] = useState(false);
+	const [dateError, setDateError] = useState<string | null>(null);
 
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
+		setDateError(null);
+
+		if (startDate && endDate && endDate < startDate) {
+			setDateError("La fecha de fin debe ser posterior a la fecha de inicio");
+			return;
+		}
+
 		const params = new URLSearchParams();
 		if (startDate) {
 			params.set("startDate", startDate);
@@ -46,6 +55,7 @@ function DashboardFiltersInner() {
 		if (client.trim()) {
 			params.set("client", client.trim());
 		}
+		setIsFiltering(true);
 		push(`/dashboard?${params.toString()}`);
 	}
 
@@ -53,6 +63,7 @@ function DashboardFiltersInner() {
 		setStartDate("");
 		setEndDate("");
 		setClient("");
+		setDateError(null);
 		push("/dashboard");
 	}
 
@@ -95,6 +106,9 @@ function DashboardFiltersInner() {
 					min={startDate || undefined}
 					className={filterInputCls}
 				/>
+				{dateError && (
+					<p className="text-xs text-[var(--color-danger)]" role="alert">{dateError}</p>
+				)}
 			</div>
 
 			<div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
@@ -114,9 +128,14 @@ function DashboardFiltersInner() {
 			<div className="flex items-center gap-2">
 				<button
 					type="submit"
-					className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-brand-blue)] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-brand)] transition-colors hover:bg-[var(--color-brand-blue-hover)]"
+					disabled={isFiltering}
+					className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-brand-blue)] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-brand)] transition-colors hover:bg-[var(--color-brand-blue-hover)] disabled:opacity-60"
 				>
-					<Filter aria-hidden="true" className="size-4" />
+					{isFiltering ? (
+						<Loader2 className="size-4 animate-spin" aria-hidden="true" />
+					) : (
+						<Filter aria-hidden="true" className="size-4" />
+					)}
 					Filtrar
 				</button>
 

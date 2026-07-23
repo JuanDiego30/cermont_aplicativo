@@ -1,0 +1,207 @@
+- generic [active] [ref=f7e1]:
+  - main [ref=f7e94]:
+    - generic [ref=f7e95]:
+      - link "Saltar al contenido principal" [ref=f7e96] [cursor=pointer]:
+        - /url: "#main-content"
+      - generic [ref=f7e97]:
+        - complementary "Barra de navegación lateral" [ref=f7e98]:
+          - generic [ref=f7e100]:
+            - img [ref=f7e101]:
+              - generic [ref=f7e107]: CERMONT
+            - generic [ref=f7e108]: Cermont S.A.S.
+          - button "Colapsar" [ref=f7e110]
+          - navigation "Navegación principal" [ref=f7e113]:
+            - generic [ref=f7e114]:
+              - heading "Principal" [level=3] [ref=f7e115]
+              - list [ref=f7e116]:
+                - listitem [ref=f7e117]:
+                  - link "Dashboard" [ref=f7e118] [cursor=pointer]:
+                    - /url: /dashboard
+                - listitem [ref=f7e125]:
+                  - link "Casos de Servicio" [ref=f7e126] [cursor=pointer]:
+                    - /url: /service-cases
+            - generic [ref=f7e133]:
+              - heading "Comercial" [level=3] [ref=f7e134]
+              - list [ref=f7e135]:
+                - listitem [ref=f7e136]:
+                  - link "Clientes" [ref=f7e137] [cursor=pointer]:
+                    - /url: /customers
+                - listitem [ref=f7e143]:
+                  - link "Solicitudes 1 pendientes" [ref=f7e144] [cursor=pointer]:
+                    - /url: /work-requests
+                    - generic [ref=f7e148]: Solicitudes
+                    - status "1 pendientes" [ref=f7e149]: "1"
+                - listitem [ref=f7e150]:
+                  - link "Visitas" [ref=f7e151] [cursor=pointer]:
+                    - /url: /site-visits
+                - listitem [ref=f7e156]:
+                  - link "Propuestas" [ref=f7e157] [cursor=pointer]:
+                    - /url: /proposals
+                - listitem [ref=f7e164]:
+                  - link "PO aprobada" [ref=f7e165] [cursor=pointer]:
+                    - /url: /purchase-orders
+            - generic [ref=f7e170]:
+              - heading "Operación de campo" [level=3] [ref=f7e171]
+              - list [ref=f7e172]:
+                - listitem [ref=f7e173]:
+                  - link "Órdenes" [ref=f7e174] [cursor=pointer]:
+                    - /url: /orders
+                - listitem [ref=f7e179]:
+                  - link "Planeación" [ref=f7e180] [cursor=pointer]:
+                    - /url: /planning
+                - listitem [ref=f7e185]:
+                  - link "Ejecución" [ref=f7e186] [cursor=pointer]:
+                    - /url: /execution
+                - listitem [ref=f7e193]:
+                  - link "Evidencias" [ref=f7e194] [cursor=pointer]:
+                    - /url: /evidences
+                - listitem [ref=f7e199]:
+                  - link "Despacho" [ref=f7e200] [cursor=pointer]:
+                    - /url: /dispatch
+                - listitem [ref=f7e206]:
+                  - link "Mantenimiento" [ref=f7e207] [cursor=pointer]:
+                    - /url: /maintenance
+                - listitem [ref=f7e211]:
+                  - link "SLA" [ref=f7e212] [cursor=pointer]:
+                    - /url: /sla
+            - generic [ref=f7e217]:
+              - heading "Cierre técnico" [level=3] [ref=f7e218]
+              - list [ref=f7e219]:
+                - listitem [ref=f7e220]:
+                  - link "Informes" [ref=f7e221] [cursor=pointer]:
+                    - /url: /reports
+                - listitem [ref=f7e225]:
+                  - link "Analitica" [ref=f7e226] [cursor=pointer]:
+                    - /url: /reports/analytics
+                - listitem [ref=f7e231]:
+                  - link "Actas" [ref=f7e232] [cursor=pointer]:
+                    - /url: /delivery-records
+            - generic [ref=f7e237]:
+              - heading "Cierre administrativo" [level=3] [ref=f7e238]
+              - list [ref=f7e239]:
+                - listitem [ref=f7e240]:
+                  - link "Cierre" [ref=f7e241] [cursor=pointer]:
+                    - /url: /billing
+                - listitem [ref=f7e246]:
+                  - link "SES / Ariba" [ref=f7e247] [cursor=pointer]:
+                    - /url: /billing/ses
+                - listitem [ref=f7e252]:
+                  - link "Facturas" [ref=f7e253] [cursor=pointer]:
+                    - /url: /billing/invoices
+                - listitem [ref=f7e257]:
+                  - link "Pagos" [ref=f7e258] [cursor=pointer]:
+                    - /url: /payments
+                - listitem [ref=f7e263]:
+                  - link "Costos" [ref=f7e264] [cursor=pointer]:
+                    - /url: /costs
+            - generic [ref=f7e269]:
+              - heading "Transversales" [level=3] [ref=f7e270]
+              - list [ref=f7e271]:
+                - listitem [ref=f7e272]:
+                  - link "Documentos" [ref=f7e273] [cursor=pointer]:
+                    - /url: /documents
+                - listitem [ref=f7e278]:
+                  - link "Formularios" [ref=f7e279] [cursor=pointer]:
+                    - /url: /templates
+                - listitem [ref=f7e286]:
+                  - link "Recursos & Kits" [ref=f7e287] [cursor=pointer]:
+                    - /url: /resources
+                - listitem [ref=f7e293]:
+                  - link "Inventario" [ref=f7e294] [cursor=pointer]:
+                    - /url: /inventory
+                - listitem [ref=f7e300]:
+                  - link "Escanear activos" [ref=f7e301] [cursor=pointer]:
+                    - /url: /inventory/scan
+                - listitem [ref=f7e308]:
+                  - link "Vehículos" [ref=f7e309] [cursor=pointer]:
+                    - /url: /fleet
+                - listitem [ref=f7e316]:
+                  - link "Activos" [ref=f7e317] [cursor=pointer]:
+                    - /url: /assets
+            - generic [ref=f7e323]:
+              - heading "Administración" [level=3] [ref=f7e324]
+              - list [ref=f7e325]:
+                - listitem [ref=f7e326]:
+                  - link "Usuarios" [ref=f7e327] [cursor=pointer]:
+                    - /url: /admin/users
+                - listitem [ref=f7e334]:
+                  - link "Campos personalizados" [ref=f7e335] [cursor=pointer]:
+                    - /url: /admin/custom-fields
+                - listitem [ref=f7e340]:
+                  - link "Personal y certificaciones" [ref=f7e341] [cursor=pointer]:
+                    - /url: /admin/personnel
+                - listitem [ref=f7e348]:
+                  - link "Respaldos" [ref=f7e349] [cursor=pointer]:
+                    - /url: /admin/backups
+                - listitem [ref=f7e354]:
+                  - link "Auditoría" [ref=f7e355] [cursor=pointer]:
+                    - /url: /admin/audit
+                - listitem [ref=f7e360]:
+                  - link "Configuracion" [ref=f7e361] [cursor=pointer]:
+                    - /url: /admin/settings
+                - listitem [ref=f7e366]:
+                  - link "Conectores ERP" [ref=f7e367] [cursor=pointer]:
+                    - /url: /admin/erp-connectors
+          - button [ref=f7e372]:
+            - generic [ref=f7e377]:
+              - paragraph [ref=f7e378]: Cermont AI
+              - paragraph [ref=f7e379]: Asistente
+        - generic [ref=f7e380]:
+          - generic [ref=f7e381]:
+            - generic [ref=f7e383]:
+              - generic [ref=f7e384]:
+                - paragraph [ref=f7e385]: Evidencias
+                - generic [ref=f7e386]: •
+                - paragraph [ref=f7e387]: Arauca
+              - heading "Evidencias" [level=1] [ref=f7e388]
+            - generic [ref=f7e389]:
+              - 'button "Cambiar tema. Actual: system" [ref=f7e391]'
+              - listitem [ref=f7e395]:
+                - button "Notificaciones" [ref=f7e396]
+              - button "Menú de usuario de Gerencia General" [ref=f7e401]:
+                - generic [ref=f7e402]:
+                  - generic [ref=f7e403]: Gerencia General
+                  - generic [ref=f7e404]: Gerente
+                - generic [ref=f7e405]: GG
+          - main [ref=f7e408]:
+            - main [ref=f7e410]:
+              - region [ref=f7e411]:
+                - generic [ref=f7e413]:
+                  - paragraph [ref=f7e414]: Dashboard / Evidencias
+                  - generic [ref=f7e416]:
+                    - heading "Evidencias del trabajo" [level=1] [ref=f7e417]
+                    - paragraph [ref=f7e418]: Sube imágenes como evidencia del trabajo realizado en cada orden. Cada imagen debe tener un título descriptivo.
+                - form [ref=f7e419]:
+                  - heading "Filtros de evidencias" [level=2] [ref=f7e420]
+                  - generic [ref=f7e421]:
+                    - generic [ref=f7e422]:
+                      - generic [ref=f7e423]: Orden
+                      - combobox "Orden" [ref=f7e424]:
+                        - option "Selecciona una orden" [selected]
+                    - generic [ref=f7e425]:
+                      - generic [ref=f7e426]: Buscar
+                      - textbox "Buscar" [ref=f7e427]:
+                        - /placeholder: Título o descripción
+                    - generic [ref=f7e428]:
+                      - button "Aplicar filtros" [ref=f7e429]
+                      - button "Limpiar" [ref=f7e430]
+                - generic [ref=f7e431]:
+                  - heading "Selecciona una orden" [level=2] [ref=f7e435]
+                  - paragraph [ref=f7e436]: Selecciona una orden de trabajo para ver sus evidencias y subir nuevas imágenes.
+          - button "Abrir carga rápida para Evidencias" [ref=f7e437]:
+            - generic [ref=f7e442]: Carga rápida
+      - complementary "Aviso de privacidad" [ref=f7e443]:
+        - generic [ref=f7e444]:
+          - generic [ref=f7e449]:
+            - paragraph [ref=f7e450]: Aviso de privacidad
+            - paragraph [ref=f7e451]:
+              - text: Utilizamos tus datos únicamente para la operación del sistema. Consulta nuestra
+              - link "Política de Privacidad" [ref=f7e452] [cursor=pointer]:
+                - /url: /privacy
+              - text: "y"
+              - link "términos de consentimiento" [ref=f7e453] [cursor=pointer]:
+                - /url: /consent
+              - text: .
+          - button "Aceptar" [ref=f7e454]
+  - region "Notifications alt+T"
+  - alert [ref=f7e455]

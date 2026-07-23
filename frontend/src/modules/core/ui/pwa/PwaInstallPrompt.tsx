@@ -57,15 +57,12 @@ export function PwaInstallPrompt() {
 		deferredPrompt: undefined,
 		isDismissed: getInitialDismissedState(),
 	});
-	const isIosSafari = useMemo(() => {
-		if (typeof window === "undefined") {
-			return false;
-		}
-
+	const [isIosSafari, setIsIosSafari] = useState(false);
+	useEffect(() => {
 		const userAgent = window.navigator.userAgent.toLowerCase();
 		const isiOS = /iphone|ipad|ipod/.test(userAgent);
 		const isSafari = /safari/.test(userAgent) && !/crios|fxios|edgios/.test(userAgent);
-		return isiOS && isSafari;
+		setIsIosSafari(isiOS && isSafari);
 	}, []);
 	const [isStandalone, setIsStandalone] = useState(() => isStandaloneMode());
 	const { deferredPrompt, isDismissed } = state;

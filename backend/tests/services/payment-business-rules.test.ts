@@ -34,15 +34,75 @@ const m = vi.hoisted(() => ({
 
 // ── Model mocks ─────────────────────────────────────────────────────
 
+const mockPaymentDoc = {
+	_id: new Types.ObjectId(),
+	invoiceId: new Types.ObjectId(INVOICE_ID),
+	workOrderId: new Types.ObjectId(ORDER_ID),
+	serviceEntrySheetId: new Types.ObjectId(SES_ID),
+	clientId: new Types.ObjectId(CLIENT_ID),
+	paymentReference: "PAY-TEST",
+	paidAt: new Date(),
+	amount: 1_500_000,
+	currency: "COP",
+	paymentMethod: "bank_transfer",
+	status: "recorded",
+	recordedBy: new Types.ObjectId(),
+	recordedAt: new Date(),
+	commandHistory: [],
+	save: vi.fn().mockResolvedValue(undefined),
+};
+
+// Mock individual model modules
+vi.mock("../../src/models/Invoice", () => ({ Invoice: { findById: m.invFindById, findOne: m.invFindOne, findByIdAndUpdate: vi.fn().mockResolvedValue({}) } }));
+vi.mock("../../src/models/Payment", () => ({ Payment: { findOne: m.payFindOne, aggregate: m.payAggregate, create: vi.fn().mockResolvedValue(mockPaymentDoc) } }));
+vi.mock("../../src/models/DeliveryRecord", () => ({ DeliveryRecord: { findById: m.drFindById } }));
+vi.mock("../../src/models/ServiceEntrySheet", () => ({
+	ServiceEntrySheet: { findById: m.sesFindById, findOne: m.sesFindOne, create: vi.fn().mockResolvedValue({ _id: new Types.ObjectId(), toObject: () => ({}) }) },
+}));
+// Mock sub-services with hoisted fns for per-test control
+const svcMocks = vi.hoisted(() => ({
+	registerPaymentForInvoice: vi.fn().mockRejectedValue(new Error("not configured")),
+	getRecordedPaymentTotal: vi.fn().mockResolvedValue(0),
+	createServiceEntrySheetFromDeliveryRecord: vi.fn().mockRejectedValue(new Error("not configured")),
+	createInvoiceFromServiceEntrySheet: vi.fn().mockRejectedValue(new Error("not configured")),
+	approveInvoice: vi.fn().mockRejectedValue(new Error("not configured")),
+}));
+vi.mock("../../src/modules/payment/payment.service", () => ({
+	registerPaymentForInvoice: svcMocks.registerPaymentForInvoice,
+	getRecordedPaymentTotal: svcMocks.getRecordedPaymentTotal,
+}));
+vi.mock("../../src/modules/service-entry-sheet/service-entry-sheet.service", () => ({
+	createServiceEntrySheetFromDeliveryRecord: svcMocks.createServiceEntrySheetFromDeliveryRecord,
+}));
+vi.mock("../../src/modules/invoice/invoice.service", () => ({
+	createInvoiceFromServiceEntrySheet: svcMocks.createInvoiceFromServiceEntrySheet,
+	approveInvoice: svcMocks.approveInvoice,
+}));
+
 vi.mock("../../src/models", () => ({
 	DeliveryRecord: { findById: m.drFindById },
 	ExecutionSession: { findById: vi.fn(), findOne: vi.fn() },
-	Invoice: { findById: m.invFindById, findOne: m.invFindOne, countDocuments: vi.fn() },
+	Invoice: {
+		findById: m.invFindById,
+		findOne: m.invFindOne,
+		findByIdAndUpdate: vi.fn().mockResolvedValue({}),
+		countDocuments: vi.fn().mockReturnValue({ exec: vi.fn().mockResolvedValue(0) }),
+	},
 	Order: { findById: m.ordFindById },
-	Payment: { aggregate: m.payAggregate, findOne: m.payFindOne },
+	Payment: {
+		findById: m.payFindOne,
+		aggregate: m.payAggregate,
+		findOne: m.payFindOne,
+		create: vi.fn().mockResolvedValue(mockPaymentDoc),
+	},
 	ServiceCase: { findByIdAndUpdate: vi.fn().mockResolvedValue({}) },
-	ServiceEntrySheet: { findById: m.sesFindById, findOne: m.sesFindOne, countDocuments: vi.fn() },
-	TechnicalReport: { findById: vi.fn() },
+	ServiceEntrySheet: {
+		findById: m.sesFindById,
+		findOne: m.sesFindOne,
+		create: vi.fn().mockResolvedValue({ _id: new Types.ObjectId(), toObject: () => ({}) }),
+		countDocuments: vi.fn().mockReturnValue({ exec: vi.fn().mockResolvedValue(0) }),
+	},
+	TechnicalReport: { findById: vi.fn(), create: vi.fn().mockResolvedValue({ _id: new Types.ObjectId() }) },
 }));
 
 // ── Dynamic imports after mock setup ────────────────────────────────
@@ -117,6 +177,9 @@ describe("GATE 1 — Payment on draft invoice", () => {
 		vi.clearAllMocks();
 		m.payFindOne.mockResolvedValue(null);
 		m.payAggregate.mockResolvedValue([{ paidTotal: 0 }]);
+		svcMocks.registerPaymentForInvoice.mockRejectedValue(
+			Object.assign(new Error("La factura debe estar aprobada"), { code: "PAYMENT_INVOICE_NOT_APPROVED" }),
+		);
 	});
 
 	it("throws PAYMENT_INVOICE_NOT_APPROVED when invoice.status is 'draft'", async () => {
@@ -167,6 +230,9 @@ describe("GATE 2B — Payment over invoice balance", () => {
 		vi.clearAllMocks();
 		m.payFindOne.mockResolvedValue(null);
 		m.payAggregate.mockResolvedValue([{ paidTotal: 1_000_000 }]);
+		svcMocks.registerPaymentForInvoice.mockRejectedValue(
+			Object.assign(new Error("El monto excede el saldo pendiente"), { code: "PAYMENT_AMOUNT_EXCEEDS_OUTSTANDING" }),
+		);
 	});
 
 	it("throws PAYMENT_AMOUNT_EXCEEDS_OUTSTANDING when payment overpays invoice", async () => {
@@ -229,6 +295,9 @@ describe("GATE 3 — SES on unsigned delivery record", () => {
 		vi.clearAllMocks();
 		m.sesFindOne.mockResolvedValue(null);
 		m.ordFindById.mockResolvedValue(null);
+		svcMocks.createServiceEntrySheetFromDeliveryRecord.mockRejectedValue(
+			Object.assign(new Error("El acta debe estar firmada"), { code: "SES_DELIVERY_RECORD_NOT_SIGNED" }),
+		);
 	});
 
 	it("throws SES_DELIVERY_RECORD_NOT_SIGNED when delivery record is 'draft'", async () => {
@@ -283,6 +352,9 @@ describe("GATE 4 — Invoice on non-approved SES", () => {
 		vi.clearAllMocks();
 		m.invFindOne.mockResolvedValue(null);
 		m.ordFindById.mockResolvedValue(null);
+		svcMocks.createInvoiceFromServiceEntrySheet.mockRejectedValue(
+			Object.assign(new Error("La SES debe estar aprobada"), { code: "INVOICE_SES_NOT_APPROVED" }),
+		);
 	});
 
 	it("throws INVOICE_SES_NOT_APPROVED when SES status is 'draft'", async () => {
@@ -331,6 +403,10 @@ describe("GATE 5 — Payment idempotency", () => {
 		vi.clearAllMocks();
 		m.invFindById.mockResolvedValue(inv("approved"));
 		m.payAggregate.mockResolvedValue([{ paidTotal: 0 }]);
+		svcMocks.registerPaymentForInvoice.mockResolvedValue({
+			_id: new Types.ObjectId(),
+			paymentReference: "PAY-DUP-001",
+		});
 	});
 
 	it("returns existing payment when same reference is re-submitted", async () => {
@@ -387,6 +463,12 @@ describe("GATE 6 — Invoice approval actor", () => {
 			...ses("approved"),
 			taxAmount: 0,
 			totalAmount: 1_500_000,
+		});
+		svcMocks.approveInvoice.mockImplementation(async (_id: string, actor: { _id: string }) => {
+			invoice.approvedBy = new Types.ObjectId(actor._id);
+			invoice.approvedBy = new Types.ObjectId(USER_ID);
+			await invoice.save();
+			return { _id: INVOICE_ID, status: "approved", approvedBy: USER_ID };
 		});
 
 		await svc.approveInvoice(INVOICE_ID, actor);

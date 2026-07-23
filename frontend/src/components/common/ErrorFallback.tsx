@@ -13,6 +13,7 @@
 "use client";
 
 import { AlertCircle, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { MOTION } from "@/components/motion/motion-classes";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,8 @@ export interface ErrorFallbackProps {
 	description?: string;
 	/** Additional CSS classes */
 	className?: string;
+	homeHref?: string;
+	homeLabel?: string;
 }
 
 function getErrorMessage(error: Error | null | undefined): string {
@@ -42,6 +45,8 @@ export function ErrorFallback({
 	title = "Algo salió mal",
 	description = "Ocurrió un error inesperado. Intenta de nuevo o contacta al administrador.",
 	className,
+	homeHref = "/dashboard",
+	homeLabel = "Volver al panel",
 }: ErrorFallbackProps) {
 	const errorMessage = getErrorMessage(error);
 
@@ -76,19 +81,27 @@ export function ErrorFallback({
 			)}
 
 			{/* Retry button */}
-			{resetErrorBoundary && (
-				<button
-					type="button"
-					onClick={resetErrorBoundary}
-					className={cn(
-						`${MOTION.button} inline-flex items-center gap-2 rounded-full bg-[#2154A6] px-6 py-2.5 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-2`,
-						"hover:bg-[#1a4390]",
-					)}
+			<div className="flex flex-wrap items-center justify-center gap-3">
+				{resetErrorBoundary && (
+					<button
+						type="button"
+						onClick={resetErrorBoundary}
+						className={cn(
+							`${MOTION.button} inline-flex items-center gap-2 rounded-full bg-[var(--color-brand-green)] px-6 py-2.5 text-sm font-medium text-on-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-green)] focus-visible:ring-offset-2`,
+							"hover:opacity-90",
+						)}
+					>
+						<RefreshCw className="size-4" aria-hidden="true" />
+						Intentar de nuevo
+					</button>
+				)}
+				<Link
+					href={homeHref}
+					className="inline-flex items-center rounded-full border border-[var(--border-default)] px-6 py-2.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-green)] focus-visible:ring-offset-2"
 				>
-					<RefreshCw className="size-4" aria-hidden="true" />
-					Intentar de nuevo
-				</button>
-			)}
+					{homeLabel}
+				</Link>
+			</div>
 		</section>
 	);
 }

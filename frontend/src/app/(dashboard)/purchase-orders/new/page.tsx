@@ -10,15 +10,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { Button } from "@/core/ui/Button";
 import { apiClient } from "@/lib/http/api-client";
-import { PurchaseOrderFormFields } from "./PurchaseOrderFormFields";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
+import { PurchaseOrderFormFields } from "./PurchaseOrderFormFields";
 
-const RegisterPOFormSchema = RegisterPurchaseOrderSchema.omit({
+export const RegisterPOFormSchema = RegisterPurchaseOrderSchema.omit({
 	attachments: true,
 	receivedAt: true,
 }).extend({
+	proposalId: z.string().regex(/^[0-9a-fA-F]{24}$/, {
+		message: "Selecciona una propuesta aprobada.",
+	}),
 	receivedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, {
 		message: "Use the local date-time format.",
 	}),
@@ -113,7 +117,10 @@ function NewPurchaseOrderContent() {
 		if (!selectedProposalId || !approvedProposalsMap.has(selectedProposalId)) {
 			return;
 		}
-		const proposal = approvedProposalsMap.get(selectedProposalId)!;
+		const proposal = approvedProposalsMap.get(selectedProposalId);
+		if (!proposal) {
+			return;
+		}
 		setValue("approvedAmount", proposal.total);
 		setValue("currency", "COP");
 	}, [selectedProposalId, approvedProposalsMap, setValue]);
@@ -160,7 +167,7 @@ function NewPurchaseOrderContent() {
 					Volver
 				</Link>
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 4 / Orden de compra</p>
+					<p className="text-sm font-medium text-slate">Paso 4 / Orden de compra</p>
 					<h1 id="new-po-title" className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
 						Registrar orden de compra
 					</h1>
@@ -195,76 +202,78 @@ function NewPurchaseOrderContent() {
 				</div>
 			)}
 
-			<form
-				onSubmit={handleSubmit(onSubmit)}
-				className="space-y-6 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
-				noValidate
-			>
-				<div className="grid gap-4 md:grid-cols-2">
-					<PurchaseOrderFormFields
-						register={register}
-						errors={errors}
-						approvedProposals={approvedProposalsQuery.data ?? []}
-						isLoadingProposals={approvedProposalsQuery.isLoading}
-					/>
-				</div>
-
-				{errors.root ? (
-					<div
-						className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4"
-						role="alert"
-					>
-						<AlertTriangle
-							className="mt-0.5 size-5 shrink-0 text-[var(--color-danger)]"
-							aria-hidden="true"
+			<ErrorBoundary>
+				<form
+					onSubmit={handleSubmit(onSubmit)}
+					className="space-y-6 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+					noValidate
+				>
+					<div className="grid gap-4 md:grid-cols-2">
+						<PurchaseOrderFormFields
+							register={register}
+							errors={errors}
+							approvedProposals={approvedProposalsQuery.data ?? []}
+							isLoadingProposals={approvedProposalsQuery.isLoading}
 						/>
-						<div>
-							<p className="text-sm font-semibold text-[var(--text-primary)]">
-								No se pudo registrar la orden de compra
-							</p>
-							<p className="mt-1 text-sm text-[var(--text-secondary)]">{errors.root.message}</p>
-						</div>
 					</div>
-				) : null}
 
-				{mutation.isSuccess ? (
-					<output
-						className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--color-success-border)] bg-[var(--color-success-bg)] p-4"
-						aria-live="polite"
-					>
-						<CheckCircle2
-							className="mt-0.5 size-5 shrink-0 text-[var(--color-success)]"
-							aria-hidden="true"
-						/>
-						<p className="text-sm text-[var(--text-primary)]">
-							Orden de compra registrada. Redirigiendo…
-						</p>
-					</output>
-				) : null}
-
-				<div className="flex flex-wrap items-center gap-3">
-					<Button
-						type="submit"
-						variant="primary"
-						loading={isSubmitting || mutation.isPending}
-						disabled={isSubmitting || mutation.isPending}
-					>
-						<Save className="size-4" aria-hidden="true" />
-						Registrar PO
-					</Button>
-					<Button asChild type="button" variant="secondary" disabled={mutation.isPending}>
-						<Link href={serviceCaseId ? `/service-cases/${serviceCaseId}` : "/purchase-orders"}>
-							Cancelar
-						</Link>
-					</Button>
-					{mutation.isPending ? (
-						<span className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-							<Loader2 className="size-4 animate-spin" aria-hidden="true" />
-							Enviando…
-						</span>
+					{errors.root ? (
+						<div
+							className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4"
+							role="alert"
+						>
+							<AlertTriangle
+								className="mt-0.5 size-5 shrink-0 text-[var(--color-danger)]"
+								aria-hidden="true"
+							/>
+							<div>
+								<p className="text-sm font-semibold text-[var(--text-primary)]">
+									No se pudo registrar la orden de compra
+								</p>
+								<p className="mt-1 text-sm text-[var(--text-secondary)]">{errors.root.message}</p>
+							</div>
+						</div>
 					) : null}
-				</div>
-			</form>
+
+					{mutation.isSuccess ? (
+						<output
+							className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--color-success-border)] bg-[var(--color-success-bg)] p-4"
+							aria-live="polite"
+						>
+							<CheckCircle2
+								className="mt-0.5 size-5 shrink-0 text-[var(--color-success)]"
+								aria-hidden="true"
+							/>
+							<p className="text-sm text-[var(--text-primary)]">
+								Orden de compra registrada. Redirigiendo…
+							</p>
+						</output>
+					) : null}
+
+					<div className="flex flex-wrap items-center gap-3">
+						<Button
+							type="submit"
+							variant="primary"
+							loading={isSubmitting || mutation.isPending}
+							disabled={isSubmitting || mutation.isPending}
+						>
+							<Save className="size-4" aria-hidden="true" />
+							Registrar PO
+						</Button>
+						<Button asChild type="button" variant="secondary" disabled={mutation.isPending}>
+							<Link href={serviceCaseId ? `/service-cases/${serviceCaseId}` : "/purchase-orders"}>
+								Cancelar
+							</Link>
+						</Button>
+						{mutation.isPending ? (
+							<span className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+								<Loader2 className="size-4 animate-spin" aria-hidden="true" />
+								Enviando…
+							</span>
+						) : null}
+					</div>
+				</form>
+			</ErrorBoundary>
 		</section>
 	);
 }

@@ -5,11 +5,13 @@
 import type { Evidence } from "@cermont/shared-types";
 
 export type EvidenceViewMode = "gallery" | "table";
+export type EvidenceFindingSeverity = "critical" | "moderate" | "minor" | "not_finding";
 
 // Hoisted Intl formatter for performance
 const EVIDENCE_DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
 	timeStyle: "short",
+	timeZone: "America/Bogota",
 });
 
 export function toEvidenceViewMode(raw: string | undefined): EvidenceViewMode {
@@ -44,4 +46,14 @@ export function getEvidenceSubtitle(evidence: Evidence): string {
 		return evidence.description.trim();
 	}
 	return "";
+}
+
+export function getEvidenceFindingSeverity(evidence: Evidence): EvidenceFindingSeverity {
+	if (evidence.type === "safety") {
+		return "critical";
+	}
+	if (evidence.type === "defect") {
+		return "moderate";
+	}
+	return "not_finding";
 }

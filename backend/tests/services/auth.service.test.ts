@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { UnauthorizedError } from "../../src/common/errors/AppError";
+import { BadRequestError, UnauthorizedError } from "../../src/common/errors/AppError";
 import { RefreshToken, TokenBlacklist, User } from "../../src/models";
 import * as authService from "../../src/modules/auth/auth.service";
 
@@ -372,5 +372,121 @@ describe("AuthService refresh token rotation", () => {
 			expect.any(String),
 			{ expiresIn: "7d" },
 		);
+	});
+
+	describe("generateResetToken", () => {
+		it("generates a reset token and stores SHA-256 hash on user", async () => {
+			const mockUser = {
+				_id: userObjectId,
+				email: mockEmail,
+			};
+			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(mockUser));
+
+			const rawToken = await authService.generateResetToken(mockEmail);
+
+			expect(rawToken).toBeTruthy();
+			expect(typeof rawToken).toBe("string");
+			expect(rawToken.length).toBe(64); // 32 bytes hex
+
+			expect(User.updateOne).toHaveBeenCalledWith(
+				{ _id: userObjectId },
+				expect.objectContaining({
+					$set: expect.objectContaining({
+						resetPasswordToken: expect.stringMatching(/^[a-f0-9]{64}$/),
+						resetPasswordExpires: expect.any(Date),
+					}),
+				}),
+			);
+		});
+
+		it("returns empty string for non-existent user (anti-enumeration)", async () => {
+			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(null));
+
+			const rawToken = await authService.generateResetToken("nonexistent@test.com");
+
+			expect(rawToken).toBe("");
+			expect(User.updateOne).not.toHaveBeenCalled();
+		});
+
+		it("returns empty string for inactive user (anti-enumeration)", async () => {
+			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(null));
+
+			const rawToken = await authService.generateResetToken("inactive@test.com");
+
+			expect(rawToken).toBe("");
+		});
+	});
+
+	describe("resetPassword", () => {
+		it("resets password with valid token and revokes sessions", async () => {
+			const rawToken = crypto.randomBytes(32).toString("hex");
+			const tokenHash = hashToken(rawToken);
+
+			const mockUser = {
+				_id: userObjectId,
+				email: mockEmail,
+				role: mockRole,
+				isActive: true,
+				tokenVersion: 0,
+				password: "old-hashed-password",
+				resetPasswordToken: tokenHash,
+				resetPasswordExpires: new Date(Date.now() + 3600_000),
+				save: vi.fn().mockResolvedValue({}),
+			};
+			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(mockUser));
+
+			await authService.resetPassword(rawToken, "NewSecurePass1!");
+
+			expect(mockUser.password).toBe("NewSecurePass1!");
+			expect(mockUser.tokenVersion).toBe(1);
+			expect(mockUser.resetPasswordToken).toBeUndefined();
+			expect(mockUser.resetPasswordExpires).toBeUndefined();
+			expect(mockUser.save).toHaveBeenCalled();
+			expect(RefreshToken.updateMany).toHaveBeenCalledWith(
+				{ userId: userObjectId, "status.state": "active" },
+				expect.objectContaining({
+					$set: expect.objectContaining({
+						status: expect.objectContaining({
+							state: "revoked",
+							reason: "password_change",
+						}),
+					}),
+				}),
+			);
+		});
+
+		it("rejects invalid token", async () => {
+			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(null));
+
+			await expect(authService.resetPassword("invalid-token", "NewSecurePass1!")).rejects.toThrow(
+				BadRequestError,
+			);
+		});
+
+		it("rejects expired token", async () => {
+			const rawToken = crypto.randomBytes(32).toString("hex");
+			const tokenHash = hashToken(rawToken);
+
+			const mockUser = {
+				_id: userObjectId,
+				email: mockEmail,
+				password: "old-hashed-password",
+				tokenVersion: 0,
+				resetPasswordToken: tokenHash,
+				resetPasswordExpires: new Date(Date.now() - 3600_000), // expired 1 hour ago
+				save: vi.fn().mockResolvedValue({}),
+			};
+			vi.mocked(User.findOne).mockReturnValue(mockFindOneSelect(null));
+
+			await expect(authService.resetPassword(rawToken, "NewSecurePass1!")).rejects.toThrow(
+				BadRequestError,
+			);
+		});
+
+		it("rejects empty token", async () => {
+			await expect(authService.resetPassword("", "NewSecurePass1!")).rejects.toThrow(
+				BadRequestError,
+			);
+		});
 	});
 });

@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowRight, ClipboardList, Loader2, Search } from "lucide-react";
+import { ArrowRight, ClipboardList, DollarSign, Loader2, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useState, useSyncExternalStore } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
+import { EmptyKpiState } from "@/core/ui/EmptyKpiState";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { COST_CATEGORY_LABELS, formatCurrency, useCostList } from "@/modules/costs";
 
@@ -164,22 +165,22 @@ export default function CostsPage() {
 			<div className="grid gap-3 sm:grid-cols-4">
 				<MetricCard
 					label="Estimado"
-					value={hasCosts ? formatCurrency(totals.estimated) : "Sin datos registrados"}
+					value={formatCurrency(hasCosts ? totals.estimated : 0)}
 				/>
 				<MetricCard
 					label="Real"
-					value={hasCosts ? formatCurrency(totals.actual) : "Sin datos registrados"}
+					value={formatCurrency(hasCosts ? totals.actual : 0)}
 				/>
 				<MetricCard
 					label="Impuestos"
-					value={hasCosts ? formatCurrency(totals.tax) : "Sin datos registrados"}
+					value={formatCurrency(hasCosts ? totals.tax : 0)}
 				/>
 				<MetricCard
 					label="Variación"
 					value={
 						hasCosts
 							? `${formatCurrency(costMetrics.overallVariance)}${costMetrics.overallVariancePct !== null ? ` (${costMetrics.overallVariancePct.toFixed(1)}%)` : ""}`
-							: "Sin datos"
+							: formatCurrency(0)
 					}
 					color={costMetrics.semaphore.color}
 				/>
@@ -197,6 +198,16 @@ export default function CostsPage() {
 					</span>
 				</div>
 			)}
+
+			{!isWaitingForSession && !costQuery.isLoading && !costQuery.isError && !hasCosts ? (
+				<EmptyKpiState
+					icon={DollarSign}
+					title="Aún no hay costos para analizar"
+					description="Los KPI muestran $0 hasta que una orden registre mano de obra, materiales, equipos o impuestos."
+					actionLabel="Ir a órdenes"
+					actionHref="/orders"
+				/>
+			) : null}
 
 			<section
 				className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"

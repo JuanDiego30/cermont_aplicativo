@@ -15,6 +15,7 @@ import { NotFoundError } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
 import { ServiceCase } from "../../models";
 import { canAdvanceToNextStep } from "../../services/cermont-workflow-gate.service";
+import { SystemConfigService } from "../system-config/system-config.service";
 import { generateWithProvider, getActiveProviderName, isAiAvailable } from "./ai-provider.adapter";
 import {
 	draftTechnicalReport,
@@ -212,7 +213,8 @@ export async function processUserQuery(
 	}
 
 	// Check if AI is available via provider
-	if (!isAiAvailable()) {
+	const featureEnabled = await SystemConfigService.isFeatureEnabled("enable_cermont_ai");
+	if (!featureEnabled || !isAiAvailable()) {
 		return {
 			threadId: threadId || `th_degraded_${Date.now()}`,
 			reply:

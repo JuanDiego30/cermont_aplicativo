@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, FileText } from "lucide-react";
+import { ArrowRight, Download, FileText } from "lucide-react";
 import Link from "next/link";
 import { toApiUrl } from "@/lib/http/api-client";
 import { formatDate } from "@/lib/utils/format-date";
@@ -123,7 +123,7 @@ function ReportTableRow({ report }: { report: object }) {
 					aria-label={`Ver informe ${title}`}
 					className="text-xs font-medium text-[var(--color-brand-blue)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 hover:underline"
 				>
-					Ver →
+					Ver <ArrowRight className="ml-0.5 inline size-3" aria-hidden="true" />
 				</Link>
 			</td>
 		</tr>

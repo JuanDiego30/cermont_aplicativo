@@ -14,9 +14,8 @@ export function LoginSubmitButton({ disabled, isSubmitting }: LoginSubmitButtonP
 			type="submit"
 			disabled={disabled}
 			loading={isSubmitting}
-			variant="primary"
 			size="lg"
-			className="mt-2 w-full py-6 text-base shadow-lg"
+			className="mt-2 w-full py-6 text-base shadow-lg bg-green-600 hover:bg-green-700 active:bg-green-800 text-white disabled:opacity-50"
 		>
 			{LOGIN_COPY.submit}
 		</Button>

@@ -79,7 +79,7 @@ export function ServiceCaseDashboardPanel({
 			value: activeOrders,
 			href: "/service-cases",
 			icon: ClipboardList,
-			tone: "text-[var(--color-brand-blue)]",
+			tone: "text-brand-blue",
 			surface: "bg-[var(--color-brand-blue-bg)]",
 		},
 		{
@@ -87,24 +87,24 @@ export function ServiceCaseDashboardPanel({
 			value: executionLoad + inPlanning,
 			href: "/execution",
 			icon: Wrench,
-			tone: "text-[var(--color-brand-strong)]",
-			surface: "bg-[var(--color-brand-hover)]",
+			tone: "text-[text-brand-blue-deep]",
+			surface: "bg-[text-brand-blue]",
 		},
 		{
 			label: "Bloqueados",
 			value: blockedCases || overdueOrders,
 			href: "/service-cases",
 			icon: AlertTriangle,
-			tone: "text-[var(--color-danger)]",
-			surface: "bg-[var(--color-danger-bg)]",
+			tone: "text-brand-error",
+			surface: "bg-danger-bg",
 		},
 		{
 			label: "Listos para facturar",
 			value: readyToBill || readyToClose || closedOrders,
 			href: "/billing/ses",
 			icon: ClipboardCheck,
-			tone: "text-[var(--color-success)]",
-			surface: "bg-[var(--color-success-bg)]",
+			tone: "text-brand-annotate",
+			surface: "bg-success-bg",
 		},
 	] as const;
 
@@ -112,25 +112,25 @@ export function ServiceCaseDashboardPanel({
 		<section
 			data-dash="service-case"
 			aria-labelledby="service-case-dashboard-title"
-			className="rounded-[1.5rem] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)] sm:p-6"
+			className="rounded-[1.5rem] border border-hairline bg-canvas p-5 shadow-card sm:p-6"
 		>
 			<div className="grid gap-6 xl:grid-cols-[0.96fr_1.04fr]">
 				<div>
 					<div className="flex items-start gap-3">
-						<span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-brand-hover)] text-[var(--color-brand-strong)]">
+						<span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue">
 							<Route className="size-5" aria-hidden="true" />
 						</span>
 						<div>
-							<p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+							<p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate">
 								ServiceCase operativo
 							</p>
 							<h2
 								id="service-case-dashboard-title"
-								className="mt-1 text-xl font-semibold text-[var(--text-primary)]"
+								className="mt-1 text-xl font-semibold text-ink"
 							>
 								Flujo Cermont de punta a punta
 							</h2>
-							<p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
+							<p className="mt-2 max-w-2xl text-sm leading-6 text-charcoal">
 								Solicitudes, visitas, propuestas, órdenes, planeación, ejecución, evidencias,
 								informes, actas, SES, facturación y pagos bajo el mismo caso de servicio.
 							</p>
@@ -138,41 +138,41 @@ export function ServiceCaseDashboardPanel({
 					</div>
 
 					<div className="mt-6 grid gap-3 sm:grid-cols-3">
-						<div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
-							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+						<div className="rounded-2xl border border-hairline bg-surface p-4">
+							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate">
 								Pipeline
 							</p>
-							<p className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+							<p className="mt-2 text-2xl font-semibold text-ink">
 								{totalOperationalCases.toLocaleString("es-CO")}
 							</p>
-							<p className="mt-1 text-xs text-[var(--text-secondary)]">casos derivados de KPIs</p>
+							<p className="mt-1 text-xs text-charcoal">casos derivados de KPIs</p>
 						</div>
-						<div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
-							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+						<div className="rounded-2xl border border-hairline bg-surface p-4">
+							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate">
 								Kits activos
 							</p>
-							<p className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+							<p className="mt-2 text-2xl font-semibold text-ink">
 								{activeKitCount.toLocaleString("es-CO")}
 							</p>
-							<p className="mt-1 text-xs text-[var(--text-secondary)]">herramientas y equipos</p>
+							<p className="mt-1 text-xs text-charcoal">herramientas y equipos</p>
 						</div>
-						<div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
-							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+						<div className="rounded-2xl border border-hairline bg-surface p-4">
+							<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate">
 								Presupuesto
 							</p>
-							<p className="mt-2 text-lg font-semibold text-[var(--text-primary)]">
+							<p className="mt-2 text-lg font-semibold text-ink">
 								{formatMoney(totalBudgetApproved)}
 							</p>
-							<p className="mt-1 text-xs text-[var(--text-secondary)]">aprobado en órdenes</p>
+							<p className="mt-1 text-xs text-charcoal">aprobado en órdenes</p>
 						</div>
 					</div>
 
 					<div className="mt-5">
-						<div className="flex items-center justify-between text-xs font-semibold text-[var(--text-secondary)]">
+						<div className="flex items-center justify-between text-xs font-semibold text-charcoal">
 							<span>Cierre operativo</span>
 							<span>{closeoutProgressPercent}%</span>
 						</div>
-						<div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--surface-secondary)]">
+						<div className="mt-2 h-2 overflow-hidden rounded-full bg-surface">
 							<span
 								className="block h-full rounded-full bg-[var(--color-brand)]"
 								style={{ width: `${closeoutProgressPercent}%` }}
@@ -187,7 +187,7 @@ export function ServiceCaseDashboardPanel({
 							<Link
 								key={label}
 								href={href}
-								className="group rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[var(--border-medium)] hover:shadow-[var(--shadow-2)]"
+								className="group rounded-2xl border border-hairline bg-canvas p-4 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-[var(--border-medium)] hover:shadow-[var(--shadow-2)]"
 							>
 								<div className="flex items-center justify-between gap-3">
 									<span
@@ -199,14 +199,14 @@ export function ServiceCaseDashboardPanel({
 										{value.toLocaleString("es-CO")}
 									</span>
 								</div>
-								<p className="mt-3 text-sm font-semibold text-[var(--text-primary)]">{label}</p>
+								<p className="mt-3 text-sm font-semibold text-ink">{label}</p>
 							</Link>
 						))}
 					</div>
 
-					<div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
-						<div className="flex items-center gap-2 text-[var(--text-primary)]">
-							<FileText className="size-4 text-[var(--color-brand-blue)]" aria-hidden="true" />
+					<div className="rounded-2xl border border-hairline bg-surface p-4">
+						<div className="flex items-center gap-2 text-ink">
+							<FileText className="size-4 text-brand-blue" aria-hidden="true" />
 							<p className="text-sm font-semibold">Cadena documental</p>
 						</div>
 						<div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -215,9 +215,9 @@ export function ServiceCaseDashboardPanel({
 									{group.map((step, index) => (
 										<li
 											key={step}
-											className="flex items-center gap-2 text-xs text-[var(--text-secondary)]"
+											className="flex items-center gap-2 text-xs text-charcoal"
 										>
-											<span className="flex size-5 items-center justify-center rounded-full bg-[var(--surface-primary)] font-mono text-[10px] font-semibold text-[var(--color-brand-strong)]">
+											<span className="flex size-5 items-center justify-center rounded-full bg-canvas font-mono text-[10px] font-semibold text-[text-brand-blue-deep]">
 												{index + (group === workflowCloseout ? workflowPreview.length : 0) + 1}
 											</span>
 											{step}
@@ -226,7 +226,7 @@ export function ServiceCaseDashboardPanel({
 								</ol>
 							))}
 						</div>
-						<p className="mt-4 text-xs leading-5 text-[var(--text-tertiary)]">
+						<p className="mt-4 text-xs leading-5 text-slate">
 							{recentOrdersCount.toLocaleString("es-CO")} órdenes recientes alimentan el pulso de
 							este flujo.
 						</p>
@@ -236,3 +236,5 @@ export function ServiceCaseDashboardPanel({
 		</section>
 	);
 }
+
+

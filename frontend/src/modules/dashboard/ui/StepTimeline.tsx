@@ -1,7 +1,7 @@
 "use client";
 
 import type { CermontOperationalStepCode } from "@cermont/shared-types";
-import { ArrowRight, Circle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -173,7 +173,7 @@ export function StepTimeline({ stepDistribution = [] }: StepTimelineProps) {
 							className={cn(
 								"flex min-h-44 flex-col justify-between rounded-2xl border-2 p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md",
 								CATEGORY_COLORS[item.category],
-								activeCount > 0 ? "ring-1 ring-brand-green/20" : "",
+								activeCount > 0 ? "ring-1 ring-brand-green/20" : "border-dashed opacity-60",
 							)}
 						>
 							<div>
@@ -189,7 +189,7 @@ export function StepTimeline({ stepDistribution = [] }: StepTimelineProps) {
 											</span>
 										</span>
 									) : (
-										<Circle className="size-3.5 text-steel" aria-hidden="true" />
+										<span className="font-mono text-xs text-steel" aria-hidden="true">—</span>
 									)}
 								</div>
 								<h4 className="mt-3 text-xs font-bold leading-tight text-ink">{item.label}</h4>

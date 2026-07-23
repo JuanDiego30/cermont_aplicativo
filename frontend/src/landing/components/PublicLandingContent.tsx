@@ -1,169 +1,52 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef, useSyncExternalStore } from "react";
-
-const subscribeMotion = (callback: () => void) => {
-	const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-	mediaQuery.addEventListener("change", callback);
-	return () => mediaQuery.removeEventListener("change", callback);
-};
-
-const getSnapshotMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const getServerSnapshotMotion = () => false;
-
+import { AnalyticsTracker } from "../analytics/AnalyticsTracker";
 import { AboutSection } from "./AboutSection";
-import { ClientsMarquee } from "./ClientsMarquee";
 import { ContactSection } from "./ContactSection";
 import { CtaSection } from "./CtaSection";
-import { FeaturesSection } from "./FeaturesSection";
+import { FaqSection } from "./FaqSection";
 import { HeroSection } from "./HeroSection";
 import { LandingFooter } from "./LandingFooter";
 import { LandingHeader } from "./LandingHeader";
 import { MethodSection } from "./MethodSection";
 import { MissionVisionSection } from "./MissionVisionSection";
+import { OperationalEvidenceSection } from "./OperationalEvidenceSection";
 import { ResourcesSection } from "./ResourcesSection";
+import { SectorsSection } from "./SectorsSection";
 import { ServicesSection } from "./ServicesSection";
 import { StatsBar } from "./StatsBar";
 import { TestimonialsSection } from "./TestimonialsSection";
 import { TrustSection } from "./TrustSection";
 import { WhatsAppFAB } from "./WhatsAppFAB";
-
-const BLOB_CONFIG = [
-	{ attr: "one", x: 54, y: 36, scale: 1.08, duration: 24 },
-	{ attr: "two", x: -36, y: 54, scale: 1.05, duration: 30 },
-	{ attr: "three", x: 76, y: -28, scale: 1.07, duration: 20 },
-] as const;
-const BLOB_CONFIG_BY_ATTR: ReadonlyMap<string, (typeof BLOB_CONFIG)[number]> = new Map(
-	BLOB_CONFIG.map((config) => [config.attr, config]),
-);
-
-gsap.registerPlugin(ScrollTrigger);
-
 export function PublicLandingContent() {
-	const shouldReduceMotion = useSyncExternalStore(
-		subscribeMotion,
-		getSnapshotMotion,
-		getServerSnapshotMotion,
-	);
-	const containerRef = useRef<HTMLDivElement>(null);
-	const sectionsRef = useRef<HTMLDivElement>(null);
-
-	useGSAP(
-		() => {
-			if (shouldReduceMotion || !containerRef.current) {
-				return;
-			}
-
-			const blobs = containerRef.current.querySelectorAll("[data-hero-blob]");
-			for (const blob of blobs) {
-				const config = BLOB_CONFIG_BY_ATTR.get(blob.getAttribute("data-hero-blob") ?? "");
-				if (!config) {
-					continue;
-				}
-				gsap.to(blob, {
-					keyframes: [
-						{ x: 0, y: 0, scale: 1 },
-						{ x: config.x, y: config.y, scale: config.scale },
-						{ x: 0, y: 0, scale: 1 },
-					],
-					duration: config.duration,
-					repeat: -1,
-					yoyo: true,
-					ease: "none",
-				});
-			}
-		},
-		{ scope: containerRef, dependencies: [shouldReduceMotion] },
-	);
-
-	useGSAP(
-		() => {
-			if (shouldReduceMotion || !containerRef.current) {
-				return;
-			}
-			const container = containerRef.current;
-			const mm = gsap.matchMedia();
-			mm.add("(prefers-reduced-motion: no-preference)", () => {
-				const sections = Array.from(container.querySelectorAll("[data-landing-section]"));
-				if (!sections.length) {
-					return;
-				}
-				ScrollTrigger.batch(sections as Element[], {
-					interval: 0.12,
-					batchMax: 3,
-					onEnter: (batch) => {
-						gsap.fromTo(
-							batch,
-							{ opacity: 0, y: 30 },
-							{
-								opacity: 1,
-								y: 0,
-								duration: 0.55,
-								ease: "power2.out",
-								stagger: 0.08,
-								overwrite: true,
-							},
-						);
-					},
-					start: "top 85%",
-					once: true,
-				});
-			});
-		},
-		{ scope: containerRef, dependencies: [shouldReduceMotion] },
-	);
-
 	return (
-		<div
-			ref={containerRef}
-			className="relative isolate w-full max-w-full overflow-x-hidden bg-canvas text-ink"
-		>
+		<div className="relative isolate w-full max-w-full overflow-x-hidden bg-canvas text-ink">
+			<AnalyticsTracker />
+			<a
+				href="#main-content"
+				className="sr-only fixed left-4 top-4 z-[60] rounded-lg bg-canvas px-4 py-3 text-sm font-semibold text-ink shadow-2 focus:not-sr-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/60"
+			>
+				Saltar al contenido principal
+			</a>
 			<LandingHeader />
 
-			<main id="main-content">
+			<div id="main-content" tabIndex={-1}>
 				<HeroSection />
-
-				{!shouldReduceMotion && (
-					<>
-						<div
-							data-hero-blob="one"
-							className="pointer-events-none absolute inset-0"
-							aria-hidden="true"
-						/>
-						<div
-							data-hero-blob="two"
-							className="pointer-events-none absolute inset-0"
-							aria-hidden="true"
-						/>
-						<div
-							data-hero-blob="three"
-							className="pointer-events-none absolute inset-0"
-							aria-hidden="true"
-						/>
-					</>
-				)}
-
-				<div ref={sectionsRef}>
-					<TrustSection shouldReduceMotion={shouldReduceMotion} />
-					<AboutSection />
-					<ServicesSection />
-					<FeaturesSection shouldReduceMotion={shouldReduceMotion} />
-					<CtaSection />
-					<ResourcesSection />
-					<MethodSection />
-					<StatsBar />
-					<TestimonialsSection />
-					<ClientsMarquee />
-					<MissionVisionSection />
-					<ContactSection />
-				</div>
-				<WhatsAppFAB />
-			</main>
+				<StatsBar />
+				<TrustSection />
+				<ServicesSection />
+				<SectorsSection />
+				<MethodSection />
+				<TestimonialsSection />
+				<OperationalEvidenceSection />
+				<ResourcesSection />
+				<AboutSection />
+				<MissionVisionSection />
+				<FaqSection />
+				<CtaSection />
+				<ContactSection />
+			</div>
 
 			<LandingFooter />
+			<WhatsAppFAB />
 		</div>
 	);
 }

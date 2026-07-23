@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 import {
 	type FormEvent,
 	type ReactNode,
@@ -29,15 +28,23 @@ import {
 import { toast } from "sonner";
 import { SyncBanner } from "@/components/common/SyncBanner";
 import { Button } from "@/core/ui/Button";
+import { Skeleton } from "@/core/ui/Skeleton";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { readSearchParam } from "@/lib/utils/search-params";
 import { useOfflineEvidence } from "@/modules/evidences/hooks/useOfflineEvidence";
+import { EVIDENCE_KEYS } from "@/modules/evidences/keys";
 import { listEvidences } from "@/modules/evidences/queries";
 import { useOrders } from "@/modules/orders/queries";
 import { EvidenceCard } from "./EvidenceCard";
 import { EvidenceTableRow } from "./EvidenceTableRow";
-import { type EvidenceViewMode, getEvidenceTitle, toEvidenceViewMode } from "./evidence-helpers";
+import {
+	type EvidenceFindingSeverity,
+	type EvidenceViewMode,
+	getEvidenceFindingSeverity,
+	getEvidenceTitle,
+	toEvidenceViewMode,
+} from "./evidence-helpers";
 
 const FIELD_CLASS =
 	"w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[var(--color-brand-blue)]/15";
@@ -473,16 +480,19 @@ function EvidencesEmptyState({
 	icon,
 	title,
 	description,
+	children,
 }: {
 	icon: ReactNode;
 	title: string;
 	description: string;
+	children?: ReactNode;
 }) {
 	return (
 		<section className="rounded-[var(--radius-xl)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-secondary)]/40 p-10 text-center">
 			{icon}
 			<h2 className="mt-4 text-lg font-semibold text-[var(--text-primary)]">{title}</h2>
 			<p className="mt-1 text-sm text-[var(--text-secondary)]">{description}</p>
+			{children ? <div className="mt-6">{children}</div> : null}
 		</section>
 	);
 }
@@ -595,11 +605,84 @@ function useEvidenceFilters() {
 
 function EvidencesLoading() {
 	return (
-		<section className="space-y-6" aria-labelledby="evidences-page-title">
-			<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-				<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
+		<section className="space-y-6" aria-label="Cargando evidencias" aria-live="polite">
+			<Skeleton className="h-40 rounded-[var(--radius-xl)]" />
+			<Skeleton className="h-20 rounded-[var(--radius-xl)]" />
+			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{[0, 1, 2].map((item) => (
+					<Skeleton key={item} className="h-48 rounded-[var(--radius-xl)]" />
+				))}
 			</div>
 		</section>
+	);
+}
+
+const FINDING_LABELS: Record<Exclude<EvidenceFindingSeverity, "not_finding">, string> = {
+	critical: "Críticos",
+	moderate: "Moderados",
+	minor: "Leves",
+};
+
+const FINDING_TONES: Record<Exclude<EvidenceFindingSeverity, "not_finding">, string> = {
+	critical:
+		"border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
+	moderate:
+		"border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] text-[var(--color-warning)]",
+	minor: "border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-[var(--color-info)]",
+};
+
+// ── Pagination Bar ──────────────────────────────────────────────────────────
+
+function PaginationBar({
+	currentPage,
+	totalPages,
+	onPageChange,
+	isLoading,
+}: {
+	currentPage: number;
+	totalPages: number;
+	onPageChange: (page: number) => void;
+	isLoading: boolean;
+}) {
+	if (totalPages <= 1) {
+		return null;
+	}
+
+	return (
+		<nav
+			aria-label="Paginación de evidencias"
+			className="flex items-center justify-between px-2 py-3"
+		>
+			<p className="text-sm text-[var(--text-secondary)]">
+				Página {currentPage} de {totalPages}
+			</p>
+			<div className="flex items-center gap-2">
+				<button
+					type="button"
+					onClick={() => onPageChange(currentPage - 1)}
+					disabled={currentPage <= 1 || isLoading}
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50"
+					aria-label="Página anterior"
+				>
+					Anterior
+				</button>
+				{isLoading ? (
+					<span className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--text-tertiary)]">
+						<Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+						Cargando…
+					</span>
+				) : null}
+				<button
+					type="button"
+					onClick={() => onPageChange(currentPage + 1)}
+					disabled={currentPage >= totalPages || isLoading}
+					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-1.5 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-50"
+					aria-label="Página siguiente"
+				>
+					Siguiente
+				</button>
+			</div>
+		</nav>
 	);
 }
 
@@ -631,26 +714,47 @@ function EvidencesPageInner() {
 	const selectedOrder = orderOptions.find((order) => order._id === selectedOrderId);
 	const queryClient = useQueryClient();
 
+	const [currentPage, setCurrentPage] = useState(1);
+	const PAGE_SIZE = 20;
+
+	useEffect(() => {
+		if (!selectedOrderId) {
+			return;
+		}
+		setCurrentPage(1);
+	}, [selectedOrderId]);
+
 	const {
-		data: evidences = [],
+		data: paginatedData,
 		isLoading: isLoadingEvidences,
 		error,
 	} = useQuery({
-		queryKey: EVIDENCE_KEYS.byOrder(selectedOrderId),
-		queryFn: () => listEvidences(selectedOrderId),
+		queryKey: EVIDENCE_KEYS.byOrder(selectedOrderId, currentPage, PAGE_SIZE),
+		queryFn: () => listEvidences(selectedOrderId, currentPage, PAGE_SIZE),
 		enabled: !!selectedOrderId,
 		staleTime: STALE_TIMES.LIST,
 		placeholderData: keepPreviousData,
 	});
 
+	const evidences = paginatedData?.items ?? [];
+	const totalPages = paginatedData?.pages ?? 0;
+
 	const filteredEvidences = useMemo(() => {
 		const query = searchInput.trim().toLowerCase();
 		return evidences.filter((evidence) => evidenceMatchesSearch(evidence, query));
 	}, [evidences, searchInput]);
+	const findings = useMemo(
+		() =>
+			filteredEvidences.flatMap((evidence) => {
+				const severity = getEvidenceFindingSeverity(evidence);
+				return severity === "not_finding" ? [] : [{ evidence, severity }];
+			}),
+		[filteredEvidences],
+	);
 
 	const handleUploadComplete = useCallback(() => {
 		if (selectedOrderId) {
-			queryClient.invalidateQueries({ queryKey: EVIDENCE_KEYS.byOrder(selectedOrderId) });
+			queryClient.invalidateQueries({ queryKey: EVIDENCE_KEYS.all });
 		}
 	}, [queryClient, selectedOrderId]);
 
@@ -754,7 +858,11 @@ function EvidencesPageInner() {
 						}
 						title="Selecciona una orden"
 						description="Selecciona una orden de trabajo para ver sus evidencias y subir nuevas imágenes."
-					/>
+					>
+						<Button asChild variant="primary">
+							<a href="/orders">Ir a órdenes de trabajo</a>
+						</Button>
+					</EvidencesEmptyState>
 				) : isLoadingEvidences ? (
 					<section className="flex h-64 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)]">
 						<div className="flex items-center gap-3 text-[var(--text-secondary)]">
@@ -792,6 +900,57 @@ function EvidencesPageInner() {
 						) : (
 							<EvidencesTableView evidences={filteredEvidences} />
 						)}
+						<PaginationBar
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={setCurrentPage}
+							isLoading={isLoadingEvidences}
+						/>
+						{findings.length > 0 ? (
+							<section
+								aria-labelledby="critical-findings-title"
+								className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]"
+							>
+								<div>
+									<h2
+										id="critical-findings-title"
+										className="text-base font-semibold text-[var(--text-primary)]"
+									>
+										Hallazgos críticos en inspección
+									</h2>
+									<p className="mt-1 text-sm text-[var(--text-secondary)]">
+										Clasificación operativa de evidencias de seguridad, incidentes, defectos y
+										calidad.
+									</p>
+								</div>
+								<div className="flex flex-wrap gap-2">
+									{(["critical", "moderate", "minor"] as const).map((severity) => (
+										<span
+											key={severity}
+											className={`rounded-full border px-3 py-1 text-xs font-semibold ${FINDING_TONES[severity]}`}
+										>
+											{FINDING_LABELS[severity]}:{" "}
+											{findings.filter((finding) => finding.severity === severity).length}
+										</span>
+									))}
+								</div>
+								<ul className="space-y-2">
+									{findings.slice(0, 3).map(({ evidence, severity }) => (
+										<li
+											key={evidence._id}
+											className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-3"
+										>
+											<p className="text-sm font-medium text-[var(--text-primary)]">
+												{getEvidenceTitle(evidence)}
+											</p>
+											<p className="mt-1 text-xs text-[var(--text-secondary)]">
+												Severidad: {FINDING_LABELS[severity]}
+											</p>
+										</li>
+									))}
+								</ul>
+							</section>
+						) : null}
 					</section>
 				)}
 			</section>

@@ -15,24 +15,24 @@ export function DashboardKPIWidgets({ mttr, mtbf, ftr, utilization }: Props) {
 		<div data-testid="dashboard-kpi-widgets" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			<KPIStatCard
 				icon={Timer}
-				value={`${mttr} min`}
+				value={mttr === 0 ? "N/A" : `${mttr} min`}
 				label="MTTR — Tiempo medio de reparación"
 				tooltip="Mean Time To Repair: tiempo promedio para resolver una orden desde que se reporta"
-				trend={mttr < 60 ? { value: 10, isPositive: true } : undefined}
+				trend={mttr > 0 && mttr < 60 ? { value: 10, isPositive: true } : undefined}
 			/>
 			<KPIStatCard
 				icon={Wrench}
-				value={`${mtbf} días`}
+				value={mtbf === 0 ? "N/A" : `${mtbf} días`}
 				label="MTBF — Tiempo medio entre fallos"
 				tooltip="Mean Time Between Failures: días promedio entre intervenciones correctivas"
-				trend={mtbf > 90 ? { value: 5, isPositive: true } : undefined}
+				trend={mtbf > 0 && mtbf > 90 ? { value: 5, isPositive: true } : undefined}
 			/>
 			<KPIStatCard
 				icon={Target}
 				value={`${ftr}%`}
 				label="FTR — First Time Fix Rate"
 				tooltip="Porcentaje de órdenes resueltas en la primera visita, sin retornos"
-				trend={ftr >= 75 ? { value: 3, isPositive: true } : { value: 5, isPositive: false }}
+				trend={ftr > 0 ? (ftr >= 75 ? { value: 3, isPositive: true } : { value: 5, isPositive: false }) : undefined}
 			/>
 			<KPIStatCard
 				icon={Users}

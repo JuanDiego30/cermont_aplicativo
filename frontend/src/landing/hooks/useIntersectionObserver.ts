@@ -20,6 +20,10 @@ export function useIntersectionObserver(
 		if (!target || isVisible) {
 			return;
 		}
+		if (typeof IntersectionObserver === "undefined") {
+			setIsVisible(true);
+			return;
+		}
 		const observer = new IntersectionObserver(
 			([entry]) => {
 				if (entry.isIntersecting) {

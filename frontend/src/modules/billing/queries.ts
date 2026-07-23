@@ -261,12 +261,14 @@ export function useInvoicesList(filters?: Partial<ListInvoicesQuery>) {
 	);
 }
 
+const VALID_PAYMENT_STATUSES = ["not_due", "due", "recorded", "reconciled", "rejected"] as const;
+
 export function usePaymentsList(filters?: Partial<ListPaymentsQuery>) {
 	const normalizedFilters = {
 		invoiceId: normalizeStringFilter(filters?.invoiceId),
 		workOrderId: normalizeStringFilter(filters?.workOrderId),
 		clientId: normalizeStringFilter(filters?.clientId),
-		status: filters?.status,
+		status: filters?.status && VALID_PAYMENT_STATUSES.includes(filters.status) ? filters.status : undefined,
 		page: filters?.page,
 		limit: filters?.limit ?? 50,
 	};
@@ -471,10 +473,22 @@ export function usePaymentDashboard() {
 	return useQuery({
 		queryKey: [...BILLING_KEYS.payments.all, "dashboard"] as const,
 		queryFn: async () => {
-			const res = await apiClient.get<ApiEnvelope<import("@cermont/shared-types").PaymentDashboard>>("/payments/dashboard");
+			const res = await apiClient.get<ApiEnvelope<import("@cermont/shared-types").PaymentDashboard> | null>("/payments/dashboard");
+			if (!res?.data) {
+				return {
+					totalInvoiced: 0,
+					totalCollected: 0,
+					totalPending: 0,
+					totalOverdue: 0,
+					collectionRate: 0,
+					averagePaymentDays: 0,
+					agingBuckets: [],
+				};
+			}
 			return res.data;
 		},
-		staleTime: STALE_TIMES.REALTIME,
+		staleTime: 30_000,
+		retry: 2,
 	});
 }
 
@@ -482,10 +496,14 @@ export function usePaymentAgingReport() {
 	return useQuery({
 		queryKey: [...BILLING_KEYS.payments.all, "aging"] as const,
 		queryFn: async () => {
-			const res = await apiClient.get<ApiEnvelope<import("@cermont/shared-types").PaymentAgingEntry[]>>("/payments/aging");
+			const res = await apiClient.get<ApiEnvelope<import("@cermont/shared-types").PaymentAgingEntry[]> | null>("/payments/aging");
+			if (!res?.data || !Array.isArray(res.data)) {
+				return [];
+			}
 			return res.data;
 		},
-		staleTime: STALE_TIMES.REALTIME,
+		staleTime: 30_000,
+		retry: 2,
 	});
 }
 
@@ -529,4 +547,3 @@ export function useRejectPayment(id: string) {
 		},
 	});
 }
-

@@ -35,8 +35,10 @@ export function HeaderUserMenu({
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const onCloseRef = useRef(onCloseDropdown);
-	onCloseRef.current = onCloseDropdown;
 	const { logout } = useAuth();
+	useEffect(() => {
+		onCloseRef.current = onCloseDropdown;
+	}, [onCloseDropdown]);
 	const router = useRouter();
 
 	async function handleLogout() {

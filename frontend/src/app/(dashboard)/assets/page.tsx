@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import Link from "next/link";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { apiClient } from "@/lib/http/api-client";
@@ -62,6 +62,7 @@ function AssetList() {
 				icon="assets"
 				title="Sin activos registrados"
 				description="No hay activos registrados en el sistema."
+				action={{ label: "Nuevo activo", href: "/assets/new", icon: Plus }}
 			/>
 		);
 	}
@@ -84,7 +85,7 @@ function AssetList() {
 					</div>
 					<p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{item.name}</p>
 					<p className="mt-1 text-xs text-[var(--text-tertiary)]">
-						{item.serialNumber ? `Serie: ${item.serialNumber}` : `Codigo: ${item.code}`}
+									{item.serialNumber ? `Serie: ${item.serialNumber}` : `Código: ${item.code}`}
 					</p>
 				</Link>
 			))}

@@ -1,5 +1,7 @@
+import { ArrowRight } from "lucide-react";
+import { BadgePill } from "@/core/ui/BadgePill";
+import { Button } from "@/core/ui/Button";
 import { LANDING_WORKFLOW } from "../landing-data";
-import { WorkflowCard } from "./cards/WorkflowCard";
 import { SectionHeading } from "./SectionHeading";
 
 export function MethodSection() {
@@ -12,23 +14,45 @@ export function MethodSection() {
 		>
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<SectionHeading
+					id="method-heading"
 					eyebrow="Método"
-					title="Un proceso sencillo, claro y documentado."
-					description="La compañía trabaja con una secuencia que evita sorpresas: primero se valida el frente, luego se planifica, después se ejecuta y finalmente se entrega el cierre documentado."
+					title="Del requerimiento al cierre documentado."
+					description="Cada servicio recorre una secuencia controlada: diagnóstico, planeación, ejecución y entrega formal de soportes."
 				/>
 
 				<div className="relative mt-10">
-					<div
-						className="absolute top-14 left-[calc(12.5%+1.5rem)] right-[calc(12.5%+1.5rem)] hidden h-0.5 lg:block"
-						aria-hidden="true"
-					>
-						<div className="h-full w-full border-t-2 border-dashed border-border-strong" />
+					<div className="grid gap-6 lg:grid-cols-5 lg:gap-4">
+						{LANDING_WORKFLOW.map((s, i) => {
+							const Icon = s.icon;
+							return (
+								<div key={s.step} className="relative flex flex-col items-center text-center">
+									<div className="flex size-14 items-center justify-center rounded-2xl bg-brand-green/10 text-brand-green">
+										<Icon className="size-6" aria-hidden="true" />
+									</div>
+									<BadgePill
+										className="mt-3 bg-surface px-3 py-1 font-mono text-[11px]"
+										dotClassName="bg-brand-annotate"
+										ariaLabel={`Paso ${s.step}`}
+									>
+										Paso {s.step}
+									</BadgePill>
+									<h3 className="mt-3 text-sm font-semibold text-ink">{s.title}</h3>
+									<p className="mt-2 text-xs leading-relaxed text-charcoal">{s.description}</p>
+									{i < LANDING_WORKFLOW.length - 1 && (
+										<div className="mt-4 hidden h-0.5 w-8 bg-hairline lg:block" aria-hidden="true" />
+									)}
+								</div>
+							);
+						})}
 					</div>
 
-					<div className="relative grid gap-8 lg:grid-cols-4 lg:gap-6">
-						{LANDING_WORKFLOW.map((step) => (
-							<WorkflowCard key={step.step} {...step} />
-						))}
+					<div className="mt-12 text-center">
+						<Button asChild size="lg" className="rounded-full px-8 bg-green-600 hover:bg-green-700 text-white">
+							<a href="#contacto">
+								¿Listo para comenzar? Contáctenos
+								<ArrowRight className="size-5 ml-2" aria-hidden="true" />
+							</a>
+						</Button>
 					</div>
 				</div>
 			</div>

@@ -14,8 +14,6 @@ import { PROPOSALS_KEYS } from "@/modules/proposals/queries";
 import { ProposalActions } from "@/modules/proposals/ui/ProposalActions";
 import { ProposalCostBreakdown } from "@/modules/proposals/ui/ProposalCostBreakdown";
 import { StatusBadge } from "@/core/ui/StatusBadge";
-import "@/modules/proposals/ui/ApproveWithSupportModal";
-import "@/modules/proposals/ui/VersionHistory";
 
 interface ProposalDetail {
 	_id: string;

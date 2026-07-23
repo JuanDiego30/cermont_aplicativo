@@ -1,0 +1,76 @@
+{
+  "file": "PRD_MAESTRO_CERMONT_ARQUITECTURA_AGENTICA_6000_LINEAS.md",
+  "line_count": 6000,
+  "sha256": "da8879f125f1d12beafd0177bfa5213350441e7bf079db51839d11001d064d19",
+  "generated_at_utc": "2026-07-19T18:52:59.476360+00:00",
+  "document_type": "Product Requirements Document",
+  "source_files": [
+    {
+      "name": "LTG_JUAN_DIEGO_AREVALO-3_markdown(13).md",
+      "bytes": 369331,
+      "lines": 4935,
+      "sha256": "bb3197f8c035e25aa7615e98ab9dfd0e896f94e0b231f77e815fe39272e75a64"
+    },
+    {
+      "name": "REGLAS_DESARROLLO_CERMONT(11).md",
+      "bytes": 16855,
+      "lines": 866,
+      "sha256": "510e84703fa3a568461d3b798df8b17a68ad94cd0711ff678b4d56644cbfdc95"
+    },
+    {
+      "name": "06_FORMATO_DE_PLANEACION_DE_OBRA3(5).md",
+      "bytes": 1487,
+      "lines": 53,
+      "sha256": "4c435d75abf2602231b57f57dbc7ee34029d023e65934ed6f2b4572ef49ca355"
+    },
+    {
+      "name": "07_DESARROLLO_DE_UN_APLICATIVO_WEB_PARA_APOYO_EN_LA_EJECUCION_Y_CIERRE_ADMINISTRATIVO_DE_LOS_TRABA3(7).md",
+      "bytes": 4638,
+      "lines": 88,
+      "sha256": "8c5096d8d37731bd173aeec17e9a57248daa03b1300be8042c1f0c4742c8ed0f"
+    },
+    {
+      "name": "08_Formato_Inspeccion_lineas_de_vida_Vertical3(4).md",
+      "bytes": 4011,
+      "lines": 115,
+      "sha256": "ffd5a80dc79c30541b4bf340317e973dc3592c5a451ec8d88b25ad416fbe2bf4"
+    },
+    {
+      "name": "09_Observaciones_Anteproyecto_Juan_Diego2(6).md",
+      "bytes": 5617,
+      "lines": 113,
+      "sha256": "2964b2495d084a5476df9e5e79f52568758d2f104e79544c7ceccbc3bd6feb96"
+    },
+    {
+      "name": "10_Formato_Mantenimiento_CCTV3(4).md",
+      "bytes": 1704,
+      "lines": 65,
+      "sha256": "41c1cf5c081194ed9be2f3c2ec111b0e6c2eb62d30bde9b242af46b378648176"
+    },
+    {
+      "name": "05_FOTOS_ANCLAJE_ESCALERA_A_ESTRUCTURA3(4).md",
+      "bytes": 1129,
+      "lines": 50,
+      "sha256": "84b11464b49e5a7d8855bbe20b8bec94daddc1d273082383bb1a1a10380e5f80"
+    },
+    {
+      "name": "02_INDUCCION_SGSST3(3).md",
+      "bytes": 30181,
+      "lines": 1107,
+      "sha256": "f318331d2587429fc30122a07c94c69956203703baaf0c7dbd54f59c9664fe9f"
+    },
+    {
+      "name": "03_Jerarquia_de_controles_Cermont2(3).md",
+      "bytes": 1387,
+      "lines": 47,
+      "sha256": "1ff56cfa88c159661bd114ca7daed2addc25f783cb2891879cbf86840db8dba4"
+    }
+  ],
+  "functional_requirements": 35,
+  "non_functional_requirements": 20,
+  "roadmap_phases": 19,
+  "atomic_roadmap_tasks": 152,
+  "granular_acceptance_criteria": 3570,
+  "shell": "bash",
+  "autonomous_git_policy": "no_git_commands"
+}

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { resolveCreatedProposalId } from "@/modules/proposals/api/proposals.service";
 import { useCreateProposal } from "@/modules/proposals/hooks/useCreateProposal";
 import { StepBreadcrumb } from "@/modules/service-cases/components/StepBreadcrumb";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
@@ -68,6 +69,8 @@ function NewProposalContent() {
 		handleSubmit,
 		watch,
 		setValue,
+		setError,
+		clearErrors,
 		formState: { errors },
 	} = useForm<ProposalFormValues>({
 		resolver: zodResolver(ProposalFormSchema),
@@ -98,11 +101,12 @@ function NewProposalContent() {
 	const taxAmount = subtotal * taxRateValue;
 	const total = subtotal + taxAmount;
 
-	const onSubmit = async (data: ProposalFormValues) => {
+	const onSubmit = (data: ProposalFormValues) => {
+		clearErrors("root");
 		const payload: CreateProposalInput = {
 			title: `Propuesta para ${data.clientName.trim()}`,
 			clientName: data.clientName.trim(),
-			clientEmail: data.clientEmail?.trim() || undefined,
+			...(data.clientEmail?.trim() ? { clientEmail: data.clientEmail.trim() } : {}),
 			validUntil: new Date(data.validUntil).toISOString(),
 			items: data.items.map((item) => ({
 				description: item.description.trim(),
@@ -110,16 +114,26 @@ function NewProposalContent() {
 				quantity: item.quantity,
 				unitCost: item.unitCost,
 			})),
-			notes: data.notes?.trim() || undefined,
+			...(data.notes?.trim() ? { notes: data.notes.trim() } : {}),
 			...(serviceCaseId ? { serviceCaseId } : {}),
 		};
 
-		const result = await mutation.mutateAsync(payload);
-		if (serviceCaseId) {
-			push(`/service-cases/${serviceCaseId}`);
-		} else {
-			push(`/proposals/${result._id}`);
-		}
+		mutation.mutate(payload, {
+			onSuccess: (result) => {
+				if (serviceCaseId) {
+					push(`/service-cases/${serviceCaseId}`);
+					return;
+				}
+
+				const resolution = resolveCreatedProposalId(result);
+				if (resolution.status === "invalid") {
+					setError("root", { type: "server", message: resolution.message });
+					return;
+				}
+
+				push(`/proposals/${resolution.id}`);
+			},
+		});
 	};
 
 	return (
@@ -189,14 +203,15 @@ function NewProposalContent() {
 				/>
 				<ProposalNotesSection register={register} errors={errors} />
 
-				{mutation.isError && (
+				{(mutation.isError || errors.root) && (
 					<div
 						role="alert"
 						className="rounded-[var(--radius-lg)] bg-[var(--color-danger-bg)] px-4 py-3 text-sm text-[var(--color-danger)]"
 					>
-						{mutation.error instanceof Error
-							? mutation.error.message
-							: "Error al crear la propuesta"}
+						{errors.root?.message ??
+							(mutation.error instanceof Error
+								? mutation.error.message
+								: "Error al crear la propuesta")}
 					</div>
 				)}
 

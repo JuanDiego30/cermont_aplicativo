@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 import { RejectForm } from "@/core/ui/RejectForm";
 import { usePayment, useReconcilePayment, useRejectPayment } from "@/modules/billing/queries";
 
-const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
+const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Bogota" });
 const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");
 
 export default function PaymentDetailPage() {

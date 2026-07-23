@@ -5,13 +5,16 @@ interface Props {
 }
 
 function getColor(pct: number): string {
-	if (pct >= 75) {
-		return "text-[var(--color-success)]";
+	if (pct === 0) {
+		return "text-muted-foreground";
 	}
-	if (pct >= 60) {
-		return "text-[var(--color-warning)]";
+	if (pct >= 80) {
+		return "text-brand-annotate";
 	}
-	return "text-[var(--color-danger)]";
+	if (pct >= 50) {
+		return "text-brand-warn";
+	}
+	return "text-brand-error";
 }
 
 export function FirstTimeFixRateGauge({ percentage }: Props) {

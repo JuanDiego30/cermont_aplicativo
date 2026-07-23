@@ -29,7 +29,7 @@ export function SiteVisitCaseSelector({ cases, isLoading, onSelect }: SiteVisitC
 					Volver a visitas
 				</Link>
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 2 / Visita técnica</p>
+					<p className="text-sm font-medium text-slate">Paso 2 / Visita técnica</p>
 					<h1
 						id="site-visit-select-title"
 						className="mt-2 text-2xl font-semibold text-[var(--text-primary)]"

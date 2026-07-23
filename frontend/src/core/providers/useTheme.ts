@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 
 type Theme = "dark" | "light";
 
@@ -16,6 +16,4 @@ export const ThemeContext = createContext<ThemeContextValue>({
 	setTheme: () => {},
 });
 
-export function useTheme(): ThemeContextValue {
-	return useContext(ThemeContext);
-}
+// useTheme replaced by @/lib/theme/ThemeProvider

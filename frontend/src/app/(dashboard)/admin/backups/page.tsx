@@ -4,6 +4,7 @@
  * /admin/backups — Portal de respaldo y descarga de históricos.
  */
 
+import * as Dialog from "@radix-ui/react-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { Database, Download } from "lucide-react";
 import { useState } from "react";
@@ -38,6 +39,7 @@ export default function AdminBackupsPage() {
 	const currentYear = new Date().getFullYear();
 	const [year, setYear] = useState(currentYear);
 	const [month, setMonth] = useState(0); // 0 = todo el histórico
+	const [selectedCollection, setSelectedCollection] = useState<CollectionSummary | false>(false);
 	const { data, isLoading, error, refetch } = useQuery({
 		queryKey: BACKUP_KEYS.collections,
 		queryFn: async () => {
@@ -148,18 +150,57 @@ export default function AdminBackupsPage() {
 									{collection.documentCount.toLocaleString("es-CO")} documentos
 								</p>
 							</div>
-							<a
-								href={buildExportUrl(collection.name)}
-								download
+							<button
+								type="button"
+								onClick={() => setSelectedCollection(collection)}
 								className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--color-brand-blue)] hover:bg-[var(--surface-secondary)]"
 							>
 								<Download className="size-3.5" aria-hidden="true" />
 								Exportar
-							</a>
+							</button>
 						</li>
 					))}
 				</ul>
 			)}
+			<Dialog.Root
+				open={selectedCollection !== false}
+				onOpenChange={(open) => {
+					if (!open) {
+						setSelectedCollection(false);
+					}
+				}}
+			>
+				<Dialog.Portal>
+					<Dialog.Overlay className="fixed inset-0 z-40 bg-[var(--surface-overlay)]" />
+					<Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-modal)]">
+						<Dialog.Title className="text-lg font-semibold text-[var(--text-primary)]">
+							Confirmar exportación
+						</Dialog.Title>
+						<Dialog.Description className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+							{selectedCollection
+								? `¿Descargar el respaldo JSON de “${selectedCollection.name}”?`
+								: "Selecciona una colección para exportar."}
+						</Dialog.Description>
+						<div className="mt-6 flex justify-end gap-2">
+							<Dialog.Close className="min-h-11 rounded-full border border-[var(--border-subtle)] px-4 text-sm font-medium text-[var(--text-secondary)]">
+								Cancelar
+							</Dialog.Close>
+							{selectedCollection ? (
+								<Dialog.Close asChild>
+									<a
+										href={buildExportUrl(selectedCollection.name)}
+										download
+										className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-brand-blue)] px-4 text-sm font-semibold text-white"
+									>
+										<Download className="size-4" aria-hidden="true" />
+										Descargar respaldo
+									</a>
+								</Dialog.Close>
+							) : null}
+						</div>
+					</Dialog.Content>
+				</Dialog.Portal>
+			</Dialog.Root>
 		</section>
 	);
 }

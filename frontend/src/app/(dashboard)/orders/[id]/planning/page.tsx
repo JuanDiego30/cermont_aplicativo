@@ -431,6 +431,7 @@ function PlanningDetailCard({
 										? new Date(planningPacket.plannedDate).toLocaleString("es-CO", {
 												dateStyle: "medium",
 												timeStyle: "short",
+												timeZone: "America/Bogota",
 											})
 										: "No programada"}
 								</p>
@@ -802,7 +803,7 @@ function WorkflowStatusPanel({
 						</p>
 						{planningPacket.approvedAt && (
 							<p className="text-[10px] text-steel">
-								Aprobado el: {new Date(planningPacket.approvedAt).toLocaleString()}
+								Aprobado el: {new Date(planningPacket.approvedAt).toLocaleString("es-CO", { timeZone: "America/Bogota" })}
 							</p>
 						)}
 					</div>

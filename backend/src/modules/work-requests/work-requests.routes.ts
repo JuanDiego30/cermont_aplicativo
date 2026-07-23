@@ -9,6 +9,7 @@
  */
 
 import {
+	ALL_AUTHENTICATED_ROLES,
 	CERMONT_ROLES,
 	FIELD_MANAGEMENT_ROLES,
 	INTERNAL_ROLES,
@@ -65,7 +66,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize(CERMONT_ROLES.GERENTE, CERMONT_ROLES.RESIDENTE, CERMONT_ROLES.CLIENTE),
+	authorize(...ALL_AUTHENTICATED_ROLES),
 	validateBody(CreateWorkRequestSchema),
 	WorkRequestController.createWorkRequest,
 );
@@ -79,7 +80,7 @@ router.post(
 router.patch(
 	"/:id",
 	authenticate,
-	authorize(...FIELD_MANAGEMENT_ROLES, CERMONT_ROLES.CLIENTE),
+	authorize(...FIELD_MANAGEMENT_ROLES, "cliente"),
 	validateParams(WorkRequestIdParamsSchema),
 	validateBody(CreateWorkRequestSchema.partial()),
 	WorkRequestController.updateWorkRequest,

@@ -53,6 +53,12 @@ function getModuleContext(pathname: string): ModuleContext {
 	return { label: "Módulo", icon: "grid" };
 }
 
+const QUICK_UPLOAD_ENABLED_PATHS = [
+	'/orders', '/execution', '/planning', '/documents', '/evidences',
+	'/delivery-records', '/invoices', '/fleet', '/inventory',
+	'/work-requests', '/site-visits',
+];
+
 export function QuickUploadPanel() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [mode, setMode] = useState<QuickActionMode>("document");
@@ -63,7 +69,9 @@ export function QuickUploadPanel() {
 	const panelTitleRef = useRef<HTMLHeadingElement>(null);
 	const pathname = usePathname();
 
-	const moduleCtx = useMemo(() => getModuleContext(pathname), [pathname]);
+	const moduleCtx = getModuleContext(pathname);
+
+	const isOnEnabledPath = QUICK_UPLOAD_ENABLED_PATHS.some((p) => pathname.includes(p));
 
 	const closePanel = useCallback((restoreFocus = false) => {
 		setIsOpen(false);
@@ -137,6 +145,8 @@ export function QuickUploadPanel() {
 		() => orders.find((o) => o.id === selectedOrderId),
 		[orders, selectedOrderId],
 	);
+
+	if (!isOnEnabledPath && !isOpen) { return null; }
 
 	return (
 		<>

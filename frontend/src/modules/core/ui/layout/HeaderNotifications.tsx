@@ -33,7 +33,9 @@ export function HeaderNotifications({
 }: HeaderNotificationsProps) {
 	const { push } = useRouter();
 	const onToggleRef = useRef(onToggle);
-	onToggleRef.current = onToggle;
+	useEffect(() => {
+		onToggleRef.current = onToggle;
+	}, [onToggle]);
 	useEffect(() => {
 		if (!showNotifications) {
 			return;

@@ -3,6 +3,14 @@ import type { ComponentProps, ReactNode } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import NewWorkRequestPage from "@/app/(dashboard)/work-requests/new/page";
 
+function submitNewForm(): void {
+	const button = screen.getByRole("button", { name: "Crear solicitud" });
+	const form = button.closest("form");
+	if (form instanceof HTMLFormElement) {
+		fireEvent.submit(form);
+	}
+}
+
 const mocks = vi.hoisted(() => ({
 	mutate: vi.fn(),
 	push: vi.fn(),
@@ -117,7 +125,7 @@ describe("New work request stabilization", () => {
 		expect(screen.getByRole("heading", { name: "Detalles del servicio" })).toBeInTheDocument();
 		expect(screen.getByRole("heading", { name: "Resumen de la solicitud" })).toBeInTheDocument();
 
-		fireEvent.submit(screen.getByRole("button", { name: "Crear solicitud" }).closest("form")!);
+		submitNewForm();
 
 		expect(mocks.mutate).not.toHaveBeenCalled();
 		expect(screen.getByRole("alert")).toHaveTextContent("Revisa los campos obligatorios");
@@ -146,7 +154,7 @@ describe("New work request stabilization", () => {
 
 		render(<NewWorkRequestPage />);
 		fireEvent.change(screen.getByLabelText("Canal"), { target: { value: "other" } });
-		fireEvent.submit(screen.getByRole("button", { name: "Crear solicitud" }).closest("form")!);
+		submitNewForm();
 		expect(screen.getByText("Especifica el canal de origen")).toBeInTheDocument();
 		expect(mocks.mutate).not.toHaveBeenCalled();
 
@@ -157,7 +165,7 @@ describe("New work request stabilization", () => {
 		fireEvent.change(screen.getByLabelText("Resumen"), { target: { value: "Falla eléctrica" } });
 		fireEvent.change(screen.getByLabelText("Descripcion"), { target: { value: "La instalación presenta una falla eléctrica." } });
 		fireEvent.change(screen.getByLabelText("Especificar canal"), { target: { value: "Chat corporativo" } });
-		fireEvent.submit(screen.getByRole("button", { name: "Crear solicitud" }).closest("form")!);
+		submitNewForm();
 
 		await waitFor(() => {
 			expect(mocks.mutate).toHaveBeenCalledTimes(1);

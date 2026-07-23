@@ -12,8 +12,8 @@ test.describe("QA-CRIT-03: Auth token shared across contexts", () => {
 
 		await test.step("Login via browser UI and capture auth token", async () => {
 			page.on("request", (req) => {
-				const auth = req.headers()["authorization"];
-				if (auth && auth.startsWith("Bearer ") && !capturedToken) {
+				const auth = req.headers().authorization;
+				if (auth?.startsWith("Bearer ") && !capturedToken) {
 					capturedToken = auth.slice("Bearer ".length);
 				}
 			});
@@ -107,9 +107,7 @@ test.describe("QA-CRIT-03: Auth token shared across contexts", () => {
 					c.name.toLowerCase().includes("session") ||
 					c.name.toLowerCase().includes("refresh"),
 			);
-			const hasConnectSession = cookies.some((c) =>
-				c.name.toLowerCase().includes("connect"),
-			);
+			const hasConnectSession = cookies.some((c) => c.name.toLowerCase().includes("connect"));
 			expect(hasAuthCookie || hasConnectSession || cookies.length > 0).toBe(true);
 		});
 

@@ -24,160 +24,81 @@ function calculateBackoff(attempt: number, baseDelayMs: number): number {
 	return Math.min(baseDelayMs * 2 ** attempt + jitter, 30_000);
 }
 
-export async function executeWithRetryAndDlq<T>(
-	fn: () => Promise<T>,
-	payload: Record<string, unknown>,
-	options: RetryOptions,
-): Promise<{ success: true; data: T } | { success: false; error: string; errorCode: string }> {
-	const idempotencyKey = randomUUID();
-	const startTime = Date.now();
-	const environment = options.environment ?? "test";
-
-	for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
-		try {
-			const data = await fn();
-			const durationMs = Date.now() - startTime;
-
-			await logRetryCall({
-				idempotencyKey,
-				operation: options.operation,
-				provider: options.provider,
-				entityType: options.entityType,
-				entityId: options.entityId,
-				environment,
-				payload,
-				success: true,
-				statusCode: 200,
-				responsePayload: data as Record<string, unknown>,
-				durationMs,
-				userId: options.userId,
-			});
-
-			if (attempt > 0) {
-				await markDlqRetried(idempotencyKey);
-			}
-
-			return { success: true, data };
-		} catch (error) {
-			const durationMs = Date.now() - startTime;
-			const errorInfo = computeRetryErrorInfo(error);
-
-			await logRetryCall({
-				idempotencyKey: `${idempotencyKey}_attempt_${attempt}`,
-				operation: options.operation,
-				provider: options.provider,
-				entityType: options.entityType,
-				entityId: options.entityId,
-				environment,
-				payload,
-				success: false,
-				statusCode: errorInfo.statusCode,
-				errorMessage: errorInfo.message,
-				durationMs,
-				userId: options.userId,
-			});
-
-			if (attempt < options.maxRetries) {
-				const delay = calculateBackoff(attempt, options.baseDelayMs);
-				log.warn("Retrying integration call", {
-					operation: options.operation,
-					provider: options.provider,
-					attempt: attempt + 1,
-					maxRetries: options.maxRetries,
-					delayMs: delay,
-					error: errorInfo.message,
-				});
-				await new Promise((resolve) => setTimeout(resolve, delay));
-			} else {
-				await createDlqEntryWithAudit(options, idempotencyKey, errorInfo, payload);
-				return { success: false, error: errorInfo.message, errorCode: errorInfo.code };
-			}
-		}
-	}
-
-	return { success: false, error: "Unexpected retry exit", errorCode: "UNEXPECTED_RETRY_EXIT" };
-}
-
-function computeRetryErrorInfo(error: unknown): {
-	message: string;
-	code: string;
-	statusCode: number;
-} {
-	if (error instanceof AppError) {
-		return { message: error.message, code: error.code, statusCode: error.statusCode };
-	}
-	if (error instanceof Error) {
-		return { message: error.message, code: "INTEGRATION_EXTERNAL_ERROR", statusCode: 503 };
-	}
-	return { message: String(error), code: "INTEGRATION_EXTERNAL_ERROR", statusCode: 503 };
-}
-
-interface RetryLogCallParams {
-	idempotencyKey: string;
-	operation: string;
-	provider: string;
-	entityType: string;
-	entityId: string;
-	environment: string;
-	payload: Record<string, unknown>;
-	success: boolean;
-	statusCode: number;
-	responsePayload?: Record<string, unknown>;
-	errorMessage?: string;
-	durationMs: number;
-	userId?: string;
-}
-
-async function logRetryCall(params: RetryLogCallParams): Promise<void> {
-	const logEntry: Record<string, unknown> = {
-		idempotencyKey: params.idempotencyKey,
-		operation: params.operation,
-		provider: params.provider,
-		entityType: params.entityType,
-		entityId: params.entityId,
-		environment: params.environment,
-		requestPayload: params.payload,
-		responsePayload: params.responsePayload ?? null,
-		success: params.success,
-		statusCode: params.statusCode,
-		errorMessage: params.errorMessage ?? null,
-		durationMs: params.durationMs,
-		userId: params.userId ? (params.userId as unknown as Types.ObjectId) : null,
-	};
-	await IntegrationLog.create(logEntry);
-}
-
-async function createDlqEntryWithAudit(
-	options: RetryOptions,
+async function logSuccessAttempt<T>(
 	idempotencyKey: string,
-	errorInfo: { message: string; code: string },
-	payload: Record<string, unknown>,
+	data: T,
+	startTime: number,
+	options: RetryOptions,
+	attempt: number,
+): Promise<void> {
+	await IntegrationLog.create({
+		idempotencyKey,
+		operation: options.operation,
+		provider: options.provider,
+		entityType: options.entityType,
+		entityId: options.entityId,
+		environment: options.environment ?? "test",
+		responsePayload: data as Record<string, unknown>,
+		success: true,
+		statusCode: 200,
+		durationMs: Date.now() - startTime,
+		userId: options.userId ? (options.userId as unknown as Types.ObjectId) : null,
+	});
+	if (attempt > 0) {
+		await markDlqRetried(idempotencyKey);
+	}
+}
+
+async function logFailureAttempt(
+	idempotencyKey: string,
+	startTime: number,
+	options: RetryOptions,
+	attempt: number,
+	errorMessage: string,
+	_errorCode: string,
+): Promise<void> {
+	await IntegrationLog.create({
+		idempotencyKey: `${idempotencyKey}_attempt_${attempt}`,
+		operation: options.operation,
+		provider: options.provider,
+		entityType: options.entityType,
+		entityId: options.entityId,
+		environment: options.environment ?? "test",
+		success: false,
+		statusCode: 503,
+		errorMessage,
+		durationMs: Date.now() - startTime,
+		userId: options.userId ? (options.userId as unknown as Types.ObjectId) : null,
+	});
+}
+
+async function moveToDlq(
+	idempotencyKey: string,
+	options: RetryOptions,
+	errorMessage: string,
+	errorCode: string,
 ): Promise<void> {
 	const nextRetryAt = new Date(Date.now() + 3600_000);
-
 	await DlqEntry.create({
 		idempotencyKey,
 		operation: options.operation,
 		entityType: options.entityType,
 		entityId: options.entityId,
 		provider: options.provider,
-		requestPayload: payload,
-		errorMessage: errorInfo.message,
-		errorCode: errorInfo.code,
+		errorMessage,
+		errorCode,
 		retryCount: options.maxRetries,
 		maxRetries: options.maxRetries,
 		lastAttemptAt: new Date(),
 		nextRetryAt,
 		status: "pending_retry",
 	});
-
 	log.error("Integration call failed and moved to DLQ", {
 		idempotencyKey,
 		operation: options.operation,
 		provider: options.provider,
-		error: errorInfo.message,
+		error: errorMessage,
 	});
-
 	await createAuditLog({
 		userId: options.userId ?? "system",
 		action: "INTEGRATION_FAILED",
@@ -187,10 +108,50 @@ async function createDlqEntryWithAudit(
 			idempotencyKey,
 			operation: options.operation,
 			provider: options.provider,
-			error: errorInfo.message,
-			errorCode: errorInfo.code,
+			error: errorMessage,
+			errorCode,
 		}),
 	});
+}
+
+export async function executeWithRetryAndDlq<T>(
+	fn: () => Promise<T>,
+	_payload: Record<string, unknown>,
+	options: RetryOptions,
+): Promise<{ success: true; data: T } | { success: false; error: string; errorCode: string }> {
+	const idempotencyKey = randomUUID();
+	const startTime = Date.now();
+
+	for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
+		try {
+			const data = await fn();
+			await logSuccessAttempt(idempotencyKey, data, startTime, options, attempt);
+			return { success: true, data };
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			const errorCode = error instanceof AppError ? error.code : "INTEGRATION_EXTERNAL_ERROR";
+
+			await logFailureAttempt(idempotencyKey, startTime, options, attempt, errorMessage, errorCode);
+
+			if (attempt < options.maxRetries) {
+				const delay = calculateBackoff(attempt, options.baseDelayMs);
+				log.warn("Retrying integration call", {
+					operation: options.operation,
+					provider: options.provider,
+					attempt: attempt + 1,
+					maxRetries: options.maxRetries,
+					delayMs: delay,
+					error: errorMessage,
+				});
+				await new Promise((resolve) => setTimeout(resolve, delay));
+			} else {
+				await moveToDlq(idempotencyKey, options, errorMessage, errorCode);
+				return { success: false, error: errorMessage, errorCode };
+			}
+		}
+	}
+
+	return { success: false, error: "Unexpected retry exit", errorCode: "UNEXPECTED_RETRY_EXIT" };
 }
 
 async function markDlqRetried(idempotencyKey: string): Promise<void> {

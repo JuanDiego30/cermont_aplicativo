@@ -255,6 +255,7 @@ function InvoiceContent({ invoice }: { invoice: Invoice }) {
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
 	timeStyle: "short",
+	timeZone: "America/Bogota",
 });
 
 function formatInvoiceDate(value?: string): string {

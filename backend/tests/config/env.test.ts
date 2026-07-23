@@ -1,5 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { validateBackendEnv } from "../../src/config/env";
+import { describe, expect, it, vi } from "vitest";
+
+vi.unmock("../../src/config/env");
+
+const { validateBackendEnv } = await vi.importActual("../../src/config/env");
 
 const validEnvironment = {
 	NODE_ENV: "test",

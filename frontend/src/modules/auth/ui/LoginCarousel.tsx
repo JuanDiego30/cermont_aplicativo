@@ -43,7 +43,6 @@ export function LoginCarousel() {
 	const isPaused = useRef(false);
 	const panelRef = useRef<HTMLDivElement>(null);
 
-	// GSAP sequential reveal of brand elements
 	useGSAP(
 		() => {
 			if (prefersReducedMotion()) {
@@ -97,9 +96,9 @@ export function LoginCarousel() {
 					}`}
 				/>
 			))}
-			<div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,20,43,0.88),rgba(7,20,43,0.55))]" />
+			<div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+			<div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40" />
 
-			{/* Logo */}
 			<div className="relative z-10" data-login-logo>
 				<Logo
 					size="lg"
@@ -108,7 +107,6 @@ export function LoginCarousel() {
 				/>
 			</div>
 
-			{/* Main Content */}
 			<div className="relative z-10 flex flex-col gap-10">
 				<div className="space-y-6">
 					<h2
@@ -124,8 +122,7 @@ export function LoginCarousel() {
 					</p>
 				</div>
 
-				{/* Slide content area */}
-				<div className="relative min-h-[160px]" data-login-slide>
+			<section className="relative min-h-[160px]" data-login-slide aria-live="polite" aria-label="Contenido del carrusel">
 					{CAROUSEL_SLIDES.map((slide, index) => (
 						<div
 							key={slide.id}
@@ -148,17 +145,25 @@ export function LoginCarousel() {
 							</div>
 						</div>
 					))}
-				</div>
+				</section>
 			</div>
 
-			{/* Controls & Footer */}
+			<div className="relative z-10 h-0.5 w-full overflow-hidden rounded-full bg-canvas/10">
+				<div
+					className="h-full bg-[var(--color-cermont-green-light)] transition-transform duration-[6000ms] ease-linear"
+					style={{ transform: `scaleX(${(currentSlide + 1) / CAROUSEL_SLIDES.length})` }}
+				/>
+			</div>
+
 			<div className="relative z-10 space-y-12">
 				<div className="flex items-center justify-between">
-					<div className="flex gap-3">
+					<div className="flex gap-3" role="tablist" aria-label="Seleccionar mensaje informativo">
 						{CAROUSEL_SLIDES.map((slide, index) => (
 							<button
 								key={slide.id}
 								type="button"
+								role="tab"
+								aria-selected={index === currentSlide}
 								onClick={() => goToSlide(index)}
 								className={`h-1.5 rounded-full transition-[width,background-color,opacity] duration-[var(--duration-slow)] ease-[var(--ease-standard)] ${
 									index === currentSlide

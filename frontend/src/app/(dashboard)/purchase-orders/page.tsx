@@ -34,7 +34,7 @@ export default function PurchaseOrdersPage() {
 		<section className="space-y-6" aria-labelledby="purchase-orders-title">
 			<header className="space-y-4">
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 4 / Operación</p>
+					<p className="text-sm font-medium text-slate">Paso 4 / Operación</p>
 					<h1
 						id="purchase-orders-title"
 						className="mt-2 text-2xl font-semibold text-[var(--text-primary)]"

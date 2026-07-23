@@ -18,4 +18,11 @@ export const dashboardKeys = {
 		costComparison: [...BASE, "charts", "cost-comparison"] as const,
 	},
 	sla: [...BASE, "sla"] as const,
+	summary: () => [...BASE, "summary"] as const,
+	activity: (limit?: number) => [...BASE, "activity", limit] as const,
+	recentOrders: (limit?: number) => [...BASE, "recent-orders", limit] as const,
+	operationalKpis: (periodFrom?: string, periodTo?: string) =>
+		[...BASE, "operational-kpis", periodFrom, periodTo] as const,
+	predictiveAlerts: () => [...BASE, "predictive"] as const,
+	healthScore: () => [...BASE, "health-score"] as const,
 } as const;

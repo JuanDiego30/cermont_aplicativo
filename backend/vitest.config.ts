@@ -5,11 +5,25 @@ export default defineConfig({
 	test: {
 		globals: true,
 		environment: "node",
+		env: {
+			MONGODB_URI: "mongodb://127.0.0.1:27017/cermont_test",
+			JWT_SECRET: "test-jwt-secret-for-testing-only",
+			REFRESH_TOKEN_SECRET: "test-refresh-secret-for-testing-only",
+			FRONTEND_URL: "http://localhost:3000",
+			NODE_ENV: "test",
+			PORT: "4000",
+			BCRYPT_ROUNDS: "4",
+		},
 		setupFiles: ["./tests/setup.ts"],
-		testTimeout: 30000,
-		hookTimeout: 30000,
 		include: ["tests/**/*.test.ts"],
-		exclude: ["tests/integration/**", "node_modules/"],
+		exclude: [
+			"tests/integration/**",
+			"node_modules/",
+			".claude/**",
+			".kilo/**",
+			".codex/**",
+			".worktrees/**",
+		],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json", "html"],

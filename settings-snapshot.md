@@ -1,0 +1,706 @@
+- generic [active] [ref=f6e1]:
+  - main [ref=f6e86]:
+    - generic [ref=f6e87]:
+      - link "Saltar al contenido principal" [ref=f6e88] [cursor=pointer]:
+        - /url: "#main-content"
+      - generic [ref=f6e89]:
+        - complementary "Barra de navegación lateral" [ref=f6e90]:
+          - generic [ref=f6e92]:
+            - img [ref=f6e93]:
+              - generic [ref=f6e99]: CERMONT
+            - generic [ref=f6e100]: Cermont S.A.S.
+          - button "Colapsar" [ref=f6e102]
+          - navigation "Navegación principal" [ref=f6e105]:
+            - generic [ref=f6e106]:
+              - heading "Principal" [level=3] [ref=f6e107]
+              - list [ref=f6e108]:
+                - listitem [ref=f6e109]:
+                  - link "Dashboard" [ref=f6e110] [cursor=pointer]:
+                    - /url: /dashboard
+                - listitem [ref=f6e117]:
+                  - link "Casos de Servicio" [ref=f6e118] [cursor=pointer]:
+                    - /url: /service-cases
+            - generic [ref=f6e125]:
+              - heading "Comercial" [level=3] [ref=f6e126]
+              - list [ref=f6e127]:
+                - listitem [ref=f6e128]:
+                  - link "Clientes" [ref=f6e129] [cursor=pointer]:
+                    - /url: /customers
+                - listitem [ref=f6e135]:
+                  - link "Solicitudes 1 pendientes" [ref=f6e136] [cursor=pointer]:
+                    - /url: /work-requests
+                    - generic [ref=f6e140]: Solicitudes
+                    - status "1 pendientes" [ref=f6e141]: "1"
+                - listitem [ref=f6e142]:
+                  - link "Visitas" [ref=f6e143] [cursor=pointer]:
+                    - /url: /site-visits
+                - listitem [ref=f6e148]:
+                  - link "Propuestas" [ref=f6e149] [cursor=pointer]:
+                    - /url: /proposals
+                - listitem [ref=f6e156]:
+                  - link "PO aprobada" [ref=f6e157] [cursor=pointer]:
+                    - /url: /purchase-orders
+            - generic [ref=f6e162]:
+              - heading "Operación de campo" [level=3] [ref=f6e163]
+              - list [ref=f6e164]:
+                - listitem [ref=f6e165]:
+                  - link "Órdenes" [ref=f6e166] [cursor=pointer]:
+                    - /url: /orders
+                - listitem [ref=f6e171]:
+                  - link "Planeación" [ref=f6e172] [cursor=pointer]:
+                    - /url: /planning
+                - listitem [ref=f6e177]:
+                  - link "Ejecución" [ref=f6e178] [cursor=pointer]:
+                    - /url: /execution
+                - listitem [ref=f6e185]:
+                  - link "Evidencias" [ref=f6e186] [cursor=pointer]:
+                    - /url: /evidences
+                - listitem [ref=f6e191]:
+                  - link "Despacho" [ref=f6e192] [cursor=pointer]:
+                    - /url: /dispatch
+                - listitem [ref=f6e198]:
+                  - link "Mantenimiento" [ref=f6e199] [cursor=pointer]:
+                    - /url: /maintenance
+                - listitem [ref=f6e203]:
+                  - link "SLA" [ref=f6e204] [cursor=pointer]:
+                    - /url: /sla
+            - generic [ref=f6e209]:
+              - heading "Cierre técnico" [level=3] [ref=f6e210]
+              - list [ref=f6e211]:
+                - listitem [ref=f6e212]:
+                  - link "Informes" [ref=f6e213] [cursor=pointer]:
+                    - /url: /reports
+                - listitem [ref=f6e217]:
+                  - link "Analitica" [ref=f6e218] [cursor=pointer]:
+                    - /url: /reports/analytics
+                - listitem [ref=f6e223]:
+                  - link "Actas" [ref=f6e224] [cursor=pointer]:
+                    - /url: /delivery-records
+            - generic [ref=f6e229]:
+              - heading "Cierre administrativo" [level=3] [ref=f6e230]
+              - list [ref=f6e231]:
+                - listitem [ref=f6e232]:
+                  - link "Cierre" [ref=f6e233] [cursor=pointer]:
+                    - /url: /billing
+                - listitem [ref=f6e238]:
+                  - link "SES / Ariba" [ref=f6e239] [cursor=pointer]:
+                    - /url: /billing/ses
+                - listitem [ref=f6e244]:
+                  - link "Facturas" [ref=f6e245] [cursor=pointer]:
+                    - /url: /billing/invoices
+                - listitem [ref=f6e249]:
+                  - link "Pagos" [ref=f6e250] [cursor=pointer]:
+                    - /url: /payments
+                - listitem [ref=f6e255]:
+                  - link "Costos" [ref=f6e256] [cursor=pointer]:
+                    - /url: /costs
+            - generic [ref=f6e261]:
+              - heading "Transversales" [level=3] [ref=f6e262]
+              - list [ref=f6e263]:
+                - listitem [ref=f6e264]:
+                  - link "Documentos" [ref=f6e265] [cursor=pointer]:
+                    - /url: /documents
+                - listitem [ref=f6e270]:
+                  - link "Formularios" [ref=f6e271] [cursor=pointer]:
+                    - /url: /templates
+                - listitem [ref=f6e278]:
+                  - link "Recursos & Kits" [ref=f6e279] [cursor=pointer]:
+                    - /url: /resources
+                - listitem [ref=f6e285]:
+                  - link "Inventario" [ref=f6e286] [cursor=pointer]:
+                    - /url: /inventory
+                - listitem [ref=f6e292]:
+                  - link "Escanear activos" [ref=f6e293] [cursor=pointer]:
+                    - /url: /inventory/scan
+                - listitem [ref=f6e300]:
+                  - link "Vehículos" [ref=f6e301] [cursor=pointer]:
+                    - /url: /fleet
+                - listitem [ref=f6e308]:
+                  - link "Activos" [ref=f6e309] [cursor=pointer]:
+                    - /url: /assets
+            - generic [ref=f6e315]:
+              - heading "Administración" [level=3] [ref=f6e316]
+              - list [ref=f6e317]:
+                - listitem [ref=f6e318]:
+                  - link "Usuarios" [ref=f6e319] [cursor=pointer]:
+                    - /url: /admin/users
+                - listitem [ref=f6e326]:
+                  - link "Campos personalizados" [ref=f6e327] [cursor=pointer]:
+                    - /url: /admin/custom-fields
+                - listitem [ref=f6e332]:
+                  - link "Personal y certificaciones" [ref=f6e333] [cursor=pointer]:
+                    - /url: /admin/personnel
+                - listitem [ref=f6e340]:
+                  - link "Respaldos" [ref=f6e341] [cursor=pointer]:
+                    - /url: /admin/backups
+                - listitem [ref=f6e346]:
+                  - link "Auditoría" [ref=f6e347] [cursor=pointer]:
+                    - /url: /admin/audit
+                - listitem [ref=f6e352]:
+                  - link "Configuracion" [ref=f6e353] [cursor=pointer]:
+                    - /url: /admin/settings
+                - listitem [ref=f6e358]:
+                  - link "Conectores ERP" [ref=f6e359] [cursor=pointer]:
+                    - /url: /admin/erp-connectors
+          - button [ref=f6e364]:
+            - generic [ref=f6e369]:
+              - paragraph [ref=f6e370]: Cermont AI
+              - paragraph [ref=f6e371]: Asistente
+        - generic [ref=f6e372]:
+          - generic [ref=f6e373]:
+            - generic [ref=f6e375]:
+              - generic [ref=f6e376]:
+                - paragraph [ref=f6e377]: Administración
+                - generic [ref=f6e378]: •
+                - paragraph [ref=f6e379]: Arauca
+              - heading "Administración" [level=1] [ref=f6e380]
+            - generic [ref=f6e381]:
+              - 'button "Cambiar tema. Actual: system" [ref=f6e383]'
+              - listitem [ref=f6e387]:
+                - button "Notificaciones" [ref=f6e388]
+              - button "Menú de usuario de Gerencia General" [ref=f6e393]:
+                - generic [ref=f6e394]:
+                  - generic [ref=f6e395]: Gerencia General
+                  - generic [ref=f6e396]: Gerente
+                - generic [ref=f6e397]: GG
+          - main [ref=f6e400]:
+            - main [ref=f6e402]:
+              - region [ref=f6e404]:
+                - generic [ref=f6e409]:
+                  - heading "Configuración del sistema" [level=1] [ref=f6e410]
+                  - paragraph [ref=f6e411]: Gestiona funciones, operación y recordatorios del aplicativo.
+                - region [ref=f6e412]:
+                  - heading "Características del sistema" [level=2] [ref=f6e413]
+                  - generic [ref=f6e417]:
+                    - generic [ref=f6e418]:
+                      - heading "Generales" [level=3] [ref=f6e419]
+                      - generic [ref=f6e421]:
+                        - generic [ref=f6e422]:
+                          - generic [ref=f6e423]: Reportes automaticos
+                          - paragraph [ref=f6e425]: Genera informes al completar la ejecucion
+                        - 'switch "Reportes automaticos: activado" [checked] [ref=f6e426]'
+                    - generic [ref=f6e428]:
+                      - heading "Campo" [level=3] [ref=f6e429]
+                      - generic [ref=f6e430]:
+                        - generic [ref=f6e431]:
+                          - generic [ref=f6e432]:
+                            - generic [ref=f6e433]: Sincronizacion offline
+                            - paragraph [ref=f6e435]: Permite a los tecnicos trabajar sin conexion
+                          - 'switch "Sincronizacion offline: activado" [checked] [ref=f6e436]'
+                        - generic [ref=f6e438]:
+                          - generic [ref=f6e439]:
+                            - generic [ref=f6e440]: Escaneo de codigos QR
+                            - paragraph [ref=f6e442]: Permite escanear codigos QR en activos y ordenes
+                          - 'switch "Escaneo de codigos QR: activado" [checked] [ref=f6e443]'
+                        - generic [ref=f6e445]:
+                          - generic [ref=f6e446]:
+                            - generic [ref=f6e447]: Escaneo de codigos de barras
+                            - paragraph [ref=f6e449]: Habilita busqueda de activos mediante codigos de barras
+                          - 'switch "Escaneo de codigos de barras: activado" [checked] [ref=f6e450]'
+                    - generic [ref=f6e452]:
+                      - heading "Facturación" [level=3] [ref=f6e453]
+                      - generic [ref=f6e454]:
+                        - generic [ref=f6e455]:
+                          - generic [ref=f6e456]:
+                            - generic [ref=f6e457]: Facturacion electronica DIAN
+                            - paragraph [ref=f6e459]: Habilita el envio de facturas a DIAN
+                          - 'switch "Facturacion electronica DIAN: desactivado" [ref=f6e460]'
+                        - generic [ref=f6e462]:
+                          - generic [ref=f6e463]:
+                            - generic [ref=f6e464]: Integracion ERP
+                            - paragraph [ref=f6e466]: Habilita el envio de datos a sistemas ERP externos
+                          - 'switch "Integracion ERP: desactivado" [ref=f6e467]'
+                    - generic [ref=f6e469]:
+                      - heading "Notificaciones" [level=3] [ref=f6e470]
+                      - generic [ref=f6e471]:
+                        - generic [ref=f6e472]:
+                          - generic [ref=f6e473]:
+                            - generic [ref=f6e474]: Notificaciones por email
+                            - paragraph [ref=f6e476]: Envia notificaciones por correo electronico
+                          - 'switch "Notificaciones por email: activado" [checked] [ref=f6e477]'
+                        - generic [ref=f6e479]:
+                          - generic [ref=f6e480]:
+                            - generic [ref=f6e481]: Notificaciones SMS
+                            - paragraph [ref=f6e483]: Envia notificaciones por mensaje de texto
+                          - 'switch "Notificaciones SMS: desactivado" [ref=f6e484]'
+                    - generic [ref=f6e486]:
+                      - heading "Seguridad" [level=3] [ref=f6e487]
+                      - generic [ref=f6e488]:
+                        - generic [ref=f6e489]:
+                          - generic [ref=f6e490]:
+                            - generic [ref=f6e491]: Autenticacion de dos factores
+                            - paragraph [ref=f6e493]: Reserva el control para el flujo de autenticacion reforzada
+                          - 'switch "Autenticacion de dos factores: desactivado" [ref=f6e494]'
+                        - generic [ref=f6e496]:
+                          - generic [ref=f6e497]:
+                            - generic [ref=f6e498]: Limpieza automatica de auditoria
+                            - paragraph [ref=f6e500]: Habilita la politica programada de retencion de auditoria
+                          - 'switch "Limpieza automatica de auditoria: desactivado" [ref=f6e501]'
+                    - generic [ref=f6e503]:
+                      - heading "Experimentales" [level=3] [ref=f6e504]
+                      - generic [ref=f6e506]:
+                        - generic [ref=f6e507]:
+                          - generic [ref=f6e508]:
+                            - generic [ref=f6e509]: Analisis avanzado de costos
+                            - generic [ref=f6e510]: Experimental
+                          - paragraph [ref=f6e511]: Habilita reportes detallados de variacion de costos
+                        - 'switch "Analisis avanzado de costos: desactivado" [ref=f6e512]'
+                - region [ref=f6e514]:
+                  - heading "Ajustes generales" [level=2] [ref=f6e515]
+                  - generic [ref=f6e519]:
+                    - generic [ref=f6e520]:
+                      - paragraph [ref=f6e521]: Modo mantenimiento
+                      - paragraph [ref=f6e522]: Deshabilita el acceso para usuarios no administradores.
+                    - 'switch "Modo mantenimiento: desactivado" [ref=f6e523]'
+                  - generic [ref=f6e525]:
+                    - generic [ref=f6e526]:
+                      - generic [ref=f6e527]: Tamaño máximo de subida (MB)
+                      - spinbutton "Tamaño máximo de subida (MB)" [ref=f6e529]: "10"
+                    - generic [ref=f6e530]:
+                      - generic [ref=f6e531]: Tiempo de sesión (minutos)
+                      - spinbutton "Tiempo de sesión (minutos)" [ref=f6e533]: "480"
+                  - button "Guardar ajustes" [ref=f6e535]
+                - region [ref=f6e536]:
+                  - generic [ref=f6e537]:
+                    - generic [ref=f6e538]:
+                      - heading "Recordatorios operativos" [level=2] [ref=f6e539]
+                      - paragraph [ref=f6e545]: Configura anticipación, canales y responsables sin desplegar código.
+                    - 'switch "Procesador de recordatorios: activado" [checked] [ref=f6e546]'
+                  - generic [ref=f6e548]:
+                    - generic [ref=f6e549]: Frecuencia de evaluación (minutos)
+                    - spinbutton "Frecuencia de evaluación (minutos)" [ref=f6e551]: "5"
+                    - paragraph [ref=f6e552]: El procesador vuelve a leer esta configuración en cada ciclo.
+                  - generic [ref=f6e553]:
+                    - article [ref=f6e554]:
+                      - generic [ref=f6e555]:
+                        - generic [ref=f6e556]:
+                          - heading "Certificaciones próximas a vencer" [level=3] [ref=f6e557]
+                          - paragraph [ref=f6e558]: Umbrales expresados en días antes.
+                        - 'switch "Certificaciones próximas a vencer: activado" [checked] [ref=f6e559]'
+                      - generic [ref=f6e561]:
+                        - generic [ref=f6e562]:
+                          - generic [ref=f6e563]: Umbrales
+                          - textbox "Umbrales" [ref=f6e565]: 30, 15, 7, 1
+                          - paragraph [ref=f6e566]: Valores separados por comas, sin duplicados.
+                        - group "Canales" [ref=f6e567]:
+                          - generic [ref=f6e569]:
+                            - generic [ref=f6e570] [cursor=pointer]:
+                              - checkbox "Aplicación" [checked] [ref=f6e571]
+                              - generic [ref=f6e572]: Aplicación
+                            - generic [ref=f6e573] [cursor=pointer]:
+                              - checkbox "Correo" [checked] [ref=f6e574]
+                              - generic [ref=f6e575]: Correo
+                            - generic [ref=f6e576] [cursor=pointer]:
+                              - checkbox "SMS" [ref=f6e577]
+                              - generic [ref=f6e578]: SMS
+                      - group "Roles responsables" [ref=f6e579]:
+                        - generic [ref=f6e581]:
+                          - generic [ref=f6e582] [cursor=pointer]:
+                            - checkbox "gerente" [checked] [ref=f6e583]
+                            - generic [ref=f6e584]: gerente
+                          - generic [ref=f6e585] [cursor=pointer]:
+                            - checkbox "residente" [checked] [ref=f6e586]
+                            - generic [ref=f6e587]: residente
+                          - generic [ref=f6e588] [cursor=pointer]:
+                            - checkbox "hes" [checked] [ref=f6e589]
+                            - generic [ref=f6e590]: hes
+                          - generic [ref=f6e591] [cursor=pointer]:
+                            - checkbox "coord administrativo" [ref=f6e592]
+                            - generic [ref=f6e593]: coord administrativo
+                          - generic [ref=f6e594] [cursor=pointer]:
+                            - checkbox "auxiliar contable" [ref=f6e595]
+                            - generic [ref=f6e596]: auxiliar contable
+                          - generic [ref=f6e597] [cursor=pointer]:
+                            - checkbox "supervisor" [ref=f6e598]
+                            - generic [ref=f6e599]: supervisor
+                          - generic [ref=f6e600] [cursor=pointer]:
+                            - checkbox "auxiliar hes" [ref=f6e601]
+                            - generic [ref=f6e602]: auxiliar hes
+                          - generic [ref=f6e603] [cursor=pointer]:
+                            - checkbox "supervisor electricista" [ref=f6e604]
+                            - generic [ref=f6e605]: supervisor electricista
+                          - generic [ref=f6e606] [cursor=pointer]:
+                            - checkbox "tecnico electricista" [ref=f6e607]
+                            - generic [ref=f6e608]: tecnico electricista
+                          - generic [ref=f6e609] [cursor=pointer]:
+                            - checkbox "operador" [ref=f6e610]
+                            - generic [ref=f6e611]: operador
+                          - generic [ref=f6e612] [cursor=pointer]:
+                            - checkbox "tecnico" [ref=f6e613]
+                            - generic [ref=f6e614]: tecnico
+                          - generic [ref=f6e615] [cursor=pointer]:
+                            - checkbox "oficial construccion" [ref=f6e616]
+                            - generic [ref=f6e617]: oficial construccion
+                          - generic [ref=f6e618] [cursor=pointer]:
+                            - checkbox "administrativo" [ref=f6e619]
+                            - generic [ref=f6e620]: administrativo
+                          - generic [ref=f6e621] [cursor=pointer]:
+                            - checkbox "pasante" [ref=f6e622]
+                            - generic [ref=f6e623]: pasante
+                          - generic [ref=f6e624] [cursor=pointer]:
+                            - checkbox "cliente" [ref=f6e625]
+                            - generic [ref=f6e626]: cliente
+                    - article [ref=f6e627]:
+                      - generic [ref=f6e628]:
+                        - generic [ref=f6e629]:
+                          - heading "Mantenimientos programados" [level=3] [ref=f6e630]
+                          - paragraph [ref=f6e631]: Umbrales expresados en días antes.
+                        - 'switch "Mantenimientos programados: activado" [checked] [ref=f6e632]'
+                      - generic [ref=f6e634]:
+                        - generic [ref=f6e635]:
+                          - generic [ref=f6e636]: Umbrales
+                          - textbox "Umbrales" [ref=f6e638]: 7, 3, 1
+                          - paragraph [ref=f6e639]: Valores separados por comas, sin duplicados.
+                        - group "Canales" [ref=f6e640]:
+                          - generic [ref=f6e642]:
+                            - generic [ref=f6e643] [cursor=pointer]:
+                              - checkbox "Aplicación" [checked] [ref=f6e644]
+                              - generic [ref=f6e645]: Aplicación
+                            - generic [ref=f6e646] [cursor=pointer]:
+                              - checkbox "Correo" [ref=f6e647]
+                              - generic [ref=f6e648]: Correo
+                            - generic [ref=f6e649] [cursor=pointer]:
+                              - checkbox "SMS" [ref=f6e650]
+                              - generic [ref=f6e651]: SMS
+                      - group "Roles responsables" [ref=f6e652]:
+                        - generic [ref=f6e654]:
+                          - generic [ref=f6e655] [cursor=pointer]:
+                            - checkbox "gerente" [checked] [ref=f6e656]
+                            - generic [ref=f6e657]: gerente
+                          - generic [ref=f6e658] [cursor=pointer]:
+                            - checkbox "residente" [checked] [ref=f6e659]
+                            - generic [ref=f6e660]: residente
+                          - generic [ref=f6e661] [cursor=pointer]:
+                            - checkbox "hes" [checked] [ref=f6e662]
+                            - generic [ref=f6e663]: hes
+                          - generic [ref=f6e664] [cursor=pointer]:
+                            - checkbox "coord administrativo" [ref=f6e665]
+                            - generic [ref=f6e666]: coord administrativo
+                          - generic [ref=f6e667] [cursor=pointer]:
+                            - checkbox "auxiliar contable" [ref=f6e668]
+                            - generic [ref=f6e669]: auxiliar contable
+                          - generic [ref=f6e670] [cursor=pointer]:
+                            - checkbox "supervisor" [ref=f6e671]
+                            - generic [ref=f6e672]: supervisor
+                          - generic [ref=f6e673] [cursor=pointer]:
+                            - checkbox "auxiliar hes" [ref=f6e674]
+                            - generic [ref=f6e675]: auxiliar hes
+                          - generic [ref=f6e676] [cursor=pointer]:
+                            - checkbox "supervisor electricista" [ref=f6e677]
+                            - generic [ref=f6e678]: supervisor electricista
+                          - generic [ref=f6e679] [cursor=pointer]:
+                            - checkbox "tecnico electricista" [ref=f6e680]
+                            - generic [ref=f6e681]: tecnico electricista
+                          - generic [ref=f6e682] [cursor=pointer]:
+                            - checkbox "operador" [ref=f6e683]
+                            - generic [ref=f6e684]: operador
+                          - generic [ref=f6e685] [cursor=pointer]:
+                            - checkbox "tecnico" [ref=f6e686]
+                            - generic [ref=f6e687]: tecnico
+                          - generic [ref=f6e688] [cursor=pointer]:
+                            - checkbox "oficial construccion" [ref=f6e689]
+                            - generic [ref=f6e690]: oficial construccion
+                          - generic [ref=f6e691] [cursor=pointer]:
+                            - checkbox "administrativo" [ref=f6e692]
+                            - generic [ref=f6e693]: administrativo
+                          - generic [ref=f6e694] [cursor=pointer]:
+                            - checkbox "pasante" [ref=f6e695]
+                            - generic [ref=f6e696]: pasante
+                          - generic [ref=f6e697] [cursor=pointer]:
+                            - checkbox "cliente" [ref=f6e698]
+                            - generic [ref=f6e699]: cliente
+                    - article [ref=f6e700]:
+                      - generic [ref=f6e701]:
+                        - generic [ref=f6e702]:
+                          - heading "Pagos vencidos" [level=3] [ref=f6e703]
+                          - paragraph [ref=f6e704]: Umbrales expresados en días después.
+                        - 'switch "Pagos vencidos: activado" [checked] [ref=f6e705]'
+                      - generic [ref=f6e707]:
+                        - generic [ref=f6e708]:
+                          - generic [ref=f6e709]: Umbrales
+                          - textbox "Umbrales" [ref=f6e711]: 1, 3, 7
+                          - paragraph [ref=f6e712]: Valores separados por comas, sin duplicados.
+                        - group "Canales" [ref=f6e713]:
+                          - generic [ref=f6e715]:
+                            - generic [ref=f6e716] [cursor=pointer]:
+                              - checkbox "Aplicación" [checked] [ref=f6e717]
+                              - generic [ref=f6e718]: Aplicación
+                            - generic [ref=f6e719] [cursor=pointer]:
+                              - checkbox "Correo" [checked] [ref=f6e720]
+                              - generic [ref=f6e721]: Correo
+                            - generic [ref=f6e722] [cursor=pointer]:
+                              - checkbox "SMS" [ref=f6e723]
+                              - generic [ref=f6e724]: SMS
+                      - group "Roles responsables" [ref=f6e725]:
+                        - generic [ref=f6e727]:
+                          - generic [ref=f6e728] [cursor=pointer]:
+                            - checkbox "gerente" [checked] [ref=f6e729]
+                            - generic [ref=f6e730]: gerente
+                          - generic [ref=f6e731] [cursor=pointer]:
+                            - checkbox "residente" [ref=f6e732]
+                            - generic [ref=f6e733]: residente
+                          - generic [ref=f6e734] [cursor=pointer]:
+                            - checkbox "hes" [ref=f6e735]
+                            - generic [ref=f6e736]: hes
+                          - generic [ref=f6e737] [cursor=pointer]:
+                            - checkbox "coord administrativo" [checked] [ref=f6e738]
+                            - generic [ref=f6e739]: coord administrativo
+                          - generic [ref=f6e740] [cursor=pointer]:
+                            - checkbox "auxiliar contable" [checked] [ref=f6e741]
+                            - generic [ref=f6e742]: auxiliar contable
+                          - generic [ref=f6e743] [cursor=pointer]:
+                            - checkbox "supervisor" [ref=f6e744]
+                            - generic [ref=f6e745]: supervisor
+                          - generic [ref=f6e746] [cursor=pointer]:
+                            - checkbox "auxiliar hes" [ref=f6e747]
+                            - generic [ref=f6e748]: auxiliar hes
+                          - generic [ref=f6e749] [cursor=pointer]:
+                            - checkbox "supervisor electricista" [ref=f6e750]
+                            - generic [ref=f6e751]: supervisor electricista
+                          - generic [ref=f6e752] [cursor=pointer]:
+                            - checkbox "tecnico electricista" [ref=f6e753]
+                            - generic [ref=f6e754]: tecnico electricista
+                          - generic [ref=f6e755] [cursor=pointer]:
+                            - checkbox "operador" [ref=f6e756]
+                            - generic [ref=f6e757]: operador
+                          - generic [ref=f6e758] [cursor=pointer]:
+                            - checkbox "tecnico" [ref=f6e759]
+                            - generic [ref=f6e760]: tecnico
+                          - generic [ref=f6e761] [cursor=pointer]:
+                            - checkbox "oficial construccion" [ref=f6e762]
+                            - generic [ref=f6e763]: oficial construccion
+                          - generic [ref=f6e764] [cursor=pointer]:
+                            - checkbox "administrativo" [ref=f6e765]
+                            - generic [ref=f6e766]: administrativo
+                          - generic [ref=f6e767] [cursor=pointer]:
+                            - checkbox "pasante" [ref=f6e768]
+                            - generic [ref=f6e769]: pasante
+                          - generic [ref=f6e770] [cursor=pointer]:
+                            - checkbox "cliente" [ref=f6e771]
+                            - generic [ref=f6e772]: cliente
+                    - article [ref=f6e773]:
+                      - generic [ref=f6e774]:
+                        - generic [ref=f6e775]:
+                          - heading "Riesgo de incumplimiento SLA" [level=3] [ref=f6e776]
+                          - paragraph [ref=f6e777]: Umbrales expresados en horas antes.
+                        - 'switch "Riesgo de incumplimiento SLA: activado" [checked] [ref=f6e778]'
+                      - generic [ref=f6e780]:
+                        - generic [ref=f6e781]:
+                          - generic [ref=f6e782]: Umbrales
+                          - textbox "Umbrales" [ref=f6e784]: "2"
+                          - paragraph [ref=f6e785]: Valores separados por comas, sin duplicados.
+                        - group "Canales" [ref=f6e786]:
+                          - generic [ref=f6e788]:
+                            - generic [ref=f6e789] [cursor=pointer]:
+                              - checkbox "Aplicación" [checked] [ref=f6e790]
+                              - generic [ref=f6e791]: Aplicación
+                            - generic [ref=f6e792] [cursor=pointer]:
+                              - checkbox "Correo" [ref=f6e793]
+                              - generic [ref=f6e794]: Correo
+                            - generic [ref=f6e795] [cursor=pointer]:
+                              - checkbox "SMS" [ref=f6e796]
+                              - generic [ref=f6e797]: SMS
+                      - group "Roles responsables" [ref=f6e798]:
+                        - generic [ref=f6e800]:
+                          - generic [ref=f6e801] [cursor=pointer]:
+                            - checkbox "gerente" [checked] [ref=f6e802]
+                            - generic [ref=f6e803]: gerente
+                          - generic [ref=f6e804] [cursor=pointer]:
+                            - checkbox "residente" [checked] [ref=f6e805]
+                            - generic [ref=f6e806]: residente
+                          - generic [ref=f6e807] [cursor=pointer]:
+                            - checkbox "hes" [ref=f6e808]
+                            - generic [ref=f6e809]: hes
+                          - generic [ref=f6e810] [cursor=pointer]:
+                            - checkbox "coord administrativo" [ref=f6e811]
+                            - generic [ref=f6e812]: coord administrativo
+                          - generic [ref=f6e813] [cursor=pointer]:
+                            - checkbox "auxiliar contable" [ref=f6e814]
+                            - generic [ref=f6e815]: auxiliar contable
+                          - generic [ref=f6e816] [cursor=pointer]:
+                            - checkbox "supervisor" [ref=f6e817]
+                            - generic [ref=f6e818]: supervisor
+                          - generic [ref=f6e819] [cursor=pointer]:
+                            - checkbox "auxiliar hes" [ref=f6e820]
+                            - generic [ref=f6e821]: auxiliar hes
+                          - generic [ref=f6e822] [cursor=pointer]:
+                            - checkbox "supervisor electricista" [ref=f6e823]
+                            - generic [ref=f6e824]: supervisor electricista
+                          - generic [ref=f6e825] [cursor=pointer]:
+                            - checkbox "tecnico electricista" [ref=f6e826]
+                            - generic [ref=f6e827]: tecnico electricista
+                          - generic [ref=f6e828] [cursor=pointer]:
+                            - checkbox "operador" [ref=f6e829]
+                            - generic [ref=f6e830]: operador
+                          - generic [ref=f6e831] [cursor=pointer]:
+                            - checkbox "tecnico" [ref=f6e832]
+                            - generic [ref=f6e833]: tecnico
+                          - generic [ref=f6e834] [cursor=pointer]:
+                            - checkbox "oficial construccion" [ref=f6e835]
+                            - generic [ref=f6e836]: oficial construccion
+                          - generic [ref=f6e837] [cursor=pointer]:
+                            - checkbox "administrativo" [ref=f6e838]
+                            - generic [ref=f6e839]: administrativo
+                          - generic [ref=f6e840] [cursor=pointer]:
+                            - checkbox "pasante" [ref=f6e841]
+                            - generic [ref=f6e842]: pasante
+                          - generic [ref=f6e843] [cursor=pointer]:
+                            - checkbox "cliente" [ref=f6e844]
+                            - generic [ref=f6e845]: cliente
+                    - article [ref=f6e846]:
+                      - generic [ref=f6e847]:
+                        - generic [ref=f6e848]:
+                          - heading "Facturas próximas a vencer" [level=3] [ref=f6e849]
+                          - paragraph [ref=f6e850]: Umbrales expresados en días antes.
+                        - 'switch "Facturas próximas a vencer: activado" [checked] [ref=f6e851]'
+                      - generic [ref=f6e853]:
+                        - generic [ref=f6e854]:
+                          - generic [ref=f6e855]: Umbrales
+                          - textbox "Umbrales" [ref=f6e857]: 7, 3, 1
+                          - paragraph [ref=f6e858]: Valores separados por comas, sin duplicados.
+                        - group "Canales" [ref=f6e859]:
+                          - generic [ref=f6e861]:
+                            - generic [ref=f6e862] [cursor=pointer]:
+                              - checkbox "Aplicación" [checked] [ref=f6e863]
+                              - generic [ref=f6e864]: Aplicación
+                            - generic [ref=f6e865] [cursor=pointer]:
+                              - checkbox "Correo" [checked] [ref=f6e866]
+                              - generic [ref=f6e867]: Correo
+                            - generic [ref=f6e868] [cursor=pointer]:
+                              - checkbox "SMS" [ref=f6e869]
+                              - generic [ref=f6e870]: SMS
+                      - group "Roles responsables" [ref=f6e871]:
+                        - generic [ref=f6e873]:
+                          - generic [ref=f6e874] [cursor=pointer]:
+                            - checkbox "gerente" [checked] [ref=f6e875]
+                            - generic [ref=f6e876]: gerente
+                          - generic [ref=f6e877] [cursor=pointer]:
+                            - checkbox "residente" [ref=f6e878]
+                            - generic [ref=f6e879]: residente
+                          - generic [ref=f6e880] [cursor=pointer]:
+                            - checkbox "hes" [ref=f6e881]
+                            - generic [ref=f6e882]: hes
+                          - generic [ref=f6e883] [cursor=pointer]:
+                            - checkbox "coord administrativo" [checked] [ref=f6e884]
+                            - generic [ref=f6e885]: coord administrativo
+                          - generic [ref=f6e886] [cursor=pointer]:
+                            - checkbox "auxiliar contable" [checked] [ref=f6e887]
+                            - generic [ref=f6e888]: auxiliar contable
+                          - generic [ref=f6e889] [cursor=pointer]:
+                            - checkbox "supervisor" [ref=f6e890]
+                            - generic [ref=f6e891]: supervisor
+                          - generic [ref=f6e892] [cursor=pointer]:
+                            - checkbox "auxiliar hes" [ref=f6e893]
+                            - generic [ref=f6e894]: auxiliar hes
+                          - generic [ref=f6e895] [cursor=pointer]:
+                            - checkbox "supervisor electricista" [ref=f6e896]
+                            - generic [ref=f6e897]: supervisor electricista
+                          - generic [ref=f6e898] [cursor=pointer]:
+                            - checkbox "tecnico electricista" [ref=f6e899]
+                            - generic [ref=f6e900]: tecnico electricista
+                          - generic [ref=f6e901] [cursor=pointer]:
+                            - checkbox "operador" [ref=f6e902]
+                            - generic [ref=f6e903]: operador
+                          - generic [ref=f6e904] [cursor=pointer]:
+                            - checkbox "tecnico" [ref=f6e905]
+                            - generic [ref=f6e906]: tecnico
+                          - generic [ref=f6e907] [cursor=pointer]:
+                            - checkbox "oficial construccion" [ref=f6e908]
+                            - generic [ref=f6e909]: oficial construccion
+                          - generic [ref=f6e910] [cursor=pointer]:
+                            - checkbox "administrativo" [ref=f6e911]
+                            - generic [ref=f6e912]: administrativo
+                          - generic [ref=f6e913] [cursor=pointer]:
+                            - checkbox "pasante" [ref=f6e914]
+                            - generic [ref=f6e915]: pasante
+                          - generic [ref=f6e916] [cursor=pointer]:
+                            - checkbox "cliente" [ref=f6e917]
+                            - generic [ref=f6e918]: cliente
+                    - article [ref=f6e919]:
+                      - generic [ref=f6e920]:
+                        - generic [ref=f6e921]:
+                          - heading "Casos sin actividad" [level=3] [ref=f6e922]
+                          - paragraph [ref=f6e923]: Umbrales expresados en días sin actividad.
+                        - 'switch "Casos sin actividad: activado" [checked] [ref=f6e924]'
+                      - generic [ref=f6e926]:
+                        - generic [ref=f6e927]:
+                          - generic [ref=f6e928]: Umbrales
+                          - textbox "Umbrales" [ref=f6e930]: 7, 14, 30
+                          - paragraph [ref=f6e931]: Valores separados por comas, sin duplicados.
+                        - group "Canales" [ref=f6e932]:
+                          - generic [ref=f6e934]:
+                            - generic [ref=f6e935] [cursor=pointer]:
+                              - checkbox "Aplicación" [checked] [ref=f6e936]
+                              - generic [ref=f6e937]: Aplicación
+                            - generic [ref=f6e938] [cursor=pointer]:
+                              - checkbox "Correo" [ref=f6e939]
+                              - generic [ref=f6e940]: Correo
+                            - generic [ref=f6e941] [cursor=pointer]:
+                              - checkbox "SMS" [ref=f6e942]
+                              - generic [ref=f6e943]: SMS
+                      - group "Roles responsables" [ref=f6e944]:
+                        - generic [ref=f6e946]:
+                          - generic [ref=f6e947] [cursor=pointer]:
+                            - checkbox "gerente" [checked] [ref=f6e948]
+                            - generic [ref=f6e949]: gerente
+                          - generic [ref=f6e950] [cursor=pointer]:
+                            - checkbox "residente" [checked] [ref=f6e951]
+                            - generic [ref=f6e952]: residente
+                          - generic [ref=f6e953] [cursor=pointer]:
+                            - checkbox "hes" [ref=f6e954]
+                            - generic [ref=f6e955]: hes
+                          - generic [ref=f6e956] [cursor=pointer]:
+                            - checkbox "coord administrativo" [ref=f6e957]
+                            - generic [ref=f6e958]: coord administrativo
+                          - generic [ref=f6e959] [cursor=pointer]:
+                            - checkbox "auxiliar contable" [ref=f6e960]
+                            - generic [ref=f6e961]: auxiliar contable
+                          - generic [ref=f6e962] [cursor=pointer]:
+                            - checkbox "supervisor" [ref=f6e963]
+                            - generic [ref=f6e964]: supervisor
+                          - generic [ref=f6e965] [cursor=pointer]:
+                            - checkbox "auxiliar hes" [ref=f6e966]
+                            - generic [ref=f6e967]: auxiliar hes
+                          - generic [ref=f6e968] [cursor=pointer]:
+                            - checkbox "supervisor electricista" [ref=f6e969]
+                            - generic [ref=f6e970]: supervisor electricista
+                          - generic [ref=f6e971] [cursor=pointer]:
+                            - checkbox "tecnico electricista" [ref=f6e972]
+                            - generic [ref=f6e973]: tecnico electricista
+                          - generic [ref=f6e974] [cursor=pointer]:
+                            - checkbox "operador" [ref=f6e975]
+                            - generic [ref=f6e976]: operador
+                          - generic [ref=f6e977] [cursor=pointer]:
+                            - checkbox "tecnico" [ref=f6e978]
+                            - generic [ref=f6e979]: tecnico
+                          - generic [ref=f6e980] [cursor=pointer]:
+                            - checkbox "oficial construccion" [ref=f6e981]
+                            - generic [ref=f6e982]: oficial construccion
+                          - generic [ref=f6e983] [cursor=pointer]:
+                            - checkbox "administrativo" [ref=f6e984]
+                            - generic [ref=f6e985]: administrativo
+                          - generic [ref=f6e986] [cursor=pointer]:
+                            - checkbox "pasante" [ref=f6e987]
+                            - generic [ref=f6e988]: pasante
+                          - generic [ref=f6e989] [cursor=pointer]:
+                            - checkbox "cliente" [ref=f6e990]
+                            - generic [ref=f6e991]: cliente
+                  - button "Guardar recordatorios" [ref=f6e993]
+                - paragraph [ref=f6e994]: Los cambios se aplican inmediatamente.
+          - button "Abrir carga rápida para Módulo" [ref=f6e995]:
+            - generic [ref=f6e1000]: Carga rápida
+      - complementary "Aviso de privacidad" [ref=f6e1001]:
+        - generic [ref=f6e1002]:
+          - generic [ref=f6e1007]:
+            - paragraph [ref=f6e1008]: Aviso de privacidad
+            - paragraph [ref=f6e1009]:
+              - text: Utilizamos tus datos únicamente para la operación del sistema. Consulta nuestra
+              - link "Política de Privacidad" [ref=f6e1010] [cursor=pointer]:
+                - /url: /privacy
+              - text: "y"
+              - link "términos de consentimiento" [ref=f6e1011] [cursor=pointer]:
+                - /url: /consent
+              - text: .
+          - button "Aceptar" [ref=f6e1012]
+  - region "Notifications alt+T"
+  - alert [ref=f6e1013]

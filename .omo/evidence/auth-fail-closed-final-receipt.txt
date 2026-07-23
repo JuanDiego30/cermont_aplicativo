@@ -1,0 +1,62 @@
+VERIFICATION_UTC=2026-07-17T04:45:17.6370877Z
+HOOK_CWD=
+RECEIPT_RELATIVE=.omo/evidence/auth-fail-closed-final-receipt.txt
+VERIFIED_WORKTREE=C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\.codex\worktrees\spec-012-escalamiento-profesional
+
+=== TARGETED AUTH + BACKEND API TESTS ===
+INVOCATION: npm run test -w frontend -- tests/proxy-auth-perimeter.test.ts tests/app/api/backend-proxy-route.test.ts
+
+> @cermont/frontend@1.2.0 test
+> vitest run tests/proxy-auth-perimeter.test.ts tests/app/api/backend-proxy-route.test.ts
+
+
+ RUN  v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/.codex/worktrees/spec-012-escalamiento-profesional/frontend
+
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  23:45:21
+   Duration  9.23s (transform 211ms, setup 851ms, import 702ms, tests 2.05s, environment 11.52s)
+
+
+TARGETED_TEST_EXIT_CODE=0
+
+=== TARGETED BIOME ===
+INVOCATION: (frontend) npm exec -- biome check proxy.ts tests/proxy-auth-perimeter.test.ts
+Checked 2 files in 37ms. No fixes applied.
+
+BIOME_EXIT_CODE=0
+
+=== EXACT SOURCE OBSERVABLES ===
+DIFF_CHECK_EXIT_CODE=0
+ M frontend/proxy.ts
+?? frontend/tests/proxy-auth-perimeter.test.ts
+
+Algorithm Hash                                                             Path
+--------- ----                                                             ----
+SHA256    91408F4ECBFAC41A8A586D081C56462B16FD5E3A99FD4DF15E6FBE324BEE451C C:\Users\camil\Downloads\cermont_aplicativo\…
+SHA256    0F76955F1BF8D16677D766CF1A08C3FEA754490F58633ED0F3CFD70A6514AB8A C:\Users\camil\Downloads\cermont_aplicativo\…
+
+
+frontend/tests/proxy-auth-perimeter.test.ts:34:		expect(response.headers.get("location")).toBe("http://localhost/unauthorized");
+frontend/tests/proxy-auth-perimeter.test.ts:53:		expect(response.headers.get("x-middleware-next")).toBe("1");
+frontend/tests/proxy-auth-perimeter.test.ts:54:		expect(response.headers.get("location")).toBeNull();
+frontend/tests/proxy-auth-perimeter.test.ts:57:	it("denies a protected route when no verified server access claim is available", async () => {
+frontend/tests/proxy-auth-perimeter.test.ts:66:		expect(response.headers.get("location")).toBe("http://localhost/login?next=%2Fadmin%2Fusers");
+frontend/tests/proxy-auth-perimeter.test.ts:69:	it("denies a protected route when server verification fails", async () => {
+frontend/tests/proxy-auth-perimeter.test.ts:78:		expect(response.headers.get("location")).toBe("http://localhost/login?next=%2Fadmin%2Fusers");
+frontend/tests/proxy-auth-perimeter.test.ts:95:		expect(response.headers.get("location")).toBe("http://localhost/unauthorized");
+frontend/tests/proxy-auth-perimeter.test.ts:100:	])("denies a protected route when session verification returns %i", async (status) => {
+frontend/tests/proxy-auth-perimeter.test.ts:111:		expect(response.headers.get("location")).toBe("http://localhost/login?next=%2Fadmin%2Fusers");
+frontend/tests/proxy-auth-perimeter.test.ts:121:		expect(response.headers.get("x-middleware-next")).toBe("1");
+frontend/tests/proxy-auth-perimeter.test.ts:122:		expect(response.headers.get("location")).toBeNull();
+frontend/tests/proxy-auth-perimeter.test.ts:125:	it("keeps backend API paths outside the auth perimeter matcher", () => {
+frontend/proxy.ts:92:	if (roleLookup.status === "deferred") {
+frontend/proxy.ts:95:	if (roleLookup.status === "denied") {
+frontend/proxy.ts:114://   location /serwist/sw.js {
+
+=== PROCESS CHECK ===
+NO_LINGERING_TASK_PROCESSES_CHECK_1
+NO_LINGERING_TASK_PROCESSES_CHECK_2
+JUDGMENT=PASS: protected routes fail closed; public routes and backend API behavior are preserved; no task process remains.
+EXIT_CODE=0

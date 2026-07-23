@@ -5,6 +5,7 @@ import { requireUser } from "../../common/utils/request";
 import { ServiceCase } from "../../models";
 import { processUseCase, processUserQuery } from "./ai.service";
 import { getActiveProviderName, isAiAvailable } from "./ai-provider.adapter";
+import { SystemConfigService } from "../system-config/system-config.service";
 
 export async function chatHandler(req: Request, res: Response) {
 	try {
@@ -130,7 +131,8 @@ export async function useCaseHandler(req: Request, res: Response) {
 }
 
 export async function statusHandler(_req: Request, res: Response) {
-	const available = isAiAvailable();
+	const featureEnabled = await SystemConfigService.isFeatureEnabled("enable_cermont_ai");
+	const available = featureEnabled && isAiAvailable();
 	res.json({
 		success: true,
 		data: {

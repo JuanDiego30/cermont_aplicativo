@@ -60,6 +60,7 @@ function formatDate(dateValue?: string): string {
 			day: "2-digit",
 			month: "short",
 			year: "numeric",
+			timeZone: "America/Bogota",
 		});
 	} catch {
 		return dateValue;

@@ -24,6 +24,18 @@ router.get(
 	PaymentController.listPayments,
 );
 
+router.get(
+	"/dashboard",
+	authorize(...INTERNAL_ROLES),
+	PaymentController.getPaymentDashboard,
+);
+
+router.get(
+	"/aging",
+	authorize(...INTERNAL_ROLES),
+	PaymentController.getPaymentAging,
+);
+
 router.post(
 	"/from-invoice/:id",
 	authorize(...ADMIN_PLUS_RESIDENTE),

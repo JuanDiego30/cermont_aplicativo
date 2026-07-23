@@ -54,7 +54,7 @@ Component → TanStack Query hook → api-client.ts → /api/* (Next.js proxy) �
 
 ## No-Go Zones
 - ❌ No business logic in UI components — use domain helpers
-- ❌ No hardcoded permissions — use `@cermont/domain`
+- ❌ No hardcoded permissions — use `@cermont/domain` (15 roles: gerente, residente, coord_administrativo, supervisor, hes, auxiliar_contable, supervisor_electricista, tecnico_electricista, operador, tecnico, auxiliar_hes, oficial_construccion, administrativo, pasante, cliente)
 - ❌ No hardcoded routes — use centralized route/navigation config
 - ❌ No duplicate components: check `components/common/` first
 - ❌ No giant monolithic components — split by responsibility
@@ -74,6 +74,8 @@ Every page that loads data **must** handle all applicable states:
 | **Empty** | Illustration + description + action CTA |
 | **Offline** | Persistent banner + queue status (field pages) |
 | **Forbidden** | "No permission" card (RBAC-protected pages) |
+
+Use `PageStates.tsx` from `components/common/` (e.g. `BackendUnavailableState`) for composite loading/error/empty/offline handling. For interactive components (forms, capture, mutation flows), apply a behavior state machine: `idle → loading → success | error`.
 
 ---
 

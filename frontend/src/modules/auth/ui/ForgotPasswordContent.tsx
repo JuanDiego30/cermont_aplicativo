@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
 import { apiClient } from "@/lib/http/api-client";
@@ -37,17 +37,22 @@ export function ForgotPasswordContent() {
 
 	if (state.success) {
 		return (
-			<div className="mt-2 text-center">
-				<div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-6 text-brand-annotate">
-					<p className="text-lg font-semibold">Correo enviado</p>
-					<p className="mt-2 text-sm text-brand-annotate">
-						Revisa tu bandeja de entrada para restablecer tu contraseña.
-					</p>
+			<div className="mt-2 flex flex-col items-center text-center">
+				<div className="mb-6 flex size-16 items-center justify-center rounded-full bg-green-500/10 ring-4 ring-green-500/20">
+					<Mail className="size-8 text-green-500" />
 				</div>
+				<h2 className="text-xl font-semibold text-white">Correo enviado</h2>
+				<p className="mt-2 max-w-xs text-sm text-muted-text">
+					Revisa la bandeja de entrada de tu correo electrónico para restablecer tu contraseña.
+				</p>
+				<p className="mt-1 text-xs text-stone">
+					Si no lo encuentras, revisa la carpeta de spam o correo no deseado.
+				</p>
 				<Link
 					href="/login"
-					className="mt-4 block rounded-xl border border-white/10 bg-canvas/5 px-4 py-3 text-sm font-medium text-stone transition hover:bg-canvas/10"
+					className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-canvas/5 px-6 py-3 text-sm font-medium text-stone transition hover:bg-canvas/10"
 				>
+					<ArrowLeft className="size-4" />
 					Volver al inicio de sesión
 				</Link>
 			</div>
@@ -87,7 +92,8 @@ export function ForgotPasswordContent() {
 			<button
 				type="submit"
 				disabled={isPending}
-				className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+				className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-green-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+				aria-busy={isPending}
 			>
 				{isPending ? <Loader2 className="size-4 animate-spin" /> : null}
 				Enviar correo de recuperación

@@ -1,0 +1,56 @@
+- generic [active] [ref=f1e1]:
+  - main [ref=f1e495]:
+    - generic [ref=f1e496]:
+      - link "Saltar al contenido principal" [ref=f1e497] [cursor=pointer]:
+        - /url: "#main-content"
+      - generic [ref=f1e498]:
+        - complementary "Barra de navegación lateral" [ref=f1e499]:
+          - generic [ref=f1e501]:
+            - img [ref=f1e502]:
+              - generic [ref=f1e508]: CERMONT
+            - generic [ref=f1e509]: Cermont S.A.S.
+          - button "Colapsar" [ref=f1e511]
+          - navigation "Navegación principal" [ref=f1e514]
+          - button [ref=f1e516]:
+            - generic [ref=f1e521]:
+              - paragraph [ref=f1e522]: Cermont AI
+              - paragraph [ref=f1e523]: Asistente
+        - generic [ref=f1e524]:
+          - generic [ref=f1e525]:
+            - generic [ref=f1e527]:
+              - generic [ref=f1e528]:
+                - paragraph [ref=f1e529]: Panel de Control
+                - generic [ref=f1e530]: •
+                - paragraph [ref=f1e531]: Arauca
+              - heading "Panel de Control" [level=1] [ref=f1e532]
+            - generic [ref=f1e533]:
+              - 'button "Cambiar tema. Actual: system" [ref=f1e535]'
+              - listitem [ref=f1e539]:
+                - button "Notificaciones" [ref=f1e540]
+              - button "Menú de usuario" [ref=f1e545]:
+                - generic [ref=f1e546]:
+                  - generic [ref=f1e547]: Usuario
+                  - generic [ref=f1e548]: Operador
+                - generic [ref=f1e549]: U
+          - main [ref=f1e552]:
+            - main [ref=f1e554]:
+              - region [ref=f1e555]:
+                - heading "Panel de Control Operativo" [level=1] [ref=f1e556]
+                - generic [ref=f1e557]: No se pudo cargar la información del dashboard. Missing or invalid Authorization header
+          - button "Abrir carga rápida para Módulo" [ref=f1e558]:
+            - generic [ref=f1e563]: Carga rápida
+      - complementary "Aviso de privacidad" [ref=f1e564]:
+        - generic [ref=f1e565]:
+          - generic [ref=f1e570]:
+            - paragraph [ref=f1e571]: Aviso de privacidad
+            - paragraph [ref=f1e572]:
+              - text: Utilizamos tus datos únicamente para la operación del sistema. Consulta nuestra
+              - link "Política de Privacidad" [ref=f1e573] [cursor=pointer]:
+                - /url: /privacy
+              - text: "y"
+              - link "términos de consentimiento" [ref=f1e574] [cursor=pointer]:
+                - /url: /consent
+              - text: .
+          - button "Aceptar" [ref=f1e575]
+  - region "Notifications alt+T"
+  - alert [ref=f1e576]

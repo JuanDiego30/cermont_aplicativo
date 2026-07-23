@@ -20,7 +20,9 @@ export function CameraCapture({ onCapture, onClose }: CameraCaptureProps) {
 
 	// Stable ref for facingMode — effect reads current value without depending on it
 	const facingModeRef = useRef(facingMode);
-	facingModeRef.current = facingMode;
+	useEffect(() => {
+		facingModeRef.current = facingMode;
+	}, [facingMode]);
 
 	const startCamera = useCallback(async (mode: FacingMode) => {
 		try {

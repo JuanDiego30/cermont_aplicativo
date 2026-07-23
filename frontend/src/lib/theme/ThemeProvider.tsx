@@ -1,88 +1,65 @@
 "use client";
 
-import type React from "react";
-import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
-type Theme = "dark" | "light" | "system";
-type ResolvedTheme = "dark" | "light";
+type Theme = "light" | "dark";
 
-interface ThemeProviderProps {
-	children: React.ReactNode;
+interface ThemeContextValue {
+  theme: Theme;
+  toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
 }
 
-interface ThemeProviderState {
-	theme: Theme;
-	setTheme: (theme: Theme) => void;
-}
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const initialState: ThemeProviderState = {
-	theme: "system",
-	setTheme: noopSetTheme,
-};
-
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
-const THEME_STORAGE_KEY = "cermont-theme";
-
-function noopSetTheme(_theme: Theme): void {}
-
-function isTheme(value: string): value is Theme {
-	return value === "dark" || value === "light" || value === "system";
-}
-
-function getSystemTheme(): ResolvedTheme {
-	return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
+const STORAGE_KEY = "cermont-theme";
 
 function getInitialTheme(): Theme {
-	if (typeof window === "undefined") {
-		return "system";
-	}
-
-	const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-	return storedTheme && isTheme(storedTheme) ? storedTheme : "system";
+  if (typeof window === "undefined") { return "light"; }
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "light" || stored === "dark") { return stored; }
+  } catch {}
+  return "light";
 }
 
-function applyTheme(theme: Theme): void {
-	if (typeof document === "undefined") {
-		return;
-	}
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
-	const resolvedTheme = theme === "system" ? getSystemTheme() : theme;
-	document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+  const applyTheme = useCallback((t: Theme) => {
+    document.documentElement.classList.toggle("dark", t === "dark");
+    document.documentElement.style.colorScheme = t;
+    try {
+      localStorage.setItem(STORAGE_KEY, t);
+    } catch {}
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next = prev === "light" ? "dark" : "light";
+      applyTheme(next);
+      return next;
+    });
+  }, [applyTheme]);
+
+  const setTheme = useCallback((t: Theme) => {
+    setThemeState(t);
+    applyTheme(t);
+  }, [applyTheme]);
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme, applyTheme]);
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
-	const [theme, setThemeState] = useState<Theme>(getInitialTheme);
-
-	useEffect(() => {
-		applyTheme(theme);
-	}, [theme]);
-
-	const setTheme = useCallback((newTheme: Theme) => {
-		setThemeState(newTheme);
-		if (newTheme === "system") {
-			window.localStorage.removeItem(THEME_STORAGE_KEY);
-		} else {
-			window.localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-		}
-	}, []);
-
-	useEffect(() => {
-		const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-		const handleChange = () => {
-			if (theme === "system") {
-				applyTheme("system");
-			}
-		};
-		mediaQuery.addEventListener("change", handleChange);
-		return () => mediaQuery.removeEventListener("change", handleChange);
-	}, [theme]);
-
-	const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);
-
-	return <ThemeProviderContext.Provider value={value}>{children}</ThemeProviderContext.Provider>;
+export function useTheme() {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) { throw new Error("useTheme must be used within ThemeProvider"); }
+  return ctx;
 }
-
-export const useTheme = () => {
-	return use(ThemeProviderContext);
-};

@@ -1,0 +1,60 @@
+- generic [active] [ref=e1] [box=0,0,1280,821]:
+  - main [ref=e2] [box=0,0,1280,821]:
+    - main [ref=e4] [box=0,0,1280,821]:
+      - region "Carrusel informativo corporativo" [ref=e6] [box=0,0,640,821]:
+        - generic [ref=e8] [box=64,80,512,48]:
+          - img [ref=e9] [box=64,80,48,48]:
+            - generic [ref=e15] [box=76,116,23,4]: CERMONT
+          - generic [ref=e16] [box=120,90,140,28]: Cermont S.A.S.
+        - generic [ref=e17] [box=64,139,512,433]:
+          - generic [ref=e18] [box=64,139,512,233]:
+            - heading "Operación Digitalizada." [level=2] [ref=e19] [box=64,139,512,150]
+            - paragraph [ref=e20] [box=64,313,448,59]: Impulsamos la excelencia técnica mediante trazabilidad absoluta y disciplina operativa en cada proyecto.
+          - region "Contenido del carrusel" [ref=e21] [box=64,412,512,160]:
+            - generic [ref=e93] [box=64,476,512,82]:
+              - heading "Seguimiento en Tiempo Real" [level=3] [ref=e94] [box=64,476,512,28]
+              - paragraph [ref=e95] [box=64,512,320,46]: Monitoree el estado de cada orden y recurso con trazabilidad absoluta en campo.
+        - generic [ref=e32] [box=64,596,512,145]:
+          - generic [ref=e33] [box=64,596,512,48]:
+            - tablist [ref=e34] [box=64,617,88,6]:
+              - tab "Ir a slide 1" [ref=e35] [box=64,617,12,6]
+              - tab "Ir a slide 2" [selected] [ref=e36] [box=88,617,40,6]
+              - tab "Ir a slide 3" [ref=e37] [box=140,617,12,6]
+            - generic [ref=e38] [box=464,596,112,48]:
+              - button "Slide anterior" [ref=e39] [box=464,596,48,48]
+              - button "Siguiente slide" [ref=e42] [box=528,596,48,48]
+          - generic [ref=e45] [box=64,692,512,49]:
+            - paragraph [ref=e46] [box=64,725,151,16]: © 2026 CERMONT S.A.S.
+            - paragraph [ref=e47] [box=454,725,122,16]: Arauca · Colombia
+      - region "Formulario de inicio de sesión" [ref=e49] [box=736,0,448,821]:
+        - generic [ref=e50] [box=816,64,288,693]:
+          - generic [ref=e51] [box=816,64,288,164]:
+            - generic [ref=e52] [box=816,64,288,32]:
+              - img [ref=e53] [box=816,64,32,32]:
+                - generic [ref=e59] [box=824,88,16,3]: CERMONT
+              - generic [ref=e60] [box=856,68,112,24]: Cermont S.A.S.
+            - heading "Bienvenido de nuevo" [level=1] [ref=e61] [box=816,136,288,36]
+            - paragraph [ref=e62] [box=816,180,288,48]: Ingrese sus credenciales para acceder a la plataforma corporativa.
+          - generic [ref=e63] [box=816,268,288,272]:
+            - generic [ref=e64] [box=816,268,288,68]:
+              - generic [ref=e65] [box=816,268,288,20]: Correo electrónico*
+              - textbox "Correo electrónico*" [ref=e67] [box=816,296,288,40]:
+                - /placeholder: correo@empresa.com
+            - generic [ref=e68] [box=816,360,288,100]:
+              - generic [ref=e69] [box=816,360,288,20]: Contraseña*
+              - generic [ref=e70] [box=816,388,288,40]:
+                - textbox "Contraseña*" [ref=e72] [box=816,388,288,40]:
+                  - /placeholder: ••••••••
+                - button "Mostrar contraseña" [ref=e73] [box=1072,400,16,16]
+              - link "¿Olvidó su contraseña?" [ref=e78] [cursor=pointer] [box=979,441,125,16]:
+                - /url: /forgot-password
+            - button "Iniciar Sesión" [ref=e96] [box=816,492,288,48]
+          - generic [ref=e79] [box=816,580,288,31]: O continúe con
+          - link "Solicitar acceso como cliente" [ref=e84] [cursor=pointer] [box=816,651,288,50]:
+            - /url: /register
+          - paragraph [ref=e85] [box=816,741,288,16]:
+            - text: ¿Problemas para acceder?
+            - link "Contacte a soporte" [ref=e86] [cursor=pointer] [box=979,741,104,16]:
+              - /url: /#contacto
+  - region "Notifications alt+T" [box=0,821,1280,0]
+  - alert [ref=e97] [box=-1,820,1,1]

@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { ApiError, apiClient } from "@/lib/http/api-client";
+import { PageSkeleton } from "@/core/ui/PageSkeleton";
 import { useAuthStore } from "@/store/auth.store";
 
 interface User {
@@ -121,21 +122,14 @@ export function AuthInitializer({ children }: { children: ReactNode }) {
 		retry: false,
 		refetchOnWindowFocus: false,
 		refetchOnReconnect: false,
-		staleTime: 0,
-		gcTime: 0,
+		staleTime: 30_000,
+		gcTime: 60_000,
 	});
 
 	if (!isPublicAuthRoute && _isLoading) {
 		return (
-			<div
-				className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--surface-page)]"
-				aria-live="polite"
-			>
-				<div
-					className="size-10 animate-spin rounded-full border-4 border-[var(--border-subtle)] border-t-[var(--color-brand-blue)]"
-					aria-hidden="true"
-				/>
-				<p className="text-sm font-medium text-[var(--text-secondary)]">Inicializando sesión…</p>
+			<div className="min-h-screen bg-[var(--surface-page)] px-4 py-8 md:px-8" aria-live="polite">
+				<PageSkeleton variant="dashboard" />
 			</div>
 		);
 	}

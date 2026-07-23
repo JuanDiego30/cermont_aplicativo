@@ -42,53 +42,59 @@ vi.mock("@tanstack/react-query", () => ({
 	useQuery: (config: Record<string, unknown>) => {
 		useQueryMock(config);
 		return {
-			data: [
-				{
-					_id: "ev-1",
-					orderId: "order-1",
-					type: "before",
-					filename: "before.webp",
-					url: "https://example.com/before.webp",
-					mimeType: "image/webp",
-					sizeBytes: 1024,
-					description: "Estado inicial",
-					capturedAt: "2026-05-27T12:00:00.000Z",
-					uploadedAt: "2026-05-27T12:05:00.000Z",
-					uploadedBy: "user-1",
-					createdAt: "2026-05-27T12:05:00.000Z",
-					updatedAt: "2026-05-27T12:05:00.000Z",
-				},
-				{
-					_id: "ev-2",
-					orderId: "order-1",
-					type: "during",
-					filename: "during.webp",
-					url: "https://example.com/during.webp",
-					mimeType: "image/webp",
-					sizeBytes: 2048,
-					description: "Trabajo en campo",
-					capturedAt: "2026-05-27T13:00:00.000Z",
-					uploadedAt: "2026-05-27T13:05:00.000Z",
-					uploadedBy: "user-1",
-					createdAt: "2026-05-27T13:05:00.000Z",
-					updatedAt: "2026-05-27T13:05:00.000Z",
-				},
-				{
-					_id: "ev-3",
-					orderId: "order-1",
-					type: "after",
-					filename: "after.webp",
-					url: "https://example.com/after.webp",
-					mimeType: "image/webp",
-					sizeBytes: 3072,
-					description: "Resultado final",
-					capturedAt: "2026-05-27T14:00:00.000Z",
-					uploadedAt: "2026-05-27T14:05:00.000Z",
-					uploadedBy: "user-1",
-					createdAt: "2026-05-27T14:05:00.000Z",
-					updatedAt: "2026-05-27T14:05:00.000Z",
-				},
-			],
+			data: {
+				items: [
+					{
+						_id: "ev-1",
+						orderId: "order-1",
+						type: "before",
+						filename: "before.webp",
+						url: "https://example.com/before.webp",
+						mimeType: "image/webp",
+						sizeBytes: 1024,
+						description: "Estado inicial",
+						capturedAt: "2026-05-27T12:00:00.000Z",
+						uploadedAt: "2026-05-27T12:05:00.000Z",
+						uploadedBy: "user-1",
+						createdAt: "2026-05-27T12:05:00.000Z",
+						updatedAt: "2026-05-27T12:05:00.000Z",
+					},
+					{
+						_id: "ev-2",
+						orderId: "order-1",
+						type: "safety",
+						filename: "during.webp",
+						url: "https://example.com/during.webp",
+						mimeType: "image/webp",
+						sizeBytes: 2048,
+						description: "Trabajo en campo",
+						capturedAt: "2026-05-27T13:00:00.000Z",
+						uploadedAt: "2026-05-27T13:05:00.000Z",
+						uploadedBy: "user-1",
+						createdAt: "2026-05-27T13:05:00.000Z",
+						updatedAt: "2026-05-27T13:05:00.000Z",
+					},
+					{
+						_id: "ev-3",
+						orderId: "order-1",
+						type: "defect",
+						filename: "after.webp",
+						url: "https://example.com/after.webp",
+						mimeType: "image/webp",
+						sizeBytes: 3072,
+						description: "Resultado final",
+						capturedAt: "2026-05-27T14:00:00.000Z",
+						uploadedAt: "2026-05-27T14:05:00.000Z",
+						uploadedBy: "user-1",
+						createdAt: "2026-05-27T14:05:00.000Z",
+						updatedAt: "2026-05-27T14:05:00.000Z",
+					},
+				],
+				total: 3,
+				page: 1,
+				limit: 20,
+				pages: 1,
+			},
 			isLoading: false,
 			error: null,
 		};
@@ -121,10 +127,16 @@ describe("Evidences page", () => {
 		).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: "Galería" })).toHaveAttribute("aria-pressed", "true");
 		expect(screen.getByRole("button", { name: "Tabla" })).toHaveAttribute("aria-pressed", "false");
+		expect(
+			screen.getByRole("heading", { name: "Hallazgos críticos en inspección" }),
+		).toBeInTheDocument();
+		expect(screen.getByText("Críticos: 1")).toBeInTheDocument();
+		expect(screen.getByText("Moderados: 1")).toBeInTheDocument();
+		expect(screen.getByText("Leves: 0")).toBeInTheDocument();
 		expect(useQueryMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				enabled: true,
-				queryKey: ["evidences", "order-1", 0],
+				queryKey: ["evidences", "by-order", "order-1", 1, 20],
 			}),
 		);
 	});

@@ -1,5 +1,5 @@
-import { test as base, type APIRequestContext, expect, request } from "@playwright/test";
-import { getE2ECredentials, loginAsUser, hasE2ECredentials } from "../auth-credentials";
+import { type APIRequestContext, test as base, expect, request } from "@playwright/test";
+import { getE2ECredentials, hasE2ECredentials, loginAsUser } from "../auth-credentials";
 
 export type AuthFixture = {
 	apiContext: APIRequestContext;
@@ -14,7 +14,7 @@ export const test = base.extend<AuthFixture>({
 
 			let token = "";
 			page.on("request", (req) => {
-				const auth = req.headers()["authorization"];
+				const auth = req.headers().authorization;
 				if (auth?.startsWith("Bearer ") && !token) {
 					token = auth.replace("Bearer ", "");
 				}

@@ -2,13 +2,10 @@
 
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useActionState, useState } from "react";
 import { Button } from "@/core/ui/Button";
 import { apiClient } from "@/lib/http/api-client";
-
-interface ResetPasswordContentProps {
-	token?: string;
-}
 
 const initialState = {
 	success: false,
@@ -56,7 +53,9 @@ function tokenFromForm(formData: FormData): string | null {
 	return typeof token === "string" && token.length > 0 ? token : null;
 }
 
-export function ResetPasswordContent({ token }: ResetPasswordContentProps) {
+export function ResetPasswordContent() {
+	const searchParams = useSearchParams();
+	const token = searchParams.get("token");
 	const [showPassword, setShowPassword] = useState(false);
 	const [state, formAction, isPending] = useActionState(resetPasswordAction, initialState);
 

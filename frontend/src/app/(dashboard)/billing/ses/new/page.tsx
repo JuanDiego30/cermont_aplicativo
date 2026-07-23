@@ -129,7 +129,7 @@ function NewSESForm() {
 					Volver
 				</Link>
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 10 / SES Ariba</p>
+					<p className="text-sm font-medium text-slate">Paso 10 / SES Ariba</p>
 					<h1 id="new-ses-title" className="mt-1 text-2xl font-semibold text-[var(--text-primary)]">
 						Nuevo Service Entry Sheet
 					</h1>

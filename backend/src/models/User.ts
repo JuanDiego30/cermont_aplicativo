@@ -31,6 +31,8 @@ export type UserDocumentFields = Omit<UserDto, "_id" | "createdAt" | "updatedAt"
 	tokenVersion: number;
 	webauthnCredentials: IWebAuthnCredential[]; // Not in UserDto (backend only)
 	webauthnChallenge?: string; // Not in UserDto (backend only) — pending registration/auth ceremony
+	resetPasswordToken?: string; // SHA-256 hash of reset token (backend only)
+	resetPasswordExpires?: Date; // Expiration for reset token (backend only)
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -106,6 +108,9 @@ const UserSchema = new Schema<IUserDocument, UserModel, IUserMethods>(
 			select: false,
 		},
 		webauthnChallenge: { type: String, select: false },
+		// Password reset fields — solo se consultan explícitamente
+		resetPasswordToken: { type: String, select: false },
+		resetPasswordExpires: { type: Date, select: false },
 	},
 	{ timestamps: true, versionKey: false },
 );

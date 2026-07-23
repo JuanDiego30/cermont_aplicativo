@@ -50,6 +50,7 @@ function formatDate(iso: string): string {
 		return new Date(iso).toLocaleString("es-CO", {
 			dateStyle: "short",
 			timeStyle: "short",
+			timeZone: "America/Bogota",
 		});
 	} catch {
 		return iso;

@@ -1,8 +1,10 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { HTMLAttributes, HTMLInputTypeAttribute } from "react";
 import { AuthBackgroundBlobs } from "@/modules/auth/ui/AuthBackgroundBlobs";
+import { Logo } from "@/core/ui/Logo";
+import { RegisterSubmitButton } from "./components/RegisterSubmitButton";
 
 export const metadata: Metadata = { title: "Solicitar acceso" };
 
@@ -49,6 +51,8 @@ interface FormFieldProps {
 	autoComplete?: string;
 	placeholder?: string;
 	required?: boolean;
+	pattern?: string;
+	title?: string;
 }
 
 interface RegisterPageProps {
@@ -66,6 +70,8 @@ function FormField({
 	autoComplete,
 	placeholder,
 	required = false,
+	pattern,
+	title,
 }: FormFieldProps) {
 	return (
 		<div className="flex flex-col gap-2">
@@ -80,6 +86,8 @@ function FormField({
 				autoComplete={autoComplete}
 				placeholder={placeholder}
 				required={required}
+				pattern={pattern}
+				title={title}
 				className={INPUT_CLASS}
 			/>
 		</div>
@@ -102,13 +110,18 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 				aria-labelledby="register-page-title"
 			>
 				<header className="text-center sm:text-left">
-					<p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-200">
+					<Logo size="sm" className="mb-4 justify-center sm:justify-start" hideWordmarkOnMobile={false} />
+					<p className="mt-4 text-sm font-semibold uppercase tracking-[0.2em] text-primary-200">
 						Portal de clientes
 					</p>
-					<h1 id="register-page-title" className="mt-3 text-2xl font-semibold text-white">
+					<h1 id="register-page-title" className="mt-1 text-2xl font-semibold text-white">
 						Solicitar acceso
 					</h1>
-					<p className="mt-2 text-sm leading-6 text-muted-text">
+					<div className="mt-2 inline-flex items-center gap-1.5 text-xs text-stone">
+						<ShieldCheck className="size-3.5 text-green-500" aria-hidden="true" />
+						<span>Acceso seguro · Datos protegidos</span>
+					</div>
+					<p className="mt-3 text-sm leading-6 text-muted-text">
 						Este formulario es solo para clientes. Tu solicitud quedará pendiente de validación
 						antes de habilitar tu acceso.
 					</p>
@@ -136,58 +149,77 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 					method="post"
 					className="mt-6 flex w-full flex-col gap-4"
 				>
-					<FormField
-						id="fullName"
-						name="fullName"
-						label="Nombre completo"
-						autoComplete="name"
-						placeholder="Nombre y apellido"
-						required
-					/>
-					<FormField
-						id="email"
-						name="email"
-						label="Correo"
-						type="email"
-						autoComplete="email"
-						placeholder="correo@empresa.com"
-						required
-					/>
-					<FormField
-						id="company"
-						name="company"
-						label="Empresa / Razón social"
-						placeholder="Mi Empresa S.A.S."
-						required
-					/>
-					<FormField
-						id="nit"
-						name="nit"
-						label="NIT (opcional)"
-						inputMode="numeric"
-						placeholder="900123456-7"
-					/>
-					<FormField
-						id="phone"
-						name="phone"
-						label="Teléfono (opcional)"
-						type="tel"
-						autoComplete="tel"
-						placeholder="+57 3XX XXX XXXX"
-					/>
-					<FormField
-						id="contractRef"
-						name="contractRef"
-						label="Referencia de contrato / OT (opcional)"
-						placeholder="OT-000123 / Contrato ABC"
-					/>
+					<fieldset className="flex flex-col gap-4 border-0 p-0 m-0">
+						<legend className="text-xs font-semibold uppercase tracking-widest text-primary-200 mb-2">
+							Datos de contacto
+						</legend>
+						<FormField
+							id="fullName"
+							name="fullName"
+							label="Nombre completo"
+							autoComplete="name"
+							placeholder="Nombre y apellido"
+							required
+						/>
+						<FormField
+							id="email"
+							name="email"
+							label="Correo"
+							type="email"
+							autoComplete="email"
+							placeholder="correo@empresa.com"
+							pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+							title="Ingresa un correo corporativo válido"
+							required
+						/>
+						<FormField
+							id="phone"
+							name="phone"
+							label="Teléfono (opcional)"
+							type="tel"
+							autoComplete="tel"
+							placeholder="+57 3XX XXX XXXX"
+						/>
+					</fieldset>
 
-					<button
-						type="submit"
-						className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/30"
-					>
-						Enviar solicitud
-					</button>
+					<div className="border-t border-white/10" />
+
+					<fieldset className="flex flex-col gap-4 border-0 p-0 m-0">
+						<legend className="text-xs font-semibold uppercase tracking-widest text-primary-200 mb-2">
+							Datos de empresa
+						</legend>
+						<FormField
+							id="company"
+							name="company"
+							label="Empresa / Razón social"
+							placeholder="Mi Empresa S.A.S."
+							required
+						/>
+						<FormField
+							id="nit"
+							name="nit"
+							label="NIT (opcional)"
+							inputMode="numeric"
+							placeholder="900123456-7"
+						/>
+						<div className="flex items-center gap-2">
+							<label htmlFor="contractRef" className={LABEL_CLASS}>Contrato / OT</label>
+							<span role="img" className="text-xs text-stone" title="Referencia del contrato u orden de trabajo asociada a tu empresa" aria-label="Referencia del contrato u orden de trabajo asociada a tu empresa">ⓘ</span>
+						</div>
+						<input
+							id="contractRef"
+							name="contractRef"
+							type="text"
+							placeholder="OT-000123 / Contrato ABC"
+							className={INPUT_CLASS}
+						/>
+					</fieldset>
+
+					<RegisterSubmitButton />
+
+					<p className="mt-2 text-center text-xs text-stone">
+						Tu solicitud será revisada en un plazo de 24-48 horas hábiles.
+					</p>
 
 					<Link
 						href="/login"

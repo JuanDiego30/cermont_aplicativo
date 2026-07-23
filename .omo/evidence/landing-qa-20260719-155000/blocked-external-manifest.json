@@ -1,0 +1,38 @@
+{
+  "phase": "FASE 06 — Evidencia",
+  "task": "QA-LAND-030 — Crear manifiesto de faltantes",
+  "date": "2026-07-19",
+  "status": "investigated",
+  "finding": "All 3 visual assets are AI-generated (ChatGPT) and marked as authorization: 'blocked_external'",
+  "assets": [
+    {
+      "id": "field",
+      "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1280.webp",
+      "alt": "Personas trabajando en un entorno industrial exterior con herramientas de campo",
+      "authorization": "blocked_external",
+      "origin": "AI-generated (ChatGPT), May 2026",
+      "disclosure": "Imagen ilustrativa; no constituye evidencia de un servicio específico de Cermont.",
+      "fallback": "Disclosure text shown in caption. Image is used as contextual illustration, not as service evidence."
+    },
+    {
+      "id": "planning",
+      "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1280.webp",
+      "alt": "Persona utilizando una estructura de acceso en un entorno con paneles solares",
+      "authorization": "blocked_external",
+      "origin": "AI-generated (ChatGPT), May 2026",
+      "disclosure": "Imagen ilustrativa pendiente de autorización documental para uso como evidencia.",
+      "fallback": "Disclosure text shown in caption. Pending documented authorization for evidence use."
+    },
+    {
+      "id": "technical",
+      "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1280.webp",
+      "alt": "Detalle de componentes y cableado eléctrico organizado",
+      "authorization": "blocked_external",
+      "origin": "AI-generated (ChatGPT), May 2026",
+      "disclosure": "Imagen ilustrativa; no representa un activo, cliente ni resultado verificable.",
+      "fallback": "Disclosure text shown in caption. No claim of real asset, client, or verifiable result."
+    }
+  ],
+  "recommendation": "Replace with real authorized photographs from Cermont field operations. Each image should show actual work with client permission, have specific alt text describing the real activity, and a caption explaining the service context.",
+  "blocker": "No authorized real photographs available. All images remain AI-generated until Cermont provides authorized field photos."
+}

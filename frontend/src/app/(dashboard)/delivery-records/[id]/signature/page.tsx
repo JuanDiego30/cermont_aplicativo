@@ -137,7 +137,7 @@ function SignaturePageForm({
 				<ArrowLeft className="size-4" /> Volver al cockpit
 			</Link>
 			<div className="mb-8 rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
-				<p className="text-sm font-medium text-[var(--color-brand)]">Paso 9 / Firma del cliente</p>
+				<p className="text-sm font-medium text-slate">Paso 9 / Firma del cliente</p>
 				<h1 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
 					Registrar firma del cliente
 				</h1>

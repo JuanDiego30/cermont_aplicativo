@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
 	title: {
-		default: "Acceso",
-		template: "%s | Cermont",
+		default: "Acceso corporativo",
+		template: "%s | Cermont S.A.S.",
 	},
-	description: "Accede, recupera tu contraseña o solicita acceso al portal de Cermont.",
+	description: "Accede al portal corporativo de Cermont S.A.S. o solicita acceso como cliente.",
 	robots: {
 		index: false,
 		follow: false,

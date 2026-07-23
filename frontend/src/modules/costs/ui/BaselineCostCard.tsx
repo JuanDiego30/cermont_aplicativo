@@ -1,5 +1,7 @@
 "use client";
 
+import { useFormattedDate } from "@/lib/format/useFormattedDate";
+
 interface Props {
 	estimatedCost: number;
 	baselineDate: string;
@@ -12,6 +14,7 @@ const COP = new Intl.NumberFormat("es-CO", {
 });
 
 export function BaselineCostCard({ estimatedCost, baselineDate }: Props) {
+	const baselineText = useFormattedDate(baselineDate);
 	return (
 		<div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5">
 			<div className="flex items-center gap-2">
@@ -19,7 +22,7 @@ export function BaselineCostCard({ estimatedCost, baselineDate }: Props) {
 					BASELINE
 				</span>
 				<span className="text-xs text-[var(--text-tertiary)]">
-					Congelado {new Date(baselineDate).toLocaleDateString("es-CO")}
+					{baselineText ? `Congelado ${baselineText}` : "Congelado"}
 				</span>
 			</div>
 			<p className="mt-3 font-mono text-3xl font-semibold tabular-nums text-[var(--text-primary)]">

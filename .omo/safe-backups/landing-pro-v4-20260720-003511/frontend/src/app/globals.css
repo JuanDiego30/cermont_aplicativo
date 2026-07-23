@@ -1,0 +1,648 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@custom-variant dark (&:is(.dark *));
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	::before,
+	::after {
+		animation-duration: 0.01ms;
+		animation-iteration-count: 1;
+		scroll-behavior: auto;
+		transition-duration: 0.01ms;
+	}
+}
+
+/* ═════════════════════════════════════════════════════════
+   CERMONT DESIGN SYSTEM — Tokens
+   Source: DESIGN.md (Mintlify-inspired design tokens)
+   ═════════════════════════════════════════════════════════ */
+
+:root {
+	color-scheme: light;
+
+	/* ── Brand & Accent ──
+	   Cermont Blue (#2154A6) and Cermont Green (#4CAF50) are BORDER-AND-TITLE accent colors only.
+	   Never use as surface backgrounds. See DESIGN.md for card-dashboard / card-sla patterns. */
+	--color-brand-green: #2154a6; /* Cermont Blue — card borders, titles, CTAs */
+	--color-brand-green-deep: #0f2c59; /* Deep Blue — hover/active states */
+	--color-brand-green-soft: #7cd966; /* Light Green — success border tint */
+	--color-brand-tag: #3a78d8; /* Blue Light — info badges, tags */
+	--color-brand-annotate: #4caf50; /* Cermont Green — SLA borders, compliance */
+	--color-brand-warn: #d97706; /* Amber — warning states */
+	--color-brand-error: #dc2626; /* Red — error states */
+	--color-testimonial-orange: #f97316;
+
+	/* ── WhatsApp Brand — third-party channel color, preserved in both modes ── */
+	--color-whatsapp: #25d366;
+	--color-whatsapp-dark: #20bd5a;
+
+	/* ── Surface (Light) — neutral gray palette, no blue tints ── */
+	--color-canvas: #ffffff;
+	--color-canvas-dark: #1a1a1a; /* Dark bands — neutral, not blue */
+	--color-surface: #f8fafc;
+	--color-surface-soft: #f1f5f9;
+	--color-surface-code: #1a1a1a;
+	--color-hairline: #e2e8f0;
+	--color-hairline-soft: #f1f5f9;
+	--color-hairline-dark: #3a3a3a;
+
+	/* ── Text (Light) — neutral grays, no blue cast ── */
+	--color-ink: #1a1a1a;
+	--color-charcoal: #2e2e2e;
+	--color-slate: #555555;
+	--color-steel: #808080;
+	--color-stone: #a0a0a0;
+	--color-muted: #cccccc;
+	--color-on-dark: #f5f5f5;
+	--color-on-dark-muted: rgba(245, 245, 245, 0.55);
+	--color-on-primary: #ffffff;
+	--color-primary: #1a1a1a;
+
+	/* ── Hero Gradients (Light) ── */
+	--color-hero-sky-from: #dbeafe;
+	--color-hero-sky-to: #fef9f0;
+	--color-hero-dark-from: #0f2c59;
+	--color-hero-dark-to: #1a6b5a;
+
+	/* ── Icons (Light) — neutral grays ── */
+	--icon-default: #808080;
+	--icon-subtle: #a0a0a0;
+	--icon-primary: #1a1a1a;
+	--icon-accent: #2154a6; /* Cermont Blue */
+	--icon-on-dark: #f5f5f5;
+	--icon-on-dark-muted: rgba(245, 245, 245, 0.55);
+	--icon-success: #4caf50; /* Cermont Green */
+	--icon-warning: #d97706;
+	--icon-error: #dc2626;
+	--icon-info: #3a78d8;
+	--icon-muted: #cccccc;
+	--icon-interactive: #555555;
+	--icon-interactive-active: #1a1a1a;
+	--icon-code: rgba(245, 245, 245, 0.55);
+
+	/* ── Semantic / Functional (Light) ── */
+	--color-success: #4caf50;
+	--color-success-bg: #e8f5e9;
+	--color-warning: #d97706;
+	--color-warning-bg: #fef3c7;
+	--color-danger: #dc2626;
+	--color-danger-bg: #fee2e2;
+	--color-info: #3a78d8;
+	--color-info-bg: #eef2ff;
+
+	/* ── Focus Ring (Cermont Green) ── */
+	--color-focus-ring: #4caf50;
+
+	/* ════════════════════════════════════════════
+	   BACKWARD-COMPATIBLE ALIASES (Legacy tokens)
+	   ════════════════════════════════════════════ */
+
+	--color-cermont-blue: var(--color-brand-green);
+	--color-cermont-blue-deep: var(--color-brand-green-deep);
+	--color-cermont-blue-light: var(--color-brand-tag);
+	--color-cermont-blue-bg: #e6f0ff;
+
+	--color-cermont-green: var(--color-brand-annotate);
+	--color-cermont-green-deep: #1b4212;
+	--color-cermont-green-light: var(--color-brand-green-soft);
+	--color-cermont-green-bg: #e8f5e9;
+
+	--color-brand: var(--color-brand-green);
+	--color-brand-hover: var(--color-brand-tag);
+	--color-brand-strong: var(--color-brand-green-deep);
+	--color-brand-accent: var(--color-brand-annotate);
+
+	/* Legacy surface aliases */
+	--color-background: var(--color-canvas);
+	--color-foreground: var(--color-ink);
+
+	--surface-page: var(--color-canvas);
+	--surface-primary: var(--color-canvas);
+	--surface-card: var(--color-canvas);
+	--surface-secondary: var(--color-surface);
+	--surface-elevated: var(--color-canvas);
+	--surface-sidebar: var(--color-canvas);
+	--surface-sidebar-hover: var(--color-surface);
+	--surface-sidebar-active: var(--color-surface);
+	--surface-overlay: rgba(13, 13, 13, 0.6);
+
+	--text-primary: var(--color-ink);
+	--text-secondary: var(--color-charcoal);
+	--text-tertiary: var(--color-slate);
+	--text-muted: var(--color-steel);
+	--text-inverse: var(--color-on-dark);
+
+	--border-subtle: var(--color-hairline);
+	--border-medium: var(--color-hairline);
+	--border-focus: var(--color-focus-ring);
+
+	/* ── Theme (Shadcn/UI Compat) ── */
+	--background: var(--color-canvas);
+	--foreground: var(--color-ink);
+	--card: var(--color-canvas);
+	--card-foreground: var(--color-ink);
+	--popover: var(--color-canvas);
+	--popover-foreground: var(--color-ink);
+	--primary: var(--color-brand-green);
+	--primary-foreground: var(--color-on-dark);
+	--secondary: var(--color-surface);
+	--secondary-foreground: var(--color-slate);
+	--muted: var(--color-surface);
+	--muted-foreground: var(--color-steel);
+	--accent: var(--color-surface);
+	--accent-foreground: var(--color-ink);
+	--destructive: var(--color-brand-error);
+	--destructive-foreground: var(--color-on-dark);
+	--border: var(--color-hairline);
+	--input: var(--color-hairline);
+	--ring: var(--color-focus-ring);
+	--radius: 0.75rem;
+
+	/* ── Navigation ── */
+	--sidebar-width: 240px;
+	--sidebar-width-collapsed: 64px;
+	--header-height: 56px;
+
+	/* ── Spacing (8px system) ── */
+	--space-xxs: 4px;
+	--space-xs: 8px;
+	--space-sm: 12px;
+	--space-md: 16px;
+	--space-lg: 20px;
+	--space-xl: 24px;
+	--space-xxl: 32px;
+	--space-xxxl: 40px;
+
+	/* ── Radius Scale ── */
+	--radius-xs: 4px;
+	--radius-sm: 6px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
+	--radius-xxl: 24px;
+	--radius-full: 9999px;
+
+	/* ── Elevation ── */
+	--shadow-level-1: rgba(0, 0, 0, 0.04) 0 1px 2px 0;
+	--shadow-level-2: rgba(0, 0, 0, 0.08) 0 4px 12px 0;
+	--shadow-level-3: rgba(0, 0, 0, 0.12) 0 24px 48px -8px;
+	--shadow-level-4: rgba(33, 84, 166, 0.08) 0 8px 24px;
+
+	/* Legacy shadow aliases */
+	--shadow-card: var(--shadow-level-1);
+	--shadow-button: var(--shadow-level-1);
+	--shadow-1: var(--shadow-level-1);
+	--shadow-2: var(--shadow-level-2);
+	--shadow-3: var(--shadow-level-3);
+	--shadow-modal: 0 24px 80px rgba(15, 23, 42, 0.28);
+
+	/* ── Gradient Header (Light) — subtle neutral ── */
+	--gradient-header: linear-gradient(135deg, rgba(26, 26, 26, 0.04), transparent);
+
+	/* ── Typography ── */
+	--font-family: Inter, system-ui, -apple-system, sans-serif;
+	--font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ═════════════════════════════════════════════════════════
+   DARK MODE
+   ═════════════════════════════════════════════════════════ */
+
+.dark,
+[data-theme="dark"] {
+	color-scheme: dark;
+
+	/* ── Brand (Dark) ──
+	   True black-gray palette (#121212 canvas, #1A1A1A surfaces, #0A0A0A deep).
+	   NO blue-tinted backgrounds. Cermont Blue/Green = border-and-title accents only. */
+	--color-brand-green: #3a78d8; /* Cermont Blue Light (dark mode accent) */
+	--color-brand-green-deep: #1e3a6e;
+	--color-brand-green-soft: #4ade80; /* Green tint */
+	--color-brand-tag: #60a5fa;
+	--color-brand-annotate: #4ade80; /* Cermont Green Light (dark mode) */
+	--color-brand-warn: #fbbf24;
+	--color-brand-error: #ef4444;
+	--color-testimonial-orange: #fb923c;
+
+	/* ── WhatsApp Brand — same in dark mode ── */
+	--color-whatsapp: #25d366;
+	--color-whatsapp-dark: #20bd5a;
+
+	/* ── Surface (Dark) — true black-gray, NO blue-tinted backgrounds ── */
+	--color-canvas: #121212; /* Primary bg — neutral near-black */
+	--color-canvas-dark: #0a0a0a; /* Deepest surface — near-pure black */
+	--color-surface: #1a1a1a; /* Section bg — dark gray */
+	--color-surface-soft: #242424; /* Hover/elevated — lighter gray */
+	--color-surface-code: #0d0d0d; /* Code block bg */
+	--color-hairline: #2e2e2e; /* Standard borders */
+	--color-hairline-soft: #1e1e1e; /* Subtle dividers */
+	--color-hairline-dark: #3a3a3a; /* Borders on deep surfaces */
+
+	/* ── Text (Dark) — neutral, no blue cast ── */
+	--color-ink: #f5f5f5;
+	--color-charcoal: #e0e0e0;
+	--color-slate: #a0a0a0;
+	--color-steel: #808080;
+	--color-stone: #606060;
+	--color-muted: #404040;
+	--color-on-dark: #f5f5f5;
+	--color-on-dark-muted: rgba(245, 245, 245, 0.55);
+	--color-on-primary: #121212;
+	--color-primary: #f5f5f5;
+
+	/* ── Hero Gradients (Dark) — neutral dark ── */
+	--color-hero-sky-from: #1a1a1a;
+	--color-hero-sky-to: #121212;
+	--color-hero-dark-from: #0a0a0a;
+	--color-hero-dark-to: #161616;
+
+	/* ── Icons (Dark) — neutral grays ── */
+	--icon-default: #808080;
+	--icon-subtle: #606060;
+	--icon-primary: #f5f5f5;
+	--icon-accent: #3a78d8; /* Cermont Blue Light */
+	--icon-on-dark: #f5f5f5;
+	--icon-on-dark-muted: rgba(245, 245, 245, 0.55);
+	--icon-success: #4ade80; /* Cermont Green Light */
+	--icon-warning: #fbbf24;
+	--icon-error: #ef4444;
+	--icon-info: #60a5fa;
+	--icon-muted: #404040;
+	--icon-interactive: #a0a0a0;
+	--icon-interactive-active: #f5f5f5;
+	--icon-code: rgba(245, 245, 245, 0.55);
+
+	/* ── Semantic / Functional (Dark) ── */
+	--color-success: #4ade80;
+	--color-success-bg: #0a2e0a;
+	--color-warning: #fbbf24;
+	--color-warning-bg: #2e2a0a;
+	--color-danger: #ef4444;
+	--color-danger-bg: #2e0a0a;
+	--color-info: #60a5fa;
+	--color-info-bg: #0a0a2e;
+
+	/* ── Focus Ring keeps Cermont Green in dark ── */
+	--color-focus-ring: #4ade80;
+
+	/* ══════════════════════════════════
+	   BACKWARD-COMPATIBLE ALIASES (Dark)
+	   ══════════════════════════════════ */
+
+	--color-cermont-blue: var(--color-brand-green);
+	--color-cermont-blue-light: var(--color-brand-tag);
+	--color-cermont-blue-bg: #0a1f3d;
+	--color-cermont-green-bg: #0a2e0a;
+
+	--color-brand: var(--color-brand-green);
+	--color-brand-hover: #5a92e0;
+	--color-brand-strong: var(--color-brand-green);
+	--color-brand-accent: var(--color-brand-green-soft);
+
+	--color-background: var(--color-canvas);
+	--color-foreground: var(--color-ink);
+
+	--surface-page: var(--color-canvas);
+	--surface-primary: var(--color-canvas);
+	--surface-card: var(--color-canvas);
+	--surface-secondary: var(--color-surface);
+	--surface-elevated: var(--color-canvas);
+	--surface-sidebar: var(--color-canvas);
+	--surface-sidebar-hover: var(--color-surface);
+	--surface-sidebar-active: var(--color-surface);
+	--surface-overlay: rgba(0, 0, 0, 0.8);
+
+	--text-primary: var(--color-ink);
+	--text-secondary: var(--color-charcoal);
+	--text-tertiary: var(--color-slate);
+	--text-muted: var(--color-steel);
+	--text-inverse: var(--color-on-dark);
+
+	--border-subtle: var(--color-hairline);
+	--border-medium: var(--color-hairline);
+
+	/* ── Elevation & Depth (Dark) — luminance stepping replaces shadows
+	   Depth is conveyed through background luminance: #0A0A0A → #121212 → #1A1A1A → #242424
+	   See DESIGN.md Elevation & Depth section for details. */
+	--shadow-level-1: rgba(0, 0, 0, 0.02) 0 1px 2px 0;
+	--shadow-level-2: rgba(0, 0, 0, 0.04) 0 4px 12px 0;
+	--shadow-level-3: rgba(0, 0, 0, 0.6) 0 24px 48px -8px;
+	--shadow-level-4: rgba(33, 84, 166, 0.15) 0 8px 24px;
+
+	--shadow-card: var(--shadow-level-2);
+	--shadow-button: var(--shadow-level-1);
+	--shadow-1: var(--shadow-level-1);
+	--shadow-2: var(--shadow-level-2);
+	--shadow-3: var(--shadow-level-3);
+	--shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.6);
+
+	--gradient-header: linear-gradient(135deg, rgba(245, 245, 245, 0.03), transparent);
+
+	/* Theme compat (Dark) */
+	--background: var(--color-canvas);
+	--foreground: var(--color-ink);
+	--card: var(--color-canvas);
+	--card-foreground: var(--color-ink);
+	--popover: var(--color-canvas);
+	--popover-foreground: var(--color-ink);
+	--primary: var(--color-brand-green);
+	--primary-foreground: var(--color-on-dark);
+	--secondary: var(--color-surface);
+	--secondary-foreground: var(--color-slate);
+	--muted: var(--color-surface);
+	--muted-foreground: var(--color-steel);
+	--accent: var(--color-surface);
+	--accent-foreground: var(--color-ink);
+	--destructive: var(--color-brand-error);
+	--destructive-foreground: var(--color-on-dark);
+	--border: var(--color-hairline);
+	--input: var(--color-hairline);
+	--ring: var(--color-focus-ring);
+}
+
+/* ═════════════════════════════════════════════════════════
+   TAILWIND 4 THEME INLINE — Utility Generation
+   Every var here becomes a Tailwind utility class
+   ═════════════════════════════════════════════════════════ */
+
+@theme inline {
+	/* ── Surface ── */
+	--color-canvas: var(--color-canvas);
+	--color-canvas-dark: var(--color-canvas-dark);
+	--color-surface: var(--color-surface);
+	--color-surface-soft: var(--color-surface-soft);
+	--color-surface-code: var(--color-surface-code);
+	--color-hairline: var(--color-hairline);
+	--color-hairline-soft: var(--color-hairline-soft);
+	--color-hairline-dark: var(--color-hairline-dark);
+
+	/* ── Text ── */
+	--color-ink: var(--color-ink);
+	--color-charcoal: var(--color-charcoal);
+	--color-slate: var(--color-slate);
+	--color-steel: var(--color-steel);
+	--color-stone: var(--color-stone);
+	--color-muted-text: var(--color-muted);
+	--color-on-dark: var(--color-on-dark);
+	--color-on-primary: var(--color-on-primary);
+	--color-primary: var(--color-primary);
+
+	/* ── Brand ── */
+	--color-brand-green: var(--color-brand-green);
+	--color-brand-green-deep: var(--color-brand-green-deep);
+	--color-brand-green-soft: var(--color-brand-green-soft);
+	--color-brand-tag: var(--color-brand-tag);
+	--color-brand-annotate: var(--color-brand-annotate);
+	--color-brand-warn: var(--color-brand-warn);
+	--color-brand-error: var(--color-brand-error);
+	--color-testimonial-orange: var(--color-testimonial-orange);
+
+	/* ── Brand aliases ── */
+	--color-brand: var(--color-brand-green);
+	--color-brand-accent: var(--color-brand-annotate);
+
+	/* ── Cermont aliases ── */
+	--color-cermont-blue: var(--color-brand-green);
+	--color-cermont-blue-deep: var(--color-brand-green-deep);
+	--color-cermont-blue-light: var(--color-brand-tag);
+	--color-cermont-green: var(--color-brand-annotate);
+	--color-cermont-green-light: var(--color-brand-green-soft);
+
+	/* ── Semantic colors ── */
+	--color-success: var(--color-success);
+	--color-success-bg: var(--color-success-bg);
+	--color-warning: var(--color-warning);
+	--color-warning-bg: var(--color-warning-bg);
+	--color-danger: var(--color-danger);
+	--color-danger-bg: var(--color-danger-bg);
+	--color-info: var(--color-info);
+	--color-info-bg: var(--color-info-bg);
+
+	/* ── Legacy Theme (shadcn/ui compat) ── */
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-focus-ring: var(--color-focus-ring);
+
+	/* ── Surface legacy ── */
+	--color-surface-page: var(--surface-page);
+	--color-surface-card: var(--surface-card);
+	--color-surface-secondary: var(--surface-secondary);
+
+	/* ── Icon color tokens ── */
+	--color-icon-default: var(--icon-default);
+	--color-icon-subtle: var(--icon-subtle);
+	--color-icon-primary: var(--icon-primary);
+	--color-icon-accent: var(--icon-accent);
+	--color-icon-success: var(--icon-success);
+	--color-icon-warning: var(--icon-warning);
+	--color-icon-error: var(--icon-error);
+
+	/* ── Third-party brand tokens ── */
+	--color-whatsapp: var(--color-whatsapp);
+	--color-whatsapp-dark: var(--color-whatsapp-dark);
+	--color-icon-info: var(--icon-info);
+	--color-icon-muted: var(--icon-muted);
+	--color-icon-interactive: var(--icon-interactive);
+
+	/* ── Radius ── */
+	--radius-xs: var(--radius-xs);
+	--radius-sm: var(--radius-sm);
+	--radius-md: var(--radius-md);
+	--radius-lg: var(--radius-lg);
+	--radius-xl: var(--radius-xl);
+	--radius-2xl: var(--radius-xxl);
+	--radius-full: var(--radius-full);
+
+	/* ── Typography ── */
+	--font-sans: var(--font-family);
+	--font-mono: var(--font-mono);
+
+	/* ── Breakpoints ── */
+	--breakpoint-*: initial;
+	--breakpoint-2xsm: 375px;
+	--breakpoint-xsm: 425px;
+	--breakpoint-sm: 640px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 1024px;
+	--breakpoint-xl: 1280px;
+	--breakpoint-2xl: 1536px;
+	--breakpoint-3xl: 2000px;
+}
+
+/* ═════════════════════════════════════════════════════════
+   BASE LAYER
+   ═════════════════════════════════════════════════════════ */
+
+@layer base {
+	body {
+		font-family: var(--font-family);
+		font-size: var(--font-size-md);
+		color: var(--color-ink);
+		background-color: var(--color-canvas);
+		-webkit-font-smoothing: antialiased;
+		@apply bg-background font-normal text-foreground antialiased transition-colors duration-200 ease-out;
+	}
+
+	*:focus-visible {
+		outline: 2px solid var(--color-focus-ring);
+		outline-offset: 2px;
+		border-radius: var(--radius-xs);
+	}
+
+	/* iOS auto-zoom prevention */
+	input,
+	textarea,
+	select {
+		font-size: max(16px, 1rem);
+	}
+
+	/* Scrollbar styling */
+	::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	::-webkit-scrollbar-thumb {
+		background: var(--color-hairline);
+		border-radius: 3px;
+	}
+	.dark ::-webkit-scrollbar-thumb {
+		background: var(--color-slate);
+	}
+}
+
+/* ═════════════════════════════════════════════════════════
+   COMPONENT LAYER — Utility classes
+   ═════════════════════════════════════════════════════════ */
+
+@layer components {
+	.input-field {
+		@apply w-full rounded-lg border border-hairline bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-steel;
+		@apply focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-focus-ring/20;
+		@apply transition-[background-color,border-color,box-shadow,color] duration-200;
+	}
+
+	.btn-primary {
+		@apply flex items-center justify-center gap-2 rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold text-on-dark;
+		@apply transition-[background-color,box-shadow,opacity,transform] duration-200 ease-out;
+		box-shadow: var(--shadow-button);
+	}
+
+	.btn-primary:active {
+		@apply scale-[0.97];
+	}
+
+	.btn-primary:hover {
+		@apply opacity-90;
+	}
+
+	.card-shadow {
+		@apply rounded-2xl bg-background border border-hairline transition-shadow duration-200;
+		box-shadow: var(--shadow-card);
+	}
+
+	/* ── Card Dashboard (KPI) — 2px Cermont Blue border on neutral bg ── */
+	.card-dashboard {
+		@apply rounded-xl border-2 border-brand-green bg-canvas p-4;
+	}
+	.card-dashboard-value {
+		@apply text-2xl font-bold text-brand-green;
+	}
+
+	/* ── Card SLA (Compliance) — 2px Cermont Green border on neutral bg ── */
+	.card-sla {
+		@apply rounded-xl border-2 border-brand-annotate bg-canvas p-4;
+	}
+	.card-sla-value {
+		@apply text-2xl font-bold text-brand-annotate;
+	}
+
+	/* ── Card SLA Warning — 2px Amber border ── */
+	.card-sla-warning {
+		@apply rounded-xl border-2 border-brand-warn bg-canvas p-4;
+	}
+
+	/* ── Card SLA Critical — 2px Red border ── */
+	.card-sla-critical {
+		@apply rounded-xl border-2 border-brand-error bg-canvas p-4;
+	}
+}
+
+/* ═════════════════════════════════════════════════════════
+   ANIMATIONS
+   ═════════════════════════════════════════════════════════ */
+
+@keyframes blob {
+	0%,
+	100% {
+		transform: translate(0, 0) scale(1);
+	}
+	33% {
+		transform: translate(30px, -50px) scale(1.1);
+	}
+	66% {
+		transform: translate(-20px, 20px) scale(0.9);
+	}
+}
+
+@layer utilities {
+	.animate-blob {
+		animation: blob 7s infinite;
+	}
+
+	.animation-delay-2000 {
+		animation-delay: 2s;
+	}
+
+	.animation-delay-4000 {
+		animation-delay: 4s;
+	}
+
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+	.no-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+
+	.scrollbar-thin::-webkit-scrollbar {
+		width: 4px;
+	}
+	.scrollbar-thin::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	.scrollbar-thin::-webkit-scrollbar-thumb {
+		background: var(--color-slate);
+		border-radius: 2px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	@layer utilities {
+		.animate-blob {
+			animation: none;
+		}
+	}
+}

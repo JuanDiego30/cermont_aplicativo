@@ -1,0 +1,250 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" fill="none" role="img" aria-label="Ejecución técnica de obra industrial">
+	<defs>
+		<linearGradient id="ex-sky" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#dbeafe" />
+			<stop offset="1" stop-color="#e0f2fe" />
+		</linearGradient>
+		<linearGradient id="ex-tower" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#475569" />
+			<stop offset="1" stop-color="#1e293b" />
+		</linearGradient>
+		<linearGradient id="ex-uniform" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#f97316" />
+			<stop offset="1" stop-color="#c2410c" />
+		</linearGradient>
+		<linearGradient id="ex-platform" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#3a78d8" />
+			<stop offset="1" stop-color="#1e3a8a" />
+		</linearGradient>
+		<radialGradient id="ex-sun" cx="0.5" cy="0.5" r="0.5">
+			<stop offset="0" stop-color="#fef3c7" />
+			<stop offset="0.5" stop-color="#fbbf24" stop-opacity="0.5" />
+			<stop offset="1" stop-color="#fbbf24" stop-opacity="0" />
+		</radialGradient>
+	</defs>
+
+	<rect width="800" height="480" fill="url(#ex-sky)" />
+
+	<circle cx="640" cy="100" r="50" fill="url(#ex-sun)" />
+	<circle cx="640" cy="100" r="20" fill="#fef3c7" />
+
+	<g opacity="0.3">
+		<rect x="0" y="380" width="800" height="100" fill="#94a3b8" />
+		<rect x="0" y="420" width="800" height="60" fill="#475569" />
+	</g>
+
+	<g>
+		<rect x="60" y="380" width="60" height="6" fill="#0f172a" />
+		<g transform="translate(60 80)">
+			<rect x="20" y="0" width="20" height="300" fill="url(#ex-tower)" />
+			<g opacity="0.4">
+				<line x1="20" y1="40" x2="40" y2="40" stroke="#94a3b8" stroke-width="0.5" />
+				<line x1="20" y1="80" x2="40" y2="80" stroke="#94a3b8" stroke-width="0.5" />
+				<line x1="20" y1="120" x2="40" y2="120" stroke="#94a3b8" stroke-width="0.5" />
+				<line x1="20" y1="160" x2="40" y2="160" stroke="#94a3b8" stroke-width="0.5" />
+				<line x1="20" y1="200" x2="40" y2="200" stroke="#94a3b8" stroke-width="0.5" />
+				<line x1="20" y1="240" x2="40" y2="240" stroke="#94a3b8" stroke-width="0.5" />
+				<line x1="20" y1="280" x2="40" y2="280" stroke="#94a3b8" stroke-width="0.5" />
+			</g>
+			<g>
+				<line x1="20" y1="0" x2="10" y2="50" stroke="#475569" stroke-width="2" />
+				<line x1="40" y1="0" x2="50" y2="50" stroke="#475569" stroke-width="2" />
+				<line x1="20" y1="50" x2="0" y2="100" stroke="#475569" stroke-width="2" />
+				<line x1="40" y1="50" x2="60" y2="100" stroke="#475569" stroke-width="2" />
+				<line x1="0" y1="100" x2="60" y2="100" stroke="#475569" stroke-width="2" />
+			</g>
+			<rect x="0" y="160" width="60" height="6" fill="#0f172a" />
+			<rect x="0" y="240" width="60" height="6" fill="#0f172a" />
+		</g>
+	</g>
+
+	<g transform="translate(180 100)">
+		<g>
+			<rect x="-2" y="-2" width="180" height="6" fill="#0f172a" />
+			<g opacity="0.5">
+				<line x1="0" y1="-2" x2="-2" y2="-30" stroke="#475569" stroke-width="2" />
+				<line x1="40" y1="-2" x2="38" y2="-30" stroke="#475569" stroke-width="2" />
+				<line x1="80" y1="-2" x2="78" y2="-30" stroke="#475569" stroke-width="2" />
+				<line x1="120" y1="-2" x2="118" y2="-30" stroke="#475569" stroke-width="2" />
+				<line x1="160" y1="-2" x2="158" y2="-30" stroke="#475569" stroke-width="2" />
+				<line x1="-2" y1="-30" x2="158" y2="-30" stroke="#475569" stroke-width="2" />
+			</g>
+			<rect x="0" y="0" width="180" height="4" fill="#0f172a" />
+			<rect x="20" y="4" width="20" height="20" fill="#94a3b8" />
+			<rect x="100" y="4" width="20" height="20" fill="#94a3b8" />
+		</g>
+		<g transform="translate(50 4)">
+			<rect x="-8" y="0" width="20" height="20" fill="#94a3b8" />
+		</g>
+		<g transform="translate(120 4)">
+			<rect x="-8" y="0" width="20" height="20" fill="#94a3b8" />
+		</g>
+		<rect x="0" y="0" width="180" height="3" fill="#94a3b8" opacity="0.6" />
+	</g>
+
+	<g>
+		<g transform="translate(180 220)">
+			<rect x="0" y="0" width="180" height="3" fill="#0f172a" />
+			<g opacity="0.5">
+				<line x1="0" y1="3" x2="0" y2="30" stroke="#475569" stroke-width="2" />
+				<line x1="40" y1="3" x2="40" y2="30" stroke="#475569" stroke-width="2" />
+				<line x1="80" y1="3" x2="80" y2="30" stroke="#475569" stroke-width="2" />
+				<line x1="120" y1="3" x2="120" y2="30" stroke="#475569" stroke-width="2" />
+				<line x1="160" y1="3" x2="160" y2="30" stroke="#475569" stroke-width="2" />
+				<line x1="0" y1="30" x2="160" y2="30" stroke="#475569" stroke-width="2" />
+			</g>
+		</g>
+	</g>
+
+	<g>
+		<g transform="translate(280 180)">
+			<ellipse cx="40" cy="0" rx="40" ry="14" fill="#dc2626" />
+			<ellipse cx="40" cy="-2" rx="36" ry="11" fill="#ef4444" />
+			<rect x="32" y="-8" width="16" height="3" fill="#fbbf24" />
+			<rect x="30" y="0" width="20" height="80" rx="2" fill="url(#ex-uniform)" />
+			<rect x="30" y="20" width="20" height="3" fill="#7c2d12" />
+			<rect x="30" y="50" width="20" height="3" fill="#7c2d12" />
+			<rect x="20" y="80" width="40" height="60" rx="2" fill="url(#ex-uniform)" />
+			<rect x="20" y="100" width="40" height="3" fill="#7c2d12" />
+			<rect x="22" y="105" width="36" height="2" fill="#fb923c" opacity="0.6" />
+			<rect x="26" y="112" width="28" height="2" fill="#fb923c" opacity="0.6" />
+			<rect x="24" y="140" width="14" height="40" rx="2" fill="#0f172a" />
+			<rect x="42" y="140" width="14" height="40" rx="2" fill="#0f172a" />
+			<rect x="20" y="180" width="6" height="20" fill="#0f172a" />
+			<rect x="54" y="180" width="6" height="20" fill="#0f172a" />
+			<rect x="14" y="200" width="20" height="6" fill="#0f172a" />
+			<rect x="46" y="200" width="20" height="6" fill="#0f172a" />
+		</g>
+
+		<g transform="translate(380 200)">
+			<ellipse cx="36" cy="0" rx="36" ry="12" fill="#0f766e" />
+			<ellipse cx="36" cy="-2" rx="32" ry="9" fill="#14b8a6" />
+			<rect x="28" y="0" width="16" height="70" rx="2" fill="#0f766e" />
+			<rect x="20" y="70" width="32" height="50" rx="2" fill="#0f766e" />
+			<rect x="22" y="120" width="12" height="30" rx="2" fill="#0f172a" />
+			<rect x="38" y="120" width="12" height="30" rx="2" fill="#0f172a" />
+		</g>
+	</g>
+
+	<g>
+		<g transform="translate(140 280)">
+			<rect x="0" y="0" width="200" height="100" rx="3" fill="#0f172a" />
+			<rect x="6" y="6" width="188" height="88" rx="1" fill="#020617" />
+			<g>
+				<text x="14" y="24" font-family="ui-monospace, monospace" font-size="9" fill="#94a3b8">OS-2026-0428 · EN EJECUCIÓN</text>
+				<rect x="14" y="32" width="172" height="6" rx="3" fill="#1e293b" />
+				<rect x="14" y="32" width="138" height="6" rx="3" fill="#4caf50" />
+				<text x="14" y="52" font-family="ui-monospace, monospace" font-size="8" fill="#4ade80">80% completado · 02:14:08 restantes</text>
+				<g transform="translate(14 60)">
+					<rect x="0" y="0" width="40" height="20" rx="2" fill="#1e293b" />
+					<text x="20" y="13" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="8" fill="#fbbf24" font-weight="700">LV</text>
+					<rect x="44" y="0" width="40" height="20" rx="2" fill="#1e293b" />
+					<text x="64" y="13" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="8" fill="#94a3b8" font-weight="700">EV</text>
+					<rect x="88" y="0" width="40" height="20" rx="2" fill="#1e293b" />
+					<text x="108" y="13" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="8" fill="#94a3b8" font-weight="700">IT</text>
+					<rect x="132" y="0" width="40" height="20" rx="2" fill="#1e293b" />
+					<text x="152" y="13" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="8" fill="#94a3b8" font-weight="700">AC</text>
+				</g>
+			</g>
+		</g>
+	</g>
+
+	<g>
+		<g transform="translate(440 100)">
+			<rect x="0" y="0" width="280" height="100" rx="3" fill="#ffffff" stroke="#e2e8f0" />
+			<rect x="0" y="0" width="280" height="22" fill="#0f2c59" />
+			<text x="12" y="14" font-family="ui-sans-serif, system-ui" font-size="9" fill="#f5f5f5" font-weight="700" letter-spacing="2">CHECKLIST PREFLIGHT</text>
+			<text x="268" y="14" text-anchor="end" font-family="ui-monospace, monospace" font-size="9" fill="#fbbf24">12 / 14</text>
+			<g transform="translate(12 32)">
+				<rect x="0" y="0" width="10" height="10" rx="1" fill="#4caf50" />
+				<path d="M2 5 L4 7 L8 3" stroke="#ffffff" stroke-width="1.5" fill="none" />
+				<text x="18" y="9" font-family="ui-sans-serif, system-ui" font-size="9" fill="#0f172a">Habilitación HSE</text>
+
+				<rect x="0" y="14" width="10" height="10" rx="1" fill="#4caf50" />
+				<path d="M2 19 L4 21 L8 17" stroke="#ffffff" stroke-width="1.5" fill="none" />
+				<text x="18" y="23" font-family="ui-sans-serif, system-ui" font-size="9" fill="#0f172a">Arnés + eslinga</text>
+
+				<rect x="0" y="28" width="10" height="10" rx="1" fill="#4caf50" />
+				<path d="M2 33 L4 35 L8 31" stroke="#ffffff" stroke-width="1.5" fill="none" />
+				<text x="18" y="37" font-family="ui-sans-serif, system-ui" font-size="9" fill="#0f172a">Línea de vida instalada</text>
+
+				<rect x="0" y="42" width="10" height="10" rx="1" fill="#fbbf24" />
+				<text x="18" y="51" font-family="ui-sans-serif, system-ui" font-size="9" fill="#0f172a">Fotos de avance</text>
+
+				<rect x="0" y="56" width="10" height="10" rx="1" fill="#cbd5e1" />
+				<text x="18" y="65" font-family="ui-sans-serif, system-ui" font-size="9" fill="#94a3b8">Informe técnico</text>
+
+				<rect x="140" y="0" width="10" height="10" rx="1" fill="#4caf50" />
+				<path d="M142 5 L144 7 L148 3" stroke="#ffffff" stroke-width="1.5" fill="none" />
+				<text x="158" y="9" font-family="ui-sans-serif, system-ui" font-size="9" fill="#0f172a">Anclajes certificados</text>
+
+				<rect x="140" y="14" width="10" height="10" rx="1" fill="#4caf50" />
+				<path d="M142 19 L144 21 L148 17" stroke="#ffffff" stroke-width="1.5" fill="none" />
+				<text x="158" y="23" font-family="ui-sans-serif, system-ui" font-size="9" fill="#0f172a">Capacitación in situ</text>
+
+				<rect x="140" y="28" width="10" height="10" rx="1" fill="#4caf50" />
+				<path d="M142 33 L144 35 L148 31" stroke="#ffffff" stroke-width="1.5" fill="none" />
+				<text x="158" y="37" font-family="ui-sans-serif, system-ui" font-size="9" fill="#0f172a">Kit primeros auxilios</text>
+
+				<rect x="140" y="42" width="10" height="10" rx="1" fill="#4caf50" />
+				<path d="M142 47 L144 49 L148 45" stroke="#ffffff" stroke-width="1.5" fill="none" />
+				<text x="158" y="51" font-family="ui-sans-serif, system-ui" font-size="9" fill="#0f172a">AST firmado</text>
+
+				<rect x="140" y="56" width="10" height="10" rx="1" fill="#cbd5e1" />
+				<text x="158" y="65" font-family="ui-sans-serif, system-ui" font-size="9" fill="#94a3b8">Acta de entrega</text>
+			</g>
+		</g>
+	</g>
+
+	<g>
+		<g transform="translate(440 220)">
+			<rect x="0" y="0" width="280" height="100" rx="3" fill="#ffffff" stroke="#e2e8f0" />
+			<rect x="0" y="0" width="280" height="22" fill="#0f2c59" />
+			<text x="12" y="14" font-family="ui-sans-serif, system-ui" font-size="9" fill="#f5f5f5" font-weight="700" letter-spacing="2">TEAM ON-SITE</text>
+			<text x="268" y="14" text-anchor="end" font-family="ui-monospace, monospace" font-size="9" fill="#4ade80">3 activos</text>
+			<g transform="translate(12 32)">
+				<circle cx="14" cy="14" r="14" fill="#dc2626" />
+				<text x="14" y="18" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#ffffff" font-weight="700">CM</text>
+				<text x="36" y="14" font-family="ui-sans-serif, system-ui" font-size="10" fill="#0f172a" font-weight="700">Carlos Mendoza</text>
+				<text x="36" y="26" font-family="ui-sans-serif, system-ui" font-size="9" fill="#475569">Líder HSE · IRATA L3</text>
+				<rect x="220" y="6" width="48" height="16" rx="8" fill="#dcfce7" />
+				<text x="244" y="17" text-anchor="middle" font-family="ui-monospace, monospace" font-size="8" fill="#166534" font-weight="700">ACTIVO</text>
+			</g>
+			<g transform="translate(12 60)">
+				<circle cx="14" cy="14" r="14" fill="#0f766e" />
+				<text x="14" y="18" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#ffffff" font-weight="700">DR</text>
+				<text x="36" y="14" font-family="ui-sans-serif, system-ui" font-size="10" fill="#0f172a" font-weight="700">Diana Ramírez</text>
+				<text x="36" y="26" font-family="ui-sans-serif, system-ui" font-size="9" fill="#475569">Téc. CCTV · Piso 3</text>
+				<rect x="220" y="6" width="48" height="16" rx="8" fill="#fef3c7" />
+				<text x="244" y="17" text-anchor="middle" font-family="ui-monospace, monospace" font-size="8" fill="#92400e" font-weight="700">BREAK</text>
+			</g>
+		</g>
+	</g>
+
+	<g>
+		<rect x="0" y="420" width="800" height="60" fill="#0f172a" />
+		<g transform="translate(40 432)">
+			<rect x="0" y="0" width="50" height="32" rx="3" fill="#1e293b" />
+			<text x="25" y="20" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#4caf50" font-weight="700">3</text>
+			<text x="60" y="14" font-family="ui-sans-serif, system-ui" font-size="10" font-weight="700" fill="#f5f5f5">Técnicos on-site</text>
+			<text x="60" y="28" font-family="ui-monospace, monospace" font-size="9" fill="#4ade80">2 LV + 1 CCTV</text>
+		</g>
+		<g transform="translate(240 432)">
+			<rect x="0" y="0" width="50" height="32" rx="3" fill="#1e293b" />
+			<text x="25" y="20" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#fbbf24" font-weight="700">02:14</text>
+			<text x="60" y="14" font-family="ui-sans-serif, system-ui" font-size="10" font-weight="700" fill="#f5f5f5">Tiempo restante</text>
+			<text x="60" y="28" font-family="ui-monospace, monospace" font-size="9" fill="#fbbf24">Estimado cierre</text>
+		</g>
+		<g transform="translate(440 432)">
+			<rect x="0" y="0" width="50" height="32" rx="3" fill="#1e293b" />
+			<text x="25" y="20" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="11" fill="#3a78d8" font-weight="700">14</text>
+			<text x="60" y="14" font-family="ui-sans-serif, system-ui" font-size="10" font-weight="700" fill="#f5f5f5">Evidencias OK</text>
+			<text x="60" y="28" font-family="ui-monospace, monospace" font-size="9" fill="#94a3b8">slots preflight</text>
+		</g>
+		<g transform="translate(640 432)">
+			<rect x="0" y="0" width="120" height="32" rx="3" fill="#1e293b" stroke="#4caf50" />
+			<circle cx="20" cy="16" r="6" fill="#4caf50" />
+			<text x="80" y="20" text-anchor="middle" font-family="ui-monospace, monospace" font-size="10" fill="#4ade80" font-weight="700">EJECUCIÓN ACTIVA</text>
+		</g>
+	</g>
+</svg>

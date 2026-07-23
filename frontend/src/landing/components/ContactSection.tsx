@@ -1,4 +1,4 @@
-import { ArrowRight, Mail, MapPin, PhoneCall } from "lucide-react";
+import { ArrowRight, Mail, MapPin, MessageCircle, PhoneCall } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/core/ui/Button";
 import {
@@ -8,8 +8,13 @@ import {
 	CORPORATE_EMAIL,
 	CORPORATE_MAILTO,
 	CORPORATE_PHONE_ARAUCA,
+	CORPORATE_PHONE_ARAUCA_TEL,
 	CORPORATE_PHONE_BOGOTA,
+	CORPORATE_PHONE_BOGOTA_TEL,
+	CORPORATE_CELULAR_TEL,
+	WHATSAPP_URL,
 } from "../landing-constants";
+import { APP_ROUTES } from "@/lib/routes";
 import { SectionHeading } from "./SectionHeading";
 
 export function ContactSection() {
@@ -28,14 +33,15 @@ export function ContactSection() {
 			<div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div className="rounded-[2.25rem] border border-white/10 bg-white/5 p-8 shadow-[0_24px_80px_rgba(10,10,10,0.45)] sm:p-10 lg:p-12">
 					<SectionHeading
+						id="contact-heading"
 						eyebrow="Contacto"
-						title="Contactanos y te asesoramos en tu proximo proyecto."
-						description="Lo asesoramos en las areas de electricidad, mantenimiento, refrigeracion, montajes, construccion, suministro de materiales electricos, alumbrado comercial e industrial y telecomunicaciones."
+						title="Conversemos sobre su próximo servicio."
+						description="Mantenga el contacto directo por correo, teléfono o WhatsApp. El formulario y los envíos automáticos quedan fuera de este alcance."
 						inverse
 					/>
 
 					<div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-						<article className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
+						<address className="not-italic rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
 							<Mail className="size-5 text-brand-annotate" aria-hidden="true" />
 							<p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-stone">
 								Correo
@@ -46,55 +52,93 @@ export function ContactSection() {
 							>
 								{CORPORATE_EMAIL}
 							</a>
-						</article>
+						</address>
 
-						<article className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
+						<address className="not-italic rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
 							<MapPin className="size-5 text-brand-annotate" aria-hidden="true" />
 							<p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-stone">
 								Sede Arauca
 							</p>
 							<p className="mt-2 text-base font-semibold text-white">{CORPORATE_ADDRESS_ARAUCA}</p>
-							<p className="mt-1 text-sm text-stone">{CORPORATE_PHONE_ARAUCA}</p>
-						</article>
+							<a
+								href={CORPORATE_PHONE_ARAUCA_TEL}
+								data-analytics="cta-phone"
+								data-analytics-label="contact-arauca-phone"
+								className="mt-1 inline-flex min-h-11 items-center text-sm text-stone underline-offset-4 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring/50"
+							>
+								{CORPORATE_PHONE_ARAUCA}
+							</a>
+						</address>
 
-						<article className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
+						<address className="not-italic rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
 							<MapPin className="size-5 text-brand-annotate" aria-hidden="true" />
 							<p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-stone">
 								Oficina Bogota
 							</p>
 							<p className="mt-2 text-base font-semibold text-white">{CORPORATE_ADDRESS_BOGOTA}</p>
-							<p className="mt-1 text-sm text-stone">{CORPORATE_PHONE_BOGOTA}</p>
-						</article>
+							<a
+								href={CORPORATE_PHONE_BOGOTA_TEL}
+								className="mt-1 inline-flex min-h-11 items-center text-sm text-stone hover:text-white hover:underline"
+							>
+								{CORPORATE_PHONE_BOGOTA}
+							</a>
+						</address>
 
-						<article className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
+						<address className="not-italic rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
 							<PhoneCall className="size-5 text-brand-annotate" aria-hidden="true" />
 							<p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-stone">
 								Celular
 							</p>
-							<p className="mt-2 text-lg font-semibold text-white">{CORPORATE_CELULAR}</p>
-						</article>
+							<a
+								href={CORPORATE_CELULAR_TEL}
+								className="mt-2 inline-flex min-h-11 items-center text-lg font-semibold text-white hover:text-brand-annotate hover:underline"
+							>
+								{CORPORATE_CELULAR}
+							</a>
+							<a
+								href={WHATSAPP_URL}
+								target="_blank"
+								rel="noopener noreferrer"
+								data-analytics="cta-whatsapp"
+								data-analytics-label="contact-section-whatsapp"
+								className="mt-2 inline-flex min-h-11 items-center gap-2 text-sm text-brand-annotate hover:underline"
+							>
+								<MessageCircle className="size-4" aria-hidden="true" />
+								Escribir por WhatsApp
+							</a>
+						</address>
 
-						<article className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
+						<address className="not-italic rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
 							<PhoneCall className="size-5 text-stone" aria-hidden="true" />
 							<p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-stone">
 								Tel. Arauca
 							</p>
-							<p className="mt-2 text-lg font-semibold text-white">{CORPORATE_PHONE_ARAUCA}</p>
-						</article>
+							<a
+								href={CORPORATE_PHONE_ARAUCA_TEL}
+								className="mt-2 inline-flex min-h-11 items-center text-lg font-semibold text-white hover:underline"
+							>
+								{CORPORATE_PHONE_ARAUCA}
+							</a>
+						</address>
 
-						<article className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
+						<address className="not-italic rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
 							<PhoneCall className="size-5 text-stone" aria-hidden="true" />
 							<p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-stone">
 								Tel. Bogota
 							</p>
-							<p className="mt-2 text-lg font-semibold text-white">{CORPORATE_PHONE_BOGOTA}</p>
-						</article>
+							<a
+								href={CORPORATE_PHONE_BOGOTA_TEL}
+								className="mt-2 inline-flex min-h-11 items-center text-lg font-semibold text-white hover:underline"
+							>
+								{CORPORATE_PHONE_BOGOTA}
+							</a>
+						</address>
 					</div>
 
 					<div className="mt-10 flex flex-wrap items-center gap-3">
-						<Button asChild size="lg" className="rounded-full px-6">
+						<Button asChild size="lg" className="rounded-full px-6 bg-green-600 hover:bg-green-700 text-white">
 							<a href={CORPORATE_MAILTO}>
-								Solicitar informacion
+								Solicitar información
 								<ArrowRight className="size-4.5" aria-hidden="true" />
 							</a>
 						</Button>
@@ -104,7 +148,7 @@ export function ContactSection() {
 							variant="outline"
 							className="rounded-full border-white/15 bg-white/5 px-6 text-white hover:bg-white/10"
 						>
-							<Link href="/login">Acceso privado</Link>
+							<Link href={APP_ROUTES.login}>Acceso privado</Link>
 						</Button>
 					</div>
 				</div>

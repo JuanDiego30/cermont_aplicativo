@@ -1,68 +1,18 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef } from "react";
 import { LANDING_FEATURES, type LandingTone } from "../landing-data";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const TONE_CLASSES: Record<LandingTone, string> = {
-	brand: "bg-surface text-ink",
-	info: "bg-surface text-charcoal",
-	success: "bg-surface text-charcoal",
-	warning: "bg-surface text-charcoal",
-	purple: "bg-surface text-charcoal",
-	neutral: "bg-surface text-charcoal",
-	danger: "bg-surface text-charcoal",
+	brand: "bg-brand-green/10 text-brand-green",
+	info: "bg-info-bg text-info",
+	success: "bg-success-bg text-success",
+	warning: "bg-warning-bg text-warning",
+	purple: "bg-info-bg text-info",
+	neutral: "bg-surface text-ink",
+	danger: "bg-danger-bg text-danger",
 };
 
-export function FeaturesSection({ shouldReduceMotion = false }: { shouldReduceMotion?: boolean }) {
-	const sectionRef = useRef<HTMLElement>(null);
-
-	useGSAP(
-		() => {
-			if (shouldReduceMotion || !sectionRef.current) {
-				return;
-			}
-
-			const cards = Array.from(sectionRef.current.querySelectorAll("[data-feature-card]"));
-			if (!cards.length) {
-				return;
-			}
-
-			ScrollTrigger.batch(cards, {
-				interval: 0.12,
-				batchMax: 3,
-				onEnter: (batch) => {
-					gsap.fromTo(
-						batch,
-						{ opacity: 0, y: 32, scale: 0.98 },
-						{
-							opacity: 1,
-							y: 0,
-							scale: 1,
-							duration: 0.65,
-							ease: "power2.out",
-							stagger: 0.08,
-							overwrite: true,
-						},
-					);
-				},
-				onLeaveBack: (batch) => {
-					gsap.set(batch, { opacity: 0, y: 32, scale: 0.98, overwrite: true });
-				},
-				start: "top 85%",
-				once: false,
-			});
-		},
-		{ scope: sectionRef, dependencies: [shouldReduceMotion] },
-	);
-
+export function FeaturesSection() {
 	return (
 		<section
-			ref={sectionRef}
 			data-landing-section
 			aria-labelledby="features-title"
 			className="mx-auto max-w-7xl px-6 py-20 lg:px-8"
@@ -72,7 +22,7 @@ export function FeaturesSection({ shouldReduceMotion = false }: { shouldReduceMo
 					Lo que nos define como empresa
 				</h2>
 				<p className="mt-4 text-lg text-charcoal">
-					Una plataforma integral disenada para el mantenimiento industrial, seguridad y control
+					Principios y herramientas que conectan el trabajo en campo con la información de cierre.
 				</p>
 			</div>
 
@@ -80,8 +30,11 @@ export function FeaturesSection({ shouldReduceMotion = false }: { shouldReduceMo
 				{LANDING_FEATURES.map((feature) => {
 					const Icon = feature.icon;
 					return (
-						<li key={feature.title} data-feature-card>
-							<article className="flex flex-col rounded-2xl border border-hairline bg-canvas p-6 shadow-1 transition-shadow hover:shadow-2">
+						<li
+							key={feature.title}
+							className="motion-safe:transition-transform motion-safe:hover:-translate-y-1 motion-reduce:transition-none"
+						>
+							<article className="flex h-full flex-col rounded-2xl border border-hairline bg-canvas p-6 shadow-1 transition-shadow hover:shadow-2 motion-reduce:transition-none">
 								<div
 									className={`flex size-12 items-center justify-center rounded-xl ${TONE_CLASSES[feature.tone]}`}
 								>

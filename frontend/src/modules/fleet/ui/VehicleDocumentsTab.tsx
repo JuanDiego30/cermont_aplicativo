@@ -49,6 +49,7 @@ function DocumentStatusCard({ label, icon, expiryIso, mounted }: DocumentStatusC
 			day: "2-digit",
 			month: "long",
 			year: "numeric",
+			timeZone: "America/Bogota",
 		});
 		let status: "ok" | "warning" | "expired" | "missing";
 		if (days === null) {

@@ -18,8 +18,10 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
 	// Stable refs for callbacks — effect depends only on stable refs
 	const onScanRef = useRef(onScan);
 	const onCloseRef = useRef(onClose);
-	onScanRef.current = onScan;
-	onCloseRef.current = onClose;
+	useEffect(() => {
+		onScanRef.current = onScan;
+		onCloseRef.current = onClose;
+	}, [onScan, onClose]);
 
 	useEffect(() => {
 		let active = true;

@@ -39,7 +39,8 @@ describe("InventoryPage", () => {
 
 		fireEvent.click(screen.getByRole("button", { name: "Nuevo item" }));
 		fireEvent.change(screen.getByLabelText("Nombre"), { target: { value: "Cable UTP" } });
-		fireEvent.submit(screen.getByRole("form", { name: "Nuevo item de inventario" }));
+		const form = screen.getByRole("form", { name: "Nuevo item de inventario" });
+		expect(fireEvent.submit(form)).toBe(false);
 
 		await waitFor(() => {
 			expect(createItemMock).toHaveBeenCalledWith({
@@ -76,7 +77,8 @@ describe("InventoryPage", () => {
 
 		fireEvent.click(screen.getByRole("button", { name: "Movimiento" }));
 		fireEvent.change(screen.getByLabelText("Motivo"), { target: { value: "OT-2026-0012" } });
-		fireEvent.submit(screen.getByRole("form", { name: "Movimiento de stock para Cable UTP" }));
+		const form = screen.getByRole("form", { name: "Movimiento de stock para Cable UTP" });
+		expect(fireEvent.submit(form)).toBe(false);
 
 		await waitFor(() => {
 			expect(registerMovementMock).toHaveBeenCalledWith({

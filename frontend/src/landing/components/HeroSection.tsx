@@ -1,33 +1,24 @@
-import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ArrowRight, FileText } from "lucide-react";
+import Image from "next/image";
 import { BadgePill } from "@/core/ui/BadgePill";
 import { Button } from "@/core/ui/Button";
-import { Logo } from "@/core/ui/Logo";
-import { CORPORATE_LOCATION } from "../landing-constants";
-import { LANDING_METRICS, LANDING_SERVICES, LANDING_TRUST_POINTS } from "../landing-data";
-import { MetricCard } from "./cards/MetricCard";
-import { LandingHeroCarousel } from "./LandingHeroCarousel";
+import { LANDING_VISUAL_ASSETS } from "../landing-data";
 
 export function HeroSection() {
+	const heroVisual = LANDING_VISUAL_ASSETS[0];
 	return (
-		<section className="relative overflow-hidden bg-canvas pt-12 pb-20 lg:pt-20 lg:pb-32">
-			{/* Atmospheric Background Gradients — neutral/green tones, no blue-tinted blobs */}
+		<section
+			id="inicio"
+			className="relative scroll-mt-28 overflow-hidden bg-canvas pt-8 pb-10 lg:pt-12 lg:pb-14"
+		>
 			<div className="pointer-events-none absolute inset-0 overflow-hidden">
-				<div
-					data-hero-blob="one"
-					className="absolute -left-20 top-0 size-[500px] rounded-full bg-brand-green/5 blur-[100px]"
-				/>
-				<div
-					data-hero-blob="two"
-					className="absolute -right-20 top-20 size-[600px] rounded-full bg-brand-annotate/10 blur-[120px]"
-				/>
-				<div
-					data-hero-blob="three"
-					className="absolute bottom-0 left-1/4 size-[400px] rounded-full bg-white/5 blur-[80px]"
-				/>
+				<div className="absolute -left-20 top-0 size-[500px] rounded-full bg-brand-green/5 blur-[100px]" />
+				<div className="absolute -right-20 top-20 size-[600px] rounded-full bg-brand-annotate/10 blur-[120px]" />
+				<div className="absolute bottom-0 left-1/4 size-[400px] rounded-full bg-white/5 blur-[80px]" />
 				<div className="absolute inset-0 bg-[linear-gradient(var(--color-hairline)_1px,transparent_1px),linear-gradient(90deg,var(--color-hairline)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] opacity-20" />
 			</div>
 
-			<div className="relative mx-auto grid max-w-7xl gap-16 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8">
+			<div className="relative mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12 lg:px-8">
 				<div data-hero-copy className="max-w-3xl">
 					<BadgePill
 						className="px-3.5 py-1.5 font-mono text-[11px]"
@@ -37,151 +28,60 @@ export function HeroSection() {
 						Servicios técnicos e industriales
 					</BadgePill>
 
-					<h1 className="mt-8 text-4xl font-semibold tracking-[-0.03em] text-ink sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.1]">
-						Excelencia industrial con
-						<span className="text-brand-annotate"> seguridad</span> y disciplina operativa.
+					<h1 className="mt-5 text-4xl font-semibold leading-[1.1] tracking-[-0.03em] text-ink sm:text-5xl lg:text-6xl">
+						Ingeniería que documenta
+						<span className="text-brand-annotate"> cada paso del servicio.</span>
 					</h1>
 
-					<p className="mt-8 max-w-2xl text-lg leading-relaxed text-charcoal sm:text-xl">
-						CERMONT S.A.S es su aliado estratégico en Arauca, brindando soluciones integrales en
-						construcción, electricidad y mantenimiento con los más altos estándares de calidad.
+					<p className="mt-5 max-w-2xl text-lg leading-relaxed text-charcoal sm:text-xl">
+						Cermont S.A.S. integra la ejecución técnica con la trazabilidad documental:
+						planeación, registro, informe y cierre en una misma línea de servicio.
 					</p>
 
-					<ul className="mt-10 grid gap-4 sm:grid-cols-3">
-						{LANDING_TRUST_POINTS.map((point) => (
-							<li
-								key={point.title}
-								className="flex items-center gap-2.5 text-sm font-medium text-charcoal"
-							>
-								<div className="flex size-5 items-center justify-center rounded-full bg-brand-annotate/15 text-brand-annotate">
-									<CheckCircle2 className="size-3.5" aria-hidden="true" />
-								</div>
-								<span>{point.title}</span>
-							</li>
-						))}
-					</ul>
-
-					<div className="mt-12 flex flex-wrap items-center gap-4">
-						<Button asChild size="lg" variant="primary" className="px-8 py-6 text-base">
-							<a href="#contacto">
+					<div className="mt-7 flex flex-wrap items-center gap-4">
+						<Button asChild size="lg" className="px-8 py-6 text-base bg-green-600 hover:bg-green-700 active:bg-green-800 text-white shadow-md hover:shadow-lg">
+							<a href="#contacto" data-analytics="cta-hero-primary" data-analytics-label="hero-solicitar-informacion">
 								Solicitar información
 								<ArrowRight className="size-5 ml-1" aria-hidden="true" />
 							</a>
 						</Button>
 						<Button asChild size="lg" variant="secondary" className="px-8 py-6 text-base">
-							<a href="#servicios">Ver servicios</a>
+							<a href="#servicios" data-analytics="cta-hero-secondary" data-analytics-label="hero-ver-servicios">Ver servicios</a>
 						</Button>
-					</div>
-
-					<div className="mt-12 flex flex-wrap gap-2.5">
-						{["Seguridad", "Trazabilidad", "Continuidad"].map((item) => (
-							<BadgePill
-								key={item}
-								className="px-3 py-1.5 font-mono bg-canvas shadow-sm"
-								dotClassName="bg-brand-annotate"
-								ariaLabel={item}
-							>
-								{item}
-							</BadgePill>
-						))}
 					</div>
 				</div>
 
-				<aside data-hero-panel className="relative lg:block">
-					<div className="relative overflow-hidden rounded-[2.5rem] border border-hairline bg-canvas p-6 shadow-2xl shadow-black/[0.05] dark:shadow-black/20">
-						<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--color-brand-green)/8,transparent_50%),radial-gradient(circle_at_bottom_left,var(--color-brand-annotate)/8,transparent_40%)] opacity-30 dark:opacity-10" />
-
-						{/* Mock Browser Header */}
-						<div className="relative z-10 rounded-2xl border border-hairline bg-canvas/80 backdrop-blur-md px-4 py-2.5 shadow-sm">
-							<div className="flex items-center gap-3">
-								<div className="flex gap-1.5" aria-hidden="true">
-									<div className="size-2.5 rounded-full bg-brand-error/80" />
-									<div className="size-2.5 rounded-full bg-brand-warn/80" />
-									<div className="size-2.5 rounded-full bg-brand-annotate/80" />
-								</div>
-								<div className="flex-1 rounded-full bg-surface border border-hairline px-4 py-1 text-center text-[10px] font-mono tracking-wider text-slate">
-									portal.cermont.co
-								</div>
-							</div>
-						</div>
-
-						<div className="relative z-10 mt-6">
-							<LandingHeroCarousel />
-						</div>
-
-						<div className="relative z-10 mt-6 flex items-start justify-between gap-4">
-							<div>
-								<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate">
-									Sede Central
-								</p>
-								<p className="mt-2 text-xl font-semibold text-ink">{CORPORATE_LOCATION}</p>
-							</div>
-							<BadgePill
-								className="bg-brand-annotate/15 text-brand-annotate px-4 py-2 text-xs font-semibold"
-								dotClassName="bg-brand-annotate animate-pulse"
-								leadingIcon={<ShieldCheck className="size-4" />}
-								ariaLabel="Operación activa"
-							>
-								Activo
-							</BadgePill>
-						</div>
-
-						<div className="relative z-10 mt-6 grid gap-4 sm:grid-cols-3">
-							{LANDING_METRICS.map((metric) => (
-								<MetricCard key={metric.label} {...metric} />
-							))}
-						</div>
-
-						<div className="relative z-10 mt-6 rounded-[1.75rem] border border-hairline bg-surface/50 p-6">
-							<div className="flex items-center gap-4">
-								<div className="flex size-12 items-center justify-center rounded-2xl bg-canvas shadow-sm ring-1 ring-hairline">
-									<Logo showText={false} size="sm" />
-								</div>
-								<div>
-									<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate">
-										Panel de Control
-									</p>
-									<p className="mt-1 text-base font-semibold text-ink">
-										Gestión Operativa Inteligente
-									</p>
-								</div>
-							</div>
-
-							<div className="mt-6 grid gap-4 sm:grid-cols-2">
-								{LANDING_TRUST_POINTS.slice(0, 2).map((point) => (
-									<div
-										key={point.title}
-										className="rounded-2xl border border-hairline bg-canvas p-4 shadow-sm"
-									>
-										<p className="text-[10px] font-bold uppercase tracking-wider text-slate">
-											{point.title}
-										</p>
-										<p className="mt-1.5 text-xs leading-relaxed text-charcoal">
-											{point.description}
+				<aside className="relative lg:block">
+					<figure className="overflow-hidden rounded-[2.5rem] border border-hairline bg-canvas p-4 shadow-2xl shadow-black/[0.05] dark:shadow-black/20 sm:p-6">
+						<div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-surface">
+							<Image
+								src={heroVisual.src}
+								alt={heroVisual.alt}
+								fill
+								priority
+								sizes="(max-width: 1023px) 100vw, 42vw"
+								className="object-cover transition-transform duration-700 motion-safe:hover:scale-[1.03] motion-reduce:transition-none"
+							/>
+							<div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/20 bg-black/55 p-4 text-white backdrop-blur-sm">
+								<div className="flex items-start gap-3">
+									<FileText
+										className="mt-0.5 size-5 shrink-0 text-brand-annotate"
+										aria-hidden="true"
+									/>
+									<div>
+										<p className="text-sm font-semibold">Del alcance al cierre</p>
+										<p className="mt-1 text-xs leading-5 text-white/80">
+											Información clara para acompañar el trabajo técnico.
 										</p>
 									</div>
-								))}
-							</div>
-
-							<div className="mt-6 grid gap-4 sm:grid-cols-3">
-								{LANDING_SERVICES.slice(0, 3).map((service) => (
-									<div
-										key={service.title}
-										className="rounded-xl border border-hairline bg-canvas/80 p-3.5 shadow-sm transition-transform hover:scale-[1.02]"
-									>
-										<div className="flex flex-col gap-2.5">
-											<div className="flex size-8 items-center justify-center rounded-lg bg-surface text-charcoal">
-												<service.icon className="size-4.5" aria-hidden="true" />
-											</div>
-											<p className="text-[10px] font-bold uppercase tracking-wider text-ink">
-												{service.title}
-											</p>
-										</div>
-									</div>
-								))}
+								</div>
 							</div>
 						</div>
-					</div>
+						<figcaption className="px-2 pt-4 text-sm text-charcoal">
+							<p className="font-semibold text-ink">{heroVisual.caption}</p>
+							<p className="mt-1 text-xs leading-5">{heroVisual.disclosure}</p>
+						</figcaption>
+					</figure>
 				</aside>
 			</div>
 		</section>

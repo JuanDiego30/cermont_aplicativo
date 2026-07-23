@@ -1226,6 +1226,12 @@ export async function registerPaymentForInvoice(
 	options?: { bypassPreconditions?: boolean },
 ): Promise<PaymentResponse> {
 	const invoice = await requireInvoice(invoiceId);
+	if (!invoice.serviceEntrySheetId) {
+		throw new UnprocessableError(
+			"Invoice must reference a signed SES before payment can be registered",
+			"PAYMENT_INVOICE_WITHOUT_SES",
+		);
+	}
 	const raw = await PaymentService.registerPaymentForInvoice(
 		{
 			invoiceId,

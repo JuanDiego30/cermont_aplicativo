@@ -212,7 +212,7 @@ export default function FleetPage() {
 					type="button"
 					id="fleet-new-vehicle-btn"
 					onClick={() => setDrawerOpen(true)}
-					className="flex items-center gap-1.5 self-start rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-1)] hover:opacity-90 active:scale-95 transition-all"
+					className="flex min-h-11 items-center gap-1.5 self-start rounded-[var(--radius-lg)] bg-[var(--color-brand-green)] px-4 py-2 text-sm font-medium text-on-dark shadow-[var(--shadow-1)] hover:opacity-90 active:scale-95 transition-all"
 				>
 					<Plus className="size-4" aria-hidden="true" />
 					Nuevo vehículo
@@ -271,7 +271,7 @@ export default function FleetPage() {
 						<button
 							type="button"
 							onClick={() => setDrawerOpen(true)}
-							className="flex items-center gap-1.5 rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+							className="flex items-center gap-1.5 rounded-[var(--radius-lg)] bg-[var(--color-brand-green)] px-4 py-2 text-sm font-medium text-on-dark hover:opacity-90"
 						>
 							<Plus className="size-4" aria-hidden="true" />
 							Registrar primer vehículo
@@ -301,7 +301,7 @@ export default function FleetPage() {
 						type="button"
 						disabled={page <= 1}
 						onClick={() => setPage((p) => Math.max(1, p - 1))}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
+						className="min-h-11 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
 					>
 						Anterior
 					</button>
@@ -312,7 +312,7 @@ export default function FleetPage() {
 						type="button"
 						disabled={page >= pagination.totalPages}
 						onClick={() => setPage((p) => p + 1)}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
+						className="min-h-11 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] disabled:opacity-40"
 					>
 						Siguiente
 					</button>

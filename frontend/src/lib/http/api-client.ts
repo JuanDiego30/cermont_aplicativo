@@ -238,6 +238,7 @@ const DEDICATED_AUTH_ROUTES = new Set([
 	"/auth/login",
 	"/auth/refresh",
 	"/auth/forgot-password",
+	"/auth/reset-password",
 	"/auth/register-client",
 ]);
 

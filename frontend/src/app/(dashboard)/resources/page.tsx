@@ -29,6 +29,7 @@ export default function ResourcesPage() {
 	const [query, setQuery] = useState("");
 	const [activeTab, setActiveTab] = useState<TabValue>("all");
 	const [formOpen, setFormOpen] = useState(false);
+	const [deleteError, setDeleteError] = useState("");
 
 	const selectedType = activeTab === "all" ? undefined : activeTab;
 
@@ -72,10 +73,15 @@ export default function ResourcesPage() {
 	// Handlers
 	const handleDelete = useCallback(
 		async (id: string) => {
+			setDeleteError("");
 			try {
 				await deleteMutation.mutateAsync(id);
-			} catch {
-				// handled by React Query
+			} catch (error) {
+				setDeleteError(
+					error instanceof Error
+						? `No se pudo eliminar el recurso: ${error.message}`
+						: "No se pudo eliminar el recurso. Inténtalo nuevamente.",
+				);
 			}
 		},
 		[deleteMutation],
@@ -107,6 +113,15 @@ export default function ResourcesPage() {
 					</Button>
 				</div>
 			</header>
+
+			{deleteError ? (
+				<p
+					className="rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 p-4 text-sm text-[var(--color-danger)]"
+					role="alert"
+				>
+					{deleteError}
+				</p>
+			) : null}
 
 			{/* Stats row */}
 			<section aria-label="Resumen" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -227,8 +242,9 @@ export default function ResourcesPage() {
 											},
 										}
 									: {
-											label: "Crear recurso",
-											onClick: () => setFormOpen(true),
+											label: "Nuevo kit",
+											href: "/resources/kits/new",
+											icon: Plus,
 										}
 							}
 						/>

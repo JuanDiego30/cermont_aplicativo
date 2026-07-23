@@ -352,12 +352,13 @@ export const SLAService = {
 
 		const settled = resolved + breached + escalated;
 
+		const safeAtRisk = Math.min(atRisk, active);
 		return {
 			summary: {
 				total,
 				active,
 				breached,
-				atRisk,
+				atRisk: safeAtRisk,
 				resolved,
 				escalated,
 				complianceRate: settled > 0 ? Math.round((resolved / settled) * 100) : null,

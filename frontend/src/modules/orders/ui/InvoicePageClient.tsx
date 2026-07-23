@@ -9,7 +9,7 @@ const COP_CURRENCY_FORMATTER = new Intl.NumberFormat("es-CO", {
 	minimumFractionDigits: 0,
 });
 
-const GENERATED_DATE_FORMATTER = new Intl.DateTimeFormat("es-CO");
+const GENERATED_DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", { timeZone: "America/Bogota" });
 const GENERATED_DATE_LABEL = GENERATED_DATE_FORMATTER.format(new Date());
 
 interface InvoicePageClientProps {

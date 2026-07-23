@@ -12,6 +12,17 @@ import type { z } from "zod";
 
 type CustomerFormInput = z.input<typeof CreateClientSchema>;
 
+const INDUSTRY_OPTIONS = [
+	{ value: "hidrocarburos", label: "Hidrocarburos" },
+	{ value: "mineria", label: "Minería" },
+	{ value: "energia", label: "Energía / Electricidad" },
+	{ value: "telecomunicaciones", label: "Telecomunicaciones" },
+	{ value: "construccion", label: "Construcción" },
+	{ value: "industrial", label: "Industrial / Manufactura" },
+	{ value: "gobierno", label: "Gobierno" },
+	{ value: "otro", label: "Otro" },
+] as const;
+
 const CUSTOMER_FORM_FIELDS: Array<{
 	name: keyof CustomerFormInput & string;
 	label: string;
@@ -81,15 +92,33 @@ export function CustomerForm({ initial, isSaving, onSubmit, onCancel }: Customer
 								</span>
 							)}
 						</label>
-						<input
-							id={`${formId}-${field.name}`}
-							{...register(field.name, {
-								setValueAs: (v: string) => (v === "" ? undefined : v),
-							})}
-							placeholder={field.placeholder ?? ""}
-							className={inputClasses}
-							aria-invalid={Boolean(errors[field.name])}
-						/>
+						{field.name === "industry" ? (
+							<select
+								id={`${formId}-${field.name}`}
+								{...register(field.name, {
+									setValueAs: (value: string) => (value === "" ? undefined : value),
+								})}
+								className={inputClasses}
+								aria-invalid={Boolean(errors[field.name])}
+							>
+								<option value="">Seleccione una industria</option>
+								{INDUSTRY_OPTIONS.map((option) => (
+									<option key={option.value} value={option.value}>
+										{option.label}
+									</option>
+								))}
+							</select>
+						) : (
+							<input
+								id={`${formId}-${field.name}`}
+								{...register(field.name, {
+									setValueAs: (value: string) => (value === "" ? undefined : value),
+								})}
+								placeholder={field.placeholder ?? ""}
+								className={inputClasses}
+								aria-invalid={Boolean(errors[field.name])}
+							/>
+						)}
 						{errors[field.name] && (
 							<p className="text-xs text-[var(--color-danger)]" role="alert">
 								{errors[field.name]?.message?.toString() ?? "Campo inválido"}

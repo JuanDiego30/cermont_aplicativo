@@ -18,6 +18,7 @@ import { useSiteVisitsList } from "@/modules/site-visits/queries";
 const dateFormatter = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
 	timeStyle: "short",
+	timeZone: "America/Bogota",
 });
 
 function formatDate(value: string): string {
@@ -52,7 +53,7 @@ export default function SiteVisitsPage() {
 		<section className="space-y-6" aria-labelledby="site-visits-title">
 			<header className="space-y-4">
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 2 / Operación</p>
+					<p className="text-sm font-medium text-slate">Paso 2 / Operación</p>
 					<h1
 						id="site-visits-title"
 						className="mt-2 text-2xl font-semibold text-[var(--text-primary)]"
@@ -85,7 +86,7 @@ export default function SiteVisitsPage() {
 			{isOfflineSnapshot ? (
 				<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
 					Mostrando visitas guardadas localmente. Última actualización:{" "}
-					{new Date(data.source.updatedAt).toLocaleString("es-CO")}
+					{new Date(data.source.updatedAt).toLocaleString("es-CO", { timeZone: "America/Bogota" })}
 				</div>
 			) : null}
 

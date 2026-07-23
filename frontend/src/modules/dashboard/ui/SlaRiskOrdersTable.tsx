@@ -11,6 +11,7 @@ interface SlaRiskOrdersTableProps {
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
 	timeStyle: "short",
+	timeZone: "America/Bogota",
 });
 
 const RISK_BADGE_CLASSES: Record<DashboardSlaRiskOrder["riskLevel"], string> = {
@@ -43,7 +44,7 @@ export function SlaRiskOrdersTable({ orders }: SlaRiskOrdersTableProps) {
 			className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 sm:p-6"
 		>
 			<div className="flex items-start gap-3">
-				<TriangleAlert className="mt-0.5 size-5 text-[var(--color-danger)]" aria-hidden="true" />
+				<TriangleAlert className={`mt-0.5 size-5 ${orders.length > 0 ? "text-brand-error" : "text-slate"}`} aria-hidden="true" />
 				<div>
 					<h2 id="sla-risk-title" className="text-lg font-semibold text-[var(--text-primary)]">
 						Órdenes en riesgo de incumplir la fecha prometida

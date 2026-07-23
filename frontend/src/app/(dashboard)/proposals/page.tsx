@@ -2,7 +2,7 @@
 
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
@@ -345,7 +345,7 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 										aria-label={`Ver propuesta ${p.code ?? p._id}`}
 										className="text-xs font-medium text-[var(--color-brand-blue)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 hover:underline"
 									>
-										Ver →
+										Ver <ArrowRight className="ml-0.5 inline size-3" aria-hidden="true" />
 									</Link>
 								</td>
 							</tr>

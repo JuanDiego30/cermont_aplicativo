@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 	metadataBase: new URL(siteUrl),
 	title: {
 		default: "Cermont S.A.S. | Plataforma Operativa",
-		template: "%s | Cermont",
+		template: "%s | Cermont S.A.S.",
 	},
 	description:
 		"Plataforma operativa para solicitudes, propuestas, órdenes, evidencias, costos y cierres administrativos de Cermont S.A.S.",

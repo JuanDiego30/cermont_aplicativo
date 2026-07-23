@@ -9,7 +9,7 @@ import type {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Truck } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useCallback, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import {
 	assignDispatchTechnicians,
 	geocodeDispatchAddress,
@@ -111,8 +111,10 @@ export default function DispatchPage() {
 	const dispatchMapRef = useRef<DispatchMapHandle>(null);
 	const [state, dispatch] = useReducer(dispatchPageReducer, INITIAL_DISPATCH_STATE);
 	const stateRef = useRef(state);
-	stateRef.current = state;
 	const idCounter = useRef(0);
+	useEffect(() => {
+		stateRef.current = state;
+	}, [state]);
 
 	const nextId = useCallback((prefix: string) => {
 		idCounter.current += 1;

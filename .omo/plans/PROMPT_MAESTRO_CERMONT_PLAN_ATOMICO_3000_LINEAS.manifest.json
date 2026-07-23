@@ -1,0 +1,9 @@
+{
+  "file": "PROMPT_MAESTRO_CERMONT_PLAN_ATOMICO_3000_LINEAS.md",
+  "line_count": 3000,
+  "sha256": "694b844b89dc50d709496c3791417aac78b3fc8112930c64f34790b2b81aa154",
+  "format": "markdown",
+  "shell": "bash",
+  "git_policy": "no_git_commands",
+  "complete_sections": "0-55"
+}

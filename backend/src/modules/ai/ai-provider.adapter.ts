@@ -108,12 +108,12 @@ class OpenAIAdapter implements AIProviderAdapter {
 	private readonly apiKey: string;
 
 	constructor() {
-		this.apiKey = process.env.OPENAI_API_KEY || "";
+		this.apiKey = env.AI_API_KEY ?? process.env.OPENAI_API_KEY ?? "";
 		this.available = this.apiKey.length > 0;
 	}
 
 	async generateResponse(systemPrompt: string, userMessage: string): Promise<string> {
-		const response = await fetch("https://api.openai.com/v1/chat/completions", {
+		const response = await fetch(env.AI_ENDPOINT ?? "https://api.openai.com/v1/chat/completions", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -245,7 +245,7 @@ function initializeProvider(): AIProviderAdapter | null {
 		return null;
 	}
 
-	if (process.env.OPENAI_API_KEY) {
+	if (env.AI_API_KEY ?? process.env.OPENAI_API_KEY) {
 		return new OpenAIAdapter();
 	}
 	if (process.env.GEMINI_API_KEY) {

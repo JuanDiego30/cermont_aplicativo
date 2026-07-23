@@ -10,6 +10,7 @@ import { Award, CalendarClock, Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Skeleton } from "@/core/ui/Skeleton";
 import { apiClient } from "@/lib/http/api-client";
+import { formatLocaleDate } from "@/lib/utils/format-date";
 
 const PERSONNEL_KEYS = {
 	all: ["personnel"] as const,
@@ -158,7 +159,7 @@ export default function AdminPersonnelPage() {
 							>
 								<span className="font-medium">{item.userName}</span> — {item.certification}
 								{item.expiresAt
-									? ` (vence ${new Date(item.expiresAt).toLocaleDateString("es-CO")})`
+									? ` (vence ${formatLocaleDate(item.expiresAt, { dateStyle: "medium" })})`
 									: ""}
 								{item.expired && (
 									<span className="ml-1 font-medium text-[var(--color-danger)]">VENCIDA</span>
@@ -201,9 +202,9 @@ export default function AdminPersonnelPage() {
 												>
 													<Award className="size-3" aria-hidden="true" />
 													{cert.name}
-													{cert.expiresAt
-														? ` · ${new Date(cert.expiresAt).toLocaleDateString("es-CO")}`
-														: ""}
+												{cert.expiresAt
+													? ` · ${formatLocaleDate(cert.expiresAt, { dateStyle: "medium" })}`
+													: ""}
 													<button
 														type="button"
 														onClick={() =>

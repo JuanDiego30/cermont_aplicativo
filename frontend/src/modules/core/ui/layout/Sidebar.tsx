@@ -14,6 +14,7 @@ import { useAuth } from "@/modules/auth/hooks/useAuth";
 import {
 	AI_ASSISTANT_ICON,
 	getVisibleNavigationGroups,
+	SIDEBAR_ICON_COLORS,
 	type NavigationItem,
 } from "@/modules/core/navigation";
 import { usePendingWorkRequestCount } from "@/modules/work-requests/queries";
@@ -38,7 +39,7 @@ function SidebarNavItem({
 	onNavigate: () => void;
 	sidebarCollapsed: boolean;
 }) {
-	const { to, label, icon: Icon } = item;
+	const { to, label, icon: Icon, iconColor } = item;
 	const isActive = currentPath === to || currentPath.startsWith(`${to}/`);
 
 	return (
@@ -56,7 +57,7 @@ function SidebarNavItem({
 			>
 				<Icon
 					className={`size-4.5 shrink-0 transition-transform duration-[var(--duration-fast)] ease-[var(--ease-standard)] ${
-						isActive ? "scale-110 text-brand" : "text-muted-foreground group-hover:text-foreground"
+						isActive ? "scale-110 text-brand" : `${iconColor ?? "text-muted-foreground"} group-hover:text-foreground`
 					}`}
 					aria-hidden="true"
 				/>
@@ -206,19 +207,23 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
 									</h3>
 								)}
 								<ul className="space-y-0.5">
-									{group.items.map((item) => (
-										<SidebarNavItem
-											key={item.to}
-											currentPath={currentPath}
-											item={
-												item.to === APP_ROUTES.workRequests && pendingWRCount > 0
-													? { ...item, badge: pendingWRCount }
-													: item
-											}
-											onNavigate={() => setSidebarOpen(false)}
-											sidebarCollapsed={sidebarCollapsed}
-										/>
-									))}
+									{group.items.map((item) => {
+										const iconColor = SIDEBAR_ICON_COLORS[group.label.toUpperCase()];
+										const enrichedItem: NavigationItem = iconColor ? { ...item, iconColor } : item;
+										return (
+											<SidebarNavItem
+												key={item.to}
+												currentPath={currentPath}
+												item={
+													(item.to === APP_ROUTES.workRequests && pendingWRCount > 0
+														? { ...enrichedItem, badge: pendingWRCount }
+														: enrichedItem) as NavigationItem
+												}
+												onNavigate={() => setSidebarOpen(false)}
+												sidebarCollapsed={sidebarCollapsed}
+											/>
+										);
+									})}
 								</ul>
 							</section>
 						);
@@ -259,3 +264,4 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
 		</>
 	);
 }
+

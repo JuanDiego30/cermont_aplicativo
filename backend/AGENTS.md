@@ -94,9 +94,9 @@ authenticate → authorize(roles?) → validateBody/validateQuery/validateParams
 
 Roles are defined in `@cermont/domain`. The valid role strings are:
 ```
-gerente | residente | HES | supervisor | operador | tecnico | administrativo | cliente
+gerente | residente | coord_administrativo | supervisor | hes | auxiliar_contable | supervisor_electricista | tecnico_electricista | operador | tecnico | auxiliar_hes | oficial_construccion | administrativo | pasante | cliente
 ```
-Never hardcode role arrays. Use the helpers from `@cermont/domain`.
+Never hardcode role arrays. Use the helpers from `@cermont/domain`. Use `canPerformAction(role, permission)` for granular checks, not just route-level role arrays.
 
 ---
 

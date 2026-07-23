@@ -1,0 +1,215 @@
+- generic [active] [ref=f5e1]:
+  - main [ref=f5e134]:
+    - generic [ref=f5e135]:
+      - link "Saltar al contenido principal" [ref=f5e136] [cursor=pointer]:
+        - /url: "#main-content"
+      - generic [ref=f5e137]:
+        - complementary "Barra de navegación lateral" [ref=f5e138]:
+          - generic [ref=f5e140]:
+            - img [ref=f5e141]:
+              - generic [ref=f5e147]: CERMONT
+            - generic [ref=f5e148]: Cermont S.A.S.
+          - button "Colapsar" [ref=f5e150]
+          - navigation "Navegación principal" [ref=f5e153]:
+            - generic [ref=f5e154]:
+              - heading "Principal" [level=3] [ref=f5e155]
+              - list [ref=f5e156]:
+                - listitem [ref=f5e157]:
+                  - link "Dashboard" [ref=f5e158] [cursor=pointer]:
+                    - /url: /dashboard
+                - listitem [ref=f5e165]:
+                  - link "Casos de Servicio" [ref=f5e166] [cursor=pointer]:
+                    - /url: /service-cases
+            - generic [ref=f5e173]:
+              - heading "Comercial" [level=3] [ref=f5e174]
+              - list [ref=f5e175]:
+                - listitem [ref=f5e176]:
+                  - link "Clientes" [ref=f5e177] [cursor=pointer]:
+                    - /url: /customers
+                - listitem [ref=f5e183]:
+                  - link "Solicitudes 1 pendientes" [ref=f5e184] [cursor=pointer]:
+                    - /url: /work-requests
+                    - generic [ref=f5e188]: Solicitudes
+                    - status "1 pendientes" [ref=f5e189]: "1"
+                - listitem [ref=f5e190]:
+                  - link "Visitas" [ref=f5e191] [cursor=pointer]:
+                    - /url: /site-visits
+                - listitem [ref=f5e196]:
+                  - link "Propuestas" [ref=f5e197] [cursor=pointer]:
+                    - /url: /proposals
+                - listitem [ref=f5e204]:
+                  - link "PO aprobada" [ref=f5e205] [cursor=pointer]:
+                    - /url: /purchase-orders
+            - generic [ref=f5e210]:
+              - heading "Operación de campo" [level=3] [ref=f5e211]
+              - list [ref=f5e212]:
+                - listitem [ref=f5e213]:
+                  - link "Órdenes" [ref=f5e214] [cursor=pointer]:
+                    - /url: /orders
+                - listitem [ref=f5e219]:
+                  - link "Planeación" [ref=f5e220] [cursor=pointer]:
+                    - /url: /planning
+                - listitem [ref=f5e225]:
+                  - link "Ejecución" [ref=f5e226] [cursor=pointer]:
+                    - /url: /execution
+                - listitem [ref=f5e233]:
+                  - link "Evidencias" [ref=f5e234] [cursor=pointer]:
+                    - /url: /evidences
+                - listitem [ref=f5e239]:
+                  - link "Despacho" [ref=f5e240] [cursor=pointer]:
+                    - /url: /dispatch
+                - listitem [ref=f5e246]:
+                  - link "Mantenimiento" [ref=f5e247] [cursor=pointer]:
+                    - /url: /maintenance
+                - listitem [ref=f5e251]:
+                  - link "SLA" [ref=f5e252] [cursor=pointer]:
+                    - /url: /sla
+            - generic [ref=f5e257]:
+              - heading "Cierre técnico" [level=3] [ref=f5e258]
+              - list [ref=f5e259]:
+                - listitem [ref=f5e260]:
+                  - link "Informes" [ref=f5e261] [cursor=pointer]:
+                    - /url: /reports
+                - listitem [ref=f5e265]:
+                  - link "Analitica" [ref=f5e266] [cursor=pointer]:
+                    - /url: /reports/analytics
+                - listitem [ref=f5e271]:
+                  - link "Actas" [ref=f5e272] [cursor=pointer]:
+                    - /url: /delivery-records
+            - generic [ref=f5e277]:
+              - heading "Cierre administrativo" [level=3] [ref=f5e278]
+              - list [ref=f5e279]:
+                - listitem [ref=f5e280]:
+                  - link "Cierre" [ref=f5e281] [cursor=pointer]:
+                    - /url: /billing
+                - listitem [ref=f5e286]:
+                  - link "SES / Ariba" [ref=f5e287] [cursor=pointer]:
+                    - /url: /billing/ses
+                - listitem [ref=f5e292]:
+                  - link "Facturas" [ref=f5e293] [cursor=pointer]:
+                    - /url: /billing/invoices
+                - listitem [ref=f5e297]:
+                  - link "Pagos" [ref=f5e298] [cursor=pointer]:
+                    - /url: /payments
+                - listitem [ref=f5e303]:
+                  - link "Costos" [ref=f5e304] [cursor=pointer]:
+                    - /url: /costs
+            - generic [ref=f5e309]:
+              - heading "Transversales" [level=3] [ref=f5e310]
+              - list [ref=f5e311]:
+                - listitem [ref=f5e312]:
+                  - link "Documentos" [ref=f5e313] [cursor=pointer]:
+                    - /url: /documents
+                - listitem [ref=f5e318]:
+                  - link "Formularios" [ref=f5e319] [cursor=pointer]:
+                    - /url: /templates
+                - listitem [ref=f5e326]:
+                  - link "Recursos & Kits" [ref=f5e327] [cursor=pointer]:
+                    - /url: /resources
+                - listitem [ref=f5e333]:
+                  - link "Inventario" [ref=f5e334] [cursor=pointer]:
+                    - /url: /inventory
+                - listitem [ref=f5e340]:
+                  - link "Escanear activos" [ref=f5e341] [cursor=pointer]:
+                    - /url: /inventory/scan
+                - listitem [ref=f5e348]:
+                  - link "Vehículos" [ref=f5e349] [cursor=pointer]:
+                    - /url: /fleet
+                - listitem [ref=f5e356]:
+                  - link "Activos" [ref=f5e357] [cursor=pointer]:
+                    - /url: /assets
+            - generic [ref=f5e363]:
+              - heading "Administración" [level=3] [ref=f5e364]
+              - list [ref=f5e365]:
+                - listitem [ref=f5e366]:
+                  - link "Usuarios" [ref=f5e367] [cursor=pointer]:
+                    - /url: /admin/users
+                - listitem [ref=f5e374]:
+                  - link "Campos personalizados" [ref=f5e375] [cursor=pointer]:
+                    - /url: /admin/custom-fields
+                - listitem [ref=f5e380]:
+                  - link "Personal y certificaciones" [ref=f5e381] [cursor=pointer]:
+                    - /url: /admin/personnel
+                - listitem [ref=f5e388]:
+                  - link "Respaldos" [ref=f5e389] [cursor=pointer]:
+                    - /url: /admin/backups
+                - listitem [ref=f5e394]:
+                  - link "Auditoría" [ref=f5e395] [cursor=pointer]:
+                    - /url: /admin/audit
+                - listitem [ref=f5e400]:
+                  - link "Configuracion" [ref=f5e401] [cursor=pointer]:
+                    - /url: /admin/settings
+                - listitem [ref=f5e406]:
+                  - link "Conectores ERP" [ref=f5e407] [cursor=pointer]:
+                    - /url: /admin/erp-connectors
+          - button [ref=f5e412]:
+            - generic [ref=f5e417]:
+              - paragraph [ref=f5e418]: Cermont AI
+              - paragraph [ref=f5e419]: Asistente
+        - generic [ref=f5e420]:
+          - generic [ref=f5e421]:
+            - generic [ref=f5e423]:
+              - generic [ref=f5e424]:
+                - paragraph [ref=f5e425]: payments
+                - generic [ref=f5e426]: •
+                - paragraph [ref=f5e427]: Arauca
+              - heading "Cermont" [level=1] [ref=f5e428]
+            - generic [ref=f5e429]:
+              - 'button "Cambiar tema. Actual: system" [ref=f5e431]'
+              - listitem [ref=f5e435]:
+                - button "Notificaciones" [ref=f5e436]
+              - button "Menú de usuario de Gerencia General" [ref=f5e441]:
+                - generic [ref=f5e442]:
+                  - generic [ref=f5e443]: Gerencia General
+                  - generic [ref=f5e444]: Gerente
+                - generic [ref=f5e445]: GG
+          - main [ref=f5e448]:
+            - main [ref=f5e450]:
+              - main [ref=f5e451]:
+                - generic [ref=f5e452]:
+                  - paragraph [ref=f5e456]: No se pudo cargar el dashboard de pagos
+                  - region [ref=f5e457]:
+                    - generic [ref=f5e458]:
+                      - generic [ref=f5e459]:
+                        - paragraph [ref=f5e460]: Dashboard / Pagos
+                        - heading "Pagos registrados" [level=1] [ref=f5e461]
+                        - paragraph [ref=f5e462]: Conciliación administrativa de recaudo contra facturas, SES y órdenes de trabajo.
+                      - navigation "Acciones de Pagos registrados" [ref=f5e463]:
+                        - link "Facturas" [ref=f5e464] [cursor=pointer]:
+                          - /url: /billing/invoices
+                        - link "Costos" [ref=f5e467] [cursor=pointer]:
+                          - /url: /costs
+                        - button "Soportes" [ref=f5e470]
+                    - generic [ref=f5e474]:
+                      - generic [ref=f5e481]:
+                        - paragraph [ref=f5e482]: Registros
+                        - paragraph [ref=f5e483]: "0"
+                      - generic [ref=f5e490]:
+                        - paragraph [ref=f5e491]: Completados
+                        - paragraph [ref=f5e492]: "0"
+                      - generic [ref=f5e499]:
+                        - paragraph [ref=f5e500]: Valor
+                        - paragraph [ref=f5e501]: $ 0
+                    - region "Sin resultados" [ref=f5e502]:
+                      - heading "Sin pagos registrados" [level=3] [ref=f5e516]
+                      - paragraph [ref=f5e517]: Registra pagos desde facturas aprobadas y adjunta soporte bancario para conciliación.
+                      - generic [ref=f5e518]:
+                        - button "Subir PDF, Excel o Word" [ref=f5e519]
+                        - button "Subir fotos" [ref=f5e520]
+          - button "Abrir carga rápida para Módulo" [ref=f5e521]:
+            - generic [ref=f5e526]: Carga rápida
+      - complementary "Aviso de privacidad" [ref=f5e527]:
+        - generic [ref=f5e528]:
+          - generic [ref=f5e533]:
+            - paragraph [ref=f5e534]: Aviso de privacidad
+            - paragraph [ref=f5e535]:
+              - text: Utilizamos tus datos únicamente para la operación del sistema. Consulta nuestra
+              - link "Política de Privacidad" [ref=f5e536] [cursor=pointer]:
+                - /url: /privacy
+              - text: "y"
+              - link "términos de consentimiento" [ref=f5e537] [cursor=pointer]:
+                - /url: /consent
+              - text: .
+          - button "Aceptar" [ref=f5e538]
+  - region "Notifications alt+T"
+  - alert [ref=f5e539]

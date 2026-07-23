@@ -1,0 +1,50 @@
+- generic [active] [ref=f2e1]:
+  - main [ref=f2e2]:
+    - main [ref=f2e4]:
+      - region [ref=f2e5]:
+        - generic [ref=f2e6]:
+          - generic [ref=f2e7]:
+            - img [ref=f2e8]:
+              - generic [ref=f2e14]: CERMONT
+            - generic [ref=f2e15]: Cermont S.A.S.
+          - paragraph [ref=f2e16]: Portal de clientes
+          - heading "Solicitar acceso" [level=1] [ref=f2e17]
+          - generic [ref=f2e18]: Acceso seguro · Datos protegidos
+          - paragraph [ref=f2e23]: Este formulario es solo para clientes. Tu solicitud quedará pendiente de validación antes de habilitar tu acceso.
+        - note [ref=f2e24]:
+          - paragraph [ref=f2e25]: Registro exclusivo para clientes
+          - paragraph [ref=f2e26]: Completa la información y el administrador validará tu empresa/contrato antes de habilitar tu acceso.
+        - generic [ref=f2e27]:
+          - group "Datos de contacto" [ref=f2e28]:
+            - generic [ref=f2e30]:
+              - generic [ref=f2e31]: Nombre completo
+              - textbox "Nombre completo" [ref=f2e32]:
+                - /placeholder: Nombre y apellido
+            - generic [ref=f2e33]:
+              - generic [ref=f2e34]: Correo
+              - textbox "Correo" [ref=f2e35]:
+                - /placeholder: correo@empresa.com
+            - generic [ref=f2e36]:
+              - generic [ref=f2e37]: Teléfono (opcional)
+              - textbox "Teléfono (opcional)" [ref=f2e38]:
+                - /placeholder: +57 3XX XXX XXXX
+          - group "Datos de empresa" [ref=f2e40]:
+            - generic [ref=f2e42]:
+              - generic [ref=f2e43]: Empresa / Razón social
+              - textbox "Empresa / Razón social" [ref=f2e44]:
+                - /placeholder: Mi Empresa S.A.S.
+            - generic [ref=f2e45]:
+              - generic [ref=f2e46]: NIT (opcional)
+              - textbox "NIT (opcional)" [ref=f2e47]:
+                - /placeholder: 900123456-7
+            - generic [ref=f2e48]:
+              - generic [ref=f2e49]: Contrato / OT
+              - generic "Referencia del contrato u orden de trabajo asociada a tu empresa" [ref=f2e50]: ⓘ
+            - textbox "Contrato / OT" [ref=f2e51]:
+              - /placeholder: OT-000123 / Contrato ABC
+          - button "Enviar solicitud" [ref=f2e52]
+          - paragraph [ref=f2e53]: Tu solicitud será revisada en un plazo de 24-48 horas hábiles.
+          - link "Volver al inicio de sesión" [ref=f2e54] [cursor=pointer]:
+            - /url: /login
+  - region "Notifications alt+T"
+  - alert [ref=f2e57]

@@ -25,14 +25,18 @@
 	/* ── Brand & Accent ──
 	   Cermont Blue (#2154A6) and Cermont Green (#4CAF50) are BORDER-AND-TITLE accent colors only.
 	   Never use as surface backgrounds. See DESIGN.md for card-dashboard / card-sla patterns. */
-	--color-brand-green: #2154a6; /* Cermont Blue — card borders, titles, CTAs */
-	--color-brand-green-deep: #0f2c59; /* Deep Blue — hover/active states */
+	--color-brand-blue: #2154a6; /* Cermont Blue — card borders, titles, CTAs */
+	--color-brand-blue-deep: #0f2c59; /* Deep Blue — hover/active states */
 	--color-brand-green-soft: #7cd966; /* Light Green — success border tint */
-	--color-brand-tag: #3a78d8; /* Blue Light — info badges, tags */
+	--color-brand-blue-light: #3a78d8; /* Blue Light — info badges, tags */
 	--color-brand-annotate: #4caf50; /* Cermont Green — SLA borders, compliance */
 	--color-brand-warn: #d97706; /* Amber — warning states */
 	--color-brand-error: #dc2626; /* Red — error states */
 	--color-testimonial-orange: #f97316;
+
+	/* ── WhatsApp Brand — third-party channel color, preserved in both modes ── */
+	--color-whatsapp: #25d366;
+	--color-whatsapp-dark: #20bd5a;
 
 	/* ── Surface (Light) — neutral gray palette, no blue tints ── */
 	--color-canvas: #ffffff;
@@ -45,16 +49,16 @@
 	--color-hairline-dark: #3a3a3a;
 
 	/* ── Text (Light) — neutral grays, no blue cast ── */
-	--color-ink: #1a1a1a;
-	--color-charcoal: #2e2e2e;
-	--color-slate: #555555;
-	--color-steel: #808080;
+	--color-ink: #0F172A;
+	--color-charcoal: #475569;
+	--color-slate: #64748B;
+	--color-steel: #94A3B8;
 	--color-stone: #a0a0a0;
 	--color-muted: #cccccc;
 	--color-on-dark: #f5f5f5;
 	--color-on-dark-muted: rgba(245, 245, 245, 0.55);
 	--color-on-primary: #ffffff;
-	--color-primary: #1a1a1a;
+	--color-primary: #0F172A;
 
 	/* ── Hero Gradients (Light) ── */
 	--color-hero-sky-from: #dbeafe;
@@ -65,25 +69,25 @@
 	/* ── Icons (Light) — neutral grays ── */
 	--icon-default: #808080;
 	--icon-subtle: #a0a0a0;
-	--icon-primary: #1a1a1a;
+	--icon-primary: #0F172A;
 	--icon-accent: #2154a6; /* Cermont Blue */
 	--icon-on-dark: #f5f5f5;
 	--icon-on-dark-muted: rgba(245, 245, 245, 0.55);
 	--icon-success: #4caf50; /* Cermont Green */
-	--icon-warning: #d97706;
-	--icon-error: #dc2626;
+	--icon-warning: #F59E0B;
+	--icon-error: #EF4444;
 	--icon-info: #3a78d8;
 	--icon-muted: #cccccc;
-	--icon-interactive: #555555;
-	--icon-interactive-active: #1a1a1a;
+	--icon-interactive: #475569;
+	--icon-interactive-active: #0F172A;
 	--icon-code: rgba(245, 245, 245, 0.55);
 
 	/* ── Semantic / Functional (Light) ── */
 	--color-success: #4caf50;
 	--color-success-bg: #e8f5e9;
-	--color-warning: #d97706;
+	--color-warning: #F59E0B;
 	--color-warning-bg: #fef3c7;
-	--color-danger: #dc2626;
+	--color-danger: #EF4444;
 	--color-danger-bg: #fee2e2;
 	--color-info: #3a78d8;
 	--color-info-bg: #eef2ff;
@@ -95,9 +99,9 @@
 	   BACKWARD-COMPATIBLE ALIASES (Legacy tokens)
 	   ════════════════════════════════════════════ */
 
-	--color-cermont-blue: var(--color-brand-green);
-	--color-cermont-blue-deep: var(--color-brand-green-deep);
-	--color-cermont-blue-light: var(--color-brand-tag);
+	--color-cermont-blue: var(--color-brand-blue);
+	--color-cermont-blue-deep: var(--color-brand-blue-deep);
+	--color-cermont-blue-light: var(--color-brand-blue-light);
 	--color-cermont-blue-bg: #e6f0ff;
 
 	--color-cermont-green: var(--color-brand-annotate);
@@ -105,9 +109,9 @@
 	--color-cermont-green-light: var(--color-brand-green-soft);
 	--color-cermont-green-bg: #e8f5e9;
 
-	--color-brand: var(--color-brand-green);
-	--color-brand-hover: var(--color-brand-tag);
-	--color-brand-strong: var(--color-brand-green-deep);
+	--color-brand: var(--color-brand-blue);
+	--color-brand-hover: var(--color-brand-blue-light);
+	--color-brand-strong: var(--color-brand-blue-deep);
 	--color-brand-accent: var(--color-brand-annotate);
 
 	/* Legacy surface aliases */
@@ -141,7 +145,7 @@
 	--card-foreground: var(--color-ink);
 	--popover: var(--color-canvas);
 	--popover-foreground: var(--color-ink);
-	--primary: var(--color-brand-green);
+	--primary: var(--color-brand-blue);
 	--primary-foreground: var(--color-on-dark);
 	--secondary: var(--color-surface);
 	--secondary-foreground: var(--color-slate);
@@ -172,12 +176,12 @@
 	--space-xxxl: 40px;
 
 	/* ── Radius Scale ── */
-	--radius-xs: 4px;
-	--radius-sm: 6px;
-	--radius-md: 8px;
-	--radius-lg: 12px;
-	--radius-xl: 16px;
-	--radius-xxl: 24px;
+	--radius-xs: 6px;
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 16px;
+	--radius-xl: 24px;
+	--radius-xxl: 32px;
 	--radius-full: 9999px;
 
 	/* ── Elevation ── */
@@ -192,6 +196,7 @@
 	--shadow-1: var(--shadow-level-1);
 	--shadow-2: var(--shadow-level-2);
 	--shadow-3: var(--shadow-level-3);
+	--shadow-brand: 0 10px 30px rgba(33, 84, 166, 0.10);
 	--shadow-modal: 0 24px 80px rgba(15, 23, 42, 0.28);
 
 	/* ── Gradient Header (Light) — subtle neutral ── */
@@ -200,6 +205,19 @@
 	/* ── Typography ── */
 	--font-family: Inter, system-ui, -apple-system, sans-serif;
 	--font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+
+	/* ── Typography Scale (DESIGN.md §6) ── */
+	--text-display-xl: 52px;
+	--text-display-lg: 40px;
+	--text-h1: 32px;
+	--text-h2: 24px;
+	--text-h3: 20px;
+	--text-h4: 18px;
+	--text-body-lg: 16px;
+	--text-body-md: 14px;
+	--text-body-sm: 13px;
+	--text-caption: 12px;
+	--text-micro: 11px;
 }
 
 /* ═════════════════════════════════════════════════════════
@@ -213,14 +231,18 @@
 	/* ── Brand (Dark) ──
 	   True black-gray palette (#121212 canvas, #1A1A1A surfaces, #0A0A0A deep).
 	   NO blue-tinted backgrounds. Cermont Blue/Green = border-and-title accents only. */
-	--color-brand-green: #3a78d8; /* Cermont Blue Light (dark mode accent) */
-	--color-brand-green-deep: #1e3a6e;
+	--color-brand-blue: #3a78d8; /* Cermont Blue Light (dark mode accent) */
+	--color-brand-blue-deep: #1e3a6e;
 	--color-brand-green-soft: #4ade80; /* Green tint */
-	--color-brand-tag: #60a5fa;
+	--color-brand-blue-light: #60a5fa;
 	--color-brand-annotate: #4ade80; /* Cermont Green Light (dark mode) */
 	--color-brand-warn: #fbbf24;
 	--color-brand-error: #ef4444;
 	--color-testimonial-orange: #fb923c;
+
+	/* ── WhatsApp Brand — same in dark mode ── */
+	--color-whatsapp: #25d366;
+	--color-whatsapp-dark: #20bd5a;
 
 	/* ── Surface (Dark) — true black-gray, NO blue-tinted backgrounds ── */
 	--color-canvas: #121212; /* Primary bg — neutral near-black */
@@ -283,14 +305,14 @@
 	   BACKWARD-COMPATIBLE ALIASES (Dark)
 	   ══════════════════════════════════ */
 
-	--color-cermont-blue: var(--color-brand-green);
-	--color-cermont-blue-light: var(--color-brand-tag);
+	--color-cermont-blue: var(--color-brand-blue);
+	--color-cermont-blue-light: var(--color-brand-blue-light);
 	--color-cermont-blue-bg: #0a1f3d;
 	--color-cermont-green-bg: #0a2e0a;
 
-	--color-brand: var(--color-brand-green);
+	--color-brand: var(--color-brand-blue);
 	--color-brand-hover: #5a92e0;
-	--color-brand-strong: var(--color-brand-green);
+	--color-brand-strong: var(--color-brand-blue);
 	--color-brand-accent: var(--color-brand-green-soft);
 
 	--color-background: var(--color-canvas);
@@ -339,7 +361,7 @@
 	--card-foreground: var(--color-ink);
 	--popover: var(--color-canvas);
 	--popover-foreground: var(--color-ink);
-	--primary: var(--color-brand-green);
+	--primary: var(--color-brand-blue);
 	--primary-foreground: var(--color-on-dark);
 	--secondary: var(--color-surface);
 	--secondary-foreground: var(--color-slate);
@@ -382,23 +404,23 @@
 	--color-primary: var(--color-primary);
 
 	/* ── Brand ── */
-	--color-brand-green: var(--color-brand-green);
-	--color-brand-green-deep: var(--color-brand-green-deep);
+	--color-brand-blue: var(--color-brand-blue);
+	--color-brand-blue-deep: var(--color-brand-blue-deep);
 	--color-brand-green-soft: var(--color-brand-green-soft);
-	--color-brand-tag: var(--color-brand-tag);
+	--color-brand-blue-light: var(--color-brand-blue-light);
 	--color-brand-annotate: var(--color-brand-annotate);
 	--color-brand-warn: var(--color-brand-warn);
 	--color-brand-error: var(--color-brand-error);
 	--color-testimonial-orange: var(--color-testimonial-orange);
 
 	/* ── Brand aliases ── */
-	--color-brand: var(--color-brand-green);
+	--color-brand: var(--color-brand-blue);
 	--color-brand-accent: var(--color-brand-annotate);
 
 	/* ── Cermont aliases ── */
-	--color-cermont-blue: var(--color-brand-green);
-	--color-cermont-blue-deep: var(--color-brand-green-deep);
-	--color-cermont-blue-light: var(--color-brand-tag);
+	--color-cermont-blue: var(--color-brand-blue);
+	--color-cermont-blue-deep: var(--color-brand-blue-deep);
+	--color-cermont-blue-light: var(--color-brand-blue-light);
 	--color-cermont-green: var(--color-brand-annotate);
 	--color-cermont-green-light: var(--color-brand-green-soft);
 
@@ -447,6 +469,10 @@
 	--color-icon-success: var(--icon-success);
 	--color-icon-warning: var(--icon-warning);
 	--color-icon-error: var(--icon-error);
+
+	/* ── Third-party brand tokens ── */
+	--color-whatsapp: var(--color-whatsapp);
+	--color-whatsapp-dark: var(--color-whatsapp-dark);
 	--color-icon-info: var(--icon-info);
 	--color-icon-muted: var(--icon-muted);
 	--color-icon-interactive: var(--icon-interactive);
@@ -463,6 +489,19 @@
 	/* ── Typography ── */
 	--font-sans: var(--font-family);
 	--font-mono: var(--font-mono);
+
+	/* ── Typography scale ── */
+	--font-size-display-xl: var(--text-display-xl);
+	--font-size-display-lg: var(--text-display-lg);
+	--font-size-h1: var(--text-h1);
+	--font-size-h2: var(--text-h2);
+	--font-size-h3: var(--text-h3);
+	--font-size-h4: var(--text-h4);
+	--font-size-body-lg: var(--text-body-lg);
+	--font-size-body-md: var(--text-body-md);
+	--font-size-body-sm: var(--text-body-sm);
+	--font-size-caption: var(--text-caption);
+	--font-size-micro: var(--text-micro);
 
 	/* ── Breakpoints ── */
 	--breakpoint-*: initial;
@@ -518,6 +557,18 @@
 	.dark ::-webkit-scrollbar-thumb {
 		background: var(--color-slate);
 	}
+
+	.text-display-xl { font-size: var(--text-display-xl); }
+	.text-display-lg { font-size: var(--text-display-lg); }
+	.text-h1 { font-size: var(--text-h1); }
+	.text-h2 { font-size: var(--text-h2); }
+	.text-h3 { font-size: var(--text-h3); }
+	.text-h4 { font-size: var(--text-h4); }
+	.text-body-lg { font-size: var(--text-body-lg); }
+	.text-body-md { font-size: var(--text-body-md); }
+	.text-body-sm { font-size: var(--text-body-sm); }
+	.text-caption { font-size: var(--text-caption); }
+	.text-micro { font-size: var(--text-micro); }
 }
 
 /* ═════════════════════════════════════════════════════════
@@ -527,12 +578,12 @@
 @layer components {
 	.input-field {
 		@apply w-full rounded-lg border border-hairline bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-steel;
-		@apply focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-focus-ring/20;
+		@apply focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-focus-ring/20;
 		@apply transition-[background-color,border-color,box-shadow,color] duration-200;
 	}
 
 	.btn-primary {
-		@apply flex items-center justify-center gap-2 rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold text-on-dark;
+		@apply flex items-center justify-center gap-2 rounded-full bg-brand-blue px-6 py-2.5 text-sm font-semibold text-on-dark;
 		@apply transition-[background-color,box-shadow,opacity,transform] duration-200 ease-out;
 		box-shadow: var(--shadow-button);
 	}
@@ -545,17 +596,50 @@
 		@apply opacity-90;
 	}
 
+	.btn-secondary {
+		@apply flex items-center justify-center gap-2 rounded-full border border-hairline bg-transparent px-5 py-2.5 text-sm font-semibold text-ink;
+		@apply transition-[background-color,box-shadow,opacity] duration-200 ease-out;
+		@apply hover:bg-surface;
+	}
+	.btn-ghost {
+		@apply flex items-center justify-center gap-2 rounded-full bg-transparent px-4 py-2 text-sm font-medium text-slate;
+		@apply transition-[background-color,opacity] duration-200 ease-out;
+		@apply hover:bg-surface hover:text-ink;
+	}
+	.btn-danger {
+		@apply flex items-center justify-center gap-2 rounded-full bg-brand-error px-5 py-2.5 text-sm font-semibold text-on-dark;
+		@apply transition-[background-color,box-shadow,opacity,transform] duration-200 ease-out;
+	}
+	.btn-success {
+		@apply flex items-center justify-center gap-2 rounded-full bg-brand-annotate px-5 py-2.5 text-sm font-semibold text-on-dark;
+		@apply transition-[background-color,box-shadow,opacity,transform] duration-200 ease-out;
+	}
+
 	.card-shadow {
 		@apply rounded-2xl bg-background border border-hairline transition-shadow duration-200;
 		box-shadow: var(--shadow-card);
 	}
+	.card-soft {
+		@apply rounded-xl bg-surface border border-hairline p-5;
+	}
+	.card-highlight {
+		@apply rounded-xl bg-canvas border-2 border-brand-blue p-6 relative;
+		box-shadow: var(--shadow-brand);
+		background-image: linear-gradient(to top, transparent 90%, var(--color-brand-blue) 90%, var(--color-brand-blue) 100%);
+		background-size: 100% 4px;
+		background-repeat: no-repeat;
+		background-position: top;
+	}
+	.card-empty {
+		@apply flex flex-col items-center justify-center rounded-xl border border-dashed border-hairline bg-surface-soft px-6 py-12 text-center;
+	}
 
 	/* ── Card Dashboard (KPI) — 2px Cermont Blue border on neutral bg ── */
 	.card-dashboard {
-		@apply rounded-xl border-2 border-brand-green bg-canvas p-4;
+		@apply rounded-xl border-2 border-brand-blue bg-canvas p-4;
 	}
 	.card-dashboard-value {
-		@apply text-2xl font-bold text-brand-green;
+		@apply text-2xl font-bold text-brand-blue;
 	}
 
 	/* ── Card SLA (Compliance) — 2px Cermont Green border on neutral bg ── */
@@ -582,55 +666,55 @@
    ═════════════════════════════════════════════════════════ */
 
 @keyframes blob {
-	0%,
-	100% {
-		transform: translate(0, 0) scale(1);
-	}
-	33% {
-		transform: translate(30px, -50px) scale(1.1);
-	}
-	66% {
-		transform: translate(-20px, 20px) scale(0.9);
-	}
+	0%, 100% { transform: translate(0, 0) scale(1); }
+	33% { transform: translate(30px, -50px) scale(1.1); }
+	66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+@keyframes fade-in-up {
+	from { opacity: 0; transform: translateY(12px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+@keyframes scale-in {
+	from { opacity: 0; transform: scale(0.95); }
+	to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-in-left {
+	from { opacity: 0; transform: translateX(-12px); }
+	to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-in-right {
+	from { opacity: 0; transform: translateX(12px); }
+	to { opacity: 1; transform: translateX(0); }
 }
 
 @layer utilities {
-	.animate-blob {
-		animation: blob 7s infinite;
-	}
+	.animate-blob { animation: blob 7s infinite; }
+	.animate-fade-in-up { animation: fade-in-up 0.4s ease-out; }
+	.animate-fade-in { animation: fade-in 0.3s ease-out; }
+	.animate-scale-in { animation: scale-in 0.3s ease-out; }
+	.animate-slide-in-left { animation: slide-in-left 0.3s ease-out; }
+	.animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
+	.animation-delay-2000 { animation-delay: 2s; }
+	.animation-delay-4000 { animation-delay: 4s; }
 
-	.animation-delay-2000 {
-		animation-delay: 2s;
-	}
-
-	.animation-delay-4000 {
-		animation-delay: 4s;
-	}
-
-	.no-scrollbar::-webkit-scrollbar {
-		display: none;
-	}
-	.no-scrollbar {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	}
-
-	.scrollbar-thin::-webkit-scrollbar {
-		width: 4px;
-	}
-	.scrollbar-thin::-webkit-scrollbar-track {
-		background: transparent;
-	}
-	.scrollbar-thin::-webkit-scrollbar-thumb {
-		background: var(--color-slate);
-		border-radius: 2px;
-	}
+	.no-scrollbar::-webkit-scrollbar { display: none; }
+	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+	.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+	.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+	.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--color-slate); border-radius: 2px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
 	@layer utilities {
-		.animate-blob {
-			animation: none;
-		}
+		.animate-blob,
+		.animate-fade-in-up,
+		.animate-fade-in,
+		.animate-scale-in,
+		.animate-slide-in-left,
+		.animate-slide-in-right { animation: none; }
 	}
 }

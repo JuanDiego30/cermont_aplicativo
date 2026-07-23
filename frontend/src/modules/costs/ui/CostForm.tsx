@@ -62,11 +62,12 @@ export function CostForm({ orderId, cost, readOnly = false, onSuccess, onCancel 
 		defaultValues: buildDefaultValues(orderId, cost),
 	});
 
-	const { data: evidencesData = [], isLoading: isEvidencesLoading } = useQuery({
+	const { data: paginatedEvidences, isLoading: isEvidencesLoading } = useQuery({
 		queryKey: EVIDENCE_KEYS.byOrder(orderId),
 		queryFn: () => listEvidences(orderId),
 		enabled: !!orderId,
 	});
+	const evidencesData = paginatedEvidences?.items ?? [];
 	const selectedEvidenceSupportId = watch("supportEvidenceIds")?.[0] ?? "";
 	const isSubmitting = createMutation.isPending || updateMutation.isPending;
 	const isSupportSelectorDisabled = readOnly || isSubmitting || isEvidencesLoading;

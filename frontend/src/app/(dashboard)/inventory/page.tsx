@@ -5,9 +5,10 @@
  */
 
 import type { InventoryItem } from "@cermont/shared-types";
-import { AlertTriangle, ArrowDownUp, Package, Plus } from "lucide-react";
+import { AlertTriangle, ArrowDownUp, Plus } from "lucide-react";
 import { useReducer, useState } from "react";
 import { Skeleton } from "@/core/ui/Skeleton";
+import { EmptyState } from "@/core/ui/EmptyState";
 import {
 	useCreateInventoryItem,
 	useInventoryItems,
@@ -34,6 +35,35 @@ const MOVEMENT_TYPES = [
 
 const inputClasses =
 	"rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]";
+
+function LowStockSwitch({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
+	return (
+		<button
+			type="button"
+			id="inventory-low-stock-toggle"
+			role="switch"
+			aria-checked={checked}
+			aria-label="Solo stock bajo"
+			data-state={checked ? "checked" : "unchecked"}
+			onClick={() => onChange(!checked)}
+			className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-lg)] px-2 text-xs font-medium text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:ring-offset-2"
+		>
+			<span
+				aria-hidden="true"
+				className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+					checked ? "bg-[var(--color-brand-green)]" : "bg-[var(--surface-secondary)]"
+				}`}
+			>
+				<span
+					className={`size-5 rounded-full bg-white shadow-sm transition-transform ${
+						checked ? "translate-x-5" : "translate-x-0"
+					}`}
+				/>
+			</span>
+			<span>Solo stock bajo</span>
+		</button>
+	);
+}
 
 interface InventoryViewState {
 	category: string;
@@ -110,7 +140,7 @@ export default function InventoryPage() {
 				<button
 					type="button"
 					onClick={() => dispatchView({ type: "TOGGLE_NEW_FORM" })}
-					className="flex items-center gap-1.5 rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+					className="flex min-h-11 items-center gap-1.5 rounded-[var(--radius-lg)] bg-[var(--color-brand-green)] px-4 py-2 text-sm font-medium text-on-dark hover:opacity-90"
 				>
 					<Plus className="size-4" aria-hidden="true" />
 					Nuevo item
@@ -132,15 +162,10 @@ export default function InventoryPage() {
 						{cat.label}
 					</button>
 				))}
-				<label className="ml-2 flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)]">
-					<input
-						type="checkbox"
-						checked={onlyLowStock}
-						onChange={(e) => dispatchView({ type: "SET_LOW_STOCK", checked: e.target.checked })}
-						className="size-4 rounded border-[var(--border-subtle)]"
-					/>
-					Solo stock bajo
-				</label>
+				<LowStockSwitch
+					checked={onlyLowStock}
+					onChange={(checked) => dispatchView({ type: "SET_LOW_STOCK", checked })}
+				/>
 			</div>
 
 			{showNewForm && <NewItemForm onClose={() => dispatchView({ type: "CLOSE_NEW_FORM" })} />}
@@ -174,17 +199,27 @@ export default function InventoryPage() {
 			)}
 
 			{!isLoading && !error && items.length === 0 && (
-				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] p-16 text-center">
-					<Package
-						className="mx-auto mb-3 size-10 text-[var(--text-tertiary)]"
-						aria-hidden="true"
-					/>
-					<p className="text-[var(--text-secondary)]">
-						{onlyLowStock
-							? "No hay items con stock bajo."
-							: "El catálogo de inventario está vacío."}
-					</p>
-				</div>
+				<EmptyState
+					icon="inventory"
+					title={onlyLowStock ? "No hay items con stock bajo" : "El catálogo está vacío"}
+					description={
+						onlyLowStock
+							? "Ajusta el filtro o revisa el stock general del catálogo."
+							: "Registra herramientas, equipos, materiales o EPP para controlar disponibilidad y reposición."
+					}
+					action={
+						onlyLowStock
+							? {
+									label: "Ver inventario completo",
+									onClick: () => dispatchView({ type: "SET_LOW_STOCK", checked: false }),
+								}
+							: {
+									label: "Agregar primer item",
+									onClick: () => dispatchView({ type: "TOGGLE_NEW_FORM" }),
+									icon: Plus,
+								  }
+					}
+				/>
 			)}
 
 			{items.length > 0 && (
@@ -236,7 +271,7 @@ export default function InventoryPage() {
 						type="button"
 						disabled={page <= 1}
 						onClick={() => dispatchView({ type: "SET_PAGE", page: Math.max(1, page - 1) })}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="min-h-11 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Anterior
 					</button>
@@ -247,7 +282,7 @@ export default function InventoryPage() {
 						type="button"
 						disabled={page >= pagination.totalPages}
 						onClick={() => dispatchView({ type: "SET_PAGE", page: page + 1 })}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
+						className="min-h-11 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40"
 					>
 						Siguiente
 					</button>
@@ -327,7 +362,8 @@ function NewItemForm({ onClose }: { onClose: () => void }) {
 			aria-label="Nuevo item de inventario"
 			className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] sm:grid-cols-2 lg:grid-cols-3"
 			action="#"
-			onSubmit={() => {
+			onSubmit={(event) => {
+				event.preventDefault();
 				void handleCreateItem();
 			}}
 		>
@@ -407,14 +443,14 @@ function NewItemForm({ onClose }: { onClose: () => void }) {
 				<button
 					type="button"
 					onClick={onClose}
-					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="min-h-11 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar
 				</button>
 				<button
 					type="submit"
 					disabled={createMutation.isPending}
-					className="rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+					className="min-h-11 rounded-[var(--radius-lg)] bg-[var(--color-brand-green)] px-4 py-2 text-sm font-medium text-on-dark hover:opacity-90 disabled:opacity-50"
 				>
 					{createMutation.isPending ? "Guardando..." : "Crear item"}
 				</button>
@@ -451,7 +487,8 @@ function MovementForm({ item, onClose }: { item: InventoryItem; onClose: () => v
 			aria-label={`Movimiento de stock para ${item.name}`}
 			className="flex flex-wrap items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--color-info-bg)] bg-[var(--color-info-bg)]/30 p-4"
 			action="#"
-			onSubmit={() => {
+			onSubmit={(event) => {
+				event.preventDefault();
 				void handleMovement();
 			}}
 		>
@@ -504,14 +541,14 @@ function MovementForm({ item, onClose }: { item: InventoryItem; onClose: () => v
 				<button
 					type="button"
 					onClick={onClose}
-					className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+					className="min-h-11 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
 				>
 					Cancelar
 				</button>
 				<button
 					type="submit"
 					disabled={movementMutation.isPending}
-					className="rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+					className="min-h-11 rounded-[var(--radius-lg)] bg-[var(--color-brand-green)] px-4 py-2 text-sm font-medium text-on-dark hover:opacity-90 disabled:opacity-50"
 				>
 					{movementMutation.isPending ? "Registrando..." : "Registrar"}
 				</button>

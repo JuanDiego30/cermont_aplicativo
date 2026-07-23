@@ -18,12 +18,16 @@ import {
 	RefreshCcw,
 	Search,
 	type Upload,
+	Wifi,
+	WifiOff,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Button } from "@/core/ui/Button";
 import { EmptyState } from "@/core/ui/EmptyState";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
+import { APP_ROUTES } from "@/lib/routes";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
 import { useExecutionSessions } from "@/modules/execution/queries";
 
@@ -51,7 +55,7 @@ const STATUS_LABELS: Record<ExecutionSessionStatus, string> = {
 
 const STATUS_STYLES: Record<ExecutionSessionStatus, string> = {
 	draft: "bg-surface-secondary text-muted-foreground",
-	ready: "bg-info-bg text-[var(--color-brand)]",
+	ready: "bg-info-bg text-slate",
 	in_progress: "bg-success-bg text-success",
 	paused: "bg-warning-bg text-brand-warn",
 	completed: "bg-emerald-50 text-brand-annotate",
@@ -95,13 +99,14 @@ export default function ExecutionPage() {
 	const pendingSyncCount = sessions.filter(
 		(item) => item.offlineSyncStatus === "pending" || item.status === "sync_pending",
 	).length;
+	const isOnline = useOnlineStatus();
 
 	return (
 		<section className="space-y-6" aria-labelledby="execution-title">
 			<header className="rounded-xl border border-border bg-card p-5 shadow-sm">
 				<div className="flex flex-wrap items-start justify-between gap-4">
 					<div>
-						<p className="text-sm font-medium text-[var(--color-brand)]">Paso 6 / Ejecucion</p>
+						<p className="text-sm font-medium text-slate">Paso 6 / Ejecucion</p>
 						<h1 id="execution-title" className="mt-2 text-2xl font-semibold text-foreground">
 							Sesiones de ejecucion
 						</h1>
@@ -110,12 +115,15 @@ export default function ExecutionPage() {
 							cierre tecnico desde sesiones conectadas a ordenes y planeacion.
 						</p>
 					</div>
-					<Button asChild variant="secondary">
-						<Link href="/orders">
-							<PlayCircle aria-hidden="true" />
-							Crear desde orden
-						</Link>
-					</Button>
+					<div className="flex flex-wrap items-center gap-2">
+						<ConnectionStatus isOnline={isOnline} pendingSyncCount={pendingSyncCount} />
+						<Button asChild variant="secondary">
+							<Link href={APP_ROUTES.orders}>
+								<PlayCircle aria-hidden="true" />
+								Crear desde orden
+							</Link>
+						</Button>
+					</div>
 				</div>
 			</header>
 
@@ -138,7 +146,7 @@ export default function ExecutionPage() {
 								onClick={() => setStatus(filter.value)}
 								className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
 									status === filter.value
-										? "border-[var(--color-brand)] bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand)]"
+										? "border-[var(--color-brand)] bg-[var(--color-cermont-blue-bg)] text-slate"
 										: "border-border text-muted-foreground hover:bg-surface-secondary"
 								}`}
 							>
@@ -197,6 +205,31 @@ export default function ExecutionPage() {
 	);
 }
 
+export function ConnectionStatus({
+	isOnline,
+	pendingSyncCount,
+}: {
+	isOnline: boolean;
+	pendingSyncCount: number;
+}) {
+	const Icon = isOnline ? Wifi : WifiOff;
+	return (
+		<div
+			role="status"
+			aria-live="polite"
+			className={`inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-xs font-semibold ${
+				isOnline
+					? "bg-[var(--color-success-bg)] text-[var(--color-success)]"
+					: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]"
+			}`}
+		>
+			<Icon className="size-4" aria-hidden="true" />
+			<span>{isOnline ? "Conectado" : "Sin conexión"}</span>
+			<span className="font-normal opacity-80">Sync pendiente: {pendingSyncCount}</span>
+		</div>
+	);
+}
+
 function KpiCard({
 	icon: Icon,
 	label,
@@ -213,7 +246,7 @@ function KpiCard({
 					<p className="text-sm text-muted-foreground">{label}</p>
 					<p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
 				</div>
-				<span className="flex size-10 items-center justify-center rounded-md bg-[var(--color-cermont-blue-bg)] text-[var(--color-brand)]">
+				<span className="flex size-10 items-center justify-center rounded-md bg-[var(--color-cermont-blue-bg)] text-slate">
 					<Icon className="size-5" aria-hidden="true" />
 				</span>
 			</div>
@@ -274,7 +307,7 @@ function ActionLink({
 				className="group w-full rounded-lg border border-border bg-card p-4 text-left shadow-card transition-colors hover:border-[var(--color-brand)]"
 			>
 				<div className="flex items-start gap-3">
-					<span className="flex size-10 items-center justify-center rounded-md bg-surface-secondary text-[var(--color-brand)]">
+					<span className="flex size-10 items-center justify-center rounded-md bg-surface-secondary text-slate">
 						<Icon className="size-5" aria-hidden="true" />
 					</span>
 					<div>

@@ -111,7 +111,7 @@ function NewDeliveryRecordForm() {
 					Volver
 				</Link>
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 8 / Acta de entrega</p>
+					<p className="text-sm font-medium text-slate">Paso 8 / Acta de entrega</p>
 					<h1
 						id="new-delivery-title"
 						className="mt-1 text-2xl font-semibold text-[var(--text-primary)]"

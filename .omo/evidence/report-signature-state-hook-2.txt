@@ -1,0 +1,40 @@
+Fresh hook-cycle verification
+Target worktree: C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\.codex\worktrees\spec-012-escalamiento-profesional
+
+Command 1:
+npm run test -- tests/services/report.service.test.ts
+
+Captured output:
+> @cermont/backend@5.2.1 test
+> vitest run tests/services/report.service.test.ts
+RUN v4.1.8 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/.codex/worktrees/spec-012-escalamiento-profesional/backend
+Test Files  1 passed (1)
+Tests       15 passed (15)
+Start at    23:24:25
+Duration    1.75s
+Exit code   0
+
+Judgment: PASS. The focused tests observe the approver-role rejection, pending_review-only transition, dedicated signature retention, and general-response signature redaction.
+
+Command 2:
+git diff --check -- backend/src/modules/report/report.service.ts backend/tests/services/report.service.test.ts; rg -n -F 'APPROVER_ROLES' backend/src/modules/report/report.service.ts; rg -n -F 'report.status !== "pending_review"' backend/src/modules/report/report.service.ts; rg -n -F 'return { ...formatReport(report), signature: report.signature }' backend/src/modules/report/report.service.ts
+
+Captured output:
+1:import { APPROVER_ROLES, hasRole } from "@cermont/domain";
+290: if (!hasRole(userRole, APPROVER_ROLES)) {
+325: if (!hasRole(userRole, APPROVER_ROLES)) {
+353: if (!hasRole(userRole, APPROVER_ROLES)) {
+83: if (report.status !== "pending_review") {
+344: return { ...formatReport(report), signature: report.signature };
+Exit code   0
+
+Judgment: PASS. The scoped diff has no whitespace errors and the implementation contains the required guards/redaction shape.
+
+Command 3:
+omo ulw-loop status --json
+
+Captured output:
+La sintaxis del comando no es correcta.
+Exit code 1.
+
+Judgment: The loop-status helper is unavailable in this Windows shell; repository-level .omo/evidence is used as the fallback location.

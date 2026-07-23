@@ -178,7 +178,7 @@ function NewPaymentForm() {
 					Volver
 				</Link>
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 14 / Pago y cierre</p>
+					<p className="text-sm font-medium text-slate">Paso 14 / Pago y cierre</p>
 					<h1
 						id="new-payment-title"
 						className="mt-1 text-2xl font-semibold text-[var(--text-primary)]"

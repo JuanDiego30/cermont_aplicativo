@@ -90,9 +90,9 @@ export function PlanningAstPtwSection({
 						Documentos de soporte ({supportDocuments.length})
 					</p>
 					<ul className="space-y-2">
-						{supportDocuments.map((doc, idx) => (
+						{supportDocuments.map((doc) => (
 							<li
-								key={doc.documentId ?? idx}
+								key={doc.documentId}
 								className="flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-2"
 							>
 								<FileText

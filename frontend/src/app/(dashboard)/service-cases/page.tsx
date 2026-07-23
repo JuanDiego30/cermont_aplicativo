@@ -14,6 +14,7 @@ import {
 	TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import { Breadcrumb } from "@/core/ui/Breadcrumb";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
 
@@ -193,7 +194,7 @@ function ServiceCaseMetric({
 }
 
 function ServiceCasesList() {
-	const { data, isLoading, error } = useServiceCaseList();
+	const { data, isLoading, error, refetch } = useServiceCaseList();
 	const isOfflineSnapshot = data?.source.status === "offline_snapshot";
 	const isOfflineEmpty = data?.source.status === "offline_empty";
 
@@ -212,6 +213,7 @@ function ServiceCasesList() {
 				icon="service-cases"
 				title="Error al cargar casos"
 				description="No se pudo construir el cockpit de casos de servicio."
+				action={{ label: "Reintentar", onClick: () => refetch() }}
 			/>
 		);
 	}
@@ -226,6 +228,7 @@ function ServiceCasesList() {
 						? "Este dispositivo todavía no tiene casos sincronizados para trabajar sin conexión."
 						: "Aún no hay casos proyectados en el cockpit. Revise la conversión desde solicitudes, propuestas y órdenes."
 				}
+				action={isOfflineEmpty ? { label: "Reintentar", onClick: () => refetch() } : { label: "Crear solicitud", href: "/work-requests/new" }}
 			/>
 		);
 	}
@@ -235,7 +238,7 @@ function ServiceCasesList() {
 			{isOfflineSnapshot ? (
 				<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
 					Mostrando casos guardados localmente. Última actualización:{" "}
-					{new Date(data.source.updatedAt).toLocaleString("es-CO")}
+					{new Date(data.source.updatedAt).toLocaleString("es-CO", { timeZone: "America/Bogota" })}
 				</div>
 			) : (
 				false
@@ -253,7 +256,8 @@ export default function ServiceCasesPage() {
 	return (
 		<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 			<div className="mb-8">
-				<h1 className="text-2xl font-semibold text-primary">Casos de Servicio</h1>
+				<Breadcrumb items={[{ label: "Dashboard", href: "/dashboard" }, { label: "Casos de Servicio" }]} />
+				<h1 className="mt-3 text-2xl font-semibold text-primary">Casos de Servicio</h1>
 				<p className="mt-1 text-sm text-secondary">
 					Caso → 14 pasos → documentos → evidencias → bloqueadores → costos → cierre
 				</p>

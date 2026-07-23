@@ -51,10 +51,48 @@ function actionLabel(action: string): string {
 		.join(" ");
 }
 
+function auditEventClasses(action: string): { card: string; badge: string; dot: string } {
+	const value = action.toUpperCase();
+	if (/(REJECT|FAIL)/.test(value)) {
+		return {
+			card: "border-[var(--color-warning)]/30 bg-[var(--color-warning-bg)]/30",
+			badge: "bg-[var(--color-warning-bg)] text-[var(--color-warning)]",
+			dot: "bg-[var(--color-warning)]",
+		};
+	}
+	if (/(DELETE|DEACTIVATE|REVOKE|CANCEL|ARCHIVE)/.test(value)) {
+		return {
+			card: "border-[var(--color-danger)]/30 bg-[var(--color-danger-bg)]/30",
+			badge: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
+			dot: "bg-[var(--color-danger)]",
+		};
+	}
+	if (/(CREATE|REGISTER|UPLOAD|ISSUE|APPROVE|SIGN|PAY)/.test(value)) {
+		return {
+			card: "border-[var(--color-success)]/30 bg-[var(--color-success-bg)]/30",
+			badge: "bg-[var(--color-success-bg)] text-[var(--color-success)]",
+			dot: "bg-[var(--color-success)]",
+		};
+	}
+	if (/(UPDATE|EDIT|ASSIGN|ADVANCE|START|SUBMIT|COMPLETE|PAUSE)/.test(value)) {
+		return {
+			card: "border-[var(--color-info)]/30 bg-[var(--color-info-bg)]/30",
+			badge: "bg-[var(--color-info-bg)] text-[var(--color-info)]",
+			dot: "bg-[var(--color-info)]",
+		};
+	}
+	return {
+		card: "border-[var(--border-subtle)] bg-[var(--surface-primary)]",
+		badge: "bg-[var(--surface-secondary)] text-[var(--text-secondary)]",
+		dot: "bg-[var(--text-tertiary)]",
+	};
+}
+
 function formatTimestamp(value: string): string {
 	return new Intl.DateTimeFormat("es-CO", {
 		dateStyle: "medium",
 		timeStyle: "short",
+		timeZone: "America/Bogota",
 	}).format(new Date(value));
 }
 
@@ -97,12 +135,13 @@ function AuditEventDetails({ event }: { event: AuditLogRecord }) {
 }
 
 function AuditEventCard({ event }: { event: AuditLogRecord }) {
+	const semanticStyle = auditEventClasses(event.action);
 	return (
-		<article className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-card">
+		<article className={`rounded-[var(--radius-xl)] border p-4 shadow-card ${semanticStyle.card}`}>
 			<header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<div className="min-w-0">
 					<div className="flex flex-wrap items-center gap-2">
-						<BadgePill dotClassName={event.status === "success" ? "bg-emerald-500" : "bg-red-500"}>
+						<BadgePill className={semanticStyle.badge} dotClassName={semanticStyle.dot}>
 							{actionLabel(event.action)}
 						</BadgePill>
 						<span className="text-xs text-[var(--text-tertiary)]">{event.entityType}</span>

@@ -54,10 +54,11 @@ export function SlaDeadlineBadge({ deadline }: SlaDeadlineBadgeProps) {
 	return (
 		<span
 			className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${STATE_CLASSES[state]}`}
-			title={new Intl.DateTimeFormat("es-CO", {
-				dateStyle: "medium",
-				timeStyle: "short",
-			}).format(deadlineMs)}
+		title={new Intl.DateTimeFormat("es-CO", {
+			dateStyle: "medium",
+			timeStyle: "short",
+			timeZone: "America/Bogota",
+		}).format(deadlineMs)}
 		>
 			{state === "on_track" ? (
 				<CalendarClock className="size-3" aria-hidden="true" />

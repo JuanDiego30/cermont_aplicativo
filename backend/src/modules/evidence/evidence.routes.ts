@@ -31,15 +31,18 @@ import * as EvidenceController from "./evidence.controller";
 
 const router = Router();
 
+router.use(authenticate);
+
 // GET /api/evidences/stats — evidence statistics for dashboard
 // Roles: Todos (all authenticated users)
-router.get("/stats", authenticate, authorize(...INTERNAL_ROLES), EvidenceController.getStats);
+router.get("/stats", authorize(...INTERNAL_ROLES), EvidenceController.getStats);
+
+router.get("/summary", authorize(...INTERNAL_ROLES), EvidenceController.getSummary);
 
 // GET /api/evidences — list all evidences (paginado, filtrable)
 // Roles: Todos (all authenticated users)
 router.get(
 	"/",
-	authenticate,
 	authorize(...INTERNAL_ROLES),
 	validateQuery(PaginationQuerySchema),
 	EvidenceController.listEvidences,
@@ -49,7 +52,6 @@ router.get(
 // Roles: Todos (all authenticated users)
 router.get(
 	"/order/:orderId",
-	authenticate,
 	authorize(...INTERNAL_ROLES),
 	validateParams(EvidenceOrderIdParamsSchema),
 	validateQuery(PaginationQuerySchema),
@@ -60,7 +62,6 @@ router.get(
 // Roles: OPE, TEC, SUP
 router.post(
 	"/",
-	authenticate,
 	authorize(CERMONT_ROLES.OPERADOR, CERMONT_ROLES.TECNICO, CERMONT_ROLES.SUPERVISOR),
 	uploadLimiter,
 	evidenceUpload.single("file"),
@@ -73,7 +74,6 @@ router.post(
 // GET /api/evidences/:id
 router.get(
 	"/:id",
-	authenticate,
 	authorize(...INTERNAL_ROLES),
 	validateParams(EvidenceIdSchema),
 	EvidenceController.getEvidenceById,
@@ -83,7 +83,6 @@ router.get(
 // Roles: GER, RES, SUP
 router.delete(
 	"/:id",
-	authenticate,
 	authorize(...SUPERVISORY_ROLES),
 	validateParams(EvidenceIdSchema),
 	EvidenceController.deleteEvidence,
@@ -93,7 +92,6 @@ router.delete(
 // Roles: GER, RES, SUP
 router.post(
 	"/:id/verify",
-	authenticate,
 	authorize(...SUPERVISORY_ROLES),
 	validateParams(EvidenceIdSchema),
 	validateBody(VerifyEvidenceSchema),
@@ -104,7 +102,6 @@ router.post(
 // Roles: Todos (all authenticated users)
 router.post(
 	"/:id/download",
-	authenticate,
 	authorize(...INTERNAL_ROLES),
 	validateParams(EvidenceIdSchema),
 	EvidenceController.downloadEvidence,
@@ -114,7 +111,6 @@ router.post(
 // Roles: Todos (all authenticated users)
 router.post(
 	"/:id/view",
-	authenticate,
 	authorize(...INTERNAL_ROLES),
 	validateParams(EvidenceIdSchema),
 	EvidenceController.viewEvidence,
@@ -124,7 +120,6 @@ router.post(
 // Roles: Todos
 router.get(
 	"/order/:orderId/gallery",
-	authenticate,
 	authorize(...INTERNAL_ROLES),
 	validateParams(EvidenceOrderIdParamsSchema),
 	EvidenceController.getEvidenceGallery,
@@ -134,7 +129,6 @@ router.get(
 // Roles: OPE, TEC, SUP
 router.post(
 	"/:id/replace",
-	authenticate,
 	authorize(...EVIDENCE_ACCESS_ROLES),
 	uploadLimiter,
 	evidenceUpload.single("file"),
@@ -164,7 +158,6 @@ const ReviewEvidenceSchema = z
 // Roles: GER, RES, SUP
 router.post(
 	"/:id/review",
-	authenticate,
 	authorize(...SUPERVISORY_ROLES),
 	validateParams(EvidenceIdSchema),
 	validateBody(ReviewEvidenceSchema),

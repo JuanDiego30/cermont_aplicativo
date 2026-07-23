@@ -4,6 +4,14 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import NewWorkRequestPage from "@/app/(dashboard)/work-requests/new/page";
 
+function submitForm(): void {
+	const button = screen.getByRole("button", { name: /crear solicitud/i });
+	const form = button.closest("form");
+	if (form instanceof HTMLFormElement) {
+		fireEvent.submit(form);
+	}
+}
+
 interface CreatedWorkRequestResponse {
 	workRequest: { _id: string };
 	serviceCase: { _id: string; code: string };
@@ -167,7 +175,7 @@ describe("NewWorkRequestPage", () => {
 
 		render(<NewWorkRequestPage />);
 		fireEvent.change(screen.getByLabelText("Canal"), { target: { value: "other" } });
-		fireEvent.submit(screen.getByRole("button", { name: /crear solicitud/i }).closest("form")!);
+		submitForm();
 
 		for (const message of [
 			"Solicitante requerido",
@@ -194,7 +202,7 @@ describe("NewWorkRequestPage", () => {
 		render(<NewWorkRequestPage />);
 
 		fireEvent.click(screen.getByRole("button", { name: "Seleccionar Cliente Uno" }));
-		fireEvent.submit(screen.getByRole("button", { name: /crear solicitud/i }).closest("form")!);
+		submitForm();
 
 		expect(screen.getByText("Seleccione un sitio de servicio")).toBeVisible();
 		expect(mocks.mutate).not.toHaveBeenCalled();
@@ -217,7 +225,7 @@ describe("NewWorkRequestPage", () => {
 			target: { value: "Bodega manual anterior" },
 		});
 		fireEvent.click(screen.getByRole("button", { name: "Seleccionar Cliente Uno" }));
-		fireEvent.submit(screen.getByRole("button", { name: /crear solicitud/i }).closest("form")!);
+		submitForm();
 
 		expect(screen.getByText("Seleccione una sede del cliente")).toBeVisible();
 		expect(mocks.mutate).not.toHaveBeenCalled();
@@ -250,7 +258,7 @@ describe("NewWorkRequestPage", () => {
 		});
 		render(<NewWorkRequestPage />);
 
-		fireEvent.submit(screen.getByRole("button", { name: /crear solicitud/i }).closest("form")!);
+		submitForm();
 
 		for (const issue of [
 			"El nombre es obligatorio",
@@ -280,7 +288,7 @@ describe("NewWorkRequestPage", () => {
 		fireEvent.change(screen.getByLabelText("Descripcion"), {
 			target: { value: "Revisión completa del tablero eléctrico" },
 		});
-		fireEvent.submit(screen.getByRole("button", { name: /crear solicitud/i }).closest("form")!);
+		submitForm();
 
 		expect(mocks.safeParse.mock.invocationCallOrder[0]).toBeLessThan(
 			mocks.mutate.mock.invocationCallOrder[0],

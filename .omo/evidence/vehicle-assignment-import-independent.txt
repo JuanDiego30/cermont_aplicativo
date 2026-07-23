@@ -1,0 +1,6 @@
+Scenario: candidate backend barrel import verification
+Target worktree: C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\.codex\worktrees\spec-012-escalamiento-profesional
+Invocation: npm exec --workspace backend -- tsx -e "import { VehicleAssignment } from './src/models/index.ts'; if (VehicleAssignment.modelName !== 'VehicleAssignment') throw new Error('unexpected model name'); process.stdout.write(JSON.stringify({ imported: true, modelName: VehicleAssignment.modelName }));"
+Observed exit code: 0
+Observed stdout: {"imported":true,"modelName":"VehicleAssignment"}
+Judgment: PASS — the candidate backend barrel imports VehicleAssignment and exposes the expected model name; the reported MODULE_NOT_FOUND import blocker is resolved.

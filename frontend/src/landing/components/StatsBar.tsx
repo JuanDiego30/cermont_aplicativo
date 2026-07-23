@@ -46,7 +46,7 @@ export function StatsBar() {
 			className={cn("relative overflow-hidden", "bg-gradient-to-r from-[#1a3a2a] to-[#0d2818]")}
 		>
 			<div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-				<div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+				<div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
 					{LANDING_STATS.map((stat) => (
 						<StatItem
 							key={stat.label}

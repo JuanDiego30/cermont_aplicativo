@@ -128,6 +128,41 @@ export async function createVehicle(input: CreateVehicleInput, userId: string) {
 	});
 }
 
+function calcularStatusPorDocumentos(
+	vehicle: Pick<
+		VehicleRecord,
+		"soatExpiry" | "technoMechanicalExpiry" | "insuranceExpiry" | "documents"
+	>,
+): "blocked" | "active" {
+	const now = new Date();
+
+	const docExpiry = (flat: Date | null | undefined, docType: string): Date | null => {
+		const fromArray = vehicle.documents?.find((d) => d.documentType === docType);
+		if (fromArray) {
+			return fromArray.expiryDate instanceof Date
+				? fromArray.expiryDate
+				: new Date(fromArray.expiryDate);
+		}
+		return flat ?? null;
+	};
+
+	const soat = docExpiry(vehicle.soatExpiry, "soat");
+	const techno = docExpiry(vehicle.technoMechanicalExpiry, "tecnomecanica");
+	const insurance = docExpiry(vehicle.insuranceExpiry, "poliza");
+
+	if (!soat || soat < now) {
+		return "blocked";
+	}
+	if (!techno || techno < now) {
+		return "blocked";
+	}
+	if (!insurance || insurance < now) {
+		return "blocked";
+	}
+
+	return "active";
+}
+
 export async function listVehicles(query: ListVehiclesQuery) {
 	const { page, limit, status, type } = query;
 	const filter: Record<string, unknown> = {};
@@ -146,8 +181,13 @@ export async function listVehicles(query: ListVehiclesQuery) {
 		VehicleModel.countDocuments(filter),
 	]);
 
+	const data = vehicles.map((v) => ({
+		...v.toObject(),
+		documentStatus: calcularStatusPorDocumentos(v),
+	}));
+
 	return {
-		data: vehicles,
+		data,
 		pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
 	};
 }
@@ -203,10 +243,49 @@ export async function updateVehicle(id: string, input: UpdateVehicleInput, userI
 	return updated;
 }
 
-/**
- * SOAT/tecnomecánica/póliza/tarjeta_propiedad expiring within N days (default 30).
- * Checks both legacy flat fields and new documents array.
- */
+function buildFlatDocAlert(
+	vehicle: VehicleRecord & { _id: { toString(): string } },
+	doc: { documentType: "soat" | "tecnomecanica" | "poliza"; expiresAt: Date | undefined },
+	limitDate: Date,
+	now: Date,
+): VehicleDocumentAlert | null {
+	if (!doc.expiresAt || doc.expiresAt > limitDate) {
+		return null;
+	}
+	const daysUntilExpiry = Math.ceil(
+		(doc.expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000),
+	);
+	return {
+		vehicleId: vehicle._id.toString(),
+		plate: vehicle.plate,
+		documentType: doc.documentType,
+		expiresAt: doc.expiresAt.toISOString(),
+		daysUntilExpiry,
+		expired: doc.expiresAt < now,
+	};
+}
+
+function buildArrayDocAlert(
+	vehicle: VehicleRecord & { _id: { toString(): string } },
+	doc: VehicleRecord["documents"][number],
+	limitDate: Date,
+	now: Date,
+): VehicleDocumentAlert | null {
+	const expiry = doc.expiryDate instanceof Date ? doc.expiryDate : new Date(doc.expiryDate);
+	if (expiry > limitDate) {
+		return null;
+	}
+	const daysUntilExpiry = Math.ceil((expiry.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+	return {
+		vehicleId: vehicle._id.toString(),
+		plate: vehicle.plate,
+		documentType: doc.documentType as VehicleDocumentAlert["documentType"],
+		expiresAt: expiry.toISOString(),
+		daysUntilExpiry,
+		expired: expiry < now,
+	};
+}
+
 export async function getExpiringDocuments(daysAhead = 30): Promise<VehicleDocumentAlert[]> {
 	const now = new Date();
 	const limitDate = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
@@ -222,66 +301,97 @@ export async function getExpiringDocuments(daysAhead = 30): Promise<VehicleDocum
 
 	const alerts: VehicleDocumentAlert[] = [];
 	for (const vehicle of vehicles) {
-		alerts.push(...collectVehicleExpiringDocs(vehicle, now, limitDate));
+		const flatDocs = [
+			{ documentType: "soat" as const, expiresAt: vehicle.soatExpiry },
+			{ documentType: "tecnomecanica" as const, expiresAt: vehicle.technoMechanicalExpiry },
+			{ documentType: "poliza" as const, expiresAt: vehicle.insuranceExpiry },
+		];
+		for (const doc of flatDocs) {
+			const alert = buildFlatDocAlert(vehicle, doc, limitDate, now);
+			if (alert) {
+				alerts.push(alert);
+			}
+		}
+		for (const doc of vehicle.documents ?? []) {
+			const alert = buildArrayDocAlert(vehicle, doc, limitDate, now);
+			if (alert) {
+				alerts.push(alert);
+			}
+		}
 	}
 	return alerts.sort((a, b) => a.expiresAt.localeCompare(b.expiresAt));
-}
-
-function collectVehicleExpiringDocs(
-	vehicle: VehicleRecord & { _id: { toString(): string } },
-	now: Date,
-	limitDate: Date,
-): VehicleDocumentAlert[] {
-	const alerts: VehicleDocumentAlert[] = [];
-
-	const flatDocs: Array<{
-		documentType: "soat" | "tecnomecanica" | "poliza";
-		expiresAt: Date | undefined;
-	}> = [
-		{ documentType: "soat", expiresAt: vehicle.soatExpiry },
-		{ documentType: "tecnomecanica", expiresAt: vehicle.technoMechanicalExpiry },
-		{ documentType: "poliza", expiresAt: vehicle.insuranceExpiry },
-	];
-	for (const doc of flatDocs) {
-		if (doc.expiresAt && doc.expiresAt <= limitDate) {
-			const daysUntilExpiry = Math.ceil(
-				(doc.expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000),
-			);
-			alerts.push({
-				vehicleId: vehicle._id.toString(),
-				plate: vehicle.plate,
-				documentType: doc.documentType,
-				expiresAt: doc.expiresAt.toISOString(),
-				daysUntilExpiry,
-				expired: doc.expiresAt < now,
-			});
-		}
-	}
-
-	for (const doc of vehicle.documents ?? []) {
-		const expiry = doc.expiryDate instanceof Date ? doc.expiryDate : new Date(doc.expiryDate);
-		if (expiry <= limitDate) {
-			const daysUntilExpiry = Math.ceil(
-				(expiry.getTime() - now.getTime()) / (24 * 60 * 60 * 1000),
-			);
-			alerts.push({
-				vehicleId: vehicle._id.toString(),
-				plate: vehicle.plate,
-				documentType: doc.documentType as VehicleDocumentAlert["documentType"],
-				expiresAt: expiry.toISOString(),
-				daysUntilExpiry,
-				expired: expiry < now,
-			});
-		}
-	}
-
-	return alerts;
 }
 
 /**
  * Returns vehicles with expired or missing mandatory documents (SOAT, tecnomecanica).
  * These vehicles cannot be dispatched.
  */
+function checkDocumentBlocker(
+	vehicle: VehicleRecord,
+	docType: "soat" | "tecnomecanica" | "poliza",
+	flatExpiry: Date | null | undefined,
+	now: Date,
+	expiredLabel: string,
+	missingLabel: string,
+): string | null {
+	const fromArray = vehicle.documents?.find((d) => d.documentType === docType);
+	const isExpired =
+		(flatExpiry && flatExpiry < now) ||
+		(fromArray && (new Date(fromArray.expiryDate) < now || fromArray.status === "expired"));
+	const isMissing = !flatExpiry && !vehicle.documents?.some((d) => d.documentType === docType);
+	if (isExpired) {
+		return expiredLabel;
+	}
+	if (isMissing) {
+		return missingLabel;
+	}
+	return null;
+}
+
+function evaluateVehicleBlockers(
+	vehicle: VehicleRecord & { _id: { toString(): string } },
+	now: Date,
+): string[] {
+	const blockers: string[] = [];
+	const soatBlocker = checkDocumentBlocker(
+		vehicle,
+		"soat",
+		vehicle.soatExpiry,
+		now,
+		"SOAT vencido",
+		"SOAT sin registrar",
+	);
+	if (soatBlocker) {
+		blockers.push(soatBlocker);
+	}
+	const technoBlocker = checkDocumentBlocker(
+		vehicle,
+		"tecnomecanica",
+		vehicle.technoMechanicalExpiry,
+		now,
+		"Tecnomecánica vencida",
+		"Tecnomecánica sin registrar",
+	);
+	if (technoBlocker) {
+		blockers.push(technoBlocker);
+	}
+	const insuranceBlocker = checkDocumentBlocker(
+		vehicle,
+		"poliza",
+		vehicle.insuranceExpiry,
+		now,
+		"Póliza vencida",
+		"Póliza sin registrar",
+	);
+	if (insuranceBlocker) {
+		blockers.push(insuranceBlocker);
+	}
+	if (!vehicle.documents?.some((d) => d.documentType === "tarjeta_propiedad")) {
+		blockers.push("Tarjeta de propiedad sin registrar");
+	}
+	return blockers;
+}
+
 export async function getBlockerDocuments(): Promise<
 	Array<{
 		vehicleId: string;
@@ -291,96 +401,68 @@ export async function getBlockerDocuments(): Promise<
 	}>
 > {
 	const vehicles = await VehicleModel.find();
-	const result: Array<{
-		vehicleId: string;
-		plate: string;
-		blockers: string[];
-		ready: boolean;
-	}> = [];
-
-	for (const vehicle of vehicles) {
-		const blockers: string[] = [];
-
-		checkSoatBlocker(vehicle, blockers);
-		checkTechnoBlocker(vehicle, blockers);
-		checkInsuranceBlocker(vehicle, blockers);
-		checkPropertyCardBlocker(vehicle, blockers);
-
-		result.push({
+	const now = new Date();
+	const result = vehicles.map((vehicle) => {
+		const blockers = evaluateVehicleBlockers(vehicle, now);
+		return {
 			vehicleId: vehicle._id.toString(),
 			plate: vehicle.plate,
 			blockers,
 			ready: blockers.length === 0,
-		});
-	}
+		};
+	});
 	return result;
-}
-
-function checkSoatBlocker(vehicle: VehicleRecord, blockers: string[]): void {
-	const now = new Date();
-	const soatExpired =
-		(vehicle.soatExpiry && vehicle.soatExpiry < now) ||
-		vehicle.documents?.some(
-			(d) =>
-				d.documentType === "soat" && (new Date(d.expiryDate) < now || d.status === "expired"),
-		);
-	const soatMissing =
-		!vehicle.soatExpiry && !vehicle.documents?.some((d) => d.documentType === "soat");
-	if (soatExpired) {
-		blockers.push("SOAT vencido");
-	} else if (soatMissing) {
-		blockers.push("SOAT sin registrar");
-	}
-}
-
-function checkTechnoBlocker(vehicle: VehicleRecord, blockers: string[]): void {
-	const now = new Date();
-	const technoExpired =
-		(vehicle.technoMechanicalExpiry && vehicle.technoMechanicalExpiry < now) ||
-		vehicle.documents?.some(
-			(d) =>
-				d.documentType === "tecnomecanica" &&
-				(new Date(d.expiryDate) < now || d.status === "expired"),
-		);
-	const technoMissing =
-		!vehicle.technoMechanicalExpiry &&
-		!vehicle.documents?.some((d) => d.documentType === "tecnomecanica");
-	if (technoExpired) {
-		blockers.push("Tecnomecánica vencida");
-	} else if (technoMissing) {
-		blockers.push("Tecnomecánica sin registrar");
-	}
-}
-
-function checkInsuranceBlocker(vehicle: VehicleRecord, blockers: string[]): void {
-	const now = new Date();
-	const insuranceExpired =
-		(vehicle.insuranceExpiry && vehicle.insuranceExpiry < now) ||
-		vehicle.documents?.some(
-			(d) =>
-				d.documentType === "poliza" && (new Date(d.expiryDate) < now || d.status === "expired"),
-		);
-	const insuranceMissing =
-		!vehicle.insuranceExpiry && !vehicle.documents?.some((d) => d.documentType === "poliza");
-	if (insuranceExpired) {
-		blockers.push("Póliza vencida");
-	} else if (insuranceMissing) {
-		blockers.push("Póliza sin registrar");
-	}
-}
-
-function checkPropertyCardBlocker(vehicle: VehicleRecord, blockers: string[]): void {
-	const propertyCardMissing = !vehicle.documents?.some(
-		(d) => d.documentType === "tarjeta_propiedad",
-	);
-	if (propertyCardMissing) {
-		blockers.push("Tarjeta de propiedad sin registrar");
-	}
 }
 
 /**
  * Fleet-wide readiness percentage — ratio of vehicles with all mandatory docs valid.
  */
+function mergeVehicleDocs(
+	vehicle: VehicleRecord,
+): Array<{ type: "soat" | "tecnomecanica" | "poliza"; expiry: Date | null }> {
+	const docs: Array<{ type: "soat" | "tecnomecanica" | "poliza"; expiry: Date | null }> = [
+		{ type: "soat" as const, expiry: vehicle.soatExpiry ?? null },
+		{ type: "tecnomecanica" as const, expiry: vehicle.technoMechanicalExpiry ?? null },
+		{ type: "poliza" as const, expiry: vehicle.insuranceExpiry ?? null },
+	];
+	for (const doc of vehicle.documents ?? []) {
+		const idx = docs.findIndex((d) => d.type === doc.documentType);
+		const expiry = doc.expiryDate instanceof Date ? doc.expiryDate : new Date(doc.expiryDate);
+		if (idx >= 0) {
+			docs[idx] = { type: doc.documentType as "soat" | "tecnomecanica" | "poliza", expiry };
+		} else {
+			docs.push({ type: doc.documentType as "soat" | "tecnomecanica" | "poliza", expiry });
+		}
+	}
+	return docs;
+}
+
+function evaluateVehicleReadiness(
+	docs: Array<{ type: string; expiry: Date | null }>,
+	hasTarjetaPropiedad: boolean,
+	now: Date,
+): { ready: boolean; expiringSoon: boolean; expired: boolean; missing: boolean } {
+	let missing = false;
+	let expired = false;
+	let expiringSoon = false;
+	for (const doc of docs) {
+		if (!doc.expiry) {
+			missing = true;
+		} else if (doc.expiry < now) {
+			expired = true;
+		} else {
+			const daysLeft = Math.ceil((doc.expiry.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+			if (daysLeft <= 30) {
+				expiringSoon = true;
+			}
+		}
+	}
+	if (!hasTarjetaPropiedad) {
+		missing = true;
+	}
+	return { ready: !missing && !expired, expiringSoon, expired, missing };
+}
+
 export async function getFleetReadiness(): Promise<FleetReadiness> {
 	const vehicles = await VehicleModel.find();
 	const now = new Date();
@@ -390,11 +472,23 @@ export async function getFleetReadiness(): Promise<FleetReadiness> {
 	let missingDocumentCount = 0;
 
 	for (const vehicle of vehicles) {
-		const stats = computeVehicleReadinessStats(vehicle, now);
-		readyCount += stats.ready ? 1 : 0;
-		expiringSoonCount += stats.expiringSoon;
-		expiredCount += stats.expired;
-		missingDocumentCount += stats.missing;
+		const docs = mergeVehicleDocs(vehicle);
+		const hasTarjetaPropiedad = vehicle.documents?.some(
+			(d) => d.documentType === "tarjeta_propiedad",
+		);
+		const status = evaluateVehicleReadiness(docs, !!hasTarjetaPropiedad, now);
+		if (status.ready) {
+			readyCount++;
+		}
+		if (status.expiringSoon) {
+			expiringSoonCount++;
+		}
+		if (status.expired) {
+			expiredCount++;
+		}
+		if (status.missing) {
+			missingDocumentCount++;
+		}
 	}
 
 	const total = vehicles.length;
@@ -407,63 +501,6 @@ export async function getFleetReadiness(): Promise<FleetReadiness> {
 		expiredCount,
 		missingDocumentCount,
 	};
-}
-
-function computeVehicleReadinessStats(
-	vehicle: VehicleRecord,
-	now: Date,
-): { ready: boolean; expiringSoon: number; expired: number; missing: number } {
-	const docs: Array<{ type: "soat" | "tecnomecanica" | "poliza"; expiry: Date | undefined | null }> = [
-		{ type: "soat", expiry: vehicle.soatExpiry },
-		{ type: "tecnomecanica", expiry: vehicle.technoMechanicalExpiry },
-		{ type: "poliza", expiry: vehicle.insuranceExpiry },
-	];
-	mergeVehicleArrayDocs(vehicle, docs);
-
-	const hasTarjetaPropiedad = vehicle.documents?.some(
-		(d) => d.documentType === "tarjeta_propiedad",
-	);
-
-	let expiringSoon = 0;
-	let expired = 0;
-	let missing = 0;
-	let vehicleReady = true;
-
-	for (const doc of docs) {
-		if (!doc.expiry) {
-			missing++;
-			vehicleReady = false;
-		} else if (doc.expiry < now) {
-			expired++;
-			vehicleReady = false;
-		} else {
-			const daysLeft = Math.ceil((doc.expiry.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
-			if (daysLeft <= 30) {
-				expiringSoon++;
-			}
-		}
-	}
-	if (!hasTarjetaPropiedad) {
-		missing++;
-		vehicleReady = false;
-	}
-
-	return { ready: vehicleReady, expiringSoon, expired, missing };
-}
-
-function mergeVehicleArrayDocs(
-	vehicle: VehicleRecord,
-	docs: Array<{ type: "soat" | "tecnomecanica" | "poliza"; expiry: Date | undefined | null }>,
-): void {
-	for (const doc of vehicle.documents ?? []) {
-		const idx = docs.findIndex((d) => d.type === doc.documentType);
-		const expiry = doc.expiryDate instanceof Date ? doc.expiryDate : new Date(doc.expiryDate);
-		if (idx >= 0) {
-			docs[idx] = { type: doc.documentType as "soat" | "tecnomecanica" | "poliza", expiry };
-		} else {
-			docs.push({ type: doc.documentType as "soat" | "tecnomecanica" | "poliza", expiry });
-		}
-	}
 }
 
 /**
@@ -824,25 +861,73 @@ interface VehicleDocumentStatus {
 	missingDocuments: string[];
 }
 
+function buildStatus(expiryDate: Date | null | undefined, now: Date): DocumentStatus {
+	if (!expiryDate) {
+		return { registered: false, expiryDate: null, expired: false, daysUntilExpiry: null };
+	}
+	const expired = expiryDate < now;
+	const daysUntilExpiry = Math.ceil((expiryDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+	return { registered: true, expiryDate: expiryDate.toISOString(), expired, daysUntilExpiry };
+}
+
+function resolveDocExpiry(
+	vehicle: VehicleRecord,
+	docType: "soat" | "tecnomecanica" | "poliza",
+	flatExpiry: Date | null | undefined,
+): Date | null {
+	const fromDocs = vehicle.documents?.find((d) => d.documentType === docType);
+	if (fromDocs) {
+		return fromDocs.expiryDate instanceof Date
+			? fromDocs.expiryDate
+			: new Date(fromDocs.expiryDate);
+	}
+	return flatExpiry ?? null;
+}
+
 export async function validarDocumentosVehiculo(vehicleId: string): Promise<VehicleDocumentStatus> {
 	const vehicle = await getVehicleById(vehicleId);
+	const now = new Date();
 
-	const soat = resolveDocumentStatus(vehicle, "soat");
-	const tecnomecanica = resolveDocumentStatus(vehicle, "tecnomecanica");
-	const poliza = resolveDocumentStatus(vehicle, "poliza");
-	const tarjetaPropiedad = resolveDocumentStatus(vehicle, "tarjeta_propiedad");
+	const tarjetaFromDocs = vehicle.documents?.find((d) => d.documentType === "tarjeta_propiedad");
+
+	const soat = buildStatus(resolveDocExpiry(vehicle, "soat", vehicle.soatExpiry), now);
+	const tecnomecanica = buildStatus(
+		resolveDocExpiry(vehicle, "tecnomecanica", vehicle.technoMechanicalExpiry),
+		now,
+	);
+	const poliza = buildStatus(resolveDocExpiry(vehicle, "poliza", vehicle.insuranceExpiry), now);
+	const tarjetaPropiedad = buildStatus(
+		tarjetaFromDocs
+			? tarjetaFromDocs.expiryDate instanceof Date
+				? tarjetaFromDocs.expiryDate
+				: new Date(tarjetaFromDocs.expiryDate)
+			: null,
+		now,
+	);
 
 	const missingDocuments: string[] = [];
-	if (!soat.registered) { missingDocuments.push("SOAT"); }
-	if (!tecnomecanica.registered) { missingDocuments.push("Tecnomecánica"); }
-	if (!poliza.registered) { missingDocuments.push("Póliza"); }
-	if (!tarjetaPropiedad.registered) { missingDocuments.push("Tarjeta de propiedad"); }
+	if (!soat.registered) {
+		missingDocuments.push("SOAT");
+	}
+	if (!tecnomecanica.registered) {
+		missingDocuments.push("Tecnomecánica");
+	}
+	if (!poliza.registered) {
+		missingDocuments.push("Póliza");
+	}
+	if (!tarjetaPropiedad.registered) {
+		missingDocuments.push("Tarjeta de propiedad");
+	}
 
 	const allDocumentsValid =
-		soat.registered && !soat.expired &&
-		tecnomecanica.registered && !tecnomecanica.expired &&
-		poliza.registered && !poliza.expired &&
-		tarjetaPropiedad.registered && !tarjetaPropiedad.expired;
+		soat.registered &&
+		!soat.expired &&
+		tecnomecanica.registered &&
+		!tecnomecanica.expired &&
+		poliza.registered &&
+		!poliza.expired &&
+		tarjetaPropiedad.registered &&
+		!tarjetaPropiedad.expired;
 
 	return {
 		vehicleId: vehicle._id.toString(),
@@ -851,49 +936,4 @@ export async function validarDocumentosVehiculo(vehicleId: string): Promise<Vehi
 		allDocumentsValid,
 		missingDocuments,
 	};
-}
-
-function buildDocumentStatus(expiryDate: Date | null | undefined): DocumentStatus {
-	if (!expiryDate) {
-		return { registered: false, expiryDate: null, expired: false, daysUntilExpiry: null };
-	}
-	const now = new Date();
-	const expired = expiryDate < now;
-	const daysUntilExpiry = Math.ceil(
-		(expiryDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000),
-	);
-	return {
-		registered: true,
-		expiryDate: expiryDate.toISOString(),
-		expired,
-		daysUntilExpiry,
-	};
-}
-
-function resolveDocumentStatus(
-	vehicle: VehicleRecord,
-	docType: "soat" | "tecnomecanica" | "poliza" | "tarjeta_propiedad",
-): DocumentStatus {
-	const fromDocs = vehicle.documents?.find((d) => d.documentType === docType);
-	if (fromDocs) {
-		const expiry = fromDocs.expiryDate instanceof Date
-			? fromDocs.expiryDate
-			: new Date(fromDocs.expiryDate);
-		return buildDocumentStatus(expiry);
-	}
-
-	const flatExpiry = getFlatDocExpiry(vehicle, docType);
-	return buildDocumentStatus(flatExpiry);
-}
-
-function getFlatDocExpiry(
-	vehicle: VehicleRecord,
-	docType: "soat" | "tecnomecanica" | "poliza" | "tarjeta_propiedad",
-): Date | null | undefined {
-	switch (docType) {
-		case "soat": return vehicle.soatExpiry;
-		case "tecnomecanica": return vehicle.technoMechanicalExpiry;
-		case "poliza": return vehicle.insuranceExpiry;
-		default: return null;
-	}
 }

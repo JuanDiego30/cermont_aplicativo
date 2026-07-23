@@ -90,6 +90,7 @@ export function EvidenceGallery({ orderId, readOnly }: EvidenceGalleryProps) {
 							<Dialog.Close asChild>
 								<button
 									type="button"
+									aria-label="Cerrar"
 									className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
 								>
 									<X className="size-5" />

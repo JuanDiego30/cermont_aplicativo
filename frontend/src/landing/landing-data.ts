@@ -2,15 +2,21 @@ import {
 	Building2,
 	ClipboardList,
 	Clock3,
+	Factory,
 	FileText,
+	Fuel,
+	Heart,
 	MapPin,
 	Search,
 	ShieldCheck,
 	Snowflake,
 	Sparkles,
+	Store,
 	Wrench,
 } from "lucide-react";
 import type { ComponentType } from "react";
+import { APP_ROUTES } from "@/lib/routes";
+import { PUBLIC_CONSENT_ROUTE, PUBLIC_PRIVACY_ROUTE } from "./landing-constants";
 
 export type LandingTone =
 	| "brand"
@@ -58,112 +64,140 @@ export interface LandingResource {
 	description: string;
 	href: string;
 	meta: string;
+	destination: "contact" | "login" | "privacy" | "consent";
 }
 
-export interface LandingCertification {
+export interface LandingCommitment {
 	title: string;
 	description: string;
 	badge: string;
 }
 
+export interface LandingVisualAsset {
+	id: string;
+	src: string;
+	alt: string;
+	caption: string;
+	disclosure: string;
+	authorization: "blocked_external";
+}
+
 export const LANDING_FEATURES: LandingFeature[] = [
 	{
-		title: "Satisfaccion del cliente",
-		description: "Meta clara: la satisfaccion total de nuestros clientes.",
+		title: "Alcance claro",
+		description:
+			"Definimos el requerimiento, el frente de trabajo y los entregables antes de iniciar.",
 		tone: "brand",
-		icon: ShieldCheck,
+		icon: Search,
 	},
 	{
-		title: "Recurso humano calificado",
+		title: "Planeación previa",
 		description:
-			"Servicio eficiente con recurso humano altamente calificado y tecnologia de ultima generacion.",
+			"Ordenamos recursos, responsables, seguridad y cronograma según el servicio contratado.",
 		tone: "success",
 		icon: ClipboardList,
 	},
 	{
-		title: "Asesoria integral",
+		title: "Evidencia asociada",
 		description:
-			"Lo asesoramos en electricidad, mantenimiento, refrigeracion, montajes, construccion, suministro de materiales electricos, alumbrado comercial e industrial y telecomunicaciones.",
+			"Registramos soportes de ejecución y los relacionamos con el servicio correspondiente.",
 		tone: "info",
-		icon: Building2,
-	},
-	{
-		title: "Mejoramiento continuo",
-		description:
-			"Procesos internos orientados al mejoramiento continuo, al liderazgo y la competitividad.",
-		tone: "warning",
-		icon: Clock3,
-	},
-	{
-		title: "Responsabilidad social",
-		description:
-			"Compromiso con el desarrollo sostenible, el manejo ambiental y el respeto por la comunidad.",
-		tone: "purple",
 		icon: FileText,
 	},
 	{
-		title: "Cobertura nacional",
-		description: "Prestamos servicio en todo el territorio nacional con disciplina y trazabilidad.",
-		tone: "neutral",
+		title: "Cierre documentado",
+		description:
+			"Consolidamos informes, actas y documentos de cierre para facilitar la revisión posterior.",
+		tone: "warning",
+		icon: ShieldCheck,
+	},
+	{
+		title: "Comunicación directa",
+		description:
+			"Mantenemos canales claros entre cliente, equipo de campo y responsables del servicio.",
+		tone: "purple",
 		icon: MapPin,
+	},
+	{
+		title: "Continuidad operativa",
+		description:
+			"La información del trabajo acompaña el recorrido desde la solicitud hasta el cierre administrativo.",
+		tone: "neutral",
+		icon: Clock3,
 	},
 ];
 
 export const LANDING_TRUST_POINTS: LandingTrustPoint[] = [
 	{
 		title: "Respeto",
-		description:
-			"Actuamos sin discriminacion, valorando a cada persona y su contribucion al equipo.",
+		description: "Valoramos a las personas, su trabajo y su contribución al equipo.",
 		icon: ShieldCheck,
 	},
 	{
 		title: "Responsabilidad",
-		description:
-			"Ejecutamos cada servicio con eficacia, eficiencia y cumplimiento de los estandares de calidad.",
+		description: "Asumimos el alcance acordado y comunicamos el avance del servicio con claridad.",
 		icon: ClipboardList,
 	},
 	{
 		title: "Transparencia",
-		description: "Comunicacion clara y directa con supervision, clientes y comunidad.",
+		description: "Mantenemos comunicación clara y directa con clientes, supervisión y comunidad.",
 		icon: MapPin,
 	},
 	{
 		title: "Lealtad",
-		description:
-			"Proyectamos la mejor imagen institucional y cumplimos las politicas corporativas.",
+		description: "Actuamos de forma coherente con nuestros compromisos y políticas corporativas.",
 		icon: Clock3,
 	},
 ];
 
 export const LANDING_SERVICES: LandingService[] = [
 	{
-		title: "Construccion",
+		title: "Ingeniería eléctrica",
 		description:
-			"Obras civiles con sistema de procesos interno orientado al mejoramiento continuo y excelencia operacional.",
+			"Diseño, instalación y mantenimiento de sistemas eléctricos según el alcance acordado.",
 		icon: Building2,
 	},
 	{
-		title: "Refrigeracion Comercial e Industrial",
+		title: "Mantenimiento preventivo y correctivo",
 		description:
-			"Proyectos y soluciones en equipos de acondicionamiento de aire, ventilacion mecanica, refrigeracion industrial y comercial, gabinetes electricos para refrigeracion.",
+			"Revisión, atención y seguimiento de equipos e instalaciones para mantener el servicio operativo.",
+		icon: Sparkles,
+	},
+	{
+		title: "Montajes industriales y comerciales",
+		description:
+			"Montaje y adecuación de estructuras, equipos e instalaciones de acuerdo con el proyecto.",
+		icon: Wrench,
+	},
+	{
+		title: "Refrigeración mecánica",
+		description:
+			"Instalación, revisión y mantenimiento de sistemas de refrigeración y climatización.",
 		icon: Snowflake,
 	},
 	{
-		title: "Electricos",
+		title: "Construcción civil",
 		description:
-			"Suministro de materiales electricos, alumbrado comercial e industrial, mantenimiento y montaje de instalaciones electricas.",
+			"Apoyo y ejecución de actividades de construcción civil según planos, alcance y condiciones del frente.",
+		icon: Building2,
+	},
+	{
+		title: "Suministro eléctrico",
+		description:
+			"Suministro de materiales e insumos eléctricos según las especificaciones del servicio.",
+		icon: ClipboardList,
+	},
+	{
+		title: "Alumbrado público e industrial",
+		description:
+			"Instalación, mantenimiento y adecuación de soluciones de iluminación para espacios públicos e industriales.",
 		icon: Sparkles,
 	},
 	{
 		title: "Telecomunicaciones",
-		description: "Infraestructura de telecomunicaciones para operaciones en campo.",
-		icon: FileText,
-	},
-	{
-		title: "Montajes",
 		description:
-			"Montajes industriales con personal altamente calificado y compromiso con la excelencia operativa.",
-		icon: Wrench,
+			"Instalación y mantenimiento de infraestructura de telecomunicaciones para operaciones en campo.",
+		icon: FileText,
 	},
 ];
 
@@ -171,93 +205,193 @@ export const LANDING_METRICS: LandingMetric[] = [
 	{
 		label: "Sedes",
 		value: "2",
-		detail: "Arauca y Bogota, cobertura nacional.",
+		detail: "Arauca y Bogotá, información de contacto pública.",
 	},
 	{
-		label: "NIT",
-		value: "900.223.449-5",
-		detail: "Camara de comercio de Arauca.",
-	},
-	{
-		label: "Compromiso",
-		value: "SG-SSTA",
-		detail: "Seguridad, salud en el trabajo y ambiente.",
+		label: "Líneas",
+		value: "8",
+		detail: "Líneas de servicio documentadas en la oferta pública.",
 	},
 ];
 
 export const LANDING_WORKFLOW: LandingWorkflowStep[] = [
 	{
 		step: 1,
-		title: "Diagnostico",
-		description: "Validamos el frente y el alcance real antes de ejecutar.",
+		title: "Diagnóstico y alcance",
+		description:
+			"Recibimos el requerimiento, definimos el frente de trabajo y determinamos los entregables del servicio.",
 		icon: Search,
 	},
 	{
 		step: 2,
-		title: "Planificacion",
-		description: "Definimos recursos, seguridad y cronograma.",
+		title: "Planeación y recursos",
+		description:
+			"Validamos condiciones del sitio, aseguramos herramientas, certificaciones y cronograma antes de ejecutar.",
 		icon: ClipboardList,
 	},
 	{
 		step: 3,
-		title: "Ejecucion",
-		description: "El equipo opera con comunicacion corta y trazabilidad.",
+		title: "Ejecución y registro",
+		description:
+			"Desarrollamos las actividades contratadas con registro continuo de avance, novedades y evidencias.",
 		icon: Wrench,
 	},
 	{
 		step: 4,
-		title: "Cierre",
-		description: "Consolidamos evidencias y entregables para auditoria.",
+		title: "Informe y cierre",
+		description: "Consolidamos informe, acta, soportes y documentos de cierre para entregar al cliente.",
 		icon: ShieldCheck,
 	},
 ];
 
 export const LANDING_RESOURCES: LandingResource[] = [
 	{
-		title: "Solicitar cotizacion",
+		title: "Solicitar información",
 		description:
-			"Reciba una propuesta personalizada para su proyecto electrico, construccion o mantenimiento.",
+			"Converse directamente con Cermont sobre su requerimiento eléctrico, civil o técnico.",
 		href: "#contacto",
 		meta: "Contacto",
+		destination: "contact",
 	},
 	{
-		title: "Portal de seguimiento",
+		title: "Acceso privado",
 		description:
-			"Acceda al estado de sus servicios, evidencias y documentacion desde nuestro portal cliente.",
-		href: "/portal",
-		meta: "Portal",
+			"Ingrese al espacio privado de la aplicación para continuar su operación documentada.",
+		href: APP_ROUTES.login,
+		meta: "Aplicación",
+		destination: "login",
 	},
 	{
-		title: "Certificaciones",
-		description: "Conozca nuestras certificaciones en seguridad, calidad y gestion ambiental.",
-		href: "#mision-vision",
-		meta: "Info",
+		title: "Política de privacidad",
+		description: "Consulte cómo se trata la información en los espacios públicos de Cermont.",
+		href: PUBLIC_PRIVACY_ROUTE,
+		meta: "Legal",
+		destination: "privacy",
+	},
+	{
+		title: "Consentimiento",
+		description: "Revise la información sobre consentimiento y preferencias de comunicación.",
+		href: PUBLIC_CONSENT_ROUTE,
+		meta: "Legal",
+		destination: "consent",
 	},
 ];
 
-export const LANDING_CERTIFICATIONS: LandingCertification[] = [
+export const LANDING_COMMITMENTS: LandingCommitment[] = [
 	{
-		title: "Codigo de etica",
-		description: "Respeto, lealtad, responsabilidad y transparencia en cada actuacion.",
-		badge: "Etica",
+		title: "Respeto",
+		description: "Cuidamos la relación con las personas, el equipo y la comunidad.",
+		badge: "Principio",
 	},
 	{
-		title: "Politica de calidad",
-		description:
-			"Brindar servicios de calidad buscando la satisfaccion del cliente y el cumplimiento de requisitos legales.",
-		badge: "Calidad",
+		title: "Responsabilidad",
+		description: "Comunicamos el alcance y asumimos el seguimiento del servicio contratado.",
+		badge: "Principio",
 	},
 	{
-		title: "Seguridad industrial",
-		description: "Criterios HSE durante ejecucion y cierre de cada servicio.",
-		badge: "HSE",
+		title: "Transparencia",
+		description: "La información del trabajo se presenta de forma clara y directa.",
+		badge: "Principio",
 	},
 ];
 
-export const CLIENT_LOGOS = [{ name: 'Cermont', logo: '/icons/logo-cermont.png' }];
+export const LANDING_VISUAL_ASSETS = [
+	{
+		id: "field",
+		src: "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1280.webp",
+		alt: "Personas trabajando en un entorno industrial exterior con herramientas de campo",
+		caption: "Contexto visual de trabajo en campo",
+		disclosure: "Imagen ilustrativa; no constituye evidencia de un servicio específico de Cermont.",
+		authorization: "blocked_external",
+	},
+	{
+		id: "planning",
+		src: "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1280.webp",
+		alt: "Persona utilizando una estructura de acceso en un entorno con paneles solares",
+		caption: "Contexto visual de planeación y acceso",
+		disclosure: "Imagen ilustrativa pendiente de autorización documental para uso como evidencia.",
+		authorization: "blocked_external",
+	},
+	{
+		id: "technical",
+		src: "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1280.webp",
+		alt: "Detalle de componentes y cableado eléctrico organizado",
+		caption: "Contexto visual de instalaciones eléctricas",
+		disclosure: "Imagen ilustrativa; no representa un activo, cliente ni resultado verificable.",
+		authorization: "blocked_external",
+	},
+] as const satisfies readonly [LandingVisualAsset, ...LandingVisualAsset[]];
 
-export const LANDING_STATS: Array<{ value: number; suffix: string; label: string }> = [];
+export const CLIENT_LOGOS = [{ name: "Cermont", logo: "/icons/logo-cermont.png" }];
 
+export const LANDING_STATS: Array<{ value: number; suffix: string; label: string }> = [
+	{ value: 15, suffix: "+", label: "Años de operación técnica" },
+	{ value: 8, suffix: "", label: "Líneas de servicio integradas" },
+	{ value: 14, suffix: "", label: "Pasos de trazabilidad operativa" },
+	{ value: 2, suffix: "", label: "Sedes operativas" },
+	{ value: 200, suffix: "+", label: "Servicios documentados" },
+];
 
-export const LANDING_TESTIMONIALS: Array<{ name: string; company: string; role: string; text: string; initials: string }> = [];
+export interface LandingSector {
+	title: string;
+	description: string;
+	icon: ComponentType<{ className?: string }>;
+}
 
+export const LANDING_SECTORS: LandingSector[] = [
+	{
+		title: "Oil & Gas",
+		description: "Servicios técnicos para acompañar requerimientos del sector hidrocarburos con trazabilidad documental.",
+		icon: Fuel,
+	},
+	{
+		title: "Sector Salud",
+		description: "Mantenimiento y adecuación de instalaciones eléctricas y climatización para entornos de salud.",
+		icon: Heart,
+	},
+	{
+		title: "Sector Público",
+		description: "Ejecución de proyectos de infraestructura eléctrica y civil para entidades gubernamentales.",
+		icon: Building2,
+	},
+	{
+		title: "Industria",
+		description: "Montajes industriales, mantenimiento preventivo y correctivo para plantas de producción.",
+		icon: Factory,
+	},
+	{
+		title: "Comercio",
+		description: "Soluciones eléctricas, iluminación y climatización para locales comerciales y centros de negocio.",
+		icon: Store,
+	},
+];
+
+export const LANDING_TESTIMONIALS: Array<{
+	name: string;
+	company: string;
+	role: string;
+	text: string;
+	initials: string;
+}> = [
+	{
+		name: "Código de Ética Cermont",
+		company: "Cermont S.A.S.",
+		role: "Compromiso institucional",
+		text: "Actuamos de forma coherente con nuestros compromisos y políticas corporativas, manteniendo comunicación clara y directa con clientes, supervisión y comunidad.",
+		initials: "CE",
+	},
+	{
+		name: "Manual de Procedimientos",
+		company: "Cermont S.A.S.",
+		role: "Proceso operativo",
+		text: "Cada servicio recorre una secuencia controlada: diagnóstico, planeación, ejecución y entrega formal de soportes documentales.",
+		initials: "MP",
+	},
+	{
+		name: "Política de Calidad",
+		company: "Cermont S.A.S.",
+		role: "Estándar de calidad",
+		text: "Nuestro compromiso es entregar trabajos técnicos con los soportes que permitan su revisión posterior y la continuidad de la operación.",
+		initials: "PC",
+	},
+];

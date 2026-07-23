@@ -24,9 +24,13 @@ import type { Request, Response } from "express";
 import { UnauthorizedError } from "../../common/errors/AppError";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
+import { createLogger } from "../../common/utils/logger";
 import * as UserService from "../user/user.service";
 import * as AuthService from "./auth.service";
 import { getRefreshTokenMaxAge } from "./auth.service";
+import { sendResetPasswordEmail } from "../../services/auth-email.service";
+
+const log = createLogger("auth-controller");
 
 const COOKIE_SAME_SITE = "lax" as const;
 
@@ -267,12 +271,19 @@ export async function changePassword(req: Request, res: Response): Promise<void>
 export async function forgotPassword(req: Request, res: Response): Promise<void> {
 	const { email } = ForgotPasswordSchema.parse(req.body);
 
-	// Generar token de reset (en producción, enviar email)
-	// Para desarrollo: devolver el token en la respuesta
-	AuthService.generateResetToken(email);
+	// Generate reset token — always returns success (no email enumeration)
+	// If email exists, a raw token is returned; send it via email
+	const resetToken = await AuthService.generateResetToken(email);
 
-	// En producción, esto enviaría un email con el enlace de reset
-	// sendResetPasswordEmail(email, resetToken);
+	if (resetToken) {
+		// Send email asynchronously — do not block the response
+		sendResetPasswordEmail(email, resetToken).catch((err) => {
+			log.error("Failed to send password reset email", {
+				email,
+				error: err instanceof Error ? err.message : String(err),
+			});
+		});
+	}
 
 	sendSuccess(res, { message: "If the email exists, a reset link has been sent" });
 }

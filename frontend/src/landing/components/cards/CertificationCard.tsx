@@ -1,7 +1,7 @@
 import { BadgePill } from "@/core/ui/BadgePill";
-import type { LandingCertification } from "../../landing-data";
+import type { LandingCommitment } from "../../landing-data";
 
-export function CertificationCard({ title, description, badge }: LandingCertification) {
+export function CommitmentCard({ title, description, badge }: LandingCommitment) {
 	return (
 		<article className="rounded-2xl border border-hairline bg-canvas p-5 shadow-1">
 			<BadgePill

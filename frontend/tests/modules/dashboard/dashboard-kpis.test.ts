@@ -186,6 +186,53 @@ describe("KPI Empty State Handling", () => {
 	});
 });
 
+describe("Contextual Cermont KPIs", () => {
+	it("maps real service demand to lifeline and CCTV labels and certification readiness", async () => {
+		const { buildContextualKpis } = await import("@/modules/dashboard/model/dashboard-helpers");
+		const kpis = buildContextualKpis(
+			{
+				periodDays: 30,
+				totalRequests: 9,
+				items: [
+					{ serviceType: "Instalación de líneas de vida", requests: 4 },
+					{ serviceType: "CCTV y videovigilancia", requests: 3 },
+					{ serviceType: "Mantenimiento eléctrico", requests: 2 },
+				],
+			},
+			{
+				blockingChecklistsPending: 0,
+				blockingChecklistsFailed: 0,
+				evidencePendingReview: 0,
+				evidenceRejected: 0,
+				evidenceGpsCoveragePct: 100,
+				vehicleDocumentsExpiring: 0,
+				vehicleDocumentsExpired: 0,
+				toolCertificationsExpiring: 2,
+				toolCertificationsExpired: 1,
+				offlineSyncPending: 0,
+				offlineSyncFailed: 0,
+			},
+		);
+
+		expect(kpis.map(({ label, value }) => ({ label, value }))).toEqual([
+			{ label: "Líneas de vida solicitadas", value: 4 },
+			{ label: "Proyectos CCTV solicitados", value: 3 },
+			{ label: "Certificaciones HSE por renovar", value: 3 },
+		]);
+	});
+
+	it("marks malformed and older-than-15-minute snapshots as stale", async () => {
+		const { isDashboardSnapshotStale } = await import(
+			"@/modules/dashboard/model/dashboard-helpers"
+		);
+		const now = Date.parse("2026-07-21T15:30:00.000Z");
+
+		expect(isDashboardSnapshotStale("2026-07-21T15:14:59.000Z", now)).toBe(true);
+		expect(isDashboardSnapshotStale("2026-07-21T15:20:00.000Z", now)).toBe(false);
+		expect(isDashboardSnapshotStale("malformed", now)).toBe(true);
+	});
+});
+
 describe("Step Progression Empty Case", () => {
 	it("should return empty array when no steps provided", () => {
 		const progression = computeStepProgression(0, []);

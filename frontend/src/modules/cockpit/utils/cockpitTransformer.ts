@@ -54,6 +54,7 @@ export function transformWorkflowToCockpitData(
 		code: b.code,
 		message: b.message,
 		severity: b.severity === "blocking" ? ("error" as const) : ("warning" as const),
+		moduleLink: b.recommendedAction ?? undefined,
 	}));
 
 	const evidenceCollection = workflow.evidences.map((ev) => ({

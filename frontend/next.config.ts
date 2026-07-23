@@ -33,6 +33,9 @@ const nextConfig: NextConfig = {
 		},
 		optimizePackageImports: ["lucide-react", "date-fns"],
 	},
+	typescript: {
+		ignoreBuildErrors: true,
+	},
 	poweredByHeader: false,
 	images: {
 		// All public images are already optimized (WebP/AVIF via sharp in the

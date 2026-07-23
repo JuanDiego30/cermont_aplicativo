@@ -1,6 +1,9 @@
-import { Building2, Sparkles } from "lucide-react";
-import { LANDING_TRUST_POINTS } from "../landing-data";
-import { PrincipleCard } from "./cards/PrincipleCard";
+import { Globe, HardHat } from "lucide-react";
+import {
+	CORPORATE_ADDRESS_ARAUCA,
+	CORPORATE_ADDRESS_BOGOTA,
+	CORPORATE_EMAIL,
+} from "../landing-constants";
 import { SectionHeading } from "./SectionHeading";
 
 export function AboutSection() {
@@ -13,53 +16,76 @@ export function AboutSection() {
 		>
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
-					<article className="rounded-[2.25rem] border border-hairline bg-canvas p-8 shadow-2">
+					<article className="rounded-[2.25rem] border border-hairline bg-canvas p-8 lg:p-10 shadow-2">
 						<SectionHeading
+							id="about-heading"
 							eyebrow="Quiénes somos"
-							title="Una empresa joven con una meta clara."
-							description="Cermont S.A.S es una empresa dedicada a las areas de electricidad, mantenimiento, refrigeracion, montajes, construccion, suministro de materiales electricos, alumbrado comercial e industrial y telecomunicaciones."
+							title="Servicios técnicos con origen en Arauca."
+							description="Cermont S.A.S. desarrolla servicios de ingeniería eléctrica, mantenimiento, montajes, refrigeración, construcción civil, suministro eléctrico, alumbrado y telecomunicaciones."
 						/>
 
 						<div className="mt-8 space-y-6">
 							<p className="text-base leading-7 text-charcoal">
-								CERMONT S.A.S es una empresa joven, ubicada en la calle 21 No. 25-43, en el corazon
-								de Arauca-Arauca, identificada con NIT 900.223.449-5 adscrita a la camara de
-								comercio de la ciudad de Arauca y con una meta clara: la satisfaccion total de
-								nuestros etica. Para ello hemos implementado altos estandares de calidad que
-								permiten procesos confiables, con alto nivel de compromiso por parte de cada uno de
-								nuestros directivos y empleados.
+								Cermont mantiene una sede en Arauca y una oficina en Bogotá. La conversación inicial
+								permite precisar el alcance, las condiciones del frente y los entregables del
+								servicio.
 							</p>
 
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="rounded-2xl border border-hairline bg-surface p-5">
 									<div className="flex items-center gap-3">
-										<Building2 className="size-5 text-charcoal" aria-hidden="true" />
-										<h3 className="text-sm font-semibold text-ink">Base operativa</h3>
+										<Globe className="size-5 text-green-600 dark:text-green-400" aria-hidden="true" />
+										<h3 className="text-sm font-semibold text-ink">Ubicación</h3>
 									</div>
 									<p className="mt-3 text-sm leading-6 text-charcoal">
-										Sede principal en Arauca (Calle 21 No. 25-43) y oficina en Bogota (Calle 70A No.
-										17-16). Atencion nacional con personal calificado.
+										{CORPORATE_ADDRESS_ARAUCA}. También contamos con oficina en Bogotá.
 									</p>
 								</div>
 								<div className="rounded-2xl border border-hairline bg-surface p-5">
 									<div className="flex items-center gap-3">
-										<Sparkles className="size-5 text-charcoal" aria-hidden="true" />
-										<h3 className="text-sm font-semibold text-ink">Enfoque</h3>
+										<HardHat className="size-5 text-green-600 dark:text-green-400" aria-hidden="true" />
+										<h3 className="text-sm font-semibold text-ink">Forma de trabajo</h3>
 									</div>
 									<p className="mt-3 text-sm leading-6 text-charcoal">
-										Respeto, lealtad, responsabilidad y transparencia como principios de nuestro
-										codigo de clientes.
+										Planeación, comunicación directa y documentos de cierre según el alcance
+										contratado.
 									</p>
 								</div>
 							</div>
 						</div>
 					</article>
 
-					<div className="grid gap-4">
-						{LANDING_TRUST_POINTS.map((point) => (
-							<PrincipleCard key={point.title} {...point} />
-						))}
-					</div>
+					<article className="rounded-[2.25rem] border border-hairline bg-canvas p-8 lg:p-10 shadow-2 flex flex-col">
+						<p className="text-xs font-semibold uppercase tracking-[0.24em] text-charcoal">
+							Presencia operativa
+						</p>
+						<h3 className="mt-3 text-xl font-semibold text-ink">Arauca y Bogotá</h3>
+						<p className="mt-2 text-sm leading-6 text-charcoal">
+							Dos sedes para atender requerimientos técnicos en las principales regiones.
+						</p>
+						<div className="mt-6 space-y-4">
+							<p className="text-xs font-semibold uppercase tracking-[0.24em] text-charcoal">
+								Canales de referencia
+							</p>
+							<div>
+								<p className="text-[10px] font-bold uppercase tracking-wider text-slate">Arauca</p>
+								<p className="text-lg font-semibold text-ink">{CORPORATE_ADDRESS_ARAUCA}</p>
+							</div>
+							<div>
+								<p className="text-[10px] font-bold uppercase tracking-wider text-slate">Bogotá</p>
+								<p className="text-lg font-semibold text-ink">{CORPORATE_ADDRESS_BOGOTA}</p>
+							</div>
+							<div>
+								<p className="text-[10px] font-bold uppercase tracking-wider text-slate">Correo</p>
+								<a
+									href={`mailto:${CORPORATE_EMAIL}`}
+									className="text-lg font-semibold text-ink underline-offset-4 hover:underline"
+								>
+									{CORPORATE_EMAIL}
+								</a>
+							</div>
+						</div>
+					</article>
 				</div>
 			</div>
 		</section>

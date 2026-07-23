@@ -105,7 +105,10 @@ export function useCreateWorkRequest() {
 		},
 		networkMode: "offlineFirst",
 		retry: 0,
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.all }),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.all });
+			queryClient.invalidateQueries({ queryKey: SERVICE_CASE_KEYS.all });
+		},
 	});
 }
 

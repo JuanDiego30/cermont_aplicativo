@@ -146,6 +146,7 @@ export default function CockpitPage({ params }: Props) {
 														src={ev.url}
 														alt={ev.caption ?? "Evidencia"}
 														fill
+														sizes="(max-width: 768px) 100vw, 50vw"
 														className="object-cover transition group-hover:scale-105"
 													/>
 												) : (
@@ -281,21 +282,22 @@ function CostCard({ label, value, color }: { label: string; value: string; color
 	);
 }
 
+const STATUS_COLOR_MAP: Record<string, string> = {
+	pending: "text-[var(--color-warning)]",
+	approved: "text-[var(--color-success)]",
+	rejected: "text-[var(--color-danger)]",
+	issued: "text-[var(--color-brand)]",
+	paid: "text-[var(--color-success)]",
+	registered: "text-[var(--color-brand)]",
+	confirmed: "text-[var(--color-success)]",
+};
+
 function StatusRow({ label, status }: { label: string; status: string }) {
-	const colorMap: Record<string, string> = {
-		pending: "text-[var(--color-warning)]",
-		approved: "text-[var(--color-success)]",
-		rejected: "text-[var(--color-danger)]",
-		issued: "text-[var(--color-brand)]",
-		paid: "text-[var(--color-success)]",
-		registered: "text-[var(--color-brand)]",
-		confirmed: "text-[var(--color-success)]",
-	};
 	return (
 		<div className="flex items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3">
 			<p className="text-xs font-semibold text-[var(--text-primary)]">{label}</p>
 			<span
-				className={`rounded-full border border-current px-2 py-0.5 text-[9px] font-bold uppercase ${colorMap[status] ?? "text-[var(--text-muted)]"}`}
+				className={`rounded-full border border-current px-2 py-0.5 text-[9px] font-bold uppercase ${STATUS_COLOR_MAP[status] ?? "text-[var(--text-muted)]"}`}
 			>
 				{status}
 			</span>

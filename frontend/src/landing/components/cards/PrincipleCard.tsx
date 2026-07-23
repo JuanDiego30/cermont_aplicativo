@@ -10,7 +10,7 @@ export function PrincipleCard({ title, description, icon: Icon }: PrincipleCardP
 	return (
 		<article className="rounded-2xl border border-hairline bg-canvas p-5 shadow-1 transition-shadow hover:shadow-2">
 			{Icon ? (
-				<div className="flex size-11 items-center justify-center rounded-xl bg-surface text-charcoal">
+				<div className="flex size-11 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green">
 					<Icon className="size-5" aria-hidden="true" />
 				</div>
 			) : null}

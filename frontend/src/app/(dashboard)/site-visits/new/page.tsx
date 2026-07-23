@@ -32,17 +32,26 @@ type SiteVisitFormState = {
 	observations: string;
 };
 
-const initialForm: SiteVisitFormState = {
-	workRequestId: "",
-	clientId: "",
-	clientName: "",
-	visitDate: "",
-	location: "",
-	responsibleUserId: "",
-	responsibleName: "",
-	requirements: "",
-	observations: "",
-};
+function getDefaultVisitDate(): string {
+	const date = new Date();
+	date.setHours(date.getHours() + 1);
+	const timezoneOffsetMs = date.getTimezoneOffset() * 60_000;
+	return new Date(date.getTime() - timezoneOffsetMs).toISOString().slice(0, 16);
+}
+
+function createInitialForm(): SiteVisitFormState {
+	return {
+		workRequestId: "",
+		clientId: "",
+		clientName: "",
+		visitDate: getDefaultVisitDate(),
+		location: "",
+		responsibleUserId: "",
+		responsibleName: "",
+		requirements: "",
+		observations: "",
+	};
+}
 
 function toIsoDateTime(value: string): string {
 	const date = new Date(value);
@@ -261,7 +270,7 @@ function SiteVisitNewPageContent() {
 	const { isOnline } = useConnectivity();
 	const [selectedCaseId, setSelectedCaseId] = useState(searchParams.get("serviceCaseId") ?? "");
 	const createSiteVisit = useCreateSiteVisit();
-	const [form, setForm] = useState<SiteVisitFormState>(initialForm);
+	const [form, setForm] = useState<SiteVisitFormState>(createInitialForm);
 	const [formError, setFormError] = useState("");
 	const [showCaseSelector, setShowCaseSelector] = useState(!selectedCaseId);
 
@@ -300,7 +309,7 @@ function SiteVisitNewPageContent() {
 	const selectCase = (caseId: string) => {
 		setSelectedCaseId(caseId);
 		setShowCaseSelector(false);
-		setForm(initialForm);
+		setForm(createInitialForm());
 	};
 
 	const updateField = (field: keyof SiteVisitFormState, value: string) => {
@@ -398,7 +407,7 @@ function SiteVisitNewPageContent() {
 					</button>
 				</div>
 				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 2 / Visita técnica</p>
+					<p className="text-sm font-medium text-slate">Paso 2 / Visita técnica</p>
 					<h1
 						id="site-visit-new-title"
 						className="mt-2 text-2xl font-semibold text-[var(--text-primary)]"

@@ -1,5 +1,14 @@
+import type { DashboardFieldReadiness, DashboardServiceDemand } from "@cermont/shared-types";
 import type { LucideIcon } from "lucide-react";
-import { AlertTriangle, CheckCircle, ClipboardList, Package2 } from "lucide-react";
+import {
+	AlertTriangle,
+	BadgeCheck,
+	Cable,
+	Camera,
+	CheckCircle,
+	ClipboardList,
+	Package2,
+} from "lucide-react";
 import type { DashboardSummaryData } from "@/modules/dashboard/hooks/useDashboardSummary";
 import type { useServiceCaseSummary } from "@/modules/service-cases";
 
@@ -56,6 +65,75 @@ export interface StatusSummaryItem {
 	label: string;
 	value: number;
 	icon: LucideIcon;
+}
+
+export interface CermontKpi {
+	id: "lifeline-demand" | "cctv-demand" | "certification-renewal";
+	label: string;
+	value: number;
+	unit: string;
+	icon: LucideIcon;
+	domainCategory: "lifeline" | "cctv" | "certification";
+	emptyStateMessage: string;
+}
+
+const DOMAIN_SERVICE_TERMS = {
+	lifeline: ["linea de vida", "lineas de vida", "lifeline"],
+	cctv: ["cctv", "videovigilancia", "video vigilancia", "camara de seguridad"],
+} as const;
+
+function normalizeServiceType(value: string): string {
+	return value
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.toLowerCase();
+}
+
+function countDomainDemand(demand: DashboardServiceDemand, terms: readonly string[]): number {
+	return demand.items.reduce((total, item) => {
+		const normalized = normalizeServiceType(item.serviceType);
+		return terms.some((term) => normalized.includes(term)) ? total + item.requests : total;
+	}, 0);
+}
+
+export function buildContextualKpis(
+	demand: DashboardServiceDemand,
+	readiness: DashboardFieldReadiness,
+): CermontKpi[] {
+	return [
+		{
+			id: "lifeline-demand",
+			label: "Líneas de vida solicitadas",
+			value: countDomainDemand(demand, DOMAIN_SERVICE_TERMS.lifeline),
+			unit: "solicitudes",
+			icon: Cable,
+			domainCategory: "lifeline",
+			emptyStateMessage: "Sin solicitudes de líneas de vida en el período",
+		},
+		{
+			id: "cctv-demand",
+			label: "Proyectos CCTV solicitados",
+			value: countDomainDemand(demand, DOMAIN_SERVICE_TERMS.cctv),
+			unit: "solicitudes",
+			icon: Camera,
+			domainCategory: "cctv",
+			emptyStateMessage: "Sin solicitudes CCTV en el período",
+		},
+		{
+			id: "certification-renewal",
+			label: "Certificaciones HSE por renovar",
+			value: readiness.toolCertificationsExpiring + readiness.toolCertificationsExpired,
+			unit: "certificaciones",
+			icon: BadgeCheck,
+			domainCategory: "certification",
+			emptyStateMessage: "Sin certificaciones HSE próximas a vencer",
+		},
+	];
+}
+
+export function isDashboardSnapshotStale(generatedAt: string, now = Date.now()): boolean {
+	const generatedTime = new Date(generatedAt).getTime();
+	return Number.isNaN(generatedTime) || now - generatedTime > 15 * 60_000;
 }
 
 export function buildOrdersByStatus(charts: DashboardSummaryData["charts"] | undefined) {

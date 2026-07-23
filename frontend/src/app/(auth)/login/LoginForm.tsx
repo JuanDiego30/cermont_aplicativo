@@ -59,7 +59,7 @@ export function LoginForm() {
 			animate="visible"
 		>
 			<motion.header variants={itemVariants}>
-				<Logo size="md" className="mb-10" />
+				<Logo size="md" className="mb-10" hideWordmarkOnMobile={false} />
 				<h1 className="text-3xl font-semibold tracking-tight text-[var(--text-primary)]">
 					{LOGIN_COPY.title}
 				</h1>
@@ -89,6 +89,7 @@ export function LoginForm() {
 				noValidate
 				onChange={clearSubmitError}
 				className="flex flex-col gap-6"
+				aria-busy={isSubmitting}
 				data-hydrated={isHydrated}
 			>
 				<EmailField
@@ -119,7 +120,7 @@ export function LoginForm() {
 				</Button>
 			</motion.div>
 
-			<motion.p variants={itemVariants} className="text-center text-xs text-[var(--text-tertiary)]">
+			<motion.p variants={itemVariants} className="text-center text-sm text-[var(--text-tertiary)]">
 				{LOGIN_COPY.supportText}{" "}
 				<Link
 					href="/#contacto"

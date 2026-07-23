@@ -1,138 +1,134 @@
 "use client";
 
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { Calendar, TrendingUp, Users } from "lucide-react";
-import { useRef } from "react";
-import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
-
-gsap.registerPlugin(useGSAP);
-
-interface DashboardHeroMetric {
-	label: string;
-	value: number;
-	format?: "number" | "currency";
-}
+import { Activity, AlertCircle, CheckCircle2, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { StatusBadge } from "./StatusBadge";
+import type { DashboardStats } from "../model/types";
+import { computeSlaStatus } from "../model/helpers";
 
 interface DashboardHeroProps {
-	userName: string;
-	role: string;
-	todayLabel: string;
-	metrics: DashboardHeroMetric[];
-	greeting?: string;
+  userName?: string;
+  userRole?: string;
+  stats: DashboardStats | null;
+  isLoading: boolean;
 }
 
-function formatMetricValue(value: number, fmt: "number" | "currency" = "number"): string {
-	if (fmt === "currency") {
-		if (value >= 1_000_000) {
-			return `$${(value / 1_000_000).toFixed(1)}M`;
-		}
-		return `$${Math.round(value).toLocaleString("es-CO")}`;
-	}
-	return Math.round(value).toLocaleString("es-CO");
+function HeroStat({
+  icon: Icon,
+  label,
+  value,
+  colorClass,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: number | string;
+  colorClass: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className={cn("w-9 h-9 rounded-full flex items-center justify-center", colorClass)}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div>
+        <p className="text-2xl font-bold text-[var(--text)] leading-none">{value}</p>
+        <p className="text-xs text-[var(--text-muted)] mt-0.5">{label}</p>
+      </div>
+    </div>
+  );
 }
 
-export function DashboardHero({
-	userName,
-	role,
-	todayLabel,
-	metrics,
-	greeting = "Bienvenido de vuelta",
-}: DashboardHeroProps) {
-	const heroRef = useRef<HTMLElement>(null);
-	const metricRefs = useRef<(HTMLDivElement | null)[]>([]);
+export function DashboardHero({ userName, userRole, stats, isLoading }: DashboardHeroProps) {
+  const hasActiveAlerts = (stats?.bloqueadas ?? 0) > 0;
+  const slaStatus = computeSlaStatus(stats?.cumplimientoSLA ?? 0);
 
-	useGSAP(
-		() => {
-			if (prefersReducedMotion() || !heroRef.current) {
-				return;
-			}
-
-			const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-			tl.from(heroRef.current.querySelector("[data-hero='greeting']"), {
-				opacity: 0,
-				y: -12,
-				duration: 0.4,
-			});
-
-			tl.from(
-				metricRefs.current.filter(Boolean),
-				{
-					opacity: 0,
-					y: 16,
-					stagger: 0.06,
-					duration: 0.35,
-				},
-				"-=0.15",
-			);
-		},
-		{ scope: heroRef, dependencies: [metrics] },
-	);
-
-	return (
-		<header
-			ref={heroRef}
-			className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]"
-		>
-			{/* Subtle background pattern */}
-			<div
-				className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.08]"
-				style={{
-					backgroundImage:
-						"radial-gradient(circle at 15% 15%, var(--color-brand-blue) 0%, transparent 40%), radial-gradient(circle at 85% 85%, var(--color-brand-annotate) 0%, transparent 40%)",
-				}}
-				aria-hidden="true"
-				data-testid="hero-gradient-overlay"
-			/>
-
-			<div className="relative px-5 py-5 md:px-8 md:py-7">
-				<div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-					{/* Greeting section */}
-					<div data-hero="greeting" className="min-w-0">
-						<div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-[var(--text-tertiary)]">
-							<Calendar className="size-4 text-[var(--color-brand-blue)]" aria-hidden="true" />
-							<time dateTime={new Date().toISOString()} suppressHydrationWarning>
-								{todayLabel}
-							</time>
-						</div>
-						<h1 className="mt-2 text-2xl font-bold tracking-tight text-[var(--text-primary)] sm:text-3xl">
-							{greeting}, <span className="text-[var(--color-brand-blue)]">{userName}</span>
-						</h1>
-						<p className="mt-1 flex items-center gap-1.5 text-sm text-[var(--text-secondary)]">
-							<Users className="size-4 text-[var(--color-brand-blue)]" aria-hidden="true" />
-							<span className="capitalize">{role}</span>
-						</p>
-					</div>
-
-					{/* Quick metrics strip */}
-					{metrics.length > 0 && (
-						<div className="flex flex-wrap items-center gap-4 sm:gap-6">
-							{metrics.map((metric, index) => (
-								<div
-									key={metric.label}
-									ref={(el) => {
-										metricRefs.current[index] = el;
-									}}
-									className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-3 shadow-[var(--shadow-1)] transition-shadow duration-200 hover:shadow-[var(--shadow-2)]"
-								>
-									<div className="flex size-10 items-center justify-center rounded-full bg-[var(--color-info-bg)] text-[var(--color-brand-blue)]">
-										<TrendingUp className="size-5" aria-hidden="true" />
-									</div>
-									<div className="min-w-[80px]">
-										<p className="text-xl font-semibold tracking-tight text-[var(--text-primary)]">
-											{formatMetricValue(metric.value, metric.format)}
-										</p>
-										<p className="whitespace-nowrap text-xs font-medium text-[var(--text-secondary)]">
-											{metric.label}
-										</p>
-									</div>
-								</div>
-							))}
-						</div>
-					)}
-				</div>
-			</div>
-		</header>
-	);
+  return (
+    <div
+      className={cn(
+        "rounded-xl border border-[var(--line)] overflow-hidden",
+        "bg-gradient-to-br from-[var(--card)] to-[var(--card-muted)]",
+        "shadow-card",
+      )}
+    >
+      <div className="flex flex-col lg:flex-row gap-0">
+        <div className="flex-1 p-5 lg:p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <StatusBadge
+              variant={hasActiveAlerts ? "warning" : "success"}
+              label={hasActiveAlerts ? "Requiere atención" : "Operación normal"}
+              icon={
+                hasActiveAlerts ? (
+                  <AlertCircle className="w-3 h-3" />
+                ) : (
+                  <CheckCircle2 className="w-3 h-3" />
+                )
+              }
+            />
+            <StatusBadge variant="info" label={`SLA ${stats?.cumplimientoSLA ?? 0}%`} />
+          </div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-[var(--text)] tracking-tight">
+            Pulso operativo de CERMONT
+          </h1>
+          <p className="mt-1 text-sm text-[var(--text-soft)]">
+            {userName ? `Bienvenido, ${userName}` : "Panel de control"}{" "}
+            {userRole && <span className="text-[var(--text-muted)]">&middot; {userRole}</span>}
+          </p>
+          {isLoading && (
+            <div className="flex gap-3 mt-6">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="h-14 w-28 rounded-lg bg-[var(--bg-muted)] animate-pulse" />
+              ))}
+            </div>
+          )}
+          {!isLoading && stats && (
+            <div className="flex flex-wrap gap-6 mt-6">
+              <HeroStat
+                icon={Activity}
+                label="Órdenes activas"
+                value={stats.ordenesActivas}
+                colorClass="bg-[var(--brand-soft)] text-[var(--cermont-blue)]"
+              />
+              <HeroStat
+                icon={CheckCircle2}
+                label="Completadas hoy"
+                value={stats.completadasMes}
+                colorClass="bg-[var(--success-soft)] text-[var(--cermont-green)]"
+              />
+              <HeroStat
+                icon={TrendingUp}
+                label="Listas para facturar"
+                value={stats.listasFacturar}
+                colorClass="bg-[var(--warning-soft)] text-[var(--warning)]"
+              />
+            </div>
+          )}
+        </div>
+        <div className="lg:w-64 p-5 lg:p-6 border-t lg:border-t-0 lg:border-l border-[var(--line)] flex flex-col justify-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+            Cierre Operativo
+          </p>
+          <div className="flex items-end gap-2 mb-3">
+            <span className="text-4xl font-bold text-[var(--text)]">
+              {isLoading ? "--" : `${stats?.cumplimientoSLA ?? 0}%`}
+            </span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-[var(--bg-muted)] overflow-hidden">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all duration-700",
+                slaStatus === "success" && "bg-[var(--cermont-green)]",
+                slaStatus === "warning" && "bg-[var(--warning)]",
+                slaStatus === "danger" && "bg-[var(--danger)]",
+              )}
+              style={{ width: `${stats?.cumplimientoSLA ?? 0}%` }}
+            />
+          </div>
+          <p className="text-xs text-[var(--text-muted)] mt-2">
+            {stats?.cumplimientoSLA === 0
+              ? "Sin datos suficientes"
+              : `${stats?.ordenesAbiertas ?? 0} abiertas &middot; ${stats?.ordenesCompletadas ?? 0} cerradas`}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }

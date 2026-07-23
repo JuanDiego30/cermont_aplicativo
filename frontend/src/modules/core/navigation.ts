@@ -34,6 +34,7 @@ export type NavigationItem = {
 	label: string;
 	icon: LucideIcon;
 	badge?: number;
+	iconColor?: string;
 };
 
 export type NavigationGroup = {
@@ -268,6 +269,16 @@ export const NAV_GROUPS = [
 		],
 	},
 ] satisfies NavigationGroup[];
+
+export const SIDEBAR_ICON_COLORS: Record<string, string> = {
+	"PRINCIPAL": "text-brand-blue",
+	"COMERCIAL": "text-brand-blue-light",
+	"OPERACIÓN DE CAMPO": "text-brand-annotate",
+	"CIERRE TÉCNICO": "text-brand-warn",
+	"CIERRE ADMINISTRATIVO": "text-emerald-400",
+	"TRANSVERSALES": "text-slate-400",
+	"ADMINISTRACIÓN": "text-brand-blue-deep",
+};
 
 export const AI_ASSISTANT_ICON = Bot;
 

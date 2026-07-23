@@ -162,7 +162,7 @@ export default function NewWorkRequestPage() {
 			</Link>
 
 			<header className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]">
-				<p className="text-sm font-medium text-[var(--color-brand)]">Paso 1 / Solicitud</p>
+				<p className="text-sm font-medium text-slate">Paso 1 / Solicitud</p>
 				<h1 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
 					Nueva solicitud de trabajo
 				</h1>

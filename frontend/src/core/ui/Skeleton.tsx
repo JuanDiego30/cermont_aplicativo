@@ -7,7 +7,9 @@ interface SkeletonProps {
 		| "text"
 		| "avatar"
 		| "card"
-		| "circle";
+		| "circle"
+		| "pageHeader"
+		| "pageTitle";
 	className?: string;
 	rows?: number;
 	height?: number | string;
@@ -110,6 +112,12 @@ export function Skeleton({
 	}
 	if (variant === "card") {
 		return <div className={`${base} h-40 w-full ${className}`} />;
+	}
+	if (variant === "pageHeader") {
+		return <div className={`h-16 w-full rounded-xl bg-surface-soft animate-pulse ${className}`} />;
+	}
+	if (variant === "pageTitle") {
+		return <div className={`h-8 w-48 rounded-md bg-surface-soft animate-pulse ${className}`} />;
 	}
 
 	return rows > 1 ? (
