@@ -21,9 +21,9 @@ vi.mock("../../src/modules/auth/auth.service", () => ({
 	refreshAccessToken: mockRefreshAccessToken,
 	logout: mockLogout,
 	getRefreshTokenMaxAge: () => mockGetRefreshTokenMaxAge(),
-	generateResetToken: (...args: unknown[]) => mockGenerateResetToken(...args),
-	sendResetPasswordEmail: (...args: unknown[]) => mockSendResetPasswordEmail(...args),
-	resetPassword: (...args: unknown[]) => mockResetPassword(...args),
+	generateResetToken: (...args: string[]) => mockGenerateResetToken(...args),
+	sendResetPasswordEmail: (...args: string[]) => mockSendResetPasswordEmail(...args),
+	resetPassword: (...args: string[]) => mockResetPassword(...args),
 }));
 
 vi.mock("../../src/modules/user/user.service", () => ({
@@ -229,14 +229,14 @@ describe("AuthController", () => {
 			mockGenerateResetToken.mockResolvedValue("");
 
 			const req = mockReq({
-				body: { email: "unknown@test.com" },
+				body: { email: "unregistered@test.com" },
 			});
 			const res = mockRes();
 			const { forgotPassword } = controller;
 
 			await forgotPassword(req, res);
 
-			expect(mockGenerateResetToken).toHaveBeenCalledWith("unknown@test.com");
+			expect(mockGenerateResetToken).toHaveBeenCalledWith("unregistered@test.com");
 			expect(mockSendResetPasswordEmail).not.toHaveBeenCalled();
 			expect(res.status).toHaveBeenCalledWith(200);
 		});
@@ -267,7 +267,7 @@ describe("AuthController", () => {
 
 	describe("resetPassword", () => {
 		it("should reset password with valid token", async () => {
-			mockResetPassword.mockResolvedValue(undefined);
+			mockResetPassword.mockImplementation(async () => {});
 
 			const req = mockReq({
 				body: { token: "valid-token", password: "NewSecurePass123!" },
@@ -291,7 +291,9 @@ describe("AuthController", () => {
 
 		it("should propagate BadRequestError for invalid token", async () => {
 			const { BadRequestError } = await import("../../src/common/errors/AppError");
-			mockResetPassword.mockRejectedValue(new BadRequestError("PASSWORD_RESET_TOKEN_INVALID", "Invalid token"));
+			mockResetPassword.mockRejectedValue(
+				new BadRequestError("PASSWORD_RESET_TOKEN_INVALID", "Invalid token"),
+			);
 
 			const req = mockReq({
 				body: { token: "bad-token", password: "NewSecurePass123!" },

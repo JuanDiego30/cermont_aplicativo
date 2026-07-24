@@ -574,7 +574,7 @@ export function startRefreshTokenCleanupWorker(): () => void {
  * 2. Generate CSPRNG token (32 bytes → 64 hex chars)
  * 3. Hash the token with SHA-256
  * 4. Store hash + expiry in User document
- * 5. Invalidate any previous reset token (overwrite)
+ * 5. Invalidate each prior reset token (overwrite)
  *
  * @returns The raw token (NOT persisted) that must be included in the reset URL.
  *          Returns empty string if user not found (anti-enumeration).
@@ -594,7 +594,7 @@ export async function generateResetToken(email: string): Promise<string> {
 	const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_TTL_MS);
 
 	// Persist hash only — never store raw token
-	// This also invalidates any previous reset token by overwriting
+	// This also invalidates each prior reset token by overwriting
 	await User.updateOne(
 		{ _id: user._id },
 		{
@@ -721,7 +721,7 @@ export async function resetPassword(token: string, newPassword: string): Promise
 	const tokenHash = hashToken(token);
 
 	// Find user whose stored hash matches AND token hasn't expired
-	// This is an atomic check — if the hash doesn't match any user, fail
+	// This is an atomic check — if the hash matches no user, fail
 	const user = await User.findOne({
 		resetPasswordToken: tokenHash,
 		resetPasswordExpires: { $gt: new Date() },
@@ -777,8 +777,8 @@ export async function resetPassword(token: string, newPassword: string): Promise
 	user.password = newPassword;
 	user.tokenVersion = (user.tokenVersion ?? 0) + 1;
 	// Clear reset token fields (prevent reuse)
-	user.resetPasswordToken = undefined;
-	user.resetPasswordExpires = undefined;
+	user.resetPasswordToken = void 0;
+	user.resetPasswordExpires = void 0;
 	await user.save();
 
 	// Revoke all active refresh tokens for this user
