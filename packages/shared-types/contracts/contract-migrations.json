@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c",
+	"currentSnapshotHash": "sha256:bc5df870825e6490074c5169bd9b8b775e4bc3f2b0fbe2ac253c3f4c98f5592f",
 	"migrations": [
 		{
 			"id": "050-business-document-erp-connector-schemas",
@@ -420,6 +420,13 @@
 			"type": "non-breaking",
 			"description": "Add RecordCalibrationSchema, ToolUsageSchema, and CalibrationsDueQuerySchema for tool calibration and usage tracking endpoints.",
 			"toHash": "sha256:335b8b7cf54572dda0c946b112af778de690038e28eba75ecb3e7c5e3cd9654c"
+		},
+		{
+			"id": "059-password-reset-audit-actions",
+			"date": "2026-07-24",
+			"type": "non-breaking",
+			"description": "Add password reset lifecycle audit actions: PASSWORD_RESET_REQUESTED, PASSWORD_RESET_EMAIL_SENT, PASSWORD_RESET_EMAIL_FAILED, PASSWORD_RESET_TOKEN_EXPIRED, PASSWORD_RESET_SUCCESS.",
+			"toHash": "sha256:bc5df870825e6490074c5169bd9b8b775e4bc3f2b0fbe2ac253c3f4c98f5592f"
 		}
 	]
 }

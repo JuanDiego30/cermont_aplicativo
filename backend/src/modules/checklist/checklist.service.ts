@@ -22,24 +22,36 @@ const STANDARD_CHECKLIST_ITEMS: Array<{
 	category: ChecklistItemCategory;
 	description: string;
 	required: boolean;
+	isBlocking: boolean;
+	requiresPhoto: boolean;
+	requiresSignature: boolean;
 }> = [
 	{
 		id: "equipment-1",
 		category: "equipment",
 		description: "Equipo principal revisado y operativo",
 		required: true,
+		isBlocking: true,
+		requiresPhoto: false,
+		requiresSignature: false,
 	},
 	{
 		id: "ppe-1",
 		category: "ppe",
 		description: "Equipo de proteccion personal completo",
 		required: true,
+		isBlocking: true,
+		requiresPhoto: false,
+		requiresSignature: false,
 	},
 	{
 		id: "procedure-1",
 		category: "procedure",
 		description: "Permiso de trabajo y AST verificados",
 		required: true,
+		isBlocking: true,
+		requiresPhoto: false,
+		requiresSignature: true,
 	},
 ];
 
@@ -86,7 +98,10 @@ function formatChecklistItem(item: IChecklistDocument["items"][number]): Checkli
 		category: item.category,
 		description: item.description,
 		required: item.required,
+		isBlocking: item.isBlocking,
 		completed: item.completed,
+		requiresPhoto: item.requiresPhoto,
+		requiresSignature: item.requiresSignature,
 		completedBy: item.completedBy?.toString(),
 		completedAt: item.completedAt?.toISOString(),
 		observation: item.observation,
@@ -122,7 +137,10 @@ function buildChecklistItems(order: ChecklistTemplateOrder): ChecklistResponse["
 			category: "tool" as const,
 			description: `${material.name} (${material.quantity} ${material.unit})`,
 			required: true,
+			isBlocking: false,
 			completed: false,
+			requiresPhoto: false,
+			requiresSignature: false,
 		}),
 	);
 
@@ -141,7 +159,10 @@ function buildMaintenanceKitItems(kit: MaintenanceKitTemplate): ChecklistRespons
 		category: "tool" as const,
 		description: `${tool.name} (${tool.quantity})${tool.specifications ? ` - ${tool.specifications}` : ""}`,
 		required: true,
+		isBlocking: false,
 		completed: false,
+		requiresPhoto: false,
+		requiresSignature: false,
 	}));
 
 	const equipmentItems = kit.equipment.map((item, index) => ({
@@ -149,7 +170,10 @@ function buildMaintenanceKitItems(kit: MaintenanceKitTemplate): ChecklistRespons
 		category: "equipment" as const,
 		description: `${item.name} (${item.quantity})${item.certificate_required ? " - certificación requerida" : ""}`,
 		required: true,
+		isBlocking: false,
 		completed: false,
+		requiresPhoto: false,
+		requiresSignature: false,
 	}));
 
 	return [
