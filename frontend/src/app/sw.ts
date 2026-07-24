@@ -64,7 +64,7 @@ const cacheableWithoutCookies = {
 			return;
 		}
 
-		return response.status === 200 ? response : undefined;
+		return response.status === 200 ? response : void 0;
 	},
 };
 
